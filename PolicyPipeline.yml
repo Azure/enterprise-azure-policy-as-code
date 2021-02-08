@@ -1,0 +1,109 @@
+variables:
+  rootFolder: '"$(System.DefaultWorkingDirectory)/"'
+  # This pipeline is used to deploy policies into Azure
+  # Management group name will be the plain text name unless it is the tenant root group where you will use the ID
+  managementGroupName: ""
+  # Use the plain text name of each service connection as a reference
+  devServiceConnection: "SCaC-DEV-001_ServiceConnection"
+  nonprodServiceConnection: "SCaC-QA-001_ServiceConnection"
+  prodServiceConnection: "SCaC-PROD-001_ServiceConnection"
+  # references folder where modified policy files will be
+  folderName: "Policies"
+
+# specific path build
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - Policies/*
+
+stages:
+  - stage: DEV
+    displayName: "DEV"
+    jobs:
+      - deployment: DEV_Deployment
+        environment: SCaC-DEV
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: PowerShell@2
+                  displayName: "Check file diff"
+                  inputs:
+                    filePath: "Libraries/Tools/Misc/checkDiff.ps1"
+                    arguments: "-folderName $(folderName)
+                      -defRootFolder $(rootFolder)"
+
+                - task: AzurePowerShell@4
+                  displayName: "Create Policy Definition"
+                  inputs:
+                    azureSubscription: $(devServiceConnection)
+                    ScriptPath: "Libraries/Tools/Az/Create-PolicyDef.ps1"
+                    ScriptArguments: "-rootFolder $(rootFolder)
+                      -managementGroupName $null
+                      -modifiedPolicies $(Policies)"
+                    azurePowerShellVersion: LatestVersion
+                  condition: and(succeeded(), ne(variables['Policies'], ''))
+
+  - stage: QA
+    displayName: "QA"
+    condition: contains(variables['Build.SourceBranch'], 'refs/heads/main')
+    jobs:
+      - deployment: QA_Deployment
+        environment: SCaC-QA
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: PowerShell@2
+                  displayName: "Check file diff"
+                  condition: ne(variables['Build.Reason'], 'Manual')
+                  inputs:
+                    filePath: "Libraries/Tools/Misc/checkDiff.ps1"
+                    arguments: "-folderName $(folderName)
+                      -defRootFolder $(rootFolder)"
+
+                - task: AzurePowerShell@4
+                  displayName: "Create Policy Definition"
+                  inputs:
+                    azureSubscription: $(nonprodServiceConnection)
+                    ScriptPath: "Libraries/Tools/Az/Create-PolicyDef.ps1"
+                    ScriptArguments: "-rootFolder $(rootFolder)
+                      -managementGroupName $null
+                      -modifiedPolicies $(Policies)"
+                    azurePowerShellVersion: LatestVersion
+                  condition: and(succeeded(), ne(variables['Policies'], ''))
+
+  - stage: PROD
+    displayName: "PROD"
+    condition: contains(variables['Build.SourceBranch'], 'refs/heads/main')
+    jobs:
+      - deployment: PROD_Deployment
+        environment: SCaC-PROD
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: PowerShell@2
+                  displayName: "Check file diff"
+                  condition: ne(variables['Build.Reason'], 'Manual')
+                  inputs:
+                    filePath: "Libraries/Tools/Misc/checkDiff.ps1"
+                    arguments: "-folderName $(folderName)
+                      -defRootFolder $(rootFolder)"
+
+                - task: AzurePowerShell@4
+                  displayName: "Create Policy Definition"
+                  inputs:
+                    azureSubscription: $(prodServiceConnection)
+                    ScriptPath: "Libraries/Tools/Az/Create-PolicyDef.ps1"
+                    ScriptArguments: "-rootFolder $(rootFolder)
+                      -managementGroupName $null
+                      -modifiedPolicies $(Policies)"
+                    azurePowerShellVersion: LatestVersion
+                  condition: and(succeeded(), ne(variables['Policies'], ''))
