@@ -4,7 +4,7 @@
 
 This document defines all necessary prerequisites for the implementation of Azure Security Modernization (ASM) Policy-As-Code. Please complete the following checklist prior to delivery.  
 
-###**GitHub Repo Access**
+### **GitHub Repo Access**
 * **Start out by accessing the ASM manage-azure-policy-pipeline repo. This repo contains all of the files you will need to get started. ** 
   *https://github.com/Azure/manage-azure-policy-pipeline  
 
