@@ -4,7 +4,9 @@ The SCaC repo is used to deploy and maintain Azure Policy, Initiatives, and Assi
 
 # Getting Started 
 
-Please reference the Azure Security Modernization documentation for any inquiries about the set up or maintenance of this repo 
+Please reference the Azure Security Modernization documentation for any inquiries about the set up or maintenance of this repo
+
+[Security Controls as Code Documentation]()
 
 # Build and Test 
 
