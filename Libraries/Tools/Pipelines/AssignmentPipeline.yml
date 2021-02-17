@@ -16,70 +16,10 @@ variables:
   definitionLocation: ""
   folderName: "Assignments"
   # Reference to service connections of the different environments
-  devServiceConnection: "Your service connection"
-  nonprodServiceConnection: "Your service connection"
-  prodServiceConnection: "Your service connection"
+  prodServiceConnection: ""
   Assignments: ""
 
 stages:
-  - stage: DEV
-    displayName: "DEV"
-    jobs:
-      - deployment: DEV_Deployment
-        environment: SCaC-DEV
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - checkout: self
-                - task: PowerShell@2
-                  displayName: "Check file diff"
-                  inputs:
-                    filePath: "Libraries/Tools/Misc/checkDiff.ps1"
-                    arguments: "-folderName $(folderName)
-                         -defRootFolder $(rootFolder)"
-
-                - task: AzurePowerShell@4
-                  displayName: "Create Assignments"
-                  condition: and(succeeded(), ne(variables['Assignments'], ''))
-                  inputs:
-                    azureSubscription: $(devServiceConnection)
-                    ScriptPath: 'Libraries/Tools/Az/Create-PolicyAssignment.ps1'
-                    ScriptArguments: '-rootFolder $(rootFolder)
-                          -assignmentNames $(Assignments)
-                          -definitionLocation $(definitionLocation)'
-                    azurePowerShellVersion: LatestVersion                  
-
-  - stage: QA
-    displayName: "QA"
-    condition: contains(variables['Build.SourceBranch'], 'refs/heads/main')
-    jobs:
-      - deployment: QA_Deployment
-        environment: SCaC-QA
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - checkout: self
-                - task: PowerShell@2
-                  displayName: "Check file diff"
-                  condition: ne(variables['Build.Reason'], 'Manual')
-                  inputs:
-                    filePath: "Libraries/Tools/Misc/checkDiff.ps1"
-                    arguments: "-folderName $(folderName)
-                          -defRootFolder $(rootFolder)"
-
-                - task: AzurePowerShell@4
-                  displayName: "Create Assignments"
-                  inputs:
-                    azureSubscription: $(nonprodServiceConnection)
-                    ScriptPath: 'Libraries/Tools/Az/Create-PolicyAssignment.ps1'
-                    ScriptArguments: '-rootFolder $(rootFolder)
-                          -assignmentNames $(Assignments)
-                          -definitionLocation $(definitionLocation)'
-                    azurePowerShellVersion: LatestVersion
-                  condition: and(succeeded(), ne(variables['Assignments'], ''))
-
   - stage: PROD
     displayName: "PROD"
     condition: contains(variables['Build.SourceBranch'], 'refs/heads/main')
@@ -109,5 +49,3 @@ stages:
                           -definitionLocation $(definitionLocation)'
                     azurePowerShellVersion: LatestVersion
                   condition: and(succeeded(), ne(variables['Assignments'], ''))
-
-
