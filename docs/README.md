@@ -2,6 +2,8 @@
 
 The SCaC repo is used to deploy and maintain Azure Policy, Initiatives, and Assignments in a CI/CD manner. 
 
+These pipelines and powershell scripts are designed to work with Azure DevOps
+
 # Getting Started 
 
 Please reference the Azure Security Modernization documentation for any inquiries about the set up or maintenance of this repo
