@@ -9,6 +9,8 @@ These pipelines and powershell scripts are designed to work with Azure DevOps
 Please reference the Azure Security Modernization documentation for any inquiries about the set up or maintenance of this repo
 
 [Security Controls as Code Documentation]()
+[Getting Started with Azure DevOps](https://docs.microsoft.com/en-us/azure/devops/?view=azure-devops)
+[Azure Policy Documentation](https://docs.microsoft.com/en-us/azure/governance/policy/)
 
 # Build and Test 
 
