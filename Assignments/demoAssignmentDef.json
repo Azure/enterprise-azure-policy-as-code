@@ -1,0 +1,20 @@
+{
+    "name": "test Assignment (Subscription based).",
+    "scope": {
+        "type": "subscription",
+        "Name": "Your Subscription Here" 
+    },
+    "globalParameters": {
+        "effect": {
+            "value": "AuditIfNotExists"
+        }
+    },
+    "initiatives": [
+        {
+            "initiativeName": "",
+            "parameters": {
+
+            }
+        }
+    ]
+}
