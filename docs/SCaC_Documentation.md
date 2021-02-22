@@ -121,5 +121,14 @@ This document defines all necessary prerequisites for the implementation of Azur
     * Create a branch that aligns with your organization’s branching policies 
 
     * Add or make changes to your assignments 
-
     * Upon approval and completion of the pull request, your initiative updates will be deployed to your environment 
+
+# Best Practices to follow while creating or updating policies:	
+
+* Export existing policies from Azure portal using the export button. This autocreates a Github workflow yml file.
+*	Use workflow yml file to push changes made to the exported policy objects in the GitHub repository back to Azure Policy.
+* Trigger compliance scans using Github action
+   *	Using the Azure Policy Compliance Scan action you can trigger an on-demand compliance evaluation scan from your GitHub workflow on one or multiple resources, resource groups, or subscriptions, and alter the workflow path based on the compliance state of those resources. You can also configure the workflow to run at a scheduled time to get the latest compliance status at a convenient time.
+https://docs.microsoft.com/en-us/azure/governance/policy/concepts/policy-as-code
+
+   
