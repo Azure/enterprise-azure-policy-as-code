@@ -25,7 +25,7 @@ Please reference the documentaion for information about the set up or maintenanc
 Replicate the file structure seen in this GitHub repo in your Azure DevOps environment. Add files or make changes as necessary in the respective policies, initiatives, and assignments folders. Use branching and pull requests to maintain proper DevOps practices and version controlling. 
 
 
-# High Level Visualization of SCaC Workflow
+# High Level Visualization of the Deployment Workflow
 
 ![](https://github.com/Azure/manage-azure-policy-pipeline/blob/nicko/docs/images/Azure%20Security%20Controls%20Process.png)
 
