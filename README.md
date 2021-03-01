@@ -6,12 +6,6 @@ Use Azure policy to help enforce your organizational standards and assess compli
 
 These pipelines and powershell scripts are designed to work with Azure DevOps. 
 
-# Azure Security Modernization
-
-This repo has been developed in partnership with the Azure Security Modernization (ASM) offering within Microsoft Consulting Services (MCS)
-
-ASM improves your new or existing security posture in Azure by securing platforms, services, and workloads at any scale. ASM revolves around a continuous security improvement model (Measure, Plan, Develop & Deliver) giving visibility into security vulnerabilities.
-
 # Getting Started 
 
 Please reference the documentaion for information about the set up or maintenance of this repo
@@ -28,6 +22,12 @@ Replicate the file structure seen in this GitHub repo in your Azure DevOps envir
 # High Level Visualization of the Deployment Workflow
 
 ![](https://github.com/Azure/manage-azure-policy-pipeline/blob/nicko/docs/images/Azure%20Security%20Controls%20Process.png)
+
+# Azure Security Modernization
+
+This repo has been developed in partnership with the Azure Security Modernization (ASM) offering within Microsoft Consulting Services (MCS)
+
+ASM improves your new or existing security posture in Azure by securing platforms, services, and workloads at any scale. ASM revolves around a continuous security improvement model (Measure, Plan, Develop & Deliver) giving visibility into security vulnerabilities.
 
 # Contributing
 
