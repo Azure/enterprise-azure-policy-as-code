@@ -123,6 +123,7 @@ This document defines all necessary prerequisites for the implementation of Azur
 
     * Add or make changes to your assignments 
     * Upon approval and completion of the pull request, your initiative updates will be deployed to your environment 
+    * https://docs.microsoft.com/en-us/azure/governance/policy/concepts/assignment-structure
 
 # Best Practices to follow while creating or updating policies:	
 
