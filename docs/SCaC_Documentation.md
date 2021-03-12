@@ -27,9 +27,9 @@ This document defines all necessary prerequisites for the implementation of Azur
   * Navigate to Project Settings &rarr; Repositories &rarr; Branch Policies or Repos &rarr; branches &rarr; branch options &rarr; branch policies  
     * https://docs.microsoft.com/en-us/azure/devops/repos/git/branch-policies?view=azure-devops#configure-branch-policies 
     * Require a minimum number of reviewers: 
-      * You can select to require a minimum number of reviewers for any changes, to prohibit recent pushers from approving their own changes (this is highly suggested), or when new changes are pushed.  
-  * Check for linked work items: 
-    * You can check for linked work items to encourage traceability by blocking or warning if there are any linked work items. Depending on which is chosen, this policy will warn but allow pull requests or block pull requests. 
+  * You can select to require a minimum number of reviewers for any changes, to prohibit recent pushers from approving their own changes (this is highly suggested), or when new changes are pushed.  
+   * Check for linked work items: 
+     * You can check for linked work items to encourage traceability by blocking or warning if there are any linked work items. Depending on which is chosen, this policy will warn but allow pull requests or block pull requests. 
   * Check for comment resolution: 
     * You can check for comment resolution. This will either block or warn pull requests from being completed if any comments are active. 
   * Limit merge types: limit the available types of merge when pull requests are completed. 
