@@ -27,9 +27,9 @@ This document defines all necessary prerequisites for the implementation of Azur
   * Navigate to Project Settings &rarr; Repositories &rarr; Branch Policies or Repos &rarr; branches &rarr; branch options &rarr; branch policies  
     * https://docs.microsoft.com/en-us/azure/devops/repos/git/branch-policies?view=azure-devops#configure-branch-policies 
     * Require a minimum number of reviewers: 
-      * You can select to require a minimum number of reviewers for any changes, to prohibit recent pushers from approving their own changes (this is highly suggested), or when new changes are pushed.  
-  * Check for linked work items: 
-    * You can check for linked work items to encourage traceability by blocking or warning if there are any linked work items. Depending on which is chosen, this policy will warn but allow pull requests or block pull requests. 
+  * You can select to require a minimum number of reviewers for any changes, to prohibit recent pushers from approving their own changes (this is highly suggested), or when new changes are pushed.  
+   * Check for linked work items: 
+     * You can check for linked work items to encourage traceability by blocking or warning if there are any linked work items. Depending on which is chosen, this policy will warn but allow pull requests or block pull requests. 
   * Check for comment resolution: 
     * You can check for comment resolution. This will either block or warn pull requests from being completed if any comments are active. 
   * Limit merge types: limit the available types of merge when pull requests are completed. 
@@ -125,12 +125,6 @@ This document defines all necessary prerequisites for the implementation of Azur
     * Upon approval and completion of the pull request, your initiative updates will be deployed to your environment 
     * https://docs.microsoft.com/en-us/azure/governance/policy/concepts/assignment-structure
 
-# Best Practices to follow while creating or updating policies:	
 
-* Export existing policies from Azure portal using the export button. This autocreates a Github workflow yml file.
-*	Use workflow yml file to push changes made to the exported policy objects in the GitHub repository back to Azure Policy.
-* Trigger compliance scans using Github action
-   *	Using the Azure Policy Compliance Scan action you can trigger an on-demand compliance evaluation scan from your GitHub workflow on one or multiple resources, resource groups, or subscriptions, and alter the workflow path based on the compliance state of those resources. You can also configure the workflow to run at a scheduled time to get the latest compliance status at a convenient time.
-https://docs.microsoft.com/en-us/azure/governance/policy/concepts/policy-as-code
 
    

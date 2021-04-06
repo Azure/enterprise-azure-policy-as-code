@@ -9,6 +9,7 @@ param (
 
 
 function TrimLength {
+# default to tentant root group
     param (
         [parameter(Mandatory=$True,ValueFromPipeline=$True)] [string] $Str
       , [parameter(Mandatory=$True,Position=1)] [int] $Length
