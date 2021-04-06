@@ -11,8 +11,6 @@ param (
 # if subscription, lookup sub GUID
 # if managementgroup, lookup GUID for Tenant Root Group or name for other
 
-# if scope is NFCU-CLOUD-DEVOPS look for policy or initiatives in that sub
-# if scope is NFCU-INFOSEC-SDBX look for policy or initiatives in that sub
 # default to tentant root group
 
 function Trim-Length {
