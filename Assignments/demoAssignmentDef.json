@@ -13,7 +13,12 @@
         {
             "initiativeName": "",
             "parameters": {
-
+                "Policy Parameter 1": {
+                    "value": "Desired Effect"
+                    },
+                "Policy Parameter 2:": {
+                    "value": "Desired Effect"
+                    }
             }
         }
     ]

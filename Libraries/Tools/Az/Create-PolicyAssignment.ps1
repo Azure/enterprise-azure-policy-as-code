@@ -7,13 +7,9 @@ param (
 )
 #endregion
 
-# evaluate $definitionLocation
-# if subscription, lookup sub GUID
-# if managementgroup, lookup GUID for Tenant Root Group or name for other
 
+function TrimLength {
 # default to tentant root group
-
-function Trim-Length {
     param (
         [parameter(Mandatory=$True,ValueFromPipeline=$True)] [string] $Str
       , [parameter(Mandatory=$True,Position=1)] [int] $Length
@@ -85,30 +81,64 @@ foreach ($assignmentName in $assignmentNames) {
 
             $initParam = $initiativeLookup.Properties.Parameters
 
-            foreach ($param in $initParam) {
-                Write-Host "##[debug]       Processing Param"
-            }
-            
-            if ($initiativeLookup.Properties.Parameters) {
-                Write-Host "##{debug}       Processing Parameters"
-            }
-            else {
-                Write-Host "##{debug}       Initiative has no Parameters"
+            foreach ($param in $initParam.psobject.Properties) {
+                $paramName = $param.Name
+
+                Write-Host "##[debug]       Processing Param: $paramName"
+
+                if ($initiative.parameters.$paramName) {
+                    Write-Host "##[Debug]       Setting param to init policy value"
+
+                    $initiativeParameter.$paramName = @{}
+
+                   $initiativeParameter.$paramName = $initiative.parameters.$paramName.value.ToString()
+                }
+                elseif ($assignmentDef.globalParameters.$paramName) {
+                    Write-Host "##[Debug]       Setting param to init global value"
+
+                    $initiativeParameter.$paramName = @{}
+
+                    $initiativeParameter.$paramName = $assignmentDef.globalParameters.$paramName.value
+                }
             }
 
+            #region processing not scope
+
+            $notScope = $initiative.notScope + $assignmentDef.globalNotScope
+
+            #endregion
+        
             $initiativeName
 
-            $initiativeLookup
+            $initiativeLookup | ConvertTo-Json -Depth 100
 
             $scope
 
-            $initiativeParameter
+            $notScope | ConvertTo-Json -Depth 100
 
-            New-AzPolicyAssignment -Name ($initiativeName | Trim-Length 24) `
-                                -DisplayName $initiativeDisplayName `
-                                -PolicySetDefinition $initiativeLookup `
-                                -Scope $scope `
-                                -PolicyParameterObject $initiativeParameter
+            $initiativeParameter | ConvertTo-Json -Depth 100
+
+            $initiativeFormatedName = $initiativeName | TrimLength 24
+
+            $createAssignment = @{
+                "Name" = $initiativeFormatedName
+                "DisplayName" =  $initiativeLookup.Properties.DisplayName
+                "Description" = $initiativeLookup.Properties.Description
+                "PolicySetDefinition" = $initiativeLookup
+                "Scope" =  $scope
+                "PolicyParameterObject" = $initiativeParameter
+                "Location" = 'eastus'
+            }
+
+            if ($notScope) {
+                $notScope = @{"NotScope" =  $notScope}
+            
+                $createAssignment += $notScope
+            }            
+
+            New-AzPolicyAssignment @createAssignment `
+                                -AssignIdentity
+
         }
         else {
             Write-Host "##[error]       Initiative not found"
