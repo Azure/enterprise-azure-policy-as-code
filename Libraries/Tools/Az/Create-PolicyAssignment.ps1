@@ -1,148 +1,171 @@
-# region parameters
 param (
-    [Parameter(Mandatory=$true)][string]$rootFolder,
-    [Parameter(Mandatory=$true)][string[]]$assignmentNames,
+    [Parameter(Mandatory = $true)][string]$rootFolder,
+    [Parameter(Mandatory = $true)][string[]]$assignmentNames,
     # location of policies and initiatives
-    [Parameter(Mandatory=$true)][string]$definitionLocation
+    [Parameter(Mandatory = $true)][string]$definitionLocation
 )
-#endregion
-
 
 function TrimLength {
-# default to tentant root group
     param (
-        [parameter(Mandatory=$True,ValueFromPipeline=$True)] [string] $Str
-      , [parameter(Mandatory=$True,Position=1)] [int] $Length
+        [parameter(Mandatory = $True, ValueFromPipeline = $True)] [string] $Str
+        , [parameter(Mandatory = $True, Position = 1)] [int] $Length
     )
-        
-        $Str[($Str.Length-24)..($Str.Length-1)] -join ""
-
+    $Str[0..($Length - 1)] -join ""   
 }
 
-foreach ($assignmentName in $assignmentNames) {
+if ($assignmentNames -eq $null) {
+    Write-Host "##vso[task.LogIssue type=warning;]No Assignment diffs found or only deleted files found, skiping..."
+}
+else {
+    foreach ($assignmentFileName in $assignmentNames) {
 
-    $assignmentPath = $RootFolder + "\Assignments\" + $assignmentName + ".json"
+        $assignmentPath = $RootFolder + $assignmentFileName
 
-    Write-Host "##[section] Creating $assignmentName Policy/Initiative"
-    Write-Host "##[debug]     Assignment Def Path: $assignmentPath"
+        Write-Host "##[section] Creating Assignmnet `"$assignmentFileName`""
 
-    #region processing scope
+        $assignmentDef = Get-Content -Path $assignmentPath | ConvertFrom-Json
 
-    $assignmentDef = Get-Content -Path $assignmentPath | ConvertFrom-Json
-
-    # get managementgroupID or subscriptionID (formated correctly)
-    switch ($assignmentDef.scope.type){
-        'Management Group' {$scope = (Get-AzManagementGroup -GroupName $assignmentDef.scope.name).Id; break}
-        'Subscription' {$scope = "/subscriptions/$((Get-AzSubscription -SubscriptionName $assignmentDef.scope.name).Id)"; break}
-    }
-
-    Write-Host "##[debug]     Assignment Scope: $scope"
-
-    #endregion
-
-    #region all policies and initiatives
-
-    $azPD = Get-AzPolicyDefinition -ManagementGroupName $definitionLocation
-    $azID = Get-AzPolicySetDefinition -ManagementGroupName $definitionLocation
-
-    #endregion
-
-    #region processing policies
-    foreach ($policy in $assignmentDef.policies) {
-
-        $policyLookup = $azPD | Where-Object {$_.Name -eq $policy.Name}
-
-        $policyName = $policyLookup.Name
-
-        if ($policyName) {
-            Write-Host "##[section] Processing $policyName"
+        # Processing  Assignmnet level properties
+        $whatToAssign = @{}
+        $lookup = $null
+        $list = @()
+        $name = " "
+        $isInitiative = $false
+        if ($assignmentDef.initiativeName) {
+            $name = $assignmentDef.initiativeName
+            $isInitiative = $true
+            Write-Host "##[section] Processing Initiative $($name)"
+            if ($definitionLocation) {
+                $list = Get-AzPolicySetDefinition -ManagementGroupName $definitionLocation
+            }
+            else {
+                # Subscription
+                $list = Get-AzPolicySetDefinition
+            }
+        }
+        elseif ($assignmentDef.policyName) {
+            $name = $assignmentDef.policyName
+            Write-Host "##[section] Processing Policy $($name)"        
+            if ($definitionLocation) {
+                $list = Get-AzPolicyDefinition -ManagementGroupName $definitionLocation
+            }
+            else {
+                # Subscription
+                $list = Get-AzPolicyDefinition
+            }
         }
         else {
-            Write-Host "Policy not found"
+            Write-Host  ($assignmentDef | ConvertTo-Json -depth 100)
+            Throw "Neither policyName nor initiativeName specified - must specify one (only)"
         }
-    }
-    #endregion
 
-    #region processing initiatives
-    foreach ($initiative in $assignmentDef.initiatives) {
-
-        $initiativeParameter = @{}
-
-        "##[section] Processing $($initiative.initiativeName)"
-
-        $initiativeLookup = $azID | Where-Object {$_.Properties.DisplayName -eq $($initiative.initiativeName)}
-
-        $initiativeName = $initiativeLookup.Name
-
-        $initiativeDisplayName = $initiativeLookup.Properties.DisplayName
-
-        if ($initiativeName) {
-            Write-Host "##[debug]       Found $initiativeName"
-
-            $initParam = $initiativeLookup.Properties.Parameters
-
-            foreach ($param in $initParam.psobject.Properties) {
-                $paramName = $param.Name
-
-                Write-Host "##[debug]       Processing Param: $paramName"
-
-                if ($initiative.parameters.$paramName) {
-                    Write-Host "##[Debug]       Setting param to init policy value"
-
-                    $initiativeParameter.$paramName = @{}
-
-                   $initiativeParameter.$paramName = $initiative.parameters.$paramName.value.ToString()
-                }
-                elseif ($assignmentDef.globalParameters.$paramName) {
-                    Write-Host "##[Debug]       Setting param to init global value"
-
-                    $initiativeParameter.$paramName = @{}
-
-                    $initiativeParameter.$paramName = $assignmentDef.globalParameters.$paramName.value
-                }
-            }
-
-            #region processing not scope
-
-            $notScope = $initiative.notScope + $assignmentDef.globalNotScope
-
-            #endregion
+        # Does the Initiative or Policy
+        $lookup = $list | Where-Object { ($_.Properties.DisplayName -eq $name) -or ($_.Name -eq $name) }
+        if ($null -eq $lookup) {
+            Write-Host "##[debug]       Object `"$name`" - not found"            
+            Throw "Assignment must specify a valid ""initiativeName"" or a ""policyName"" object"
+        }
+        if ($lookup -is [array]) {
+            # pick first item if multiple found (shoudn't happen)
+            $lookup = $lookup[0]
+        }
+        #Write-Host  ($lookup | ConvertTo-Json -depth 100)
+        If ($isInitiative) {
+            $whatToAssign["PolicySetDefinition"] = $lookup
+        }
+        else {
+            $whatToAssign["PolicyDefinition"] = $lookup
+        }
         
-            $initiativeName
+        # Initialize parameter collection
+        $definedParameters = $lookup.Properties.Parameters
 
-            $initiativeLookup | ConvertTo-Json -Depth 100
-
-            $scope
-
-            $notScope | ConvertTo-Json -Depth 100
-
-            $initiativeParameter | ConvertTo-Json -Depth 100
-
-            $initiativeFormatedName = $initiativeName | TrimLength 24
-
-            $createAssignment = @{
-                "Name" = $initiativeFormatedName
-                "DisplayName" =  $initiativeLookup.Properties.DisplayName
-                "Description" = $initiativeLookup.Properties.Description
-                "PolicySetDefinition" = $initiativeLookup
-                "Scope" =  $scope
-                "PolicyParameterObject" = $initiativeParameter
-                "Location" = 'eastus'
+        # Set Assignment level parameter values
+        $parametersAtLevel = $assignmentDef.Parameters
+        $parameterObject = @{}
+        if ($parametersAtLevel -ne $null -and $definedParameters -ne $null) {
+            foreach ($definedParameter in $definedParameters.psobject.Properties) {
+                $parameterName = $definedParameter.Name
+                foreach ($parameterAtLevel in $parametersAtLevel.psobject.properties) {
+                    if ($parameterAtLevel.Name -eq $parameterName) {
+                        Write-Host "##[Debug]       Setting param $parametername to Assignmnet level value $($parameterAtLevel.Value)"
+                        $parameterObject[$parameterName] = $parameterAtLevel.Value
+                        break
+                    }
+                }
             }
-
-            if ($notScope) {
-                $notScope = @{"NotScope" =  $notScope}
-            
-                $createAssignment += $notScope
-            }            
-
-            New-AzPolicyAssignment @createAssignment `
-                                -AssignIdentity
-
         }
-        else {
-            Write-Host "##[error]       Initiative not found"
+        $assignmentLevelParameterObject = $parameterObject
+
+        # Process scopeGroup array
+        foreach ($scopeGroup in $assignmentDef.ScopeGroupList) {
+            $scopeGroupName = $scopeGroup.Name
+            $assignmentName = $scopeGroup.AssignmentName | TrimLength 24
+            $assignmentDisplayName = $scopeGroup.AssignmentName | TrimLength 64
+
+            # Set scopeGroup level parameter values
+            $parametersAtLevel = $scopeGroup.Parameters
+            $parameterObject = $assignmentLevelParameterObject
+            if ($parametersAtLevel -ne $null -and $definedParameters -ne $null) {
+                foreach ($definedParameter in $definedParameters.psobject.Properties) {
+                    $parameterName = $definedParameter.Name
+                    foreach ($parameterAtLevel in $parametersAtLevel.psobject.properties) {
+                        if ($parameterAtLevel.Name -eq $parameterName) {
+                            Write-Host "##[Debug]       Setting param $parametername to ScopeGroup level value $($parameterAtLevel.Value)"
+                            $parameterObject[$parameterName] = $parameterAtLevel.Value
+                            break
+                        }
+                    }
+                }
+            }
+            $scopeGroupLevelParameterObject = $parameterObject
+            
+            # Process scopeList
+            foreach ($scopeDef in $scopeGroup.ScopeList) {
+
+                # get managementgroupID or subscriptionID (formated correctly)
+                if ($null -ne $scopeDef.ManagementGroupName) {
+                    $scope = (Get-AzManagementGroup -GroupName $scopeDef.ManagementGroupName).Id
+                }
+                elseif ($null -ne $scopeDef.SubscriptionName) {
+                    $scope = "/subscriptions/$((Get-AzSubscription -SubscriptionName $scopeDef.SubscriptionName).Id)"
+                }
+                else {
+                    Throw "Scope must specify an ""managementGroupName"" or a ""subscriptionName"" item"
+                }
+                Write-Host "##[debug]     Assignment Scope: $scope"
+
+                # Set scope level parameter values
+                $parametersAtLevel = $scopeDef.Parameters
+                $parameterObject = $scopeGroupLevelParameterObject
+                if ($parametersAtLevel -ne $null -and $definedParameters -ne $null) {
+                    foreach ($definedParameter in $definedParameters.psobject.Properties) {
+                        $parameterName = $definedParameter.Name
+                        foreach ($parameterAtLevel in $parametersAtLevel.psobject.properties) {
+                            if ($parameterAtLevel.Name -eq $parameterName) {
+                                Write-Host "##[Debug]       Setting param $parametername to Scope level value $($parameterAtLevel.Value)"
+                                $parameterObject[$parameterName] = $parameterAtLevel.Value
+                                break
+                            }
+                        }
+                    }
+                }
+
+                # Create  Assignment at scope
+                $createAssignment = @{
+                    "Name"                  = $assignmentName
+                    "DisplayName"           = $assignmentDisplayName
+                    "Description"           = $lookup.Properties.Description
+                    "Scope"                 = $scope
+                    "PolicyParameterObject" = $parameterObject
+                }
+                $createAssignment += $whatToAssign
+                if ($scopeDef.notScope) {
+                    $createAssignment["NotScope"] = $scopeDef.notScope
+                }
+                #Write-Host ($createAssignment | ConvertTo-Json -Depth 100)
+                New-AzPolicyAssignment @createAssignment -AssignIdentity -Location "eastus"
+            }
         }
     }
-    #endregion
 }

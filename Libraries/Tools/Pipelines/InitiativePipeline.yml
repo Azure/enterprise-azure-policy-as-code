@@ -3,11 +3,11 @@ variables:
   # folder 
   folderName: "Initiatives" 
   # managementGroupID where azure policy definitions are stored, best practice is Tentant Root Group
-  managementGroupID: ""
+  managementGroupID: "INPUT MGMT GROUP ID"
   # service connections specific to each deployment environment
-  devServiceConnection: "Your service connection"
-  nonprodServiceConnection: "Your service connection"
-  prodServiceConnection: "Your service connection"
+  devServiceConnection: "INPUT SERVICE CONNECTION"
+  nonprodServiceConnection: "INPUT SERVICE CONNECTION"
+  prodServiceConnection: "INPUT SERVICE CONNECTION"
   Initiatives: ""
   
 trigger:
@@ -49,7 +49,7 @@ stages:
                           -modifiedInitiatives $(Initiatives)
                           -managementGroupName $(managementGroupID)'
                     azurePowerShellVersion: LatestVersion
-                    condition: and(succeeded(), ne(variables['Initiatives'], ''))
+                  condition: and(succeeded(), ne(variables['Initiatives'], ''))
 
   - stage: QA
     displayName: "QA"

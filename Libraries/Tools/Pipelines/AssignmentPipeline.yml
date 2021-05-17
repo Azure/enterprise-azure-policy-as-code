@@ -2,21 +2,21 @@ trigger:
   branches:
     # Branch names are case senititve
     include:
-    - main
+      - main
   paths:
     # Triggers only on modification to contents of assignments directory
     include:
-    - Assignments/*
+      - Assignments/*
     exclude:
-    - Assignments/README.MD
+      - Assignments/README.MD
 
 variables:
   rootFolder: '"$(System.DefaultWorkingDirectory)/"'
   # Definition location references management group of the initiative (tenant root group for delivery)
-  definitionLocation: ""
+  definitionLocation: "INPUT TENANT ROOT GROUP ID"
   folderName: "Assignments"
   # Reference to service connections of the different environments
-  prodServiceConnection: ""
+  prodServiceConnection: "INPUT SERVICE CONNECTION"
   Assignments: ""
 
 stages:
@@ -37,15 +37,15 @@ stages:
                   inputs:
                     filePath: "Libraries/Tools/Misc/checkDiff.ps1"
                     arguments: "-folderName $(folderName)
-                         -defRootFolder $(rootFolder)"
+                      -defRootFolder $(rootFolder)"
 
                 - task: AzurePowerShell@4
                   displayName: "Create Assignments"
                   inputs:
                     azureSubscription: $(prodServiceConnection)
-                    ScriptPath: 'Libraries/Tools/Az/Create-PolicyAssignment.ps1'
-                    ScriptArguments: '-rootFolder $(rootFolder)
-                          -assignmentNames $(Assignments)
-                          -definitionLocation $(definitionLocation)'
+                    ScriptPath: "Libraries/Tools/Az/Create-PolicyAssignment.ps1"
+                    ScriptArguments: "-rootFolder $(rootFolder)
+                      -assignmentNames $(Assignments)
+                      -definitionLocation $(definitionLocation)"
                     azurePowerShellVersion: LatestVersion
                   condition: and(succeeded(), ne(variables['Assignments'], ''))

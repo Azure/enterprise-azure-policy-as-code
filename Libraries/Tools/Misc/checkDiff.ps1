@@ -1,57 +1,48 @@
 param (
-    [Parameter(Mandatory=$true)][AllowEmptyString()]$defRootFolder,
-    [Parameter(Mandatory=$true)][AllowEmptyString()]$folderName
+    [Parameter(Mandatory = $true)][AllowEmptyString()]$defRootFolder,
+    [Parameter(Mandatory = $true)][AllowEmptyString()]$folderName
 )
 
-$path = $defRootFolder + $folderName
-
 # git dif finds modified polcies, initatiatives, or assignments
-$files = git diff HEAD HEAD~ --name-only `
-                             $path
+$path = $defRootFolder + $folderName
+$filesInfo = git diff HEAD~ HEAD --name-status $path
+Write-Host "Numbers of difs found: $($filesInfo.Count)"
 
-if (!$files) {
-    Write-Output "No diffs found, exiting..."
-    Exit
-}
-
-$count = $files.Count
-
-Write-Output "Numbers of difs found: $count"
-
+# process each modified file and add to array.
 $modifiedObjects = @()
-
-# process each modified file and add to array
-foreach ($file in $files) {
-    Write-Output "Evaluating: $file"
-
-    $record = ($file -split "/")
-
-    $count = $record.Count
-
-    $fileName = $record[$record.Count - 1]
-
-    # Create-Initiative.ps1 and Create-Assignment.ps1 parameter is file name
-    if ($record[0] -eq "Initiatives" -or $record[0] -eq "Assignments") {
-        Write-Output "Initiative or Assignment has changed..."
-
-        $modifiedObjects += $fileName -replace '\..*'
+$pathStart = $folderName + "/"
+foreach ($fileInfo in $filesInfo) {
+    $mainSplit = $fileInfo -split "\s", 2
+    $changeType = $mainSplit[0]
+    if ($changeType -eq "D") {
+        Write-Host $fileInfo
     }
+    else {
+        $filePaths = ""
+        $filePaths = $mainSplit[1]
+        $filePath = ""
+        $lastIndex = $filePaths.LastIndexOf($pathStart)
+        $length = $filePaths.Length - $lastIndex
+        if ($lastIndex -ne 0) {
+            $filePath = $filePaths.SubString($lastIndex, $length)
+        }
+        else {
+            $filePath = $filePaths
+        }
+        Write-Host "$fileInfo ===>> $filePath"
 
-    # Create-PolicyDef.ps1 parameter is dir names
-    if ($record[0] -eq "Policies") {
-        Write-Output "Policy has changed..."
-
-        $trimPath = $file.TrimEnd($fileName)
-
-        $modifiedObjects += $trimPath
+        $modifiedObjects += $filePath
     }
 }
 
-$uniqueModifiedObjects = $modifiedObjects | Sort-Object -Unique
+if ($modifiedObjects.Count -eq 0) {
+    Write-Host "##vso[task.LogIssue type=warning;]No diffs found or only deleted files found, exiting..."
+}
+else {
+    $uniqueModifiedObjects = $modifiedObjects | Sort-Object -Unique
+    $uniqueModifiedObjectsJson = ($uniqueModifiedObjects | ConvertTo-Json -Compress).Trim("[", "]")
 
-$uniqueModifiedObjectsJson = ($uniqueModifiedObjects | ConvertTo-Json -Compress).Trim("[","]")
-
-Write-Output "Unique Objects: $uniqueModifiedObjects"
-
-# output pipeline variable to be consumed by subsequent pipeline tasks
-Write-Output "##vso[task.setvariable variable=$folderName]$uniqueModifiedObjectsJson"
+    Write-Host "Unique Objects: $uniqueModifiedObjects"
+    # output pipeline variable to be consumed by subsequent pipeline tasks
+    Write-Host "##vso[task.setvariable variable=$folderName]$uniqueModifiedObjectsJson"
+}
