@@ -67,7 +67,7 @@ This document defines all necessary prerequisites for the implementation of Azur
   * In the ADO portal, navigate to the pipelines section and create a new pipeline. Select Azure Repos Git and select the Git repository you imported in prior steps. Choose the option to use an existing azure pipelines YAML file. Navigate to the policypipeline.yml file. Save the pipeline. 
   * Edit pipeline to reflect your environment 
     * Replace all service connections fields in the policypipeline.yml with the ADO plaintext name for the connection 
-    * You may also reference a management group, in this case you will replace the current management group in the pipeline code with the plaintext name of your management group 
+    * You may reference a management group, in this case you will replace the current management group in the pipeline code with the plaintext name of your management group 
       * NOTE: if you are referencing the tenant root group, you will use the ID instead of a plaintext name 
   * Under each stage in the pipeline, there is a reference to the management group name variable. You will make this reference $null if you are not deploying to a management group. Otherwise, make it a reference to the managementGroupName variable. 
 
@@ -76,7 +76,7 @@ This document defines all necessary prerequisites for the implementation of Azur
   * In the ADO portal, navigate to the pipelines section and create a new pipeline. Select Azure Repos Git and select the Git repository you imported in prior steps. Choose the option to use an existing azure pipelines YAML file. Navigate to the initiativepipeline.yml file. Save the pipeline. 
   * Edit pipeline to reflect your environment: 
     * Replace all service connections fields in the initiativepipeline.yml with the ADO plaintext name for the connection 
-    * You may also reference a management group, in this case you will replace the current management group in the pipeline code with the plaintext name of your management group 
+    * You may reference a management group, in this case you will replace the current management group in the pipeline code with the plaintext name of your management group 
       * NOTE: if you are referencing the tenant root group, you will use the ID instead of a plaintext name 
 
 
@@ -84,7 +84,7 @@ This document defines all necessary prerequisites for the implementation of Azur
   * In the ADO portal, navigate to the pipelines section and create a new pipeline. Select Azure Repos Git and select the Git repository you imported in prior steps. Select existing azure pipelines YAML file. Navigate to the Assignmentpipeline.yml file. Save the pipeline.
   * Edit pipeline to reflect your environment: 
     * Replace all service connections fields in the Assignmentpipeline.yml with the ADO plaintext name for the connection 
-    * You may also reference a management group, in this case you will replace the current management group in the pipeline code with the plaintext name of your management group 
+    * You may reference a management group, in this case you will replace the current management group in the pipeline code with the plaintext name of your management group 
       * NOTE: if you are referencing the tenant root group, you will use the ID instead of a plaintext name 
 
 
@@ -97,7 +97,7 @@ This document defines all necessary prerequisites for the implementation of Azur
 
 * **Deploy to Azure** 
   * Add your policies, initiatives and assignments to their respective folders and make changes as needed 
-    * NOTE: All policies must keep the file name azurepolicy.json and be in their own sub folder under the policies folder 
+  * 
   * Policy Deployment Workflow 
     * Create a branch that aligns with your organization’s branching policies 
 
@@ -120,9 +120,10 @@ This document defines all necessary prerequisites for the implementation of Azur
     * Finally, the pull request is subject to an approval gate. Once a member of the team with proper permissions approves the deployment to prod, the pipeline will push your changes to your production environment. 
   * Assignment Deployment Workflow
     * Create a branch that aligns with your organization’s branching policies 
+    * You may assign policies or assignments at any scope desired. You can also specifiy multiple locations to deploy at (Ex. Deploy one assignment at multiple management groups)
 
     * Add or make changes to your assignments 
-    * Upon approval and completion of the pull request, your initiative updates will be deployed to your environment 
+    * Upon approval and completion of the pull request, your assignment updates will be deployed to your environment 
     * https://docs.microsoft.com/en-us/azure/governance/policy/concepts/assignment-structure
 
 
