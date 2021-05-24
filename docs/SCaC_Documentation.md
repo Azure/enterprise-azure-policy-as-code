@@ -20,7 +20,8 @@ This document defines all necessary prerequisites for the implementation of Azur
 
 
 * **Create Repo: 'Azure Policy'** 
-  * https://docs.microsoft.com/en-us/azure/devops/repos/git/create-new-repo?view=azure-devops  
+  * https://docs.microsoft.com/en-us/azure/devops/repos/git/create-new-repo?view=azure-devops 
+  * We suggest importing the repo from GitHub
 
 
 * **Create Branch Policy** 
