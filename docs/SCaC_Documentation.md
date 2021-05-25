@@ -77,16 +77,20 @@ This document defines all necessary prerequisites for the implementation of Azur
   * In the ADO portal, navigate to the pipelines section and create a new pipeline. Select Azure Repos Git and select the Git repository you imported in prior steps. Choose the option to use an existing azure pipelines YAML file. Navigate to the initiativepipeline.yml file. Save the pipeline. 
   * Edit pipeline to reflect your environment: 
     * Replace all service connections fields in the initiativepipeline.yml with the ADO plaintext name for the connection 
+    * The management group ID reference refers to the locations of the policies that will be collected in the initiative
     * You may reference a management group, in this case you will replace the current management group in the pipeline code with the plaintext name of your management group 
-      * NOTE: if you are referencing the tenant root group, you will use the ID instead of a plaintext name 
+      * NOTE: if you are referencing the tenant root group, you will use the ID instead of a plaintext name
+      * We recommend that all policy definitions are stored at the tenant root group. If they are not, you will reference the location of the policies wherever they might be stored.
 
 
 * **Create Assignment Pipeline** 
   * In the ADO portal, navigate to the pipelines section and create a new pipeline. Select Azure Repos Git and select the Git repository you imported in prior steps. Select existing azure pipelines YAML file. Navigate to the Assignmentpipeline.yml file. Save the pipeline.
   * Edit pipeline to reflect your environment: 
     * Replace all service connections fields in the Assignmentpipeline.yml with the ADO plaintext name for the connection 
+    * The management group ID reference refers to the location of the initiatives or policies that you are assigning
     * You may reference a management group, in this case you will replace the current management group in the pipeline code with the plaintext name of your management group 
-      * NOTE: if you are referencing the tenant root group, you will use the ID instead of a plaintext name 
+      * NOTE: if you are referencing the tenant root group, you will use the ID instead of a plaintext name
+      * We recommend that all policy definitions are stored at the tenant root group. If they are not, you will reference the location of the policies wherever they might be stored.
 
 
 * **Create an Approval Gate (Highly Recommended)** 
