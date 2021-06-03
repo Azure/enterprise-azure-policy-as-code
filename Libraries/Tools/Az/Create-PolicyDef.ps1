@@ -1,8 +1,8 @@
 #region parameters
 param (
-    [Parameter(Mandatory=$true)][string]$rootFolder,
-    [Parameter(Mandatory=$true)][AllowEmptyString()][string]$managementGroupName,
-    [Parameter(Mandatory=$true)][string[]]$modifiedPolicies
+    [Parameter(Mandatory = $true)][string]$rootFolder,
+    [Parameter(Mandatory = $true)][AllowEmptyString()][string]$managementGroupName,
+    [Parameter(Mandatory = $true)][string[]]$modifiedPolicies
 )
 #endregion
 
@@ -19,48 +19,6 @@ class PolicyDef {
 }
 #endregion
 
-#region get policy function
-function Get-Policies {
-    [CmdletBinding()]
-    Param
-    (
-        [Parameter(Mandatory = $true)][string[]]$modifiedPolicies,
-        [Parameter(Mandatory = $true)][string]$rootDir
-    )
-
-    $policyList = @()
-
-    foreach ($modifiedPolicy in $modifiedPolicies) {
-
-        Write-Host "##[debug] File path: .$rootDir."
-        Write-Host "##[debug] File path: .$modifiedPolicy."
-
-        $filePath = $rootDir+ "/" + $modifiedPolicy + "azurepolicy.json"
-
-        Write-Host "##[debug] File path: $filePath"
-
-        $azurePolicy = Get-Content $filePath | ConvertFrom-Json
-
-        Write-Host "##[debug] Policy $($azurePolicy.properties.displayName)"
-
-        #declare new policyDef object
-        $policy = New-Object -TypeName PolicyDef
-
-        #set variables
-        $policy.PolicyName = $azurePolicy.properties.displayName
-        $policy.PolicyDisplayName = $azurePolicy.properties.displayName
-        $policy.PolicyDescription = $azurePolicy.properties.description
-        $policy.PolicyMode = $azurePolicy.properties.mode
-        $policy.PolicyMetadata = $azurePolicy.properties.metadata | ConvertTo-Json -Depth 100
-        $policy.PolicyRule = $azurePolicy.properties.policyRule | ConvertTo-Json -Depth 100
-        $policy.PolicyParameters = $azurePolicy.properties.parameters | ConvertTo-Json -Depth 100
-        $policyList += $policy
-    }
-
-    return $policyList
-}
-#endregion
-
 #region add policy function
 function Add-Policies {
     [CmdletBinding()]
@@ -74,26 +32,29 @@ function Add-Policies {
     foreach ($policy in $Policies) {
 
         $createPolicy = @{
-            "Name" = $policy.PolicyName
-            "Policy" = $policy.PolicyRule
-            "Parameter" = $policy.PolicyParameters
+            "Name"        = $policy.PolicyName
+            "Policy"      = $policy.PolicyRule
+            "Parameter"   = $policy.PolicyParameters
             "DisplayName" = $policy.PolicyDisplayName
             "Description" = $policy.PolicyDescription
-            "Metadata" = $policy.PolicyMetadata
-            "Mode" = $policy.PolicyMode
+            "Metadata"    = $policy.PolicyMetadata
+            "Mode"        = $policy.PolicyMode
         }
 
         if ($managementGroupName) {
-            $mgObject = @{"ManagementGroupName" = $managementGroupName}
+            $mgObject = @{"ManagementGroupName" = $managementGroupName }
             
             $createPolicy += $mgObject
         }
 
         $policyName = $createPolicy.DisplayName
 
-        Write-Host "##[debug] The following policy is being created/updated:"
+        Write-Host "##[debug] The following policy is being created/updated: $policyName"
 
         Write-Host ($createPolicy | Out-String)
+
+        Write-Host "$createPolicy"
+
 
         New-AzPolicyDefinition @createPolicy
 
@@ -103,18 +64,48 @@ function Add-Policies {
 }
 #endregion
 
-Write-Host "##[section]Formatting list of policy folders..."
+if ($modifiedPolicies -eq $null) {
+    Write-Host "##vso[task.LogIssue type=warning;]No Policy diffs found or only deleted files found, skiping..."
+}
+else {
 
-#get list of policy folders
-$policies = Get-Policies -modifiedPolicies $modifiedPolicies `
-                         -rootDir $rootFolder 
+    Write-Host "##[section]Formatting list of policy folders... $modifiedPolicies"
 
-Write-Host "    ##[debug] Names:" $policies.PolicyName
-Write-Host "    ##[debug] Count:" $policies.count
+    $policyList = @()
 
-Write-Host "##[section] Executing create policy..."
+    foreach ($modifiedPolicy in $modifiedPolicies) {
 
-$policyDefinitions = Add-Policies -Policies $policies `
-                                  -ManagementGroupName $managementGroupName
-#                                  -ManagementGroupName $managementGroup.Name
+        Write-Host "##[debug] File path: `"$modifiedPolicy`""
+        $filePath = $rootFolder + $modifiedPolicy
+
+        $azurePolicy = Get-Content $filePath | ConvertFrom-Json
+
+        Write-Host "##[debug] Policy $($azurePolicy.properties.displayName)"
+
+        #declare new policyDef object
+        $policy = New-Object -TypeName PolicyDef
+
+        #set Name variable
+        if ($azurePolicy.name) {
+            $policy.PolicyName = $azurePolicy.name
+        }
+        else {
+            $policy.PolicyName = $azurePolicy.properties.displayName
+        }
+
+        #set Name variable
+        $policy.PolicyDisplayName = $azurePolicy.properties.displayName
+        $policy.PolicyDescription = $azurePolicy.properties.description
+        $policy.PolicyMode = $azurePolicy.properties.mode
+        $policy.PolicyMetadata = $azurePolicy.properties.metadata | ConvertTo-Json -Depth 100
+        $policy.PolicyRule = $azurePolicy.properties.policyRule | ConvertTo-Json -Depth 100
+        $policy.PolicyParameters = $azurePolicy.properties.parameters | ConvertTo-Json -Depth 100
+        $policyList += $policy
+    }
+
+    #get list of policy folders
+    Write-Host "##[section] Executing create policy..."
+
+    $policyDefinitions = Add-Policies -Policies $policyList -ManagementGroupName $managementGroupName
+}
 #endregion
