@@ -1,0 +1,136 @@
+{
+  "name": "redisCache-diagnostic-settings-policyDef",
+  "properties": {
+    "displayName": "Apply diagnostic settings for Redis Cache - Log Analytics",
+    "description": "This policy automatically deploys and enable diagnostic settings to Log Analytics",
+    "metadata": {
+      "category": "Monitoring"
+    },
+    "mode": "all",
+    "parameters": {
+      "diagnosticsSettingNameToUse": {
+        "type": "string",
+        "metadata": {
+          "displayName": "Setting name",
+          "description": "Name of the policy for the diagnostics settings."
+        },
+        "defaultValue": "setByPolicyLA"
+      },
+      "logAnalytics": {
+        "type": "string",
+        "metadata": {
+          "displayName": "Log Analytics workspace",
+          "description": "Select the Log Analytics workspace from dropdown list",
+          "strongType": "omsWorkspace",
+          "assignPermissions": true
+        }
+      }
+    },
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.Cache/redis"
+      },
+      "then": {
+        "effect": "deployIfNotExists",
+        "details": {
+          "type": "Microsoft.Insights/diagnosticSettings",
+          "roleDefinitionIds": [
+            "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+          ],
+          "existenceCondition": {
+            "allOf": [
+              {
+                "count": {
+                  "field": "Microsoft.Insights/diagnosticSettings/metrics[*]",
+                  "where": {
+                    "allOf": [
+                      {
+                        "field": "Microsoft.Insights/diagnosticSettings/metrics[*].category",
+                        "in": [
+                          "AllMetrics"
+                        ]
+                      },
+                      {
+                        "field": "Microsoft.Insights/diagnosticSettings/metrics[*].enabled",
+                        "equals": "true"
+                      }
+                    ]
+                  }
+                },
+                "greaterOrEquals": 1
+              },
+              {
+                "field": "Microsoft.Insights/diagnosticSettings/workspaceId",
+                "matchInsensitively": "[parameters('logAnalytics')]"
+              }
+            ]
+          },
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "template": {
+                "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "diagnosticsSettingNameToUse": {
+                    "type": "string"
+                  },
+                  "resourceName": {
+                    "type": "string"
+                  },
+                  "logAnalytics": {
+                    "type": "string"
+                  },
+                  "location": {
+                    "type": "string"
+                  }
+                },
+                "variables": {},
+                "resources": [
+                  {
+                    "type": "Microsoft.Cache/redis/providers/diagnosticSettings",
+                    "apiVersion": "2017-05-01-preview",
+                    "name": "[concat(parameters('resourceName'), '/', 'Microsoft.Insights/', parameters('diagnosticsSettingNameToUse'))]",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [],
+                    "properties": {
+                      "workspaceId": "[parameters('logAnalytics')]",
+                      "metrics": [
+                        {
+                          "category": "AllMetrics",
+                          "enabled": true,
+                          "retentionPolicy": {
+                            "days": 0,
+                            "enabled": false
+                          },
+                          "timeGrain": null
+                        }
+                      ],
+                      "logs": []
+                    }
+                  }
+                ],
+                "outputs": {}
+              },
+              "parameters": {
+                "diagnosticsSettingNameToUse": {
+                  "value": "[parameters('diagnosticsSettingNameToUse')]"
+                },
+                "logAnalytics": {
+                  "value": "[parameters('logAnalytics')]"
+                },
+                "location": {
+                  "value": "[field('location')]"
+                },
+                "resourceName": {
+                  "value": "[field('name')]"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

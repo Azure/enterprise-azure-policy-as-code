@@ -1,0 +1,782 @@
+{
+    "name": "resource-diagnostic-settings-la-policySet",
+    "properties": {
+        "type": "Microsoft.Authorization/policySetDefinitions",
+        "name": "resource-diagnostic-settings-la-policySet",
+        "displayName": "Apply diagnostic settings for applicable resources - Log Analytics",
+        "description": "This initiative configures application Azure resources to forward diagnostic logs and metrics to an Azure Log Analytics workspace.",
+        "metadata": {
+            "category": "Monitoring"
+        },
+        "policyDefinitionGroups": [
+            {
+                "name": "Azure_Security_Benchmark_v2.0_LT-1",
+                "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-1"
+            },
+            {
+                "name": "Azure_Security_Benchmark_v2.0_LT-2",
+                "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-2"
+            },
+            {
+                "name": "Azure_Security_Benchmark_v2.0_LT-3",
+                "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-3"
+            },
+            {
+                "name": "Azure_Security_Benchmark_v2.0_LT-4",
+                "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-4"
+            },
+            {
+                "name": "Azure_Security_Benchmark_v2.0_LT-5",
+                "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-5"
+            },
+            {
+                "name": "Azure_Security_Benchmark_v2.0_LT-6",
+                "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-6"
+            },
+            {
+                "name": "Azure_Security_Benchmark_v2.0_LT-7",
+                "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-7"
+            }
+        ],
+        "parameters": {
+            "diagnosticsSettingNameToUse": {
+                "type": "string",
+                "metadata": {
+                    "displayName": "Setting name",
+                    "description": "Name of the policy for the diagnostics settings."
+                },
+                "defaultValue": "setByPolicyLA"
+            },
+            "logAnalytics": {
+                "type": "string",
+                "metadata": {
+                    "displayName": "Log Analytics workspace",
+                    "description": "Select the Log Analytics workspace from dropdown list",
+                    "strongType": "omsWorkspace"
+                }
+            }
+        },
+        "policyDefinitions": [
+            {
+                "policyDefinitionReferenceId": "aadds-diagnostic-settings-policyDef",
+                "policyDefinitionName": "aadds-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "aa-diagnostic-settings-policyDef",
+                "policyDefinitionName": "aa-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "aci-diagnostic-settings-policyDef",
+                "policyDefinitionName": "aci-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "acr-diagnostic-settings-policyDef",
+                "policyDefinitionName": "acr-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "aks-diagnostic-settings-policyDef",
+                "policyDefinitionName": "aks-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "analysisService-diagnostic-settings-policyDef",
+                "policyDefinitionName": "analysisService-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "apiMgmt-diagnostic-settings-policyDef",
+                "policyDefinitionName": "apiMgmt-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "appGw-diagnostic-settings-policyDef",
+                "policyDefinitionName": "appGw-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "bastion-diagnostic-settings-policyDef",
+                "policyDefinitionName": "bastion-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "batch-diagnostic-settings-policyDef",
+                "policyDefinitionName": "batch-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "cdnEndpoints-diagnostic-settings-policyDef",
+                "policyDefinitionName": "cdnEndpoints-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "cognitive-diagnostic-settings-policyDef",
+                "policyDefinitionName": "cognitive-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "cosmosDBs-diagnostic-settings-policyDef",
+                "policyDefinitionName": "cosmosDBs-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "databricks-diagnostic-settings-policyDef",
+                "policyDefinitionName": "databricks-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "dataFactory-diagnostic-settings-policyDef",
+                "policyDefinitionName": "dataFactory-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "dlanalytics-diagnostic-settings-policyDef",
+                "policyDefinitionName": "dlanalytics-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "dlstore-diagnostic-settings-policyDef",
+                "policyDefinitionName": "dlstore-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "eventGridTopic-diagnostic-settings-policyDef",
+                "policyDefinitionName": "eventGridTopic-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "eventHub-diagnostic-settings-policyDef",
+                "policyDefinitionName": "eventHub-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "expressRoutes-diagnostic-settings-policyDef",
+                "policyDefinitionName": "expressRoutes-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "firewall-diagnostic-settings-policyDef",
+                "policyDefinitionName": "firewall-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "hdInsight-diagnostic-settings-policyDef",
+                "policyDefinitionName": "hdInsight-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "iotHub-diagnostic-settings-policyDef",
+                "policyDefinitionName": "iotHub-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "kv-diagnostic-settings-policyDef",
+                "policyDefinitionName": "kv-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "lb-diagnostic-settings-policyDef",
+                "policyDefinitionName": "lb-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "logicApps-integrationAccounts-diagnostic-settings-policyDef",
+                "policyDefinitionName": "logicApps-integrationAccounts-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "logicApps-workflow-diagnostic-settings-policyDef",
+                "policyDefinitionName": "logicApps-workflow-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "mySQL-diagnostic-settings-policyDef",
+                "policyDefinitionName": "mySQL-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "nic-diagnostic-settings-policyDef",
+                "policyDefinitionName": "nic-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "nsg-diagnostic-settings-policyDef",
+                "policyDefinitionName": "nsg-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "pip-diagnostic-settings-policyDef",
+                "policyDefinitionName": "pip-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "postgreSQL-diagnostic-settings-policyDef",
+                "policyDefinitionName": "postgreSQL-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "powerBIEmbedded-diagnostic-settings-policyDef",
+                "policyDefinitionName": "powerBIEmbedded-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "redisCache-diagnostic-settings-policyDef",
+                "policyDefinitionName": "redisCache-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "relay-diagnostic-settings-policyDef",
+                "policyDefinitionName": "relay-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "searchServices-diagnostic-settings-policyDef",
+                "policyDefinitionName": "searchServices-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "serviceBus-diagnostic-settings-policyDef",
+                "policyDefinitionName": "serviceBus-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "signalR-diagnostic-settings-policyDef",
+                "policyDefinitionName": "signalR-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "sql-mi-diagnostic-settings-policyDef",
+                "policyDefinitionName": "sql-mi-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "sqlDBs-diagnostic-settings-policyDef",
+                "policyDefinitionName": "sqlDBs-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "sqlElasticPools-diagnostic-settings-policyDef",
+                "policyDefinitionName": "sqlElasticPools-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "streamAnalytics-diagnostic-settings-policyDef",
+                "policyDefinitionName": "streamAnalytics-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "timeSeriesInsights-diagnostic-settings-policyDef",
+                "policyDefinitionName": "timeSeriesInsights-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "trafficManager-diagnostic-settings-policyDef",
+                "policyDefinitionName": "trafficManager-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "vnet-diagnostic-settings-policyDef",
+                "policyDefinitionName": "vnet-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "vnetGW-diagnostic-settings-policyDef",
+                "policyDefinitionName": "vnetGW-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "webServerFarm-diagnostic-settings-policyDef",
+                "policyDefinitionName": "webServerFarm-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "website-diagnostic-settings-policyDef",
+                "policyDefinitionName": "website-diagnostic-settings-policyDef",
+                "parameters": {
+                    "diagnosticsSettingNameToUse": {
+                        "value": "[parameters('diagnosticsSettingNameToUse')]"
+                    },
+                    "logAnalytics": {
+                        "value": "[parameters('logAnalytics')]"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-3"
+                ]
+            }
+        ]
+    }
+}

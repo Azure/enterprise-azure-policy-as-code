@@ -1,0 +1,441 @@
+{
+    "nodeName": "/DINE/",
+    "children": [
+        {
+            "nodeName": "rootMG/",
+            "scope": {
+                "PAC-DEV-001": [
+                    "/subscriptions/dev1-subscription-guid"
+                ],
+                "PAC-DEV-002": [
+                    "/subscriptions/dev2-subscription-guid"
+                ],
+                "PAC-QA": [
+                    "/subscriptions/qa-subscription-guid"
+                ],
+                "PAC-PROD": [
+                    "/providers/Microsoft.Management/managementGroups/tenant-id-guid"
+                ]
+            },
+            "children": [
+                {
+                    "nodeName": "enrollDefender",
+                    "assignment": {
+                        "name": "Enroll Azure Defender",
+                        "displayName": "Enroll every Subscription in Azure Defender",
+                        "description": "Initiative auto-enrolls every Subscription in Azure Defender for the services with an Azure Defender version"
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "Enroll Subscription in Azure Defender",
+                        "friendlyNameToDocumentIfGuid": "",
+                        "roleDefinitionIds": [
+                            "8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
+                        ]
+                    },
+                    "parameters": {}
+                },
+                {
+                    "nodeName": "vmMonitoringPrerequisites",
+                    "assignment": {
+                        "name": "Deploy VM Monitor Pre",
+                        "displayName": "Deploy VM Monitoring Prerequisites",
+                        "description": "Initiative will add VM prereuisites if it does not exist."
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "a15f3269-2e10-458c-87a4-d5989e678a73",
+                        "friendlyNameToDocumentIfGuid": "Deploy - Configure prerequisites to enable Azure Monitor and Azure Security agents on virtual machines",
+                        "roleDefinitionIds": [
+                            "92aaf0da-9dab-42b6-94a3-d43ce8d16293",
+                            "9980e02c-c2be-4d73-94e8-173b1dc7cf3c",
+                            "18d7d88d-d35e-4fb5-a5c3-7773c20a72d9",
+                            "b24988ac-6180-42a0-ab88-20f7382dd24c",
+                            "749f88d5-cbae-40b8-bcfc-e573ddc772fa"
+                        ]
+                    },
+                    "parameters": {}
+                },
+                {
+                    "nodeName": "aksPolicyAgent",
+                    "assignment": {
+                        "name": "Deploy AKS Policy Ag",
+                        "displayName": "Deploy AKS Policy Agent",
+                        "description": "Policy will add AKS Policy Agent if it does not exist."
+                    },
+                    "definitionEntry": {
+                        "policyName": "a8eff44f-8c92-45c3-a3fb-9880802d67a7",
+                        "friendlyNameToDocumentIfGuid": "Deploy Azure Policy Add-on to Azure Kubernetes Service clusters",
+                        "roleDefinitionIds": [
+                            "ed7f3fbd-7b88-4dd4-9017-9adb7ce333f8",
+                            "b24988ac-6180-42a0-ab88-20f7382dd24c"
+                        ]
+                    },
+                    "parameters": {}
+                }
+            ]
+        },
+        {
+            "nodeName": "monitoringPerEnvironmentType/",
+            "additionalRoleAssignments": {
+                // "*" indicates the same settings for all Policy as Code environments
+                "*": [
+                    {
+                        "roleDefinitionId": "b24988ac-6180-42a0-ab88-20f7382dd24c",
+                        "scope": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources"
+                    },
+                    {
+                        "roleDefinitionId": "92aaf0da-9dab-42b6-94a3-d43ce8d16293",
+                        "scope": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources"
+                    }
+                ]
+            },
+            "children": [
+                {
+                    "nodeName": "Prod/",
+                    "assignment": {
+                        "name": "pr-d",
+                        "displayName": "Prod Deploy Diag Settings",
+                        "description": "Policies will deploy diagnostics settings specific to environments, regions and resource types as required."
+                    },
+                    "scope": {
+                        "PAC-PROD": [
+                            "/providers/Microsoft.Management/managementGroups/tenant-id-guid"
+                        ]
+                    },
+                    "notScope": {
+                        "PAC-PROD": [
+                            "/providers/Microsoft.Management/managementGroups/Org-NonProd-Env",
+                            "/providers/Microsoft.Management/managementGroups/Online-NonProd-Env",
+                            "/providers/Microsoft.Management/managementGroups/Sandbox-Env"
+                        ]
+                    },
+                    "children": [
+                        {
+                            "nodeName": "logAnalytics/",
+                            "assignment": {
+                                "name": "la-",
+                                "displayName": " to Log Analytics"
+                            },
+                            "parameters": {
+                                "diagnosticsSettingNameToUse": "DINE Logging to LA",
+                                "resourceLocation": "eastus2",
+                                "logAnalytics_1": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources/providers/microsoft.operationalinsights/workspaces/log-qradarworkspace-prod",
+                                "logAnalytics": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources/providers/microsoft.operationalinsights/workspaces/log-qradarworkspace-prod"
+                            },
+                            "children": [
+                                {
+                                    "nodeName": "subscriptionLogs/",
+                                    "assignment": {
+                                        "name": "sublog",
+                                        "displayName": " for Subscription Activity Logs"
+                                    },
+                                    "definitionEntry": {
+                                        "policyName": "activityLogs-diagnostic-settings-la-policyDef",
+                                        "friendlyNameToDocumentIfGuid": "",
+                                        "roleDefinitionIds": [
+                                            "b24988ac-6180-42a0-ab88-20f7382dd24c"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "nodeName": "resourceLogs/",
+                                    "assignment": {
+                                        "name": "reslog",
+                                        "displayName": " for Resource Logs"
+                                    },
+                                    "definitionEntry": {
+                                        "initiativeName": "resource-diagnostic-settings-la-policySet",
+                                        "friendlyNameToDocumentIfGuid": "",
+                                        "roleDefinitionIds": [
+                                            "b24988ac-6180-42a0-ab88-20f7382dd24c",
+                                            "92aaf0da-9dab-42b6-94a3-d43ce8d16293"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "nodeName": "vmMonitoring/",
+                                    "assignment": {
+                                        "name": "vmmon",
+                                        "displayName": " for VM Monitoring"
+                                    },
+                                    "definitionEntry": {
+                                        "initiativeName": "55f3eceb-5573-4f18-9695-226972c6d74a",
+                                        "friendlyNameToDocumentIfGuid": "Enable Azure Monitor for VMs",
+                                        "roleDefinitionIds": [
+                                            "b24988ac-6180-42a0-ab88-20f7382dd24c",
+                                            "92aaf0da-9dab-42b6-94a3-d43ce8d16293"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "nodeName": "vmssMonitoring/",
+                                    "assignment": {
+                                        "name": "vmssmon",
+                                        "displayName": " for VMSS Monitoring"
+                                    },
+                                    "definitionEntry": {
+                                        "initiativeName": "75714362-cae7-409e-9b99-a8e5075b7fad",
+                                        "friendlyNameToDocumentIfGuid": "Enable Azure Monitor for Virtual Machine Scale Sets",
+                                        "roleDefinitionIds": [
+                                            "92aaf0da-9dab-42b6-94a3-d43ce8d16293",
+                                            "9980e02c-c2be-4d73-94e8-173b1dc7cf3c",
+                                            "b24988ac-6180-42a0-ab88-20f7382dd24c"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "nodeName": "eventHub-activityLogs-eastus2/",
+                            "assignment": {
+                                "name": "eh-sublog", // name here must no be longer than 16 characters, shorten region name as needed
+                                "displayName": " for Subscription Activity Logs to Event Hub"
+                            },
+                            "parameters": {
+                                "diagnosticsSettingNameToUse": "Activity Log to EH",
+                                "resourceLocation": "eastus2",
+                                "eventHubAuthorizationRuleId": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources/providers/Microsoft.EventHub/namespaces/evhnseastus2prod/authorizationrules/RootManageSharedAccessKey",
+                                "eventHubName": "platform"
+                            },
+                            "definitionEntry": {
+                                "policyName": "activityLogs-diagnostic-settings-eh-policyDef",
+                                "friendlyNameToDocumentIfGuid": "",
+                                "roleDefinitionIds": [
+                                    "8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
+                                ]
+                            }
+                        },
+                        {
+                            "nodeName": "resourceLogs-eventHub/",
+                            "assignment": {
+                                "name": "eh-reslog-",
+                                "displayName": " for Resource Logs to Event Hub in Region "
+                            },
+                            "definitionEntry": {
+                                "initiativeName": "resource-diagnostic-settings-eh-policySet",
+                                "friendlyNameToDocumentIfGuid": "",
+                                "roleDefinitionIds": [
+                                    "b24988ac-6180-42a0-ab88-20f7382dd24c"
+                                ]
+                            },
+                            "parameters": {
+                                "diagnosticsSettingNameToUse": "DINE Logging to EH"
+                            },
+                            "children": [
+                                {
+                                    "nodeName": "eastus",
+                                    "assignment": {
+                                        "name": "eastus", // name here must no be longer than 10 characters, shorten region name as needed
+                                        "displayName": "eastus"
+                                    },
+                                    "parameters": {
+                                        "resourceLocation": "eastus",
+                                        "eventHubAuthorizationRuleId": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources/providers/Microsoft.EventHub/namespaces/evhnseastusprod/authorizationrules/RootManageSharedAccessKey"
+                                    }
+                                },
+                                {
+                                    "nodeName": "eastus2",
+                                    "assignment": {
+                                        "name": "eastus2", // name here must no be longer than 10 characters, shorten region name as needed
+                                        "displayName": "eastus2"
+                                    },
+                                    "parameters": {
+                                        "resourceLocation": "eastus2",
+                                        "eventHubAuthorizationRuleId": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources/providers/Microsoft.EventHub/namespaces/evhnseastus2prod/authorizationrules/RootManageSharedAccessKey"
+                                    }
+                                },
+                                {
+                                    "nodeName": "southcentralus",
+                                    "assignment": {
+                                        "name": "southctrus", // name here must no be longer than 10 characters, shorten region name as needed
+                                        "displayName": "southcentralus"
+                                    },
+                                    "parameters": {
+                                        "resourceLocation": "southcentralus",
+                                        "eventHubAuthorizationRuleId": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources/providers/Microsoft.EventHub/namespaces/evhnssouthcentralus-prod/authorizationrules/RootManageSharedAccessKey"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "nodeName": "NonProd/",
+                    "assignment": {
+                        "name": "np-d",
+                        "displayName": "NonProd Deploy Diag Settings",
+                        "description": "Policies will deploy diagnostics settings specific to environments, regions and resource types as required."
+                    },
+                    "scope": {
+                        "PAC-DEV-001": [
+                            "/subscriptions/dev1-subscription-guid"
+                        ],
+                        "PAC-DEV-002": [
+                            "/subscriptions/dev2-subscription-guid"
+                        ],
+                        "PAC-QA": [
+                            "/subscriptions/qa-subscription-guid"
+                        ],
+                        "PAC-PROD": [
+                            "/providers/Microsoft.Management/managementGroups/tenant-id-guid"
+                        ]
+                    },
+                    "notScope": {
+                        "PAC-PROD": [
+                            "/providers/Microsoft.Management/managementGroups/Org-Prod-Env",
+                            "/providers/Microsoft.Management/managementGroups/Online-Prod-Env"
+                        ]
+                    },
+                    "children": [
+                        {
+                            "nodeName": "logAnalytics/",
+                            "assignment": {
+                                "name": "la-",
+                                "displayName": " to Log Analytics"
+                            },
+                            "parameters": {
+                                "diagnosticsSettingNameToUse": "DINE Logging to LA",
+                                "resourceLocation": "eastus2",
+                                "logAnalytics_1": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources/providers/microsoft.operationalinsights/workspaces/log-qradarworkspace",
+                                "logAnalytics": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources/providers/microsoft.operationalinsights/workspaces/log-qradarworkspace"
+                            },
+                            "children": [
+                                {
+                                    "nodeName": "subscriptionLogs/",
+                                    "assignment": {
+                                        "name": "sublog",
+                                        "displayName": " for Subscription Activity Logs"
+                                    },
+                                    "definitionEntry": {
+                                        "policyName": "activityLogs-diagnostic-settings-la-policyDef",
+                                        "friendlyNameToDocumentIfGuid": "",
+                                        "roleDefinitionIds": [
+                                            "b24988ac-6180-42a0-ab88-20f7382dd24c"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "nodeName": "resourceLogs/",
+                                    "assignment": {
+                                        "name": "reslog",
+                                        "displayName": " for Resource Logs"
+                                    },
+                                    "definitionEntry": {
+                                        "initiativeName": "resource-diagnostic-settings-la-policySet",
+                                        "friendlyNameToDocumentIfGuid": "",
+                                        "roleDefinitionIds": [
+                                            "b24988ac-6180-42a0-ab88-20f7382dd24c",
+                                            "92aaf0da-9dab-42b6-94a3-d43ce8d16293"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "nodeName": "vmMonitoring/",
+                                    "assignment": {
+                                        "name": "vmmon",
+                                        "displayName": " for VM Monitoring"
+                                    },
+                                    "definitionEntry": {
+                                        "initiativeName": "55f3eceb-5573-4f18-9695-226972c6d74a",
+                                        "friendlyNameToDocumentIfGuid": "Enable Azure Monitor for VMs",
+                                        "roleDefinitionIds": [
+                                            "b24988ac-6180-42a0-ab88-20f7382dd24c",
+                                            "92aaf0da-9dab-42b6-94a3-d43ce8d16293"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "nodeName": "vmssMonitoring/",
+                                    "assignment": {
+                                        "name": "vmssmon",
+                                        "displayName": " for VMSS Monitoring"
+                                    },
+                                    "definitionEntry": {
+                                        "initiativeName": "75714362-cae7-409e-9b99-a8e5075b7fad",
+                                        "friendlyNameToDocumentIfGuid": "Enable Azure Monitor for Virtual Machine Scale Sets",
+                                        "roleDefinitionIds": [
+                                            "92aaf0da-9dab-42b6-94a3-d43ce8d16293",
+                                            "9980e02c-c2be-4d73-94e8-173b1dc7cf3c",
+                                            "b24988ac-6180-42a0-ab88-20f7382dd24c"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "nodeName": "eventHub-activityLogs-eastus2/",
+                            "assignment": {
+                                "name": "eh-sublog", // name here must no be longer than 16 characters, shorten region name as needed
+                                "displayName": " for Subscription Activity Logs to Event Hub"
+                            },
+                            "parameters": {
+                                "diagnosticsSettingNameToUse": "Activity Log to EH",
+                                "resourceLocation": "eastus2",
+                                "eventHubAuthorizationRuleId": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources/providers/Microsoft.EventHub/namespaces/evhnseastus2/authorizationrules/RootManageSharedAccessKey",
+                                "eventHubName": "platform"
+                            },
+                            "definitionEntry": {
+                                "policyName": "activityLogs-diagnostic-settings-eh-policyDef",
+                                "friendlyNameToDocumentIfGuid": "",
+                                "roleDefinitionIds": [
+                                    "8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
+                                ]
+                            }
+                        },
+                        {
+                            "nodeName": "resourceLogs-eventHub/",
+                            "assignment": {
+                                "name": "eh-reslog-",
+                                "displayName": " for Resource Logs to Event Hub in Region "
+                            },
+                            "definitionEntry": {
+                                "initiativeName": "resource-diagnostic-settings-eh-policySet",
+                                "friendlyNameToDocumentIfGuid": "",
+                                "roleDefinitionIds": [
+                                    "b24988ac-6180-42a0-ab88-20f7382dd24c"
+                                ]
+                            },
+                            "parameters": {
+                                "diagnosticsSettingNameToUse": "DINE Logging to EH"
+                            },
+                            "children": [
+                                {
+                                    "nodeName": "eastus",
+                                    "assignment": {
+                                        "name": "eastus", // name here must no be longer than 10 characters, shorten region name as needed
+                                        "displayName": "eastus"
+                                    },
+                                    "parameters": {
+                                        "resourceLocation": "eastus",
+                                        "eventHubAuthorizationRuleId": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources/providers/Microsoft.EventHub/namespaces/evhnseastusprod/authorizationrules/RootManageSharedAccessKey"
+                                    }
+                                },
+                                {
+                                    "nodeName": "eastus2",
+                                    "assignment": {
+                                        "name": "eastus2", // name here must no be longer than 10 characters, shorten region name as needed
+                                        "displayName": "eastus2"
+                                    },
+                                    "parameters": {
+                                        "resourceLocation": "eastus2",
+                                        "eventHubAuthorizationRuleId": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources/providers/Microsoft.EventHub/namespaces/evhnseastus2prod/authorizationrules/RootManageSharedAccessKey"
+                                    }
+                                },
+                                {
+                                    "nodeName": "southcentralus",
+                                    "assignment": {
+                                        "name": "southctrus", // name here must no be longer than 10 characters, shorten region name as needed
+                                        "displayName": "southcentralus"
+                                    },
+                                    "parameters": {
+                                        "resourceLocation": "southcentralus",
+                                        "eventHubAuthorizationRuleId": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources/providers/Microsoft.EventHub/namespaces/evhnssouthcentralus-prod/authorizationrules/RootManageSharedAccessKey"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

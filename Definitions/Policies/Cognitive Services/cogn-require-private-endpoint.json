@@ -1,0 +1,43 @@
+{
+  "name":"Private endpoint should be enabled for Cognitive Services",
+  "properties": {
+    "displayName": "Private endpoint should be enabled for Cognitive Services",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Private endpoint connections enforce secure communication by enabling private connectivity to Cognitive Services. Configure a private endpoint connection to enable access to traffic coming only from known networks and prevent access from all other IP addresses, including within Azure.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Cognitive Services"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "AuditIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "AuditIfNotExists"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.CognitiveServices/accounts"
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.CognitiveServices/accounts/privateEndpointConnections",
+          "existenceCondition": {
+            "field": "Microsoft.CognitiveServices/accounts/privateEndpointConnections/privateLinkServiceConnectionState.status",
+            "equals": "Approved"
+          }
+        }
+      }
+    }
+  }
+}

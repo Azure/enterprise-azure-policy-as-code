@@ -1,0 +1,51 @@
+{
+  "name": "CosmosDB accounts requires private endpoint",
+  "properties": {
+    "displayName": "CosmosDB accounts requires private endpoint",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Azure Private endpoint lets you connect your virtual network to Azure services without a public IP address at the source or destination. The Private endpoint platform handles the connectivity between the consumer and services over the Azure backbone network. By mapping private endpoints to your CosmosDB account, data leakage risks are reduced.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Cosmos DB"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "Deny",
+          "Audit",
+          "Disabled"
+        ],
+        "defaultValue": "Disabled"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.DocumentDB/databaseAccounts"
+          },
+          {
+            "count": {
+              "field": "Microsoft.DocumentDB/databaseAccounts/privateEndpointConnections[*]",
+              "where": {
+                "field": "Microsoft.DocumentDB/databaseAccounts/privateEndpointConnections[*].privateLinkServiceConnectionState.status",
+                "equals": "Approved"
+              }
+            },
+            "less": 1
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

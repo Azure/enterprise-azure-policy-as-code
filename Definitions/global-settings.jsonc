@@ -1,0 +1,32 @@
+{
+    "managedIdentityLocation": {
+        "*": "eastus2"
+    },
+    "notScope": {
+        "*": [
+            "/resourceGroupPatterns/synapseworkspace-managedrg-*",
+            "/resourceGroupPatterns/managed-rg-*",
+            "/resourceGroupPatterns/databricks-*",
+            "/resourceGroupPatterns/DefaultResourceGroup*",
+            "/resourceGroupPatterns/NetworkWatcherRG",
+            "/resourceGroupPatterns/LogAnalyticsDefault*",
+            "/resourceGroupPatterns/Orca-Security",
+            "/resourceGroupPatterns/cloud-shell-storage*"
+        ],
+        "PAC-PROD": [
+            "/providers/Microsoft.Management/managementGroups/Personal-Subscription",
+            "/providers/Microsoft.Management/managementGroups/Security_Controls_As_Code"
+        ]
+    }
+    /* "notScope" Instructions
+        Formats of array entries:
+            managementGroups:      "/providers/Microsoft.Management/managementGroups/myManagementGroupId"
+            subscriptions:         "/subscriptions/00000000-0000-0000-000000000000"
+            resourceGroups:        "/subscriptions/00000000-0000-0000-000000000000/resourceGroups/myResourceGroup"
+            resourceGroupPatterns: No wild card or single * wild card at beginning or end of name or both; wild card in middle is invalid
+                                   "/resourceGroupPatterns/name"
+                                   "/resourceGroupPatterns/name*"
+                                   "/resourceGroupPatterns/*name"
+                                   "/resourceGroupPatterns/*name*"
+    */
+}
