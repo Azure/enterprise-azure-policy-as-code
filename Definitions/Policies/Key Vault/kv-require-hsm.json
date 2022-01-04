@@ -1,0 +1,45 @@
+{
+    "name": "Premium sku backed by HSM",
+    "properties": {
+        "displayName": "Premium sku backed by HSM",
+        "policyType": "Custom",
+        "mode": "All",
+        "description": "Policy that designates HSM at premium lvl",
+        "metadata": {
+            "version": "1.0.2",
+            "category": "Key Vault"
+        },
+        "parameters": {
+            "effect": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Effect",
+                    "description": "Enable or disable the execution of the policy"
+                },
+                "allowedValues": [
+                    "Audit",
+                    "Deny",
+                    "Disabled"
+                ],
+                "defaultValue": "Audit"
+            }
+        },
+        "policyRule": {
+            "if": {
+                "allOf": [
+                    {
+                        "field": "type",
+                        "equals": "Microsoft.KeyVault/vaults"
+                    },
+                    {
+                        "field": "Microsoft.KeyVault/vaults/sku.name",
+                        "equals": "Premium"
+                    }
+                ]
+            },
+            "then": {
+                "effect": "[parameters('effect')]"
+            }
+        }
+    }
+}

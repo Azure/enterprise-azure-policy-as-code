@@ -1,0 +1,45 @@
+{
+    "name": "Firewall should be enabled on Key Vault",
+    "properties": {
+        "displayName": "Firewall should be enabled on Key Vault",
+        "policyType": "Custom",
+        "mode": "Indexed",
+        "description": "Key vault firewall prevents unauthorized traffic from reaching your key vault and provides an additional layer of protection for your secrets. Enable the firewall to make sure that only traffic from allowed networks can access your key vault.",
+        "metadata": {
+            "version": "1.0.2-obsoletepreview",
+            "category": "Key Vault"
+        },
+        "parameters": {
+            "effect": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "[Preview]: Effect",
+                    "description": "Enable or disable the execution of the policy"
+                },
+                "allowedValues": [
+                    "Audit",
+                    "Deny",
+                    "Disabled"
+                ],
+                "defaultValue": "Disabled"
+            }
+        },
+        "policyRule": {
+            "if": {
+                "allOf": [
+                    {
+                        "field": "type",
+                        "equals": "Microsoft.KeyVault/vaults"
+                    },
+                    {
+                        "field": "Microsoft.KeyVault/vaults/networkAcls.defaultAction",
+                        "notEquals": "Deny"
+                    }
+                ]
+            },
+            "then": {
+                "effect": "[parameters('effect')]"
+            }
+        }
+    }
+}

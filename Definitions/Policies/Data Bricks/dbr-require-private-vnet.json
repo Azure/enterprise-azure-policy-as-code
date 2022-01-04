@@ -1,0 +1,45 @@
+{
+  "name": "Deploy Databricks into a private VNet",
+  "properties": {
+    "displayName": "Deploy Databricks into a private VNet",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Deploy Azure Databricks in your own Azure virtual network (VNet). The default deployment of Azure Databricks is a fully managed service on Azure: all data plane resources, including a VNet that all clusters will be associated with, are deployed to a locked resource group",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Databricks"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "defaultValue": "Audit"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Databricks/workspaces"
+          },
+          {
+            "field": "Microsoft.DataBricks/workspaces/parameters.customVirtualNetworkId",
+            "exists": "false"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

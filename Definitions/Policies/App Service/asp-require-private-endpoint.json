@@ -1,0 +1,43 @@
+{
+    "name": "App Service requires Private Endpoint for non-ASE plans",
+    "properties": {
+        "displayName": "App Service requires Private Endpoint for non-ASE plans",
+        "policyType": "Custom",
+        "mode": "Indexed",
+        "description": "Private endpoint connections enforce secure communication by enabling private connectivity to Azure App Service. Configure a private endpoint connection to enable access to traffic coming only from known networks and prevent access from all other IP addresses, including within Azure.",
+        "metadata": {
+            "version": "1.0.0",
+            "category": "Network"
+        },
+        "parameters": {
+            "effect": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Effect",
+                    "description": "Enable or disable the execution of the policy"
+                },
+                "allowedValues": [
+                    "AuditIfNotExists",
+                    "Disabled"
+                ],
+                "defaultValue": "AuditIfNotExists"
+            }
+        },
+        "policyRule": {
+            "if": {
+                "field": "type",
+                "equals": "Microsoft.Web/sites"
+            },
+            "then": {
+                "effect": "[parameters('effect')]",
+                "details": {
+                    "type": "Microsoft.Web/sites/privateEndpointConnections",
+                    "existenceCondition": {
+                        "field": "Microsoft.Web/sites/privateEndpointConnections/privateLinkServiceConnectionState.status",
+                        "equals": "Approved"
+                    }
+                }
+            }
+        }
+    }
+}

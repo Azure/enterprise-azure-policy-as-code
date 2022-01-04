@@ -1,0 +1,61 @@
+{
+  "name": "Avoid storage account keys and SAS tokens storage accounts",
+  "properties": {
+      "displayName": "Avoid storage account keys and SAS tokens storage accounts",
+      "policyType": "Custom",
+      "mode": "Indexed",
+      "description": "Standardize Azure Active Directory as the Central identity and authentication system.",
+      "metadata": {
+          "version": "1.0.2",
+          "category": "Storage"
+      },
+      "parameters": {
+          "effect": {
+              "type": "String",
+              "metadata": {
+                  "displayName": "Effect",
+                  "description": "Enable or disable the execution of the policy"
+              },
+              "allowedValues": [
+                  "Audit",
+                  "Deny",
+                  "Disabled"
+              ],
+              "defaultValue": "Audit"
+          },
+          "allowSharedKeyAccess": {
+              "type": "String",
+              "metadata": {
+                  "displayName": "SAS tokens and keys",
+                  "description": "SAS tokens and keys"
+              },
+              "allowedValues": [
+                  "true",
+                  "false"
+              ],
+              "defaultValue": "true"
+          }
+      },
+      "policyRule": {
+          "if": {
+              "allOf": [
+                  {
+                      "field": "type",
+                      "equals": "Microsoft.Storage/storageAccounts"
+                  },
+                  {
+                      "anyOf": [
+                          {
+                              "field": "Microsoft.Storage/storageAccounts/allowSharedKeyAccess",
+                              "equals": "[parameters('allowSharedKeyAccess')]"
+                          }
+                      ]
+                  }
+              ]
+          },
+          "then": {
+              "effect": "[parameters('effect')]"
+          }
+      }
+  }
+}

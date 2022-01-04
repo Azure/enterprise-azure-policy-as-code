@@ -1,0 +1,1612 @@
+{
+  "name": "AKS Cluster Level Initiative",
+  "properties": {
+    "displayName": "AKS Cluster Level Initiative",
+    "description": "This initiative contains the necessary cluster level policies for Azure Kubernetes Service",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Kubernetes"
+    },
+    "policyDefinitionGroups": [
+      {
+        "name": "Azure_Security_Benchmark_v2.0_NS-1",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_NS-1"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_NS-2",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_NS-2"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_NS-3",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_NS-3"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_NS-4",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_NS-4"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_NS-5",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_NS-5"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_NS-6",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_NS-6"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_NS-7",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_NS-7"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IM-1",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IM-1"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IM-2",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IM-2"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IM-3",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IM-3"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IM-4",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IM-4"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IM-5",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IM-5"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IM-6",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IM-6"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IM-7",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IM-7"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IM-8",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IM-8"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PA-1",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PA-1"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PA-2",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PA-2"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PA-3",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PA-3"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PA-4",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PA-4"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PA-5",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PA-5"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PA-6",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PA-6"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PA-7",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PA-7"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PA-8",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PA-8"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_DP-1",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_DP-1"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_DP-2",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_DP-2"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_DP-3",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_DP-3"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_DP-4",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_DP-4"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_DP-5",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_DP-5"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_AM-1",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_AM-1"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_AM-2",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_AM-2"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_AM-3",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_AM-3"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_AM-4",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_AM-4"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_AM-5",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_AM-5"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_AM-6",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_AM-6"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_LT-1",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-1"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_LT-2",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-2"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_LT-3",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-3"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_LT-4",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-4"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_LT-5",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-5"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_LT-6",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-6"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_LT-7",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-7"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IR-1",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IR-1"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IR-2",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IR-2"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IR-3",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IR-3"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IR-4",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IR-4"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IR-5",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IR-5"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IR-6",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IR-6"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PV-1",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PV-1"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PV-2",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PV-2"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PV-3",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PV-3"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PV-4",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PV-4"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PV-5",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PV-5"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PV-6",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PV-6"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PV-7",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PV-7"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PV-8",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PV-8"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_ES-1",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_ES-1"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_ES-2",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_ES-2"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_ES-3",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_ES-3"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_BR-1",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_BR-1"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_BR-2",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_BR-2"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_BR-3",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_BR-3"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_BR-4",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_BR-4"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_GS-1",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_GS-1"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_GS-2",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_GS-2"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_GS-3",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_GS-3"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_GS-4",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_GS-4"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_GS-5",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_GS-5"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_GS-6",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_GS-6"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_GS-7",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_GS-7"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_GS-8",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_GS-8"
+      }
+    ],
+    "parameters": {
+      "effect-Kubernetes cluster services should only use allowed external IPs": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "'Audit' allows a non-compliant resource to be created or updated, but flags it as non-compliant. 'Deny' blocks the non-compliant resource creation or update. 'Disabled' turns off the policy."
+        },
+        "allowedValues": [
+          "audit",
+          "deny",
+          "disabled"
+        ],
+        "defaultValue": "audit"
+      },
+      "excludedNamespaces-Kubernetes cluster services should only use allowed external IPs": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Namespace exclusions",
+          "description": "List of Kubernetes namespaces to exclude from policy evaluation. Providing a value for this parameter is optional."
+        },
+        "defaultValue": [
+          "kube-system",
+          "gatekeeper-system",
+          "azure-arc"
+        ]
+      },
+      "namespaces-Kubernetes cluster services should only use allowed external IPs": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Namespace inclusions",
+          "description": "List of Kubernetes namespaces to only include in policy evaluation. An empty list means the policy is applied to all resources in all namespaces."
+        },
+        "defaultValue": []
+      },
+      "labelSelector-Kubernetes cluster services should only use allowed external IPs": {
+        "type": "Object",
+        "metadata": {
+          "displayName": "Kubernetes label selector",
+          "description": "Label query to select Kubernetes resources for policy evaluation. An empty label selector matches all Kubernetes resources."
+        },
+        "defaultValue": {},
+        "schema": {
+          "description": "A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed. An empty label selector matches all resources.",
+          "type": "object",
+          "properties": {
+            "matchLabels": {
+              "description": "matchLabels is a map of {key,value} pairs.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "minProperties": 1
+            },
+            "matchExpressions": {
+              "description": "matchExpressions is a list of values, a key, and an operator.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "description": "key is the label key that the selector applies to.",
+                    "type": "string"
+                  },
+                  "operator": {
+                    "description": "operator represents a key's relationship to a set of values.",
+                    "type": "string",
+                    "enum": [
+                      "In",
+                      "NotIn",
+                      "Exists",
+                      "DoesNotExist"
+                    ]
+                  },
+                  "values": {
+                    "description": "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "key",
+                  "operator"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            }
+          },
+          "additionalProperties": false
+        }
+        
+      },
+      "allowedExternalIPs-Kubernetes cluster services should only use allowed external IPs": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Allowed External IPs",
+          "description": "List of External IPs that services are allowed to use. Empty array means all external IPs are disallowed."
+        },
+        "defaultValue": []
+      },
+      "effect-Kubernetes cluster containers should only listen on allowed ports": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "'Audit' allows a non-compliant resource to be created, but flags it as non-compliant. 'Deny' blocks the resource creation. 'Disable' turns off the policy."
+        },
+        "allowedValues": [
+          "audit",
+          "deny",
+          "disabled"
+        ],
+        "defaultValue": "audit"
+      },
+      "excludedNamespaces-Kubernetes cluster containers should only listen on allowed ports": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Namespace exclusions",
+          "description": "List of Kubernetes namespaces to exclude from policy evaluation."
+        },
+        "defaultValue": [
+          "kube-system",
+          "gatekeeper-system",
+          "azure-arc"
+        ]
+      },
+      "namespaces-Kubernetes cluster containers should only listen on allowed ports": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Namespace inclusions",
+          "description": "List of Kubernetes namespaces to only include in policy evaluation. An empty list means the policy is applied to all resources in all namespaces."
+        },
+        "defaultValue": []
+      },
+      "labelSelector-Kubernetes cluster containers should only listen on allowed ports": {
+        "type": "Object",
+        "metadata": {
+          "displayName": "Kubernetes label selector",
+          "description": "Label query to select Kubernetes resources for policy evaluation. An empty label selector matches all Kubernetes resources."
+        },
+        "defaultValue": {},
+        "schema": {
+          "description": "A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed. An empty label selector matches all resources.",
+          "type": "object",
+          "properties": {
+            "matchLabels": {
+              "description": "matchLabels is a map of {key,value} pairs.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "minProperties": 1
+            },
+            "matchExpressions": {
+              "description": "matchExpressions is a list of values, a key, and an operator.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "description": "key is the label key that the selector applies to.",
+                    "type": "string"
+                  },
+                  "operator": {
+                    "description": "operator represents a key's relationship to a set of values.",
+                    "type": "string",
+                    "enum": [
+                      "In",
+                      "NotIn",
+                      "Exists",
+                      "DoesNotExist"
+                    ]
+                  },
+                  "values": {
+                    "description": "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "key",
+                  "operator"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "allowedContainerPortsList-Kubernetes cluster containers should only listen on allowed ports": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Allowed container ports list",
+          "description": "The list of container ports allowed in a Kubernetes cluster."
+        },
+        "defaultValue": []
+      },
+      "effect-Kubernetes cluster pods should only use approved host network and port range": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "'Audit' allows a non-compliant resource to be created or updated, but flags it as non-compliant. 'Deny' blocks the non-compliant resource creation or update. 'Disabled' turns off the policy."
+        },
+        "allowedValues": [
+          "audit",
+          "deny",
+          "disabled"
+        ],
+        "defaultValue": "audit"
+      },
+      "excludedNamespaces-Kubernetes cluster pods should only use approved host network and port range": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Namespace exclusions",
+          "description": "List of Kubernetes namespaces to exclude from policy evaluation."
+        },
+        "defaultValue": [
+          "kube-system",
+          "gatekeeper-system",
+          "azure-arc"
+        ]
+      },
+      "namespaces-Kubernetes cluster pods should only use approved host network and port range": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Namespace inclusions",
+          "description": "List of Kubernetes namespaces to only include in policy evaluation. An empty list means the policy is applied to all resources in all namespaces."
+        },
+        "defaultValue": []
+      },
+      "labelSelector-Kubernetes cluster pods should only use approved host network and port range": {
+        "type": "Object",
+        "metadata": {
+          "displayName": "Kubernetes label selector",
+          "description": "Label query to select Kubernetes resources for policy evaluation. An empty label selector matches all Kubernetes resources."
+        },
+        "defaultValue": {},
+        "schema": {
+          "description": "A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed. An empty label selector matches all resources.",
+          "type": "object",
+          "properties": {
+            "matchLabels": {
+              "description": "matchLabels is a map of {key,value} pairs.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "minProperties": 1
+            },
+            "matchExpressions": {
+              "description": "matchExpressions is a list of values, a key, and an operator.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "description": "key is the label key that the selector applies to.",
+                    "type": "string"
+                  },
+                  "operator": {
+                    "description": "operator represents a key's relationship to a set of values.",
+                    "type": "string",
+                    "enum": [
+                      "In",
+                      "NotIn",
+                      "Exists",
+                      "DoesNotExist"
+                    ]
+                  },
+                  "values": {
+                    "description": "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "key",
+                  "operator"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "allowHostNetwork-Kubernetes cluster pods should only use approved host network and port range": {
+        "type": "Boolean",
+        "metadata": {
+          "displayName": "Allow host network usage",
+          "description": "Set this value to true if pod is allowed to use host network otherwise false."
+        },
+        "defaultValue": false
+      },
+      "minPort-Kubernetes cluster pods should only use approved host network and port range": {
+        "type": "Integer",
+        "metadata": {
+          "displayName": "Min host port",
+          "description": "The minimum value in the allowable host port range that pods can use in the host network namespace."
+        },
+        "defaultValue": 0
+      },
+      "maxPort-Kubernetes cluster pods should only use approved host network and port range": {
+        "type": "Integer",
+        "metadata": {
+          "displayName": "Max host port",
+          "description": "The maximum value in the allowable host port range that pods can use in the host network namespace."
+        },
+        "defaultValue": 0
+      },
+      "effect-Kubernetes cluster containers CPU and memory resource limits should not exceed the specified limits": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "'Audit' allows a non-compliant resource to be created, but flags it as non-compliant. 'Deny' blocks the resource creation. 'Disable' turns off the policy."
+        },
+        "allowedValues": [
+          "audit",
+          "deny",
+          "disabled"
+        ],
+        "defaultValue": "audit"
+      },
+      "excludedNamespaces-Kubernetes cluster containers CPU and memory resource limits should not exceed the specified limits": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Namespace exclusions",
+          "description": "List of Kubernetes namespaces to exclude from policy evaluation."
+        },
+        "defaultValue": [
+          "kube-system",
+          "gatekeeper-system",
+          "azure-arc"
+        ]
+      },
+      "namespaces-Kubernetes cluster containers CPU and memory resource limits should not exceed the specified limits": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Namespace inclusions",
+          "description": "List of Kubernetes namespaces to only include in policy evaluation. An empty list means the policy is applied to all resources in all namespaces."
+        },
+        "defaultValue": []
+      },
+      "labelSelector-Kubernetes cluster containers CPU and memory resource limits should not exceed the specified limits": {
+        "type": "Object",
+        "metadata": {
+          "displayName": "Kubernetes label selector",
+          "description": "Label query to select Kubernetes resources for policy evaluation. An empty label selector matches all Kubernetes resources."
+        },
+        "defaultValue": {},
+        "schema": {
+          "description": "A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed. An empty label selector matches all resources.",
+          "type": "object",
+          "properties": {
+            "matchLabels": {
+              "description": "matchLabels is a map of {key,value} pairs.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "minProperties": 1
+            },
+            "matchExpressions": {
+              "description": "matchExpressions is a list of values, a key, and an operator.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "description": "key is the label key that the selector applies to.",
+                    "type": "string"
+                  },
+                  "operator": {
+                    "description": "operator represents a key's relationship to a set of values.",
+                    "type": "string",
+                    "enum": [
+                      "In",
+                      "NotIn",
+                      "Exists",
+                      "DoesNotExist"
+                    ]
+                  },
+                  "values": {
+                    "description": "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "key",
+                  "operator"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "cpuLimit-Kubernetes cluster containers CPU and memory resource limits should not exceed the specified limits": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Max allowed CPU units",
+          "description": "The maximum CPU units allowed for a container. E.g. 200m. For more information, please refer https://aka.ms/k8s-policy-pod-limits"
+        },
+        "defaultValue": ""
+      },
+      "memoryLimit-Kubernetes cluster containers CPU and memory resource limits should not exceed the specified limits": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Max allowed memory bytes",
+          "description": "The maximum memory bytes allowed for a container. E.g. 1Gi. For more information, please refer https://aka.ms/k8s-policy-pod-limits"
+        },
+        "defaultValue": ""
+      },
+      "effect-Kubernetes cluster pods should use specified labels": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "'Audit' allows a non-compliant resource to be created, but flags it as non-compliant. 'Deny' blocks the resource creation. 'Disable' turns off the policy."
+        },
+        "allowedValues": [
+          "audit",
+          "deny",
+          "disabled"
+        ],
+        "defaultValue": "audit"
+      },
+      "excludedNamespaces-Kubernetes cluster pods should use specified labels": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Namespace exclusions",
+          "description": "List of Kubernetes namespaces to exclude from policy evaluation."
+        },
+        "defaultValue": [
+          "kube-system",
+          "gatekeeper-system",
+          "azure-arc"
+        ]
+      },
+      "namespaces-Kubernetes cluster pods should use specified labels": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Namespace inclusions",
+          "description": "List of Kubernetes namespaces to only include in policy evaluation. An empty list means the policy is applied to all resources in all namespaces."
+        },
+        "defaultValue": []
+      },
+      "labelSelector-Kubernetes cluster pods should use specified labels": {
+        "type": "Object",
+        "metadata": {
+          "displayName": "Kubernetes label selector",
+          "description": "Label query to select Kubernetes resources for policy evaluation. An empty label selector matches all Kubernetes resources."
+        },
+        "defaultValue": {},
+        "schema": {
+          "description": "A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed. An empty label selector matches all resources.",
+          "type": "object",
+          "properties": {
+            "matchLabels": {
+              "description": "matchLabels is a map of {key,value} pairs.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "minProperties": 1
+            },
+            "matchExpressions": {
+              "description": "matchExpressions is a list of values, a key, and an operator.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "description": "key is the label key that the selector applies to.",
+                    "type": "string"
+                  },
+                  "operator": {
+                    "description": "operator represents a key's relationship to a set of values.",
+                    "type": "string",
+                    "enum": [
+                      "In",
+                      "NotIn",
+                      "Exists",
+                      "DoesNotExist"
+                    ]
+                  },
+                  "values": {
+                    "description": "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "key",
+                  "operator"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "labelsList-Kubernetes cluster pods should use specified labels": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "List of labels",
+          "description": "The list of labels to be specified on Pods in a Kubernetes cluster."
+        },
+        "defaultValue": []
+      },
+      "effect-Kubernetes clusters should not use specific security capabilities": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "'Audit' allows a non-compliant resource to be created or updated, but flags it as non-compliant. 'Deny' blocks the non-compliant resource creation or update. 'Disabled' turns off the policy."
+        },
+        "allowedValues": [
+          "audit",
+          "deny",
+          "disabled"
+        ],
+        "defaultValue": "audit"
+      },
+      "excludedNamespaces-Kubernetes clusters should not use specific security capabilities": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Namespace exclusions",
+          "description": "List of Kubernetes namespaces to exclude from policy evaluation."
+        },
+        "defaultValue": [
+          "kube-system",
+          "gatekeeper-system",
+          "azure-arc"
+        ]
+      },
+      "namespaces-Kubernetes clusters should not use specific security capabilities": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Namespace inclusions",
+          "description": "List of Kubernetes namespaces to only include in policy evaluation. An empty list means the policy is applied to all resources in all namespaces."
+        },
+        "defaultValue": []
+      },
+      "labelSelector-Kubernetes clusters should not use specific security capabilities": {
+        "type": "Object",
+        "metadata": {
+          "displayName": "Kubernetes label selector",
+          "description": "Label query to select Kubernetes resources for policy evaluation. An empty label selector matches all Kubernetes resources."
+        },
+        "defaultValue": {},
+        "schema": {
+          "description": "A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed. An empty label selector matches all resources.",
+          "type": "object",
+          "properties": {
+            "matchLabels": {
+              "description": "matchLabels is a map of {key,value} pairs.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "minProperties": 1
+            },
+            "matchExpressions": {
+              "description": "matchExpressions is a list of values, a key, and an operator.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "description": "key is the label key that the selector applies to.",
+                    "type": "string"
+                  },
+                  "operator": {
+                    "description": "operator represents a key's relationship to a set of values.",
+                    "type": "string",
+                    "enum": [
+                      "In",
+                      "NotIn",
+                      "Exists",
+                      "DoesNotExist"
+                    ]
+                  },
+                  "values": {
+                    "description": "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "key",
+                  "operator"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "disallowedCapabilities-Kubernetes clusters should not use specific security capabilities": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Blocked capabilities",
+          "description": "List of capabilities that containers are not able to use"
+        },
+        "defaultValue": []
+      },
+      "effect-Kubernetes cluster containers should only use allowed capabilities": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "'Audit' allows a non-compliant resource to be created or updated, but flags it as non-compliant. 'Deny' blocks the non-compliant resource creation or update. 'Disabled' turns off the policy."
+        },
+        "allowedValues": [
+          "audit",
+          "deny",
+          "disabled"
+        ],
+        "defaultValue": "audit"
+      },
+      "excludedNamespaces-Kubernetes cluster containers should only use allowed capabilities": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Namespace exclusions",
+          "description": "List of Kubernetes namespaces to exclude from policy evaluation."
+        },
+        "defaultValue": [
+          "kube-system",
+          "gatekeeper-system",
+          "azure-arc"
+        ]
+      },
+      "namespaces-Kubernetes cluster containers should only use allowed capabilities": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Namespace inclusions",
+          "description": "List of Kubernetes namespaces to only include in policy evaluation. An empty list means the policy is applied to all resources in all namespaces."
+        },
+        "defaultValue": []
+      },
+      "labelSelector-Kubernetes cluster containers should only use allowed capabilities": {
+        "type": "Object",
+        "metadata": {
+          "displayName": "Kubernetes label selector",
+          "description": "Label query to select Kubernetes resources for policy evaluation. An empty label selector matches all Kubernetes resources."
+        },
+        "defaultValue": {},
+        "schema": {
+          "description": "A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed. An empty label selector matches all resources.",
+          "type": "object",
+          "properties": {
+            "matchLabels": {
+              "description": "matchLabels is a map of {key,value} pairs.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "minProperties": 1
+            },
+            "matchExpressions": {
+              "description": "matchExpressions is a list of values, a key, and an operator.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "description": "key is the label key that the selector applies to.",
+                    "type": "string"
+                  },
+                  "operator": {
+                    "description": "operator represents a key's relationship to a set of values.",
+                    "type": "string",
+                    "enum": [
+                      "In",
+                      "NotIn",
+                      "Exists",
+                      "DoesNotExist"
+                    ]
+                  },
+                  "values": {
+                    "description": "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "key",
+                  "operator"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "allowedCapabilities-Kubernetes cluster containers should only use allowed capabilities": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Allowed capabilities",
+          "description": "The list of capabilities that are allowed to be added to a container. Provide empty list as input to block everything."
+        },
+        "defaultValue": []
+      },
+      "requiredDropCapabilities-Kubernetes cluster containers should only use allowed capabilities": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Required drop capabilities",
+          "description": "The list of capabilities that must be dropped by a container."
+        },
+        "defaultValue": []
+      },
+      "effect-Kubernetes clusters should disable automounting API credentials": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "'Audit' allows a non-compliant resource to be created or updated, but flags it as non-compliant. 'Deny' blocks the non-compliant resource creation or update. 'Disabled' turns off the policy."
+        },
+        "allowedValues": [
+          "audit",
+          "deny",
+          "disabled"
+        ],
+        "defaultValue": "audit"
+      },
+      "excludedNamespaces-Kubernetes clusters should disable automounting API credentials": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Namespace exclusions",
+          "description": "List of Kubernetes namespaces to exclude from policy evaluation."
+        },
+        "defaultValue": [
+          "kube-system",
+          "gatekeeper-system",
+          "azure-arc"
+        ]
+      },
+      "namespaces-Kubernetes clusters should disable automounting API credentials": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Namespace inclusions",
+          "description": "List of Kubernetes namespaces to only include in policy evaluation. An empty list means the policy is applied to all resources in all namespaces."
+        },
+        "defaultValue": []
+      },
+      "labelSelector-Kubernetes clusters should disable automounting API credentials": {
+        "type": "Object",
+        "metadata": {
+          "displayName": "Kubernetes label selector",
+          "description": "Label query to select Kubernetes resources for policy evaluation. An empty label selector matches all Kubernetes resources."
+        },
+        "defaultValue": {},
+        "schema": {
+          "description": "A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed. An empty label selector matches all resources.",
+          "type": "object",
+          "properties": {
+            "matchLabels": {
+              "description": "matchLabels is a map of {key,value} pairs.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "minProperties": 1
+            },
+            "matchExpressions": {
+              "description": "matchExpressions is a list of values, a key, and an operator.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "description": "key is the label key that the selector applies to.",
+                    "type": "string"
+                  },
+                  "operator": {
+                    "description": "operator represents a key's relationship to a set of values.",
+                    "type": "string",
+                    "enum": [
+                      "In",
+                      "NotIn",
+                      "Exists",
+                      "DoesNotExist"
+                    ]
+                  },
+                  "values": {
+                    "description": "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "key",
+                  "operator"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "effect-Kubernetes cluster pod hostPath volumes should only use allowed host paths": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "'Audit' allows a non-compliant resource to be created or updated, but flags it as non-compliant. 'Deny' blocks the non-compliant resource creation or update. 'Disabled' turns off the policy."
+        },
+        "allowedValues": [
+          "audit",
+          "deny",
+          "disabled"
+        ],
+        "defaultValue": "audit"
+      },
+      "excludedNamespaces-Kubernetes cluster pod hostPath volumes should only use allowed host paths": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Namespace exclusions",
+          "description": "List of Kubernetes namespaces to exclude from policy evaluation."
+        },
+        "defaultValue": [
+          "kube-system",
+          "gatekeeper-system",
+          "azure-arc"
+        ]
+      },
+      "namespaces-Kubernetes cluster pod hostPath volumes should only use allowed host paths": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Namespace inclusions",
+          "description": "List of Kubernetes namespaces to only include in policy evaluation. An empty list means the policy is applied to all resources in all namespaces."
+        },
+        "defaultValue": []
+      },
+      "labelSelector-Kubernetes cluster pod hostPath volumes should only use allowed host paths": {
+        "type": "Object",
+        "metadata": {
+          "displayName": "Kubernetes label selector",
+          "description": "Label query to select Kubernetes resources for policy evaluation. An empty label selector matches all Kubernetes resources."
+        },
+        "defaultValue": {},
+        "schema": {
+          "description": "A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed. An empty label selector matches all resources.",
+          "type": "object",
+          "properties": {
+            "matchLabels": {
+              "description": "matchLabels is a map of {key,value} pairs.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "minProperties": 1
+            },
+            "matchExpressions": {
+              "description": "matchExpressions is a list of values, a key, and an operator.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "description": "key is the label key that the selector applies to.",
+                    "type": "string"
+                  },
+                  "operator": {
+                    "description": "operator represents a key's relationship to a set of values.",
+                    "type": "string",
+                    "enum": [
+                      "In",
+                      "NotIn",
+                      "Exists",
+                      "DoesNotExist"
+                    ]
+                  },
+                  "values": {
+                    "description": "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "key",
+                  "operator"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "allowedHostPaths-Kubernetes cluster pod hostPath volumes should only use allowed host paths": {
+        "type": "Object",
+        "metadata": {
+          "displayName": "Allowed host paths",
+          "description": "The host paths allowed for pod hostPath volumes to use. Provide an empty paths list to block all host paths."
+        },
+        "defaultValue": {
+          "paths": []
+        },
+        "schema": {
+          "type": "object",
+          "properties": {
+            "paths": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "pathPrefix": {
+                    "type": "string"
+                  },
+                  "readOnly": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "pathPrefix",
+                  "readOnly"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "paths"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "effect-Kubernetes cluster services should listen only on allowed ports": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "'Audit' allows a non-compliant resource to be created, but flags it as non-compliant. 'Deny' blocks the resource creation. 'Disable' turns off the policy."
+        },
+        "allowedValues": [
+          "audit",
+          "deny",
+          "disabled"
+        ],
+        "defaultValue": "audit"
+      },
+      "excludedNamespaces-Kubernetes cluster services should listen only on allowed ports": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Namespace exclusions",
+          "description": "List of Kubernetes namespaces to exclude from policy evaluation."
+        },
+        "defaultValue": [
+          "kube-system",
+          "gatekeeper-system",
+          "azure-arc"
+        ]
+      },
+      "namespaces-Kubernetes cluster services should listen only on allowed ports": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Namespace inclusions",
+          "description": "List of Kubernetes namespaces to only include in policy evaluation. An empty list means the policy is applied to all resources in all namespaces."
+        },
+        "defaultValue": []
+      },
+      "labelSelector-Kubernetes cluster services should listen only on allowed ports": {
+        "type": "Object",
+        "metadata": {
+          "displayName": "Kubernetes label selector",
+          "description": "Label query to select Kubernetes resources for policy evaluation. An empty label selector matches all Kubernetes resources."
+        },
+        "defaultValue": {},
+        "schema": {
+          "description": "A label selector is a label query over a set of resources. The result of matchLabels and matchExpressions are ANDed. An empty label selector matches all resources.",
+          "type": "object",
+          "properties": {
+            "matchLabels": {
+              "description": "matchLabels is a map of {key,value} pairs.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "minProperties": 1
+            },
+            "matchExpressions": {
+              "description": "matchExpressions is a list of values, a key, and an operator.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "description": "key is the label key that the selector applies to.",
+                    "type": "string"
+                  },
+                  "operator": {
+                    "description": "operator represents a key's relationship to a set of values.",
+                    "type": "string",
+                    "enum": [
+                      "In",
+                      "NotIn",
+                      "Exists",
+                      "DoesNotExist"
+                    ]
+                  },
+                  "values": {
+                    "description": "values is an array of string values. If the operator is In or NotIn, the values array must be non-empty. If the operator is Exists or DoesNotExist, the values array must be empty.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "key",
+                  "operator"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "allowedServicePortsList-Kubernetes cluster services should listen only on allowed ports": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Allowed service ports list",
+          "description": "The list of service ports allowed in a Kubernetes cluster. Array only accepts strings. Example: [\"443\", \"80\"]"
+        },
+        "defaultValue": []
+      }
+
+    },
+    "PolicyDefinitions": [
+      {
+        "policyDefinitionReferenceId": "Kubernetes cluster services should only use allowed external IPs",
+        "policyDefinitionName": "d46c275d-1680-448d-b2ec-e495a3b6cc89",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Kubernetes cluster services should only use allowed external IPs')]"
+          },
+          "excludedNamespaces": {
+            "value": "[parameters('excludedNamespaces-Kubernetes cluster services should only use allowed external IPs')]"
+          },
+          "namespaces": {
+            "value": "[parameters('namespaces-Kubernetes cluster services should only use allowed external IPs')]"
+          },
+          "labelSelector": {
+            "value": "[parameters('labelSelector-Kubernetes cluster services should only use allowed external IPs')]"
+          },
+          "allowedExternalIPs": {
+            "value": "[parameters('allowedExternalIPs-Kubernetes cluster services should only use allowed external IPs')]"
+          }
+
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_PV-2"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "Kubernetes cluster containers should only listen on allowed ports",
+        "policyDefinitionName": "440b515e-a580-421e-abeb-b159a61ddcbc",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Kubernetes cluster containers should only listen on allowed ports')]"
+          },
+          "excludedNamespaces": {
+            "value": "[parameters('excludedNamespaces-Kubernetes cluster containers should only listen on allowed ports')]"
+          },
+          "namespaces": {
+            "value": "[parameters('namespaces-Kubernetes cluster containers should only listen on allowed ports')]"
+          },
+          "labelSelector": {
+            "value": "[parameters('labelSelector-Kubernetes cluster containers should only listen on allowed ports')]"
+          },
+          "allowedContainerPortsList": {
+            "value": "[parameters('allowedContainerPortsList-Kubernetes cluster containers should only listen on allowed ports')]"
+          }
+
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_PV-2"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "Kubernetes cluster pods should only use approved host network and port range",
+        "policyDefinitionName": "82985f06-dc18-4a48-bc1c-b9f4f0098cfe",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Kubernetes cluster pods should only use approved host network and port range')]"
+          },
+          "excludedNamespaces": {
+            "value": "[parameters('excludedNamespaces-Kubernetes cluster pods should only use approved host network and port range')]"
+          },
+          "namespaces": {
+            "value": "[parameters('namespaces-Kubernetes cluster pods should only use approved host network and port range')]"
+          },
+          "labelSelector": {
+            "value": "[parameters('labelSelector-Kubernetes cluster pods should only use approved host network and port range')]"
+          },
+          "allowHostNetwork": {
+            "value": "[parameters('allowHostNetwork-Kubernetes cluster pods should only use approved host network and port range')]"
+          },
+          "minPort": {
+            "value": "[parameters('minPort-Kubernetes cluster pods should only use approved host network and port range')]"
+          },
+          "maxPort": {
+            "value": "[parameters('maxPort-Kubernetes cluster pods should only use approved host network and port range')]"
+          }
+
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_PV-2"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "Kubernetes cluster containers CPU and memory resource limits should not exceed the specified limits",
+        "policyDefinitionName": "e345eecc-fa47-480f-9e88-67dcc122b164",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Kubernetes cluster containers CPU and memory resource limits should not exceed the specified limits')]"
+          },
+          "excludedNamespaces": {
+            "value": "[parameters('excludedNamespaces-Kubernetes cluster containers CPU and memory resource limits should not exceed the specified limits')]"
+          },
+          "namespaces": {
+            "value": "[parameters('namespaces-Kubernetes cluster containers CPU and memory resource limits should not exceed the specified limits')]"
+          },
+          "labelSelector": {
+            "value": "[parameters('labelSelector-Kubernetes cluster containers CPU and memory resource limits should not exceed the specified limits')]"
+          },
+          "cpuLimit": {
+            "value": "[parameters('cpuLimit-Kubernetes cluster containers CPU and memory resource limits should not exceed the specified limits')]"
+          },
+          "memoryLimit": {
+            "value": "[parameters('memoryLimit-Kubernetes cluster containers CPU and memory resource limits should not exceed the specified limits')]"
+          }
+
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_PV-2"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "Kubernetes cluster pods should use specified labels",
+        "policyDefinitionName": "46592696-4c7b-4bf3-9e45-6c2763bdc0a6",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Kubernetes cluster pods should use specified labels')]"
+          },
+          "excludedNamespaces": {
+            "value": "[parameters('excludedNamespaces-Kubernetes cluster pods should use specified labels')]"
+          },
+          "namespaces": {
+            "value": "[parameters('namespaces-Kubernetes cluster pods should use specified labels')]"
+          },
+          "labelSelector": {
+            "value": "[parameters('labelSelector-Kubernetes cluster pods should use specified labels')]"
+          },
+          "labelsList": {
+            "value": "[parameters('labelsList-Kubernetes cluster pods should use specified labels')]"
+          }
+
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_PV-2"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "Kubernetes clusters should not use specific security capabilities",
+        "policyDefinitionName": "a27c700f-8a22-44ec-961c-41625264370b",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Kubernetes clusters should not use specific security capabilities')]"
+          },
+          "excludedNamespaces": {
+            "value": "[parameters('excludedNamespaces-Kubernetes clusters should not use specific security capabilities')]"
+          },
+          "namespaces": {
+            "value": "[parameters('namespaces-Kubernetes clusters should not use specific security capabilities')]"
+          },
+          "labelSelector": {
+            "value": "[parameters('labelSelector-Kubernetes clusters should not use specific security capabilities')]"
+          },
+          "disallowedCapabilities": {
+            "value": "[parameters('disallowedCapabilities-Kubernetes clusters should not use specific security capabilities')]"
+          }
+
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_PV-2"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "Kubernetes cluster containers should only use allowed capabilities",
+        "policyDefinitionName": "c26596ff-4d70-4e6a-9a30-c2506bd2f80c",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Kubernetes cluster containers should only use allowed capabilities')]"
+          },
+          "excludedNamespaces": {
+            "value": "[parameters('excludedNamespaces-Kubernetes cluster containers should only use allowed capabilities')]"
+          },
+          "namespaces": {
+            "value": "[parameters('namespaces-Kubernetes cluster containers should only use allowed capabilities')]"
+          },
+          "labelSelector": {
+            "value": "[parameters('labelSelector-Kubernetes cluster containers should only use allowed capabilities')]"
+          },
+          "allowedCapabilities": {
+            "value": "[parameters('allowedCapabilities-Kubernetes cluster containers should only use allowed capabilities')]"
+          },
+          "requiredDropCapabilities": {
+            "value": "[parameters('requiredDropCapabilities-Kubernetes cluster containers should only use allowed capabilities')]"
+          }
+
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_PV-2"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "Kubernetes clusters should disable automounting API credentials",
+        "policyDefinitionName": "423dd1ba-798e-40e4-9c4d-b6902674b423",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Kubernetes clusters should disable automounting API credentials')]"
+          },
+          "excludedNamespaces": {
+            "value": "[parameters('excludedNamespaces-Kubernetes clusters should disable automounting API credentials')]"
+          },
+          "namespaces": {
+            "value": "[parameters('namespaces-Kubernetes clusters should disable automounting API credentials')]"
+          },
+          "labelSelector": {
+            "value": "[parameters('labelSelector-Kubernetes clusters should disable automounting API credentials')]"
+          }
+
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_PV-2"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "Kubernetes cluster pod hostPath volumes should only use allowed host paths",
+        "policyDefinitionName": "098fc59e-46c7-4d99-9b16-64990e543d75",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Kubernetes cluster pod hostPath volumes should only use allowed host paths')]"
+          },
+          "excludedNamespaces": {
+            "value": "[parameters('excludedNamespaces-Kubernetes cluster pod hostPath volumes should only use allowed host paths')]"
+          },
+          "namespaces": {
+            "value": "[parameters('namespaces-Kubernetes cluster pod hostPath volumes should only use allowed host paths')]"
+          },
+          "labelSelector": {
+            "value": "[parameters('labelSelector-Kubernetes cluster pod hostPath volumes should only use allowed host paths')]"
+          },
+          "allowedHostPaths": {
+            "value": "[parameters('allowedHostPaths-Kubernetes cluster pod hostPath volumes should only use allowed host paths')]"
+          }
+
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_PV-2"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "Kubernetes cluster services should listen only on allowed ports",
+        "policyDefinitionName": "233a2a17-77ca-4fb1-9b6b-69223d272a44",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Kubernetes cluster services should listen only on allowed ports')]"
+          },
+          "excludedNamespaces": {
+            "value": "[parameters('excludedNamespaces-Kubernetes cluster services should listen only on allowed ports')]"
+          },
+          "namespaces": {
+            "value": "[parameters('namespaces-Kubernetes cluster services should listen only on allowed ports')]"
+          },
+          "labelSelector": {
+            "value": "[parameters('labelSelector-Kubernetes cluster services should listen only on allowed ports')]"
+          },
+          "allowedServicePortsList": {
+            "value": "[parameters('allowedServicePortsList-Kubernetes cluster services should listen only on allowed ports')]"
+          }
+
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_PV-2"
+        ]
+      }
+    ]
+  }
+}

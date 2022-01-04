@@ -1,0 +1,47 @@
+{
+  "name": "Azure storage should have the minimal TLS version of 1.2",
+  "properties": {
+    "displayName": "Azure storage should have the minimal TLS version of 1.2",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Setting minimal TLS version to 1.2 improves security by ensuring your Azure Storage account  can only be accessed from clients using TLS 1.2. Using versions of TLS less than 1.2 is not recommended since they have well documented security vulnerabilities",
+    "metadata": {
+      "version": "1.0.1",
+      "category": "Storage"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "Disabled",
+          "Audit",
+          "Deny"
+        ],
+        "defaultValue": "Audit"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Storage/storageAccounts"
+          },
+          {
+            "not": {
+              "field": "Microsoft.Storage/storageAccounts/minimumTlsVersion",
+              "equals": "TLS1_2"
+            }
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

@@ -1,0 +1,457 @@
+{
+    // Security Baseline for Org (Azure Security Benchmark & Org Delta from Azure Security Benchmark Initiative
+    "nodeName": "/Security/",
+    "parameters": {
+        // =============================================================================================================================
+        // Common settings
+        // =============================================================================================================================
+        //
+        // Parameters at this node are used to disable the Policy due to it being superceded by a cloned (improved) version in Org Delta
+        //            or moved from Azure Security benchmark to AKS specific initiatives and assignemnt
+        "azurePolicyAddonStatusEffect": "Disabled",
+        "firewallShouldBeEnabledOnKeyVaultMonitoringEffect": "Disabled",
+        "NoPrivilegeEscalationInKubernetesClusterEffect": "disabled",
+        "kubernetesServiceAuthorizedIPRangesEnabledMonitoringEffect": "Disabled",
+        "kubernetesServiceVersionUpToDateMonitoringEffect": "Disabled",
+        "containerBenchmarkMonitoringEffect": "Disabled",
+        "allowedContainerImagesInKubernetesClusterEffect": "disabled",
+        "privilegedContainersShouldBeAvoidedEffect": "disabled",
+        "NoSharingSensitiveHostNamespacesInKubernetesEffect": "disabled",
+        "ReadOnlyRootFileSystemInKubernetesClusterEffect": "disabled",
+        "AllowedAppArmorProfilesInKubernetesClusterEffect": "disabled",
+        "AllowedHostNetworkingAndPortsInKubernetesClusterEffect": "disabled",
+        "memoryAndCPULimitsInKubernetesClusterEffect": "disabled",
+        "MustRunAsNonRootNamespaceEffect": "disabled",
+        "containerRegistryVulnerabilityAssessmentEffect": "Disabled",
+        "kubernetesServiceRbacEnabledMonitoringEffect": "Disabled",
+        "AllowedHostPathVolumesInKubernetesClusterEffect": "disabled",
+        "allowedServicePortsInKubernetesClusterEffect": "disabled",
+        "AllowedCapabilitiesInKubernetesClusterEffect": "disabled",
+        "kubernetesClustersShouldBeAccessibleOnlyOverHTTPSMonitoringEffect": "disabled",
+        "KubernetesClustersShouldNotUseTheDefaultNamespaceMonitoringEffect": "disabled",
+        "KubernetesClustersShouldDisableAutomountingAPICredentialsMonitoringEffect": "disabled",
+        "KubernetesClustersShouldNotGrantCAPSYSADMINSecurityCapabilitiesMonitoringEffect": "disabled",
+        "allowedContainerPortsInKubernetesClusterEffect": "disabled",
+        // Parameters are used for common items (generally reserved for AuditIfNotExists) when Azure Security Benchmark uses Disabled default
+        //            or to disable due to Not Used by Design Policies across all environments
+        "networkSecurityGroupsOnVirtualMachinesMonitoringEffect": "Disabled",
+        "networkSecurityGroupsOnInternalVirtualMachinesMonitoringEffect": "Disabled",
+        "nextGenerationFirewallMonitoringEffect": "Disabled",
+        "identityEnableMFAForOwnerPermissionsMonitoringEffect": "Disabled",
+        "identityEnableMFAForWritePermissionsMonitoringEffect": "Disabled",
+        "identityEnableMFAForReadPermissionsMonitoringEffect": "Disabled",
+        "apiAppAuditFtpsMonitoringEffect": "Disabled",
+        "functionAppAuditFtpsMonitoringEffect": "Disabled",
+        "webAppAuditFtpsMonitoringEffect": "Disabled",
+        "apiAppUseManagedIdentityMonitoringEffect": "AuditIfNotExists",
+        "functionAppUseManagedIdentityMonitoringEffect": "AuditIfNotExists",
+        "webAppUseManagedIdentityMonitoringEffect": "AuditIfNotExists",
+        "apiAppRequireLatestTlsMonitoringEffect": "AuditIfNotExists",
+        "functionAppRequireLatestTlsMonitoringEffect": "AuditIfNotExists",
+        "webAppRequireLatestTlsMonitoringEffect": "AuditIfNotExists",
+        "ensureWEBAppHasClientCertificatesIncomingClientCertificatesSetToOnMonitoringEffect": "Disabled",
+        "ensureAPIAppHasClientCertificatesIncomingClientCertificatesSetToOnMonitoringEffect": "Disabled",
+        "functionAppsShouldHaveClientCertificatesEnabledMonitoringEffect": "Disabled",
+        "fTPSOnlyShouldBeRequiredInYourFunctionAppMonitoringEffect": "Disabled",
+        "fTPSShouldBeRequiredInYourWebAppMonitoringEffect": "Disabled",
+        "fTPSOnlyShouldBeRequiredInYourAPIAppMonitoringEffect": "Disabled",
+        "storageAccountsShouldRestrictNetworkAccessUsingVirtualNetworkRulesMonitoringEffect": "Disabled",
+        "webApplicationFirewallShouldBeEnabledForApplicationGatewayMonitoringEffect": "Disabled",
+        "cognitiveServicesAccountsShouldRestrictNetworkAccessMonitoringEffect": "Disabled",
+        "azureCosmosDBAccountsShouldHaveFirewallRulesMonitoringEffect": "Disabled",
+        "vnetEnableDDoSProtectionMonitoringEffect": "Disabled",
+        // Org Delta entry maitakes which should be removed
+        "effect-AzureSynapsecustomer-managedkeystoEncrpytdataatrest": "Disabled", // CMK are not used by design
+        "effect-WebApplicationFirewallforAppGateway": "Disabled", // Using Akamai WAF, App gateway WAF not used by design
+        "effect-Firewall should be enabled on Key Vault": "Disabled", // Firewall policy conflicts with more stringent Private Endpoints
+        // Deny (reason for clone) does not work for this Policy, it deals with AKV item expiry warnings
+        "effect-Certificateshouldhavethespecifiedlifetimeactiontriggers": "disabled",
+        "effect-KeyVaultKeysShouldhavethespecifiedmaximumvalidityperiod": "Disabled",
+        "effect-KeyVaultSecretsShouldBeActiveforlongerthanthespecifiednumberofdays": "Disabled",
+        // Common AKV settings across all environments
+        "effect-CertificatesShouldNotExpireWithintheSpecifiednumberofdays": "audit",
+        "effect-KeyVaultKeysshouldhavespecifiednumberofdaysbeforeExpiration": "Disabled",
+        "effect-KeyVaultSecretsspecifiednumberofdaysbeforeExpiration": "Audit",
+        "daysToExpire-CertificatesShouldNotExpireWithintheSpecifiednumberofdays": 30, // days
+        "minimumDaysBeforeExpiration-KeyVaultKeysshouldhavespecifiednumberofdaysbeforeExpiration": 15, // days
+        "minimumDaysBeforeExpiration-KeyVaultSecretsspecifiednumberofdaysbeforeExpiration": 15, // days
+        "maximumValidityInMonths-CertificateShouldHavethespecifiedmaximumvalidityperiod": 12, // months
+        "maximumValidityInDays-KeyVaultKeysShouldhavethespecifiedmaximumvalidityperiod": 90, // days
+        "maximumValidityInDays-KeyVaultSecretsShouldHaveSpecifiedMaximumValidityPeriod": 90, // days
+        "minimumRSAKeySize-KeyVaultRSACryptographySpecifiedMinimumKeySize": 4096
+    },
+    "children": [
+        {
+            "nodeName": "Prod/",
+            "scope": {
+                "PAC-DEV-001": [
+                    "/subscriptions/450de7ac-f65b-4324-a96a-6e74b13b8d7d"
+                ],
+                "PAC-DEV-002": [
+                    "/subscriptions/c5215db3-a5b6-43e7-8ddb-02da410ec716"
+                ],
+                "PAC-QA": [
+                    "/subscriptions/63ef1972-b1be-4a4b-a846-17fdd7105daa"
+                ],
+                "PAC-PROD": [
+                    "/providers/Microsoft.Management/managementGroups/NBA-IT-Prod-Env",
+                    "/providers/Microsoft.Management/managementGroups/OTT-Prod-Env",
+                    "/providers/Microsoft.Management/managementGroups/MediaKind-Prod"
+                ]
+            },
+            "parameters": {
+                // ASB
+                "apiAppEnforceHttpsMonitoringEffect": "AuditIfNotExists",
+                "functionAppEnforceHttpsMonitoringEffect": "AuditIfNotExists",
+                "webAppEnforceHttpsMonitoringEffect": "AuditIfNotExists",
+                "publicNetworkAccessOnAzureSQLDatabaseShouldBeDisabledMonitoringEffect": "Deny",
+                "disallowPublicBlobAccessEffect": "deny",
+                "secureTransferToStorageAccountMonitoringEffect": "Deny",
+                "publicNetworkAccessShouldBeDisabledForCognitiveServicesAccountsMonitoringEffect": "Deny",
+                "azureCacheForRedisShouldResideWithinAVirtualNetworkMonitoringEffect": "Audit",
+                "keyVaultsShouldHaveSoftDeleteEnabledMonitoringEffect": "Deny",
+                "keyVaultsShouldHavePurgeProtectionEnabledMonitoringEffect": "Deny",
+                "webApplicationFirewallShouldBeEnabledForAzureFrontDoorServiceServiceMonitoringEffect": "Deny",
+                "azureSpringCloudShouldUseNetworkInjectionMonitoringEffect": "Deny",
+                "apiAppDisableRemoteDebuggingMonitoringEffect": "AuditIfNotExists",
+                "functionAppDisableRemoteDebuggingMonitoringEffect": "AuditIfNotExists",
+                "webAppDisableRemoteDebuggingMonitoringEffect": "AuditIfNotExists",
+                // Org Delta
+                "effect-AppConfigurationDisablePublicAccess": "Audit", // temporary due to issue in service
+                "effect-PublicNetworkAccessonADFshouldbedisabled": "Deny",
+                "effect-ADFShouldUseSystem-AssignedManagedIdentity": "Deny",
+                "effect-CosmosDBAccountsShouldDisablePublicNetworkAccess": "Deny",
+                "effect-Deploy Databricks into a private VNet": "Deny",
+                "effect-Keysshouldbebackedbyahardwaresecuritymodule": "Deny",
+                "effect-privateEndpointShouldBeConfiguredForKeyVaultMonitoringEffect": "Deny",
+                "effect-CertificateShouldHavethespecifiedmaximumvalidityperiod": "deny",
+                "effect-KeyVaultkeysspecifiednumberofdays": "Deny",
+                "effect-KeyVaultSecretsShouldHaveSpecifiedMaximumValidityPeriod": "Deny",
+                "effect-KeyVaultSecretsShouldhavecontenttypeset": "Audit",
+                "effect-KeyVaultRSACryptographySpecifiedMinimumKeySize": "Deny",
+                "effect-KeyVaultECCSpecifiedcurvenames": "Deny",
+                "effect-KeysShouldBeSpecifiedCryptographictypeRSAorEC": "Deny",
+                "effect-CertificatesusingRSAcryptographyshouldhavethespecifiedminimumkeysize": "deny",
+                "effect-Certificatesusingellipticcurvecryptographyshouldhaveallowedcurvenames": "deny",
+                "effect-Certificatesshoulduseallowedkeytypes": "deny",
+                "effect-AzureMachineLearningworkspacesshoulduseuser-assignedmanagedIdentity": "Deny",
+                "effect-Public endpoint should be disabled for MySQL servers": "Deny",
+                "effect-Azure Database for MYSQL should have TLS 1.2": "Deny",
+                "effect-EnforceSSLConnectionShouldbeEnabledForPostgreSQLDatabaseServers": "Deny",
+                "effect-Public Network access should be disabled For PostgreSQL Servers": "Deny",
+                "effect-Azure storage should have the minimal TLS version of 1.2": "Deny",
+                "effect-Network interfaces should disable IP forwarding": "Deny",
+                "effect-Premium sku backed by HSM": "Deny",
+                "effect-WebApplicationFirewallShouldUseTheSpecifiedModeForAzureFrontDoorService": "Deny",
+                "effect-LogicAppsshouldbedeployedintoIntegrationServiceEnvironment": "Deny"
+            },
+            "children": [
+                {
+                    "nodeName": "azure-security-benchmark",
+                    "assignment": {
+                        "name": "Azure Security Benchmark",
+                        "displayName": "Prod Azure Security Benchmark",
+                        "description": "ASB Inititiative parmeterized for controlling Prod Environments"
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
+                        "friendlyNameToDocumentIfGuid": "Azure Security Benchmark"
+                    }
+                },
+                {
+                    "nodeName": "org-delta",
+                    "assignment": {
+                        "name": "Org Delta - Prod",
+                        "displayName": "Prod Org Delta",
+                        "description": "Org Delta from Azure Security Benchmark Inititiative parmeterized for controlling Prod Environments"
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "Org Delta Initiative",
+                        "friendlyNameToDocumentIfGuid": ""
+                    }
+                }
+            ]
+        },
+        {
+            "nodeName": "NonProd/",
+            "metadata": {
+                "environment": "NONPROD"
+            },
+            "scope": {
+                "PAC-PROD": [
+                    "/providers/Microsoft.Management/managementGroups/NBA-IT-Non-Prod-Env",
+                    "/providers/Microsoft.Management/managementGroups/OTT-Non-Prod-Env",
+                    "/providers/Microsoft.Management/managementGroups/MediaKind-NonProd"
+                ]
+            },
+            "notScope": {
+                "PAC-PROD": [
+                    "/providers/Microsoft.Management/managementGroups/0043acd9-e9e7-44ac-95e7-4136d4e8a6ea",
+                    "/providers/Microsoft.Management/managementGroups/076e7612-d040-4903-9be9-19cfc4dfb3ab",
+                    "/providers/Microsoft.Management/managementGroups/MediaKind-DEV"
+                ]
+            },
+            "parameters": {
+                // ASB
+                "apiAppEnforceHttpsMonitoringEffect": "AuditIfNotExists",
+                "functionAppEnforceHttpsMonitoringEffect": "AuditIfNotExists",
+                "webAppEnforceHttpsMonitoringEffect": "AuditIfNotExists",
+                "publicNetworkAccessOnAzureSQLDatabaseShouldBeDisabledMonitoringEffect": "Deny",
+                "disallowPublicBlobAccessEffect": "deny",
+                "secureTransferToStorageAccountMonitoringEffect": "Deny",
+                "publicNetworkAccessShouldBeDisabledForCognitiveServicesAccountsMonitoringEffect": "Deny",
+                "azureCacheForRedisShouldResideWithinAVirtualNetworkMonitoringEffect": "Audit",
+                "keyVaultsShouldHaveSoftDeleteEnabledMonitoringEffect": "Audit",
+                "keyVaultsShouldHavePurgeProtectionEnabledMonitoringEffect": "Audit",
+                "webApplicationFirewallShouldBeEnabledForAzureFrontDoorServiceServiceMonitoringEffect": "Deny",
+                "azureSpringCloudShouldUseNetworkInjectionMonitoringEffect": "Deny",
+                "apiAppDisableRemoteDebuggingMonitoringEffect": "AuditIfNotExists",
+                "functionAppDisableRemoteDebuggingMonitoringEffect": "AuditIfNotExists",
+                "webAppDisableRemoteDebuggingMonitoringEffect": "AuditIfNotExists",
+                // Org Delta
+                "effect-AppConfigurationDisablePublicAccess": "Audit",
+                "effect-PublicNetworkAccessonADFshouldbedisabled": "Deny",
+                "effect-ADFShouldUseSystem-AssignedManagedIdentity": "Deny",
+                "effect-CosmosDBAccountsShouldDisablePublicNetworkAccess": "Deny",
+                "effect-Deploy Databricks into a private VNet": "Deny",
+                "effect-privateEndpointShouldBeConfiguredForKeyVaultMonitoringEffect": "Deny",
+                "effect-KeyVaultSecretsShouldHaveSpecifiedMaximumValidityPeriod": "Deny",
+                "effect-KeyVaultkeysspecifiednumberofdays": "Disabled",
+                "effect-KeyVaultSecretsShouldhavecontenttypeset": "Audit",
+                "effect-KeyVaultRSACryptographySpecifiedMinimumKeySize": "Deny",
+                "effect-KeyVaultECCSpecifiedcurvenames": "Deny",
+                "effect-KeysShouldBeSpecifiedCryptographictypeRSAorEC": "Deny",
+                "effect-CertificatesusingRSAcryptographyshouldhavethespecifiedminimumkeysize": "deny",
+                "effect-Certificatesusingellipticcurvecryptographyshouldhaveallowedcurvenames": "deny",
+                "effect-Certificatesshoulduseallowedkeytypes": "deny",
+                "effect-CertificateShouldHavethespecifiedmaximumvalidityperiod": "deny",
+                "effect-AzureMachineLearningworkspacesshoulduseuser-assignedmanagedIdentity": "Deny",
+                "effect-Public endpoint should be disabled for MySQL servers": "Deny",
+                "effect-Azure Database for MYSQL should have TLS 1.2": "Deny",
+                "effect-Public Network access should be disabled For PostgreSQL Servers": "Deny",
+                "effect-EnforceSSLConnectionShouldbeEnabledForPostgreSQLDatabaseServers": "Deny",
+                "effect-Azure storage should have the minimal TLS version of 1.2": "Deny",
+                "effect-Network interfaces should disable IP forwarding": "Deny",
+                "effect-WebApplicationFirewallShouldUseTheSpecifiedModeForAzureFrontDoorService": "Deny",
+                "effect-LogicAppsshouldbedeployedintoIntegrationServiceEnvironment": "Deny"
+            },
+            "children": [
+                {
+                    "nodeName": "azure-security-benchmark",
+                    "assignment": {
+                        "name": "Azure Security Benchmark",
+                        "displayName": "NonProd Azure Security Benchmark",
+                        "description": "ASB Inititiative parmeterized for controlling NonProd Environments"
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
+                        "friendlyNameToDocumentIfGuid": "Azure Security Benchmark"
+                    }
+                },
+                {
+                    "nodeName": "org-delta",
+                    "assignment": {
+                        "name": "Org Delta - NonProd",
+                        "displayName": "NonProd Org Delta",
+                        "description": "Org Delta from Azure Security Benchmark Inititiative parmeterized for controlling NonProd Environments"
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "Org Delta Initiative",
+                        "friendlyNameToDocumentIfGuid": ""
+                    }
+                }
+            ]
+        },
+        {
+            "nodeName": "Dev/",
+            "metadata": {
+                "environment": "DEV"
+            },
+            "scope": {
+                "PAC-PROD": [
+                    "/providers/Microsoft.Management/managementGroups/0043acd9-e9e7-44ac-95e7-4136d4e8a6ea",
+                    "/providers/Microsoft.Management/managementGroups/076e7612-d040-4903-9be9-19cfc4dfb3ab",
+                    "/providers/Microsoft.Management/managementGroups/MediaKind-DEV"
+                ]
+            },
+            "parameters": {
+                // ASB
+                "apiAppEnforceHttpsMonitoringEffect": "Disabled",
+                "functionAppEnforceHttpsMonitoringEffect": "Disabled",
+                "webAppEnforceHttpsMonitoringEffect": "Disabled",
+                "publicNetworkAccessOnAzureSQLDatabaseShouldBeDisabledMonitoringEffect": "Audit",
+                "disallowPublicBlobAccessEffect": "audit",
+                "secureTransferToStorageAccountMonitoringEffect": "Audit",
+                "publicNetworkAccessShouldBeDisabledForCognitiveServicesAccountsMonitoringEffect": "Audit",
+                "azureCacheForRedisShouldResideWithinAVirtualNetworkMonitoringEffect": "Audit",
+                "keyVaultsShouldHaveSoftDeleteEnabledMonitoringEffect": "Disabled",
+                "keyVaultsShouldHavePurgeProtectionEnabledMonitoringEffect": "Disabled",
+                "webApplicationFirewallShouldBeEnabledForAzureFrontDoorServiceServiceMonitoringEffect": "Audit",
+                "azureSpringCloudShouldUseNetworkInjectionMonitoringEffect": "Audit",
+                "apiAppDisableRemoteDebuggingMonitoringEffect": "AuditIfNotExists",
+                "functionAppDisableRemoteDebuggingMonitoringEffect": "AuditIfNotExists",
+                "webAppDisableRemoteDebuggingMonitoringEffect": "AuditIfNotExists",
+                // Org Delta
+                "effect-AppConfigurationDisablePublicAccess": "Audit",
+                "effect-PublicNetworkAccessonADFshouldbedisabled": "Audit",
+                "effect-ADFShouldUseSystem-AssignedManagedIdentity": "Audit",
+                "effect-CosmosDBAccountsShouldDisablePublicNetworkAccess": "Audit",
+                "effect-Deploy Databricks into a private VNet": "Audit",
+                "effect-privateEndpointShouldBeConfiguredForKeyVaultMonitoringEffect": "Audit",
+                "effect-CertificateShouldHavethespecifiedmaximumvalidityperiod": "disabled",
+                "effect-KeyVaultSecretsShouldHaveSpecifiedMaximumValidityPeriod": "Disabled",
+                "effect-KeyVaultkeysspecifiednumberofdays": "Disabled",
+                "effect-KeyVaultSecretsShouldhavecontenttypeset": "Audit",
+                "effect-KeyVaultRSACryptographySpecifiedMinimumKeySize": "Audit",
+                "effect-KeyVaultECCSpecifiedcurvenames": "Audit",
+                "effect-KeysShouldBeSpecifiedCryptographictypeRSAorEC": "Audit",
+                "effect-CertificatesusingRSAcryptographyshouldhavethespecifiedminimumkeysize": "audit",
+                "effect-Certificatesusingellipticcurvecryptographyshouldhaveallowedcurvenames": "audit",
+                "effect-Certificatesshoulduseallowedkeytypes": "audit",
+                "effect-AzureMachineLearningworkspacesshoulduseuser-assignedmanagedIdentity": "Audit",
+                "effect-Public endpoint should be disabled for MySQL servers": "Audit",
+                "effect-Azure Database for MYSQL should have TLS 1.2": "Audit",
+                "effect-Public Network access should be disabled For PostgreSQL Servers": "Audit",
+                "effect-EnforceSSLConnectionShouldbeEnabledForPostgreSQLDatabaseServers": "Audit",
+                "effect-Azure storage should have the minimal TLS version of 1.2": "Audit",
+                "effect-Network interfaces should disable IP forwarding": "Audit",
+                "effect-WebApplicationFirewallShouldUseTheSpecifiedModeForAzureFrontDoorService": "Audit",
+                "effect-LogicAppsshouldbedeployedintoIntegrationServiceEnvironment": "Audit"
+            },
+            "children": [
+                {
+                    "nodeName": "azure-security-benchmark",
+                    "assignment": {
+                        "name": "ASB - Dev",
+                        "displayName": "Dev Azure Security Benchmark",
+                        "description": "ASB Inititiative parmeterized for controlling Dev Environments"
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
+                        "friendlyNameToDocumentIfGuid": "Azure Security Benchmark"
+                    }
+                },
+                {
+                    "nodeName": "org-delta",
+                    "assignment": {
+                        "name": "Org Delta - Dev",
+                        "displayName": "Dev Org Delta",
+                        "description": "Org Delta from Azure Security Benchmark Inititiative parmeterized for controlling Dev Environments"
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "Org Delta Initiative",
+                        "friendlyNameToDocumentIfGuid": ""
+                    }
+                }
+            ]
+        },
+        {
+            "nodeName": "Sandbox/",
+            "metadata": {
+                "environment": "SANDBOX"
+            },
+            "scope": {
+                "PAC-PROD": [
+                    "/providers/Microsoft.Management/managementGroups/NBA-IT-Sandbox-Env",
+                    "/providers/Microsoft.Management/managementGroups/OTT-Sandbox-Env",
+                    "/providers/Microsoft.Management/managementGroups/MediaKind-Sandbox"
+                ]
+            },
+            "parameters": {
+                // ASB: Sandbox specific settings
+                "secureTransferToStorageAccountMonitoringEffect": "Disabled",
+                "publicNetworkAccessOnAzureSQLDatabaseShouldBeDisabledMonitoringEffect": "Disabled",
+                "disallowPublicBlobAccessEffect": "disabled",
+                "apiAppDisableRemoteDebuggingMonitoringEffect": "Disabled",
+                "functionAppDisableRemoteDebuggingMonitoringEffect": "Disabled",
+                "webAppDisableRemoteDebuggingMonitoringEffect": "Disabled",
+                "keyVaultsShouldHavePurgeProtectionEnabledMonitoringEffect": "Disabled",
+                "keyVaultsShouldHaveSoftDeleteEnabledMonitoringEffect": "Disabled",
+                "azureCacheForRedisShouldResideWithinAVirtualNetworkMonitoringEffect": "Disabled",
+                "webApplicationFirewallShouldBeEnabledForAzureFrontDoorServiceServiceMonitoringEffect": "Disabled",
+                "azureSpringCloudShouldUseNetworkInjectionMonitoringEffect": "Disabled",
+                "publicNetworkAccessShouldBeDisabledForCognitiveServicesAccountsMonitoringEffect": "Disabled",
+                // ASB: Sandbox disable only (don't AuditIfNotExists, other environmentrs use the defualt AuditIfNotExists)
+                "enforceSSLConnectionShouldBeEnabledForPostgresqlDatabaseServersMonitoringEffect": "Disabled",
+                "enforceSSLConnectionShouldBeEnabledForMysqlDatabaseServersMonitoringEffect": "Disabled",
+                "containerRegistriesShouldNotAllowUnrestrictedNetworkAccessMonitoringEffect": "Disabled",
+                "containerRegistriesShouldUsePrivateLinkMonitoringEffect": "Disabled",
+                "appConfigurationShouldUsePrivateLinkMonitoringEffect": "Disabled",
+                "azureEventGridDomainsShouldUsePrivateLinkMonitoringEffect": "Disabled",
+                "azureEventGridTopicsShouldUsePrivateLinkMonitoringEffect": "Disabled",
+                "azureSignalRServiceShouldUsePrivateLinkMonitoringEffect": "Disabled",
+                "azureMachineLearningWorkspacesShouldUsePrivateLinkMonitoringEffect": "Disabled",
+                "publicNetworkAccessShouldBeDisabledForMariaDbServersMonitoringEffect": "Disabled",
+                "publicNetworkAccessShouldBeDisabledForMySqlServersMonitoringEffect": "Disabled",
+                "publicNetworkAccessShouldBeDisabledForPostgreSqlServersMonitoringEffect": "Disabled",
+                "privateEndpointShouldBeConfiguredForKeyVaultMonitoringEffect": "Disabled",
+                "storageAccountShouldUseAPrivateLinkConnectionMonitoringEffect": "Disabled",
+                "privateEndpointConnectionsOnAzureSQLDatabaseShouldBeEnabledMonitoringEffect": "Disabled",
+                "aPIManagementServicesShouldUseAVirtualNetworkMonitoringEffect": "Disabled",
+                "networkWatcherShouldBeEnabledMonitoringEffect": "Disabled",
+                "apiAppRestrictCORSAccessMonitoringEffect": "Disabled",
+                "functionAppRestrictCORSAccessMonitoringEffect": "Disabled",
+                "webAppRestrictCORSAccessMonitoringEffect": "Disabled",
+                "vulnerabilityAssessmentOnServerMonitoringEffect": "Disabled",
+                // Org delta: Sandbox specific disabled items
+                "effect-CertificatesShouldNotExpireWithintheSpecifiednumberofdays": "disabled",
+                "effect-KeyVaultKeysshouldhavespecifiednumberofdaysbeforeExpiration": "Disabled",
+                "effect-KeyVaultSecretsspecifiednumberofdaysbeforeExpiration": "Disabled",
+                "effect-AppConfigurationDisablePublicAccess": "Disabled",
+                "effect-PublicNetworkAccessonADFshouldbedisabled": "Disabled",
+                "effect-ADFShouldUseSystem-AssignedManagedIdentity": "Audit",
+                "effect-CosmosDBAccountsShouldDisablePublicNetworkAccess": "Disabled",
+                "effect-Deploy Databricks into a private VNet": "Disabled",
+                "effect-Keysshouldbebackedbyahardwaresecuritymodule": "Disabled",
+                "effect-privateEndpointShouldBeConfiguredForKeyVaultMonitoringEffect": "Disabled",
+                "effect-KeyVaultSecretsShouldHaveSpecifiedMaximumValidityPeriod": "Disabled",
+                "effect-KeyVaultkeysspecifiednumberofdays": "Disabled",
+                "effect-KeyVaultSecretsShouldhavecontenttypeset": "Disabled",
+                "effect-AzureMachineLearningworkspacesshoulduseuser-assignedmanagedIdentity": "Disabled",
+                "effect-Public endpoint should be disabled for MySQL servers": "Disabled",
+                "effect-Azure Database for MYSQL should have TLS 1.2": "Disabled",
+                "effect-EnforceSSLConnectionShouldbeEnabledForPostgreSQLDatabaseServers": "Disabled",
+                "effect-Public Network access should be disabled For PostgreSQL Servers": "Disabled",
+                "effect-Azure storage should have the minimal TLS version of 1.2": "Disabled",
+                "effect-Network interfaces should disable IP forwarding": "Disabled",
+                "effect-Premium sku backed by HSM": "Disabled",
+                "effect-WebApplicationFirewallShouldUseTheSpecifiedModeForAzureFrontDoorService": "Disabled",
+                "effect-LogicAppsshouldbedeployedintoIntegrationServiceEnvironment": "Disabled",
+                // Org Delta: Sandbox KV items which should be used (if used at all) with correct settings even in Sandbox
+                "effect-KeyVaultRSACryptographySpecifiedMinimumKeySize": "Audit",
+                "effect-KeyVaultECCSpecifiedcurvenames": "Audit",
+                "effect-KeysShouldBeSpecifiedCryptographictypeRSAorEC": "Audit",
+                "effect-CertificatesusingRSAcryptographyshouldhavethespecifiedminimumkeysize": "audit",
+                "effect-Certificatesusingellipticcurvecryptographyshouldhaveallowedcurvenames": "audit",
+                "effect-Certificatesshoulduseallowedkeytypes": "audit",
+                "effect-CertificateShouldHavethespecifiedmaximumvalidityperiod": "audit"
+            },
+            "children": [
+                {
+                    "nodeName": "azure-security-benchmark",
+                    "assignment": {
+                        "name": "Azure Security Benchmark",
+                        "displayName": "Sandbox Azure Security Benchmark",
+                        "description": "ASB Inititiative parmeterized for controlling Sandbox Environments"
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
+                        "friendlyNameToDocumentIfGuid": "Azure Security Benchmark"
+                    }
+                },
+                {
+                    "nodeName": "org-delta",
+                    "assignment": {
+                        "name": "Org Delta - Sandbox",
+                        "displayName": "Sandbox Org Delta",
+                        "description": "Org Delta from Azure Security Benchmark Inititiative parmeterized for controlling Sandbox Environments"
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "Org Delta Initiative",
+                        "friendlyNameToDocumentIfGuid": ""
+                    }
+                }
+            ]
+        }
+    ]
+}

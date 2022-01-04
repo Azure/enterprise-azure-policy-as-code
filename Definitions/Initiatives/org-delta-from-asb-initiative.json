@@ -1,0 +1,1942 @@
+{
+  "name": "Org Delta Initiative",
+  "properties": {
+    "displayName": "Org Delta Initiative",
+    "description": "Org Delta from Azure Security Benchmark Initiative",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Azure Security Center"
+    },
+    "policyDefinitionGroups": [
+      {
+        "name": "Azure_Security_Benchmark_v2.0_NS-1",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_NS-1"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_NS-2",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_NS-2"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_NS-3",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_NS-3"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_NS-4",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_NS-4"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_NS-5",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_NS-5"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_NS-6",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_NS-6"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_NS-7",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_NS-7"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IM-1",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IM-1"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IM-2",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IM-2"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IM-3",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IM-3"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IM-4",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IM-4"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IM-5",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IM-5"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IM-6",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IM-6"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IM-7",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IM-7"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IM-8",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IM-8"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PA-1",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PA-1"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PA-2",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PA-2"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PA-3",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PA-3"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PA-4",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PA-4"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PA-5",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PA-5"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PA-6",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PA-6"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PA-7",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PA-7"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PA-8",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PA-8"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_DP-1",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_DP-1"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_DP-2",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_DP-2"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_DP-3",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_DP-3"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_DP-4",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_DP-4"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_DP-5",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_DP-5"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_AM-1",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_AM-1"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_AM-2",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_AM-2"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_AM-3",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_AM-3"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_AM-4",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_AM-4"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_AM-5",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_AM-5"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_AM-6",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_AM-6"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_LT-1",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-1"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_LT-2",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-2"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_LT-3",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-3"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_LT-4",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-4"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_LT-5",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-5"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_LT-6",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-6"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_LT-7",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-7"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IR-1",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IR-1"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IR-2",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IR-2"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IR-3",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IR-3"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IR-4",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IR-4"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IR-5",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IR-5"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_IR-6",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_IR-6"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PV-1",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PV-1"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PV-2",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PV-2"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PV-3",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PV-3"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PV-4",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PV-4"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PV-5",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PV-5"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PV-6",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PV-6"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PV-7",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PV-7"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_PV-8",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_PV-8"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_ES-1",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_ES-1"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_ES-2",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_ES-2"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_ES-3",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_ES-3"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_BR-1",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_BR-1"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_BR-2",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_BR-2"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_BR-3",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_BR-3"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_BR-4",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_BR-4"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_GS-1",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_GS-1"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_GS-2",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_GS-2"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_GS-3",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_GS-3"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_GS-4",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_GS-4"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_GS-5",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_GS-5"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_GS-6",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_GS-6"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_GS-7",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_GS-7"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_GS-8",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_GS-8"
+      }
+    ],
+    "parameters": {
+      "effect-Azure storage should have the minimal TLS version of 1.2": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Azure storage should have the minimal TLS version of 1.2",
+          "description": "Azure storage should have the minimal TLS version of 1.2."
+        }
+      },
+      "effect-Private endpoint should be enabled for Cognitive Services": {
+        "type": "String",
+        "defaultValue": "AuditIfNotExists",
+        "allowedValues": [
+          "AuditIfNotExists",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Private endpoint should be enabled for Cognitive Services",
+          "description": "Private endpoint should be enabled for Cognitive Services"
+        }
+      },
+      "effect-azureMachineLearningWorkspacesShouldUsePrivateLinkMonitoringEffect": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Azure Machine Learning workspaces should use private link",
+          "description": "Azure Private Link lets you connect your virtual network to Azure services without a public IP address at the source or destination."
+        }
+      },
+      "effect-Deploy Databricks into a private VNet": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Deploy Databricks into a private VNet",
+          "description": "Deploy Databricks into a private VNet"
+        }
+      },
+      "effect-Private endpoint should be enabled for Cognitive Search": {
+        "type": "String",
+        "defaultValue": "AuditIfNotExists",
+        "allowedValues": [
+          "AuditIfNotExists",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Private endpoint should be enabled for Cognitive Search",
+          "description": "Private endpoint should be enabled for Cognitive Search"
+        }
+      },
+      "effect-Premium sku backed by HSM": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Premium sku backed by HSM",
+          "description": "Premium sku requires HSM backing"
+        }
+      },
+      "effect-Avoid storage account keys and SAS tokens storage accounts": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Avoid SAS tokens and storage account keys use in storage accounts",
+          "description": "Standardize Azure Active Directory as the Central identity and authentication system."
+        }
+      },
+      "effect-AzureMachineLearningworkspacesshoulduseuser-assignedmanagedIdentity": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Azure Machine Learning workspaces should use user-assigned managed Identity",
+          "description": "Azure Machine Learning workspaces should use user-assigned managed Identity"
+        }
+      },
+      "effect-AppConfigurationPrivateEndpoint": {
+        "type": "String",
+        "defaultValue": "AuditIfNotExists",
+        "allowedValues": [
+          "AuditIfNotExists",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Private endpoints for App Configuration",
+          "description": "Private endpoints let you connect your virtual network to Azure services without a public IP address at the source or destination."
+        }
+      },
+      "effect-AppConfigurationDisablePublicAccess": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "App Configuration should disable public network access",
+          "description": "Disabling public network access improves security by ensuring that the resource isn't exposed on the public internet. You can limit exposure of your resources by creating private endpoints instead."
+        }
+      },
+      "effect-WebApplicationFirewallforAppGateway": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Web Application Firewall (WAF) should use the specified mode for Application Gateway",
+          "description": "Mandates the use of 'Detection' or 'Prevention' mode to be active on all Web Application Firewall policies for Application Gateway."
+        }
+      },
+      "effect-ADFShouldUseSystem-AssignedManagedIdentity": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Azure Data Factory linked services should use system-assigned managed identity authentication when it is supported",
+          "description": "Using system-assigned managed identity when communicating with data stores via linked services avoids the use of less secured credentials such as passwords or connection strings."
+        }
+      },
+      "effect-PublicNetworkAccessonADFshouldbedisabled": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Public network access on Azure Data Factory should be disabled",
+          "description": "Disabling the public network access property improves security by ensuring your Azure Data Factory can only be accessed from a private endpoint."
+        }
+      },
+      "effect-PrivateEndpointforKeyVault": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Deny",
+          "Audit",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Private endpoint should be configured for Key Vault",
+          "description": "Private link provides a way to connect Key Vault to your Azure resources without sending traffic over the public internet. Private link provides defense in depth protection against data exfiltration."
+        }
+      },
+      "maximumValidityInDays-KeyVaultSecretsShouldBeActiveforlongerthanthespecifiednumberofdays": {
+        "type": "Integer",
+        "defaultValue": 90,
+        "metadata": {
+          "displayName": "Secrets should not be active for longer than the specified number of days",
+          "description": "Specify the maximum number of days a secret can be valid for after activation."
+        }
+      },
+      "effect-KeyVaultSecretsShouldBeActiveforlongerthanthespecifiednumberofdays": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Preview]: Secrets should not be active for longer than the specified number of days",
+          "description": "If your secrets were created with an activation date set in the future, you must ensure that your secrets have not been active for longer than the specified duration."
+        }
+      },
+      "maximumValidityInDays-KeyVaultSecretsShouldHaveSpecifiedMaximumValidityPeriod": {
+        "type": "Integer",
+        "defaultValue": 90,
+        "metadata": {
+          "displayName": "Maximum validity period for secrets",
+          "description": "Specify the maximum number of days a secret can be valid for. Secrets should be ephemeral. Using a secret with a long validity period is not recommended."
+        }
+      },
+      "effect-KeyVaultSecretsShouldHaveSpecifiedMaximumValidityPeriod": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "[Preview]: Secrets should have the specified maximum validity period",
+          "description": "Manage your organizational compliance requirements by specifying the maximum amount of time in days that a secret can be valid within your key vault."
+        }
+      },
+      "minimumDaysBeforeExpiration-KeyVaultSecretsspecifiednumberofdaysbeforeExpiration": {
+        "type": "Integer",
+        "defaultValue": 90,
+        "metadata": {
+          "displayName": "Minimum Days Before Secret Expiration",
+          "description": "Specify the minimum number of days that a secret should remain usable prior to expiration."
+        }
+      },
+      "effect-KeyVaultSecretsspecifiednumberofdaysbeforeExpiration": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "[Preview]: Secrets should have more than the specified number of days before expiration",
+          "description": "Secrets should be rotated at a specified number of days prior to expiration to provide sufficient time to react to a failure."
+        }
+      },
+      "effect-KeyVaultSecretsShouldhavecontenttypeset": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "[Preview]: Secrets should have content type set",
+          "description": "A content type tag helps identify whether a secret is a password, connection string, etc. Different secrets have different rotation requirements. Content type tag should be set on secrets."
+        }
+      },
+      "minimumRSAKeySize-KeyVaultRSACryptographySpecifiedMinimumKeySize": {
+        "type": "Integer",
+        "defaultValue": 2048,
+        "allowedValues": [
+          2048,
+          3072,
+          4096
+        ],
+        "metadata": {
+          "displayName": "Keys using RSA cryptography should have a specified minimum key size",
+          "description": "The minimum key size for RSA keys."
+        }
+      },
+      "effect-KeyVaultRSACryptographySpecifiedMinimumKeySize": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "[Preview]: Keys using RSA cryptography should have a specified minimum key size",
+          "description": "Set the minimum allowed key size for use with your key vaults. Use of RSA keys with small key sizes is not a secure practice and doesn't meet many industry certification requirements."
+        }
+      },
+      "effect-KeyVaultECCSpecifiedcurvenames": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "[Preview]: Keys using elliptic curve cryptography should have the specified curve names",
+          "description": "Keys backed by elliptic curve cryptography can have different curve names. Some applications are only compatible with specific elliptic curve keys. Enforce the types of elliptic curve keys that are allowed to be created in your environment."
+        }
+      },
+      "maximumValidityInDays-KeyVaultkeysspecifiednumberofdays": {
+        "type": "Integer",
+        "defaultValue": 90,
+        "metadata": {
+          "displayName": "Keys should not be active for longer than the specified number of days",
+          "description": "Specify the maximum number of days a key can be valid for after activation."
+        }
+      },
+      "effect-KeyVaultkeysspecifiednumberofdays": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "[Preview]: Keys should not be active for longer than the specified number of days",
+          "description": "Specify the number of days that a key should be active. Keys that are used for an extended period of time increase the probability that an attacker could compromise the key. As a good security practice, make sure that your keys have not been active longer than two years."
+        }
+      },
+      "maximumValidityInDays-KeyVaultKeysShouldhavethespecifiedmaximumvalidityperiod": {
+        "type": "Integer",
+        "defaultValue": 90,
+        "metadata": {
+          "displayName": "Keys should have the specified maximum valid period",
+          "description": "Specify the maximum number of days a key can be valid for. Keys should be ephemeral. Using a key with a long validity period is not recommended."
+        }
+      },
+      "effect-KeyVaultKeysShouldhavethespecifiedmaximumvalidityperiod": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "[Preview]: Keys should have the specified maximum validity period",
+          "description": "Manage your organizational compliance requirements by specifying the maximum amount of time in days that a key can be valid within your key vault"
+        }
+      },
+      "minimumDaysBeforeExpiration-KeyVaultKeysshouldhavespecifiednumberofdaysbeforeExpiration": {
+        "type": "Integer",
+        "defaultValue": 90,
+        "metadata": {
+          "displayName": "Keys should have more than the specified number of days before expiration",
+          "description": "Specify the minimum number of days that a key should remain usable prior to expiration."
+        }
+      },
+      "effect-KeyVaultKeysshouldhavespecifiednumberofdaysbeforeExpiration": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "[Preview]: Keys should have more than the specified number of days before expiration",
+          "description": "Keys should be rotated at a specified number of days prior to expiration to provide sufficient time to react to a failure."
+        }
+      },
+      "effect-KeysShouldBeSpecifiedCryptographictypeRSAorEC": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "[Preview]: Keys should be the specified cryptographic type RSA or EC",
+          "description": "Enforce a particular cryptographic key type, RSA or EC, in your environment."
+        }
+      },
+      "allowedCAs-Certificatesshouldbeissuesbythespecifiedintegratedcertifcateauthority": {
+        "type": "Array",
+        "defaultValue": [
+          "DigiCert",
+          "GlobalSign"
+        ],
+        "allowedValues": [
+          "DigiCert",
+          "GlobalSign"
+        ],
+        "metadata": {
+          "displayName": "Allowed Azure Key Vault Supported CAs",
+          "description": "The list of allowed certificate authorities supported by Azure Key Vault."
+        }
+      },
+      "effect-Certificatesshouldbeissuesbythespecifiedintegratedcertifcateauthority": {
+        "type": "String",
+        "defaultValue": "audit",
+        "allowedValues": [
+          "audit",
+          "deny",
+          "disabled"
+        ],
+        "metadata": {
+          "displayName": "[Preview]: Certificates should be issued by the specified integrated certificate authority",
+          "description": "Manage your organizational compliance requirements by specifying the Azure integrated certificate authorities that can issue certificates in your key vault such as Digicert or GlobalSign."
+        }
+      },
+      "caCommonName-Certificatesshouldbeissuesbythespecifiednon-integratedcertifcateauthority": {
+        "type": "String",
+        "defaultValue": " ",
+        "metadata": {
+          "displayName": "The common name of the certificate authority",
+          "description": "The common name (CN) of the Certificate Authority (CA) provider."
+        }
+      },
+      "effect-Certificatesshouldbeissuesbythespecifiednon-integratedcertifcateauthority": {
+        "type": "String",
+        "defaultValue": "audit",
+        "allowedValues": [
+          "audit",
+          "deny",
+          "disabled"
+        ],
+        "metadata": {
+          "displayName": "[Preview]: Certificates should be issued by the specified non-integrated certificate authority",
+          "description": "Manage your organizational compliance requirements by specifying the custom or internal certificate authorities that can issue certificates in your key vault."
+        }
+      },
+      "maximumPercentageLife-Certificateshouldhavethespecifiedlifetimeactiontriggers": {
+        "type": "Integer",
+        "defaultValue": 80,
+        "metadata": {
+          "displayName": "The maximum lifetime percentage for certificates",
+          "description": "Enter the percentage of lifetime of the certificate when you want to trigger the policy action. For example, to trigger a policy action at 80% of the certificate's valid life, enter '80'."
+        }
+      },
+      "minimumDaysBeforeExpiry-Certificateshouldhavethespecifiedlifetimeactiontriggers": {
+        "type": "Integer",
+        "defaultValue": 90,
+        "metadata": {
+          "displayName": "The minimum days before expiry",
+          "description": "Enter the days before expiration of the certificate when you want to trigger the policy action. For example, to trigger a policy action 90 days before the certificate's expiration, enter '90'."
+        }
+      },
+      "effect-Certificateshouldhavethespecifiedlifetimeactiontriggers": {
+        "type": "String",
+        "defaultValue": "audit",
+        "allowedValues": [
+          "audit",
+          "deny",
+          "disabled"
+        ],
+        "metadata": {
+          "displayName": "[Preview]: Certificates should have the specified lifetime action triggers",
+          "description": "Manage your organizational compliance requirements by specifying whether a certificate lifetime action is triggered at a specific percentage of its lifetime or at a certain number of days prior to its expiration."
+        }
+      },
+      "maximumValidityInMonths-CertificateShouldHavethespecifiedmaximumvalidityperiod": {
+        "type": "Integer",
+        "defaultValue": 12,
+        "metadata": {
+          "displayName": "Certificates should have the specified maximum",
+          "description": "The limit to how long a certificate may be valid for. Certificates with lengthy validity periods aren't best practice."
+        }
+      },
+      "effect-CertificateShouldHavethespecifiedmaximumvalidityperiod": {
+        "type": "String",
+        "defaultValue": "audit",
+        "allowedValues": [
+          "audit",
+          "deny",
+          "disabled"
+        ],
+        "metadata": {
+          "displayName": "[Preview]: Certificates should have the specified maximum validity period.",
+          "description": "Manage your organizational compliance requirements by specifying the maximum amount of time that a certificate can be valid within your key vault."
+        }
+      },
+      "daysToExpire-CertificatesShouldNotExpireWithintheSpecifiednumberofdays": {
+        "type": "Integer",
+        "defaultValue": 90,
+        "metadata": {
+          "displayName": "Certificates days to expiration",
+          "description": "The number of days for a certificate to expire."
+        }
+      },
+      "effect-CertificatesShouldNotExpireWithintheSpecifiednumberofdays": {
+        "type": "String",
+        "defaultValue": "audit",
+        "allowedValues": [
+          "audit",
+          "deny",
+          "disabled"
+        ],
+        "metadata": {
+          "displayName": "[Preview]: Certificates should not expire within the specified number of days",
+          "description": "Manage certificates that will expire within a specified number of days to ensure your organization has sufficient time to rotate the certificate prior to expiration."
+        }
+      },
+      "effect-Certificatesshoulduseallowedkeytypes": {
+        "type": "String",
+        "defaultValue": "audit",
+        "allowedValues": [
+          "audit",
+          "deny",
+          "disabled"
+        ],
+        "metadata": {
+          "displayName": "[Preview]: Certificates should use allowed key types",
+          "description": "Manage your organizational compliance requirements by restricting the key types allowed for certificates."
+        }
+      },
+      "effect-Certificatesusingellipticcurvecryptographyshouldhaveallowedcurvenames": {
+        "type": "String",
+        "defaultValue": "audit",
+        "allowedValues": [
+          "audit",
+          "deny",
+          "disabled"
+        ],
+        "metadata": {
+          "displayName": "[Preview]: Certificates using elliptic curve cryptography should have allowed curve names",
+          "description": "Manage the allowed elliptic curve names for ECC Certificates stored in key vault."
+        }
+      },
+      "minimumRSAKeySize-CertificatesusingRSAcryptographyshouldhavethespecifiedminimumkeysize": {
+        "type": "Integer",
+        "defaultValue": 2048,
+        "allowedValues": [
+          2048,
+          3072,
+          4096
+        ],
+        "metadata": {
+          "displayName": "Certificates using RSA cryptography should have the specified minimum key size",
+          "description": "The minimum key size for RSA certificates."
+        }
+      },
+      "effect-CertificatesusingRSAcryptographyshouldhavethespecifiedminimumkeysize": {
+        "type": "String",
+        "defaultValue": "audit",
+        "allowedValues": [
+          "audit",
+          "deny",
+          "disabled"
+        ],
+        "metadata": {
+          "displayName": "[Preview]: Certificates using RSA cryptography should have the specified minimum key size",
+          "description": "Manage your organizational compliance requirements by specifying a minimum key size for RSA certificates stored in your key vault."
+        }
+      },
+      "effect-PrivatenedpointconnectionsonAzureSQLDatabaseshouldbeenabled": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Private endpoint connections on Azure SQL Database should be enabled",
+          "description": "Private endpoint connections enforce secure communication by enabling private connectivity to Azure SQL Database"
+        }
+      },
+      "effect-AzureSynapsecustomer-managedkeystoEncrpytdataatrest": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Azure Synapse workspaces should use customer-managed keys to encrypt data at rest",
+          "description": "Use customer-managed keys to control the encryption at rest of the data stored in Azure Synapse workspaces. Customer-managed keys deliver double encryption by adding a second layer of encryption on top of the default encryption with service-managed keys."
+        }
+      },
+      "effect-SQLManagedInstancecustomer-managedkeystoEncrpytdataatrest": {
+        "type": "String",
+        "defaultValue": "AuditIfNotExists",
+        "allowedValues": [
+          "AuditIfNotExists",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "SQL managed instances should use customer-managed keys to encrypt data at rest",
+          "description": "Implementing Transparent Data Encryption (TDE) with your own key provides you with increased transparency and control over the TDE Protector, increased security with an HSM-backed external service, and promotion of separation of duties. This recommendation applies to organizations with a related compliance requirement."
+        }
+      },
+      "effect-VulnerabilityAssessmentShouldBeEnabledonYourSynapseworkspace": {
+        "type": "String",
+        "defaultValue": "AuditIfNotExists",
+        "allowedValues": [
+          "AuditIfNotExists",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Vulnerability assessment should be enabled on your Synapse workspaces",
+          "description": "Discover, track, and remediate potential vulnerabilities by configuring recurring SQL vulnerability assessment scans on your Synapse workspaces."
+        }
+      },
+      "effect-CosmosDBAccountsShouldDisablePublicNetworkAccess": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Azure Cosmos DB should disable public network access",
+          "description": "Disabling public network access improves security by ensuring that your CosmosDB account isn't exposed on the public internet. Creating private endpoints can limit exposure of your CosmosDB account."
+        }
+      },
+      "effect-CosmosDBaccountsshoulduseprivatelinks": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "CosmosDB accounts should use private links",
+          "description": "Azure Private Link lets you connect your virtual network to Azure services without a public IP address at the source or destination."
+        }
+      },
+      "effect-EventGridtopicsshoulddisablepublicnetworkaccess": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Azure Event Grid topics should use private link",
+          "description": "Azure Private Link lets you connect your virtual network to Azure services without a public IP address at the source or destination. The Private Link platform handles the connectivity between the consumer and services over the Azure backbone network. By mapping private endpoints to your Event Grid topic instead of the entire service, you'll also be protected against data leakage risks"
+        }
+      },
+      "effect-EventGriddomainsshoulddisablepublicnetworkaccess": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Azure Event Grid domains should use private link",
+          "description": "Azure Private Link lets you connect your virtual network to Azure services without a public IP address at the source or destination. The Private Link platform handles the connectivity between the consumer and services over the Azure backbone network. By mapping private endpoints to your Event Grid domain instead of the entire service, you'll also be protected against data leakage risks."
+        }
+      },
+      "effect-WebApplicationFirewallShouldUseTheSpecifiedModeForAzureFrontDoorService": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Web Application Firewall (WAF) should use the specified mode for Azure Front Door Service",
+          "description": "Mandates the use of 'Detection' or 'Prevention' mode to be active on all Web Application Firewall policies for Azure Front Door Service."
+        }
+      },
+      "effect-CognitiveSearchDisablepublicendpoint": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Azure Cognitive Search services should disable public network access",
+          "description": "Disabling public network access improves security by ensuring that your Azure Cognitive Search service is not exposed on the public internet. Creating private endpoints can limit exposure of your Search service."
+        }
+      },
+      "effect-AzureServiceBusNamespacesshouldUsePrivateLink": {
+        "type": "String",
+        "defaultValue": "AuditIfNotExists",
+        "allowedValues": [
+          "AuditIfNotExists",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Azure Service Bus namespaces should use private link",
+          "description": "Azure Private Link lets you connect your virtual network to Azure services without a public IP address at the source or destination."
+        }
+      },
+      "effect-SubnetsShouldBeAssociatedWithanNetworkSecurityGroup": {
+        "type": "String",
+        "defaultValue": "AuditIfNotExists",
+        "allowedValues": [
+          "AuditIfNotExists",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Subnets should be associated with a Network Security Group",
+          "description": "Protect your subnet from potential threats by restricting access to it with a Network Security Group (NSG). NSGs contain a list of Access Control List (ACL) rules that allow or deny network traffic to your subnet."
+        }
+      },
+      "effect-ServiceBusPremiumnamespacesshoulduseaCustomer-managedkeyforencryption": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Service Bus Premium namespaces should use a customer-managed key for encryption",
+          "description": "Azure Service Bus supports the option of encrypting data at rest with either Microsoft-managed keys (default) or customer-managed keys. Choosing to encrypt data using customer-managed keys enables you to assign, rotate, disable, and revoke access to the keys that Service Bus will use to encrypt data in your namespace. Note that Service Bus only supports encryption with customer-managed keys for premium namespaces."
+        }
+      },
+      "effect-Azure Database for MYSQL should have TLS 1.2": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Deny",
+          "Audit",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Azure Database for MYSQL should have TLS 1.2",
+          "description": "Sets minimal TLS version to 1.2 improves security by ensuring your Azure Database for MYSQL servers can only be accessed from clients using TLS 1.2. Using versions of TLS less than 1.2 is not recommended since they have well documented security vulnerabilities"
+        }
+      },
+      "effect-Public endpoint should be disabled for MySQL servers": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Deny",
+          "Audit",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Public endpoint should be disabled for MySQL servers",
+          "description": "Public network access(public endpoint) property has to be disabled to improve security and ensure your Azure Database for MySQL can only be accessed from a private endpoint. This configuration strictly disables access from any public address space outside of Azure IP range, and denies all logins that match IP or virtual network-based firewall rules"
+        }
+      },
+      "effect-Azure SQL TLS 1.2": {
+        "type": "String",
+        "defaultValue": "Disabled",
+        "allowedValues": [
+          "Deny",
+          "Audit",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Azure SQL TLS 1.2",
+          "description": "Sets minimal TLS version to 1.2 improves security by ensuring your Azure SQL Database can only be accessed from clients using TLS 1.2. Using versions of TLS less than 1.2 is not recommended since they have well documented security vulnerabilities"
+        }
+      },
+      "effect-Public Network access should be disabled For PostgreSQL Servers": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Deny",
+          "Audit",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "PostgreSQL require private network access",
+          "description": "Disable the public network access property to improve security and ensure your Azure Database for PostgreSQL can only be accessed from a private endpoint. This configuration disables access from any public address space outside of Azure IP range, and denies all logins that match IP or virtual network-based firewall rules."
+        }
+      },
+      "effect-EnforceSSLConnectionShouldbeEnabledForPostgreSQLDatabaseServers": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "EnforceSSLConnectionShouldbeEnabledForPostgreSQLDatabaseServers",
+          "description": "Azure Database for PostgreSQL supports connecting your Azure Database for PostgreSQL server to client applications using Secure Sockets Layer (SSL). Enforcing SSL connections between your database server and your client applications helps protect against 'man in the middle' attacks by encrypting the data stream between the server and your application. This configuration enforces that SSL is always enabled for accessing your database Server"
+        }
+      },
+      "effect-Firewall should be enabled on Key Vault": {
+        "type": "String",
+        "defaultValue": "Disabled",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Firewall should be enabled on Key Vault",
+          "description": "Key vault firewall prevents unauthorized traffic from reaching your key vault and provides an additional layer of protection for your secrets."
+        }
+      },
+      "effect-Keysshouldbebackedbyahardwaresecuritymodule": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Keys should be backed by a hardware security module (HSM)",
+          "description": "An HSM provides a physical layer of protection for cryptographic keys."
+        }
+      },
+      "effect-CosmosDB accounts requires private endpoint": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "Deny",
+          "Audit",
+          "Disabled"
+        ],
+        "defaultValue": "Disabled"
+      },
+      "effect-App Service requires VNET integration for non-ASE plans": {
+        "type": "String",
+        "defaultValue": "AuditIfNotExists",
+        "allowedValues": [
+          "AuditIfNotExists",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "App Service requires VNET integration for non-ASE plans",
+          "description": "This policy audits any App Service not configured to use a virtual network service endpoint"
+        }
+      },
+      "effect-App Service requires Private Endpoint for non-ASE plans": {
+        "type": "String",
+        "defaultValue": "AuditIfNotExists",
+        "allowedValues": [
+          "AuditIfNotExists",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "App Service requires Private Endpoint for non-ASE plans",
+          "description": "Private endpoint connections enforce secure communication by enabling private connectivity to Azure App Service. Configure a private endpoint connection to enable access to traffic coming only from known networks and prevent access from all other IP addresses, including within Azure."
+        }
+      },
+      "effect-EventHubnamespacesshoulduseprivatelink": {
+        "type": "String",
+        "defaultValue": "AuditIfNotExists",
+        "allowedValues": [
+          "AuditIfNotExists",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Event Hub namespaces should use private link",
+          "description": "Azure Private Link lets you connect your virtual network to Azure services without a public IP address at the source or destination. The Private Link platform handles the connectivity between the consumer and services over the Azure backbone network. By mapping private endpoints to Event Hub namespaces, data leakage risks are reduced. Learn more at: https://docs.microsoft.com/azure/event-hubs/private-link-service."
+        }
+      },
+      "effect-webApplicationFirewallShouldBeEnabledForAzureFrontDoorServiceServiceMonitoringEffect": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Web Application Firewall (WAF) should be enabled for Azure Front Door Service service",
+          "description": "web Application Firewall Should Be Enabled For Azure Front Door Service Service Monitoring Effect"
+        }
+      },
+      "effect-LogicAppsshouldbedeployedintoIntegrationServiceEnvironment": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Logic Apps should be deployed into Integration Service Environment",
+          "description": "Deploying Logic Apps into Integration Service Environment in a virtual network unlocks advanced Logic Apps networking and security features and provides you with greater control over your network configuration. Learn more at: https://aka.ms/integration-service-environment. Deploying into Integration Service Environment also allows encryption with customer-managed keys which provides enhanced data protection by allowing you to manage your encryption keys. This is often to meet compliance requirements."
+        }
+      },
+      "effect-PrivateendpointconnectionsonAzureSQLDatabaseshouldbeenabled": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Private endpoint connections on Azure SQL Database should be enabled",
+          "description": "Private endpoint connections enforce secure communication by enabling private connectivity to Azure SQL Database."
+        }
+      },
+      "effect-Storageaccountsshoulduseprivatelink": {
+        "type": "String",
+        "defaultValue": "AuditIfNotExists",
+        "allowedValues": [
+          "AuditIfNotExists",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Storage accounts should use private link",
+          "description": "Azure Private Link lets you connect your virtual network to Azure services without a public IP address at the source or destination. The Private Link platform handles the connectivity between the consumer and services over the Azure backbone network. By mapping private endpoints to your storage account, data leakage risks are reduced. Learn more about private links at - https://aka.ms/azureprivatelinkoverview"
+        }
+      },
+      "effect-Storageaccountsshouldhaveinfrastructureencryption": {
+        "type": "String",
+        "defaultValue": "Audit",
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Storage accounts should have infrastructure encryption",
+          "description": "Enable infrastructure encryption for higher level of assurance that the data is secure. When infrastructure encryption is enabled, data in a storage account is encrypted twice."
+        }
+      },
+      "effect-Public network access should be disabled for Container registries": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "defaultValue": "Audit"
+      }
+    },
+    "PolicyDefinitions": [
+      {
+        "policyDefinitionReferenceId": "AzurestorageshouldhavetheminimalTLSversion",
+        "policyDefinitionName": "Azure storage should have the minimal TLS version of 1.2",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Azure storage should have the minimal TLS version of 1.2')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_DP-4"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "Storageaccountsshouldhaveinfrastructureencryption",
+        "policyDefinitionName": "4733ea7b-a883-42fe-8cac-97454c2a9e4a",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Storageaccountsshouldhaveinfrastructureencryption')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_DP-5"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "Storageaccountsshoulduseprivatelink",
+        "policyDefinitionName": "6edd7eda-6dd8-40f7-810d-67160c639cd9",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Storageaccountsshoulduseprivatelink')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-4"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "PrivateendpointconnectionsonAzureSQLDatabaseshouldbeenabled",
+        "policyDefinitionName": "7698e800-9299-47a6-b3b6-5a0fee576eed",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-PrivateendpointconnectionsonAzureSQLDatabaseshouldbeenabled')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-4"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "LogicAppsshouldbedeployedintoIntegrationServiceEnvironment",
+        "policyDefinitionName": "dc595cb1-1cde-45f6-8faf-f88874e1c0e1",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-LogicAppsshouldbedeployedintoIntegrationServiceEnvironment')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-4"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "webApplicationFirewallShouldBeEnabledForAzureFrontDoorServiceServiceMonitoringEffect",
+        "policyDefinitionName": "055aa869-bc98-4af8-bafc-23f1ab6ffe2c",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-webApplicationFirewallShouldBeEnabledForAzureFrontDoorServiceServiceMonitoringEffect')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-4"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "AppConfigurationPrivateEndpoint",
+        "policyDefinitionName": "ca610c1d-041c-4332-9d88-7ed3094967c7",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-AppConfigurationPrivateEndpoint')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-3"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "AppConfigurationDisablePublicAccess",
+        "policyDefinitionName": "3d9f5e4c-9947-4579-9539-2a7695fbc187",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-AppConfigurationDisablePublicAccess')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-3"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "WebApplicationFirewallforAppGateway",
+        "policyDefinitionName": "12430be1-6cc8-4527-a9a8-e3d38f250096",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-WebApplicationFirewallforAppGateway')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-4"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "ADFShouldUseSystem-AssignedManagedIdentity",
+        "policyDefinitionName": "f78ccdb4-7bf4-4106-8647-270491d2978a",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-ADFShouldUseSystem-AssignedManagedIdentity')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_IM-2"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "PublicNetworkAccessonADFshouldbedisabled",
+        "policyDefinitionName": "1cf164be-6819-4a50-b8fa-4bcaa4f98fb6",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-PublicNetworkAccessonADFshouldbedisabled')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-3"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "PrivateEndpointforKeyVault",
+        "policyDefinitionName": "5f0bc445-3935-4915-9981-011aa2b46147",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-PrivateEndpointforKeyVault')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-3"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "KeyVaultSecretsShouldBeActiveforlongerthanthespecifiednumberofdays",
+        "policyDefinitionName": "e8d99835-8a06-45ae-a8e0-87a91941ccfe",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-KeyVaultSecretsShouldBeActiveforlongerthanthespecifiednumberofdays')]"
+          },
+          "maximumValidityInDays": {
+            "value": "[parameters('maximumValidityInDays-KeyVaultSecretsShouldBeActiveforlongerthanthespecifiednumberofdays')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "KeyVaultSecretsShouldHaveSpecifiedMaximumValidityPeriod",
+        "policyDefinitionName": "342e8053-e12e-4c44-be01-c3c2f318400f",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-KeyVaultSecretsShouldHaveSpecifiedMaximumValidityPeriod')]"
+          },
+          "maximumValidityInDays": {
+            "value": "[parameters('maximumValidityInDays-KeyVaultSecretsShouldHaveSpecifiedMaximumValidityPeriod')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "KeyVaultSecretsspecifiednumberofdaysbeforeExpiration",
+        "policyDefinitionName": "b0eb591a-5e70-4534-a8bf-04b9c489584a",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-KeyVaultSecretsspecifiednumberofdaysbeforeExpiration')]"
+          },
+          "minimumDaysBeforeExpiration": {
+            "value": "[parameters('minimumDaysBeforeExpiration-KeyVaultSecretsspecifiednumberofdaysbeforeExpiration')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "KeyVaultSecretsShouldhavecontenttypeset",
+        "policyDefinitionName": "75262d3e-ba4a-4f43-85f8-9f72c090e5e3",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-KeyVaultSecretsShouldhavecontenttypeset')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "KeyVaultRSACryptographySpecifiedMinimumKeySize",
+        "policyDefinitionName": "82067dbb-e53b-4e06-b631-546d197452d9",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-KeyVaultRSACryptographySpecifiedMinimumKeySize')]"
+          },
+          "minimumRSAKeySize": {
+            "value": "[parameters('minimumRSAKeySize-KeyVaultRSACryptographySpecifiedMinimumKeySize')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "KeyVaultECCSpecifiedcurvenames",
+        "policyDefinitionName": "ff25f3c8-b739-4538-9d07-3d6d25cfb255",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-KeyVaultECCSpecifiedcurvenames')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "KeyVaultkeysspecifiednumberofdays",
+        "policyDefinitionName": "c26e4b24-cf98-4c67-b48b-5a25c4c69eb9",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-KeyVaultkeysspecifiednumberofdays')]"
+          },
+          "maximumValidityInDays": {
+            "value": "[parameters('maximumValidityInDays-KeyVaultkeysspecifiednumberofdays')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "KeyVaultKeysShouldhavethespecifiedmaximumvalidityperiod",
+        "policyDefinitionName": "49a22571-d204-4c91-a7b6-09b1a586fbc9",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-KeyVaultKeysShouldhavethespecifiedmaximumvalidityperiod')]"
+          },
+          "maximumValidityInDays": {
+            "value": "[parameters('maximumValidityInDays-KeyVaultKeysShouldhavethespecifiedmaximumvalidityperiod')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "KeyVaultKeysshouldhavespecifiednumberofdaysbeforeExpiration",
+        "policyDefinitionName": "5ff38825-c5d8-47c5-b70e-069a21955146",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-KeyVaultKeysshouldhavespecifiednumberofdaysbeforeExpiration')]"
+          },
+          "minimumDaysBeforeExpiration": {
+            "value": "[parameters('minimumDaysBeforeExpiration-KeyVaultKeysshouldhavespecifiednumberofdaysbeforeExpiration')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "KeysShouldBeSpecifiedCryptographictypeRSAorEC",
+        "policyDefinitionName": "75c4f823-d65c-4f29-a733-01d0077fdbcb",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-KeysShouldBeSpecifiedCryptographictypeRSAorEC')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "CertificatesusingRSAcryptographyshouldhavethespecifiedminimumkeysize",
+        "policyDefinitionName": "cee51871-e572-4576-855c-047c820360f0",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-CertificatesusingRSAcryptographyshouldhavethespecifiedminimumkeysize')]"
+          },
+          "minimumRSAKeySize": {
+            "value": "[parameters('minimumRSAKeySize-CertificatesusingRSAcryptographyshouldhavethespecifiedminimumkeysize')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "Certificatesusingellipticcurvecryptographyshouldhaveallowedcurvenames",
+        "policyDefinitionName": "bd78111f-4953-4367-9fd5-7e08808b54bf",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Certificatesusingellipticcurvecryptographyshouldhaveallowedcurvenames')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "Certificatesshoulduseallowedkeytypes",
+        "policyDefinitionName": "1151cede-290b-4ba0-8b38-0ad145ac888f",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Certificatesshoulduseallowedkeytypes')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "CertificatesShouldNotExpireWithintheSpecifiednumberofdays",
+        "policyDefinitionName": "f772fb64-8e40-40ad-87bc-7706e1949427",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-CertificatesShouldNotExpireWithintheSpecifiednumberofdays')]"
+          },
+          "daysToExpire": {
+            "value": "[parameters('daysToExpire-CertificatesShouldNotExpireWithintheSpecifiednumberofdays')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "CertificateShouldHavethespecifiedmaximumvalidityperiod",
+        "policyDefinitionName": "0a075868-4c26-42ef-914c-5bc007359560",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-CertificateShouldHavethespecifiedmaximumvalidityperiod')]"
+          },
+          "maximumValidityInMonths": {
+            "value": "[parameters('maximumValidityInMonths-CertificateShouldHavethespecifiedmaximumvalidityperiod')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "Certificateshouldhavethespecifiedlifetimeactiontriggers",
+        "policyDefinitionName": "12ef42cb-9903-4e39-9c26-422d29570417",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Certificateshouldhavethespecifiedlifetimeactiontriggers')]"
+          },
+          "maximumPercentageLife": {
+            "value": "[parameters('maximumPercentageLife-Certificateshouldhavethespecifiedlifetimeactiontriggers')]"
+          },
+          "minimumDaysBeforeExpiry": {
+            "value": "[parameters('minimumDaysBeforeExpiry-Certificateshouldhavethespecifiedlifetimeactiontriggers')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "Certificatesshouldbeissuesbythespecifiednon-integratedcertifcateauthority",
+        "policyDefinitionName": "a22f4a40-01d3-4c7d-8071-da157eeff341",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Certificatesshouldbeissuesbythespecifiednon-integratedcertifcateauthority')]"
+          },
+          "caCommonName": {
+            "value": "[parameters('caCommonName-Certificatesshouldbeissuesbythespecifiednon-integratedcertifcateauthority')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "Certificatesshouldbeissuesbythespecifiedintegratedcertifcateauthority",
+        "policyDefinitionName": "8e826246-c976-48f6-b03e-619bb92b3d82",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Certificatesshouldbeissuesbythespecifiedintegratedcertifcateauthority')]"
+          },
+          "allowedCAs": {
+            "value": "[parameters('allowedCAs-Certificatesshouldbeissuesbythespecifiedintegratedcertifcateauthority')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "PrivatenedpointconnectionsonAzureSQLDatabaseshouldbeenabled",
+        "policyDefinitionName": "7698e800-9299-47a6-b3b6-5a0fee576eed",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-PrivatenedpointconnectionsonAzureSQLDatabaseshouldbeenabled')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-3"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "AzureSynapsecustomer-managedkeystoEncrpytdataatrest",
+        "policyDefinitionName": "f7d52b2d-e161-4dfa-a82b-55e564167385",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-AzureSynapsecustomer-managedkeystoEncrpytdataatrest')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_DP-5"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "SQLManagedInstancecustomer-managedkeystoEncrpytdataatrest",
+        "policyDefinitionName": "048248b0-55cd-46da-b1ff-39efd52db260",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-SQLManagedInstancecustomer-managedkeystoEncrpytdataatrest')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_DP-5"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "VulnerabilityAssessmentShouldBeEnabledonYourSynapseworkspace",
+        "policyDefinitionName": "0049a6b3-a662-4f3e-8635-39cf44ace45a",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-VulnerabilityAssessmentShouldBeEnabledonYourSynapseworkspace')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_PV-6"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "CosmosDBAccountsShouldDisablePublicNetworkAccess",
+        "policyDefinitionName": "797b37f7-06b8-444c-b1ad-fc62867f335a",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-CosmosDBAccountsShouldDisablePublicNetworkAccess')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-3"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "CosmosDBaccountsshoulduseprivatelinks",
+        "policyDefinitionName": "58440f8a-10c5-4151-bdce-dfbaad4a20b7",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-CosmosDBaccountsshoulduseprivatelinks')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-3"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "EventGridtopicsshoulddisablepublicnetworkaccess",
+        "policyDefinitionName": "4b90e17e-8448-49db-875e-bd83fb6f804f",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-EventGridtopicsshoulddisablepublicnetworkaccess')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-3"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "EventGriddomainsshoulddisablepublicnetworkaccess",
+        "policyDefinitionName": "9830b652-8523-49cc-b1b3-e17dce1127ca",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-EventGriddomainsshoulddisablepublicnetworkaccess')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-3"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "WebApplicationFirewallShouldUseTheSpecifiedModeForAzureFrontDoorService",
+        "policyDefinitionName": "425bea59-a659-4cbb-8d31-34499bd030b8",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-WebApplicationFirewallShouldUseTheSpecifiedModeForAzureFrontDoorService')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-4"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "CognitiveSearchDisablepublicendpoint",
+        "policyDefinitionName": "ee980b6d-0eca-4501-8d54-f6290fd512c3",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-CognitiveSearchDisablepublicendpoint')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-3"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "SubnetsShouldBeAssociatedWithanNetworkSecurityGroup",
+        "policyDefinitionName": "e71308d3-144b-4262-b144-efdc3cc90517",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-SubnetsShouldBeAssociatedWithanNetworkSecurityGroup')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-3"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "AzureServiceBusNamespacesshouldUsePrivateLink",
+        "policyDefinitionName": "1c06e275-d63d-4540-b761-71f364c2111d",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-AzureServiceBusNamespacesshouldUsePrivateLink')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-3"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "ServiceBusPremiumnamespacesshoulduseaCustomer-managedkeyforencryption",
+        "policyDefinitionName": "295fc8b1-dc9f-4f53-9c61-3f313ceab40a",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-ServiceBusPremiumnamespacesshoulduseaCustomer-managedkeyforencryption')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_DP-5"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "AzureDatabaseforMYSQLshouldhaveTLS1.2",
+        "policyDefinitionName": "Azure Database for MYSQL should have TLS 1.2",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Azure Database for MYSQL should have TLS 1.2')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_DP-4"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "EventHubnamespacesshoulduseprivatelink",
+        "policyDefinitionName": "b8564268-eb4a-4337-89be-a19db070c59d",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-EventHubnamespacesshoulduseprivatelink')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-3"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "MySQLDisablePublicNetworkAccess",
+        "policyDefinitionName": "Public endpoint should be disabled for MySQL servers",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Public endpoint should be disabled for MySQL servers')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-3"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "AzureSQLTLS1.2",
+        "policyDefinitionName": "Azure SQL TLS 1.2",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Azure SQL TLS 1.2')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-3"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "AppServicerequiresPrivateEndpointfornon-ASEplans",
+        "policyDefinitionName": "App Service requires Private Endpoint for non-ASE plans",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-App Service requires Private Endpoint for non-ASE plans')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-3"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "AzureMachineLearningworkspacesshoulduseuser-assignedmanagedIdentity",
+        "policyDefinitionName": "5f0c7d88-c7de-45b8-ac49-db49e72eaa78",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-AzureMachineLearningworkspacesshoulduseuser-assignedmanagedIdentity')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_IM-2"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "PremiumSkurequiresbyHSM",
+        "policyDefinitionName": "Premium sku backed by HSM",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Premium sku backed by HSM')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "AvoidstorageaccountkeysandSAStokensstorageaccounts",
+        "policyDefinitionName": "Avoid storage account keys and SAS tokens storage accounts",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Avoid storage account keys and SAS tokens storage accounts')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_IM-1"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "Keysshouldbebackedbyahardwaresecuritymodule(HSM)",
+        "policyDefinitionName": "587c79fe-dd04-4a5e-9d0b-f89598c7261b",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Keysshouldbebackedbyahardwaresecuritymodule')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "PostgreSQLrequireprivatenetworkaccess",
+        "policyDefinitionName": "PostgreSQL require private network access",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Public Network access should be disabled For PostgreSQL Servers')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-3"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "PGRESQL require SSL",
+        "policyDefinitionName": "PGRESQL require SSL",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-EnforceSSLConnectionShouldbeEnabledForPostgreSQLDatabaseServers')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_DP-4"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "azureMachineLearningWorkspacesShouldUsePrivateLinkMonitoringEffect",
+        "policyDefinitionName": "40cec1dd-a100-4920-b15b-3024fe8901ab",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-azureMachineLearningWorkspacesShouldUsePrivateLinkMonitoringEffect')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-3"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "AppServiceVnetIntegrationnonASE",
+        "policyDefinitionName": "App Service requires VNET integration for non-ASE plans",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-App Service requires VNET integration for non-ASE plans')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-3"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "FirewallshouldbeenabledonKeyVault",
+        "policyDefinitionName": "Firewall should be enabled on Key Vault",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Firewall should be enabled on Key Vault')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-3"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "CosmosDBaccountsrequiresprivateendpoint",
+        "policyDefinitionName": "CosmosDB accounts requires private endpoint",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-CosmosDB accounts requires private endpoint')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-3"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "PrivateendpointshouldbeenabledforCognitiveServices",
+        "policyDefinitionName": "Private endpoint should be enabled for Cognitive Services",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Private endpoint should be enabled for Cognitive Services')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-3"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "DeployDatabricksintoaprivateVNet",
+        "policyDefinitionName": "Deploy Databricks into a private VNet",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Deploy Databricks into a private VNet')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-3"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "PrivateendpointshouldbeenabledforCognitiveSearch",
+        "policyDefinitionName": "Private endpoint should be enabled for Cognitive Search",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Private endpoint should be enabled for Cognitive Search')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_NS-3"
+        ]
+      },
+      {
+        "policyDefinitionReferenceId": "Public network access should be disabled for Container registries",
+        "policyDefinitionName": "0fdf0491-d080-4575-b627-ad0e843cba0f",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('effect-Public network access should be disabled for Container registries')]"
+          }
+        },
+        "groupNames": [
+          "Azure_Security_Benchmark_v2.0_PV-2"
+        ]
+      }
+    ]
+  }
+}

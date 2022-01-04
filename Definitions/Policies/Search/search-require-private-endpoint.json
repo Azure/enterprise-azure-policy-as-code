@@ -1,0 +1,43 @@
+{
+  "name":"Private endpoint should be enabled for Cognitive Search",
+  "properties": {
+    "displayName": "Private endpoint should be enabled for Cognitive Search",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Private endpoint connections enforce secure communication by enabling private connectivity to Cognitive Search. Configure a private endpoint connection to enable access to traffic coming only from known networks and prevent access from all other IP addresses, including within Azure.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Search"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "AuditIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "AuditIfNotExists"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.Search/searchServices"
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Search/searchServices/privateEndpointConnections",
+          "existenceCondition": {
+            "field": "Microsoft.Search/searchServices/privateEndpointConnections/privateLinkServiceConnectionState.status",
+            "equals": "Approved"
+          }
+        }
+      }
+    }
+  }
+}
