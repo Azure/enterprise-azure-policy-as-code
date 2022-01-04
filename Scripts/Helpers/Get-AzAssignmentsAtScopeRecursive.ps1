@@ -426,4 +426,3 @@ function Get-AzAssignmentsAtScopeRecursive {
     return $assignmentsInAzure, $remediations
 
 }
-# CI az policy state summarize --management-group MediaKind-NonProd --filter "(policyDefinitionAction eq 'deployifnotexists' or policyDefinitionAction eq 'modify')" | Out-File .\Output\Compliance2.json

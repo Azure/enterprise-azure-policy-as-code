@@ -1,6 +1,6 @@
 Param (
     [Parameter(Mandatory = $false)]
-    [String] $tenantId = "e898ff4a-4b69-45ee-a3ae-1cd6f239feb2",
+    [String] $tenantId = "tenant-id-guid",
 
     [Parameter(Mandatory = $false)]
     [String] $outputFilePath,

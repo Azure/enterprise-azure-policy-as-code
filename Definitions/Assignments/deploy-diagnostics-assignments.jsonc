@@ -5,16 +5,16 @@
             "nodeName": "rootMG/",
             "scope": {
                 "PAC-DEV-001": [
-                    "/subscriptions/450de7ac-f65b-4324-a96a-6e74b13b8d7d"
+                    "/subscriptions/dev1-subscription-guid"
                 ],
                 "PAC-DEV-002": [
-                    "/subscriptions/c5215db3-a5b6-43e7-8ddb-02da410ec716"
+                    "/subscriptions/dev2-subscription-guid"
                 ],
                 "PAC-QA": [
-                    "/subscriptions/63ef1972-b1be-4a4b-a846-17fdd7105daa"
+                    "/subscriptions/qa-subscription-guid"
                 ],
                 "PAC-PROD": [
-                    "/providers/Microsoft.Management/managementGroups/e898ff4a-4b69-45ee-a3ae-1cd6f239feb2"
+                    "/providers/Microsoft.Management/managementGroups/tenant-id-guid"
                 ]
             },
             "children": [
@@ -80,11 +80,11 @@
                 "*": [
                     {
                         "roleDefinitionId": "b24988ac-6180-42a0-ab88-20f7382dd24c",
-                        "scope": "/subscriptions/605d89e6-38e4-44e2-aa95-8df073419a3a/resourceGroups/rg-qradar-nbait"
+                        "scope": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources"
                     },
                     {
                         "roleDefinitionId": "92aaf0da-9dab-42b6-94a3-d43ce8d16293",
-                        "scope": "/subscriptions/605d89e6-38e4-44e2-aa95-8df073419a3a/resourceGroups/rg-qradar-nbait"
+                        "scope": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources"
                     }
                 ]
             },
@@ -98,17 +98,14 @@
                     },
                     "scope": {
                         "PAC-PROD": [
-                            "/providers/Microsoft.Management/managementGroups/e898ff4a-4b69-45ee-a3ae-1cd6f239feb2"
+                            "/providers/Microsoft.Management/managementGroups/tenant-id-guid"
                         ]
                     },
                     "notScope": {
                         "PAC-PROD": [
-                            "/providers/Microsoft.Management/managementGroups/NBA-IT-Non-Prod-Env",
-                            "/providers/Microsoft.Management/managementGroups/OTT-Non-Prod-Env",
-                            "/providers/Microsoft.Management/managementGroups/MediaKind-NonProd",
-                            "/providers/Microsoft.Management/managementGroups/NBA-IT-Sandbox-Env",
-                            "/providers/Microsoft.Management/managementGroups/OTT-Sandbox-Env",
-                            "/providers/Microsoft.Management/managementGroups/MediaKind-Sandbox"
+                            "/providers/Microsoft.Management/managementGroups/Org-NonProd-Env",
+                            "/providers/Microsoft.Management/managementGroups/Online-NonProd-Env",
+                            "/providers/Microsoft.Management/managementGroups/Sandbox-Env"
                         ]
                     },
                     "children": [
@@ -121,8 +118,8 @@
                             "parameters": {
                                 "diagnosticsSettingNameToUse": "DINE Logging to LA",
                                 "resourceLocation": "eastus2",
-                                "logAnalytics_1": "/subscriptions/605d89e6-38e4-44e2-aa95-8df073419a3a/resourcegroups/rg-qradar-nbait/providers/microsoft.operationalinsights/workspaces/log-qradarworkspace-prod",
-                                "logAnalytics": "/subscriptions/605d89e6-38e4-44e2-aa95-8df073419a3a/resourcegroups/rg-qradar-nbait/providers/microsoft.operationalinsights/workspaces/log-qradarworkspace-prod"
+                                "logAnalytics_1": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources/providers/microsoft.operationalinsights/workspaces/log-qradarworkspace-prod",
+                                "logAnalytics": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources/providers/microsoft.operationalinsights/workspaces/log-qradarworkspace-prod"
                             },
                             "children": [
                                 {
@@ -196,7 +193,7 @@
                             "parameters": {
                                 "diagnosticsSettingNameToUse": "Activity Log to EH",
                                 "resourceLocation": "eastus2",
-                                "eventHubAuthorizationRuleId": "/subscriptions/605d89e6-38e4-44e2-aa95-8df073419a3a/resourceGroups/rg-qradar-nbait/providers/Microsoft.EventHub/namespaces/evhnqradareastus2prod/authorizationrules/RootManageSharedAccessKey",
+                                "eventHubAuthorizationRuleId": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources/providers/Microsoft.EventHub/namespaces/evhnseastus2prod/authorizationrules/RootManageSharedAccessKey",
                                 "eventHubName": "platform"
                             },
                             "definitionEntry": {
@@ -232,7 +229,7 @@
                                     },
                                     "parameters": {
                                         "resourceLocation": "eastus",
-                                        "eventHubAuthorizationRuleId": "/subscriptions/605d89e6-38e4-44e2-aa95-8df073419a3a/resourceGroups/rg-qradar-nbait/providers/Microsoft.EventHub/namespaces/evhnqradareastusprod/authorizationrules/RootManageSharedAccessKey"
+                                        "eventHubAuthorizationRuleId": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources/providers/Microsoft.EventHub/namespaces/evhnseastusprod/authorizationrules/RootManageSharedAccessKey"
                                     }
                                 },
                                 {
@@ -243,7 +240,7 @@
                                     },
                                     "parameters": {
                                         "resourceLocation": "eastus2",
-                                        "eventHubAuthorizationRuleId": "/subscriptions/605d89e6-38e4-44e2-aa95-8df073419a3a/resourceGroups/rg-qradar-nbait/providers/Microsoft.EventHub/namespaces/evhnqradareastus2prod/authorizationrules/RootManageSharedAccessKey"
+                                        "eventHubAuthorizationRuleId": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources/providers/Microsoft.EventHub/namespaces/evhnseastus2prod/authorizationrules/RootManageSharedAccessKey"
                                     }
                                 },
                                 {
@@ -254,7 +251,7 @@
                                     },
                                     "parameters": {
                                         "resourceLocation": "southcentralus",
-                                        "eventHubAuthorizationRuleId": "/subscriptions/605d89e6-38e4-44e2-aa95-8df073419a3a/resourceGroups/rg-qradar-nbait/providers/Microsoft.EventHub/namespaces/evhnqradarsouthcentralus-prod/authorizationrules/RootManageSharedAccessKey"
+                                        "eventHubAuthorizationRuleId": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources/providers/Microsoft.EventHub/namespaces/evhnssouthcentralus-prod/authorizationrules/RootManageSharedAccessKey"
                                     }
                                 }
                             ]
@@ -270,23 +267,22 @@
                     },
                     "scope": {
                         "PAC-DEV-001": [
-                            "/subscriptions/450de7ac-f65b-4324-a96a-6e74b13b8d7d"
+                            "/subscriptions/dev1-subscription-guid"
                         ],
                         "PAC-DEV-002": [
-                            "/subscriptions/c5215db3-a5b6-43e7-8ddb-02da410ec716"
+                            "/subscriptions/dev2-subscription-guid"
                         ],
                         "PAC-QA": [
-                            "/subscriptions/63ef1972-b1be-4a4b-a846-17fdd7105daa"
+                            "/subscriptions/qa-subscription-guid"
                         ],
                         "PAC-PROD": [
-                            "/providers/Microsoft.Management/managementGroups/e898ff4a-4b69-45ee-a3ae-1cd6f239feb2"
+                            "/providers/Microsoft.Management/managementGroups/tenant-id-guid"
                         ]
                     },
                     "notScope": {
                         "PAC-PROD": [
-                            "/providers/Microsoft.Management/managementGroups/NBA-IT-Prod-Env",
-                            "/providers/Microsoft.Management/managementGroups/OTT-Prod-Env",
-                            "/providers/Microsoft.Management/managementGroups/MediaKind-Prod"
+                            "/providers/Microsoft.Management/managementGroups/Org-Prod-Env",
+                            "/providers/Microsoft.Management/managementGroups/Online-Prod-Env"
                         ]
                     },
                     "children": [
@@ -299,8 +295,8 @@
                             "parameters": {
                                 "diagnosticsSettingNameToUse": "DINE Logging to LA",
                                 "resourceLocation": "eastus2",
-                                "logAnalytics_1": "/subscriptions/605d89e6-38e4-44e2-aa95-8df073419a3a/resourcegroups/rg-qradar-nbait/providers/microsoft.operationalinsights/workspaces/log-qradarworkspace",
-                                "logAnalytics": "/subscriptions/605d89e6-38e4-44e2-aa95-8df073419a3a/resourcegroups/rg-qradar-nbait/providers/microsoft.operationalinsights/workspaces/log-qradarworkspace"
+                                "logAnalytics_1": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources/providers/microsoft.operationalinsights/workspaces/log-qradarworkspace",
+                                "logAnalytics": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources/providers/microsoft.operationalinsights/workspaces/log-qradarworkspace"
                             },
                             "children": [
                                 {
@@ -374,7 +370,7 @@
                             "parameters": {
                                 "diagnosticsSettingNameToUse": "Activity Log to EH",
                                 "resourceLocation": "eastus2",
-                                "eventHubAuthorizationRuleId": "/subscriptions/605d89e6-38e4-44e2-aa95-8df073419a3a/resourceGroups/rg-qradar-nbait/providers/Microsoft.EventHub/namespaces/evhnqradareastus2/authorizationrules/RootManageSharedAccessKey",
+                                "eventHubAuthorizationRuleId": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources/providers/Microsoft.EventHub/namespaces/evhnseastus2/authorizationrules/RootManageSharedAccessKey",
                                 "eventHubName": "platform"
                             },
                             "definitionEntry": {
@@ -410,7 +406,7 @@
                                     },
                                     "parameters": {
                                         "resourceLocation": "eastus",
-                                        "eventHubAuthorizationRuleId": "/subscriptions/605d89e6-38e4-44e2-aa95-8df073419a3a/resourceGroups/rg-qradar-nbait/providers/Microsoft.EventHub/namespaces/evhnqradareastusprod/authorizationrules/RootManageSharedAccessKey"
+                                        "eventHubAuthorizationRuleId": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources/providers/Microsoft.EventHub/namespaces/evhnseastusprod/authorizationrules/RootManageSharedAccessKey"
                                     }
                                 },
                                 {
@@ -421,7 +417,7 @@
                                     },
                                     "parameters": {
                                         "resourceLocation": "eastus2",
-                                        "eventHubAuthorizationRuleId": "/subscriptions/605d89e6-38e4-44e2-aa95-8df073419a3a/resourceGroups/rg-qradar-nbait/providers/Microsoft.EventHub/namespaces/evhnqradareastus2prod/authorizationrules/RootManageSharedAccessKey"
+                                        "eventHubAuthorizationRuleId": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources/providers/Microsoft.EventHub/namespaces/evhnseastus2prod/authorizationrules/RootManageSharedAccessKey"
                                     }
                                 },
                                 {
@@ -432,7 +428,7 @@
                                     },
                                     "parameters": {
                                         "resourceLocation": "southcentralus",
-                                        "eventHubAuthorizationRuleId": "/subscriptions/605d89e6-38e4-44e2-aa95-8df073419a3a/resourceGroups/rg-qradar-nbait/providers/Microsoft.EventHub/namespaces/evhnqradarsouthcentralus-prod/authorizationrules/RootManageSharedAccessKey"
+                                        "eventHubAuthorizationRuleId": "/subscriptions/log-forward-subscription-id/resourceGroups/rg-log-forwarding-resources/providers/Microsoft.EventHub/namespaces/evhnssouthcentralus-prod/authorizationrules/RootManageSharedAccessKey"
                                     }
                                 }
                             ]

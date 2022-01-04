@@ -22,16 +22,16 @@
     },
     "scope": {
         "PAC-DEV-001": [
-            "/subscriptions/450de7ac-f65b-4324-a96a-6e74b13b8d7d"
+            "/subscriptions/dev1-subscription-guid"
         ],
         "PAC-DEV-002": [
-            "/subscriptions/c5215db3-a5b6-43e7-8ddb-02da410ec716"
+            "/subscriptions/dev2-subscription-guid"
         ],
         "PAC-QA": [
-            "/subscriptions/63ef1972-b1be-4a4b-a846-17fdd7105daa"
+            "/subscriptions/qa-subscription-guid"
         ],
         "PAC-PROD": [
-            "/providers/Microsoft.Management/managementGroups/e898ff4a-4b69-45ee-a3ae-1cd6f239feb2"
+            "/providers/Microsoft.Management/managementGroups/tenant-id-guid"
         ]
     }
 }
