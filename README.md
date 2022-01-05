@@ -21,7 +21,7 @@ Replicate the file structure seen in this GitHub repo in your Azure DevOps envir
 
 # High Level Visualization of the Deployment Workflow
 
-![](https://github.com/Azure/manage-azure-policy-pipeline/blob/nicko/docs/images/Azure%20Security%20Controls%20Process.png)
+![](https://github.com/Azure/manage-azure-policy-pipeline/blob/main/docs/images/Azure%20Security%20Controls%20Process.png)
 
 # Azure Security Modernization
 
