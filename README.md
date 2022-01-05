@@ -65,10 +65,10 @@ scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
       + QA - Pull request is approved
       + Prod - Azure DevOps approval gate is completed
 **Single Tenant Policy as Code Overview**
->![image.png](./Docs/images/SingleTenantOverview.png)
+>![image.png](https://github.com/Azure/manage-azure-policy-pipeline/blob/feature/nickohri/Docs/Images/SingleTenantOverview.PNG)
 
 **Multi Tenant Policy as Code Overview**
->![image.png](./Docs/images/MultiTenantOverview.png)
+>![image.png](https://github.com/Azure/manage-azure-policy-pipeline/blob/feature/nickohri/Docs/Images/MultiTenantOverview.PNG)
 
 ## Azure Security Modernization
 
