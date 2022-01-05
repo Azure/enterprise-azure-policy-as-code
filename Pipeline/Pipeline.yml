@@ -50,7 +50,8 @@ pr: none
 #         - main
 #     always: true
 
-pool: PROD-UbuntuPool-001
+# You may specify a custom pool if you wish
+# pool: your-pool-name
 
 stages:
   - stage: DEV_001
