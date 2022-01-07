@@ -2,7 +2,7 @@
 
 # Policy Assignments
 
-This chapter describes how **Policy and Initiative Assignments** are handled by the Policy-as-Code framework. To learn about how custom Policy and Initiative definitions are managed, see the **[Definitions](./Definitions.md)**  section.
+This chapter describes how **Policy and Initiative Assignments** are handled by the Policy-as-Code framework. To learn about how custom Policy and Initiative definitions are managed, see the **[Definitions](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Definitions.md)**  section.
 
 The components required for **creating / updating / deleting Policy assignments and Policy set (initiative) assignments** are the following:
 
@@ -24,7 +24,7 @@ The Policy as Code framework supports the following Policy and Initiative assign
  **NOTE**: This solution enforces a centralized approach. It is recommended that you follow a centralized approach however, when using the mixed approach, scopes that will not be managed by the central team should be excluded from (not mentioned in) the assignments JSON file - therefore the assignment configuration script will ignore these scopes (it won't add/remove/update anything in there). At the same time, the distributed teams must only include those scopes in their version of the assignments.json that is not covered by the central team.
 
 ## Assignment File Overview Diagram
-![image.png](./images/AssignmentOverview.png)
+![image.png](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Images/AssignmentOverview.PNG)
 
 ## Assignment JSON file structure
 
@@ -168,9 +168,9 @@ The Policy as Code framework supports the following Policy and Initiative assign
 ## Next steps
 Read through the rest of the documentation and configure the pipeline to your needs.
 
-- **[Definitions](./Definitions.md)**
-- **[Pipeline](./pipeline.md)**
-- **[Scripts and Configuration Files](./ScriptsAndConfigurationFiles.md)**
-- **[Quick Start guide](../readme.md)**
+- **[Definitions](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Definitions.md)**
+- **[Pipeline](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Pipeline.md)**
+- **[Scripts and Configuration Files](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/ScriptsAndConfigurationFiles.md)**
+- **[Quick Start guide](https://github.com/Azure/enterprise-azure-policy-as-code#readme)**
 
-[Return to the main page.](../readme.md)
+[Return to the main page.](https://github.com/Azure/enterprise-azure-policy-as-code)
