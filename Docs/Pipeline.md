@@ -15,7 +15,7 @@ The components required for **configuring the pipeline and deploying policies, i
 | **Deployment Scripts** | These scripts are used to deploy your policies, initiatives, and assignments to Azure | In the `Scripts` folder of this repository |
 
 ## Configuring the pipeline
-> **NOTE**: Before configuring the pipeline, you will need to create service connections. Refer to the **[Quick Start Guide](../ReadMe.md)** for the permissions that need to be granted to each one.
+> **NOTE**: Before configuring the pipeline, you will need to create service connections. Refer to the **[Quick Start Guide](https://github.com/Azure/enterprise-azure-policy-as-code#readme)** for the permissions that need to be granted to each one.
 
 You must edit the following items in the `pipeline.yml` file to align with your Azure environment
  - tenantID such as `12345678-1234-1234-1234-123456789012`
