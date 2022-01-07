@@ -1,0 +1,221 @@
+variables:
+  # This pipeline is used to deploy Policy definitions, Initiative definitions and Assignments into Azure. Replace the tenantId with your tenant
+  planFolder: ./output/plans
+  tenantId: "tenant-id-guid"
+
+  # Replace these scopes with your desired deployment scope for each stage
+  dev001RootScope: "/subscriptions/dev1-subscription-guid"
+  qaRootScope: "/subscriptions/qa-subscription-guid"
+  prodRootScope: "/providers/Microsoft.Management/managementGroups/tenant-id-guid"
+
+  # Environment names for usage with global-settings.jsonc
+  dev001AssignmentSelector: "PAC-DEV-001"
+  qaAssignmentSelector: "PAC-QA"
+  prodAssignmentSelector: "PAC-PROD"
+
+  # rootScope definitions per environment
+  dev001PlanFile: "$(planFolder)/dev001-plan.json"
+  qaPlanFile: "$(planFolder)/qa-plan.json"
+  prodPlanFile: "$(planFolder)/prod-plan.json"
+  prodPlanFileIn: "$(Pipeline.Workspace)/prod-plan/prod-plan.json"
+
+  # Use the plain text name of each service connection as a reference
+  dev001ServiceConnection: "SCaC-DEV-001-ServiceConnection"
+  qaServiceConnection: "SCaC-QA-001-ServiceConnection"
+  prodServiceConnection: "SCAC-PROD-001-ServiceConnection"
+
+# what to build trigger
+trigger:
+  #   # branch names are case senititve
+  branches:
+    include:
+      - /*
+  paths:
+    include:
+      - Definitions/*
+      - Scripts/*
+      - Pipeline/*
+    exclude:
+      - Definitions/README.MD
+      - Scripts/Test/*
+      - Scripts/Operations/*
+
+pr: none
+
+# schedules:
+#   - cron: "0 0 * * *"
+#     displayName: Daily midnight build
+#     branches:
+#       include:
+#         - main
+#     always: true
+
+# You may specify a custom pool if you wish
+# pool: your-pool-name
+
+stages:
+  - stage: DEV_001
+    displayName: "DEV-001"
+    condition: and(in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), not(contains(variables['Build.SourceBranch'], 'refs/heads/main')))
+    jobs:
+      - deployment: DEV_001_Deployment
+        environment: SCaC-DEV
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: AzureCLI@2
+                  displayName: Planning DEV-001 deployment
+                  inputs:
+                    azureSubscription: $(dev001ServiceConnection)
+                    scriptType: pscore
+                    scriptLocation: scriptPath
+                    scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
+                    arguments: -TenantId $(tenantId) `
+                      -AssignmentSelector $(dev001AssignmentSelector) `
+                      -RootScope $(dev001RootScope) `
+                      -PlanFile $(dev001PlanFile) `
+                      -InformationAction Continue
+                - task: AzureCLI@2
+                  displayName: Remove DEV-001 Idenities and Role assignemnts
+                  # Required due to ADO task limitations
+                  inputs:
+                    azureSubscription: $(dev001ServiceConnection)
+                    scriptType: pscore
+                    scriptLocation: scriptPath
+                    scriptPath: "Scripts/Deploy/Remove-AzPolicyIdentitiesRoles.ps1"
+                    arguments: -PlanFile $(dev001PlanFile)
+                      -InformationAction Continue
+                - task: AzurePowerShell@5
+                  displayName: Deploy to DEV-001 environment
+                  inputs:
+                    azureSubscription: $(dev001ServiceConnection)
+                    ScriptPath: "Scripts/Deploy/Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1"
+                    ScriptArguments: "-PlanFile $(dev001PlanFile) -InformationAction Continue"
+                    pwsh: true
+                    azurePowerShellVersion: LatestVersion
+                  condition: succeeded()
+  - stage: PLAN_PROD_FEATURE
+    displayName: "Plan PROD Feature Branch"
+    condition: and(in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), not(contains(variables['Build.SourceBranch'], 'refs/heads/main')))
+    jobs:
+      - deployment: PROD_FEATURE_Plan
+        environment: SCaC-DEV
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: AzureCLI@2
+                  displayName: Planning (only) PROD environment - Feature branch
+                  inputs:
+                    azureSubscription: $(prodServiceConnection)
+                    scriptType: pscore
+                    scriptLocation: scriptPath
+                    scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
+                    arguments: -TenantId $(tenantId) `
+                      -AssignmentSelector $(prodAssignmentSelector) `
+                      -RootScope $(prodRootScope) `
+                      -PlanFile $(prodPlanFile) `
+                      -InformationAction Continue
+                  condition: succeeded()
+  - stage: QA
+    displayName: "QA"
+    condition: and(not(in(variables['Build.Reason'], 'Manual')), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - deployment: QA_Deployment
+        environment: SCaC-QA
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: AzureCLI@2
+                  displayName: Planning QA deployment
+                  inputs:
+                    azureSubscription: $(qaServiceConnection)
+                    scriptType: pscore
+                    scriptLocation: scriptPath
+                    scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
+                    arguments: -TenantId $(tenantId) `
+                      -AssignmentSelector $(qaAssignmentSelector) `
+                      -RootScope $(qaRootScope) `
+                      -PlanFile $(qaPlanFile) `
+                      -InformationAction Continue
+                - task: AzureCLI@2
+                  displayName: Remove QA Idenities and Role assignemnts
+                  # Required due to ADO task limitations
+                  inputs:
+                    azureSubscription: $(qaServiceConnection)
+                    scriptType: pscore
+                    scriptLocation: scriptPath
+                    scriptPath: "Scripts/Deploy/Remove-AzPolicyIdentitiesRoles.ps1"
+                    arguments: -PlanFile $(qaPlanFile) -InformationAction Continue
+                - task: AzurePowerShell@5
+                  displayName: Deploy to QA environment
+                  inputs:
+                    azureSubscription: $(qaServiceConnection)
+                    ScriptPath: "Scripts/Deploy/Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1"
+                    ScriptArguments: "-PlanFile $(qaPlanFile) -InformationAction Continue"
+                    pwsh: true
+                    azurePowerShellVersion: LatestVersion
+                  condition: succeeded()
+  - stage: PLAN_PROD_MAIN
+    displayName: "Plan PROD Main Branch"
+    condition: and(in(variables['Build.Reason'], 'Manual', 'Schedule', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - deployment: PROD_MAIN_Plan
+        environment: SCaC-QA
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: AzureCLI@2
+                  displayName: Planning (only) PROD environment - Main branch
+                  inputs:
+                    azureSubscription: $(prodServiceConnection)
+                    scriptType: pscore
+                    scriptLocation: scriptPath
+                    scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
+                    arguments: -TenantId $(tenantId) `
+                      -AssignmentSelector $(prodAssignmentSelector) `
+                      -RootScope $(prodRootScope) `
+                      -PlanFile $(prodPlanFile) `
+                      -InformationAction Continue
+                  condition: succeeded()
+                - publish: "$(prodPlanFile)"
+                  artifact: "prod-plan"
+                  condition: succeeded()
+  - stage: PROD
+    displayName: "PROD"
+    dependsOn: PLAN_PROD_MAIN
+    condition: and(succeeded('PLAN_PROD_MAIN'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - deployment: PROD_Deployment
+        environment: SCaC-PROD
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                # Artifact (plan) is downloaded automatically
+                - task: AzureCLI@2
+                  displayName: Remove PROD Idenities and Role assignemnts
+                  # Required due to ADO task limitations
+                  inputs:
+                    azureSubscription: $(prodServiceConnection)
+                    scriptType: pscore
+                    scriptLocation: scriptPath
+                    scriptPath: "Scripts/Deploy/Remove-AzPolicyIdentitiesRoles.ps1"
+                    arguments: -PlanFile $(prodPlanFileIn) -InformationAction Continue
+                - task: AzurePowerShell@5
+                  displayName: Deploy plan to PROD environment
+                  inputs:
+                    azureSubscription: $(prodServiceConnection)
+                    ScriptPath: "Scripts/Deploy/Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1"
+                    ScriptArguments: "-PlanFile $(prodPlanFileIn) -InformationAction Continue"
+                    pwsh: true
+                    azurePowerShellVersion: LatestVersion
+                  condition: succeeded()
