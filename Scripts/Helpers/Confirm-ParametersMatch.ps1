@@ -17,11 +17,13 @@ function Confirm-ParametersMatch {
             # remove key from $addedParameters
             $addedParameters.Remove($existingParameterName)
 
-            # analyze parmeter
-            if ($match) {
-                $existing = $existingParameters.$existingParameterName
-                $defined = $definedParameters.$existingParameterName
-                $match = Confirm-ObjectValueEqualityDeep -existingObj $existing -definedObj $defined
+            # analyze parameter
+            $existing = $existingParameters.$existingParameterName
+            $defined = $definedParameters.$existingParameterName
+            $matchNew = Confirm-ObjectValueEqualityDeep -existingObj $existing -definedObj $defined
+            if (-not $matchNew) {
+                $match = $false
+                $incompatible = $true
             }
         }
         else {
@@ -31,7 +33,7 @@ function Confirm-ParametersMatch {
             break
         }
     }
-    if (($incompatible -eq $false) -and ($addedParameters.Count -gt 0)) {
+    if ((-not $incompatible) -and ($addedParameters.Count -gt 0)) {
         $match = $false
         # If no defaultValue, added parameter makes it incompatible requiring a delete followed by a new. 
         foreach ($addedParameterName in $addedParameters.Keys) {
