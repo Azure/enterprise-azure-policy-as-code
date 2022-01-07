@@ -123,9 +123,9 @@ https://docs.microsoft.com/en-us/azure/governance/policy/concepts/definition-str
 ## Next steps
 Read through the rest of the documentation and configure the pipeline to your needs.
 
-- **[Pipeline](./pipeline.md)**
-- **[Assignments](./Assignments.md)**
-- **[Scripts and Configuration Files](./ScriptsAndConfigurationFiles.md)**
-- **[Quick Start guide](../readme.md)**
+- **[Pipeline](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Pipeline.md)**
+- **[Assignments](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Assignments.md)**
+- **[Scripts and Configuration Files](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/ScriptsAndConfigurationFiles.md)**
+- **[Quick Start guide](https://github.com/Azure/enterprise-azure-policy-as-code#readme)**
 
-[Return to the main page.](../readme.md)
+[Return to the main page.](https://github.com/Azure/enterprise-azure-policy-as-code)
