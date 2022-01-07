@@ -65,10 +65,10 @@ scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
       + QA - Pull request is approved
       + Prod - Azure DevOps approval gate is completed
 **Single Tenant Policy as Code Overview**
->![image.png](https://github.com/Azure/manage-azure-policy-pipeline/blob/feature/nickohri/Docs/Images/SingleTenantOverview.PNG)
+>![image.png](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Images/SingleTenantOverview.PNG)
 
 **Multi Tenant Policy as Code Overview**
->![image.png](https://github.com/Azure/manage-azure-policy-pipeline/blob/feature/nickohri/Docs/Images/MultiTenantOverview.PNG)
+>![image.png](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Images/MultiTenantOverview.PNG)
 
 ## Azure Security Modernization
 
@@ -101,9 +101,9 @@ Any use of third-party trademarks or logos are subject to those third-party's po
 ## Next steps
 Read through the rest of the documentation and configure the pipeline to your needs.
 
-- **[Definitions](./Docs/Definitions.md)**
-- **[Assignments](./Docs/Assignments.md)**
-- **[Scripts and Configuration Files](./Docs/ScriptsAndConfigurationFiles.md)**
-- **[Pipeline](./Docs/pipeline.md)**
+- **[Definitions](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Definitions.md)**
+- **[Assignments](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Assignments.md)**
+- **[Scripts and Configuration Files](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/ScriptsAndConfigurationFiles.md)**
+- **[Pipeline](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Pipeline.md)**
 
-[Return to the main page.](../readme.md)
+[Return to the main page.](https://github.com/Azure/enterprise-azure-policy-as-code)
