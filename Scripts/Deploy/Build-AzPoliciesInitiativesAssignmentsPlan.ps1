@@ -334,19 +334,13 @@ foreach ($initiativeFile in $initiativeFiles) {
     $initiativeObject = $Json | ConvertFrom-Json -Depth 100
     $name = $initiativeObject.name
     $displayName = $initiativeObject.properties.displayName
-    if ($null -eq $name) {
-        $name = $displayName
-        if ($null -eq $displayName) {
-            Write-Error "Initiative JSON file '$($initiativeFile.FullName)' is missing a Initiative name or displayName "
-            $hasErrors = $true
-            continue
-        }
-    }
-    elseif ($null = $displayName) {
-        $displayName = $name
+    if (($null -eq $name) -or ($null -eq $displayName)) {
+        Write-Information "Initiative JSON file '$($initiativeFile.FullName)' is missing Initiative name or displayName "
+        $hasErrors = $true
+        continue
     }
     if ($initiativeObjectsInJson.ContainsKey($name)) {
-        Write-Error "There is more than one Initiative definition JSON that contains definition of '$($name)': '$($initiativeObjectsInJson[$name].FullName)' and '$($initiativeFile.FullName)'"
+        Write-Information "There is more than one Initiative definition JSON that contains definition of '$($name)': '$($initiativeObjectsInJson[$name].FullName)' and '$($initiativeFile.FullName)'"
         $hasErrors = $true
     }
     else {
@@ -390,63 +384,59 @@ foreach ($initiativeFile in $initiativeFiles) {
     $allInitiativeDefinitions.Add($initiativeDefinitionConfig.Name, $initiativeDefinitionConfig)
     $result = Build-PolicyDefinitionsForInitiative -allPolicyDefinitions $allPolicyDefinitions -replacedPolicyDefinitions $replacedPolicyDefinitions `
         -policyDefinitionsInJson $initiativeObject.properties.PolicyDefinitions -definitionScope $RootScope
-    if (-not $result.usingUndefinedReference) {
-        $initiativeDefinitionConfig.PolicyDefinition = $result.policyDefinitions
-    }
-    if ($existingCustomInitiativeDefinitions.ContainsKey($initiativeDefinitionConfig.Name)) {
-        # Update scenarios
-
-        # Remove defined Initative definition entry from deleted hashtable (the hastable originall contains all custom Initiative definition in the scope)
-        $matchingCustomDefinition = $existingCustomInitiativeDefinitions[$initiativeDefinitionConfig.Name]
-        $maybeDeletedInitiativeDefinitions.Remove($initiativeDefinitionConfig.Name)
-        $initiativeDefinitionConfig.Add("id", $matchingCustomDefinition.id)
-
-        if ($result.usingUndefinedReference) {
-            $hasErrors = $true
-        }
-        elseif ($result.usingReplacedReference) {
-            Write-Information "Replace '$($name)' - '$($displayName)'"
-            $replacedInitiativeDefinitions.Add($name, $initiativeDefinitionConfig)
-        }
-        else {
-            # Check if policy definition in Azure is the same as in the JSON file
-            $displayNameMatches = $matchingCustomDefinition.displayName -eq $initiativeDefinitionConfig.DisplayName
-            $descriptionMatches = $matchingCustomDefinition.description -eq $initiativeDefinitionConfig.Description
-            $metadataMatches = Confirm-MetadataMatches `
-                -existingMetadataObj $matchingCustomDefinition.metadata `
-                -definedMetadataObj $initiativeObject.properties.metadata
-            $parameterMatchResults = Confirm-ParametersMatch `
-                -existingParametersObj $matchingCustomDefinition.parameters `
-                -definedParametersObj  $initiativeObject.properties.parameters
-            $groupDefinitionMatches = Confirm-ObjectValueEqualityDeep `
-                -existingObj $matchingCustomDefinition.policyDefinitionGroups `
-                -definedObj $initiativeDefinitionConfig.GroupDefinition
-            $policyDefinitionsMatch = Confirm-ObjectValueEqualityDeep `
-                -existingObj $matchingCustomDefinition.policyDefinitions `
-                -definedObj $initiativeDefinitionConfig.PolicyDefinition
-
-            # Update policy definition in Azure if necessary
-            if ($displayNameMatches -and $groupDefinitionMatches -and $parameterMatchResults.match -and $metadataMatches -and $policyDefinitionsMatch -and $descriptionMatches) {
-                # Write-Information "Unchanged '$($name)' - '$($displayName)'"
-                $unchangedInitiativeDefinitions.Add($name, $displayName)
-            }
-            else {
-                if ($parameterMatchResults.incompatible) {
-                    # check if parameters are compatible with an update. Otherwise the Policy will need to be deleted (and any Initiatives and Assignments referencing the Policy)
-                    Write-Information "Replace '$($name)' - '$($displayName)'"
-                    $replacedInitiativeDefinitions.Add($name, $initiativeDefinitionConfig)
-                }
-                else {
-                    Write-Information "Update '$($name)' - '$($displayName)'"
-                    $updatedInitiativeDefinitions.Add($name, $initiativeDefinitionConfig)
-                }
-                
-            }
-        }
+    if ($result.usingUndefinedReference) {
+        Write-Information "Undefined Policy referenced in '$($initiativeDefinitionConfig.Name)' from $($initiativeFile.Name)"
+        $hasErrors = $true
     }
     else {
-        if ($result.usingUndefinedReference -or $result.usingReplacedReference) {
-            $hasErrors = $true
+        $initiativeDefinitionConfig.PolicyDefinition = $result.policyDefinitions
+        if ($existingCustomInitiativeDefinitions.ContainsKey($initiativeDefinitionConfig.Name)) {
+            # Update scenarios
+
+            # Remove defined Initative definition entry from deleted hashtable (the hastable originall contains all custom Initiative definition in the scope)
+            $matchingCustomDefinition = $existingCustomInitiativeDefinitions[$initiativeDefinitionConfig.Name]
+            $maybeDeletedInitiativeDefinitions.Remove($initiativeDefinitionConfig.Name)
+            $initiativeDefinitionConfig.Add("id", $matchingCustomDefinition.id)
+
+            if ($result.usingReplacedReference) {
+                Write-Information "Replace '$($name)' - '$($displayName)'"
+                $replacedInitiativeDefinitions.Add($name, $initiativeDefinitionConfig)
+            }
+            else {
+                # Check if policy definition in Azure is the same as in the JSON file
+                $displayNameMatches = $matchingCustomDefinition.displayName -eq $initiativeDefinitionConfig.DisplayName
+                $descriptionMatches = $matchingCustomDefinition.description -eq $initiativeDefinitionConfig.Description
+                $metadataMatches = Confirm-MetadataMatches `
+                    -existingMetadataObj $matchingCustomDefinition.metadata `
+                    -definedMetadataObj $initiativeObject.properties.metadata
+                $parameterMatchResults = Confirm-ParametersMatch `
+                    -existingParametersObj $matchingCustomDefinition.parameters `
+                    -definedParametersObj  $initiativeObject.properties.parameters
+                $groupDefinitionMatches = Confirm-ObjectValueEqualityDeep `
+                    -existingObj $matchingCustomDefinition.policyDefinitionGroups `
+                    -definedObj $initiativeDefinitionConfig.GroupDefinition
+                $policyDefinitionsMatch = Confirm-ObjectValueEqualityDeep `
+                    -existingObj $matchingCustomDefinition.policyDefinitions `
+                    -definedObj $initiativeDefinitionConfig.PolicyDefinition
+
+                # Update policy definition in Azure if necessary
+                if ($displayNameMatches -and $groupDefinitionMatches -and $parameterMatchResults.match -and $metadataMatches -and $policyDefinitionsMatch -and $descriptionMatches) {
+                    # Write-Information "Unchanged '$($name)' - '$($displayName)'"
+                    $unchangedInitiativeDefinitions.Add($name, $displayName)
+                }
+                else {
+                    if ($parameterMatchResults.incompatible) {
+                        # check if parameters are compatible with an update. Otherwise the Policy will need to be deleted (and any Initiatives and Assignments referencing the Policy)
+                        Write-Information "Replace '$($name)' - '$($displayName)'"
+                        $replacedInitiativeDefinitions.Add($name, $initiativeDefinitionConfig)
+                    }
+                    else {
+                        Write-Information "Update '$($name)' - '$($displayName)'"
+                        $updatedInitiativeDefinitions.Add($name, $initiativeDefinitionConfig)
+                    }
+                
+                }
+            }
         }
         else {
             Write-Information "New '$($name)' - '$($displayName)'"
