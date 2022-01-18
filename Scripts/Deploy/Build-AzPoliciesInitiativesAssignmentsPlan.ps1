@@ -547,7 +547,7 @@ foreach ($assignmentFile in $assignmentFiles) {
     #endregion
 
     $numberOfUnchangedAssignmentsInFile = 0
-
+    $numberOfNotScopeChanges = 0
     foreach ($def in $assignmentDefList) {
         if ($def.hasErrors) {
             $hasErrors = $true
@@ -779,14 +779,8 @@ foreach ($assignmentFile in $assignmentFiles) {
                         elseif ($update) {
                             $updatedAssignments.Add($Id, $createAssignment)
                             if ($displayMatches -and $parametersMatch -and $metadataMatches) {
-                                Write-AssignmentDetails `
-                                    -printHeader $noChangedAssignments `
-                                    -def $def `
-                                    -policySpecText $policySpecText `
-                                    -scopeInfo $scopeInfo `
-                                    -roleDefinitions $roleDefinitions `
-                                    -prefix "~~~ NOTSCOPE UPDATE"
-                                $noChangedAssignments = $false
+                                # Write-Information "        *** NOTSCOPE UPDATE at $($scopeInfo.scope)"
+                                $numberOfNotScopeChanges += 1
                             }
                             else {
                                 Write-AssignmentDetails `
@@ -819,9 +813,9 @@ foreach ($assignmentFile in $assignmentFiles) {
                 }
             }
         }
-        # if ($numberOfUnchangedAssignmentsForAssignmentDef -gt 0 -and !$noChangedAssignments) {
-        #     Write-Information "        === $($numberOfUnchangedAssignmentsForAssignmentDef) Unchanged Assignments"
-        # }
+    }
+    if ($numberOfNotScopeChanges -gt 0) {
+        Write-Information "    *** $($numberOfNotScopeChanges) NotScope Changes only Assignments"
     }
     if ($numberOfUnchangedAssignmentsInFile -gt 0) {
         Write-Information "    === $($numberOfUnchangedAssignmentsInFile) Unchanged Assignments"
