@@ -3,10 +3,12 @@
 To onboard the solution to your customer's environment, follow the below steps:
 > **Prerequisites:**
 > - Build a management group dedicated to Policy as Code (PaC)
+>     - https://docs.microsoft.com/en-us/azure/governance/management-groups/create-management-group-portal
 > - Create two subscriptions under the PaC management group
-> -- Recommended naming:
->      + PaC-Dev
->      + PaC-QA
+>     - Recommended naming:
+>        + PaC-Dev
+>        + PaC-QA
+>     - https://docs.microsoft.com/en-us/azure/cost-management-billing/manage/create-subscription
 
 ## Getting Started
 1. Create an Azure DevOps project dedicated to Policy as Code (PaC)
@@ -27,7 +29,7 @@ To onboard the solution to your customer's environment, follow the below steps:
       + `Microsoft.Authorization/policyAssignments/read`
       + `Microsoft.Authorization/policyDefinitions/read`
       + `Microsoft.Authorization/policySetDefinitions/read`
-   - Grant the required permissions to this SPN in Azure. Note that depending on your scenario, these permissions may be very high. If you're planning to use DeployIfNotExists (DINE) policies, the SPN has to have owner rights on the scope of the assignment, so that it can grant access to the generated system assigned identity at deployment time. With other words, you may need Owner permission on Tenant Root group level to fully unlock all the capabilities of Azure policies and this solution.
+   - Grant the required permissions to this SPN in Azure. Note that depending on your scenario, these permissions may be very high. If you're planning to use DeployIfNotExists (DINE) policies, the SPN has to have owner rights on the scope of the assignment, so that it can grant access to the generated system assigned identity at deployment time. In other words, you may need Owner permission on Tenant Root group level to fully unlock all the capabilities of Azure policies and this solution.
       + The SPN will also need `Azure Active Directory reader` role. This is required both for the permission pre-flight check and for assigning permissions (for DeployIfNotExists policies) as the role assignment PowerShell commandlet requires this permission.
       + Register the SPN in ADO as a Service Connection.
    -  The number of service connections is equal to 2 plus the number of tenants
@@ -35,8 +37,8 @@ To onboard the solution to your customer's environment, follow the below steps:
    
 4. Configure the deployment pipeline
    - Register the pipeline (pipeline.yml in the `Pipeline` folder of the repository).
-   - Modify the pipeline to include the service connections and desired scope for your policy deployments (See the **[pipeline documentation](./docs/Pipeline.md)** file for more details on this)
-   - The pipeline is triggered in various ways depending on the scope you are ready to deploy to. See the **[pipeline documentation](./docs/Pipeline.md)** to find a more detailed explanation on how each stage of the pipeline is triggered.
+   - Modify the pipeline to include the service connections and desired scope for your policy deployments (See the **[pipeline documentation](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Pipeline.md)** file for more details on this)
+   - The pipeline is triggered in various ways depending on the scope you are ready to deploy to. See the **[pipeline documentation](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Pipeline.md)** to find a more detailed explanation on how each stage of the pipeline is triggered.
 
 5. Create environments in Azure DevOps
     - Environments must be created to isolate deployment controls and set approval gates
@@ -44,7 +46,7 @@ To onboard the solution to your customer's environment, follow the below steps:
         + SCaC-PROD
         + SCaC-QA
         + SCaC-DEV
-    - If you would like to modify the names of these environments, you must also modify the pipeline environments for each stage in the pipeline file (**[pipeline.yml](./pipeline/Pipeline.yml)**)
+    - If you would like to modify the names of these environments, you must also modify the pipeline environments for each stage in the pipeline file (**[pipeline.yml](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Pipeline/Pipeline.yml)**)
 
 6. Create policies, initiatives, and assignments as needed
    - **NOTE: if you are NOT using a greenfield environment, you must add the suppress delete operator to the pipeline file to keep previous policies, initiatives, and assignments**
@@ -105,5 +107,6 @@ Read through the rest of the documentation and configure the pipeline to your ne
 - **[Assignments](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Assignments.md)**
 - **[Scripts and Configuration Files](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/ScriptsAndConfigurationFiles.md)**
 - **[Pipeline](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Pipeline.md)**
+- **[Operational Scripts](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/OperationalScripts.md)**
 
 [Return to the main page.](https://github.com/Azure/enterprise-azure-policy-as-code)
