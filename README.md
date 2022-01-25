@@ -37,8 +37,8 @@ To onboard the solution to your customer's environment, follow the below steps:
    
 4. Configure the deployment pipeline
    - Register the pipeline (pipeline.yml in the `Pipeline` folder of the repository).
-   - Modify the pipeline to include the service connections and desired scope for your policy deployments (See the **[pipeline documentation](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Pipeline.md)** file for more details on this)
-   - The pipeline is triggered in various ways depending on the scope you are ready to deploy to. See the **[pipeline documentation](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Pipeline.md)** to find a more detailed explanation on how each stage of the pipeline is triggered.
+   - Modify the pipeline to include the service connections and desired scope for your policy deployments (See the **[pipeline documentation](Docs/Pipeline.md)** file for more details on this)
+   - The pipeline is triggered in various ways depending on the scope you are ready to deploy to. See the **[pipeline documentation](Docs/Pipeline.md)** to find a more detailed explanation on how each stage of the pipeline is triggered.
 
 5. Create environments in Azure DevOps
     - Environments must be created to isolate deployment controls and set approval gates
@@ -46,7 +46,7 @@ To onboard the solution to your customer's environment, follow the below steps:
         + SCaC-PROD
         + SCaC-QA
         + SCaC-DEV
-    - If you would like to modify the names of these environments, you must also modify the pipeline environments for each stage in the pipeline file (**[pipeline.yml](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Pipeline/Pipeline.yml)**)
+    - If you would like to modify the names of these environments, you must also modify the pipeline environments for each stage in the pipeline file (**[pipeline.yml](Pipeline/Pipeline.yml)**)
 
 6. Create policies, initiatives, and assignments as needed
    - **NOTE: if you are NOT using a greenfield environment, you must add the suppress delete operator to the pipeline file to keep previous policies, initiatives, and assignments**
@@ -67,10 +67,10 @@ scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
       + QA - Pull request is approved
       + Prod - Azure DevOps approval gate is completed
 **Single Tenant Policy as Code Overview**
->![image.png](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Images/SingleTenantOverview.PNG)
+>![image.png](Docs/Images/SingleTenantOverview.PNG)
 
 **Multi Tenant Policy as Code Overview**
->![image.png](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Images/MultiTenantOverview.PNG)
+>![image.png](Docs/Images/MultiTenantOverview.PNG)
 
 ## Azure Security Modernization
 
@@ -104,9 +104,9 @@ Any use of third-party trademarks or logos are subject to those third-party's po
 Read through the rest of the documentation and configure the pipeline to your needs.
 
 - **[Definitions](Docs/Definitions.md)**
-- **[Assignments](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Assignments.md)**
-- **[Scripts and Configuration Files](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/ScriptsAndConfigurationFiles.md)**
-- **[Pipeline](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Pipeline.md)**
-- **[Operational Scripts](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/OperationalScripts.md)**
+- **[Assignments](Docs/Assignments.md)**
+- **[Scripts and Configuration Files](Docs/ScriptsAndConfigurationFiles.md)**
+- **[Pipeline](Docs/Pipeline.md)**
+- **[Operational Scripts](Docs/OperationalScripts.md)**
 
 [Return to the main page.](https://github.com/Azure/enterprise-azure-policy-as-code)
