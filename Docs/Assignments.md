@@ -171,7 +171,7 @@ Read through the rest of the documentation and configure the pipeline to your ne
 - **[Definitions](Definitions.md)**
 - **[Pipeline](Pipeline.md)**
 - **[Scripts and Configuration Files](ScriptsAndConfigurationFiles.md)**
-- **[Quick Start guide](../readme.md)**
+- **[Quick Start guide](../../#readme.md)**
 - **[Operational Scripts](OperationalScripts.md)**
 
 [Return to the main page.](https://github.com/Azure/enterprise-azure-policy-as-code)
