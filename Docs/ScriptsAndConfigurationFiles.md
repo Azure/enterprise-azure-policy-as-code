@@ -1,6 +1,6 @@
 ## Policy and Initiative definition configuration scripts
 
-The `Build-AzPoliciesInitiativesAssignmentsPlan.ps1` analyzes changes in policy, initiative, and assignment files. The  `Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1` script is used to deploy policies, initiatives, and assignments at their desired scope, the `Remove-AzPoliciesIdentitiesRoles.ps1` file is used to remove unnecessary roles and identities given out previously, and the 'plan file.json' is an artifact created by the pipeline run that is used to show the expected changes in Azure.
+The `Build-AzPoliciesInitiativesAssignmentsPlan.ps1` analyzes changes in policy, initiative, and assignment files. The  `Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1` script is used to deploy policies, initiatives, and assignments at their desired scope, the `Remove-AzPoliciesIdentitiesRoles.ps1` file is used to remove unnecessary roles and identities given out previously, and the `Plan File.json` is an artifact created by the pipeline run that is used to show the expected changes in Azure.
 
 ![image.png](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Images/FileProcessing.PNG)
 The deployment scripts are **declarative** and **idempotent**: this means, that regardless how many times they are run, they always push all changes that were implemented in the JSON files to the Azure environment, i.e. if a JSON file is newly created/updated/deleted, the pipeline will create/update/delete the Policy and/or Initiative definition in Azure. If there are no changes, the pipeline can be run any number of times, as it won't make any changes to Azure.
@@ -43,10 +43,10 @@ The `global-settings.jsonc` file is located in the definitions folder and define
 ## Next steps
 Read through the rest of the documentation and configure the pipeline to your needs.
 
-- **[Definitions](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Definitions.md)**
-- **[Assignments](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Assignments.md)**
-- **[Pipeline](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Pipeline.md)**
-- **[Quick Start guide](https://github.com/Azure/enterprise-azure-policy-as-code#readme)**
-- **[Operational Scripts](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/OperationalScripts.md)**
+- **[Definitions](Definitions.md)**
+- **[Assignments](Assignments.md)**
+- **[Pipeline](Pipeline.md)**
+- **[Quick Start guide](../README.md)**
+- **[Operational Scripts](OperationalScripts.md)**
 
 [Return to the main page.](https://github.com/Azure/enterprise-azure-policy-as-code)
