@@ -103,7 +103,7 @@ Any use of third-party trademarks or logos are subject to those third-party's po
 ## Next steps
 Read through the rest of the documentation and configure the pipeline to your needs.
 
-- **[Definitions](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Definitions.md)**
+- **[Definitions](Docs/Definitions.md)**
 - **[Assignments](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Assignments.md)**
 - **[Scripts and Configuration Files](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/ScriptsAndConfigurationFiles.md)**
 - **[Pipeline](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Pipeline.md)**
