@@ -15,7 +15,7 @@ The components required for **configuring the pipeline and deploying policies, i
 | **Deployment Scripts** | These scripts are used to deploy your policies, initiatives, and assignments to Azure | In the `Scripts` folder of this repository |
 
 ## Configuring the pipeline
-> **NOTE**: Before configuring the pipeline, you will need to create service connections. Refer to the **[Quick Start Guide](https://github.com/Azure/enterprise-azure-policy-as-code#readme)** for the permissions that need to be granted to each one.
+> **NOTE**: Before configuring the pipeline, you will need to create service connections. Refer to the **[Quick Start Guide](../README.md)** for the permissions that need to be granted to each one.
 
 You must edit the following items in the `pipeline.yml` file to align with your Azure environment
  - tenantID such as `12345678-1234-1234-1234-123456789012`
@@ -46,9 +46,10 @@ See the logical flow of the pipeline below:
 ## Next steps
 Read through the rest of the documentation and configure the pipeline to your needs.
 
-- **[Definitions](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Definitions.md)**
-- **[Assignments](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Assignments.md)**
-- **[Scripts and Configuration Files](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/ScriptsAndConfigurationFiles.md)**
-- **[Quick Start guide](https://github.com/Azure/enterprise-azure-policy-as-code#readme)**
+- **[Definitions](Definitions.md)**
+- **[Assignments](Assignments.md)**
+- **[Scripts and Configuration Files](ScriptsAndConfigurationFiles.md)**
+- **[Quick Start guide](../README.md)**
+- **[Operational Scripts](OperationalScripts.md)**
 
 [Return to the main page.](https://github.com/Azure/enterprise-azure-policy-as-code)

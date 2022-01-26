@@ -8,9 +8,9 @@ The components required for **creating / updating / deleting Policy assignments 
 
 | Component | What is it used for? | Where can it be found? |
 |--|--|--|
-| **Assignment JSON file** | The assignments JSON file follows the management group hierarchy (optionally including subscriptions and resource groups) and defines all policy and initiative assignments on these scopes. | It's the `assignments.json` file in the `Assignments` folder of the `Policies` repository. |
+| **Assignment JSON file** | The assignments JSON file follows the management group hierarchy (optionally including subscriptions and resource groups) and defines all policy and initiative assignments on these scopes. | These files are located in the `Assignments` subsection of the 'Definitions' folder. |
 | **Configuration scripts** | These scripts are used for creating / updating / deleting Policy and Initiative assignments in Azure. These assignments can be defined with the scope of a Management Group / Subscription / Resource Group. |The `Build-AzPoliciesInitiativesAssignmentsPlan.ps1` analyzes changes in policy, initiative, and assignment files. The  `Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1` script is used to deploy policies, initiatives, and assignments at their desired scope, and the `Show-AzPoliciesInitiativesAssignmentsPlan.ps1` script is used to display a summarized plan of all policy, initiative, and assignment changes before deployments are released.|
-| **Deployment Pipeline** | This pipeline is shared with definition deployments and invokes the assignment configuration scripts that assign pre-staged (built-in or custom) policy and initiative definitions to the scopes provided. It is set to be triggered on any changes in the Policies repository. | The pipeline is defined in the `pipeline.yml` file|
+| **Deployment Pipeline** | This pipeline is shared with definition deployments and invokes the assignment configuration scripts that assign pre-staged (built-in or custom) policy and initiative definitions to the scopes provided. It is set to be triggered on any changes in the Policies repository. | The pipeline is defined in the *[Pipeline.yml](Pipeline/Pipeline.yml)** file|
 
 ## Scenarios
 
@@ -21,7 +21,7 @@ The Policy as Code framework supports the following Policy and Initiative assign
   > **NOTE**: Distributed teams must only include those scopes in their version of the assignments.json that is not covered by another team.
 - **Mixed approach**: A centralized team manages policy and initiative assignments to a certain level (top-down approach), e.g. on the Tenant Root Group level, and top level Management group, and all assignments on lower levels (i.e. lower level Management Groups, Subscriptions and Resource Groups) are managed by multiple teams, in a distributed manner.
 
- **NOTE**: This solution enforces a centralized approach. It is recommended that you follow a centralized approach however, when using the mixed approach, scopes that will not be managed by the central team should be excluded from (not mentioned in) the assignments JSON file - therefore the assignment configuration script will ignore these scopes (it won't add/remove/update anything in there). At the same time, the distributed teams must only include those scopes in their version of the assignments.json that is not covered by the central team.
+ **NOTE**: This solution enforces a centralized approach. It is recommended that you follow a centralized approach however, when using the mixed approach, scopes that will not be managed by the central team should be excluded from the assignments JSON file - therefore the assignment configuration script will ignore these scopes (it won't add/remove/update anything in there). At the same time, the distributed teams must only include those scopes in their version of the assignments.json that is not covered by the central team.
 
 ## Assignment File Overview Diagram
 ![image.png](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Images/AssignmentOverview.PNG)
@@ -168,9 +168,10 @@ The Policy as Code framework supports the following Policy and Initiative assign
 ## Next steps
 Read through the rest of the documentation and configure the pipeline to your needs.
 
-- **[Definitions](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Definitions.md)**
-- **[Pipeline](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Pipeline.md)**
-- **[Scripts and Configuration Files](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/ScriptsAndConfigurationFiles.md)**
+- **[Definitions](Definitions.md)**
+- **[Pipeline](Pipeline.md)**
+- **[Scripts and Configuration Files](ScriptsAndConfigurationFiles.md)**
 - **[Quick Start guide](https://github.com/Azure/enterprise-azure-policy-as-code#readme)**
+- **[Operational Scripts](OperationalScripts.md)**
 
 [Return to the main page.](https://github.com/Azure/enterprise-azure-policy-as-code)
