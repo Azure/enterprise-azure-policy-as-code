@@ -520,7 +520,7 @@ foreach ($assignmentFile in $assignmentFiles) {
         continue
     }
 
-    $assignmentObject = $Json | ConvertFrom-Json
+    $assignmentObject = $Json | ConvertFrom-Json -AsHashtable
 
     # Collect all assignment definitions (values)
     $initialAssignmentDef = @{
