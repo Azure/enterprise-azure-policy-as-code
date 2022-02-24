@@ -520,7 +520,7 @@ foreach ($assignmentFile in $assignmentFiles) {
         continue
     }
 
-    $assignmentObject = $Json | ConvertFrom-Json -AsHashtable
+    $assignmentObject = $Json | ConvertFrom-Json
 
     # Collect all assignment definitions (values)
     $initialAssignmentDef = @{
@@ -669,7 +669,7 @@ foreach ($assignmentFile in $assignmentFiles) {
                 }
                 $createAssignment += $policySpec
                 if ($null -ne $def.metadata) {
-                    $createAssignment.Metadata = $def.metadata
+                    $createAssignment.Metadata = ConvertTo-HashTable $def.metadata
                 }
                 if ($null -ne $def.managedIdentityLocation) {
                     $createAssignment.managedIdentityLocation = $def.managedIdentityLocation
