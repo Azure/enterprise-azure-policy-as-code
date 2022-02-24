@@ -311,7 +311,7 @@ else {
                     $needToRetry = $false
                 }
                 catch {
-                    If ($_.Exception.Message.Contains("role assignment already exists")) {
+                    If ($_.Exception.Body.Error.Message.Contains("role assignment already exists")) {
                         # Write-Host "##[warning] Role assignment already existed: New-AzRoleAssignment -Scope $($scope) -ObjectId $($identity.PrincipalId) -RoleDefinitionId $roleDefinitionId"
                         $needToRetry = $false
                     }
