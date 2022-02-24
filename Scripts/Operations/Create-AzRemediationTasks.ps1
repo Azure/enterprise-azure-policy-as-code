@@ -17,6 +17,7 @@ param(
 . "$PSScriptRoot/../Config/Initialize-Environment.ps1"
 . "$PSScriptRoot/../Config/Get-AzEnvironmentDefinitions.ps1"
 
+
 if ($suppressCollectionInformation.IsPresent) {
     $InformationPreference = "SilentContinue"
 }
@@ -78,16 +79,26 @@ else {
             $assignment = $assignments[$assignmentId]
             $remediationTaskDefinitions = $assignment.remediationTasks
             Write-Information "    Assignment ""$($assignment.assignmentDisplayName)"", Resources=$($assignment.nonCompliantResources)"
+            $isInitiativeAssignment = $false
             if ($assignment.initiativeId -ne "") {
                 Write-Information "        Assigned Initiative ""$($assignment.initiativeDisplayName)"""
+                $isInitiativeAssignment = $true
             }
             foreach ($remediationTaskDefinition in $remediationTaskDefinitions) {
                 $info = $remediationTaskDefinition.info
                 Write-Information "        Policy=""$($info.policyDisplayName)"", Resources=$($info.nonCompliantResources)"
+                
+                if ($isInitiativeAssignment){
+                    $remediationTaskDefinition.splat["definition-reference-id"] = $info.policyDefinitionReferenceId
+                }
+
+                $remediationTaskDefinition.splat
+                
                 Invoke-AzCli policy remediation create -Splat $remediationTaskDefinition.splat -SuppressOutput
             }
         }
         Write-Information "---------------------------------------------------------------------------------------------------"
     }
 }
+
 Write-Information ""
