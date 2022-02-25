@@ -11,8 +11,8 @@ foreach ($subscription in $subscriptionList) {
     Write-Host "Azure Login Session successful" -ForegroundColor Green -BackgroundColor Black
 
     # Initialise output array
-$Output = [System.Collections.ArrayList]::new()
-$ResourceGroups = Get-AzResourceGroup 
+    [System.Collections.ArrayList] $Output = [System.Collections.ArrayList]::new()
+    $ResourceGroups = Get-AzResourceGroup 
     foreach ($ResourceGroup in $ResourceGroups) {
         Write-Host "Resource Group =$($ResourceGroup.ResourceGroupName)"
         $resourceNames = Get-AzResource -ResourceGroupName $ResourceGroup.ResourceGroupName
@@ -47,6 +47,6 @@ $ResourceGroups = Get-AzResourceGroup
         }
     }
 
-$Output | Export-Csv -Path c:\PS\newtesttags.csv -NoClobber -NoTypeInformation -Append -Encoding UTF8 -Force
+    $Output | Export-Csv -Path c:\PS\newtesttags.csv -NoClobber -NoTypeInformation -Append -Encoding UTF8 -Force
 }
 

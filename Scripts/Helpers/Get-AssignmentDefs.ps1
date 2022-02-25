@@ -75,6 +75,18 @@ function Get-AssignmentDefs {
         }
     }
 
+    # Process enforcementMode
+    if ($definitionNode.enforcementMode) {
+        $enforcementMode = $definitionNode.enforcementMode
+        if ("Default", "DoNotEnforce" -contains $enforcementMode) {
+            $def.enforcementMode = $enforcementMode
+        }
+        else {
+            Write-Error "Node $($def.nodeName): enforcementMode must be Default or DoNotEnforce. It is ""$($enforcementMode)."
+            $def.hasErrors = $true
+        }
+    }
+
     # Process parameters; parameters defined at a deeper level override previous parmeters (union operator)
     if ($definitionNode.parameters) {
         Write-Debug "        parameters inherited $($def.parameters | ConvertTo-Json -Depth 100)"

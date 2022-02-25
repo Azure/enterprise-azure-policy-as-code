@@ -165,10 +165,7 @@ foreach ($policyFile in $policyFiles) {
     # Check if the policy definition JSON file is a valid JSON
     $Json = Get-Content -Path $policyFile.FullName -Raw -ErrorAction Stop
 
-    try {
-        $Json | Test-Json -ErrorAction Stop | Out-Null
-    }
-    catch {
+    if (!(Test-Json $Json)) {
         Write-Error "Policy JSON file '$($policyFile.FullName)' is not valid = $Json"
         $hasErrors = $true
         continue
@@ -322,10 +319,7 @@ foreach ($initiativeFile in $initiativeFiles) {
     # Check if the Initiative definition JSON file is a valid JSON
     $Json = Get-Content -Path $initiativeFile.FullName -Raw -ErrorAction Stop
 
-    try {
-        $Json | Test-Json -ErrorAction Stop | Out-Null
-    }
-    catch {
+    if (!(Test-Json $Json)) {
         Write-Error "Initiative JSON file '$($initiativeFile.Name)' is not valid = $Json"
         $hasErrors = $true
         continue
@@ -497,11 +491,18 @@ $newAssignments = @{}
 $updatedAssignments = @{}
 $deletedAssignments = @{}
 $unchangedAssignments = @{}
-$removedIdentities = @{}
 $removedRoleAssignments = @{}
 $addedRoleAssignments = @{}
 
 #endregion
+
+$roleDefinitionList = Invoke-AzCli role definition list
+[hashtable] $roleDefinitions = @{}
+foreach ($roleDefinition in $roleDefinitionList) {
+    if (!$roleDefinitions.ContainsKey($roleDefinition.name)) {
+        $roleDefinitions.Add($roleDefinition.name, $roleDefinition.roleName)
+    }
+}
 
 foreach ($assignmentFile in $assignmentFiles) {
 
@@ -510,11 +511,10 @@ foreach ($assignmentFile in $assignmentFiles) {
     # Check if the policy definition JSON file is a valid JSON
     $Json = Get-Content -Path $assignmentFile.FullName -Raw -ErrorAction Stop
 
-    try {
-        $Json | Test-Json -ErrorAction Stop | Out-Null
+    if ((Test-Json $Json)) {
         Write-Information "Process '$($assignmentFile.FullName)'"
     }
-    catch {
+    else {
         Write-Error "JSON file '$($assignmentFile.FullName)' is not valid."
         $hasErrors = $true
         continue
@@ -530,6 +530,7 @@ foreach ($assignmentFile in $assignmentFiles) {
             displayName = ""
             description = ""
         }
+        enforcementMode                = "Default"
         parameters                     = @{}
         additionalRoleAssignments      = @()
         hasErrors                      = $false
@@ -662,6 +663,7 @@ foreach ($assignmentFile in $assignmentFiles) {
                     DisplayName           = $def.assignment.DisplayName
                     Description           = $def.assignment.Description
                     Metadata              = @{}
+                    EnforcementMode       = $def.enforcementMode
                     DefinitionEntry       = $definitionEntry
                     Scope                 = $scopeInfo.scope
                     PolicyParameterObject = $parameterObject
@@ -676,21 +678,37 @@ foreach ($assignmentFile in $assignmentFiles) {
                 }
 
                 # Retrieve roleDefinitionIds
-                $roleDefinitions = @()
+                $roleAssignmentSpecs = @()
                 if ($definitionEntry.roleDefinitionIds) {
                     foreach ($roleDefinitionId in $definitionEntry.roleDefinitionIds) {
-                        $roleDefinitions += @{
-                            scope            = $scopeInfo.scope
-                            roleDefinitionId = $roleDefinitionId
+                        $roleDefinitionName = "Unknown"
+                        if ($roleDefinitions.ContainsKey($roleDefinitionId)) {
+                            $roleDefinitionName = $roleDefinitions.$roleDefinitionId
+                        }
+                        $roleAssignmentSpecs += @{
+                            scope              = $scopeInfo.scope
+                            roleDefinitionId   = $roleDefinitionId
+                            roleDefinitionName = $roleDefinitionName
                         }
                     }
                 }
                 if ($def.additionalRoleAssignments) {
-                    $roleDefinitions += $def.additionalRoleAssignments
+                    foreach ($additionalRoleAssignment in $def.additionalRoleAssignments) {
+                        $roleDefinitionId = $additionalRoleAssignment.roleDefinitionId
+                        $roleDefinitionName = "Unknown"
+                        if ($roleDefinitions.ContainsKey($roleDefinitionId)) {
+                            $roleDefinitionName = $roleDefinitions.$roleDefinitionId
+                        }
+                        $roleAssignmentSpecs += @{
+                            scope              = $additionalRoleAssignment.scope
+                            roleDefinitionId   = $roleDefinitionId
+                            roleDefinitionName = $roleDefinitionName
+                        }
+                    }
                 }
-                if ($roleDefinitions.Length -gt 0) {
+                if ($roleAssignmentSpecs.Length -gt 0) {
                     $createAssignment.identityRequired = $true
-                    $createAssignment.Metadata.Add("roles", $roleDefinitions)
+                    $createAssignment.Metadata.Add("roles", $roleAssignmentSpecs)
                     if ($null -eq $createAssignment.managedIdentityLocation) {
                         Write-Error "Assignment requires an identity and the definition does not define a managedIdentityLocation"
                         Throw "Assignment requires an identity and the definition does not define a managedIdentityLocation"
@@ -719,16 +737,15 @@ foreach ($assignmentFile in $assignmentFiles) {
                 
                     $policyDefinitionMatches = $policyDefinitionId -eq $assignmentInAzure.policyDefinitionId
                     $replace = (-not $policyDefinitionMatches) -or $result.usingReplacedReference
-                    $identityLocationChanged, $addingIdentity = Build-AzPolicyAssignmentIdentityAndRoleChanges `
+                    $replace = Build-AzPolicyAssignmentIdentityAndRoleChanges `
                         -replacingAssignment $replace `
                         -managedIdentityLocation $createAssignment.managedIdentityLocation `
                         -assignmentConfig $createAssignment `
-                        -removedIdentities $removedIdentities `
                         -removedRoleAssignments $removedRoleAssignments `
                         -addedRoleAssignments $addedRoleAssignments
                 
-                    if ($replace -or $identityLocationChanged) {
-                        $replacedAssignments.Add($Id, $createAssignment)
+                    if ($replace) {
+                        $replacedAssignments.Add($id, $createAssignment)
                         Write-AssignmentDetails `
                             -printHeader $noChangedAssignments `
                             -def $def `
@@ -749,59 +766,42 @@ foreach ($assignmentFile in $assignmentFiles) {
                         $metadataMatches = Confirm-MetadataMatches `
                             -existingMetadataObj $assignmentInAzure.metadata `
                             -definedMetadataObj $createAssignment.Metadata
-                        $update = -not ($displayMatches -and $notScopeMatches -and $parametersMatch -and $metadataMatches)
-                        $createAssignment.addingIdentity = $addingIdentity
-
-                        if ($addingIdentity) {
+                        $enforcementModeMatches = $assignmentInAzure.enforcementMode -eq $createAssignment.EnforcementMode
+                        $match = $displayMatches -and $parametersMatch -and $metadataMatches -and $enforcementModeMatches
+                        $notScopeUpdateOnly = !$notScopeMatches -and $match
+                        if ($notScopeUpdateOnly) {
+                            # notScope chnages only
+                            # Write-Information "        *** NOTSCOPE UPDATE at $($scopeInfo.scope)"
+                            $numberOfNotScopeChanges += 1
                             $updatedAssignments.Add($Id, $createAssignment)
-                            if ($update) {
-                                Write-AssignmentDetails `
-                                    -printHeader $noChangedAssignments `
-                                    -def $def `
-                                    -policySpecText $policySpecText `
-                                    -scopeInfo $scopeInfo `
-                                    -roleDefinitions $roleDefinitions `
-                                    -prefix "~~~ UPDATE"
-                                $noChangedAssignments = $false
-                            }
-                            else {
-                                # Should not be possible
-                                Write-AssignmentDetails `
-                                    -printHeader $noChangedAssignments `
-                                    -def $def `
-                                    -policySpecText $policySpecText `
-                                    -scopeInfo $scopeInfo `
-                                    -roleDefinitions $roleDefinitions `
-                                    -prefix "~~~ ADD IDENTITY"
-                                $noChangedAssignments = $false
-                            }
-                        }
-                        elseif ($update) {
-                            $updatedAssignments.Add($Id, $createAssignment)
-                            if ($displayMatches -and $parametersMatch -and $metadataMatches) {
-                                # Write-Information "        *** NOTSCOPE UPDATE at $($scopeInfo.scope)"
-                                $numberOfNotScopeChanges += 1
-                            }
-                            else {
-                                Write-AssignmentDetails `
-                                    -printHeader $noChangedAssignments `
-                                    -def $def `
-                                    -policySpecText $policySpecText `
-                                    -scopeInfo $scopeInfo `
-                                    -roleDefinitions $roleDefinitions `
-                                    -prefix "~~~ UPDATE"
-                                $noChangedAssignments = $false
-                            }
-                        }
-                        else {
+                        } 
+                        elseif ($match) {
                             $unchangedAssignments.Add($id, $createAssignment.Name)
                             $numberOfUnchangedAssignmentsForAssignmentDef++
                             $numberOfUnchangedAssignmentsInFile++
                         }
+                        else {
+                            $updatedAssignments.Add($Id, $createAssignment)
+                            Write-AssignmentDetails `
+                                -printHeader $noChangedAssignments `
+                                -def $def `
+                                -policySpecText $policySpecText `
+                                -scopeInfo $scopeInfo `
+                                -roleDefinitions $roleDefinitions `
+                                -prefix "~~~ UPDATE"
+                            $noChangedAssignments = $false
+                        }
                     }
                 }
                 else {
-                    $newAssignments.Add($createAssignment.Id, $createAssignment)
+                    # New Assiignment
+                    $newAssignments.Add($id, $createAssignment)
+                    $addedRoleAssignments.Add($id, @{
+                            DisplayName = $createAssignment.DisplayName
+                            identity    = $null
+                            roles       = $roleAssignmentSpecs
+                        }
+                    )
                     Write-AssignmentDetails `
                         -printHeader $noChangedAssignments `
                         -def $def `
@@ -871,7 +871,6 @@ $numberOfChanges = `
     $replacedAssignments.Count + `
     $updatedAssignments.Count + `
     $newAssignments.Count + `
-    $removedIdentities.Count + `
     $removedRoleAssignments.Count + `
     $addedRoleAssignments.Count
 $noChanges = $numberOfChanges -eq 0
@@ -898,7 +897,6 @@ $plan = @{
     updatedAssignments            = $updatedAssignments
     newAssignments                = $newAssignments
 
-    removedIdentities             = $removedIdentities
     removedRoleAssignments        = $removedRoleAssignments
     addedRoleAssignments          = $addedRoleAssignments
 }
@@ -937,9 +935,8 @@ Write-Information "Assignments - updated   : $($updatedAssignments.Count)"
 Write-Information "Assignments - replaced  : $($replacedAssignments.Count)"
 Write-Information "Assignments - deleted   : $($deletedAssignments.Count)"
 Write-Information "---------------------------------------------------------------------------------------------------"
-Write-Information "Assignments - remove Identity           : $($removedIdentities.Count)"
-Write-Information "Assignments - remove Role Assignment(s) : $($removedRoleAssignments.Count)"
-Write-Information "Assignments - add Role Assignment(s)    : $($addedRoleAssignments.Count)"
+Write-Information "Assignments - Removed Role Assignment(s) : $($removedRoleAssignments.Count)"
+Write-Information "Assignments - New Role Assignment(s)     : $($addedRoleAssignments.Count)"
 Write-Information ""
 if ($noChanges) {
     Write-Information "***************************** NO CHANGES NEEDED ***************************************************"

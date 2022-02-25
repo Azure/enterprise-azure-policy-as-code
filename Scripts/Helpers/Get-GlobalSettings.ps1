@@ -1,3 +1,5 @@
+#Requires -PSEdition Core
+
 function Get-GlobalSettings {
     [CmdletBinding()]
     param (
@@ -17,10 +19,7 @@ function Get-GlobalSettings {
     Write-Information "==================================================================================================="
 
     $Json = Get-Content -Path $GlobalSettingsFile -Raw -ErrorAction Stop
-    try {
-        $Json | Test-Json -ErrorAction Stop | Out-Null
-    }
-    catch {
+    if (!(Test-Json $Json)) {
         Write-Error "JSON file ""$($GlobalSettingsFile)"" is not valid = $Json" -ErrorAction Stop
         throw """$($GlobalSettingsFile)"" is not valid"
     }

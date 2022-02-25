@@ -14,26 +14,13 @@
 param (
     [Parameter(Mandatory = $false,
         HelpMessage = "Plan input filename.")]
-    [string]$PlanFile = "./Plans/current.json"
+    [string]$PlanFile = "./Plans/current.json",
+    [Parameter(Mandatory = $false,
+        HelpMessage = "Role Assignment plan output filename.")]
+    [string]$RolesPlanFile = "./Plans/roles.json"
 )
 
 #region Az Helper Functions
-
-function Build-AdditionalRoleDefinition {
-    [CmdletBinding()]
-    param (
-        $assignmentCreated,
-        $assignmentDefinition
-    )
-    $additionalRoleDefinition = @{
-        $assignmentId = @{
-            DisplayName = $assignmentDefinition.DisplayName
-            identity    = $assignmentCreated.Identity
-            roles       = $assignmentDefinition.Metadata.roles
-        }
-    }
-    return $additionalRoleDefinition
-}
 
 function New-AzPolicyAssignmentHelper {
     [CmdletBinding()]
@@ -41,7 +28,8 @@ function New-AzPolicyAssignmentHelper {
         [string] $assignmentId,
         [PSCustomObject] $assignmentDefinition,
         [hashtable] $allPolicyDefinitions,
-        [hashtable] $allInitiativeDefinitions
+        [hashtable] $allInitiativeDefinitions,
+        [hashtable] $addedRoleAssignments
     )
 
     $splatTransform = "Name Description DisplayName Metadata EnforcementMode Scope"
@@ -74,16 +62,18 @@ function New-AzPolicyAssignmentHelper {
     }
     $splat.Add("WarningAction", "SilentlyContinue")
 
-    $additionalRoleDefinition = @{}
     if ($assignmentDefinition.identityRequired) {
         $splat.Add("Location", $assignmentDefinition.managedIdentityLocation)
         $assignmentCreated = New-AzPolicyAssignment @splat -AssignIdentity
-        $additionalRoleDefinition = Build-AdditionalRoleDefinition -assignmentCreated $assignmentCreated -assignmentDefinition $assignmentDefinition
+        $id = $assignmentDefinition.Id
+        if ($addedRoleAssignments.ContainsKey($id)) {
+            $value = $addedRoleAssignments.$id
+            $value.identity = $assignmentCreated.Identity
+        }
     }
     else {
         $null = New-AzPolicyAssignment @splat
     }
-    return $additionalRoleDefinition
 }
 
 function Set-AzPolicyAssignmentHelper {
@@ -102,17 +92,7 @@ function Set-AzPolicyAssignmentHelper {
         $splat.Add("NotScope", $notScope)
     }
     $splat.Add("WarningAction", "SilentlyContinue")
-
-    $additionalRoleDefinition = @{}
-    if ($assignmentDefinition.identityRequired -and $assignmentDefinition.addingIdentity) {
-        $splat.Add("Location", $assignmentDefinition.managedIdentityLocation)
-        $assignmentCreated = Set-AzPolicyAssignment @splat -AssignIdentity
-        $additionalRoleDefinition = Build-AdditionalRoleDefinition -assignmentCreated $assignmentCreated -assignmentDefinition $assignmentDefinition
-    }
-    else {
-        $null = Set-AzPolicyAssignment @splat
-    }
-    return $additionalRoleDefinition
+    $null = Set-AzPolicyAssignment @splat
 }
 
 #endregion
@@ -125,7 +105,6 @@ function Set-AzPolicyAssignmentHelper {
 
 #region Deploy Plan
 
-$additionalRoleDefinitions = @{}
 $plan = Get-DeploymentPlan -PlanFile $PlanFile
 
 Write-Information "==================================================================================================="
@@ -138,12 +117,16 @@ Write-Information "    scopeParam                : $($plan.scopeParam | ConvertT
 Write-Information "    TenantID                  : $($plan.TenantID)"
 Write-Information "---------------------------------------------------------------------------------------------------"
 
-$noChanges = $plan.noChanges
-if ($noChanges) {
-    Write-Information "********************** NO CHANGES NEEDED **********************************************************"
+[hashtable] $rolesPlan = @{
+    changes = $false
+    removed = @{}
+    added   = @{}
 }
-else {
+$noChanges = $plan.noChanges
 
+#endregion
+
+if (!$noChanges) {
     #region Delete Assignment, Initiatives and replaced Policies
     Write-Information "---------------------------------------------------------------------------------------------------"
     $assignments = (ConvertTo-HashTable $plan.deletedAssignments) + (ConvertTo-HashTable $plan.replacedAssignments)
@@ -210,8 +193,9 @@ else {
     #endregion
 
     #region Assignments
-    $assignmentsToCreate = (ConvertTo-HashTable $plan.newAssignments) + (ConvertTo-HashTable $plan.replacedAssignments)
-    $assignmentsToUpdate = $plan.updatedAssignments | ConvertTo-HashTable
+    [hashtable] $assignmentsToCreate = (ConvertTo-HashTable $plan.newAssignments) + (ConvertTo-HashTable $plan.replacedAssignments)
+    [hashtable] $assignmentsToUpdate = $plan.updatedAssignments | ConvertTo-HashTable
+    [hashtable] $addedRoleAssignments = $plan.addedRoleAssignments | ConvertTo-HashTable
     $count = $assignmentsToCreate.Count + $assignmentsToUpdate.Count
     if ($count -gt 0) {
         $RootScope = $plan.rootScope
@@ -252,21 +236,21 @@ else {
         }
 
         Write-Information "Create new and replaced Assignments ($($assignmentsToCreate.Count))"
-        $additionalRoleDefinitions = @{}
         foreach ($assignmentId in $assignmentsToCreate.Keys) {
             $assignment = $assignmentsToCreate[$assignmentId]
             Write-Information "    ""$($assignmentId)"""
-            $additionalRoleDefinitions += New-AzPolicyAssignmentHelper `
+            New-AzPolicyAssignmentHelper `
                 -assignmentId $assignmentId `
                 -assignmentDefinition $assignment `
                 -allPolicyDefinitions $allPolicyDefinitions `
-                -allInitiativeDefinitions $allInitiativeDefinitions
+                -allInitiativeDefinitions $allInitiativeDefinitions `
+                -addedRoleAssignments $addedRoleAssignments
         }
         Write-Information "Updated Assignments ($($assignmentsToUpdate.Count))"
         foreach ($assignmentId in $assignmentsToUpdate.Keys) {
             $assignment = $assignmentsToUpdate[$assignmentId]
             Write-Information "    ""$($assignmentId)"""
-            $additionalRoleDefinitions += Set-AzPolicyAssignmentHelper `
+            Set-AzPolicyAssignmentHelper `
                 -assignmentId $assignmentId `
                 -assignmentDefinition $assignment
         }
@@ -289,52 +273,71 @@ else {
     }
     #endregion
 
-    #region add Role Assignmnets
-    $roleAssignments = ($plan.addedRoleAssignments | ConvertTo-HashTable) + $additionalRoleDefinitions
-    Write-Information "Add new Role Assignments for $($roleAssignments.Count) Policy Assignments"
-    $retriesLimit = 8
-    foreach ($assignmentId in $roleAssignments.Keys) {
-        $roleAssignment = $roleAssignments[$assignmentId]
-        $identity = $roleAssignment.identity
-        $roles = $roleAssignment.roles
-        Write-Information "    ""$($assignmentId)"""
-        Write-Information "        PrincipalId=$($identity.PrincipalId) with $($roles.length) Roles"
-        foreach ($role in $roles) {
-            $scope = $role.scope
-            $roleDefinitionId = $role.roleDefinitionId
-            Write-Information "        Scope=$scope, RoleDefinitionId=$roleDefinitionId"
-            $needToRetry = $true
-            $retries = 0
-            while ($needToRetry) {
-                try {
-                    $null = New-AzRoleAssignment -Scope $scope -ObjectId $identity.PrincipalId -RoleDefinitionId $roleDefinitionId
-                    $needToRetry = $false
-                }
-                catch {
-                    If ($_.Exception.Message.Contains("role assignment already exists")) {
-                        # Write-Host "##[warning] Role assignment already existed: New-AzRoleAssignment -Scope $($scope) -ObjectId $($identity.PrincipalId) -RoleDefinitionId $roleDefinitionId"
-                        $needToRetry = $false
-                    }
-                    else {
-                        # Write-Host "##[warning] Call failed - retrying in 10 seconds: New-AzRoleAssignment -Scope $($scope) -ObjectId $($identity.PrincipalId) -RoleDefinitionId $roleDefinitionId"
-                        Start-Sleep -Seconds 10
-                        $retries++
-                        if ($retries -gt $retriesLimit) {
-                            Write-Host "##[error] $($_): $($_.Exception)"
-                            throw
-                        }
-                    }
-                }
-            }
-        }
-    }
-    #endregion
+    #region Role Assignment Plan
 
+    Write-Information "==================================================================================================="
+    Write-Information "Plan Role Assignments and save to  ""$RolesPlanFile"""
     Write-Information "---------------------------------------------------------------------------------------------------"
 
+    [hashtable] $removedRoleAssignments = $plan.removedRoleAssignments | ConvertTo-HashTable
+    [bool] $changesNeeded = $addedRoleAssignments.Count -ne 0 -or $removedRoleAssignments.Count -ne 0
+    if ($removedRoleAssignments.Count -gt 0) {
+        Write-Information ""
+        Write-Information "Removing Role Assignmnets for $($removedRoleAssignments.Count) Policy Assignments"
+        foreach ($assignmentId in $removedRoleAssignments.Keys) {
+            $removedRoleAssignment = $removedRoleAssignments.$assignmentId
+            $identity = $removedRoleAssignment.identity
+            $roleAssignments = $removedRoleAssignment.roleAssignments
+
+            Write-Information "    Assignment `'$($removedRoleAssignment.DisplayName)`' ($($assignmentId))"
+            Write-Information "            PrincipaId: $($identity.principalId)"
+
+            foreach ($roleAssignment in $roleAssignments) {
+                Write-Information "        '$($roleAssignment.roleDefinitionName)' - '$($roleAssignment.roleDefinitionId)', Scope='$($roleAssignment.scope)'"
+            }
+                
+        }
+        Write-Information ""
+    }
+    if ($addedRoleAssignments.Count -gt 0) {
+        Write-Information ""
+        Write-Information "Adding Role Assignmnets for $($addedRoleAssignments.Count) Policy Assignments"
+        foreach ($assignmentId in $addedRoleAssignments.Keys) {
+            $addedRoleAssignment = $addedRoleAssignments.$assignmentId
+            $identity = $addedRoleAssignment.identity
+            $roles = $addedRoleAssignment.roles
+
+            Write-Information "    Assignment `'$($addedRoleAssignment.DisplayName)`' ($($assignmentId))"
+            Write-Information "            PrincipaId: $($identity.principalId)"
+
+            foreach ($role in $roles) {
+                Write-Information "        $($role.roleDefinitionName) - $($role.roleDefinitionId), Scope=`'$($role.scope)`'"
+            }
+                
+        }
+        Write-Information ""
+    }
+    $rolesPlan = @{
+        changes = $true
+        removed = $removedRoleAssignments
+        added   = $addedRoleAssignments
+    }
+
+    #endregion
+    
+}
+else {
+    Write-Information ""
+    Write-Information "***************************** NO CHANGES NEEDED ***************************************************"
+    Write-Information ""
 }
 
-Write-Information ""
-Write-Information ""
+Write-Information "==================================================================================================="
+Write-Information "Writing Role Assignment plan file $RolesPlanFile"
+if (-not (Test-Path $RolesPlanFile)) {
+    $null = New-Item $RolesPlanFile -Force
+}
+$null = $rolesPlan | ConvertTo-Json -Depth 100 | Out-File -FilePath $RolesPlanFile -Force
+Write-Information "==================================================================================================="
 
 #endregion
