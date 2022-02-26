@@ -30,10 +30,18 @@ The remining scripts in the folder /Scripts/OpaerationScripts do not require con
 * **Get-AzStorageNetworkConfig.ps1** - lists Storage Account network configurations
 * **Get-AzUserRoleAssignments.ps1** - List role assignments
 
-- **[Definitions](Definitions.md)**
-- **[Pipeline](Pipeline.md)**
-- **[Scripts and Configuration Files](ScriptsAndConfigurationFiles.md)**
-- **[Quick Start guide](../README.md)**
-- **[Assignments](Assignments.md)**
+## Policy and Initiative definition configuration scripts
 
-[Return to the main page.](../README.md)
+The `Build-AzPoliciesInitiativesAssignmentsPlan.ps1` analyzes changes in policy, initiative, and assignment files. The  `Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1` script is used to deploy policies, initiatives, and assignments at their desired scope, the `Remove-AzPoliciesIdentitiesRoles.ps1` file is used to remove unnecessary roles and identities given out previously, and the `Plan File.json` is an artifact created by the pipeline run that is used to show the expected changes in Azure.
+
+![image.png](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Images/FileProcessing.PNG)
+The deployment scripts are **declarative** and **idempotent**: this means, that regardless how many times they are run, they always push all changes that were implemented in the JSON files to the Azure environment, i.e. if a JSON file is newly created/updated/deleted, the pipeline will create/update/delete the Policy and/or Initiative definition in Azure. If there are no changes, the pipeline can be run any number of times, as it won't make any changes to Azure.
+
+## Next steps
+
+**[Policy and Initiative Definitions](Definitions.md)** <br/>
+**[Policy Assignments](Assignments.md)** <br/>
+**[Pipeline Details](Pipeline.md)** <br/>
+**[Return to the main page](../README.md)** <br/>
+<a href="#top">Back to top</a>
+

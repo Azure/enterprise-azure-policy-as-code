@@ -1,16 +1,14 @@
 
-
 # Policy Assignments
 
-This chapter describes how **Policy and Initiative Assignments** are handled by the Policy-as-Code framework. To learn about how custom Policy and Initiative definitions are managed, see the **[Definitions](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Definitions.md)**  section.
+This chapter describes how **Policy and Initiative Assignments** are handled by the Policy-as-Code framework. To learn about how custom Policy and Initiative definitions are managed, see the **[Definitions](Definitions.md)**  section.
 
 The components required for **creating / updating / deleting Policy assignments and Policy set (initiative) assignments** are the following:
 
 | Component | What is it used for? | Where can it be found? |
 |--|--|--|
-| **Assignment JSON file** | The assignments JSON file follows the management group hierarchy (optionally including subscriptions and resource groups) and defines all policy and initiative assignments on these scopes. | These files are located in the `Assignments` subsection of the 'Definitions' folder. |
-| **Configuration scripts** | These scripts are used for creating / updating / deleting Policy and Initiative assignments in Azure. These assignments can be defined with the scope of a Management Group / Subscription / Resource Group. |The `Build-AzPoliciesInitiativesAssignmentsPlan.ps1` analyzes changes in policy, initiative, and assignment files. The  `Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1` script is used to deploy policies, initiatives, and assignments at their desired scope, and the `Show-AzPoliciesInitiativesAssignmentsPlan.ps1` script is used to display a summarized plan of all policy, initiative, and assignment changes before deployments are released.|
-| **Deployment Pipeline** | This pipeline is shared with definition deployments and invokes the assignment configuration scripts that assign pre-staged (built-in or custom) policy and initiative definitions to the scopes provided. It is set to be triggered on any changes in the Policies repository. | The pipeline is defined in the *[Pipeline.yml](Pipeline/Pipeline.yml)** file|
+| **Assignment JSON files** | The assignments JSON file follows the management group hierarchy (optionally including subscriptions and resource groups) and defines all policy and initiative assignments on these scopes. | `Definitions/Assignments` folder |
+| **Global Settings File** | The `global-settings.jsonc` file specifies common values for Policy Assignments  |`Definitions` folder |
 
 ## Scenarios
 
@@ -23,12 +21,58 @@ The Policy as Code framework supports the following Policy and Initiative assign
 
  **NOTE**: This solution enforces a centralized approach. It is recommended that you follow a centralized approach however, when using the mixed approach, scopes that will not be managed by the central team should be excluded from the assignments JSON file - therefore the assignment configuration script will ignore these scopes (it won't add/remove/update anything in there). At the same time, the distributed teams must only include those scopes in their version of the assignments.json that is not covered by the central team.
 
+## Global Settings Configuration File
+
+The `global-settings.jsonc` file is located in the `Definitions` folder and defines settings for all policy as code deployments with the following items:
+
+- Managed Identity Locations
+  - In this file, you must specify the locations for managed identities. This can be done for the entire platform by using the "*" operator or it can be specified on an environment level.
+  - Typically this will be set to your primary tenant location
+- Not Scope
+  - Not Scope is designed to act as a permanent exclusion from policy evaluation. As opposed to an exemption which has a set end date. This can also be set across the entire platform or at an environment level.
+  - Standard `notScope` definition require fully qaulified paths. This solution can add Resource Groups based on name patterns. The pattern are resolved during deployment. Any Resource Group added after the deployment are not automatically added. You must reun the deployment pipeline to add new Resource Groups.
+
+```json
+{
+    "managedIdentityLocation": {
+        "*": "eastus2"
+    },
+    "notScope": {
+        "*": [
+            "/resourceGroupPatterns/DefaultResourceGroup*"
+        ],
+        "PAC-PROD": [
+            "/providers/Microsoft.Management/managementGroups/ExcludedMG",
+            "/providers/Microsoft.Management/managementGroups/AnotherExcludedMG"
+        ]
+    }
+    /* "notScope" Instructions
+        Formats of array entries:
+            managementGroups:      "/providers/Microsoft.Management/managementGroups/myManagementGroupId"
+            subscriptions:         "/subscriptions/00000000-0000-0000-000000000000"
+            resourceGroups:        "/subscriptions/00000000-0000-0000-000000000000/resourceGroups/myResourceGroup"
+            resourceGroupPatterns: No wild card or single * wild card at beginning or end of name or both; wild card in middle is invalid
+                                   "/resourceGroupPatterns/name"
+                                   "/resourceGroupPatterns/name*"
+                                   "/resourceGroupPatterns/*name"
+                                   "/resourceGroupPatterns/*name*"
+    */
+}
+```
+
 ## Assignment File Overview Diagram
-![image.png](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/Images/AssignmentOverview.PNG)
+
+<br/>
+
+![image.png](./Images/AssignmentOverview.PNG)
+
+<br/>
 
 ## Assignment JSON file structure
 
-``` json
+`scope` and `notScope` use an `AssignmentSelector` to specify which scope to use for diferrent environments and tenants. The value for the `AssignmentSelector` is passed to the build script as a parameter. A start matches any `AssignmentSelector` specified.
+
+  ```json
 {
     "nodeName": "NodeOneName",
     "parameters": {
@@ -153,25 +197,24 @@ The Policy as Code framework supports the following Policy and Initiative assign
 } 
 ```
 
+<br/>
 
-### Structural rules
-- Scopes can be nested, by using the `children` element. Nested scopes have to contain the above listed 4 elements recursively. The schema doesn't constrain any limitations on depth, but Management groups can only be nested up to 6 levels (+ subscription + resource group level) - therefore there's a 'natural' limit of maximum 8 levels.
+### Scope and notScope (exclusion) Examples
 
-### Scope and notScope (exclusion) examples
-- For more on notScopes, take a look at the `Scripts and configuration files.md` file.
-| Scope | Usage | Example |
-|--|--|--|
-| Management group | `scope` / `notScope` | `/providers/Microsoft.Management/managementGroups/<managementGroupId>` |
-| Subscription | `scope` / `notScope` | `/subscriptions/<subscriptionId>` |
-| Resource Group | `scope` / `notScope` | `/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>` |
+<br/>
+
+| Scope | Example |
+|---|---|
+| Management group | `/providers/Microsoft.Management/managementGroups/<managementGroupId>` |
+| Subscription | `/subscriptions/<subscriptionId>` |
+| Resource Group | `/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>` |
+
+<br/>
 
 ## Next steps
-Read through the rest of the documentation and configure the pipeline to your needs.
 
-- **[Definitions](Definitions.md)**
-- **[Pipeline](Pipeline.md)**
-- **[Scripts and Configuration Files](ScriptsAndConfigurationFiles.md)**
-- **[Quick Start guide](https://github.com/Azure/enterprise-azure-policy-as-code#readme)**
-- **[Operational Scripts](OperationalScripts.md)**
-
-[Return to the main page.](https://github.com/Azure/enterprise-azure-policy-as-code)
+**[Policy and Initiative Definitions](Definitions.md)** <br/>
+**[Pipeline Details](Pipeline.md)** <br/>
+**[Deploy, Test and Operational Scripts](Scripts.md)** <br/> <br/>
+**[Return to the main page](../README.md)** <br/>
+<a href="#top">Back to top</a>
