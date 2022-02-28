@@ -1,7 +1,22 @@
-﻿# Connect to Azure Tenant
-Connect-AzAccount -Tenant $TargetTenant
+﻿#Requires -PSEdition Core
 
-$subscriptionList = Get-AzSubscription -TenantId $TargetTenant
+[CmdletBinding()]
+param(
+    [parameter(Mandatory = $false, Position = 0)] [string] $environmentSelector = $null,
+    [Parameter(Mandatory = $false, ValueFromPipeline = $true)] [string] $OutputFileName = ".\all-tags.csv"
+)
+
+. "$PSScriptRoot/../Config/Initialize-Environment.ps1"
+. "$PSScriptRoot/../Config/Get-AzEnvironmentDefinitions.ps1"
+
+$InformationPreference = "Continue"
+$environment, $defaultSubscriptionId = Initialize-Environment $environmentSelector
+$targetTenant = $environment.targetTenant
+
+# Connect to Azure Tenant
+Connect-AzAccount -Tenant $targetTenant
+
+$subscriptionList = Get-AzSubscription -TenantId $targetTenant
 $subscriptionList | Format-Table | Out-Default
 
 foreach ($subscription in $subscriptionList) {
@@ -11,8 +26,8 @@ foreach ($subscription in $subscriptionList) {
     Write-Host "Azure Login Session successful" -ForegroundColor Green -BackgroundColor Black
 
     # Initialise output array
-$Output = [System.Collections.ArrayList]::new()
-$ResourceGroups = Get-AzResourceGroup 
+    $Output = [System.Collections.ArrayList]::new()
+    $ResourceGroups = Get-AzResourceGroup 
     foreach ($ResourceGroup in $ResourceGroups) {
         Write-Host "Resource Group =$($ResourceGroup.ResourceGroupName)"
         $resourceNames = Get-AzResource -ResourceGroupName $ResourceGroup.ResourceGroupName
@@ -47,6 +62,9 @@ $ResourceGroups = Get-AzResourceGroup
         }
     }
 
-$Output | Export-Csv -Path c:\PS\newtesttags.csv -NoClobber -NoTypeInformation -Append -Encoding UTF8 -Force
+    if (-not (Test-Path $OutputFileName)) {
+        New-Item $OutputFileName -Force
+    }
+    $Output | Export-Csv -Path $OutputFileName -NoClobber -NoTypeInformation -Append -Encoding UTF8 -Force
 }
 

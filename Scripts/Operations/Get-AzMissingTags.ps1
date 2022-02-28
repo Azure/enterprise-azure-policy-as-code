@@ -1,16 +1,22 @@
+#Requires -PSEdition Core
 
 [CmdletBinding()]
 param(
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true)] 
-        [string] $TargetTenant,
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true)] 
-        [string] $OutputFileName = ".\missing-tags-results.csv"
+        [parameter(Mandatory = $false, Position = 0)] [string] $environmentSelector = $null,
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true)] [string] $OutputFileName = ".\missing-tags-results.csv"
 )
 
-# Connect to Azure Tenant
-Connect-AzAccount -Tenant $TargetTenant
+. "$PSScriptRoot/../Config/Initialize-Environment.ps1"
+. "$PSScriptRoot/../Config/Get-AzEnvironmentDefinitions.ps1"
 
-$subscriptionList = Get-AzSubscription -TenantId $TargetTenant
+$InformationPreference = "Continue"
+$environment, $defaultSubscriptionId = Initialize-Environment $environmentSelector
+$targetTenant = $environment.targetTenant
+
+# Connect to Azure Tenant
+Connect-AzAccount -Tenant $targetTenant
+
+$subscriptionList = Get-AzSubscription -TenantId $targetTenant
 $subscriptionList | Format-Table | Out-Default
 
 $results = @()
@@ -29,5 +35,9 @@ foreach ($subscription in $subscriptionList) {
         else {
                 $results += $resultsForSubscription
         }
+}
+
+if (-not (Test-Path $OutputFileName)) {
+        New-Item $OutputFileName -Force
 }
 $results | Export-Csv $OutputFileName 

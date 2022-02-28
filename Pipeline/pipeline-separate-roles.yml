@@ -210,6 +210,19 @@ stages:
                 - publish: "$(prodRolesPlan)"
                   artifact: "roles-plan"
                   condition: succeeded()
+  - stage: ROLES_DEPLOY
+    displayName: "ROLES Deploy"
+    dependsOn: PROD_DEPLOY
+    condition: and(succeeded('PROD_DEPLOY'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - deployment: PROD_Roles
+        environment: PAC-ROLES
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                # Artifact (plan) is downloaded automatically
                 - task: AzureCLI@2
                   displayName: Set PROD Role Assignments
                   inputs:
@@ -217,6 +230,6 @@ stages:
                     scriptType: pscore
                     scriptLocation: scriptPath
                     scriptPath: "Scripts/Deploy/Set-AzPolicyRolesFromPlan.ps1"
-                    arguments: -PlanFile $(prodRolesPlan) `
+                    arguments: -PlanFile $(rolesPlanFileIn) `
                       -InformationAction Continue
                   condition: succeeded()

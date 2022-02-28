@@ -8,31 +8,20 @@ This repo has been developed in partnership with the Azure Security Modernizatio
 
 ASM improves your new or existing security posture in Azure by securing platforms, services, and workloads at any scale. ASM revolves around a continuous security improvement model (Measure, Plan, Develop & Deliver) giving visibility into security vulnerabilities.
 
-## Content
-
-This repository contains pipleine definitions for Azure DevOps. The authors are interested ins upporting other deployemnt pipelines. If you have developed pipelines for other technologies, such as GitHub, Jenkins, ...
-
-Pipeline definition for a single tenat and a two tenant scenario are provided:
-
-* Pipeline for single tenant deployment `pipeline-single.yml`
-* Pipeline for multi tenant deployment `pipeline-multi.yml` wil arive soon
-
-Piplines require configuration for your specific Azure environment. The piplelines can also be modified to provide different flows.
-
 ## Components
 
 | Component | What is it used for? | Where can it be found? |
 |--|--|--|
-| **Definition Files** | Define custom policies, initiatives and assignments. This repo contains a sample for each. You will adjust them as needed, especialy the assignments | `Definitions` folder. |
 | **Pipeline Files** | Configure the deployment pipeline for Azure DevOps | `Pipeline` folder. |
 | **Service Connections** | Service connections give the pipeline the proper permissions to deploy at desired Azure scopes | Create in project settings: <https://docs.microsoft.com/en-us/azure/devops/pipelines/library/service-endpoints?view=azure-devops&tabs=yaml> |
+| **Definition Files** | Define custom policies, initiatives and assignments. This repo contains a sample for each. You will adjust them as needed, especialy the assignments | `Definitions` folder. |
 | **Deployment Scripts** | Scripts are used to deploy your Policies, Initiatives, and Assignments to Azure. They do not need to be modified. If you have improvements, please offer to contribute them. | `Scripts/Deploy` folder |
+| **Operational Scripts** | Scripts used to during operations (e.g., creating remedaition tasks). | `Scripts/Operations` folder |
 | **Configuration Scripts** | Scripts are used to define the environment for Test and Operational scripts. You mst modify any environment specific values, such as Management Groups and Subscriptions. | `Scripts/Config` folder |
 | **Helper and Utility Scripts** | These Scripts are used by other scripts. | `Scripts/Helpers` and <br/>`Scripts/Utils` folders |
-| **Operational Scripts** | Scripts used to during operations (e.g., creating remedaition tasks). | `Scripts/Operations` folder |
 | **Test Scripts** | Scripts used by this solution's developers to execute other scripts without needing to type all the parameters each time. | `Scripts/Test` folder |
 
-<a href="#top">Back to top</a>
+<br/>[Back to top](#overview)<br/>
 
 ## Prerequisites
 
@@ -41,6 +30,8 @@ Piplines require configuration for your specific Azure environment. The piplelin
   * PAC-DEV-001
   * PAC-TEST-001
   * <https://docs.microsoft.com/en-us/azure/cost-management-billing/manage/create-subscription>
+
+<br/>[Back to top](#overview)<br/>
 
 ## Quick Start
 
@@ -63,7 +54,7 @@ Piplines require configuration for your specific Azure environment. The piplelin
    * The pipeline is triggered in various ways depending on the scope you are ready to deploy to. See the **[pipeline documentation](Docs/Pipeline.md)** to find a more detailed explanation on how each stage of the pipeline is triggered.
 
 1. Create environments in Azure DevOps. Environments must be created to isolate deployment controls and set approval gates.
-   * Create the following three environments (case sensitive):
+   * Create the following environments (case sensitive):
    * PAC-ROLES
    * PAC-PROD
    * PAC-TEST
@@ -87,75 +78,17 @@ Piplines require configuration for your specific Azure environment. The piplelin
    * DEV - Commit to feature branch or manually trigger
    * TEST - Pull request is approved
    * PROD - Azure DevOps approval gate is completed
-   * ROLES - Azure DevOps role approval gate is completed (optional segregation of duty))
+   * ROLES - Azure DevOps role approval gate is completed (optional segregation of duty)
 
-<a href="#top">Back to top</a>
-
-## Pipeline Stages
-
-| Stage | Usage | Branch | Purpose | Environments |
-| :--- | :--- | :------- | :--- | :--- |
-| DEV  | Required | feature | CI | PAC-DEV-001 subscription
-| PROD Plan CI | CI: optional <br/> PR: recommneded | feature | CI and/or <br/> PR Condition | Tenants' root or top-level <br/> Management Group |
-| TEST | Recommended | main | PR approved | PAC-TEST-001 |
-| PROD Plan CD | Required | main | Plan PROD deployment | Tenants' root or top-level <br/> Management Group |
-| PROD Deploy | Required | main | Deploy to PROD </br> Plan role assignments <br/> Opt: stage per tenant <br/> Opt: Modify role assignments <br/> Opt: Export roles | Tenants' root or top-level <br/> Management Group |
-| PROD Roles | Required or <br/> Ext roles process | main | Modify role assignments <br/> Opt: stage per tenant | Tenants' root or top-level <br/> Management Group |
-
-<a href="#top">Back to top</a>
-
-## Service Connections and Roles
-
-If you have a single tenant, remove the last column and rows with connections ending in "-2".
-
-| Connection | Stages  | PAC-DEV-001 | PAC-TEST-001 | Tenant 1 | Tenant 2 |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| sc-dev | DEV  | Owner
-| sc-test    | TEST || Owner
-| sc-plan-1 | PROD Plan CI <br/> PROD Plan CD ||| Policy Reader <br/> AAD Reader
-| sc-plan-2 | PROD Plan CI <br/> PROD Plan CD |||| Policy Reader <br/> AAD Reader
-| sc-prod-1 | PROD Deploy ||| Policy Contributor <br/> AAD Reader
-| sc-prod-2 | PROD Deploy |||| Policy Contributor <br/> AAD Reader
-| sc-uadmin-1 | PROD Roles ||| User Admin
-| sc-uadmin-2 | PROD Roles |||| User Admin
-
-<a href="#top">Back to top</a>
-
-## Pipeline Flows
-
-Many flows can be implemented. This solution provides (currently) one pipline as depicted in the diagrams below. We pplan to have a total of 4 pipline samples.
-
-* Single Tenant
-  * No approval gate for role assignments
-  * Extra approval gate for role assignments
-* Multi Teanant (2)
-  * No approval gate for role assignments
-  * Extra approval gate for role assignments
-
-### Single Tenant
-
-<br/>
-
-![image.png](Docs/Images/SingleTenantOverview.PNG)
-
-<br/><a href="#top">Back to top</a> <br/>
-
-## Multi Tenant
-
-<br/>
-
-![image.png](Docs/Images/MultiTenantOverview.PNG)
-
-<br/><a href="#top">Back to top</a><br/>
+<br/>[Back to top](#overview)<br/>
 
 ## Next steps
 
-**[Policy and Initiative Definitions](Docs/Definitions.md)** <br/>
-**[Policy Assignments](Docs/Assignments.md)** <br/>
 **[Pipeline Details](Docs/Pipeline.md)** <br/>
-**[Deploy, Test and Operational Scripts](Docs/Scripts.md)**
-
-<a href="#top">Back to top</a>
+[Policy and Initiative Definitions](Docs/Definitions.md) <br/>
+[Policy Assignments](Docs/Assignments.md) <br/>
+[Deploy, Test and Operational Scripts](Docs/Scripts.md) <br/>
+<br/>[Back to top](#overview)<br/>
 
 ## Contributing
 
@@ -171,10 +104,12 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
+<br/>[Back to top](#overview)<br/>
+
 ## Trademarks
 
 This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft trademarks or logos is subject to and must follow
 [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship. Any use of third-party trademarks or logos are subject to those third-party's policies.
 
-<a href="#top">Back to top</a>
+<br/>[Back to top](#overview)<br/>

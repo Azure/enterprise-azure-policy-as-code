@@ -21,6 +21,8 @@ The Policy as Code framework supports the following Policy and Initiative assign
 
  **NOTE**: This solution enforces a centralized approach. It is recommended that you follow a centralized approach however, when using the mixed approach, scopes that will not be managed by the central team should be excluded from the assignments JSON file - therefore the assignment configuration script will ignore these scopes (it won't add/remove/update anything in there). At the same time, the distributed teams must only include those scopes in their version of the assignments.json that is not covered by the central team.
 
+ <br/>[Back to top](#policy-assignments)<br/>
+
 ## Global Settings Configuration File
 
 The `global-settings.jsonc` file is located in the `Definitions` folder and defines settings for all policy as code deployments with the following items:
@@ -30,7 +32,6 @@ The `global-settings.jsonc` file is located in the `Definitions` folder and defi
   - Typically this will be set to your primary tenant location
 - Not Scope
   - Not Scope is designed to act as a permanent exclusion from policy evaluation. As opposed to an exemption which has a set end date. This can also be set across the entire platform or at an environment level.
-  - Standard `notScope` definition require fully qaulified paths. This solution can add Resource Groups based on name patterns. The pattern are resolved during deployment. Any Resource Group added after the deployment are not automatically added. You must reun the deployment pipeline to add new Resource Groups.
 
 ```json
 {
@@ -60,13 +61,15 @@ The `global-settings.jsonc` file is located in the `Definitions` folder and defi
 }
 ```
 
+<br/>[Back to top](#policy-assignments)<br/>
+
 ## Assignment File Overview Diagram
 
 <br/>
 
 ![image.png](./Images/AssignmentOverview.PNG)
 
-<br/>
+<br/>[Back to top](#policy-assignments)<br/>
 
 ## Assignment JSON file structure
 
@@ -90,7 +93,7 @@ The `global-settings.jsonc` file is located in the `Definitions` folder and defi
                 "PAC-DEV-002": [
                     "Specified scope such as: '/subscriptions/123456-1234-1234-123456789"
                 ],
-                "PAC-QA": [
+                "PAC-TEST": [
                      "Specified scope such as: '/subscriptions/123456-1234-1234-123456789"
                 ],
                 "PAC-PROD": [
@@ -199,9 +202,32 @@ The `global-settings.jsonc` file is located in the `Definitions` folder and defi
 
 <br/>
 
-### Scope and notScope (exclusion) Examples
+## Assignment File Compnents
 
-<br/>
+| Key | Description | Rule |
+|-----|-------------|------|
+| `nodeName` | abitray name of the node to used by the scripts to pinpoint format errors, | Must exist in each node. |
+| `scope` | List of scopes for assigment. | Must exist excatly once in each branch of the tree. |
+| `notScope` | List of notScopes. | Cumulative in branch. May not appear at a child node once the scope has been determined. |
+| `assignment` | Assignment `name`, `displayName` and `description`. | Strig values are conctenated in each branch. |
+| `parameters` | Parmeter values for the assignment. Specified paramters not defined in the assigned Policy or Initiative are silently ignored. | Union of all the parameters defined in a branch. Parameters redefined at a child (recursive) node overwrite the parent nodes value. |
+| `ignoreBranch` | Ignore the rest of the tee staring at this node. Can be used to define future assignments without deploying the assignments. | Any node. |
+| `enforcementMode` | Similar to `ignoreBarnch`, it deploys the assignment and sets the assignment to `Default` or `DoNotEnforce`. `DoNotEnforce` allows a whatif analysis. | Any node. |
+| `definitionEntry` | Specifies the `policyName` or `initiativeName` for the assignment. The name should not be a fully qualified `id`. `friendlyNameToDocumentIfGuid` is purely used as a comment to make the Json more redable if the name is a GUID. | Must exist excatly once in each branch of the tree. |
+
+<br/>[Back to top](#policy-assignments)<br/>
+
+## Details for `scope` and `notScope` Values
+
+### Using the `AssignmentSelector`
+
+The assignment selctor determines the array being selected for this run of the script (e.g., `PAC-DEV-001`, `PAC-DEV-002`, `PAC-TEST` and, `PAC-PROD` above). Exact matches to the parameter `AssignmentSelector` for `Build-AzPoliciesInitiativesAssignmentsPlan.ps1` select that array for `notScope` and `scope`. A star (`*`) in the assignment or globalSettings.jsonc file  always selcts the array independent of the `AssignmentSelector`. The star is only useful in single tenant scenarios, except for R Group patterns.
+
+### Resource Group patterns in `notScope`
+
+`notScopes` also accept Resource Group name patterns with wild cards. Standard `notScope` definitions require fully qaulified paths. This solution can add Resource Groups based on name patterns. The pattern are resolved during deployment. Any Resource Group added after the deployment are not automatically added. You must reun the deployment pipeline to add new Resource Groups.
+
+### Example Scope Definition
 
 | Scope | Example |
 |---|---|
@@ -209,12 +235,12 @@ The `global-settings.jsonc` file is located in the `Definitions` folder and defi
 | Subscription | `/subscriptions/<subscriptionId>` |
 | Resource Group | `/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>` |
 
-<br/>
+<br/>[Back to top](#policy-assignments)<br/>
 
 ## Next steps
 
 **[Policy and Initiative Definitions](Definitions.md)** <br/>
 **[Pipeline Details](Pipeline.md)** <br/>
-**[Deploy, Test and Operational Scripts](Scripts.md)** <br/> <br/>
-**[Return to the main page](../README.md)** <br/>
-<a href="#top">Back to top</a>
+**[Deploy, Test and Operational Scripts](Scripts.md)** <br/>
+<br/>[Return to the main page](../README.md)
+<br/>[Back to top](#policy-assignments)<br/>

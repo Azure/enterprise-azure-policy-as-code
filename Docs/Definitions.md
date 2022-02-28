@@ -67,7 +67,7 @@ The Policy and Initiative definition files are structured based on the official 
 }
 ```
 
-<br/><a href="#top">Back to top</a><br/><br/>
+<br/>[Back to top](#policy-and-initiative-definitions)<br/>
 
 ## Initiative (Policy Set) Definition JSON files
 
@@ -85,7 +85,7 @@ The Initiative definition files are structured based on the official [Azure Init
 
 ### Example
 
-  ```json
+```json
 {
   "name": "Newly created GUID",
   "properties": {
@@ -138,12 +138,12 @@ The Initiative definition files are structured based on the official [Azure Init
 }
 ```
 
-<br/><a href="#top">Back to top</a><br/><br/>
+[Back to top](#policy-and-initiative-definitions)<br/>
 
 ## Next steps
 
 **[Policy Assignments](Assignments.md)** <br/>
 **[Pipeline Details](Pipeline.md)** <br/>
 **[Deploy, Test and Operational Scripts](Scripts.md)** <br/>
-**[Return to the main page](../README.md)** <br/>
-<a href="#top">Back to top</a>
+<br/>[Return to the main page](../README.md)
+<br/>[Back to top](#policy-and-initiative-definitions)<br/>

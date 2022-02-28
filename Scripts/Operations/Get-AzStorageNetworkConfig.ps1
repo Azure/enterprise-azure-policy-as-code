@@ -1,16 +1,21 @@
-Param (
-    [Parameter(Mandatory = $false)]
-    [String] $tenantId = "tenant-id-guid",
+#Requires -PSEdition Core
 
-    [Parameter(Mandatory = $false)]
-    [String] $outputFilePath,
-
-    [Parameter(Mandatory = $false)]
-    [String] $outputFileName = "AzStorageAccountNetworkConfig.csv"
-
+[CmdletBinding()]
+param(
+    [parameter(Mandatory = $false, Position = 0)] [string] $environmentSelector = $null,
+    [Parameter(Mandatory = $false)] [string] $OutputFileName = ".Output\tags\all-tags.csv"
 )
 
-$subs = Get-AzSubscription -TenantId $tenant | Where-Object { $_.State -eq 'Enabled' }
+. "$PSScriptRoot/../Config/Initialize-Environment.ps1"
+. "$PSScriptRoot/../Config/Get-AzEnvironmentDefinitions.ps1"
+
+$InformationPreference = "Continue"
+$environment, $defaultSubscriptionId = Initialize-Environment $environmentSelector
+$targetTenant = $environment.targetTenant
+
+# Connect to Azure Tenant
+Connect-AzAccount -Tenant $targetTenant
+$subs = Get-AzSubscription -TenantId $targetTenant | Where-Object { $_.State -eq 'Enabled' }
 
 $output = @()
 
@@ -76,13 +81,4 @@ foreach ($sub in $subs) {
 
 }
 
-$output
-
-if ($outputFilePath) {
-
-    $output | Export-Csv -Path "$outputFilePath\$outputFileName" -NoTypeInformation
-
-}
-
-#Example output 
-#$output | ? {$_.PrivateEndpointEnabled -eq $false -and $_.DefaultAction -eq "allow"}
+$output | Export-Csv -Path $OutputFileName -NoTypeInformation
