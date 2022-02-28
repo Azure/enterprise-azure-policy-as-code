@@ -114,10 +114,10 @@ function Add-Assignments {
                         $numberOfAssignmentsWithRemediations++
                         $remediationTasks = @()
                         $initiativeDefinitionId = $summary.policySetDefinitionId
-                        $initiativeDefinition = $null
+
                         if ($initiativeDefinitionId -ne "") {
                             $initiativeName = $initiativeDefinitionId.Split('/')[-1]
-                            $initiativeDefinition = $allInitiativeDefinitions[$initiativeName]
+
                             # Write-Information "        Assigned Initiative '$($initiativeDefinition.displayName)'"
                         }
                         foreach ($policyDefinition in $summary.policyDefinitions) {
@@ -141,7 +141,7 @@ function Add-Assignments {
                                 $splat.Add("policy-assignment", $id)
                                 $assignmentDisplayName = $assignment.name
                                 $taskName = $assignmentDisplayName -replace '\s', '-'
-                                if ($null -eq $initiativeDefinition) {
+                                if ($null -eq $initiativeDefinitionId) {
                                     # Single Policy
                                     $splat.Add("name", $taskName)
                                 }
@@ -162,10 +162,10 @@ function Add-Assignments {
                             remediationTasks      = $remediationTasks
                             nonCompliantResources = $assignmentResult.nonCompliantResources
                         }
-                        if ($null -ne $initiativeDefinition) {
+                        if ($null -ne $initiativeDefinitionId) {
                             $assignmentRemediation += @{
                                 initiativeName        = $initiativeName
-                                initiativeDisplayName = $initiativeDefinition.displayName
+
                             }
                         }
                         if ($remediations.ContainsKey($scope)) {

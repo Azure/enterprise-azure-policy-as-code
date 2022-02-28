@@ -79,7 +79,7 @@ else {
             $remediationTaskDefinitions = $assignment.remediationTasks
             Write-Information "    Assignment ""$($assignment.assignmentDisplayName)"", Resources=$($assignment.nonCompliantResources)"
             if ($assignment.initiativeId -ne "") {
-                Write-Information "        Assigned Initiative ""$($assignment.initiativeDisplayName)"""
+                Write-Information "        Assigned Initiative ""$($assignment.initiativeName)"""
             }
             foreach ($remediationTaskDefinition in $remediationTaskDefinitions) {
                 $info = $remediationTaskDefinition.info
