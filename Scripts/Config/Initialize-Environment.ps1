@@ -3,15 +3,16 @@
 function Initialize-Environment {
     [CmdletBinding()]
     param (
-        [parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)] [hashtable] $EnvironmentDefinitions,
-        [parameter(Mandatory = $false)] [string] $environmentSelector = $null
+        [parameter(Mandatory = $false, Position = 0)] [string] $environmentSelector = $null
     )
-        
+    . "$PSScriptRoot/Get-AzenvironmentDefinitions.ps1"
+
+    $environmentDefinitions, $defaultSubscriptionId = Get-AzEnvironmentDefinitions
     $environment = $null
     if ($environmentSelector -ne "") {
-        if ($EnvironmentDefinitions.ContainsKey($environmentSelector)) {
+        if ($environmentDefinitions.ContainsKey($environmentSelector)) {
             # valid input
-            $environment = $EnvironmentDefinitions[$environmentSelector]
+            $environment = $environmentDefinitions[$environmentSelector]
             Write-Information "==================================================================================================="
             Write-Information "Environment Selected"
             Write-Information "==================================================================================================="
@@ -28,9 +29,9 @@ function Initialize-Environment {
 
         while ($null -eq $environment) {
             $environmentSelector = Read-Host "Enter environment name (not case senitive - must be dev1, dev2, qa, or prod)"
-            if ($EnvironmentDefinitions.ContainsKey($environmentSelector)) {
+            if ($environmentDefinitions.ContainsKey($environmentSelector)) {
                 # valid input
-                $environment = $EnvironmentDefinitions[$environmentSelector]
+                $environment = $environmentDefinitions[$environmentSelector]
             }
         }
     }
@@ -38,5 +39,5 @@ function Initialize-Environment {
     Write-Information ""
     Write-Information ""
 
-    return $environment
+    return $environment, $defaultSubscriptionId
 }

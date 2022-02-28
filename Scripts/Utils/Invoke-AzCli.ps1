@@ -144,7 +144,7 @@ function Invoke-AzCli {
         $result = $null
         try {
             $result = az @Arguments @splatArguments @additionalArguments
-            $hadError = -not $?
+            $hadError = !$?
         }
         finally {
             # Restore console colors, as Azure CLI likely to change them.
@@ -153,14 +153,9 @@ function Invoke-AzCli {
         }
 
         if ($hadError) {
-            if ($null -ne $result) {
-                Write-Information "az $Arguments $splatArguments = $result"
-                throw "Command exited with error code $LASTEXITCODE $result"
-            }
-            Write-Information "az $Arguments $splatArguments"
             throw "Command exited with error code $LASTEXITCODE"
         }
-        if ($null -ne $result -and -not $SuppressOutput.IsPresent) {
+        elseif (!$SuppressOutput.IsPresent -and $null -ne $result) {
             if ($AsHashTable.IsPresent) {
                 $result | ConvertFrom-Json -AsHashTable
             }

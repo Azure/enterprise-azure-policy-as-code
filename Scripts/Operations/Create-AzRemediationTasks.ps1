@@ -4,7 +4,7 @@
 param(
     [switch] $suppressCollectionInformation,
     [switch] $suppressCreateInformation,
-    [parameter(Mandatory = $False)] [string] $environmentSelector = ""
+    [parameter(Mandatory = $false, Position = 0)] [string] $environmentSelector = $null
 )
 
 . "$PSScriptRoot/../Helpers/Get-GlobalSettings.ps1"
@@ -17,28 +17,24 @@ param(
 . "$PSScriptRoot/../Config/Initialize-Environment.ps1"
 . "$PSScriptRoot/../Config/Get-AzEnvironmentDefinitions.ps1"
 
+$InformationPreference = "Continue"
+if ($null -eq $environmentSelector) {
+    $InformationPreference = "Continue"
+}
+elseif ($suppressCollectionInformation.IsPresent) {
+    $InformationPreference = "SilentContinue"
+}
+
+$environment, $defaultSubscriptionId = Initialize-Environment $environmentSelector
+
 if ($suppressCollectionInformation.IsPresent) {
     $InformationPreference = "SilentContinue"
 }
-else {
-    $InformationPreference = "Continue"
-}
-
-$environmentDefinitions = Get-AzEnvironmentDefinitions
-$environment = $environmentDefinitions | Initialize-Environment -environmentSelector $environmentSelector
-
-if ($suppressCollectionInformation.IsPresent) {
-    $InformationPreference = "SilentContinue"
-}
-else {
-    $InformationPreference = "Continue"
-}
-
 
 $globalSettingsFile = "$PSScriptRoot/../../Definitions/global-settings.jsonc"
 $globalNotScopeList, $managedIdentityLocation = Get-GlobalSettings -AssignmentSelector $environment["assignmentSelector"] -GlobalSettingsFile $globalSettingsFile
 
-$scopeTreeInfo = Get-AzScopeTree -tenantId $environment["tenantID"] -scopeParam $environment["scopeParam"]
+$scopeTreeInfo = Get-AzScopeTree -tenantId $environment["tenantID"] -scopeParam $environment["scopeParam"] -defaultSubscriptionId $defaultSubscriptionId
 
 $collections = Get-AllAzPolicyInitiativeDefinitions -RootScope $environment["rootScope"]
 $allPolicyDefinitions = $collections.builtInPolicyDefinitions + $collections.existingCustomPolicyDefinitions
@@ -77,13 +73,13 @@ else {
         foreach ($assignmentId in $assignments.Keys) {
             $assignment = $assignments[$assignmentId]
             $remediationTaskDefinitions = $assignment.remediationTasks
-            Write-Information "    Assignment ""$($assignment.assignmentDisplayName)"", Resources=$($assignment.nonCompliantResources)"
+            # Write-Information "    Assignment ""$($assignment.assignmentDisplayName)"", Resources=$($assignment.nonCompliantResources)"
             if ($assignment.initiativeId -ne "") {
-                Write-Information "        Assigned Initiative ""$($assignment.initiativeDisplayName)"""
+                # Write-Information "        Assigned Initiative ""$($assignment.initiativeDisplayName)"""
             }
             foreach ($remediationTaskDefinition in $remediationTaskDefinitions) {
                 $info = $remediationTaskDefinition.info
-                Write-Information "        Policy=""$($info.policyDisplayName)"", Resources=$($info.nonCompliantResources)"
+                Write-Information "    Policy=""$($info.policyDisplayName)"", Resources=$($info.nonCompliantResources)"
                 Invoke-AzCli policy remediation create -Splat $remediationTaskDefinition.splat -SuppressOutput
             }
         }
