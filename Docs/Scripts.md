@@ -1,5 +1,7 @@
 # Scripts
 
+**Note** Many scripts use a parameter or a configuration value called `RootScope`. It denotes the location of the custom Policy or Initiative definitions. If this parameter/setting does not follow this rule, the scripts will break.
+
 ## Deployment Scripts
 
 ### Scripts per Stage
