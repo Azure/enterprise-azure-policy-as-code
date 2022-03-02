@@ -27,6 +27,8 @@ variables:
   devServiceConnection: "sc-pac-dev"
   testServiceConnection: "sc-pac-dev"
   prodServiceConnection: "sc-pac-prod"
+  rolesServiceConnection: "sc-pac-roles"
+  
 
 # what to build trigger
 trigger:
@@ -230,7 +232,7 @@ stages:
                 - task: AzureCLI@2
                   displayName: Set PROD Role Assignments
                   inputs:
-                    azureSubscription: $(prodServiceConnection)
+                    azureSubscription: $(rolesServiceConnection)
                     scriptType: pscore
                     scriptLocation: scriptPath
                     scriptPath: "Scripts/Deploy/Set-AzPolicyRolesFromPlan.ps1"
