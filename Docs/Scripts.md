@@ -8,12 +8,12 @@
 
 | Stage | Scripts |
 | :--- | :--- |
-| DEV  | Build-AzPoliciesInitiativesAssignmentsPlan.ps1 <br> Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1 <br/> Deploy-AzRolesForRemediationTasks.ps1
+| DEV  | Build-AzPoliciesInitiativesAssignmentsPlan.ps1 <br> Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1 <br/> Set-AzPolicyRolesFromPlan.ps1
 | PROD Plan CI | Build-AzPoliciesInitiativesAssignmentsPlan.ps1
-| TEST | Build-AzPoliciesInitiativesAssignmentsPlan.ps1 <br> Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1 <br/> Deploy-AzRolesForRemediationTasks.ps1
+| TEST | Build-AzPoliciesInitiativesAssignmentsPlan.ps1 <br> Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1 <br/> Set-AzPolicyRolesFromPlan.ps1
 | PROD Plan CD | Build-AzPoliciesInitiativesAssignmentsPlan.ps1
 | PROD Deploy | Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1
-| PROD Role Assignment | Deploy-AzRolesForRemediationTasks.ps1
+| PROD Role Assignment | Set-AzPolicyRolesFromPlan.ps1
 
 <br/>[Back to top](#scripts)<br/>
 
