@@ -27,7 +27,7 @@ variables:
   devServiceConnection: "sc-pac-dev"
   testServiceConnection: "sc-pac-test"
   prodServiceConnection: "sc-pac-prod"
-  rolesServiceConnection: "sc-roles"
+  rolesServiceConnection: "sc-pac-roles"
   
 # what to build trigger
 trigger:
