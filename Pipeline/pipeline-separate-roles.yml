@@ -25,9 +25,10 @@ variables:
 
   # Use the plain text name of each service connection as a reference
   devServiceConnection: "sc-pac-dev"
-  testServiceConnection: "sc-pac-dev"
+  testServiceConnection: "sc-pac-test"
   prodServiceConnection: "sc-pac-prod"
-
+  rolesServiceConnection: "sc-roles"
+  
 # what to build trigger
 trigger:
   #   # branch names are case senititve
@@ -226,7 +227,7 @@ stages:
                 - task: AzureCLI@2
                   displayName: Set PROD Role Assignments
                   inputs:
-                    azureSubscription: $(prodServiceConnection)
+                    azureSubscription: $(rolesServiceConnection)
                     scriptType: pscore
                     scriptLocation: scriptPath
                     scriptPath: "Scripts/Deploy/Set-AzPolicyRolesFromPlan.ps1"
