@@ -25,10 +25,9 @@ variables:
 
   # Use the plain text name of each service connection as a reference
   devServiceConnection: "sc-pac-dev"
-  testServiceConnection: "sc-pac-test"
+  testServiceConnection: "sc-pac-dev"
   prodServiceConnection: "sc-pac-prod"
-  rolesServiceConnection: "sc-pac-roles"
-  
+
 # what to build trigger
 trigger:
   #   # branch names are case senititve
@@ -71,6 +70,7 @@ stages:
                       -AssignmentSelector $(devAssignmentSelector) `
                       -RootScope $(devRootScope) `
                       -PlanFile $(devPlanFile) `
+                      -SuppressDeletes `
                       -InformationAction Continue
                 - task: AzurePowerShell@5
                   displayName: Deploy to DEV environment
@@ -113,6 +113,7 @@ stages:
                     arguments: -TenantId $(tenantId) `
                       -AssignmentSelector $(prodAssignmentSelector) `
                       -RootScope $(prodRootScope) `
+                      -SuppressDeletes `
                       -PlanFile $(prodPlanFile) `
                       -InformationAction Continue
                   condition: succeeded()
@@ -137,6 +138,7 @@ stages:
                     arguments: -TenantId $(tenantId) `
                       -AssignmentSelector $(testAssignmentSelector) `
                       -RootScope $(testRootScope) `
+                      -SuppressDeletes `
                       -PlanFile $(testPlanFile) `
                       -InformationAction Continue
                 - task: AzurePowerShell@5
@@ -180,6 +182,7 @@ stages:
                     arguments: -TenantId $(tenantId) `
                       -AssignmentSelector $(prodAssignmentSelector) `
                       -RootScope $(prodRootScope) `
+                      -SuppressDeletes `
                       -PlanFile $(prodPlanFile) `
                       -InformationAction Continue
                   condition: succeeded()
@@ -211,26 +214,13 @@ stages:
                 - publish: "$(prodRolesPlan)"
                   artifact: "roles-plan"
                   condition: succeeded()
-  - stage: ROLES_DEPLOY
-    displayName: "ROLES Deploy"
-    dependsOn: PROD_DEPLOY
-    condition: and(succeeded('PROD_DEPLOY'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
-    jobs:
-      - deployment: PROD_Roles
-        environment: PAC-ROLES
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - checkout: self
-                # Artifact (plan) is downloaded automatically
                 - task: AzureCLI@2
                   displayName: Set PROD Role Assignments
                   inputs:
-                    azureSubscription: $(rolesServiceConnection)
+                    azureSubscription: $(prodServiceConnection)
                     scriptType: pscore
                     scriptLocation: scriptPath
                     scriptPath: "Scripts/Deploy/Set-AzPolicyRolesFromPlan.ps1"
-                    arguments: -PlanFile $(rolesPlanFileIn) `
+                    arguments: -PlanFile $(prodRolesPlan)
                       -InformationAction Continue
                   condition: succeeded()

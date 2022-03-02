@@ -25,10 +25,11 @@ variables:
 
   # Use the plain text name of each service connection as a reference
   devServiceConnection: "sc-pac-dev"
-  testServiceConnection: "sc-pac-test"
+  testServiceConnection: "sc-pac-dev"
   prodServiceConnection: "sc-pac-prod"
   rolesServiceConnection: "sc-pac-roles"
   
+
 # what to build trigger
 trigger:
   #   # branch names are case senititve
@@ -70,6 +71,7 @@ stages:
                     arguments: -TenantId $(tenantId) `
                       -AssignmentSelector $(devAssignmentSelector) `
                       -RootScope $(devRootScope) `
+                      -SuppressDeletes `
                       -PlanFile $(devPlanFile) `
                       -InformationAction Continue
                 - task: AzurePowerShell@5
@@ -113,6 +115,7 @@ stages:
                     arguments: -TenantId $(tenantId) `
                       -AssignmentSelector $(prodAssignmentSelector) `
                       -RootScope $(prodRootScope) `
+                      -SuppressDeletes `
                       -PlanFile $(prodPlanFile) `
                       -InformationAction Continue
                   condition: succeeded()
@@ -137,6 +140,7 @@ stages:
                     arguments: -TenantId $(tenantId) `
                       -AssignmentSelector $(testAssignmentSelector) `
                       -RootScope $(testRootScope) `
+                      -SuppressDeletes `
                       -PlanFile $(testPlanFile) `
                       -InformationAction Continue
                 - task: AzurePowerShell@5
@@ -180,6 +184,7 @@ stages:
                     arguments: -TenantId $(tenantId) `
                       -AssignmentSelector $(prodAssignmentSelector) `
                       -RootScope $(prodRootScope) `
+                      -SuppressDeletes `
                       -PlanFile $(prodPlanFile) `
                       -InformationAction Continue
                   condition: succeeded()

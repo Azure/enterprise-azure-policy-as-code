@@ -1,3 +1,6 @@
+# WARNING
+This repository contains multiple pipelines. Use the 'brownfield pipeline' for Azure environments that already contain custom policies, initiatives, and assignments. This will suppress the deletion of dangling policies, initiatives, and assignments that already exist.
+
 # Overview
 
 This repository contains a mature solution to manage and deploy Azure Policy at enterprise scale.
