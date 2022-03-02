@@ -70,6 +70,7 @@ stages:
                       -AssignmentSelector $(devAssignmentSelector) `
                       -RootScope $(devRootScope) `
                       -PlanFile $(devPlanFile) `
+                      -SuppressDeletes `
                       -InformationAction Continue
                 - task: AzurePowerShell@5
                   displayName: Deploy to DEV environment
@@ -112,6 +113,7 @@ stages:
                     arguments: -TenantId $(tenantId) `
                       -AssignmentSelector $(prodAssignmentSelector) `
                       -RootScope $(prodRootScope) `
+                      -SuppressDeletes `
                       -PlanFile $(prodPlanFile) `
                       -InformationAction Continue
                   condition: succeeded()
@@ -136,6 +138,7 @@ stages:
                     arguments: -TenantId $(tenantId) `
                       -AssignmentSelector $(testAssignmentSelector) `
                       -RootScope $(testRootScope) `
+                      -SuppressDeletes `
                       -PlanFile $(testPlanFile) `
                       -InformationAction Continue
                 - task: AzurePowerShell@5
@@ -179,6 +182,7 @@ stages:
                     arguments: -TenantId $(tenantId) `
                       -AssignmentSelector $(prodAssignmentSelector) `
                       -RootScope $(prodRootScope) `
+                      -SuppressDeletes `
                       -PlanFile $(prodPlanFile) `
                       -InformationAction Continue
                   condition: succeeded()
@@ -217,6 +221,6 @@ stages:
                     scriptType: pscore
                     scriptLocation: scriptPath
                     scriptPath: "Scripts/Deploy/Set-AzPolicyRolesFromPlan.ps1"
-                    arguments: -PlanFile $(prodRolesPlan) `
+                    arguments: -PlanFile $(prodRolesPlan)
                       -InformationAction Continue
                   condition: succeeded()
