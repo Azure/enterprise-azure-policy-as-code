@@ -5,7 +5,7 @@ function Initialize-Environment {
     param (
         [parameter(Mandatory = $false, Position = 0)] [string] $environmentSelector = $null
     )
-    . "$PSScriptRoot/Get-AzenvironmentDefinitions.ps1"
+    . "$PSScriptRoot/Get-AzEnvironmentDefinitions.ps1"
 
     $environmentDefinitions, $defaultSubscriptionId = Get-AzEnvironmentDefinitions
     $environment = $null
