@@ -34,8 +34,8 @@ function New-AzPolicyAssignmentHelper {
 
     $splatTransform = "Name Description DisplayName Metadata EnforcementMode Scope"
     [hashtable] $splat = $assignmentDefinition | Get-FilteredHashTable -Filter $splatTransform
-    $notScope = $assignmentDefinition.NotScope
     $splat.Add("PolicyParameterObject", ($assignmentDefinition.PolicyParameterObject | ConvertTo-HashTable))
+    $notScope = $assignmentDefinition.NotScope
     if ($null -ne $notScope -and $notScope.Length -gt 0) {
         $splat.Add("NotScope", $notScope)
     }
@@ -87,11 +87,15 @@ function Set-AzPolicyAssignmentHelper {
     [hashtable] $splat = $assignmentDefinition | Get-FilteredHashTable -Filter $splatTransform
     $parmeterObject = $assignmentDefinition.PolicyParameterObject | ConvertTo-HashTable
     $splat.Add("PolicyParameterObject", $parmeterObject) 
+    $splat.Add("WarningAction", "SilentlyContinue")
     $notScope = $assignmentDefinition.NotScope
-    if ($null -ne $notScope -and $notScope.Length -gt 0) {
+    if ($null -ne $notScope) {
         $splat.Add("NotScope", $notScope)
     }
-    $splat.Add("WarningAction", "SilentlyContinue")
+    # else {
+    #     $splat.Add("NotScope", @())
+    # }
+
     $null = Set-AzPolicyAssignment @splat
 }
 
@@ -112,8 +116,8 @@ Write-Information "Execute (Deploy) plan from ""$PlanFile"""
 Write-Information "==================================================================================================="
 Write-Information "Plan created on               : $($plan.createdOn)"
 Write-Information "Settings"
-Write-Information "    rootScope                 : $($plan.RootScope)"
-Write-Information "    scopeParam                : $($plan.scopeParam | ConvertTo-Json -Depth 100 -Compress)"
+Write-Information "    rootScopeId               : $($plan.rootScopeId)"
+Write-Information "    rootScope                 : $($plan.rootScope | ConvertTo-Json -Depth 100 -Compress)"
 Write-Information "    TenantID                  : $($plan.TenantID)"
 Write-Information "---------------------------------------------------------------------------------------------------"
 
@@ -198,13 +202,13 @@ if (!$noChanges) {
     [hashtable] $addedRoleAssignments = $plan.addedRoleAssignments | ConvertTo-HashTable
     $count = $assignmentsToCreate.Count + $assignmentsToUpdate.Count
     if ($count -gt 0) {
-        $RootScope = $plan.rootScope
+        $rootScope = ConvertTo-HashTable $plan.rootScope
+        $rootScopeId = $plan.rootScopeId
         Write-Information "---------------------------------------------------------------------------------------------------"
-        Write-Information "Fetching existing Policy definitions from scope ""$RootScope"""
+        Write-Information "Fetching existing Policy definitions from scope '$rootScopeId'"
         $oldDebug = $DebugPreference
         $DebugPreference = "SilentlyContinue"
-        $scopeParam = $plan.scopeParam | ConvertTo-HashTable
-        $existingCustomPolicyDefinitionsList = @() + (Get-AzPolicyDefinition @scopeParam -Custom -WarningAction SilentlyContinue | Where-Object { $_.ResourceId -like "$RootScope/providers/Microsoft.Authorization/policyDefinitions/*" })
+        $existingCustomPolicyDefinitionsList = @() + (Get-AzPolicyDefinition @rootScope -Custom -WarningAction SilentlyContinue | Where-Object { $_.ResourceId -like "$rootScopeId/providers/Microsoft.Authorization/policyDefinitions/*" })
         $builtInPolicyDefinitions = @() + (Get-AzPolicyDefinition -BuiltIn -WarningAction SilentlyContinue)
         $DebugPreference = $oldDebug
         $allPolicyDefinitions = @{}
@@ -217,10 +221,10 @@ if (!$noChanges) {
             $allPolicyDefinitions.Add($existingCustomPolicyDefinition.ResourceId, $existingCustomPolicyDefinition)
         }
 
-        Write-Information "Fetching existing Initiative definitions from scope ""$RootScope"""
+        Write-Information "Fetching existing Initiative definitions from scope ""$rootScopeId"""
         $oldDebug = $DebugPreference
         $DebugPreference = "SilentlyContinue"
-        $existingCustomInitiativeDefinitionsList = Get-AzPolicySetDefinition @scopeParam -ApiVersion "2020-08-01" -Custom -WarningAction SilentlyContinue | Where-Object { $_.ResourceId -like "$RootScope/providers/Microsoft.Authorization/policySetDefinitions/*" }
+        $existingCustomInitiativeDefinitionsList = Get-AzPolicySetDefinition @rootScope -ApiVersion "2020-08-01" -Custom -WarningAction SilentlyContinue | Where-Object { $_.ResourceId -like "$rootScopeId/providers/Microsoft.Authorization/policySetDefinitions/*" }
         $builtInInitiativeDefinitions = Get-AzPolicySetDefinition -ApiVersion "2020-08-01" -BuiltIn -WarningAction SilentlyContinue
         $DebugPreference = $oldDebug
 
@@ -280,7 +284,6 @@ if (!$noChanges) {
     Write-Information "---------------------------------------------------------------------------------------------------"
 
     [hashtable] $removedRoleAssignments = $plan.removedRoleAssignments | ConvertTo-HashTable
-    [bool] $changesNeeded = $addedRoleAssignments.Count -ne 0 -or $removedRoleAssignments.Count -ne 0
     if ($removedRoleAssignments.Count -gt 0) {
         Write-Information ""
         Write-Information "Removing Role Assignmnets for $($removedRoleAssignments.Count) Policy Assignments"
@@ -326,18 +329,14 @@ if (!$noChanges) {
     #endregion
     
 }
-else {
-    Write-Information ""
-    Write-Information "***************************** NO CHANGES NEEDED ***************************************************"
-    Write-Information ""
-}
 
+$numberOfRoleChanges = ($rolesPlan.removed).Count + ($rolesPlan.removed).Count
 Write-Information "==================================================================================================="
-Write-Information "Writing Role Assignment plan file $RolesPlanFile"
+Write-Information "Writing $($numberOfRoleChanges) Role Assignment changes to plan file $RolesPlanFile"
+Write-Information "==================================================================================================="
 if (-not (Test-Path $RolesPlanFile)) {
     $null = New-Item $RolesPlanFile -Force
 }
 $null = $rolesPlan | ConvertTo-Json -Depth 100 | Out-File -FilePath $RolesPlanFile -Force
-Write-Information "==================================================================================================="
-
+#endregion
 #endregion

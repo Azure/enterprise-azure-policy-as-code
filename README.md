@@ -1,7 +1,4 @@
-# WARNING
-This repository contains multiple pipelines. Use the 'brownfield pipeline' for Azure environments that already contain custom policies, initiatives, and assignments. This will suppress the deletion of dangling policies, initiatives, and assignments that already exist.
-
-# Overview
+# Policy as Code
 
 This repository contains a mature solution to manage and deploy Azure Policy at enterprise scale.
 
@@ -11,87 +8,136 @@ This repo has been developed in partnership with the Azure Security Modernizatio
 
 ASM improves your new or existing security posture in Azure by securing platforms, services, and workloads at any scale. ASM revolves around a continuous security improvement model (Measure, Plan, Develop & Deliver) giving visibility into security vulnerabilities.
 
+## Warning
+
+This solution uses the desired state strategy. It will remove any custom Policies, Initiatives or Policy Assignments not duplicated in the definition files. The `Build-AzPoliciesInitiativesAssignmentsPlan.ps1` script's switch parameter `SuppressDeletes` changes this behavior. Use a "brownfield" pipeline to pass this parameter preventing deletions of existing Policies, Initiatives and Policy Assignments while transitioning to Enterprise Policy as Code.
+
 ## Components
 
 | Component | What is it used for? | Where can it be found? |
 |--|--|--|
-| **Pipeline Files** | Configure the deployment pipeline for Azure DevOps | `Pipeline` folder. |
-| **Service Connections** | Service connections give the pipeline the proper permissions to deploy at desired Azure scopes | Create in project settings: <https://docs.microsoft.com/en-us/azure/devops/pipelines/library/service-endpoints?view=azure-devops&tabs=yaml> |
-| **Definition Files** | Define custom policies, initiatives and assignments. This repo contains a sample for each. You will adjust them as needed, especialy the assignments | `Definitions` folder. |
-| **Deployment Scripts** | Scripts are used to deploy your Policies, Initiatives, and Assignments to Azure. They do not need to be modified. If you have improvements, please offer to contribute them. | `Scripts/Deploy` folder |
-| **Operational Scripts** | Scripts used to during operations (e.g., creating remedaition tasks). | `Scripts/Operations` folder |
-| **Configuration Scripts** | Scripts are used to define the environment for Test and Operational scripts. You mst modify any environment specific values, such as Management Groups and Subscriptions. | `Scripts/Config` folder |
-| **Helper and Utility Scripts** | These Scripts are used by other scripts. | `Scripts/Helpers` and <br/>`Scripts/Utils` folders |
-| **Test Scripts** | Scripts used by this solution's developers to execute other scripts without needing to type all the parameters each time. | `Scripts/Test` folder |
+| **Pipeline File** | Configure the deployment pipeline for Azure DevOps. **Copy a suitable sample pipeline from the samples provided to the working folder.** | Working folder `Pipeline` <br/> Samples in folder `Samples/Pipeline` |
+| **Definition Files** | Define custom policies, initiatives and assignments. This repo contains a sample for each. **Copy suitable samples as starters from the samples provided to the working folder.** | Working folder `Definitions` <br/> Samples in folder `Samples/Definitions` |
+| **Service Connections** | Service connections give the pipeline the proper permissions to deploy at desired Azure scopes. [Documentation for Service Connections](https://docs.microsoft.com/en-us/azure/devops/pipelines/library/service-endpoints) | Azure DevOps <br/> project settings  |
+| **Deployment Scripts** | Scripts are used to deploy your Policies, Initiatives, and Assignments to Azure. They do not need to be modified. If you have improvements, please offer to contribute them. | Folder `Scripts/Deploy` |
+| **Operational Scripts** | Scripts used to during operations (e.g., creating remediation tasks). | Folder `Scripts/Operations` |
+| **Helper and Utility Scripts** | These Scripts are used by other scripts. | Folders `Scripts/Helpers` and <br/>`Scripts/Utils` |
+| **Test Scripts** | Scripts used by this solution's developers to execute other scripts without needing to type all the parameters each time. | Folder <br/> `Scripts/Test` |
 
-<br/>[Back to top](#overview)<br/>
+<br/>[Back to top](#policy-as-code)<br/>
+
+## Scenarios
+
+The Policy as Code framework supports the following Policy and Initiative assignment scenarios:
+
+- **Centralized approach**: One centralized team manages all policy and initiative assignments in the Azure organization, at all levels (Management Group, Subscription, Resource Group).
+- **Distributed approach**: Multiple teams can also manage policy and initiative assignments in a distributed manner if there's a parallel set Management Group hierarchies defined. In this case individual teams can have their own top level Management group (and corresponding Management Groups hierarchy with Subscriptions and Resource Groups below), but assignments must not be made on the Tenant Root Group level.
+  > **NOTE**: Distributed teams must only include those scopes in their version of the assignments.json that is not covered by another team.
+- **Mixed approach**: A centralized team manages policy and initiative assignments to a certain level (top-down approach), e.g. on the Tenant Root Group level, and top level Management group, and all assignments on lower levels (i.e. lower level Management Groups, Subscriptions and Resource Groups) are managed by multiple teams, in a distributed manner.
+
+ **NOTE**: This solution enforces a centralized approach. It is recommended that you follow a centralized approach however, when using the mixed approach, scopes that will not be managed by the central team should be excluded from the assignments JSON file - therefore the assignment configuration script will ignore these scopes (it won't add/remove/update anything in there). Conversly, the distributed teams must only include those scopes in their version of the assignments.json that is not covered by the central team.
+
+ <br/>[Back to top](#policy-assignments)<br/>
+
+## Policy as Code Environments
+
+This solution requires environments for DEV, optional DEVINT, TEST and one PROD per tenant. These environments are not the same as the standard Azure environments for solutions - do not confuse them. The regular Sandbox, DEV, DEVINT, TEST/QA and PROD environment are managed with the PaC PROD environment(s).
+
+The scripts have a parameter `PacEnvironmentSelector` to select the PaC environment. This string must match the selectors in `global-settings.jsonc` and the Policy Assignment files to select the scopes and notScopes. The scripts accept the parameter directly. if the parameter is missing, the scripts prompt for it interactively.
+
+ <br/>[Back to top](#policy-assignments)<br/>
 
 ## Prerequisites
 
-* Build a management group dedicated to Policy as Code (PaC): <br/> <https://docs.microsoft.com/en-us/azure/governance/management-groups/create-management-group-portal>
-* Create two subscriptions under the PaC management group. Recommended naming:
-  * PAC-DEV-001
-  * PAC-TEST-001
-  * <https://docs.microsoft.com/en-us/azure/cost-management-billing/manage/create-subscription>
+- Build a management group dedicated to Policy as Code (PaC) -- `mg-pac-dev` <br/> <https://docs.microsoft.com/en-us/azure/governance/management-groups/create-management-group-portal>
+- Create two subscriptions under the PaC management group mg-pac-dev. Recommended naming:
+  - PAC-DEV-001
+  - PAC-TEST-001
+  - <https://docs.microsoft.com/en-us/azure/cost-management-billing/manage/create-subscription>
+- Note on Multi-Tenant:
+  - Azure DevOps Server (if not using Azure DevOps service) and Azure Self-Hosted Agents must be in PROD tenant.
+  - Management Group `mg-pac-dev` should be creted in a dev tenant
 
-<br/>[Back to top](#overview)<br/>
+<br/>[Back to top](#policy-as-code)<br/>
 
 ## Quick Start
 
 1. Create an Azure DevOps project dedicated to Policy as Code (PaC). You may also create a dedicated PaC repo within an existing Azure DevOps project.
 1. Import this repository into the newly created PaC repository: <br/> <https://docs.microsoft.com/en-us/azure/devops/repos/git/import-git-repository?view=azure-devops>
-1. Create a cusom role to be used by the planing stages' service connections. **Policy Reader role** should contain:
-   * `Microsoft.Authorization/policyAssignments/read`
-   * `Microsoft.Authorization/policyDefinitions/read`
-   * `Microsoft.Authorization/policySetDefinitions/read`
-1. Create the Service Connections in Azure DevOps with the required permissions. You need `2 + 3 x number of tenants` service connections.
-   * Grant the required permissions to the SPNs in Azure. **Note:** depending on your scenario, these permissions may be very high.
-      * If you're planning to use DeployIfNotExists (DINE) policies, the SPN has to have owner or user admin rights at the assignments' scope, so that it can grant access to the generated system assigned identity at deployment time. In other words, you may need owner or user admin permission on Tenant Root group level to fully unlock all the capabilities of Azure Policies deployed through this solution.
-      * Some SPNs will also need `Azure Active Directory reader` role. This is required both for the permission plan creation and for assigning permissions (for DeployIfNotExists policies) as the role assignment PowerShell commandlet requires this permission.
-   * Register the SPN in ADO as a Service Connection. The number of service connections is equal to 2 plus the number of tenants
-   * <https://docs.microsoft.com/en-us/azure/devops/pipelines/library/service-endpoints?view=azure-devops&tabs=yaml#sep-azure-resource-manager>
+    - We recommend that you only modify the folders `Pipeline` and `Definitions` to facilitate merging updates from this repo.
+    - However, do not modify the README.md files in folders `Pipeline` and `Definitions`
+1. Define the environment specific settings in **[global-settings.jsonc](Definitions/README.md)**
+    - For Policy Assignments only:
+        - managedIdentityLocation for remediation tasks
+        - notScope to globally exclude Management Groups and Resource Groups
+    - Scope definition
+        - tenant
+        - defaultSubscription
+        - rootScope
+        - plan file names
+    - Representative assignments to calculate effective effects spreadsheet
+    - Initiatives to compare
+1. Create a custom role to be used by the planing stages' service connections **Policy Reader role**. Script `./Scripts/Operations/New-AzPolicyReaderRole.ps1` will create the role at the scope defined in `global-settings.json`. It will contain:
+   - `Microsoft.Authorization/policyAssignments/read`
+   - `Microsoft.Authorization/policyDefinitions/read`
+   - `Microsoft.Authorization/policySetDefinitions/read`
+1. Create the Service Connections in Azure DevOps with the required permissions as documented in the **[Pipeline documentation](Pipeline/README.md)**.
 
 1. Configure the deployment pipeline
-   * Register the pipeline (pipeline.yml `Pipeline` folder of the repository).
-   * Modify the pipeline to include the service connections and desired scope for your policy deployments (See the **[pipeline documentation](Docs/Pipeline.md)** file for more details on this)
-   * The pipeline is triggered in various ways depending on the scope you are ready to deploy to. See the **[pipeline documentation](Docs/Pipeline.md)** to find a more detailed explanation on how each stage of the pipeline is triggered.
+   - Register the pipeline.
+   - Modify the pipeline to include the service connections, environments and triggers as needed: **[pipeline documentation](Pipeline/README.md)**.
 
 1. Create environments in Azure DevOps. Environments must be created to isolate deployment controls and set approval gates.
-   * Create the following environments (case sensitive):
-   * PAC-ROLES
-   * PAC-PROD
-   * PAC-TEST
-   * PAC-DEV
-   * If you would like to modify the names of these environments, you must also modify the pipeline environments for each stage in the pipeline file.
+
+    - Single tenant
+      - PAC-ROLES
+      - PAC-PROD
+      - PAC-TEST
+      - PAC-DEV
+    - Multi tenant
+      - PAC-ROLES-t1
+      - PAC-PROD-t1
+      - PAC-ROLES-t2
+      - PAC-PROD-t2
+      - PAC-TEST
+      - PAC-DEV
+    - If you would like to modify the names of these environments, you must also modify the pipeline environments for each stage in the pipeline file.
+
 1. Create policies, initiatives, and assignments as needed
-   * Follow the included file structures
-   * **NOTE:** if you are NOT creating a greenfield environment, you may add the suppress delete operator to the pipeline file to keep previous policies, initiatives, and assignments. Add the `-suppressDeletes` switch parameter to every instance of script `Build-AzPoliciesInitiativesAssignmentsPlan.ps1`.
+   - Follow the included file structures
+   - **NOTE:** if you are NOT creating a greenfield environment, you may add the suppress delete operator to the pipeline file to keep previous policies, initiatives, and assignments. Add the `-suppressDeletes` switch parameter to every instance of script `Build-AzPoliciesInitiativesAssignmentsPlan.ps1`.
 
      ```yaml
      scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
      arguments: -TenantId $(tenantId) `
-       -AssignmentSelector $(devAssignmentSelector) `
-       -RootScope $(devRootScope) `
+       -PacEnvironmentSelector $(devPacEnvironmentSelector) `
        -PlanFile $(devPlanFile) `
        -InformationAction Continue `
        -suppressDeletes
      ```
 
-1. Trigger the pipeline to deploy to each envrionment with these actionss:
-   * DEV - Commit to feature branch or manually trigger
-   * TEST - Pull request is approved
-   * PROD - Azure DevOps approval gate is completed
-   * ROLES - Azure DevOps role approval gate is completed (optional segregation of duty)
+1. Trigger the pipeline to deploy to each envrionment with these actions. The example pipelines have two sections triggered differently:
+    - Triggered by a commit to a feature branch: stages devAllStage and prodPlanFeatureStage
+    - Triggered by a commit to a feature branch: stages prodPlanMainStage, prodDeployStage, (optional) prodRolesStage, prodNoPolicyChangesStage, and prodNoRoleChangesStage (optional).
+    - You may add additional sections for other triggers, such as pre-PR test build and deploy stages.
 
-<br/>[Back to top](#overview)<br/>
+<br/>[Back to top](#policy-as-code)<br/>
 
-## Next steps
+## Reading List
 
-**[Pipeline Details](Docs/Pipeline.md)** <br/>
-[Policy and Initiative Definitions](Docs/Definitions.md) <br/>
-[Policy Assignments](Docs/Assignments.md) <br/>
-[Deploy, Test and Operational Scripts](Docs/Scripts.md) <br/>
-<br/>[Back to top](#overview)<br/>
+1. **[Pipeline](Pipeline/README.md)**
+
+1. **[Update Global Settings](Definitions/README.md)**
+
+1. **[Create Policy Definitions](Definitions/Policies/README.md)**
+
+1. **[Create Initiative Definitions](Definitions/Initiatives/README.md)**
+
+1. **[Define Policy Assignments](Definitions/Assignments/README.md)**
+
+1. **[Scripts](Scripts/README.md)**
+
+[Back to top](#policy-as-code) <br/>
 
 ## Contributing
 
@@ -107,7 +153,7 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
-<br/>[Back to top](#overview)<br/>
+<br/>[Back to top](#policy-as-code)<br/>
 
 ## Trademarks
 
@@ -115,4 +161,4 @@ This project may contain trademarks or logos for projects, products, or services
 [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship. Any use of third-party trademarks or logos are subject to those third-party's policies.
 
-<br/>[Back to top](#overview)<br/>
+<br/>[Back to top](#policy-as-code)<br/>

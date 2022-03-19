@@ -44,25 +44,19 @@ function Get-AzScopeTree {
 
     if ($scopeParam.ContainsKey("SubscriptionId")) {
         $subscriptionId = $scopeParam.SubscriptionId
-        $null = Invoke-AzCli account set --subscription $subscriptionId
-
-        $subscription = Invoke-AzCli account subscription show --subscription-id $subscriptionId --only-show-errors
+        $subscription = Invoke-AzCli account subscription show --subscription-id $scopeParam.SubscriptionId --only-show-errors
         $resourceGroupIdsHashTable = Get-AzResourceGroupsForSubscription -SubscriptionId $subscriptionId
-        Write-Information "Single Subscription $($subscription.name) ($($subscription.id)) with $($resourceGroupIdsHashTable.Count) Resource Groups"
+        Write-Information "Single Subscription $($subscription.displayName) ($($subscriptionId)) with $($resourceGroupIdsHashTable.Count) Resource Groups"
         $singleSubscription = $subscription.id
         $subscriptionTable[$singleSubscription] = @{
-            Name             = $subscription.name
+            Name             = $subscription.displayName
             State            = $subscription.state
-            Id               = $subscriptionItem.id
-            FullId           = $fullSubscriptionId
+            Id               = $singleSubscriptionsubscriptionId
+            FullId           = $singleSubscription
             ResourceGroupIds = $resourceGroupIdsHashTable
         }
     }
     elseif ($scopeParam.ContainsKey("ManagementGroupName")) { 
-        # Write-Information "    Get-AzManagementGroup -GroupId $($scopeParam["ManagementGroupName"]) -Expand -Recurse"
-        if ($defaultSubscriptionId) {
-            $null = Invoke-AzCli account set --subscription $defaultSubscriptionId
-        }
 
         $scopeTree = Invoke-AzCli account management-group show --name $scopeParam.ManagementGroupName --expand --recurse
         Write-Information "    Management Group $($scopeTree.displayName) ($($scopeTree.id))"

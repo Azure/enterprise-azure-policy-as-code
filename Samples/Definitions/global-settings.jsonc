@@ -1,0 +1,103 @@
+{
+    "managedIdentityLocation": {
+        "*": "eastus2"
+    },
+    "globalNotScopes": {
+        "*": [
+            "/resourceGroupPatterns/excluded-rg*",
+        ],
+        "prod": [
+            "/providers/Microsoft.Management/managementGroups/Policy-as-Code"
+        ]
+    },
+    /* "notScope" Instructions
+        Formats of array entries:
+            managementGroups:      "/providers/Microsoft.Management/managementGroups/myManagementGroupId"
+            subscriptions:         "/subscriptions/00000000-0000-0000-000000000000"
+            resourceGroups:        "/subscriptions/00000000-0000-0000-000000000000/resourceGroups/myResourceGroup"
+            resourceGroupPatterns: No wild card or single * wild card at beginning or end of name or both; wild card in middle is invalid
+                                   "/resourceGroupPatterns/name"
+                                   "/resourceGroupPatterns/name*"
+                                   "/resourceGroupPatterns/*name"
+                                   "/resourceGroupPatterns/*name*"
+    */
+    "pacEnvironments": [
+        {
+            "pacSelector": "dev",
+            "tenantId": "00000000-0000-0000-000000000000",
+            "defaultSubscriptionId": "00000000-0000-0000-000000000000",
+            "rootScope": {
+                "SubscriptionId": "00000000-0000-0000-000000000000"
+            },
+            "planFile": "./Output/Plans/dev-plan.json",
+            "roleFile": "./Output/Plans/dev-roles.json"
+        },
+        {
+            "pacSelector": "test",
+            "tenantId": "00000000-0000-0000-000000000000",
+            "defaultSubscriptionId": "00000000-0000-0000-000000000000",
+            "rootScope": {
+                "SubscriptionId": "00000000-0000-0000-000000000000"
+            },
+            "planFile": "./Output/Plans/test-plan.json",
+            "roleFile": "./Output/Plans/test-roles.json"
+        },
+        {
+            "pacSelector": "prod",
+            "tenantId": "00000000-0000-0000-000000000000",
+            "defaultSubscriptionId": "00000000-0000-0000-000000000000",
+            "rootScope": {
+                "ManagementGroupName": "Contoso-Root"
+            },
+            "planFile": "./Output/Plans/prod-plan.json",
+            "roleFile": "./Output/Plans/prod-roles.json"
+        }
+    ],
+    "representativeAssignments": [
+        {
+            "environmentType": "PROD",
+            "policyAssignments": [
+                "/providers/Microsoft.Management/managementGroups/Contoso-Prod/providers/Microsoft.Authorization/policyAssignments/prod-asb",
+                "/providers/Microsoft.Management/managementGroups/Contoso-Prod/providers/Microsoft.Authorization/policyAssignments/prod-org"
+            ]
+        },
+        {
+            "environmentType": "NONPROD",
+            "policyAssignments": [
+                "/providers/Microsoft.Management/managementGroups/Contoso-NonProd/providers/Microsoft.Authorization/policyAssignments/nonprod-asb",
+                "/providers/Microsoft.Management/managementGroups/Contoso-NonProd/providers/Microsoft.Authorization/policyAssignments/nonprod-org"
+            ]
+        },
+        {
+            "environmentType": "DEV",
+            "policyAssignments": [
+                "/providers/Microsoft.Management/managementGroups/Contoso-Dev/providers/Microsoft.Authorization/policyAssignments/dev-asb",
+                "/providers/Microsoft.Management/managementGroups/Contoso-Dev/providers/Microsoft.Authorization/policyAssignments/dev-org"
+            ]
+        },
+        {
+            "environmentType": "SANDBOX",
+            "policyAssignments": [
+                "/providers/Microsoft.Management/managementGroups/Contoso-Sandbox/providers/Microsoft.Authorization/policyAssignments/sandbox-asb",
+                "/providers/Microsoft.Management/managementGroups/Contoso-Sandbox/providers/Microsoft.Authorization/policyAssignments/sandbox-org"
+            ]
+        }
+    ],
+    "initiativeSetsToCompare": [
+        {
+            "setName": "NIST",
+            "initiatives": [
+                "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8", // Azure Security Benchmark v3
+                "/providers/Microsoft.Authorization/policySetDefinitions/d5264498-16f4-418a-b659-fa7ef418175f", // FedRAMP High
+                "/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f", // NIST SP 800-53 Rev. 5
+                "/providers/Microsoft.Authorization/policySetDefinitions/03055927-78bd-4236-86c0-f36125a10dc9" // NIST SP 800-171 Rev. 2
+            ]
+        },
+        {
+            "setName": "ASB",
+            "initiatives": [
+                "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8" // Azure Security Benchmark v3
+            ]
+        }
+    ]
+}

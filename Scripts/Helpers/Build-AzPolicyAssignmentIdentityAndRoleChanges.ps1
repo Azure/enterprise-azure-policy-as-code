@@ -41,6 +41,7 @@ function Build-AzPolicyAssignmentIdentityAndRoleChanges {
         [hashtable] $addedRoleAssignments
     )
 
+    $changingRoleAssignments = $false
     $existingAssignment = $assignmentConfig.existingAssignment
     $identity = $existingAssignment.identity
     $identityRequired = $assignmentConfig.ContainsKey("identityRequired") -and $assignmentConfig.identityRequired
@@ -76,6 +77,7 @@ function Build-AzPolicyAssignmentIdentityAndRoleChanges {
                     -displayName $displayName `
                     -removedRoleAssignmentList $existingRoleAssignments `
                     -removedRoleAssignments $removedRoleAssignments
+                $changingRoleAssignments = $true
             }
             
             # Add all required role assignments in new assignment
@@ -86,6 +88,7 @@ function Build-AzPolicyAssignmentIdentityAndRoleChanges {
                         roles       = $existingRoleAssignments
                     }
                 )
+                $changingRoleAssignments = $true
             }
         }
         else {
@@ -115,6 +118,7 @@ function Build-AzPolicyAssignmentIdentityAndRoleChanges {
                     -displayName $displayName `
                     -removedRoleAssignmentList $removedRoleAssignmentList `
                     -removedRoleAssignments $removedRoleAssignments
+                $changingRoleAssignments = $true
             }
 
             # Calculate added role assignments (also rare)
@@ -142,8 +146,10 @@ function Build-AzPolicyAssignmentIdentityAndRoleChanges {
                         roles       = $addedRoleAssignmentList
                     }
                 )
+                $changingRoleAssignments = $true
             }
         }
     }
-    $replacingAssignment
+    $replacingAssignment, $changingRoleAssignments
+
 }

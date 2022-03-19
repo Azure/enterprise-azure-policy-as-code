@@ -56,7 +56,7 @@ function Add-Assignments {
             }
             $existingRoleAssignments = @()
             if ($null -ne $assignment.identity -and $null -ne $assignment.identity.principalId) {
-                $existingRoleAssignments = @() + (Invoke-AzCli role assignment list --scope $scope --assignee $assignment.identity.principalId)
+                $existingRoleAssignments = @() + (Invoke-AzCli role assignment list --scope $scope --assignee $assignment.identity.principalId --only-show-errors)
             }
 
             # Collate existing role assignments at Policy assignment scope and at additionalRoleAssignments scope(s)
@@ -68,7 +68,7 @@ function Add-Assignments {
                 if ($assignment.metadata -and $assignment.metadata.roles) {
                     foreach ($role in $assignment.metadata.roles) {
                         if (-not $scopesChecked.ContainsKey($role.scope)) {
-                            $additionalRoleAssignmentsInAzure = @() + (Invoke-AzCli role assignment list --scope $role.scope --assignee $principalId)
+                            $additionalRoleAssignmentsInAzure = @() + (Invoke-AzCli role assignment list --scope $role.scope --assignee $principalId --only-show-errors)
                             $null = $scopesChecked.Add($role.scope, $true)
                             $existingRoleAssignments += $additionalRoleAssignmentsInAzure
                         }
