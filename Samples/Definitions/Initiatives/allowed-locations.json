@@ -1,0 +1,52 @@
+{
+  "name": "Allowed Locations",
+  "properties": {
+    "displayName": "TEST - Allowed Locations Initiative",
+    "description": "This initiative contains the policies necessary to limit Azure region deployments.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Org Governance"
+    },
+    "policyDefinitionGroups": [
+      {
+        "name": "Azure_Security_Benchmark_v2.0_GS-7",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_GS-7"
+      },
+      {
+        "name": "Azure_Security_Benchmark_v2.0_GS-8",
+        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_GS-8"
+      }
+    ],
+    "parameters": {
+      "AllowedLocations": {
+        "type": "Array",
+        "defaultValue": [
+          "centralus",
+          "eastus",
+          "eastus2",
+          "southcentralus"
+        ]
+      }
+    },
+    "PolicyDefinitions": [
+      {
+        "policyDefinitionReferenceId": "Allowed Locations for Resource Groups",
+        "policyDefinitionName": "e765b5de-1225-4ba3-bd56-1ac6695af988",
+        "parameters": {
+          "listOfAllowedLocations": {
+            "value": "[parameters('AllowedLocations')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "Allowed Locations",
+        "policyDefinitionName": "e56962a6-4747-49cd-b67b-bf8b01975c4c",
+        "parameters": {
+          "listOfAllowedLocations": {
+            "value": "[parameters('AllowedLocations')]"
+          }
+        }
+      }
+    ]
+  }
+}

@@ -9,73 +9,33 @@
 [CmdletBinding()]
 param (
     [parameter(Position = 0)] [string] $initiativeSetSelector = "",
-    [Parameter()] [string] $outputPath = "$PSScriptRoot/../../Output/AzEffects/Initiatives/"
+    [Parameter()] [string] $outputPath = "$PSScriptRoot/../../Output/AzEffects/Initiatives/",
+    [Parameter(Mandatory = $false, HelpMessage = "Global settings filename.")]
+    [string]$GlobalSettingsFile = "./Definitions/global-settings.jsonc"
 )
 
 
 #region main
 
-. "$PSScriptRoot/../Helpers/Get-PolicyEffectDetails.ps1"
+. "$PSScriptRoot/../Helpers/Initialize-Environment.ps1"
+. "$PSScriptRoot/../Helpers/Get-AllAzPolicyInitiativeDefinitions.ps1"
 . "$PSScriptRoot/../Helpers/Get-AzInitiativeParameters.ps1"
-. "$PSScriptRoot/../Helpers/Get-ParmeterNameFromValueString.ps1"
 . "$PSScriptRoot/../Helpers/Get-AzPolicyEffectsForInitiative.ps1"
+. "$PSScriptRoot/../Helpers/Get-PolicyEffectDetails.ps1"
+. "$PSScriptRoot/../Helpers/Get-ParmeterNameFromValueString.ps1"
 . "$PSScriptRoot/../Utils/Invoke-AzCli.ps1"
 . "$PSScriptRoot/../Utils/ConvertTo-HashTable.ps1"
 
-[hashtable] $initiativeSetsToCompare = . "$PSScriptRoot/../Config/Get-InitiativesToCompare.ps1"
+# Get definitions
+$environment = Initialize-Environment -GlobalSettingsFile $GlobalSettingsFile -retrieveFirstEnvironment -retrieveCompareSet
+$rootScope = $environment.rootScope
+
+$collections = Get-AllAzPolicyInitiativeDefinitions -RootScope $rootScope -byId
+$allPolicyDefinitions = $collections.builtInPolicyDefinitions + $collections.existingCustomPolicyDefinitions
+$allInitiativeDefinitions = $collections.builtInInitiativeDefinitions + $collections.existingCustomInitiativeDefinitions
+
 $initiativeSet = $null
-if ($initiativeSetSelector -ne "") {
-    if ($initiativeSetsToCompare.ContainsKey($initiativeSetSelector)) {
-        # valid input
-        $initiativeSet = $initiativeSetsToCompare[$initiativeSetSelector]
-        Write-Information "==================================================================================================="
-        Write-Information "Initiative set selected"
-        Write-Information "==================================================================================================="
-    }
-    else {
-        Throw "Initiative set selection $initiativeSetSelector is not valid"
-    }
-}
-else {
-    $InformationPreference = "Continue"
-    Write-Information "==================================================================================================="
-    Write-Information "Select Initiative set"
-    Write-Information "==================================================================================================="
 
-    while ($null -eq $initiativeSet) {
-
-        $initiativeSetSelector = Read-Host "Enter initiative set selector $($initiativeSetsToCompare.Keys)"
-        if ($initiativeSetsToCompare.ContainsKey($initiativeSetSelector)) {
-            # valid input
-            $initiativeSet = $initiativeSetsToCompare[$initiativeSetSelector]
-        }
-    }
-}
-Write-Information "Set = $initiativeSetSelector"
-foreach ($initiativeId in $initiativeSet) {
-    Write-Information "    $initiativeId"
-}
-Write-Information ""
-
-
-Write-Information "==================================================================================================="
-Write-Information "Fetching existing Policy and Initiative definitions"
-Write-Information "==================================================================================================="
-
-$policyList = Invoke-AzCli policy definition list
-[hashtable] $allPolicyDefinitions = @{}
-foreach ($policy in $policyList) {
-    $null = $allPolicyDefinitions.Add($policy.id, $policy)
-}
-Write-Information "Policies: $($allPolicyDefinitions.Count)"
-$initiativeList = Invoke-AzCli policy set-definition list
-[hashtable] $allInitiativeDefinitions = @{}
-foreach ($initiative in $initiativeList) {
-    $null = $allInitiativeDefinitions.Add($initiative.id, $initiative)
-}
-Write-Information "Initiatives: $($allInitiativeDefinitions.Count)"
-
-Write-Information ""
 Write-Information "==================================================================================================="
 Write-Information "Processing"
 Write-Information "==================================================================================================="

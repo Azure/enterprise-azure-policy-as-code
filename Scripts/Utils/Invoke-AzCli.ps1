@@ -118,7 +118,7 @@ function Invoke-AzCli {
                                             break
                                         }
                                         "string" {
-                                            # default value, can be ommited
+                                            # default value, can be omitted
                                             $splatArguments += @("--$argName", (Get-EscapedString $Splat[$splatSelector]))
                                             break
                                         }

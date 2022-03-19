@@ -2,16 +2,20 @@
 
 [CmdletBinding()]
 param(
-    [parameter(Mandatory = $false, Position = 0)] [string] $environmentSelector = $null,
-    [Parameter(Mandatory = $false)] [string] $OutputFileName = ".Output\tags\all-tags.csv"
+    [parameter(Mandatory = $false, Position = 0)] [string] $PacEnvironmentSelector = "",
+    [Parameter(Mandatory = $false)] [string] $OutputFileName = ".Output\tags\all-tags.csv",
+    [string]$GlobalSettingsFile = "./Definitions/global-settings.jsonc"
 )
 
-. "$PSScriptRoot/../Config/Initialize-Environment.ps1"
-. "$PSScriptRoot/../Config/Get-AzEnvironmentDefinitions.ps1"
+. "$PSScriptRoot/../Helpers/Initialize-Environment.ps1"
 
 $InformationPreference = "Continue"
-$environment, $defaultSubscriptionId = Initialize-Environment $environmentSelector
+$environment = Initialize-Environment $PacEnvironmentSelector -GlobalSettingsFile $GlobalSettingsFile
 $targetTenant = $environment.targetTenant
+
+Write-Information "==================================================================================================="
+Write-Information "Processing"
+Write-Information "==================================================================================================="
 
 # Connect to Azure Tenant
 Connect-AzAccount -Tenant $targetTenant
@@ -81,4 +85,7 @@ foreach ($sub in $subs) {
 
 }
 
+if (-not (Test-Path $OutputFileName)) {
+    New-Item $OutputFileName -Force
+}
 $output | Export-Csv -Path $OutputFileName -NoTypeInformation

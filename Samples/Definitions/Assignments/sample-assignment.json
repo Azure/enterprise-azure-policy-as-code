@@ -1,0 +1,54 @@
+{
+    "nodeName": "/Location",
+    "metadata": {
+        "category": "Governance"
+    },
+    "definitionEntry": {
+        "initiativeName": "Allowed Locations",
+        "friendlyNameToDocumentIfGuid": ""
+    },
+    "children": [
+        {
+            "nodeName": "/Prod",
+            "assignment": {
+                "Name": "Prod Allowed Locations",
+                "displayName": "Prod Allowed Locations",
+                "description": "Sets the allowed locations for Prod"
+            },
+            "parameters": {
+                "AllowedLocations": [
+                    "centralus",
+                    "eastus",
+                    "eastus2",
+                    "southcentralus"
+                ]
+            },
+            "scope": {
+                "dev": [
+                    "/subscriptions/00000000-0000-0000-000000000000"
+                ],
+                "prod": [
+                    "/providers/Microsoft.Management/managementGroups/Contoso-Prod"
+                ]
+            }
+        },
+        {
+            "nodeName": "/NonProd",
+            "assignment": {
+                "Name": "NP Allowed Loc",
+                "displayName": "NonProd Allowed Locations",
+                "description": "Sets the allowed locations for NonProd"
+            },
+            "parameters": {
+                "AllowedLocations": [
+                    "eastus2"
+                ]
+            },
+            "scope": {
+                "prod": [
+                    "/providers/Microsoft.Management/managementGroups/Contoso-NonProd"
+                ]
+            }
+        }
+    ]
+}

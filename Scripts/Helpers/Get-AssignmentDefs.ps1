@@ -4,15 +4,15 @@ function Get-AssignmentDefs {
     # Recursive Function
     param(
         [parameter(Mandatory = $True, 
-            HelpMessage = "prefetechetd tree of scopes starting at root scope")]
+            HelpMessage = "Prefetechetd tree of scopes starting at root scope")]
         [hashtable] $scopeTreeInfo,
             
         [parameter(Mandatory = $True, 
-            HelpMessage = "selects the scope list for the environemt deployment")]
-        [string] $assignmentSelector,
+            HelpMessage = "Selects the scope list for the environemt deployment")]
+        [string] $pacEnvironmentSelector,
             
         [parameter(Mandatory = $True, 
-            HelpMessage = "current node containing a definition fragment")]
+            HelpMessage = "Current node containing a definition fragment")]
         [PSObject] $definitionNode,
             
         [parameter(Mandatory = $True, 
@@ -104,7 +104,7 @@ function Get-AssignmentDefs {
         Write-Debug "        additionalRoleAssignments at node   $($definitionNode.additionalRoleAssignments | ConvertTo-Json -Depth 100)"
         foreach ($possibleAdditionalRoleAssignment in $definitionNode.additionalRoleAssignments.psobject.Properties) {
             $selector = $possibleAdditionalRoleAssignment.Name
-            if ($selector -eq "*" -or $selector -eq $AssignmentSelector) {
+            if ($selector -eq "*" -or $selector -eq $pacEnvironmentSelector) {
                 if ($def.additionalRoleAssignments) {
                     $def.additionalRoleAssignments += $possibleAdditionalRoleAssignment.Value
                 }
@@ -119,7 +119,7 @@ function Get-AssignmentDefs {
         $managedIdentityLocation = $null
         foreach ($possibleManagedIdentityLocation in $definitionNode.managedIdentityLocation.psobject.Properties) {
             $selector = $possibleManagedIdentityLocation.Name
-            if ($selector -eq "*" -or $selector -eq $AssignmentSelector) {
+            if ($selector -eq "*" -or $selector -eq $pacEnvironmentSelector) {
                 $managedIdentityLocation = $possibleManagedIdentityLocation.Value
                 break
             }
@@ -146,7 +146,7 @@ function Get-AssignmentDefs {
             Write-Debug "         notScope defined at $($def.nodeName) = $($definitionNode.notScope | ConvertTo-Json -Depth 100)"
             foreach ($possibleNotScopeList in $definitionNode.notScope.psobject.Properties) {
                 $selector = $possibleNotScopeList.Name
-                if ($selector -eq "*" -or $selector -eq $AssignmentSelector) {
+                if ($selector -eq "*" -or $selector -eq $pacEnvironmentSelector) {
                     if ($def.notScope) {
                         $def.notScope += $possibleNotScopeList.Value
                     }
@@ -162,7 +162,7 @@ function Get-AssignmentDefs {
             $scopeList = $null
             foreach ($possibleScopeList in $definitionNode.scope.psobject.Properties) {
                 $selector = $possibleScopeList.Name
-                if ($selector -eq "*" -or $selector -eq $assignmentSelector) {
+                if ($selector -eq "*" -or $selector -eq $pacEnvironmentSelector) {
                     $scopeList = @() + $possibleScopeList.Value
                     break
                 }
@@ -196,7 +196,11 @@ function Get-AssignmentDefs {
         # Process child nodes
         Write-Debug " $($definitionNode.children.Count) children below at $($def.nodeName)"
         foreach ($child in $definitionNode.children) {
-            $defList += Get-AssignmentDefs -scopeTreeInfo $scopeTreeInfo -definitionNode $child -assignmentDef $def -assignmentSelector $assignmentSelector
+            $defList += Get-AssignmentDefs `
+                -scopeTreeInfo $scopeTreeInfo `
+                -definitionNode $child `
+                -assignmentDef $def `
+                -pacEnvironmentSelector $pacEnvironmentSelector
         }
     }
     else {

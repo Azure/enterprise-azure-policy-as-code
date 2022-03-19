@@ -1,0 +1,279 @@
+variables:
+  # This pipeline is used to deploy Policy definitions, Initiative definitions and Assignments into Azure.
+  planFolder: ./output/plans
+
+  # Environment names for usage with global-settings.jsonc
+  devPacEnvironmentSelector: "dev"
+  testPacEnvironmentSelector: "test"
+  prodPacEnvironmentSelector: "prod"
+
+  # rootScope definitions per environment
+  devPlanFile: "$(planFolder)/dev-plan.json"
+  devRolesPlan: "$(planFolder)/dev-roles.json"
+  testPlanFile: "$(planFolder)/test-plan.json"
+  testRolesPlan: "$(planFolder)/test-roles.json"
+  prodPlanFile: "$(planFolder)/prod-plan.json"
+  prodRolesPlan: "$(planFolder)/prod-roles.json"
+  prodPlanFileIn: "$(Pipeline.Workspace)/prod-plan/prod-plan.json"
+  prodRolesPlanIn: "$(Pipeline.Workspace)/roles-plan/prod-roles.json"
+
+  # Use the plain text name of each service connection as a reference
+  devServiceConnection: "sc-pac-dev"
+  testServiceConnection: "sc-pac-test"
+  planServiceConnection: "sc-pac-plan"
+  prodServiceConnection: "sc-pac-prod"
+  rolesServiceConnection: "sc-pac-roles"
+
+  # System.Debug: true
+
+# what to build trigger
+trigger:
+  #   # branch names are case sensititve
+  branches:
+    include:
+      - /*
+  paths:
+    include:
+      - Definitions/*
+      - Scripts/*
+      - Pipeline/*
+    exclude:
+      - Definitions/README.MD
+      - Docs/*
+      - Scripts/Test/*
+      - Scripts/Operations/*
+
+pr: none
+
+stages:
+  - stage: devAllStage
+    displayName: "DEV Plan, Deploy Policies, Roles"
+    condition: and(in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), not(contains(variables['Build.SourceBranch'], 'refs/heads/main')))
+    jobs:
+      - deployment: devAllJob
+        environment: PAC-DEV
+        displayName: "DEV Environment"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: AzureCLI@2
+                  name: planStep
+                  displayName: Plan
+                  inputs:
+                    azureSubscription: $(devServiceConnection)
+                    scriptType: pscore
+                    scriptLocation: scriptPath
+                    scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
+                    arguments:
+                      -PacEnvironmentSelector $(devPacEnvironmentSelector) `
+                      -SuppressDeletes `
+                      -PlanFile $(devPlanFile) `
+                      -InformationAction Continue
+                - task: AzurePowerShell@5
+                  displayName: Deploy Policy
+                  condition: and(succeeded(), eq(variables['planStep.deployPolicyChanges'], 'yes'))
+                  inputs:
+                    azureSubscription: $(devServiceConnection)
+                    ScriptPath: "Scripts/Deploy/Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1"
+                    ScriptArguments: "-PlanFile $(devPlanFile) -RolesPlanFile $(devRolesPlan) -InformationAction Continue"
+                    pwsh: true
+                    azurePowerShellVersion: LatestVersion
+                - task: AzureCLI@2
+                  displayName: Deploy Role Assignments
+                  condition: and(not(failed()), not(canceled()), eq(variables['planStep.deployRoleChanges'], 'yes'))
+                  inputs:
+                    azureSubscription: $(devServiceConnection)
+                    scriptType: pscore
+                    scriptLocation: scriptPath
+                    scriptPath: "Scripts/Deploy/Set-AzPolicyRolesFromPlan.ps1"
+                    arguments: -PlanFile $(devRolesPlan) `
+                      -InformationAction Continue
+  - stage: prodPlanFeatureStage
+    displayName: "PROD Plan(Feature Branch)"
+    dependsOn: devAllStage
+    condition: and(not(failed()), not(canceled()), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), not(contains(variables['Build.SourceBranch'], 'refs/heads/main')))
+    jobs:
+      - job: prodPlanFeatureJob
+        displayName: "PROD Environment(Feature Branch)"
+        steps:
+          - checkout: self
+          - task: AzureCLI@2
+            displayName: Plan
+            inputs:
+              azureSubscription: $(planServiceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
+              arguments: -PacEnvironmentSelector $(prodPacEnvironmentSelector) `
+                -SuppressDeletes `
+                -PlanFile $(prodPlanFile) `
+                -InformationAction Continue
+  - stage: testAllStage
+    displayName: "TEST Plan, Deploy Policies, Roles"
+    condition: and(in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - deployment: testAllJob
+        environment: PAC-QA
+        displayName: "TEST Environment"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: AzureCLI@2
+                  name: planStep
+                  displayName: Plan
+                  inputs:
+                    azureSubscription: $(testServiceConnection)
+                    scriptType: pscore
+                    scriptLocation: scriptPath
+                    scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
+                    arguments:
+                      -PacEnvironmentSelector $(testPacEnvironmentSelector) `
+                      -SuppressDeletes `
+                      -PlanFile $(testPlanFile) `
+                      -InformationAction Continue
+                - task: AzurePowerShell@5
+                  displayName: Deploy Policy
+                  condition: and(not(failed()), not(canceled()), eq(variables['planStep.deployPolicyChanges'], 'yes'))
+                  inputs:
+                    azureSubscription: $(testServiceConnection)
+                    ScriptPath: "Scripts/Deploy/Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1"
+                    ScriptArguments: "-PlanFile $(testPlanFile) -RolesPlanFile $(testRolesPlan) -InformationAction Continue"
+                    pwsh: true
+                    azurePowerShellVersion: LatestVersion
+                - task: AzureCLI@2
+                  displayName: Deploy Role Assignments
+                  condition: and(not(failed()), not(canceled()), eq(variables['planStep.deployRoleChanges'], 'yes'))
+                  inputs:
+                    azureSubscription: $(testServiceConnection)
+                    scriptType: pscore
+                    scriptLocation: scriptPath
+                    scriptPath: "Scripts/Deploy/Set-AzPolicyRolesFromPlan.ps1"
+                    arguments: -PlanFile $(testRolesPlan) `
+                      -InformationAction Continue
+  - stage: prodPlanMainStage
+    displayName: "PROD Plan(Main Branch)"
+    condition: and(not(failed()), not(canceled()), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - job: prodPlanMainJob
+        displayName: "PROD Environment(Main Branch)"
+        steps:
+          - checkout: self
+          - task: AzureCLI@2
+            name: planStep
+            displayName: Plan
+            inputs:
+              azureSubscription: $(planServiceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
+              arguments: -PacEnvironmentSelector $(prodPacEnvironmentSelector) `
+                -SuppressDeletes `
+                -PlanFile $(prodPlanFile) `
+                -InformationAction Continue
+          - publish: "$(prodPlanFile)"
+            artifact: "prod-plan"
+            condition: succeeded()
+  - stage: prodDeployStage
+    displayName: "PROD Deploy Policies"
+    dependsOn: prodPlanMainStage
+    condition: and(not(failed()), not(canceled()), eq(dependencies.prodPlanMainStage.outputs['prodPlanMainJob.planStep.deployPolicyChanges'], 'yes'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+    variables:
+      localDeployRoleChanges: $[stageDependencies.prodPlanMainStage.prodPlanMainJob.outputs['planStep.deployRoleChanges']]
+    jobs:
+      # - job: TestingJob
+      #   displayName: "CHANGES NEEDED"
+      #   variables:
+      #     jobDeployPolicy: $[stageDependencies.prodPlanMainStage.prodPlanMainJob.outputs['planStep.deployPolicyChanges']]
+      #   steps:
+      #     - checkout: self
+      #     - task: PowerShell@2
+      #       inputs:
+      #         targetType: "inline"
+      #         script: |
+      #           Write-Host "This would be a deployment"
+      - deployment: prodDeployJob
+        environment: PAC-PROD
+        displayName: "PROD Environment: Main Branch"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                # Artifact (plan) is downloaded automatically
+                - task: AzurePowerShell@5
+                  name: deployStep
+                  displayName: Deploy Policy
+                  inputs:
+                    azureSubscription: $(prodServiceConnection)
+                    ScriptPath: "Scripts/Deploy/Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1"
+                    ScriptArguments: "-PlanFile $(prodPlanFileIn) -RolesPlanFile $(prodRolesPlan) -InformationAction Continue"
+                    pwsh: true
+                    azurePowerShellVersion: LatestVersion
+                - publish: "$(prodRolesPlan)"
+                  artifact: "roles-plan"
+                  condition: succeeded()
+  - stage: prodNoChangesStage
+    displayName: "PROD NO POLICY CHANGES"
+    dependsOn: prodPlanMainStage
+    condition: and(not(failed()), not(canceled()), eq(dependencies.prodPlanMainStage.outputs['prodPlanMainJob.planStep.deployPolicyChanges'], 'no'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+    variables:
+      stageDeployPolicy: $[stageDependencies.prodPlanMainStage.prodPlanMainJob.outputs['planStep.deployPolicyChanges']]
+    jobs:
+      - job: prodNoChangesJob
+        displayName: "PROD no Policy changes"
+        variables:
+          jobDeployPolicy: $[stageDependencies.prodPlanMainStage.prodPlanMainJob.outputs['planStep.deployPolicyChanges']]
+        steps:
+          - checkout: self
+          - task: PowerShell@2
+            inputs:
+              targetType: "inline"
+              script: |
+                Write-Host "No Policy changes needed"
+  - stage: prodRolesStage
+    displayName: "PROD Deploy Policies"
+    dependsOn: prodDeployStage
+    condition: and(not(failed()), not(canceled()), eq(dependencies.prodPlanMainStage.outputs['prodPlanMainJob.planStep.deployRoleChanges'], 'yes'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - deployment: prodDeployJob
+        environment: PAC-ROLES
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                # Artifact (plan) is downloaded automatically
+                - task: AzureCLI@2
+                  displayName: Set PROD Role Assignments
+                  inputs:
+                    azureSubscription: $(rolesServiceConnection)
+                    scriptType: pscore
+                    scriptLocation: scriptPath
+                    scriptPath: "Scripts/Deploy/Set-AzPolicyRolesFromPlan.ps1"
+                    arguments: -PlanFile $(rolesPlanFileIn) `
+                      -InformationAction Continue
+                  condition: succeeded()
+  - stage: rolesNoChangesStage
+    displayName: "PROD NO ROLE CHANGES"
+    dependsOn:
+      - prodRolesStage
+      - prodNoChangesStage
+    condition: and(not(failed()), not(canceled()), eq(dependencies.prodPlanMainStage.outputs['prodPlanMainJob.planStep.deployRoleChanges'], 'no'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+    variables:
+      stageDeployPolicy: $[stageDependencies.prodPlanMainStage.prodPlanMainJob.outputs['planStep.deployRoleChanges']]
+    jobs:
+      - job: roleNoChangesJob
+        displayName: "PROD no Role changes"
+        variables:
+          jobDeployPolicy: $[stageDependencies.prodPlanMainStage.prodPlanMainJob.outputs['planStep.deployRoleChanges']]
+        steps:
+          - checkout: self
+          - task: PowerShell@2
+            inputs:
+              targetType: "inline"
+              script: |
+                Write-Host "No Role changes needed"

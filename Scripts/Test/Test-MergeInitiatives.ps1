@@ -7,4 +7,5 @@ param (
 
 . "$PSScriptRoot/../Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1" `
     -InformationAction Continue `
-    -PacEnvironmentSelector  $PacEnvironmentSelector 
+    -PacEnvironmentSelector  $PacEnvironmentSelector `
+    -TestInitiativeMerge

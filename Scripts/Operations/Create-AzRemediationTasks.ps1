@@ -2,59 +2,38 @@
 
 [CmdletBinding()]
 param(
-    [switch] $suppressCollectionInformation,
-    [switch] $suppressCreateInformation,
-    [parameter(Mandatory = $false, Position = 0)] [string] $environmentSelector = $null
+    [parameter(Mandatory = $false, Position = 0)] [string] $PacEnvironmentSelector = "",
+    [Parameter(Mandatory = $false, HelpMessage = "Global settings filename.")]
+    [string]$GlobalSettingsFile = "./Definitions/global-settings.jsonc"
 )
 
-. "$PSScriptRoot/../Helpers/Get-GlobalSettings.ps1"
-. "$PSScriptRoot/../Helpers/Get-AzScopeTree.ps1"
+. "$PSScriptRoot/../Helpers/Initialize-Environment.ps1"
 . "$PSScriptRoot/../Helpers/Get-AllAzPolicyInitiativeDefinitions.ps1"
 . "$PSScriptRoot/../Helpers/Get-AzAssignmentsAtScopeRecursive.ps1"
-. "$PSScriptRoot/../Utils/Invoke-AzCli.ps1"
+. "$PSScriptRoot/../Helpers/Get-AzScopeTree.ps1"
 . "$PSScriptRoot/../Utils/ConvertTo-HashTable.ps1"
+. "$PSScriptRoot/../Utils/Invoke-AzCli.ps1"
 . "$PSScriptRoot/../Utils/Split-AzPolicyAssignmentIdForAzCli.ps1"
-. "$PSScriptRoot/../Config/Initialize-Environment.ps1"
-. "$PSScriptRoot/../Config/Get-AzEnvironmentDefinitions.ps1"
 
-$InformationPreference = "Continue"
-if ($null -eq $environmentSelector) {
-    $InformationPreference = "Continue"
-}
-elseif ($suppressCollectionInformation.IsPresent) {
-    $InformationPreference = "SilentContinue"
-}
+$environment = Initialize-Environment $PacEnvironmentSelector -GlobalSettingsFile $GlobalSettingsFile
+$rootScope = $environment.rootScope
 
-$environment, $defaultSubscriptionId = Initialize-Environment $environmentSelector
-
-if ($suppressCollectionInformation.IsPresent) {
-    $InformationPreference = "SilentContinue"
-}
-
-$globalSettingsFile = "$PSScriptRoot/../../Definitions/global-settings.jsonc"
-$globalNotScopeList, $managedIdentityLocation = Get-GlobalSettings -AssignmentSelector $environment["assignmentSelector"] -GlobalSettingsFile $globalSettingsFile
-
-$scopeTreeInfo = Get-AzScopeTree -tenantId $environment["tenantID"] -scopeParam $environment["scopeParam"] -defaultSubscriptionId $defaultSubscriptionId
-
-$collections = Get-AllAzPolicyInitiativeDefinitions -RootScope $environment["rootScope"]
+$collections = Get-AllAzPolicyInitiativeDefinitions -RootScope $rootScope
 $allPolicyDefinitions = $collections.builtInPolicyDefinitions + $collections.existingCustomPolicyDefinitions
 $allInitiativeDefinitions = $collections.builtInInitiativeDefinitions + $collections.existingCustomInitiativeDefinitions
 
+$scopeTreeInfo = Get-AzScopeTree `
+    -tenantId $environment.tenantId `
+    -scopeParam $rootScope `
+    -defaultSubscriptionId $environment.defaultSubscriptionId
 $null, $remediations = Get-AzAssignmentsAtScopeRecursive `
     -scopeTreeInfo $scopeTreeInfo `
-    -notScopeIn $globalNotScopeList `
+    -notScopeIn $environment.globalNotScopeList `
     -includeResourceGroups $false `
     -getAssignments $false `
     -getRemediations $true `
     -allPolicyDefinitions $allPolicyDefinitions `
     -allInitiativeDefinitions $allInitiativeDefinitions
-
-if ($suppressCreateInformation.IsPresent) {
-    $InformationPreference = "SilentContinue"
-}
-else {
-    $InformationPreference = "Continue"
-}
 
 if ($remediations.Count -lt 1) {
     Write-Information "==================================================================================================="

@@ -6,8 +6,11 @@
 # representative Policy Assignments and out puts the result as a CSV file
 [CmdletBinding()]
 param (
+    [parameter(Mandatory = $false, Position = 0)] [string] $PacEnvironmentSelector = "",
     [Parameter()] [string] $outputPath = "$PSScriptRoot/../../Output/AzEffects/Environments/",
-    [Parameter()] [ValidateSet("pipeline", "csv", "json")] [string] $outputType = "csv"
+    [Parameter()] [ValidateSet("pipeline", "csv", "json")] [string] $outputType = "csv",
+    [Parameter(Mandatory = $false, HelpMessage = "Global settings filename.")]
+    [string]$GlobalSettingsFile = "./Definitions/global-settings.jsonc"
 )
 
 function Get-EffectiveAzPolicyEffectsList {
@@ -115,18 +118,21 @@ function Get-EffectiveAzPolicyEffectsList {
     return $effectiveEffectList
 }
 
+. "$PSScriptRoot/../Helpers/Initialize-Environment.ps1"
 . "$PSScriptRoot/../Helpers/Get-AllAzPolicyInitiativeDefinitions.ps1"
-. "$PSScriptRoot/../Helpers/Get-PolicyEffectDetails.ps1"
 . "$PSScriptRoot/../Helpers/Get-AzInitiativeParameters.ps1"
-. "$PSScriptRoot/../Helpers/Get-ParmeterNameFromValueString.ps1"
 . "$PSScriptRoot/../Helpers/Get-AzPolicyEffectsForInitiative.ps1"
+. "$PSScriptRoot/../Helpers/Get-ParmeterNameFromValueString.ps1"
+. "$PSScriptRoot/../Helpers/Get-PolicyEffectDetails.ps1"
 . "$PSScriptRoot/../Utils/Invoke-AzCli.ps1"
 . "$PSScriptRoot/../Utils/Split-AzPolicyAssignmentIdForAzCli.ps1"
 . "$PSScriptRoot/../Utils/ConvertTo-HashTable.ps1"
 
 
 # Get definitions
-$envTagList, $repAssignments, $rootScope = . "$PSScriptRoot/../Config/Get-RepresentativeAssignments.ps1"
+$environment = Initialize-Environment $GlobalSettingsFile -retrieveRepresentativeInitiatives
+$rootScope = $environment.rootScope
+
 $collections = Get-AllAzPolicyInitiativeDefinitions -RootScope $rootScope -byId
 $allPolicyDefinitions = $collections.builtInPolicyDefinitions + $collections.existingCustomPolicyDefinitions
 $allInitiativeDefinitions = $collections.builtInInitiativeDefinitions + $collections.existingCustomInitiativeDefinitions
@@ -153,20 +159,24 @@ Write-Information "=============================================================
 Write-Information "Processing"
 Write-Information "==================================================================================================="
 
-foreach ($envTag in $envTagList) {
-    $assignmentIds = $repAssignments.$envTag
-    Write-Information "Processing environment $envTag"
+foreach ($rep in $environment.representativeAssignments) {
+    $environmentType = $rep.environmentType
+    $assignmentIds = $rep.policyAssignments
+    Write-Information "Processing environment $environmentType"
     foreach ($assignmentId in $assignmentIds) {
         # Flat List of entries (each a hashtable of information)
         Write-Information "   Assignment $assignmentId"
-        $list = Get-EffectiveAzPolicyEffectsList -AssignmentId $assignmentId -PolicyDefinitions $allPolicyDefinitions -InitiativeDefinitions $allInitiativeDefinitions
+        $list = Get-EffectiveAzPolicyEffectsList `
+            -AssignmentId $assignmentId `
+            -PolicyDefinitions $allPolicyDefinitions `
+            -InitiativeDefinitions $allInitiativeDefinitions
         foreach ($item in $list) {
             $policyId = $item.policyId
             if ($data.ContainsKey($policyId)) {
                 [hashtable] $policyEntry = $data.$policyId
-                if ($policyEntry.ContainsKey($envTag)) {
+                if ($policyEntry.ContainsKey($environmentType)) {
                     # Previously processed this envTag for this policyId -> reconcile Effect parameter
-                    $oldEffectiveParameter = $policyEntry.$envTag
+                    $oldEffectiveParameter = $policyEntry.$environmentType
                     $oldEffect = $oldEffectiveParameter.paramValue.ToLower()
                     $oldEffectRank = -1 # should not be possible
                     if ($rankedEffects.ContainsKey($oldEffect)) {
@@ -178,17 +188,17 @@ foreach ($envTag in $envTagList) {
                         $newEffectRank = $rankedEffects.$newEffect
                     }
                     if ($newEffectRank -gt $oldEffectRank) {
-                        $policyEntry[$envTag] = $item
+                        $policyEntry[$environmentType] = $item
                     }
                 }
                 else {
                     # First time we are processing this envTag for this policyId
-                    $policyEntry.Add($envTag, $item)
+                    $policyEntry.Add($environmentType, $item)
                 }
             }
             else {
                 # First time we are processing this policyId
-                $data.Add($policyId, @{ $envTag = $item })
+                $data.Add($policyId, @{ $environmentType = $item })
             }
         }
     }
@@ -213,15 +223,16 @@ foreach ($policyId in $data.Keys) {
         Category    = $category
     }
 
-    foreach ($envTag in $envTagList) {
-        if ($dataEntry.ContainsKey($envTag)) {
-            $entry = $dataEntry.$envTag
+    foreach ($rep in $environment.representativeAssignments) {
+        $environmentType = $rep.environmentType
+        if ($dataEntry.ContainsKey($environmentType)) {
+            $entry = $dataEntry.$environmentType
             $paramValue = $entry.paramValue
-            $flat.Add($envTag, $paramValue)
+            $flat.Add($environmentType, $paramValue)
         }
         else {
             # Ensures uniform columns
-            $flat.Add($envTag, "na")
+            $flat.Add($environmentType, "na")
         }
     }
 
@@ -258,8 +269,9 @@ foreach ($policyId in $data.Keys) {
 }
 
 $columns = @( "Category", "Policy", "Description" )
-foreach ($envTag in $envTagList) {
-    $columns += $envTag
+foreach ($rep in $environment.representativeAssignments) {
+    $environmentType = $rep.environmentType
+    $columns += $environmentType
 }
 $columns += @( "DefinitionType", "DefaultValue", "AllowedValues", "PolicyId", "InitiativeDisplayName", "PolicyDefinitionReferenceId", "InitiativeParameterName" )
 
