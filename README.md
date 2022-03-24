@@ -14,6 +14,22 @@ ASM improves your new or existing security posture in Azure by securing platform
 
 This solution uses the desired state strategy. It will remove any custom Policies, Initiatives or Policy Assignments not duplicated in the definition files. The `Build-AzPoliciesInitiativesAssignmentsPlan.ps1` script's switch parameter `SuppressDeletes` changes this behavior. Use a "brownfield" pipeline to pass this parameter preventing deletions of existing Policies, Initiatives and Policy Assignments while transitioning to Enterprise Policy as Code.
 
+## Reading List
+
+1. **[Pipeline](Pipeline/README.md)**
+
+1. **[Update Global Settings](Definitions/README.md)**
+
+1. **[Create Policy Definitions](Definitions/Policies/README.md)**
+
+1. **[Create Initiative Definitions](Definitions/Initiatives/README.md)**
+
+1. **[Define Policy Assignments](Definitions/Assignments/README.md)**
+
+1. **[Scripts](Scripts/README.md)**
+
+<br/>[Back to top](#policy-as-code)<br/>
+
 ## Starter Kit
 
 Folder `StarterKit` contains pipelines and definitions. Copy them as starters to your `Pipelines` and `Definitions` folders. This separation will facilitate updates from the GitHub repo to your fork or local clone. Your modified files should be in `Definitions` or `Pipeline` folder. These folders in the original repo contain only a README.md file; therefore your pipeline and definition files are never overwritten when copying the latest updates.
@@ -44,6 +60,8 @@ Pipelines can customized to fit your needs:
 - More sophisticated flows.
 - Different development approach instead of GitHub flow.
 - ...
+
+<br/>[Back to top](#policy-as-code)<br/>
 
 ## Components
 

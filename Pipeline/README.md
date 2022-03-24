@@ -4,37 +4,6 @@ This article of the Policy as Code documentation contains all of the necessary i
 
 This repository contains starter pipeline definitions for Azure DevOps. **The authors are interested in supporting other deployment pipelines. If you have developed pipelines for other technologies, such as GitHub, Jenkins, ...**
 
-## Starter Kit
-
-Folder `StarterKit` contains pipelines and definitions. Copy them as starters to your `Pipelines` and `Definitions` folders. This separation will facilitate updates from the GitHub repo to your fork or local clone. Your modified file should be in `Definitions` or `Pipeline` folder. These folders contain only a README.md file; therefore your pipeline definition files are never overwritten.
-
-### Azure DevOps Starter Pipelines
-
-- Single tenant pipelines
-  - Without Role Assignments separated into an additional stage
-    - Regular: `pipeline-simple.yml`
-    - Brownfield (SuppressDeletes): `brownfield-pipeline-simple.yml`
-  - With Role Assignments separated to facilitate a second approval gate
-    - Regular `pipeline-separate-roles.yml`
-    - Brownfield (SuppressDeletes): `brownfield-pipeline-simple.yml`
-- Multi tenant pipelines
-  - Not yet implemented.
-
-### GitHub Starter Pipelnes
-
-Not yet implemented.
-
-## Customizing your Pipeline
-
-Pipelines can customized to fit your needs:
-
-- Multiple tenants.
-- Pull Request triggers (omitted due to the excessive time consumption).
-- Simplified flows, such as now approvals needed (not a recommended practice).
-- More sophisticated flows.
-- Different development approach instead of GitHub flow.
-- ...
-
 <br/>[Back to top](#pipeline)<br/>
 
 ## Components
