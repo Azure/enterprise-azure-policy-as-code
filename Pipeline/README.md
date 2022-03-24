@@ -48,7 +48,7 @@ The components required for **configuring the pipeline and deploying policies, i
 
 The diagram below shows the use of GitHub Flow in Policy as Code. Builds are triggered for Commits, optionally for Pull Requests and for successful main branch merges.
 
-![image.png](../Docs/Images/Pac-GitHub-Flow.PNG)
+![image.png](../Docs/Images/Pac-GitHub-Flow.png)
 
 <br/>[Back to top](#pipeline)<br/>
 
@@ -104,7 +104,7 @@ Create service connections for each of your environments and require minimum rol
 
 <br/>
 
-![image.png](../Docs/Images/PaC-Deploy-Scripts.PNG)
+![image.png](../Docs/Images/PaC-Deploy-Scripts.png)
 
 <br/>[Back to top](#pipeline)<br/>
 
@@ -152,26 +152,26 @@ Creates the role assignments for the Managed Identies required for `DeplyIfNotEx
 
 Upon `commit to a feature branch or a manual pipeline run`, the pipeline runs stage devAllStage to deploy Policies, Initiatives and Assignments to the PAC DEV environment. Second, it calculates the plan for PROD environment deployment based on the Feature branch. This plan is never executed. Instead the logs and if desired the artifact generated are used by the developer to verify the definition files and to determine if the code is ready for a Pull Request. The PR approver(s) will use the same input plus the source code changes to decide the PR approval or rejection.
 
-![image.png](../Docs/Images/Commit.PNG)
+![image.png](../Docs/Images/Commit.png)
 
 <br/>
 
 After the `pull request is approved and merged`, the pipeline runs stage devAllStage to deploy Policies, Initiatives and Assignments to the PAC TEST environment. Second, it calculates the plan for PROD environment deployment based on the merged Main branch. This plan is executed in one or two stages. The pipeline stops for PROD gate(s) approval at this time. The logs and if desired the artifacts generated are used by the PROD gate(s) approver(s) to decide on the PROD stage approval(s) or rejection(s).
 
-![image.png](../Docs/Images/ApprovalGate.PNG)
-![image.png](../Docs/Images/PreApprovalGate.PNG)
+![image.png](../Docs/Images/ApprovalGate.png)
+![image.png](../Docs/Images/PreApprovalGate.png)
 
 <br/>
 
 Once the `approval gate is passed` deployments to prod will begin. Depending on the configuration a second approval before role assignments will be configured.
 
-![image.png](../Docs/Images/FinalDeployment.PNG)
+![image.png](../Docs/Images/FinalDeployment.png)
 
 <br/>
 
 If there are no changes, empty stage(s) are executed to explicitly show that no changes are needed. These stages do not need service connections or approvals.
 
-![image.png](../Docs/Images/ProdNoChanges.PNG)
+![image.png](../Docs/Images/ProdNoChanges.png)
 
 <br/>[Back to top](#pipeline)<br/>
 
