@@ -46,7 +46,7 @@ Folder `StarterKit` contains pipelines and definitions. Copy them as starters to
 - Multi tenant pipelines
   - Not yet implemented.
 
-### GitHub Starter Pipelnes
+### GitHub Starter Pipelines
 
 Not yet implemented.
 
