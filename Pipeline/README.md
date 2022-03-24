@@ -2,11 +2,13 @@
 
 This article of the Policy as Code documentation contains all of the necessary information to configure, run and operate the deployment pipeline properly.
 
-This repository contains pipeline definitions for Azure DevOps. **The authors are interested in supporting other deployment pipelines. If you have developed pipelines for other technologies, such as GitHub, Jenkins, ...**
+This repository contains starter pipeline definitions for Azure DevOps. **The authors are interested in supporting other deployment pipelines. If you have developed pipelines for other technologies, such as GitHub, Jenkins, ...**
 
-## Sample Pipelines
+## Starter Kit
 
-Folder `Samples` contains pipelines pipelines and definitions. Copy them as starters to your `Definitions` and `Pipeline` folders.
+Folder `StarterKit` contains pipelines and definitions. Copy them as starters to your `Pipelines` and `Definitions` folders. This separation will facilitate updates from the GitHub repo to your fork or local clone. Your modified file should be in `Definitions` or `Pipeline` folder. These folders contain only a README.md file; therefore your pipeline definition files are never overwritten.
+
+### Azure DevOps Starter Pipelines
 
 - Single tenant pipelines
   - Without Role Assignments separated into an additional stage
@@ -16,7 +18,11 @@ Folder `Samples` contains pipelines pipelines and definitions. Copy them as star
     - Regular `pipeline-separate-roles.yml`
     - Brownfield (SuppressDeletes): `brownfield-pipeline-simple.yml`
 - Multi tenant pipelines
-  - Not yet implemented
+  - Not yet implemented.
+
+### GitHub Starter Pipelnes
+
+Not yet implemented.
 
 ## Customizing your Pipeline
 
