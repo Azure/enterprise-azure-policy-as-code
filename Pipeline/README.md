@@ -48,7 +48,7 @@ The components required for **configuring the pipeline and deploying policies, i
 
 The diagram below shows the use of GitHub Flow in Policy as Code. Builds are triggered for Commits, optionally for Pull Requests and for successful main branch merges.
 
-![image.png](../Docs/Images/Pac-GitHub-Flow.png)
+![image.png](../Docs/Images/PaC-GitHub-Flow.png)
 
 <br/>[Back to top](#pipeline)<br/>
 
