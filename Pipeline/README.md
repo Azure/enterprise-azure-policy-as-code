@@ -2,32 +2,7 @@
 
 This article of the Policy as Code documentation contains all of the necessary information to configure, run and operate the deployment pipeline properly.
 
-This repository contains pipeline definitions for Azure DevOps. **The authors are interested in supporting other deployment pipelines. If you have developed pipelines for other technologies, such as GitHub, Jenkins, ...**
-
-## Sample Pipelines
-
-Folder `Samples` contains pipelines pipelines and definitions. Copy them as starters to your `Definitions` and `Pipeline` folders.
-
-- Single tenant pipelines
-  - Without Role Assignments separated into an additional stage
-    - Regular: `pipeline-simple.yml`
-    - Brownfield (SuppressDeletes): `brownfield-pipeline-simple.yml`
-  - With Role Assignments separated to facilitate a second approval gate
-    - Regular `pipeline-separate-roles.yml`
-    - Brownfield (SuppressDeletes): `brownfield-pipeline-simple.yml`
-- Multi tenant pipelines
-  - Not yet implemented
-
-## Customizing your Pipeline
-
-Pipelines can customized to fit your needs:
-
-- Multiple tenants.
-- Pull Request triggers (omitted due to the excessive time consumption).
-- Simplified flows, such as now approvals needed (not a recommended practice).
-- More sophisticated flows.
-- Different development approach instead of GitHub flow.
-- ...
+This repository contains starter pipeline definitions for Azure DevOps. **The authors are interested in supporting other deployment pipelines. If you have developed pipelines for other technologies, such as GitHub, Jenkins, ...**
 
 <br/>[Back to top](#pipeline)<br/>
 

@@ -2,6 +2,8 @@
 
 This repository contains a mature solution to manage and deploy Azure Policy at enterprise scale.
 
+**Note:** Don Koning has published great guidance on naming conventions and other recommendations [here](https://github.com/DonKoning/DonKoning/blob/main/AzurePolicy/Governance/Azure%20Policy%20Governance.docx)
+
 ## Azure Security Modernization
 
 This repo has been developed in partnership with the Azure Security Modernization (ASM) offering within Microsoft's Industry Solutions (Consulting Services)
@@ -12,12 +14,61 @@ ASM improves your new or existing security posture in Azure by securing platform
 
 This solution uses the desired state strategy. It will remove any custom Policies, Initiatives or Policy Assignments not duplicated in the definition files. The `Build-AzPoliciesInitiativesAssignmentsPlan.ps1` script's switch parameter `SuppressDeletes` changes this behavior. Use a "brownfield" pipeline to pass this parameter preventing deletions of existing Policies, Initiatives and Policy Assignments while transitioning to Enterprise Policy as Code.
 
+## Reading List
+
+1. **[Pipeline](Pipeline/README.md)**
+
+1. **[Update Global Settings](Definitions/README.md)**
+
+1. **[Create Policy Definitions](Definitions/Policies/README.md)**
+
+1. **[Create Initiative Definitions](Definitions/Initiatives/README.md)**
+
+1. **[Define Policy Assignments](Definitions/Assignments/README.md)**
+
+1. **[Scripts](Scripts/README.md)**
+
+<br/>[Back to top](#policy-as-code)<br/>
+
+## Starter Kit
+
+Folder `StarterKit` contains pipelines and definitions. Copy them as starters to your `Pipelines` and `Definitions` folders. This separation will facilitate updates from the GitHub repo to your fork or local clone. Your modified files should be in `Definitions` or `Pipeline` folder. These folders in the original repo contain only a README.md file; therefore your pipeline and definition files are never overwritten when copying the latest updates.
+
+### Azure DevOps Starter Pipelines
+
+- Single tenant pipelines
+  - Without Role Assignments separated into an additional stage
+    - Regular: `pipeline-simple.yml`
+    - Brownfield (SuppressDeletes): `brownfield-pipeline-simple.yml`
+  - With Role Assignments separated to facilitate a second approval gate
+    - Regular `pipeline-separate-roles.yml`
+    - Brownfield (SuppressDeletes): `brownfield-pipeline-simple.yml`
+- Multi tenant pipelines
+  - Not yet implemented.
+
+### GitHub Starter Pipelines
+
+Not yet implemented.
+
+### Customizing your Pipeline
+
+Pipelines can customized to fit your needs:
+
+- Multiple tenants.
+- Pull Request triggers (omitted due to the excessive time consumption).
+- Simplified flows, such as now approvals needed (not a recommended practice).
+- More sophisticated flows.
+- Different development approach instead of GitHub flow.
+- ...
+
+<br/>[Back to top](#policy-as-code)<br/>
+
 ## Components
 
 | Component | What is it used for? | Where can it be found? |
 |--|--|--|
-| **Pipeline File** | Configure the deployment pipeline for Azure DevOps. **Copy a suitable sample pipeline from the samples provided to the working folder.** | Working folder `Pipeline` <br/> Samples in folder `Samples/Pipeline` |
-| **Definition Files** | Define custom policies, initiatives and assignments. This repo contains a sample for each. **Copy suitable samples as starters from the samples provided to the working folder.** | Working folder `Definitions` <br/> Samples in folder `Samples/Definitions` |
+| **Pipeline File** | Configure the deployment pipeline for Azure DevOps. **Copy a suitable sample pipeline from the samples provided to the working folder.** | Working folder: `Pipeline` <br/> Starter pipelines: <br/> `StarterKit/Pipelines` |
+| **Definition Files** | Define custom policies, initiatives and assignments. This repo contains a sample for each. **Copy suitable samples as starters from the samples provided to the working folder.** | Working folder: <br/> `Definitions` <br/> Starter definitions: <br/>  `StarterKit/Definitions` |
 | **Service Connections** | Service connections give the pipeline the proper permissions to deploy at desired Azure scopes. [Documentation for Service Connections](https://docs.microsoft.com/en-us/azure/devops/pipelines/library/service-endpoints) | Azure DevOps <br/> project settings  |
 | **Deployment Scripts** | Scripts are used to deploy your Policies, Initiatives, and Assignments to Azure. They do not need to be modified. If you have improvements, please offer to contribute them. | Folder `Scripts/Deploy` |
 | **Operational Scripts** | Scripts used to during operations (e.g., creating remediation tasks). | Folder `Scripts/Operations` |
@@ -43,7 +94,7 @@ The Policy as Code framework supports the following Policy and Initiative assign
 
 This solution requires environments for DEV, optional DEVINT, TEST and one PROD per tenant. These environments are not the same as the standard Azure environments for solutions - do not confuse them. The regular Sandbox, DEV, DEVINT, TEST/QA and PROD environment are managed with the PaC PROD environment(s).
 
-The scripts have a parameter `PacEnvironmentSelector` to select the PaC environment. This string must match the selectors in `global-settings.jsonc` and the Policy Assignment files to select the scopes and notScopes. The scripts accept the parameter directly. if the parameter is missing, the scripts prompt for it interactively.
+The scripts have a parameter `PacEnvironmentSelector` to select the PaC environment. This string must match the selectors in `global-settings.jsonc` and the Policy Assignment files to select the scopes and notScopes. The scripts accept the parameter directly. If the parameter is missing, the scripts prompt for it interactively.
 
  <br/>[Back to top](#policy-assignments)<br/>
 
