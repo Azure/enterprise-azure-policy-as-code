@@ -86,7 +86,7 @@ stages:
                     scriptType: pscore
                     scriptLocation: scriptPath
                     scriptPath: "Scripts/Deploy/Set-AzPolicyRolesFromPlan.ps1"
-                    arguments: -PlanFile $(devRolesPlan) `
+                    arguments: -RolesPlanFile $(devRolesPlan) `
                       -InformationAction Continue
   - stage: prodPlanFeatureStage
     displayName: "PROD Plan(Feature Branch)"
@@ -148,7 +148,7 @@ stages:
                     scriptType: pscore
                     scriptLocation: scriptPath
                     scriptPath: "Scripts/Deploy/Set-AzPolicyRolesFromPlan.ps1"
-                    arguments: -PlanFile $(testRolesPlan) `
+                    arguments: -RolesPlanFile $(testRolesPlan) `
                       -InformationAction Continue
   - stage: prodPlanMainStage
     displayName: "PROD Plan(Main Branch)"
@@ -219,7 +219,7 @@ stages:
                     scriptType: pscore
                     scriptLocation: scriptPath
                     scriptPath: "Scripts/Deploy/Set-AzPolicyRolesFromPlan.ps1"
-                    arguments: -PlanFile $(prodRolesPlan) `
+                    arguments: -RolesPlanFile $(prodRolesPlan) `
                       -InformationAction Continue
   - stage: prodNoChangesStage
     displayName: "PROD NO CHANGES"

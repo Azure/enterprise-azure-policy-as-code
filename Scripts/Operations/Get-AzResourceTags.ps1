@@ -2,15 +2,15 @@
 
 [CmdletBinding()]
 param(
-    [parameter(Mandatory = $false, Position = 0)] [string] $PacEnvironmentSelector = "",
+    [parameter(Mandatory = $false, Position = 0)] [string] $PacEnvironmentSelector,
     [Parameter(Mandatory = $false, ValueFromPipeline = $true)] [string] $OutputFileName = ".\all-tags.csv",
-    [string]$GlobalSettingsFile = "./Definitions/global-settings.jsonc"
+    [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable PacDefinitionsRootFolder or './Definitions'.")] [string]$DefinitionsRootFolder
 )
 
 . "$PSScriptRoot/../Helpers/Initialize-Environment.ps1"
 
 $InformationPreference = "Continue"
-$environment = Initialize-Environment $PacEnvironmentSelector -GlobalSettingsFile $GlobalSettingsFile
+$environment = Initialize-Environment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder
 $targetTenant = $environment.targetTenant
 
 # Connect to Azure Tenant

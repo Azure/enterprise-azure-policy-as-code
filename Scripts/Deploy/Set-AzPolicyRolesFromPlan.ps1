@@ -12,9 +12,7 @@
 
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory = $false,
-        HelpMessage = "Plan input filename.")]
-    [string]$PlanFile = "./Plans/roles.json"
+    [Parameter(Mandatory = $true, HelpMessage = "Plan input filename.")] [string] $RolesPlanFile
 )
 
 Write-Information "==================================================================================================="
@@ -29,7 +27,8 @@ Write-Information ""
 
 Invoke-AzCli config set extension.use_dynamic_install=yes_without_prompt -SuppressOutput
 
-$plan = Get-DeploymentPlan -PlanFile $PlanFile
+$InformationPreference = "Continue"
+$plan = Get-DeploymentPlan -PlanFile $RolesPlanFile
 
 $removedRoleAssignments = $plan.removed | ConvertTo-HashTable
 $addedRoleAssignments = $plan.added | ConvertTo-HashTable

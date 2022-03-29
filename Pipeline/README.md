@@ -94,10 +94,7 @@ In addition to the [common parameters](#common-parmeters-for-flexible-and-unifie
 | `PacEnvironmentSelector` | Required | Selects the tenant, rootScope, defaultsubscription, assignment scopes and file names. If omitted, interactively prompts for the value. |
 | `IncludeResource GroupsForAssignments` | Optional | Resource Group level assignments are not recommended; therefore, the script excludes Resource Groups from processing to save substantial execution time (tens of minutes to hours). This switch parameter overrides that default behavior. |
 | `SuppressDeletes` | Optional | When using this switch, the script will NOT delete extraneous Policy definitions, Initiative definitions and Assignments. This can be useful for brown field deployments. |
-| `GlobalSettingsFile` | Optional | Global settings file path. Default: `./Definitions/global-settings.jsonc`. |
-| `PolicyDefinitions` <br/> `RootFolder`| Optional | Root folder for Policy Definitions. Default: `./Definitions/Policies`. |
-| `InitiativeDefinitions` <br/> `RootFolder` | Optional | Root folder for Initiative Definitions. Default: `./Definitions/Initiatives`. |
-| `AssignmentsRootFolder` | Optional | Root folder for Assignment Files. Default: `./Definitions/Assignments`. |
+| `DefinitionsRootFolder` | Optional | Definitions folder path. Defaults to environment variable PacDefinitionsRootFolder or './Definitions'. It contains `global-settings.jsonc` and folders `Policies`, `Initiatives` and `Assignments`. |
 | `PlanFile` | Optional | Plan output file (Json). Plan output filename. If empty it is read from `GlobalSettingsFile`. |
 
 <br/>[Back to top](#pipeline)<br/>
@@ -108,18 +105,18 @@ Deploys Policies, Initiatives, and Policy Assignments at their desired scope bas
 
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
-| `PlanFile` | Optional | Plan input file (Json). Default: `./Output/Plans/current.json`. |
-| `RolesPlanFile` | Optional | Role Assignment Plan output file (Json). Default: `./Output/Plans/roles.json`. |
+| `PlanFile` | Required | Plan input file (Json). |
+| `RolesPlanFile` | Required | Role Assignment plan output file. |
 
 <br/>[Back to top](#pipeline)<br/>
 
 ### Set-AzPolicyRolesFromPlan.ps1
 
-Creates the role assignments for the Managed Identies required for `DeplyIfNotExists` and `Modify` Policies.
+Creates the role assignments for the Managed Identities required for `DeployIfNotExists` and `Modify` Policies.
 
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
-| `PlanFile` | Optional | Plan input file (Json). Default: `./Plans/roles.json`. |
+| `RolesPlanFile` | Required | Role Assignments plan input file. |
 
 <br/>[Back to top](#pipeline)<br/>
 

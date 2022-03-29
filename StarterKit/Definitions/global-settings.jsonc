@@ -28,9 +28,7 @@
             "defaultSubscriptionId": "00000000-0000-0000-000000000000",
             "rootScope": {
                 "SubscriptionId": "00000000-0000-0000-000000000000"
-            },
-            "planFile": "./Output/Plans/dev-plan.json",
-            "roleFile": "./Output/Plans/dev-roles.json"
+            }
         },
         {
             "pacSelector": "test",
@@ -38,9 +36,7 @@
             "defaultSubscriptionId": "00000000-0000-0000-000000000000",
             "rootScope": {
                 "SubscriptionId": "00000000-0000-0000-000000000000"
-            },
-            "planFile": "./Output/Plans/test-plan.json",
-            "roleFile": "./Output/Plans/test-roles.json"
+            }
         },
         {
             "pacSelector": "prod",
@@ -48,9 +44,7 @@
             "defaultSubscriptionId": "00000000-0000-0000-000000000000",
             "rootScope": {
                 "ManagementGroupName": "Contoso-Root"
-            },
-            "planFile": "./Output/Plans/prod-plan.json",
-            "roleFile": "./Output/Plans/prod-roles.json"
+            }
         }
     ],
     "representativeAssignments": [

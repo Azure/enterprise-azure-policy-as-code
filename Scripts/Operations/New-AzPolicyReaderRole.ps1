@@ -1,12 +1,13 @@
 [CmdletBinding()]
 param(
-    [parameter(Mandatory = $false, Position = 0)] [string] $PacEnvironmentSelector = "",
-    [Parameter(Mandatory = $false, HelpMessage = "Global settings filename.")] [string]$GlobalSettingsFile = "./Definitions/global-settings.jsonc"
+    [parameter(Mandatory = $false, Position = 0)] [string] $PacEnvironmentSelector,
+    [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable PacDefinitionsRootFolder or './Definitions'.")] [string]$DefinitionsRootFolder
 )
 
 . "$PSScriptRoot/../Helpers/Initialize-Environment.ps1"
 
-$environment = Initialize-Environment $PacEnvironmentSelector -GlobalSettingsFile $GlobalSettingsFile
+$InformationPreference = "Continue"
+$environment = Initialize-Environment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder
 
 Write-Information "==================================================================================================="
 Write-Information "Creating custom role 'Policy Reader'"
