@@ -10,8 +10,7 @@
 param (
     [parameter(Position = 0)] [string] $initiativeSetSelector = "",
     [Parameter()] [string] $outputPath = "$PSScriptRoot/../../Output/AzEffects/Initiatives/",
-    [Parameter(Mandatory = $false, HelpMessage = "Global settings filename.")]
-    [string]$GlobalSettingsFile = "./Definitions/global-settings.jsonc"
+    [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable PacDefinitionsRootFolder or './Definitions'.")] [string]$DefinitionsRootFolder
 )
 
 
@@ -27,14 +26,17 @@ param (
 . "$PSScriptRoot/../Utils/ConvertTo-HashTable.ps1"
 
 # Get definitions
-$environment = Initialize-Environment -GlobalSettingsFile $GlobalSettingsFile -retrieveFirstEnvironment -retrieveCompareSet
+$InformationPreference = "Continue"
+$environment = Initialize-Environment -DefinitionsRootFolder $DefinitionsRootFolder -retrieveFirstEnvironment -retrieveInitiativeSet -initiativeSetSelector  $initiativeSetSelector
 $rootScope = $environment.rootScope
 
 $collections = Get-AllAzPolicyInitiativeDefinitions -RootScope $rootScope -byId
 $allPolicyDefinitions = $collections.builtInPolicyDefinitions + $collections.existingCustomPolicyDefinitions
 $allInitiativeDefinitions = $collections.builtInInitiativeDefinitions + $collections.existingCustomInitiativeDefinitions
 
-$initiativeSet = $null
+$initiativeSetSelector = $environment.initiativeSetSelector
+$initiativeSet = $environment.initiativeSetToCompare
+$initiativeIdList = $initiativeSet.initiatives
 
 Write-Information "==================================================================================================="
 Write-Information "Processing"
@@ -42,7 +44,7 @@ Write-Information "=============================================================
 
 # Collect raw data
 [array] $list = @()
-foreach ($initiativeId in $initiativeSet) {
+foreach ($initiativeId in $initiativeIdList) {
     if ($allInitiativeDefinitions.ContainsKey($initiativeId)) {
         $initiativeDefinition = $allInitiativeDefinitions.$initiativeId
         Write-Information "Processing initiative $initiativeId, $($initiativeDefinition.displayName)"
@@ -102,7 +104,7 @@ foreach ($item in $list) {
 
 # Caching Initiative list and display names
 [array] $cachedInitiativeList = @()
-foreach ($initiativeId in $initiativeSet) {
+foreach ($initiativeId in $initiativeIdList) {
     if ($allInitiativeDefinitions.ContainsKey($initiativeId)) {
         $initiativeDefinition = $allInitiativeDefinitions.$initiativeId
         $quotedInitiativeDisplayName = $initiativeDefinition.displayName -replace '"', '""'
@@ -240,6 +242,8 @@ foreach ($initiativeId in $byInitiativeId.Keys) {
         $value = $parameter.value
         if ($parameter.single) {
             $policyDisplayName = $parameter.policy
+            $line = "    // Policy '$policyDisplayName'`n"
+            [void] $sb.Append($line)
             $line = ""
             if ($currentLineNumber -ge $lastLineNumber) {
                 $line = "    ""$parameterName"": ""$value""`n"
@@ -248,10 +252,11 @@ foreach ($initiativeId in $byInitiativeId.Keys) {
                 $line = "    ""$parameterName"": ""$value"",`n"
             }
             [void] $sb.Append($line)
-            $line = "        // policy='$policyDisplayName'`n"
+            $line = "        // '$($initiativeInfo.initiativeDisplayName)'`n"
             [void] $sb.Append($line)
-            $line = "        // alowed=$($parameter.allowed)`n"
+            $line = "        // allowed=$($parameter.allowed)`n"
             [void] $sb.Append($line)
+            [void] $sb.Append("`n")
         }
         else {
             if ($currentLineNumber -ge $lastLineNumber) {
@@ -261,8 +266,11 @@ foreach ($initiativeId in $byInitiativeId.Keys) {
                 $line = "    ""$parameterName"": ""$value"",`n"
             }
             [void] $sb.Append($line)
-            $line = "        // alowed=$($parameter.allowed)`n"
+            $line = "        // '$($initiativeInfo.initiativeDisplayName)'`n"
             [void] $sb.Append($line)
+            $line = "        // allowed=$($parameter.allowed)`n"
+            [void] $sb.Append($line)
+            [void] $sb.Append("`n")
         }
         ++$currentLineNumber
     }
@@ -283,6 +291,7 @@ foreach ($initiativeId in $byInitiativeId.Keys) {
             [void] $sb.Append($line)
             $line = "//     allowedValues = $($noParameterPolicy.allowed)`n"
             [void] $sb.Append($line)
+            [void] $sb.Append("`n")
         }
     }
 

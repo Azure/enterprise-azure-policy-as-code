@@ -3,21 +3,36 @@
 function Initialize-Environment {
     [CmdletBinding()]
     param (
-        [parameter(Mandatory = $false, Position = 0)] [string] $PacEnvironmentSelector = "",
-        [parameter(Mandatory = $false)] [string] $CompareSet = "",
-        [Parameter(Mandatory = $true, HelpMessage = "Global settings filename.")] [string]$GlobalSettingsFile,
+        [parameter(Mandatory = $false, Position = 0)] [string] $PacEnvironmentSelector,
+        [parameter(Mandatory = $false)] [string] $initiativeSetSelector,
         [parameter(Mandatory = $false)] [switch] $retrieveFirstEnvironment,
         [parameter(Mandatory = $false)] [switch] $retrieveRepresentativeInitiatives,
-        [parameter(Mandatory = $false)] [switch] $retrieveCompareSet
+        [parameter(Mandatory = $false)] [switch] $retrieveInitiativeSet,
+        [Parameter(Mandatory = $false)] [string] $DefinitionsRootFolder
     )
 
+    # Callcuate folders
+    if ($DefinitionsRootFolder -eq "") {
+        if ($null -eq $env:PacDefinitionsRootFolder) {
+            $DefinitionsRootFolder = "./Definitions"
+        }
+        else {
+            $DefinitionsRootFolder = $env:PacDefinitionsRootFolder
+        }
+    }
+    $globalSettingsFile = "$DefinitionsRootFolder/global-settings.jsonc"
+    $PlanFolder = "./Output/Plans"
+    if ($null -ne $env:PlanFolder) {
+        $PlanFolder = "$env:PacOutputFolder/Plans"
+    }
+
     Write-Information "==================================================================================================="
-    Write-Information "Get global settings from '$GlobalSettingsFile'."
+    Write-Information "Get global settings from '$globalSettingsFile'."
     Write-Information "==================================================================================================="
 
-    $Json = Get-Content -Path $GlobalSettingsFile -Raw -ErrorAction Stop
+    $Json = Get-Content -Path $globalSettingsFile -Raw -ErrorAction Stop
     if (!(Test-Json $Json)) {
-        Write-Error "JSON file ""$($GlobalSettingsFile)"" is not valid = $Json" -ErrorAction Stop
+        Write-Error "JSON file ""$($globalSettingsFile)"" is not valid = $Json" -ErrorAction Stop
     }
     $globalSettings = $Json | ConvertFrom-Json
 
@@ -81,8 +96,6 @@ function Initialize-Environment {
     Write-Information "    subscription = $($pacEnvironment.defaultSubscriptionId)"
     Write-Information "    rootScope    = $($rootScope | ConvertTo-Json -Compress)"
     Write-Information "    rootScopeId  = $rootScopeId"
-    Write-Information "    planFile     = $($pacEnvironment.planFile)"
-    Write-Information "    roleFile     = $($pacEnvironment.roleFile)"
 
     # Managed identity location
     $managedIdentityLocation = $null
@@ -140,40 +153,47 @@ function Initialize-Environment {
 
     # Initiative Sets To Compare
     $initiativeSetToCompare = $null
-    if ($retrieveCompareSet.IsPresent) {
+    if ($retrieveInitiativeSet.IsPresent) {
         Write-Information "---------------------------------------------------------------------------------------------------"
         if ($globalSettings.initiativeSetsToCompare) {
             [hashtable] $sets = @{}
             [System.Text.StringBuilder] $buildPrompt = [System.Text.StringBuilder]::new()
             $comma = ""
             foreach ($set in $globalSettings.initiativeSetsToCompare) {
-                [void] $sets.Add($env.setName, $set)
+                [void] $sets.Add($set.setName, $set)
                 [void] $buildPrompt.Append("$comma$($set.setName)")
                 $comma = ", "
             }
             $prompt = $buildPrompt.ToString()
 
-            if ($null -ne $CompareSet -and $CompareSet -ne "") {
-                if ($sets.ContainsKey($CompareSet)) {
+            if ($null -ne $initiativeSetSelector -and $initiativeSetSelector -ne "") {
+                if ($sets.ContainsKey($initiativeSetSelector)) {
                     # valid input
-                    $initiativeSetToCompare = $sets.$CompareSet
+                    $initiativeSetToCompare = $sets.$initiativeSetSelector
                 }
                 else {
                     Throw "Initiative set selection $initiativeSetSelector is not valid"
                 }
             }
+            elseif ($sets.Count -eq 1) {
+                foreach ($key in $sets.Keys) {
+                    # Excatly one
+                    $initiativeSetSelector = $key
+                }
+                $initiativeSetToCompare = $sets.$initiativeSetSelector
+            }
             else {
                 $InformationPreference = "Continue"
-                while ($null -eq $initiativeSet) {
-                    $CompareSet = Read-Host "Select initiative set [$prompt]"
-                    if ($sets.ContainsKey($CompareSet)) {
+                while ($null -eq $initiativeSetToCompare) {
+                    $initiativeSetSelector = Read-Host "Select initiative set [$prompt]"
+                    if ($sets.ContainsKey($initiativeSetSelector)) {
                         # valid input
-                        $initiativeSetToCompare = $initiativeSetsToCompare[$CompareSet]
+                        $initiativeSetToCompare = $initiativeSetsToCompare[$initiativeSetSelector]
                     }
                 }
             }
-            Write-Information "Compare $CompareSet Initiatives set"
-            foreach ($initiativeId in $initiativeSet) {
+            Write-Information "Compare $initiativeSetSelector Initiatives set"
+            foreach ($initiativeId in $initiativeSetToCompare) {
                 Write-Information "    $initiativeId"
             }
         }
@@ -182,17 +202,23 @@ function Initialize-Environment {
     Write-Information ""
 
     $environment = @{
-        pacEnvironmentSelector    = $PacEnvironmentSelector
-        managedIdentityLocation   = $managedIdentityLocation
-        tenantId                  = $pacEnvironment.tenantId
-        defaultSubscriptionID     = $pacEnvironment.defaultSubscriptionId
-        rootScope                 = $rootScope
-        rootScopeId               = $rootScopeId
-        planFile                  = $pacEnvironment.planFile
-        roleFile                  = $pacEnvironment.roleFile
-        globalNotScopeList        = $globalNotScopeList
-        representativeAssignments = $representativeAssignments
-        initiativeSetToCompare    = $initiativeSetToCompare
+        pacEnvironmentSelector      = $PacEnvironmentSelector
+        managedIdentityLocation     = $managedIdentityLocation
+        tenantId                    = $pacEnvironment.tenantId
+        defaultSubscriptionID       = $pacEnvironment.defaultSubscriptionId
+        rootScope                   = $rootScope
+        rootScopeId                 = $rootScopeId
+        globalNotScopeList          = $globalNotScopeList
+        representativeAssignments   = $representativeAssignments
+        initiativeSetSelector       = $initiativeSetSelector
+        initiativeSetToCompare      = $initiativeSetToCompare
+        definitionsRootFolder       = $DefinitionsRootFolder
+        policyDefinitionsFolder     = "$DefinitionsRootFolder/Policies"
+        initiativeDefinitionsFolder = "$DefinitionsRootFolder/Initiatives"
+        assignmentsFolder           = "$DefinitionsRootFolder/Assignments"
+        planFile                    = "$PlanFolder/$PacEnvironmentSelector-plan.json"
+        rolesFile                   = "$PlanFolder/$PacEnvironmentSelector-roles.json"
+
     }
 
     Invoke-AzCli account set --subscription $environment.defaultSubscriptionId -SuppressOutput

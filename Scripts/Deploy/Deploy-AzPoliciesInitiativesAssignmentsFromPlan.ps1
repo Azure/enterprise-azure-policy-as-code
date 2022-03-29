@@ -12,12 +12,8 @@
 
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory = $false,
-        HelpMessage = "Plan input filename.")]
-    [string]$PlanFile = "./Plans/current.json",
-    [Parameter(Mandatory = $false,
-        HelpMessage = "Role Assignment plan output filename.")]
-    [string]$RolesPlanFile = "./Plans/roles.json"
+    [Parameter(Mandatory = $true, HelpMessage = "Plan input filename.")] [string] $PlanFile,
+    [Parameter(Mandatory = $true, HelpMessage = "Role Assignment plan output filename.")] [string] $RolesPlanFile
 )
 
 #region Az Helper Functions
@@ -109,6 +105,7 @@ function Set-AzPolicyAssignmentHelper {
 
 #region Deploy Plan
 
+$InformationPreference = "Continue"
 $plan = Get-DeploymentPlan -PlanFile $PlanFile
 
 Write-Information "==================================================================================================="

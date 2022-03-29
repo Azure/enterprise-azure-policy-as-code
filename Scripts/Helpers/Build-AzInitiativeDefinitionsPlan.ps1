@@ -79,17 +79,17 @@ function Build-AzInitiativeDefinitionsPlan {
             }
         }
 
-        if ($null -ne $initiativeObject.merge) {
-            $mergeHt = ConvertTo-HashTable $initiativeObject.merge
-            Merge-Initiatives `
-                -initiativeDisplayName $displayName `
-                -merge $mergeHt `
-                -builtInInitiativeDefinitions $builtInInitiativeDefinitions `
-                -allPolicyDefinitions $allPolicyDefinitions `
-                -mergedParameters $mergedParameters `
-                -mergedPolicyDefinitions $mergedPolicyDefinitions `
-                -mergedGroupDefinitions $mergedGroupDefinitions
-        }
+        # if ($null -ne $initiativeObject.merge) {
+        #     $mergeHt = ConvertTo-HashTable $initiativeObject.merge
+        #     Merge-Initiatives `
+        #         -initiativeDisplayName $displayName `
+        #         -merge $mergeHt `
+        #         -builtInInitiativeDefinitions $builtInInitiativeDefinitions `
+        #         -allPolicyDefinitions $allPolicyDefinitions `
+        #         -mergedParameters $mergedParameters `
+        #         -mergedPolicyDefinitions $mergedPolicyDefinitions `
+        #         -mergedGroupDefinitions $mergedGroupDefinitions
+        # }
 
         if ($result.usingUndefinedReference) {
             Write-Error "Undefined Policy referenced in '$($name)' from $($initiativeFile.Name)" -ErrorAction Stop

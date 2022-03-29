@@ -2,33 +2,20 @@
 
 [CmdletBinding()]
 param (
-    [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a vlaue. The values are read from `$GlobalSettingsFile.", Position = 0)]
-    [string] $PacEnvironmentSelector = "",
+    [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a vlaue. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
+    [string] $PacEnvironmentSelector,
 
-    [Parameter(Mandatory = $false, HelpMessage = "When using this switch, the script includes resource groups for assignment calculations.")]
+    [Parameter(Mandatory = $false, HelpMessage = "When using this switch, the script includes resource groups for assignment calculations. Warning: this is time-consuming.")]
     [switch]$IncludeResourceGroupsForAssignments,
 
     [Parameter(Mandatory = $false, HelpMessage = "When using this switch, the script will NOT delete extraneous Policy definitions, Initiative definitions and Assignments.")]
     [switch]$SuppressDeletes,
 
-    [Parameter(Mandatory = $false, HelpMessage = "Global settings filename.")]
-    [string]$GlobalSettingsFile = "./Definitions/global-settings.jsonc",
-
-    [Parameter(Mandatory = $false, HelpMessage = "Path of the root folder containing the policy definitions.")]
-    [string]$PolicyDefinitionsRootFolder = "./Definitions/Policies",
-
-    [Parameter(Mandatory = $false, HelpMessage = "Path of the root folder containing the Initiative definitions.")]
-    [string]$InitiativeDefinitionsRootFolder = "./Definitions/Initiatives",
-
-    [Parameter(Mandatory = $false, HelpMessage = "Path of the root folder containing the Assignments definitions.")]
-    [string]$AssignmentsRootFolder = "./Definitions/Assignments",
+    [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable PacDefinitionsRootFolder or './Definitions'.")]
+    [string]$DefinitionsRootFolder,
 
     [Parameter(Mandatory = $false, HelpMessage = "Plan output filename. If empty it is read from `$GlobalSettingsFile.")]
-    [string]$PlanFile = "",
-
-    [Parameter(Mandatory = $false, HelpMessage = "Using using this switch, the script will only not process assignments.")]
-    [switch]$TestInitiativeMerge
-
+    [string]$PlanFile = ""
 
 )
 
@@ -74,7 +61,7 @@ function Write-AssignmentDetails {
 . "$PSScriptRoot/../Helpers/Get-AzAssignmentsAtScopeRecursive.ps1"
 . "$PSScriptRoot/../Helpers/Get-AzPolicyNotScope.ps1"
 . "$PSScriptRoot/../Helpers/Get-AzScopeTree.ps1"
-. "$PSScriptRoot/../Helpers/Merge-Initiatives.ps1"
+# . "$PSScriptRoot/../Helpers/Merge-Initiatives.ps1"
 . "$PSScriptRoot/../Utils/Confirm-ObjectValueEqualityDeep.ps1"
 . "$PSScriptRoot/../Utils/ConvertTo-HashTable.ps1"
 . "$PSScriptRoot/../Utils/Get-DeepClone.ps1"
@@ -82,24 +69,26 @@ function Write-AssignmentDetails {
 . "$PSScriptRoot/../Utils/Invoke-AzCli.ps1"
 
 # Initialize
+$InformationPreference = "Continue"
 Invoke-AzCli config set extension.use_dynamic_install=yes_without_prompt -SuppressOutput
-$environment = Initialize-Environment $PacEnvironmentSelector -GlobalSettingsFile $GlobalSettingsFile
+$environment = Initialize-Environment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder
 $rootScope = $environment.rootScope
 $rootScopeId = $environment.rootScopeId
+if ($PlanFile -eq "") {
+    $PlanFile = $environment.planFile
+}
 
 # Getting existing Policy Assignments
 $existingAssignments = $null
-if (!$TestInitiativeMerge.IsPresent) {
-    $scopeTreeInfo = Get-AzScopeTree `
-        -tenantId $environment.tenantId `
-        -scopeParam $rootScope `
-        -defaultSubscriptionId $environment.defaultSubscriptionId
+$scopeTreeInfo = Get-AzScopeTree `
+    -tenantId $environment.tenantId `
+    -scopeParam $rootScope `
+    -defaultSubscriptionId $environment.defaultSubscriptionId
 
-    $existingAssignments, $null = Get-AzAssignmentsAtScopeRecursive `
-        -scopeTreeInfo $scopeTreeInfo `
-        -notScopeIn $environment.globalNotScopeList `
-        -includeResourceGroups $IncludeResourceGroupsForAssignments.IsPresent
-}
+$existingAssignments, $null = Get-AzAssignmentsAtScopeRecursive `
+    -scopeTreeInfo $scopeTreeInfo `
+    -notScopeIn $environment.globalNotScopeList `
+    -includeResourceGroups $IncludeResourceGroupsForAssignments.IsPresent
 
 # Getting existing Policy/Initiative definitions and Policy Assignments in the chosen scope of Azure
 $collections = Get-AllAzPolicyInitiativeDefinitions -rootScopeId $rootScopeId
@@ -113,7 +102,7 @@ $unchangedPolicyDefinitions = @{}
 $allPolicyDefinitions = ($collections.builtInPolicyDefinitions).Clone()
 $customPolicyDefinitions = @{}
 Build-AzPolicyDefinitionsPlan `
-    -policyDefinitionsRootFolder $PolicyDefinitionsRootFolder `
+    -policyDefinitionsRootFolder $environment.policyDefinitionsFolder `
     -noDelete $SuppressDeletes.IsPresent `
     -rootScope $rootScope `
     -existingCustomPolicyDefinitions $collections.existingCustomPolicyDefinitions `
@@ -135,7 +124,7 @@ $unchangedInitiativeDefinitions = @{}
 $allInitiativeDefinitions = ($collections.builtInInitiativeDefinitions).Clone()
 $customInitiativeDefinitions = @{}
 Build-AzInitiativeDefinitionsPlan `
-    -initiativeDefinitionsRootFolder $InitiativeDefinitionsRootFolder `
+    -initiativeDefinitionsRootFolder $environment.initiativeDefinitionsFolder `
     -noDelete $SuppressDeletes.IsPresent `
     -rootScope $rootScope `
     -rootScopeId $rootScopeId `
@@ -161,7 +150,7 @@ $addedRoleAssignments = @{}
 if (!$TestInitiativeMerge.IsPresent) {
     Build-AzPolicyAssignmentsPlan `
         -pacEnvironmentSelector $environment.pacEnvironmentSelector `
-        -assignmentsRootFolder $AssignmentsRootFolder `
+        -assignmentsRootFolder $environment.assignmentsFolder `
         -noDelete $SuppressDeletes.IsPresent `
         -rootScope $rootScope `
         -rootScopeId $rootScopeId `
@@ -230,10 +219,7 @@ $plan = @{
 }
 
 Write-Information "==================================================================================================="
-if ($null -eq $PlanFile -or $PlanFile -eq "") {
-    # Retrieve the plan file from the environment
-    $PlanFile = $environment.planFile
-}
+# Retrieve the plan file from the environment
 Write-Information "Writing plan file $PlanFile"
 if (-not (Test-Path $PlanFile)) {
     $null = New-Item $PlanFile -Force

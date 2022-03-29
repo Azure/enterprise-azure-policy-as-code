@@ -6,11 +6,10 @@
 # representative Policy Assignments and out puts the result as a CSV file
 [CmdletBinding()]
 param (
-    [parameter(Mandatory = $false, Position = 0)] [string] $PacEnvironmentSelector = "",
+    [parameter(Mandatory = $false, Position = 0)] [string] $PacEnvironmentSelector,
     [Parameter()] [string] $outputPath = "$PSScriptRoot/../../Output/AzEffects/Environments/",
     [Parameter()] [ValidateSet("pipeline", "csv", "json")] [string] $outputType = "csv",
-    [Parameter(Mandatory = $false, HelpMessage = "Global settings filename.")]
-    [string]$GlobalSettingsFile = "./Definitions/global-settings.jsonc"
+    [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable PacDefinitionsRootFolder or './Definitions'.")] [string]$DefinitionsRootFolder
 )
 
 function Get-EffectiveAzPolicyEffectsList {
@@ -130,7 +129,8 @@ function Get-EffectiveAzPolicyEffectsList {
 
 
 # Get definitions
-$environment = Initialize-Environment $GlobalSettingsFile -retrieveRepresentativeInitiatives
+$InformationPreference = "Continue"
+$environment = Initialize-Environment -DefinitionsRootFolder $DefinitionsRootFolder -retrieveRepresentativeInitiatives
 $rootScope = $environment.rootScope
 
 $collections = Get-AllAzPolicyInitiativeDefinitions -RootScope $rootScope -byId

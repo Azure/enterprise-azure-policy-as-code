@@ -75,9 +75,7 @@ pacEnvironments define the environment controlled by Policy as Code. It must be 
             "defaultSubscriptionId": "00000000-0000-0000-000000000000",
             "rootScope": {
                 "SubscriptionId": "00000000-0000-0000-000000000000"
-            },
-            "planFile": "./Output/Plans/dev-plan.json",
-            "roleFile": "./Output/Plans/dev-roles.json"
+            }
         },
         {
             "pacSelector": "test",
@@ -85,9 +83,7 @@ pacEnvironments define the environment controlled by Policy as Code. It must be 
             "defaultSubscriptionId": "00000000-0000-0000-000000000000",
             "rootScope": {
                 "SubscriptionId": "00000000-0000-0000-000000000000"
-            },
-            "planFile": "./Output/Plans/test-plan.json",
-            "roleFile": "./Output/Plans/test-roles.json"
+            }
         },
         {
             "pacSelector": "prod",
@@ -95,9 +91,7 @@ pacEnvironments define the environment controlled by Policy as Code. It must be 
             "defaultSubscriptionId": "00000000-0000-0000-000000000000",
             "rootScope": {
                 "ManagementGroupName": "Contoso-Root"
-            },
-            "planFile": "./Output/Plans/prod-plan.json",
-            "roleFile": "./Output/Plans/prod-roles.json"
+            }
         }
     ],
 ```
@@ -110,7 +104,6 @@ Each entry in the array defines one of the environments:
 | `tenantId` | Azure Tenant Id |
 | `defaultSubscriptionId` | Primary subscription for login. If the rootScope is a subscription, the default must match. |
 | `rootScope` | Policy and Initiative definitions are **always** deployed at this scope. |
-| `planFile` <br/> `roleFile` | Output file paths |
 
 <br/>[Back to top](#definitions-and-global-settings)<br/>
 
