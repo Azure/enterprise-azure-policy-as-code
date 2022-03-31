@@ -124,13 +124,12 @@ Creates the role assignments for the Managed Identities required for `DeployIfNo
 
 Upon `commit to a feature branch or a manual pipeline run`, the pipeline runs stage devAllStage to deploy Policies, Initiatives and Assignments to the PAC DEV environment. Second, it calculates the plan for PROD environment deployment based on the Feature branch. This plan is never executed. Instead the logs and if desired the artifact generated are used by the developer to verify the definition files and to determine if the code is ready for a Pull Request. The PR approver(s) will use the same input plus the source code changes to decide the PR approval or rejection.
 
-![image.png](../Docs/Images/Commit.png)
+![image.png](../Docs/Images/commit.png)
 
 <br/>
 
 After the `pull request is approved and merged`, the pipeline runs stage devAllStage to deploy Policies, Initiatives and Assignments to the PAC TEST environment. Second, it calculates the plan for PROD environment deployment based on the merged Main branch. This plan is executed in one or two stages. The pipeline stops for PROD gate(s) approval at this time. The logs and if desired the artifacts generated are used by the PROD gate(s) approver(s) to decide on the PROD stage approval(s) or rejection(s).
 
-![image.png](../Docs/Images/ApprovalGate.png)
 ![image.png](../Docs/Images/PreApprovalGate.png)
 
 <br/>
