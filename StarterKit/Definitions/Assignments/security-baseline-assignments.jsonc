@@ -1,0 +1,810 @@
+{
+    // Security Baseline for Org (Azure Security Benchmark & other Initiatives
+    "nodeName": "/Security/",
+    // Experimental
+    "effect": {
+        "disabled": [],
+        "audit": [
+            // List of referenceId, policyName or Policy Id
+        ],
+        "deny": [],
+        "append": [],
+        "deployIfNotExists": [],
+        "auditIfNotExists": [],
+        "modify": []
+    },
+    "parameters": {
+        // =============================================================================================================================
+        // Parameters at this node are used to:
+        // =============================================================================================================================
+        //
+        // ----------------------------------------------------------------------------------------------------------------------------- 
+        // Disable the Policy not used by design, such as, obsolete Policies, CMK Policies, and redundancy Policies, ...
+        // ----------------------------------------------------------------------------------------------------------------------------- 
+        // Policy '[Preview]: Azure Recovery Services vaults should use customer-managed keys for encrypting backup data'
+        "effect-2e94d99a-8a36-4563-bc77-810d8893b671": "Disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy '[Preview]: IoT Hub device provisioning service data should be encrypted using customer-managed keys (CMK)'
+        "effect-47031206-ce96-41f8-861b-6a915f3de284": "Disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'All network ports should be restricted on network security groups associated to your virtual machine'
+        "nextGenerationFirewallMonitoringEffect": "Disabled",
+        // 'Azure Security Benchmark'
+        // allowed=["AuditIfNotExists","Disabled"]
+        //
+        // Policy 'Azure Automation accounts should use customer-managed keys to encrypt data at rest'
+        "effect-56a5ee18-2ae6-4810-86f7-18e39ce5629b": "Disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Azure Backup should be enabled for Virtual Machines'
+        "azureBackupShouldBeEnabledForVirtualMachinesMonitoringEffect": "Disabled",
+        // 'Azure Security Benchmark'
+        // allowed=["AuditIfNotExists","Disabled"]
+        //
+        // Policy 'Azure Batch account should use customer-managed keys to encrypt data'
+        "effect-99e9ccd8-3db9-4592-b0d1-14b1715a4d8a": "Disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Azure Container Instance container group should use customer-managed key for encryption'
+        "effect-0aa61e00-0a01-4a3c-9945-e93cffedf0e6": "Disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["Audit","Disabled","Deny"]
+        //
+        // Policy 'Azure Cosmos DB accounts should use customer-managed keys to encrypt data at rest'
+        "effect-1f905d99-2ab7-462c-a6b0-f709acca6c8f": "disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["audit","deny","disabled"]
+        //
+        //
+        // Policy 'Azure Data Box jobs should use a customer-managed key to encrypt the device unlock password'
+        "effect-86efb160-8de7-451d-bc08-5d475b0aadae": "Disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Azure Data Explorer encryption at rest should use a customer-managed key'
+        "effect-81e74cea-30fd-40d5-802f-d72103c2aaaa": "Disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Azure HDInsight clusters should use customer-managed keys to encrypt data at rest'
+        "effect-64d314f6-6062-4780-a861-c23e8951bee5": "Disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Both operating systems and data disks in Azure Kubernetes Service clusters should be encrypted by customer-managed keys'
+        "effect-7d7be79c-23ba-4033-84dd-45e2a5ccdd67": "Disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Azure data factories should be encrypted with a customer-managed key'
+        "effect-4ec52d6d-beb7-40c4-9a9e-fe753254690e": "Disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Azure Machine Learning workspaces should be encrypted with a customer-managed key'
+        "effect-ba769a63-b8cc-4b2d-abf6-ac33c7204be8": "Disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Azure Monitor Logs clusters should be encrypted with customer-managed key'
+        "effect-1f68a601-6e6d-4e42-babf-3f643a047ea2": "disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["audit","deny","disabled"]
+        //
+        // Policy 'Azure Stream Analytics jobs should use customer-managed keys to encrypt data'
+        "effect-87ba29ef-1ab3-4d82-b763-87fcd4f531f7": "disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["audit","deny","disabled"]
+        //
+        // Policy 'Azure Synapse workspaces should use customer-managed keys to encrypt data at rest'
+        "effect-f7d52b2d-e161-4dfa-a82b-55e564167385": "Disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Bot Service should be encrypted with a customer-managed key'
+        "effect-51522a96-0869-4791-82f3-981000c2c67f": "disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["audit","deny","disabled"]
+        //
+        // Policy 'Cognitive Services accounts should enable data encryption with a customer-managed key'
+        "effect-67121cc7-ff39-4ab8-b7e3-95b84dab487d": "Disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Cognitive Services accounts should restrict network access'
+        "cognitiveServicesAccountsShouldRestrictNetworkAccessMonitoringEffect": "Disabled",
+        "effect-037eea7a-bd0a-46c5-9a66-03aea78705d3": "Disabled",
+        // 'Azure Security Benchmark'
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Container registries should be encrypted with a customer-managed key'
+        "effect-5b9159ae-1701-4a6f-9a7a-aa9c8ddd0580": "Disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Container registries should not allow unrestricted network access'
+        "containerRegistriesShouldNotAllowUnrestrictedNetworkAccessMonitoringEffect": "Disabled",
+        "effect-d0793b48-0edc-4296-a390-4c75d1bdfd71": "Disabled",
+        // 'Azure Security Benchmark'
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Ensure WEB app has 'Client Certificates (Incoming client certificates)' set to 'On''
+        "ensureWEBAppHasClientCertificatesIncomingClientCertificatesSetToOnMonitoringEffect": "Disabled",
+        // 'Azure Security Benchmark'
+        // allowed=["Audit","Disabled"]
+        //
+        // Policy 'Function apps should have 'Client Certificates (Incoming client certificates)' enabled'
+        "functionAppsShouldHaveClientCertificatesEnabledMonitoringEffect": "Disabled",
+        // 'Azure Security Benchmark'
+        // allowed=["Audit","Disabled"]
+        //
+        // Policy 'Geo-redundant backup should be enabled for Azure Database for MariaDB'
+        "georedundantBackupShouldBeEnabledForAzureDatabaseForMariadbMonitoringEffect": "Disabled",
+        "geoRedundancyEnabledForAzureDatabaseForMariaDBEffect": "Disabled",
+        // 'Azure Security Benchmark'
+        // 'FedRAMP High'
+        // allowed=["Audit","Disabled"]
+        //
+        // Policy 'Geo-redundant backup should be enabled for Azure Database for MySQL'
+        "georedundantBackupShouldBeEnabledForAzureDatabaseForMysqlMonitoringEffect": "Disabled",
+        "geoRedundancyEnabledForAzureDatabaseForMySQLEffect": "Disabled",
+        // 'Azure Security Benchmark'
+        // 'FedRAMP High'
+        // allowed=["Audit","Disabled"]
+        //
+        // Policy 'Geo-redundant backup should be enabled for Azure Database for PostgreSQL'
+        "georedundantBackupShouldBeEnabledForAzureDatabaseForPostgresqlMonitoringEffect": "Disabled",
+        "geoRedundancyEnabledForAzureDatabaseForPostgreSQLEffect": "Disabled",
+        // 'Azure Security Benchmark'
+        // 'FedRAMP High'
+        // allowed=["Audit","Disabled"]
+        //
+        // Policy 'Geo-redundant storage should be enabled for Storage Accounts'
+        "geoRedundancyEnabledForStorageAccountsEffect": "Disabled",
+        // 'FedRAMP High'
+        // allowed=["Audit","Disabled"]
+        //
+        // Policy 'HPC Cache accounts should use customer-managed key for encryption'
+        "effect-970f84d8-71b6-4091-9979-ace7e3fb6dbb": "Disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["Audit","Disabled","Deny"]
+        //
+        // Policy 'Logic Apps Integration Service Environment should be encrypted with customer-managed keys'
+        "effect-1fafeaf6-7927-4059-a50a-8eb2a7a6f2b5": "Disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Long-term geo-redundant backup should be enabled for Azure SQL Databases'
+        "longtermGeoRedundantBackupEnabledAzureSQLDatabasesEffect": "Disabled",
+        // 'FedRAMP High'
+        // allowed=["AuditIfNotExists","Disabled"]
+        //
+        // Policy 'Managed disks should be double encrypted with both platform-managed and customer-managed keys'
+        "effect-ca91455f-eace-4f96-be59-e6e2c35b4816": "Disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Non-internet-facing virtual machines should be protected with network security groups'
+        "networkSecurityGroupsOnInternalVirtualMachinesMonitoringEffect": "Disabled",
+        // 'Azure Security Benchmark'
+        // allowed=["AuditIfNotExists","Disabled"]
+        //
+        // Policy 'OS and data disks should be encrypted with a customer-managed key'
+        "effect-702dd420-7fcc-42c5-afe8-4026edd20fe0": "Disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Saved-queries in Azure Monitor should be saved in customer storage account for logs encryption'
+        "effect-fa298e57-9444-42ba-bf04-86e8470e32c7": "disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["audit","deny","disabled"]
+        //
+        // Policy 'Storage account encryption scopes should use customer-managed keys to encrypt data at rest'
+        "effect-b5ec538c-daa0-4006-8596-35468b9148e8": "Disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Storage accounts should restrict network access using virtual network rules'
+        "storageAccountsShouldRestrictNetworkAccessUsingVirtualNetworkRulesMonitoringEffect": "Disabled",
+        "effect-2a1a9cdf-e04d-429a-8416-3bfb72a1b26f": "Disabled",
+        // 'Azure Security Benchmark'
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Storage accounts should restrict network access'
+        "disableUnrestrictedNetworkToStorageAccountMonitoringEffect": "Disabled",
+        "effect-34c877ad-507e-4c82-993e-3452a6e0ad3c": "Disabled",
+        // 'FedRAMP High'
+        // 'NIST SP 800-53 Rev. 5'
+        // 'NIST SP 800-171 Rev. 2'
+        // 'Azure Security Benchmark'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // ----------------------------------------------------------------------------------------------------------------------------- 
+        // Enable (Audit, AuditIfNotExists) Policies when built-in Policy uses "Disabled"
+        // ----------------------------------------------------------------------------------------------------------------------------- 
+        //
+        // Policy 'Subnets should be associated with a Network Security Group'
+        "networkSecurityGroupsOnSubnetsMonitoringEffect": "AuditIfNotExists",
+        // 'Azure Security Benchmark'
+        // allowed=["AuditIfNotExists","Disabled"]
+        //
+        // ----------------------------------------------------------------------------------------------------------------------------- 
+        // Set effect to Deny from Audit/Disabled
+        // ----------------------------------------------------------------------------------------------------------------------------- 
+        //
+        // Policy '[Preview]: Azure Key Vault should disable public network access'
+        "firewallShouldBeEnabledOnKeyVaultMonitoringEffect": "Deny",
+        // 'Azure Security Benchmark'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy '[Preview]: Kubernetes clusters should gate deployment of vulnerable images'
+        "BlockVulnerableImagesInKubernetesClusterEffect": "Deny",
+        // 'Azure Security Benchmark'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy '[Preview]: Private endpoint should be configured for Key Vault'
+        "privateEndpointShouldBeConfiguredForKeyVaultMonitoringEffect": "Deny",
+        // 'Azure Security Benchmark'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy '[Preview]: Storage account public access should be disallowed'
+        "disallowPublicBlobAccessEffect": "deny",
+        // 'Azure Security Benchmark'
+        // allowed=["audit","deny","disabled"]
+        //
+        // Policy 'Automation account variables should be encrypted'
+        "encryptionOfAutomationAccountMonitoringEffect": "Deny",
+        // 'Azure Security Benchmark'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Azure Cache for Redis should reside within a virtual network'
+        "azureCacheForRedisShouldResideWithinAVirtualNetworkMonitoringEffect": "Deny",
+        // 'Azure Security Benchmark'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Azure Machine Learning workspaces should use private link'
+        "azureMachineLearningWorkspacesShouldUsePrivateLinkMonitoringEffect": "Deny",
+        // 'Azure Security Benchmark'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Azure SignalR Service should use private link'
+        "azureSignalRServiceShouldUsePrivateLinkMonitoringEffect": "Deny",
+        // 'Azure Security Benchmark'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Azure Spring Cloud should use network injection'
+        "azureSpringCloudShouldUseNetworkInjectionMonitoringEffect": "Deny",
+        // 'Azure Security Benchmark'
+        // allowed=["Audit","Disabled","Deny"]
+        //
+        // Policy 'Azure Web Application Firewall should be enabled for Azure Front Door entry-points'
+        "webApplicationFirewallShouldBeEnabledForAzureFrontDoorServiceServiceMonitoringEffect": "Deny",
+        // 'Azure Security Benchmark'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Cognitive Services accounts should disable public network access'
+        "publicNetworkAccessShouldBeDisabledForCognitiveServicesAccountsMonitoringEffect": "Deny",
+        // 'Azure Security Benchmark'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Key Vault keys should have an expiration date'
+        "keysExpirationSetEffect": "Deny",
+        // 'Azure Security Benchmark'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Key Vault secrets should have an expiration date'
+        "secretsExpirationSetEffect": "Deny",
+        // 'Azure Security Benchmark'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Kubernetes cluster containers should not share host process ID or host IPC namespace'
+        "NoSharingSensitiveHostNamespacesInKubernetesEffect": "deny",
+        // 'Azure Security Benchmark'
+        // allowed=["audit","deny","disabled"]
+        //
+        // Policy 'Kubernetes cluster containers should only use allowed AppArmor profiles'
+        "AllowedAppArmorProfilesInKubernetesClusterEffect": "deny",
+        // 'Azure Security Benchmark'
+        // allowed=["audit","deny","disabled"]
+        //
+        // Policy 'Kubernetes cluster containers should only use allowed capabilities'
+        "AllowedCapabilitiesInKubernetesClusterEffect": "deny",
+        // 'Azure Security Benchmark'
+        // allowed=["audit","deny","disabled"]
+        //
+        // Policy 'Kubernetes cluster containers should only use allowed images'
+        "allowedContainerImagesInKubernetesClusterEffect": "deny",
+        // 'Azure Security Benchmark'
+        // allowed=["audit","deny","disabled"]
+        //
+        // Policy 'Kubernetes cluster containers should run with a read only root file system'
+        "ReadOnlyRootFileSystemInKubernetesClusterEffect": "deny",
+        // 'Azure Security Benchmark'
+        // allowed=["audit","deny","disabled"]
+        //
+        // Policy 'Kubernetes cluster pod hostPath volumes should only use allowed host paths'
+        "AllowedHostPathVolumesInKubernetesClusterEffect": "deny",
+        // 'Azure Security Benchmark'
+        // allowed=["audit","deny","disabled"]
+        //
+        // Policy 'Kubernetes cluster pods and containers should only run with approved user and group IDs'
+        "MustRunAsNonRootNamespaceEffect": "deny",
+        // 'Azure Security Benchmark'
+        // allowed=["audit","deny","disabled"]
+        //
+        // Policy 'Kubernetes cluster pods should only use approved host network and port range'
+        "AllowedHostNetworkingAndPortsInKubernetesClusterEffect": "deny",
+        // 'Azure Security Benchmark'
+        // allowed=["audit","deny","disabled"]
+        //
+        // Policy 'Kubernetes cluster services should listen only on allowed ports'
+        "allowedServicePortsInKubernetesClusterEffect": "deny",
+        // 'Azure Security Benchmark'
+        // allowed=["audit","deny","disabled"]
+        //
+        // Policy 'Kubernetes cluster should not allow privileged containers'
+        "privilegedContainersShouldBeAvoidedEffect": "deny",
+        // 'Azure Security Benchmark'
+        // allowed=["audit","deny","disabled"]
+        //
+        // Policy 'Kubernetes clusters should be accessible only over HTTPS'
+        "kubernetesClustersShouldBeAccessibleOnlyOverHTTPSMonitoringEffect": "deny",
+        // 'Azure Security Benchmark'
+        // allowed=["audit","deny","disabled"]
+        //
+        // Policy 'Kubernetes clusters should disable automounting API credentials'
+        "KubernetesClustersShouldDisableAutomountingAPICredentialsMonitoringEffect": "deny",
+        // 'Azure Security Benchmark'
+        // allowed=["audit","deny","disabled"]
+        //
+        // Policy 'Kubernetes clusters should not allow container privilege escalation'
+        "NoPrivilegeEscalationInKubernetesClusterEffect": "deny",
+        // 'Azure Security Benchmark'
+        // allowed=["audit","deny","disabled"]
+        //
+        // Policy 'Kubernetes clusters should not grant CAP_SYS_ADMIN security capabilities'
+        "KubernetesClustersShouldNotGrantCAPSYSADMINSecurityCapabilitiesMonitoringEffect": "deny",
+        // 'Azure Security Benchmark'
+        // allowed=["audit","deny","disabled"]
+        //
+        // Policy 'Kubernetes clusters should not use the default namespace'
+        "KubernetesClustersShouldNotUseTheDefaultNamespaceMonitoringEffect": "deny",
+        // 'Azure Security Benchmark'
+        // allowed=["audit","deny","disabled"]
+        //
+        // Policy 'Only secure connections to your Azure Cache for Redis should be enabled'
+        "diagnosticsLogsInRedisCacheMonitoringEffect": "Deny",
+        // 'Azure Security Benchmark'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Public network access on Azure SQL Database should be disabled'
+        "publicNetworkAccessOnAzureSQLDatabaseShouldBeDisabledMonitoringEffect": "Deny",
+        // 'Azure Security Benchmark'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Secure transfer to storage accounts should be enabled'
+        "secureTransferToStorageAccountMonitoringEffect": "Deny",
+        // 'Azure Security Benchmark'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Service Fabric clusters should have the ClusterProtectionLevel property set to EncryptAndSign'
+        "clusterProtectionLevelInServiceFabricMonitoringEffect": "Deny",
+        // 'Azure Security Benchmark'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Service Fabric clusters should only use Azure Active Directory for client authentication'
+        "aadAuthenticationInServiceFabricMonitoringEffect": "Deny",
+        // 'Azure Security Benchmark'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // Policy 'Web Application Firewall (WAF) should be enabled for Application Gateway'
+        "webApplicationFirewallShouldBeEnabledForApplicationGatewayMonitoringEffect": "Deny",
+        // 'Azure Security Benchmark'
+        // allowed=["Audit","Deny","Disabled"]
+        //
+        // ----------------------------------------------------------------------------------------------------------------------------- 
+        // Common AKV settings across all environments
+        // ----------------------------------------------------------------------------------------------------------------------------- 
+        "daysToExpire-CertificatesShouldNotExpireWithintheSpecifiednumberofdays": 30, // days
+        "minimumDaysBeforeExpiration-KeyVaultKeysshouldhavespecifiednumberofdaysbeforeExpiration": 15, // days
+        "minimumDaysBeforeExpiration-KeyVaultSecretsspecifiednumberofdaysbeforeExpiration": 15, // days
+        "maximumValidityInMonths-CertificateShouldHavethespecifiedmaximumvalidityperiod": 12, // months
+        "maximumValidityInDays-KeyVaultKeysShouldhavethespecifiedmaximumvalidityperiod": 90, // days
+        "maximumValidityInDays-KeyVaultSecretsShouldHaveSpecifiedMaximumValidityPeriod": 90, // days
+        "minimumRSAKeySize-KeyVaultRSACryptographySpecifiedMinimumKeySize": 4096
+        // ----------------------------------------------------------------------------------------------------------------------------- 
+    },
+    "children": [
+        {
+            "nodeName": "Prod/",
+            "scope": {
+                "dev": [
+                    ""
+                ],
+                "test": [
+                    ""
+                ],
+                "coretenant-dev": [
+                    "/providers/Microsoft.Management/managementGroups/x-Prod"
+                ],
+                "coretenant-prod": [
+                    "/providers/Microsoft.Management/managementGroups/x-Prod"
+                ],
+                "prod-3": [
+                    "/providers/Microsoft.Management/managementGroups/x-Prod"
+                ]
+            },
+            "children": [
+                {
+                    "nodeName": "Azure Security Benchmark",
+                    "assignment": {
+                        "name": "pr-asb",
+                        "displayName": "Prod Azure Security Benchmark",
+                        "description": "Azure Security Benchmark v3 parameterized for Prod Environments"
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
+                        "friendlyNameToDocumentIfGuid": "Azure Security Benchmark"
+                    },
+                    "parameters": {
+                        // Policy '[Preview]: Certificates should have the specified maximum validity period'
+                        "certificatesValidityPeriodMonitoringEffect": "deny",
+                        // 'Azure Security Benchmark'
+                        // allowed=["audit","deny","disabled"]
+                        //
+                        // Policy 'Key vaults should have purge protection enabled'
+                        "keyVaultsShouldHavePurgeProtectionEnabledMonitoringEffect": "Deny",
+                        // 'Azure Security Benchmark'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Key vaults should have soft delete enabled'
+                        "keyVaultsShouldHaveSoftDeleteEnabledMonitoringEffect": "Deny"
+                        // 'Azure Security Benchmark'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                    }
+                },
+                {
+                    "nodeName": "FedRAMP High",
+                    "assignment": {
+                        "name": "pr-fedramp-hi",
+                        "displayName": "Prod FedRAMP High",
+                        "description": "FedRAMP High parameterized for Prod Environments"
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "d5264498-16f4-418a-b659-fa7ef418175f",
+                        "friendlyNameToDocumentIfGuid": "FedRAMP High"
+                    }
+                },
+                {
+                    "nodeName": "NIST SP 800-53 Rev. 5",
+                    "assignment": {
+                        "name": "pr-nist-800-53-5",
+                        "displayName": "Prod NIST SP 800-53 Rev. 5",
+                        "description": "NIST SP 800-53 Rev. 5 parameterized for Prod Environments"
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "179d1daa-458f-4e47-8086-2a68d0d6c38f",
+                        "friendlyNameToDocumentIfGuid": "NIST SP 800-53 Rev. 5"
+                    }
+                },
+                {
+                    "nodeName": "NIST SP 800-171 Rev. 2",
+                    "assignment": {
+                        "name": "pr-nist-800-171-2",
+                        "displayName": "Prod NIST SP 800-171 Rev. 2",
+                        "description": "NIST SP 800-171 Rev. 2 parameterized for Prod Environments"
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "03055927-78bd-4236-86c0-f36125a10dc9",
+                        "friendlyNameToDocumentIfGuid": "NIST SP 800-171 Rev. 2"
+                    },
+                    "parameters": {
+                        // Policy 'Azure Cognitive Search service should use a SKU that supports private link'
+                        "effect-a049bf77-880b-470f-ba6d-9f21c530cf83": "Deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Azure Cognitive Search services should disable public network access'
+                        "effect-ee980b6d-0eca-4501-8d54-f6290fd512c3": "Deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Azure Data Box jobs should enable double encryption for data at rest on the device'
+                        "effect-c349d81b-9985-44ae-a8da-ff98d108ede8": "Deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Azure HDInsight clusters should use encryption at host to encrypt data at rest'
+                        "effect-1fd32ebd-e4c3-4e13-a54a-d7422d4d95f6": "Deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Azure HDInsight clusters should use encryption in transit to encrypt communication between Azure HDInsight cluster nodes'
+                        "effect-d9da03a1-f3c3-412a-9709-947156872263": "Deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Azure Monitor Logs clusters should be created with infrastructure-encryption enabled (double encryption)'
+                        "effect-ea0dfaed-95fb-448c-934e-d6e713ce393d": "deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["audit","deny","disabled"]
+                        //
+                        // Policy 'Azure Stack Edge devices should use double-encryption'
+                        "effect-b4ac1030-89c5-4697-8e00-28b5ba6a8811": "deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["audit","deny","disabled"]
+                        //
+                        // Policy 'Azure Web PubSub Service should use private link'
+                        "effect-52630df9-ca7e-442b-853b-c6ce548b31a2": "Deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Cognitive Services accounts should have local authentication methods disabled'
+                        "effect-71ef260a-8f18-47b7-abcb-62d0673d94dc": "Deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Disk encryption should be enabled on Azure Data Explorer'
+                        "effect-f4b53539-8df9-40e4-86c6-6b607703bd4e": "Deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Double encryption should be enabled on Azure Data Explorer'
+                        "effect-ec068d99-e9c7-401f-8cef-5bdde4e6ccf1": "Deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Infrastructure encryption should be enabled for Azure Database for MySQL servers'
+                        "effect-3a58212a-c829-4f13-9872-6371df2fd0b4": "Deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Infrastructure encryption should be enabled for Azure Database for PostgreSQL servers'
+                        "effect-24fba194-95d6-48c0-aea7-f65bf859c598": "Deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Storage accounts should have infrastructure encryption'
+                        "effect-4733ea7b-a883-42fe-8cac-97454c2a9e4a": "Deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Virtual machines and virtual machine scale sets should have encryption at host enabled'
+                        "effect-fc4d8e41-e223-45ea-9bf5-eada37891d87": "Deny"
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                    }
+                }
+            ]
+        },
+        {
+            "nodeName": "NonProd/",
+            "scope": {
+                "dev": [
+                    ""
+                ],
+                "test": [
+                    ""
+                ],
+                "coretenant-dev": [
+                    "/providers/Microsoft.Management/managementGroups/x-Prod"
+                ],
+                "coretenant-prod": [
+                    "/providers/Microsoft.Management/managementGroups/x-Prod"
+                ],
+                "prod-3": [
+                    "/providers/Microsoft.Management/managementGroups/x-Prod"
+                ]
+            },
+            "children": [
+                {
+                    "nodeName": "Azure Security Benchmark",
+                    "assignment": {
+                        "name": "np-asb",
+                        "displayName": "NonProd Azure Security Benchmark",
+                        "description": "Azure Security Benchmark v3 parameterized for NonProd Environments"
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
+                        "friendlyNameToDocumentIfGuid": "Azure Security Benchmark"
+                    },
+                    "parameters": {
+                        // Policy '[Preview]: Certificates should have the specified maximum validity period'
+                        "certificatesValidityPeriodMonitoringEffect": "audit",
+                        // 'Azure Security Benchmark'
+                        // allowed=["audit","deny","disabled"]
+                        //
+                        // Policy 'Key vaults should have purge protection enabled'
+                        "keyVaultsShouldHavePurgeProtectionEnabledMonitoringEffect": "Audit",
+                        // 'Azure Security Benchmark'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Key vaults should have soft delete enabled'
+                        "keyVaultsShouldHaveSoftDeleteEnabledMonitoringEffect": "Audit"
+                        // 'Azure Security Benchmark'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                    }
+                },
+                {
+                    "nodeName": "FedRAMP High",
+                    "assignment": {
+                        "name": "np-fedramp-hi",
+                        "displayName": "NonProd FedRAMP High",
+                        "description": "FedRAMP High parameterized for NonProd Environments"
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "d5264498-16f4-418a-b659-fa7ef418175f",
+                        "friendlyNameToDocumentIfGuid": "FedRAMP High"
+                    }
+                },
+                {
+                    "nodeName": "NIST SP 800-53 Rev. 5",
+                    "assignment": {
+                        "name": "np-nist-800-53-5",
+                        "displayName": "NonProd NIST SP 800-53 Rev. 5",
+                        "description": "NIST SP 800-53 Rev. 5 parameterized for NonProd Environments"
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "179d1daa-458f-4e47-8086-2a68d0d6c38f",
+                        "friendlyNameToDocumentIfGuid": "NIST SP 800-53 Rev. 5"
+                    }
+                },
+                {
+                    "nodeName": "NIST SP 800-171 Rev. 2",
+                    "assignment": {
+                        "name": "np-nist-800-171-2",
+                        "displayName": "NonProd NIST SP 800-171 Rev. 2",
+                        "description": "NIST SP 800-171 Rev. 2 parameterized for NonProd Environments"
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "03055927-78bd-4236-86c0-f36125a10dc9",
+                        "friendlyNameToDocumentIfGuid": "NIST SP 800-171 Rev. 2"
+                    },
+                    "parameters": {
+                        // Policy 'Azure Cognitive Search service should use a SKU that supports private link'
+                        "effect-a049bf77-880b-470f-ba6d-9f21c530cf83": "Deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Azure Cognitive Search services should disable public network access'
+                        "effect-ee980b6d-0eca-4501-8d54-f6290fd512c3": "Deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Azure Data Box jobs should enable double encryption for data at rest on the device'
+                        "effect-c349d81b-9985-44ae-a8da-ff98d108ede8": "Deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Azure HDInsight clusters should use encryption at host to encrypt data at rest'
+                        "effect-1fd32ebd-e4c3-4e13-a54a-d7422d4d95f6": "Deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Azure HDInsight clusters should use encryption in transit to encrypt communication between Azure HDInsight cluster nodes'
+                        "effect-d9da03a1-f3c3-412a-9709-947156872263": "Deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Azure Monitor Logs clusters should be created with infrastructure-encryption enabled (double encryption)'
+                        "effect-ea0dfaed-95fb-448c-934e-d6e713ce393d": "deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["audit","deny","disabled"]
+                        //
+                        // Policy 'Azure Stack Edge devices should use double-encryption'
+                        "effect-b4ac1030-89c5-4697-8e00-28b5ba6a8811": "deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["audit","deny","disabled"]
+                        //
+                        // Policy 'Azure Web PubSub Service should use private link'
+                        "effect-52630df9-ca7e-442b-853b-c6ce548b31a2": "Deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Cognitive Services accounts should have local authentication methods disabled'
+                        "effect-71ef260a-8f18-47b7-abcb-62d0673d94dc": "Deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Disk encryption should be enabled on Azure Data Explorer'
+                        "effect-f4b53539-8df9-40e4-86c6-6b607703bd4e": "Deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Double encryption should be enabled on Azure Data Explorer'
+                        "effect-ec068d99-e9c7-401f-8cef-5bdde4e6ccf1": "Deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Infrastructure encryption should be enabled for Azure Database for MySQL servers'
+                        "effect-3a58212a-c829-4f13-9872-6371df2fd0b4": "Deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Infrastructure encryption should be enabled for Azure Database for PostgreSQL servers'
+                        "effect-24fba194-95d6-48c0-aea7-f65bf859c598": "Deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Storage accounts should have infrastructure encryption'
+                        "effect-4733ea7b-a883-42fe-8cac-97454c2a9e4a": "Deny",
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                        // Policy 'Virtual machines and virtual machine scale sets should have encryption at host enabled'
+                        "effect-fc4d8e41-e223-45ea-9bf5-eada37891d87": "Deny"
+                        // 'NIST SP 800-171 Rev. 2'
+                        // allowed=["Audit","Deny","Disabled"]
+                        //
+                    }
+                }
+            ]
+        }
+    ]
+}

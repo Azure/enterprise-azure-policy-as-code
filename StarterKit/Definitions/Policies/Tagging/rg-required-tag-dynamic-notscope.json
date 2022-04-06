@@ -1,0 +1,78 @@
+{
+    "name": "rg-required-tag-dynamic-notscope",
+    "properties": {
+        "displayName": "Require Tag on Resource Group with dynamic notScope",
+        "policyType": "Custom",
+        "mode": "All",
+        "description": "This policy requires a tag on resource groups when any resource group (not listed in in excludedRg) is created or updated.",
+        "metadata": {
+            "version": "1.0.1",
+            "category": "Tags"
+        },
+        "parameters": {
+            "tagName": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Tag Name",
+                    "description": "Name of the tag, such as 'environment'"
+                }
+            },
+            "excludedRG": {
+                "type": "Array",
+                "metadata": {
+                    "displayName": "Excluded Resource Groups",
+                    "description": "This array contains all excluded RGs from this policy"
+                },
+                "defaultValue": [
+                    "synapseworkspace-managedrg-*",
+                    "databricks*",
+                    "LogAnalyticsDefaultR*",
+                    "managed-rg-*",
+                    "DefaultResourceGroup*",
+                    "NetworkWatcherRG*"
+                ]
+            },
+            "effect": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Effect",
+                    "description": "Enable or disable the execution of the policy"
+                },
+                "allowedValues": [
+                    "Audit",
+                    "Deny",
+                    "Disabled"
+                ],
+                "defaultValue": "Audit"
+            }
+        },
+        "policyRule": {
+            "if": {
+                "allOf": [
+                    {
+                        "field": "type",
+                        "equals": "Microsoft.Resources/subscriptions/resourceGroups"
+                    },
+                    {
+                        "field": "[concat('tags[', parameters('tagName'), ']')]",
+                        "exists": "true"
+                    },
+                    {
+                        "count": {
+                            "value": "[parameters('excludedRG')]",
+                            "name": "ExcludedRG",
+                            "where": {
+                                "field": "name",
+                                "like": "[current('excludedRG')]"
+                            }
+                        },
+                        "equals": 0
+                    }
+                ]
+            },
+            "then": {
+                "effect": "[parameters('effect')]"
+            }
+        }
+    }
+}

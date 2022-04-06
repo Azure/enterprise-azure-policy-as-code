@@ -7,12 +7,25 @@
 - Policy Assignments must be at this scope or below.
 - Operational tasks, such as `Create-AzRemediationTasks.ps1`, must use the same rootScope or they will fail.
 
+## Table of Content
+
+- [Folders](#folders)
+- [Global Settings](#global-settings)
+  - [managedIdentityLocation](#managedidentitylocation)
+  - [globalNotScopes](#globalnotscopes)
+  - [pacEnvironments](#pacenvironments)
+  - [representativeAssignments](#representativeassignments)
+  - [initiativeSetsToCompare](#initiativesetstocompare)
+- [Reading List](#reading-list)
+
+## Folders
+
 This folder and subfolders contain the definitions to deploy. Tasks:
 
 1. Define the Azure environment in **[global-settings.jsonc](#global-settings)**
 1. Create custom Policy definitions (optional) in folder **[Policies](Policies/README.md)**
 1. Create custom Initiative definitions (optional) in folder **[Initiatives](Initiatives/README.md)**
-1. Define the Policy Assignments in folder **[Policy Assignments](Assignments/README.md)**
+1. Define the Policy Assignments in folder **[Assignments](Assignments/README.md)**
 
 ## Global Settings
 
@@ -195,7 +208,7 @@ Each entry in the array defines one of the environmnent types:
 
 1. **[Define Policy Assignments](../Definitions/Assignments/README.md)**
 
-1. **[Scripts](../Scripts/README.md)**
+1. **[Operational Scripts](../Scripts/Operations/README.md)**
 
 **[Return to the main page](../README.md)**
 <br/>[Back to top](#pipeline)<br/>

@@ -57,63 +57,90 @@ function Build-AzInitiativeDefinitionsPlan {
         }
 
         # Prep additional fields
-        [hashtable] $mergedParameters = @{}
+        [hashtable] $parameterTable = @{}
         if ($null -ne $initiativeObject.properties.parameters) {
-            $mergedParameters = ConvertTo-HashTable $initiativeObject.properties.parameters
+            $parameterTable = ConvertTo-HashTable $initiativeObject.properties.parameters
         }
 
-        [System.Collections.ArrayList] $mergedPolicyDefinitions = [System.Collections.ArrayList]::new()
-        if ($null -ne $initiativeObject.properties.PolicyDefinitions) {
-            $result = Build-AzPolicyDefinitionsForInitiative `
-                -allPolicyDefinitions $allPolicyDefinitions `
-                -replacedPolicyDefinitions $replacedPolicyDefinitions `
-                -policyDefinitionsInJson $initiativeObject.properties.PolicyDefinitions `
-                -definitionScope $rootScopeId
-            $mergedPolicyDefinitions.AddRange($result.policyDefinitions)
-        }
+        $result = Build-AzPolicyDefinitionsForInitiative `
+            -allPolicyDefinitions $allPolicyDefinitions `
+            -replacedPolicyDefinitions $replacedPolicyDefinitions `
+            -initiativeObject $initiativeObject `
+            -definitionScope $rootScopeId
+        [array] $policyDefinitions = $result.policyDefinitions
 
-        [hashtable] $mergedGroupDefinitions = @{}
+        [hashtable] $groupDefinitions = @{}
         if ($null -ne $initiativeObject.properties.policyDefinitionGroups) {
             $null = ($initiativeObject.properties.policyDefinitionGroups) | ForEach-Object { 
-                $mergedGroupDefinitions.Add($_.name, $_)
+                $groupDefinitions.Add($_.name, $_)
             }
         }
+        if ($initiativeObject.properties.importPolicyDefinitionGroups) {
+            $importInitiativeNames = $initiativeObject.properties.importPolicyDefinitionGroups
+            $limitNotReachedPolicyDefinitionGroups = $true
+            [hashtable] $usedPolicyGroupDefinitions = $result.usedPolicyGroupDefinitions
 
-        # if ($null -ne $initiativeObject.merge) {
-        #     $mergeHt = ConvertTo-HashTable $initiativeObject.merge
-        #     Merge-Initiatives `
-        #         -initiativeDisplayName $displayName `
-        #         -merge $mergeHt `
-        #         -builtInInitiativeDefinitions $builtInInitiativeDefinitions `
-        #         -allPolicyDefinitions $allPolicyDefinitions `
-        #         -mergedParameters $mergedParameters `
-        #         -mergedPolicyDefinitions $mergedPolicyDefinitions `
-        #         -mergedGroupDefinitions $mergedGroupDefinitions
-        # }
+            foreach ($importInitiativeName in $importInitiativeNames) {
+                if ($builtInInitiativeDefinitions.ContainsKey($importInitiativeName)) {
+                    $importedInitiative = $builtInInitiativeDefinitions.$importInitiativeName
+                    if ($limitNotReachedPolicyDefinitionGroups) {
+                        if ($importedInitiative.policyDefinitionGroups) {
+                            Write-Information "    Importing PolicyDefinitionGroups from '$($importedInitiative.displayName)'"
+                            foreach ($policyDefinitionGroup in $importedInitiative.policyDefinitionGroups) {
+                                $policyDefinitionGroupName = $policyDefinitionGroup.name
+                                if ($usedPolicyGroupDefinitions.ContainsKey($policyDefinitionGroupName)) {
+                                    # Only import a PolicyGroupDefinition if it is used
+
+                                    if (!$groupDefinitions.ContainsKey($policyDefinitionGroupName)) {
+                                        # Ignores duplicates
+
+                                        if ($groupDefinitions.Count -ge 1000) {
+                                            $limitNotReachedPolicyDefinitionGroups = true;
+                                            Write-Information "        Too many PolicyDefinitionGroups (1000+) to import"
+                                            break
+                                        }
+                                        $null = $groupDefinitions.Add($policyDefinitionGroupName, $policyDefinitionGroup)
+                                        Write-Information "        $policyDefinitionGroupName"
+                                    }
+                                }
+                            }
+                        }
+                        else {
+                            Write-Error "    Initiative $($importedInitiative.displayName) does not contain PolicyDefinitionGroups to import" -ErrorAction Stop
+                        }
+                    }
+                    else {
+                        Write-Information "    Importing PolicyDefinitionGroups from Initiative '$($importedInitiative.displayName)' exceeds maximum number of PolicyDefinitionGroups (1000)"
+                    }
+                }
+                else {
+                    Write-Error "    Initiative $importInitiativeName not found for importing PolicyDefinitionGroups" ErrorAction Stop
+                }
+            }
+        }
 
         if ($result.usingUndefinedReference) {
             Write-Error "Undefined Policy referenced in '$($name)' from $($initiativeFile.Name)" -ErrorAction Stop
         }
-        elseif ($mergedPolicyDefinitions.Count -eq 0) {
+        elseif ($policyDefinitions.Count -eq 0) {
             Write-Error "Initiative must contain at least one Policy Defintion" -ErrorAction Stop
         }
         else {
             # Constructing Initiative definitions parameters for splatting
+            $description = "no description"
+            if ($initiativeObject.properties.description) {
+                $description = $initiativeObject.properties.description
+            }
             $initiativeDefinitionConfig = @{
                 Name             = $name
                 DisplayName      = $displayName
-                Description      = "no description"
-                Parameter        = $mergedParameters
-                PolicyDefinition = $mergedPolicyDefinitions
-                GroupDefinition  = $mergedGroupDefinitions.Values
+                Description      = $description
+                Parameter        = $parameterTable
+                PolicyDefinition = $policyDefinitions
+                GroupDefinition  = $groupDefinitions.Values
             }
-
             # Adding SubscriptionId or ManagementGroupName value and optional fields to the splat
             $initiativeDefinitionConfig += $rootScope
-            # Add Initiative description if it's present in the definition file
-            if ($initiativeObject.properties.description) {
-                $initiativeDefinitionConfig.Description = $initiativeObject.properties.description
-            }
             #Add Initiative metadata if it's present in the definition file
             if ($initiativeObject.properties.metadata) {
                 $initiativeDefinitionConfig.Add("Metadata", $initiativeObject.properties.metadata)

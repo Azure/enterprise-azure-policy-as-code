@@ -8,9 +8,14 @@
 # * Json snippet with parameters for an initiative
 [CmdletBinding()]
 param (
-    [parameter(Position = 0)] [string] $initiativeSetSelector = "",
-    [Parameter()] [string] $outputPath = "$PSScriptRoot/../../Output/AzEffects/Initiatives/",
-    [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable PacDefinitionsRootFolder or './Definitions'.")] [string]$DefinitionsRootFolder
+    [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a vlaue. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
+    [string] $PacEnvironmentSelector,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_ROOT_FOLDER or './Definitions'.")]
+    [string]$DefinitionsRootFolder,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Output Folder. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/AzEffects/Environments or './Outputs/AzEffects/Environments'.")] 
+    [string] $outputPath
 )
 
 
@@ -22,13 +27,16 @@ param (
 . "$PSScriptRoot/../Helpers/Get-AzPolicyEffectsForInitiative.ps1"
 . "$PSScriptRoot/../Helpers/Get-PolicyEffectDetails.ps1"
 . "$PSScriptRoot/../Helpers/Get-ParmeterNameFromValueString.ps1"
-. "$PSScriptRoot/../Utils/Invoke-AzCli.ps1"
-. "$PSScriptRoot/../Utils/ConvertTo-HashTable.ps1"
+. "$PSScriptRoot/../Helpers/Invoke-AzCli.ps1"
+. "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
 
 # Get definitions
 $InformationPreference = "Continue"
 $environment = Initialize-Environment -DefinitionsRootFolder $DefinitionsRootFolder -retrieveFirstEnvironment -retrieveInitiativeSet -initiativeSetSelector  $initiativeSetSelector
 $rootScope = $environment.rootScope
+if ($outputPath -eq "") {
+    $outputPath = "$($environment.outputRootFolder)/AzEffects/Initiatives"
+}
 
 $collections = Get-AllAzPolicyInitiativeDefinitions -RootScope $rootScope -byId
 $allPolicyDefinitions = $collections.builtInPolicyDefinitions + $collections.existingCustomPolicyDefinitions

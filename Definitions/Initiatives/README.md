@@ -1,13 +1,18 @@
 # Initiative Definitions
 
-This chapter describes how Initiative (Policy Set) definitions are handled by the Policy-as-Code framework.
+## Table of Contents
 
-> **NOTE**:
-> When authoring policy/initiative definitions, check out the [Maximum count of Azure Policy objects](https://docs.microsoft.com/en-us/azure/governance/policy/overview#maximum-count-of-azure-policy-objects)
+- [Initiative (Policy Set) Definition Files](#initiative--policy-set--definition-files)
+- [Recommendations](#recommendations)
+- [Example](#example)
+- [Reading List](#reading-list)
+
+## Initiative (Policy Set) Definition Files
 
 The names of the definition JSON files don't matter, the Initiative definitions are registered based on the `name` attribute. It is recommended that you use a `GUID` as the `name`. The solution also allows the use of JSON with comments by using `.jsonc` instead of `.json` for the file extension.
 
-## Initiative (Policy Set) Definition Files
+> **NOTE**:
+> When authoring policy/initiative definitions, check out the [Maximum count of Azure Policy objects](https://docs.microsoft.com/en-us/azure/governance/policy/overview#maximum-count-of-azure-policy-objects)
 
 The Initiative definition files are structured based on the official [Azure Initiative definition structure](https://docs.microsoft.com/en-us/azure/governance/policy/concepts/initiative-definition-structure) published by Microsoft. There are numerous definition samples available on Microsoft's [GitHub repository for azure-policy](https://github.com/Azure/azure-policy/tree/master/built-in-policies/policySetDefinitions).
 
@@ -96,7 +101,7 @@ The Initiative definition files are structured based on the official [Azure Init
 
 1. **[Define Policy Assignments](../../Definitions/Assignments/README.md)**
 
-1. **[Scripts](../../Scripts/README.md)**
+1. **[Operational Scripts](../../Scripts/Operations/README.md)**
 
 **[Return to the main page](../../README.md)**
 <br/>[Back to top](#initiative-definitions)<br/>

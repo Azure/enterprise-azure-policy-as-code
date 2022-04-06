@@ -1,0 +1,35 @@
+{
+    "nodeName": "/Loc/",
+    "assignment": {
+        "Name": "Allowed Locations",
+        "displayName": "Allowed Locations",
+        "description": "Sets the allowed locations"
+    },
+    "definitionEntry": {
+        "initiativeName": "Allowed Locations",
+        "friendlyNameToDocumentIfGuid": ""
+    },
+    "parameters": {
+        "AllowedLocations": [
+            "useast",
+            "useast2"
+        ]
+    },
+    "scope": {
+        "dev": [
+            ""
+        ],
+        "test": [
+            ""
+        ],
+        "coretenant-dev": [
+            "/providers/Microsoft.Management/managementGroups/x-Prod"
+        ],
+        "coretenant-prod": [
+            "/providers/Microsoft.Management/managementGroups/x-Prod"
+        ],
+        "prod-3": [
+            "/providers/Microsoft.Management/managementGroups/x-Prod"
+        ]
+    }
+}

@@ -1,0 +1,107 @@
+{
+    "name": "resources-inherit-rg-tag-dynamic-notscope",
+    "properties": {
+        "displayName": "Resources Inherit Tags from Resource Group with Exclusions",
+        "policyType": "Custom",
+        "description": "Resources inherit a tag from the resource group. It allows for resource groups and resource types to be excluded from this.",
+        "mode": "Indexed",
+        "metadata": {
+            "version": "1.0.1",
+            "category": "Tags"
+        },
+        "parameters": {
+            "tagName": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Tag Name",
+                    "description": "Name of the tag, such as 'environment'"
+                }
+            },
+            "excludedRG": {
+                "type": "Array",
+                "metadata": {
+                    "displayName": "Excluded Resource Groups",
+                    "description": "This array contains all excluded RGs from this policy"
+                },
+                "defaultValue": [
+                    "synapseworkspace-managedrg-*",
+                    "databricks*",
+                    "managed-rg-*",
+                    "LogAnalyticsDefaultR*",
+                    "DefaultResourceGroup*",
+                    "NetworkWatcherRG*",
+                    "Orca-Security*"
+                ]
+            },
+            "excludedResourceTypes": {
+                "type": "Array",
+                "metadata": {
+                    "displayName": "Excluded Resource Types",
+                    "description": "Exclude certain resource types from this policy"
+                },
+                "defaultValue": [
+                    "Microsoft.Network/firewallPolicies",
+                    "Microsoft.Media/mediaservices/liveevents",
+                    "Microsoft.Sql/virtualclusters",
+                    "Microsoft.Logic/integrationServiceEnvironments/managedApis",
+                    "Microsoft.ManagedIdentity/userAssignedIdentities",
+                    "microsoft.sql/servers/databases",
+                    "microsoft.sql/managedinstances/databases",
+                    "microsoft.compute/virtualmachines/extensions",
+                    "Microsoft.OperationsManagement/solutions"
+                ]
+            }
+        },
+        "policyRule": {
+            "if": {
+                "allOf": [
+                    {
+                        "count": {
+                            "value": "[parameters('excludedResourceTypes')]",
+                            "name": "excludedResourceTypes",
+                            "where": {
+                                "field": "type",
+                                "like": "[current('excludedResourceTypes')]"
+                            }
+                        },
+                        "equals": 0
+                    },
+                    {
+                        "field": "[concat('tags[', parameters('tagName'), ']')]",
+                        "notEquals": "[resourceGroup().tags[parameters('tagName')]]"
+                    },
+                    {
+                        "value": "[resourceGroup().tags[parameters('tagName')]]",
+                        "notEquals": ""
+                    },
+                    {
+                        "count": {
+                            "value": "[parameters('excludedRG')]",
+                            "name": "excludedRG",
+                            "where": {
+                                "value": "[resourceGroup().name]",
+                                "like": "[current('excludedRG')]"
+                            }
+                        },
+                        "equals": 0
+                    }
+                ]
+            },
+            "then": {
+                "effect": "Modify",
+                "details": {
+                    "roleDefinitionIds": [
+                        "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+                    ],
+                    "operations": [
+                        {
+                            "operation": "addOrReplace",
+                            "field": "[concat('tags[', parameters('tagName'), ']')]",
+                            "value": "[resourceGroup().tags[parameters('tagName')]]"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}
