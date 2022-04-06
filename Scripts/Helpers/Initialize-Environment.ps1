@@ -13,18 +13,19 @@ function Initialize-Environment {
 
     # Callcuate folders
     if ($DefinitionsRootFolder -eq "") {
-        if ($null -eq $env:PacDefinitionsRootFolder) {
-            $DefinitionsRootFolder = "./Definitions"
+        if ($null -eq $env:PAC_DEFINITIONS_ROOT_FOLDER) {
+            $DefinitionsRootFolder = "$PSScriptRoot/../../Definitions"
         }
         else {
-            $DefinitionsRootFolder = $env:PacDefinitionsRootFolder
+            $DefinitionsRootFolder = $env:PAC_DEFINITIONS_ROOT_FOLDER
         }
     }
     $globalSettingsFile = "$DefinitionsRootFolder/global-settings.jsonc"
-    $PlanFolder = "./Output/Plans"
-    if ($null -ne $env:PlanFolder) {
-        $PlanFolder = "$env:PacOutputFolder/Plans"
+    $outputRootFolder = "$PSScriptRoot/../../Output"
+    if ($null -ne $env:PAC_OUTPUT_FOLDER) {
+        $outputRootFolder = $env:PAC_OUTPUT_FOLDER
     }
+    $planFolder = "$outputRootFolder/Plans"
 
     Write-Information "==================================================================================================="
     Write-Information "Get global settings from '$globalSettingsFile'."
@@ -216,8 +217,10 @@ function Initialize-Environment {
         policyDefinitionsFolder     = "$DefinitionsRootFolder/Policies"
         initiativeDefinitionsFolder = "$DefinitionsRootFolder/Initiatives"
         assignmentsFolder           = "$DefinitionsRootFolder/Assignments"
-        planFile                    = "$PlanFolder/$PacEnvironmentSelector-plan.json"
-        rolesFile                   = "$PlanFolder/$PacEnvironmentSelector-roles.json"
+        outputRootFolder             = $outputRootFolder
+        planFolder                  = $planFolder
+        planFile                    = "$planFolder/$PacEnvironmentSelector-plan.json"
+        rolesFile                   = "$planFolder/$PacEnvironmentSelector-roles.json"
 
     }
 

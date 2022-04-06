@@ -1,0 +1,220 @@
+{
+    // Modify Policies for required tags --- use this comment to trigger deployment
+    "nodeName": "/Tags/",
+    "parameters": {
+        "excludedRG": [
+            "synapseworkspace-managedrg-*",
+            "databricks-rg-*",
+            "managed*",
+            "DefaultResourceGroup*",
+            "NetworkWatcherRG*",
+            "LogAnalyticsDefaultR*",
+            "Orca-Security*",
+            "rg-terraform*",
+            "cloud-shell-storage*"
+        ]
+    },
+    "children": [
+        {
+            "nodeName": "tenant/",
+            "scope": {
+                "dev": [
+                    "/subscriptions/00000000-0000-0000-000000000000"
+                ],
+                "test": [
+                    "/subscriptions/00000000-0000-0000-000000000000"
+                ],
+                "prod": [
+                    "/providers/Microsoft.Management/managementGroups/Contoso-Root"
+                ]
+            },
+            "children": [
+                {
+                    "nodeName": "requireTagsWithExemptedRG/",
+                    "assignment": {
+                        "name": "rgtag-",
+                        "displayName": "Require Tag on Resource Group",
+                        "description": "Require Tag for Resource Groups when any resource group (not listed in in excludedRg) is created or updated."
+                    },
+                    "definitionEntry": {
+                        "policyName": "rg-required-tag-dynamic-notscope"
+                    },
+                    "parameters": {
+                        "effect": "Audit"
+                    },
+                    "children": [
+                        {
+                            "nodeName": "Department",
+                            "assignment": {
+                                "name": "Department",
+                                "displayName": "Department",
+                                "description": "Department"
+                            },
+                            "parameters": {
+                                "tagName": "Department"
+                            }
+                        },
+                        {
+                            "nodeName": "SubDepartment",
+                            "assignment": {
+                                "name": "SubDepartment",
+                                "displayName": "SubDepartment",
+                                "description": "SubDepartment"
+                            },
+                            "parameters": {
+                                "tagName": "SubDepartment"
+                            }
+                        },
+                        {
+                            "nodeName": "SLA",
+                            "assignment": {
+                                "name": "SLA",
+                                "displayName": "SLA",
+                                "description": "SLA"
+                            },
+                            "parameters": {
+                                "tagName": "SLA"
+                            }
+                        },
+                    ]
+                },
+                {
+                    "nodeName": "inheritFromRG/",
+                    "definitionEntry": {
+                        "policyName": "resources-inherit-rg-tag-dynamic-notscope",
+                        "roleDefinitionIds": [
+                            "b24988ac-6180-42a0-ab88-20f7382dd24c"
+                        ]
+                    },
+                    "assignment": {
+                        "name": "taginh-",
+                        "displayName": "Inherit Tag from RG - ",
+                        "description": "Modify Tag to comply with governance goal of enforcing Tags by inheriting Tags from RG - "
+                    },
+                    "children": [
+                        {
+                            "nodeName": "Department",
+                            "assignment": {
+                                "name": "Department",
+                                "displayName": "Department",
+                                "description": "Department"
+                            },
+                            "parameters": {
+                                "tagName": "Department"
+                            }
+                        },
+                        {
+                            "nodeName": "SubDepartment",
+                            "assignment": {
+                                "name": "SubDepartment",
+                                "displayName": "SubDepartment",
+                                "description": "SubDepartment"
+                            },
+                            "parameters": {
+                                "tagName": "SubDepartment"
+                            }
+                        },
+                        {
+                            "nodeName": "SLA",
+                            "assignment": {
+                                "name": "SLA",
+                                "displayName": "SLA",
+                                "description": "SLA"
+                            },
+                            "parameters": {
+                                "tagName": "SLA"
+                            }
+                        },
+                        {
+                            "nodeName": "Environment",
+                            "assignment": {
+                                "name": "Environment",
+                                "displayName": "Environment",
+                                "description": "Environment"
+                            },
+                            "parameters": {
+                                "tagName": "Environment"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "nodeName": "Environment/",
+            "definitionEntry": {
+                "policyName": "rg-addreplace-tag-dynamic-notscope",
+                "roleDefinitionIds": [
+                    "b24988ac-6180-42a0-ab88-20f7382dd24c"
+                ]
+            },
+            "parameters": {
+                "tagName": "Environment"
+            },
+            "children": [
+                {
+                    "nodeName": "TIER0",
+                    "assignment": {
+                        "name": "tier0-env-tag",
+                        "displayName": "Tier0 Environment Tag",
+                        "description": "Set Tag Environment to TIER0"
+                    },
+                    "parameters": {
+                        "tagValue": "TIER0"
+                    },
+                    "scope": {
+                        "prod": [
+                            "/providers/Microsoft.Management/managementGroups/mg"
+                        ]
+                    }
+                },
+                {
+                    "nodeName": "PROD",
+                    "assignment": {
+                        "name": "prod-env-tag",
+                        "displayName": "Prod Environment Tag",
+                        "description": "Set Tag Environment to PROD"
+                    },
+                    "parameters": {
+                        "tagValue": "PROD"
+                    },
+                    "scope": {
+                        "prod": []
+                    }
+                },
+                {
+                    "nodeName": "QA",
+                    "assignment": {
+                        "name": "qa-env-tag",
+                        "displayName": "QA Environment Tag",
+                        "description": "Set Tag Environment to QA"
+                    },
+                    "parameters": {
+                        "tagValue": "QA"
+                    },
+                    "scope": {
+                        "prod": [
+                            "/providers/Microsoft.Management/managementGroups/mg"
+                        ]
+                    }
+                },
+                {
+                    "nodeName": "DEV",
+                    "assignment": {
+                        "name": "dev-env-tag",
+                        "displayName": "Dev Environment Tag",
+                        "description": "Set Tag Environment to DEV"
+                    },
+                    "parameters": {
+                        "tagValue": "DEV"
+                    },
+                    "scope": {
+                        "prod": [
+                            "/providers/Microsoft.Management/managementGroups/mg"
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -2,9 +2,14 @@
 
 [CmdletBinding()]
 param(
-    [parameter(Mandatory = $false, Position = 0)] [string] $PacEnvironmentSelector = "dev",
-    [Parameter(Mandatory = $false, ValueFromPipeline = $true)] [string] $OutputFileName = ".\missing-tags-results.csv",
-    [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable PacDefinitionsRootFolder or './Definitions'.")] [string]$DefinitionsRootFolder
+    [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a vlaue. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
+    [string] $PacEnvironmentSelector,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_ROOT_FOLDER or './Definitions'.")]
+    [string]$DefinitionsRootFolder,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Output file name. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Tags/missing-tags-results.csv or './Outputs/Tags/missing-tags-results.csv'.")] 
+    [string] $OutputFileName
 )
 
 . "$PSScriptRoot/../Helpers/Initialize-Environment.ps1"
@@ -12,6 +17,9 @@ param(
 $InformationPreference = "Continue"
 $environment = Initialize-Environment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder
 $targetTenant = $environment.targetTenant
+if ($OutputFileName -eq "") {
+    $OutputFileName = "$($environment.outputRootFolder)/Tags/missing-tags-results.csv"
+}
 
 # Connect to Azure Tenant
 Connect-AzAccount -Tenant $targetTenant

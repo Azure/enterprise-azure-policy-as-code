@@ -1,6 +1,20 @@
 
 # Policy Assignments
 
+## Table of Contents
+
+- [Components](#components)
+- [Assignment File Overview Diagram](#assignment-file-overview-diagram)
+- [Assignment JSON file structure](#assignment-json-file-structure)
+- [Assignment Node Components](#assignment-node-components)
+- [Details for `scope` and `notScope` Values](#details-for--scope--and--notscope--values)
+- [Using the `PacAssignmentSelector`](#using-the--pacassignmentselector-)
+- [Resource Group patterns in `notScope`](#resource-group-patterns-in--notscope-)
+- [Example Scope Definition](#example-scope-definition)
+- [Reading List](#reading-list)
+
+## Components
+
 This chapter describes how **Policy Assignments** are handled by PaC. To learn about how custom Policy and Initiative definitions are managed, see the [Policy Definitions](../Policies/README.md) and [Initiative Definitions](../Initiatives/README.md).
 
 The components required for **creating / updating / deleting Policy assignments and Policy set (initiative) assignments** are the following:
@@ -8,7 +22,7 @@ The components required for **creating / updating / deleting Policy assignments 
 | Component | What is it used for? | Where can it be found? |
 |--|--|--|
 | **Assignment JSON files** | The assignments JSON file follows the management group hierarchy (optionally including subscriptions and resource groups) and defines all policy and initiative assignments on these scopes. | `Definitions/Assignments` folder |
-| **Global Settings File** | The `global-settings.jsonc` file specifies common values for Policy Assignments  |`Definitions` folder |
+| **Global Settings File** | The `global-settings.jsonc` file specifies common values for Policy Assignments  | `Definitions` folder |
 
 <br/>[Back to top](#policy-assignments)<br/>
 
@@ -197,7 +211,7 @@ The assignment selector determines the array being selected for this run of the 
 
 1. **[Define Policy Assignments](../../Definitions/Assignments/README.md)**
 
-1. **[Scripts](../../Scripts/README.md)**
+1. **[Operational Scripts](../../Scripts/Operations/README.md)**
 
 **[Return to the main page](../../README.md)**
 <br/>[Back to top](#policy-assignments)<br/>

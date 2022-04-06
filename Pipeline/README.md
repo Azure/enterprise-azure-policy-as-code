@@ -1,10 +1,22 @@
 # Pipeline
 
-This article of the Policy as Code documentation contains all of the necessary information to configure, run and operate the deployment pipeline properly.
-
 This repository contains starter pipeline definitions for Azure DevOps. **The authors are interested in supporting other deployment pipelines. If you have developed pipelines for other technologies, such as GitHub, Jenkins, ...**
 
-<br/>[Back to top](#pipeline)<br/>
+## Table of Contents
+
+- [Components](#components)
+- [GitHub Flow for Policy as Code Flows](#github-flow-for-policy-as-code-flows)
+- [Single Tenant Pipeline Stages with Role Separation](#single-tenant-pipeline-stages-with-role-separation)
+- [Service Connections and Roles](#service-connections-and-roles)
+- [Deployment Scripts for Pipeline](#deployment-scripts-for-pipeline)
+- [Scripts per Stage](#scripts-per-stage)
+  - [Script Flow](#script-flow)
+  - [Common Script Parameters](#common-script-parameters)
+  - [Build-AzPoliciesInitiativesAssignmentsPlan.ps1](#build-azpoliciesinitiativesassignmentsplanps1)
+  - [Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1](#deploy-azpoliciesinitiativesassignmentsfromplanps1)
+  - [Set-AzPolicyRolesFromPlan.ps1](#set-azpolicyrolesfromplanps1)
+- [Pipeline Execution](#pipeline-execution)
+- [Reading List](#reading-list)
 
 ## Components
 
@@ -19,7 +31,7 @@ The components required for **configuring the pipeline and deploying policies, i
 
 <br/>[Back to top](#pipeline)<br/>
 
-## GitHub Flow for Policy as Code Flows
+## GitHub Flow for Policy as Code
 
 The diagram below shows the use of GitHub Flow in Policy as Code. Builds are triggered for Commits, optionally for Pull Requests and for successful main branch merges.
 
@@ -83,7 +95,16 @@ Create service connections for each of your environments and require minimum rol
 
 <br/>[Back to top](#pipeline)<br/>
 
-### **Script:** Build-AzPoliciesInitiativesAssignmentsPlan.ps1
+### Common Script Parameters
+
+|Parameter | Required | Explanation |
+|----------|----------|-------------|
+| `PacEnvironmentSelector` | Optional | Selects the tenant, rootScope, defaultSubscription, assignment scopes/notScope and file names. If omitted, interactively prompts for the value. |
+| `DefinitionsRootFolder` | Optional | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_ROOT_FOLDER` or `./Definitions`. It contains `global-settings.jsonc`.
+
+<br/>[Back to top](#pipeline)<br/>
+
+### Build-AzPoliciesInitiativesAssignmentsPlan.ps1
 
 Analyzes changes in policy, initiative, and assignment files. It calculates a plan to apply deltas. The deployment scripts are **declarative** and **idempotent**: this means, that regardless how many times they are run, they always push all changes that were implemented in the JSON files to the Azure environment, i.e. if a JSON file is newly created/updated/deleted, the pipeline will create/update/delete the Policy and/or Initiative definition in Azure. If there are no changes, the pipeline can be run any number of times, as it won't make any changes to Azure.
 
@@ -91,12 +112,10 @@ In addition to the [common parameters](#common-parmeters-for-flexible-and-unifie
 
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
-| `PacEnvironmentSelector` | Required | Selects the tenant, rootScope, defaultsubscription, assignment scopes and file names. If omitted, interactively prompts for the value. |
 | `IncludeResource GroupsForAssignments` | Optional | Resource Group level assignments are not recommended; therefore, the script excludes Resource Groups from processing to save substantial execution time (tens of minutes to hours). This switch parameter overrides that default behavior. |
 | `SuppressDeletes` | Optional | When using this switch, the script will NOT delete extraneous Policy definitions, Initiative definitions and Assignments. This can be useful for brown field deployments. |
-| `DefinitionsRootFolder` | Optional | Definitions folder path. Defaults to environment variable PacDefinitionsRootFolder or './Definitions'. It contains `global-settings.jsonc` and folders `Policies`, `Initiatives` and `Assignments`. |
-| `PlanFile` | Optional | Plan output file (Json). Plan output filename. If empty it is read from `GlobalSettingsFile`. |
-
+| `PlanFile` | Optional | Plan filename. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Plans/$PacEnvironmentSelector-plan.json` or `./Outputs/Plans/$PacEnvironmentSelector-plan.json`. |
+| `RolesPlanFile` | Optional | Role Assignment plan output filename. Defaults to environment
 <br/>[Back to top](#pipeline)<br/>
 
 ### Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1
@@ -105,8 +124,8 @@ Deploys Policies, Initiatives, and Policy Assignments at their desired scope bas
 
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
-| `PlanFile` | Required | Plan input file (Json). |
-| `RolesPlanFile` | Required | Role Assignment plan output file. |
+| `PlanFile` | Optional | Plan filename. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Plans/$PacEnvironmentSelector-plan.json` or `./Outputs/Plans/$PacEnvironmentSelector-plan.json`. |
+| `RolesPlanFile` | Optional | Role Assignment plan filename. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Plans/$PacEnvironmentSelector-roles.json` or `./Outputs/Plans/$PacEnvironmentSelector-roles.json`. |
 
 <br/>[Back to top](#pipeline)<br/>
 
@@ -116,7 +135,7 @@ Creates the role assignments for the Managed Identities required for `DeployIfNo
 
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
-| `RolesPlanFile` | Required | Role Assignments plan input file. |
+| `RolesPlanFile` | Optional | Role Assignment plan filename. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Plans/$PacEnvironmentSelector-roles.json` or `./Outputs/Plans/$PacEnvironmentSelector-roles.json`. |
 
 <br/>[Back to top](#pipeline)<br/>
 
@@ -158,7 +177,7 @@ If there are no changes, empty stage(s) are executed to explicitly show that no 
 
 1. **[Define Policy Assignments](../Definitions/Assignments/README.md)**
 
-1. **[Scripts](../Scripts/README.md)**
+1. **[Operational Scripts](../Scripts/Operations/README.md)**
 
 **[Return to the main page](../README.md)**
 <br/>[Back to top](#pipeline)<br/>

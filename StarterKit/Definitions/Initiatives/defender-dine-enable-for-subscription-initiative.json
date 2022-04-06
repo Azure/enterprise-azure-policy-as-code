@@ -1,0 +1,205 @@
+{
+    "name": "defender-dine-enable-for-subscription",
+    "properties": {
+        "displayName": "Defender enroll Subscription",
+        "description": "This initiative enrolls subscriptions in all Azure Defnder Types.",
+        "metadata": {
+            "version": "1.0.0",
+            "category": "Security Center"
+        },
+        "policyDefinitionGroups": [
+            {
+                "name": "Azure_Security_Benchmark_v2.0_LT-1",
+                "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-1"
+            },
+            {
+                "name": "Azure_Security_Benchmark_v2.0_LT-2",
+                "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-2"
+            },
+            {
+                "name": "Azure_Security_Benchmark_v2.0_LT-3",
+                "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-3"
+            },
+            {
+                "name": "Azure_Security_Benchmark_v2.0_LT-4",
+                "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-4"
+            },
+            {
+                "name": "Azure_Security_Benchmark_v2.0_LT-5",
+                "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-5"
+            },
+            {
+                "name": "Azure_Security_Benchmark_v2.0_LT-6",
+                "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-6"
+            },
+            {
+                "name": "Azure_Security_Benchmark_v2.0_LT-7",
+                "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_LT-7"
+            }
+        ],
+        "parameters": {
+            "effect": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Enable Azure Defender",
+                    "description": "Enable Azure Defender"
+                },
+                "allowedValues": [
+                    "DeployIfNotExists",
+                    "AuditIfNotExists",
+                    "Disabled"
+                ],
+                "defaultValue": "DeployIfNotExists"
+            }
+        },
+        "PolicyDefinitions": [
+            {
+                "policyDefinitionReferenceId": "Enable Azure Defender for Resource Type AppServices",
+                "policyDefinitionName": "Enable Azure Defender for Resource Type",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('effect')]"
+                    },
+                    "resourceProvider": {
+                        "value": "AppServices"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-1"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "Enable Azure Defender for Resource Type Arm",
+                "policyDefinitionName": "Enable Azure Defender for Resource Type",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('effect')]"
+                    },
+                    "resourceProvider": {
+                        "value": "Arm"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-1"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "Enable Azure Defender for Resource Type SqlServers",
+                "policyDefinitionName": "Enable Azure Defender for Resource Type",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('effect')]"
+                    },
+                    "resourceProvider": {
+                        "value": "SqlServers"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-1"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "Enable Azure Defender for Resource Type ContainerRegistry",
+                "policyDefinitionName": "Enable Azure Defender for Resource Type",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('effect')]"
+                    },
+                    "resourceProvider": {
+                        "value": "ContainerRegistry"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-1"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "Enable Azure Defender for Resource Type DNS",
+                "policyDefinitionName": "Enable Azure Defender for Resource Type",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('effect')]"
+                    },
+                    "resourceProvider": {
+                        "value": "DNS"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-1"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "Enable Azure Defender for Resource Type KeyVaults",
+                "policyDefinitionName": "Enable Azure Defender for Resource Type",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('effect')]"
+                    },
+                    "resourceProvider": {
+                        "value": "KeyVaults"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-1"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "Enable Azure Defender for Resource Type KubernetesService",
+                "policyDefinitionName": "Enable Azure Defender for Resource Type",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('effect')]"
+                    },
+                    "resourceProvider": {
+                        "value": "KubernetesService"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-1"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "Enable Azure Defender for Resource Type VirtualMachines",
+                "policyDefinitionName": "Enable Azure Defender for Resource Type",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('effect')]"
+                    },
+                    "resourceProvider": {
+                        "value": "VirtualMachines"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "Enable Azure Defender for Resource Type SqlServerVirtualMachines",
+                "policyDefinitionName": "Enable Azure Defender for Resource Type",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('effect')]"
+                    },
+                    "resourceProvider": {
+                        "value": "SqlServerVirtualMachines"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-1"
+                ]
+            },
+            {
+                "policyDefinitionReferenceId": "Enable Azure Defender for Resource Type StorageAccounts",
+                "policyDefinitionName": "Enable Azure Defender for Resource Type",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('effect')]"
+                    },
+                    "resourceProvider": {
+                        "value": "StorageAccounts"
+                    }
+                },
+                "groupNames": [
+                    "Azure_Security_Benchmark_v2.0_LT-1"
+                ]
+            }
+        ]
+    }
+}

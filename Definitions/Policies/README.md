@@ -1,14 +1,18 @@
 # Policy Definitions
 
-This chapter describes how Policy definitions are handled by the Policy-as-Code framework.
-Policy definitions do not evaluate resources until they are assigned to a specific scope with an Assignment.
+## Table of Contents
 
-> **NOTE**:
-> When authoring policy/initiative definitions, check out the [Maximum count of Azure Policy objects](https://docs.microsoft.com/en-us/azure/governance/policy/overview#maximum-count-of-azure-policy-objects)
+- [Policy Definition Files](#policy-definition-files)
+- [Recommendations](#recommendations)
+- [Example](#example)
+- [Reading List](#reading-list)
+
+## Policy Definition Files
 
 The names of the definition JSON files don't matter, the Policy and Initiative definitions are registered based on the `name` attribute. It is recommended that you use a `GUID` as the `name`. The solution also allows the use of JSON with comments by using `.jsonc` instead of `.json` for the file extension.
 
-## Policy Definition Files
+> **NOTE**:
+> When authoring policy/initiative definitions, check out the [Maximum count of Azure Policy objects](https://docs.microsoft.com/en-us/azure/governance/policy/overview#maximum-count-of-azure-policy-objects)
 
 The Policy definition files are structured based on the official [Azure Policy definition structure](https://docs.microsoft.com/en-us/azure/governance/policy/concepts/definition-structure) published by Microsoft. There are numerous definition samples available on Microsoft's [GitHub repository for azure-policy](https://github.com/Azure/azure-policy).
 
@@ -16,12 +20,12 @@ The Policy definition files are structured based on the official [Azure Policy d
 
 ## Recommendations
 
-* `"name"` should be a GUID - see <https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/new-guid?view=powershell-7.2>.
-* `"category"` should be one of the standard ones defined in built-in Policy definitions.
-* Do not specify an `id`.
-* Make the `effect` parameterized.
-* Whenever feasible, provide a `defaultValue` for parameters, especially for an `effect` parameter.
-* Policy aliases are used by Azure Policy to refer to resource type properties in the `if` condition and in `existenceCondition`: <https://docs.microsoft.com/en-us/azure/governance/policy/concepts/definition-structure#aliases>.
+- `"name"` should be a GUID - see <https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/new-guid?view=powershell-7.2>.
+- `"category"` should be one of the standard ones defined in built-in Policy definitions.
+- Do not specify an `id`.
+- Make the `effect` parameterized.
+- Whenever feasible, provide a `defaultValue` for parameters, especially for an `effect` parameter.
+- Policy aliases are used by Azure Policy to refer to resource type properties in the `if` condition and in `existenceCondition`: <https://docs.microsoft.com/en-us/azure/governance/policy/concepts/definition-structure#aliases>.
 
 <br/>[Back to top](#policy-definitions)<br/>
 
@@ -78,7 +82,7 @@ The Policy definition files are structured based on the official [Azure Policy d
 
 1. **[Define Policy Assignments](../../Definitions/Assignments/README.md)**
 
-1. **[Scripts](../../Scripts/README.md)**
+1. **[Operational Scripts](../../Scripts/Operations/README.md)**
 
 **[Return to the main page](../../README.md)**
 <br/>[Back to top](#policy-definitions)<br/>

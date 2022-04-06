@@ -12,8 +12,17 @@
 
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory = $true, HelpMessage = "Plan input filename.")] [string] $PlanFile,
-    [Parameter(Mandatory = $true, HelpMessage = "Role Assignment plan output filename.")] [string] $RolesPlanFile
+    [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a vlaue. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
+    [string] $PacEnvironmentSelector,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_ROOT_FOLDER or './Definitions'.")]
+    [string]$DefinitionsRootFolder,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Plan input filename. Defaults to environment variable `"`$env:PAC_OUTPUT_FOLDER/Plans/`$PacEnvironmentSelector-plan.json`" or './Outputs/Plans/`$PacEnvironmentSelector-plan.json`"'.")]
+    [string] $PlanFile,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Role Assignment plan output filename. Defaults to environment variable `"`$env:PAC_OUTPUT_FOLDER/Plans/`$PacEnvironmentSelector-roles.json`" or './Outputs/Plans/`$PacEnvironmentSelector-roles.json`"'.")]
+    [string] $RolesPlanFile
 )
 
 #region Az Helper Functions
@@ -97,15 +106,24 @@ function Set-AzPolicyAssignmentHelper {
 
 #endregion
 
-. "$PSScriptRoot/../Utils/ConvertTo-HashTable.ps1"
-. "$PSScriptRoot/../Utils/Get-DeepClone.ps1"
-. "$PSScriptRoot/../Utils/Get-FilteredHashTable.ps1"
+. "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
+. "$PSScriptRoot/../Helpers/Get-DeepClone.ps1"
+. "$PSScriptRoot/../Helpers/Get-FilteredHashTable.ps1"
 . "$PSScriptRoot/../Helpers/Get-AllAzPolicyInitiativeDefinitions.ps1"
 . "$PSScriptRoot/../Helpers/Get-DeploymentPlan.ps1"
+. "$PSScriptRoot/../Helpers/Initialize-Environment.ps1"
 
 #region Deploy Plan
 
 $InformationPreference = "Continue"
+Invoke-AzCli config set extension.use_dynamic_install=yes_without_prompt -SuppressOutput
+$environment = Initialize-Environment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder
+if ($PlanFile -eq "") {
+    $PlanFile = $environment.planFile
+}
+if ($RolesPlanFile -eq "") {
+    $RolesPlanFile = $environment.rolesPlanFile
+}
 $plan = Get-DeploymentPlan -PlanFile $PlanFile
 
 Write-Information "==================================================================================================="

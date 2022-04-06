@@ -11,11 +11,11 @@ param (
     [Parameter(Mandatory = $false, HelpMessage = "When using this switch, the script will NOT delete extraneous Policy definitions, Initiative definitions and Assignments.")]
     [switch]$SuppressDeletes,
 
-    [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable PacDefinitionsRootFolder or './Definitions'.")]
+    [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_ROOT_FOLDER or './Definitions'.")]
     [string]$DefinitionsRootFolder,
 
-    [Parameter(Mandatory = $false, HelpMessage = "Plan output filename. If empty it is read from `$GlobalSettingsFile.")]
-    [string]$PlanFile = ""
+    [Parameter(Mandatory = $false, HelpMessage = "Plan output filename. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Plans/`$PacEnvironmentSelector-plan.json or './Outputs/Plans/`$PacEnvironmentSelector-plan.json'.")]
+    [string]$PlanFile
 
 )
 
@@ -61,12 +61,11 @@ function Write-AssignmentDetails {
 . "$PSScriptRoot/../Helpers/Get-AzAssignmentsAtScopeRecursive.ps1"
 . "$PSScriptRoot/../Helpers/Get-AzPolicyNotScope.ps1"
 . "$PSScriptRoot/../Helpers/Get-AzScopeTree.ps1"
-# . "$PSScriptRoot/../Helpers/Merge-Initiatives.ps1"
-. "$PSScriptRoot/../Utils/Confirm-ObjectValueEqualityDeep.ps1"
-. "$PSScriptRoot/../Utils/ConvertTo-HashTable.ps1"
-. "$PSScriptRoot/../Utils/Get-DeepClone.ps1"
-. "$PSScriptRoot/../Utils/Get-FilteredHashTable.ps1"
-. "$PSScriptRoot/../Utils/Invoke-AzCli.ps1"
+. "$PSScriptRoot/../Helpers/Confirm-ObjectValueEqualityDeep.ps1"
+. "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
+. "$PSScriptRoot/../Helpers/Get-DeepClone.ps1"
+. "$PSScriptRoot/../Helpers/Get-FilteredHashTable.ps1"
+. "$PSScriptRoot/../Helpers/Invoke-AzCli.ps1"
 
 # Initialize
 $InformationPreference = "Continue"
@@ -78,7 +77,7 @@ if ($PlanFile -eq "") {
     $PlanFile = $environment.planFile
 }
 
-# Getting existing Policy Assignments
+# Getting existing Policy Assignmentscls
 $existingAssignments = $null
 $scopeTreeInfo = Get-AzScopeTree `
     -tenantId $environment.tenantId `

@@ -1,8 +1,25 @@
 # Policy as Code
 
-This repository contains a mature solution to manage and deploy Azure Policy at enterprise scale.
+## Table of Contents
 
-**Note:** Don Koning has published great guidance on naming conventions and other recommendations [here](https://github.com/DonKoning/DonKoning/blob/main/AzurePolicy/Governance/Azure%20Policy%20Governance.docx)
+- [Readme (this file)](#policy-as-code)
+  - [Azure Security Modernization](#azure-security-modernization)
+  - [Warning about Desired State](#warning-about-desired-state)
+  - [Starter Kit](#starter-kit)
+  - [Components](#components)
+  - [Scenarios](#scenarios)
+  - [Policy as Code Environments](#policy-as-code-environments)
+  - [Prerequisites](#prerequisites)
+  - [Quick Start](#quick-start)
+  - [Reading List](#reading-list-1)
+  - [Contributing](#contributing)
+  - [Trademarks](#trademarks)
+- [Pipeline](Pipeline/README.md)
+- [Update Global Settings](Definitions/README.md)
+- [Create Policy Definitions](Definitions/Policies/README.md)
+- [Create Initiative Definitions](Definitions/Initiatives/README.md)
+- [Define Policy Assignments](Definitions/Assignments/README.md)
+- [Scripts](Scripts/README.md)
 
 ## Azure Security Modernization
 
@@ -10,23 +27,58 @@ This repo has been developed in partnership with the Azure Security Modernizatio
 
 ASM improves your new or existing security posture in Azure by securing platforms, services, and workloads at any scale. ASM revolves around a continuous security improvement model (Measure, Plan, Develop & Deliver) giving visibility into security vulnerabilities.
 
-## Warning
+**Note:** Don Koning has published great guidance on naming conventions and other recommendations [here](https://github.com/DonKoning/DonKoning/blob/main/AzurePolicy/Governance/Azure%20Policy%20Governance.docx)
+
+## Warning about Desired State
 
 This solution uses the desired state strategy. It will remove any custom Policies, Initiatives or Policy Assignments not duplicated in the definition files. The `Build-AzPoliciesInitiativesAssignmentsPlan.ps1` script's switch parameter `SuppressDeletes` changes this behavior. Use a "brownfield" pipeline to pass this parameter preventing deletions of existing Policies, Initiatives and Policy Assignments while transitioning to Enterprise Policy as Code.
 
-## Reading List
+<br/>[Back to top](#policy-as-code)<br/>
 
-1. **[Pipeline](Pipeline/README.md)**
+## Managing Update and Contributions
 
-1. **[Update Global Settings](Definitions/README.md)**
+Git lacks a capability to ignore files/directories during a PR only. This repo has been organized that Definitions and Pipeline folders (except for README.md files) are not touch by syncing from GitHub to your repo or revers syncing.
 
-1. **[Create Policy Definitions](Definitions/Policies/README.md)**
+### Approach
 
-1. **[Create Initiative Definitions](Definitions/Initiatives/README.md)**
+- Initial setup
+  - Create `MyForkRepo` as a fork of [GitHub repo](https://github.com/Azure/enterprise-azure-policy-as-code).
+  - Create `MyWorkingRepo`.
+    - Clone your forked repo.
+    - Create a new repo from the clone (do not fork `MyForkRepo`).
+- Work in `MyWorkingRepo`
+  - Use only folders `Definitions` and `Pipeline`, except when working on fixes to be contributed back to GitHub.
+  - You may add additional folders, such as a folder for your own operational scripts.
+- Syncing from GitHub repo.
+  - Fetch changes from GitHub to `MyForkRepo`.
+  - Execute `Sync-Repo.ps1` to copy files from `MyForkRepo` to `MyWorkingRepo` feature branch.
+  - PR `MyWorkingRepo` feature branch.
+- Contribute to GitHub
+  - Execute `Sync-Repo.ps1` to copy files from `MyWorkingRepo` to `MyForkRepo` feature branch
+  - PR `MyForkRepo` feature branch.
+  - PR changes in your fork (`MyForkRepo`) to GitHub.
+  - GitHub maintainers will review PR.
 
-1. **[Define Policy Assignments](Definitions/Assignments/README.md)**
+<br/>
 
-1. **[Scripts](Scripts/README.md)**
+![image](./Docs/Images/Sync-Repo.png)
+
+<br/>
+
+### Sync-Repo.ps1
+
+The repo contains a script to synchronize directories in both directions: `Sync-Repo.ps1`. It only works if you do not modify
+
+- `Docs`, `Scripts` and `StarterKit` directories
+- `README.md` files in Scripts and Pipeline folders
+- `CODE_OF_CONDUCT.md`, `LICENSE`, `README.md` (this file), `SECURITY.md`, `SUPPORT.md` and `Sync-Repo.ps1` in root folder
+
+|Parameter | Required | Explanation |
+|----------|----------|-------------|
+| `sourceDirectory` | Required | Directory with the source (cloned or forked/cloned repo) |
+| `destinationDirectory` | Required | Directory with the destination (cloned or forked/cloned repo) |
+| `suppressDeleteFiles` | Optional | Switch parameter to suppress deleting files in `$destinationDirectory` tree |
+| `omitDocFiles` | Optional | Switch parameter to exclude documentation files *.md, LICENSE, and this script from synchronization |
 
 <br/>[Back to top](#policy-as-code)<br/>
 
@@ -72,7 +124,7 @@ Pipelines can customized to fit your needs:
 | **Service Connections** | Service connections give the pipeline the proper permissions to deploy at desired Azure scopes. [Documentation for Service Connections](https://docs.microsoft.com/en-us/azure/devops/pipelines/library/service-endpoints) | Azure DevOps <br/> project settings  |
 | **Deployment Scripts** | Scripts are used to deploy your Policies, Initiatives, and Assignments to Azure. They do not need to be modified. If you have improvements, please offer to contribute them. | Folder `Scripts/Deploy` |
 | **Operational Scripts** | Scripts used to during operations (e.g., creating remediation tasks). | Folder `Scripts/Operations` |
-| **Helper and Utility Scripts** | These Scripts are used by other scripts. | Folders `Scripts/Helpers` and <br/>`Scripts/Utils` |
+| **Helper Scripts** | These Scripts are used by other scripts. | Folder `Scripts/Helpers` |
 | **Test Scripts** | Scripts used by this solution's developers to execute other scripts without needing to type all the parameters each time. | Folder <br/> `Scripts/Test` |
 
 <br/>[Back to top](#policy-as-code)<br/>
@@ -177,16 +229,11 @@ The scripts have a parameter `PacEnvironmentSelector` to select the PaC environm
 ## Reading List
 
 1. **[Pipeline](Pipeline/README.md)**
-
 1. **[Update Global Settings](Definitions/README.md)**
-
 1. **[Create Policy Definitions](Definitions/Policies/README.md)**
-
 1. **[Create Initiative Definitions](Definitions/Initiatives/README.md)**
-
 1. **[Define Policy Assignments](Definitions/Assignments/README.md)**
-
-1. **[Scripts](Scripts/README.md)**
+1. **[Operational Scripts](Scripts/Operations/README.md)**
 
 [Back to top](#policy-as-code) <br/>
 

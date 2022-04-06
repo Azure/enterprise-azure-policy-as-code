@@ -12,7 +12,14 @@
 
 [CmdletBinding()]
 param (
-    [Parameter(Mandatory = $true, HelpMessage = "Plan input filename.")] [string] $RolesPlanFile
+    [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a vlaue. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
+    [string] $PacEnvironmentSelector,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_ROOT_FOLDER or './Definitions'.")]
+    [string]$DefinitionsRootFolder,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Role Assignment plan input filename. Defaults to environment variable `"`$env:PAC_OUTPUT_FOLDER/Plans/`$PacEnvironmentSelector-roles.json`" or './Outputs/Plans/`$PacEnvironmentSelector-roles.json`"'.")]
+    [string] $RolesPlanFile
 )
 
 Write-Information "==================================================================================================="
@@ -21,13 +28,16 @@ Write-Information "=============================================================
 Write-Information ""
 
 . "$PSScriptRoot/../Helpers/Get-DeploymentPlan.ps1"
-. "$PSScriptRoot/../Utils/Split-AzPolicyAssignmentIdForAzCli.ps1"
-. "$PSScriptRoot/../Utils/Invoke-AzCli.ps1"
-. "$PSScriptRoot/../Utils/ConvertTo-HashTable.ps1"
-
-Invoke-AzCli config set extension.use_dynamic_install=yes_without_prompt -SuppressOutput
+. "$PSScriptRoot/../Helpers/Split-AzPolicyAssignmentIdForAzCli.ps1"
+. "$PSScriptRoot/../Helpers/Invoke-AzCli.ps1"
+. "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
 
 $InformationPreference = "Continue"
+Invoke-AzCli config set extension.use_dynamic_install=yes_without_prompt -SuppressOutput
+$environment = Initialize-Environment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder
+if ($RolesPlanFile -eq "") {
+    $RolesPlanFile = $environment.rolesPlanFile
+}
 $plan = Get-DeploymentPlan -PlanFile $RolesPlanFile
 
 $removedRoleAssignments = $plan.removed | ConvertTo-HashTable
