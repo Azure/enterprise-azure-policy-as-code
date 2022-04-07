@@ -1,17 +1,15 @@
 variables:
   # This pipeline is used to deploy Policy definitions, Initiative definitions and Assignments into Azure.
-  planFolder: ./output/plans
+  PAC_OUTPUT_FOLDER: ./Output
+  planFolder: "$(PAC_OUTPUT_FOLDER)/Plans"
+  PAC_DEFINITIONS_ROOT_FOLDER: ./Definitions
 
   # Environment names for usage with global-settings.jsonc
   devPacEnvironmentSelector: "dev"
   testPacEnvironmentSelector: "test"
   prodPacEnvironmentSelector: "prod"
 
-  # rootScope definitions per environment
-  devPlanFile: "$(planFolder)/dev-plan.json"
-  devRolesPlan: "$(planFolder)/dev-roles.json"
-  testPlanFile: "$(planFolder)/test-plan.json"
-  testRolesPlan: "$(planFolder)/test-roles.json"
+  # Artifact downloaded files
   prodPlanFile: "$(planFolder)/prod-plan.json"
   prodRolesPlan: "$(planFolder)/prod-roles.json"
   prodPlanFileIn: "$(Pipeline.Workspace)/prod-plan/prod-plan.json"
@@ -67,7 +65,6 @@ stages:
                     scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
                     arguments:
                       -PacEnvironmentSelector $(devPacEnvironmentSelector) `
-                      -PlanFile $(devPlanFile) `
                       -InformationAction Continue
                 - task: AzurePowerShell@5
                   displayName: Deploy Policy
@@ -75,7 +72,7 @@ stages:
                   inputs:
                     azureSubscription: $(devServiceConnection)
                     ScriptPath: "Scripts/Deploy/Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1"
-                    ScriptArguments: "-PlanFile $(devPlanFile) -RolesPlanFile $(devRolesPlan) -InformationAction Continue"
+                    ScriptArguments: "-PacEnvironmentSelector $(devPacEnvironmentSelector) -InformationAction Continue"
                     pwsh: true
                     azurePowerShellVersion: LatestVersion
                 - task: AzureCLI@2
@@ -86,7 +83,8 @@ stages:
                     scriptType: pscore
                     scriptLocation: scriptPath
                     scriptPath: "Scripts/Deploy/Set-AzPolicyRolesFromPlan.ps1"
-                    arguments: -RolesPlanFile $(devRolesPlan) `
+                    arguments:
+                      -PacEnvironmentSelector $(devPacEnvironmentSelector) `
                       -InformationAction Continue
   - stage: prodPlanFeatureStage
     displayName: "PROD Plan(Feature Branch)"
@@ -112,7 +110,7 @@ stages:
     condition: and(in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
     jobs:
       - deployment: testAllJob
-        environment: PAC-QA
+        environment: PAC-TEST
         displayName: "TEST Environment"
         strategy:
           runOnce:
@@ -129,7 +127,6 @@ stages:
                     scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
                     arguments:
                       -PacEnvironmentSelector $(testPacEnvironmentSelector) `
-                      -PlanFile $(testPlanFile) `
                       -InformationAction Continue
                 - task: AzurePowerShell@5
                   displayName: Deploy Policy
@@ -137,7 +134,7 @@ stages:
                   inputs:
                     azureSubscription: $(testServiceConnection)
                     ScriptPath: "Scripts/Deploy/Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1"
-                    ScriptArguments: "-PlanFile $(testPlanFile) -RolesPlanFile $(testRolesPlan) -InformationAction Continue"
+                    ScriptArguments: "-PacEnvironmentSelector $(testPacEnvironmentSelector) -InformationAction Continue"
                     pwsh: true
                     azurePowerShellVersion: LatestVersion
                 - task: AzureCLI@2
@@ -148,7 +145,8 @@ stages:
                     scriptType: pscore
                     scriptLocation: scriptPath
                     scriptPath: "Scripts/Deploy/Set-AzPolicyRolesFromPlan.ps1"
-                    arguments: -RolesPlanFile $(testRolesPlan) `
+                    arguments:
+                      -PacEnvironmentSelector $(testPacEnvironmentSelector) `
                       -InformationAction Continue
   - stage: prodPlanMainStage
     displayName: "PROD Plan(Main Branch)"
@@ -179,17 +177,6 @@ stages:
     variables:
       localDeployRoleChanges: $[stageDependencies.prodPlanMainStage.prodPlanMainJob.outputs['planStep.deployRoleChanges']]
     jobs:
-      # - job: TestingJob
-      #   displayName: "CHANGES NEEDED"
-      #   variables:
-      #     jobDeployPolicy: $[stageDependencies.prodPlanMainStage.prodPlanMainJob.outputs['planStep.deployPolicyChanges']]
-      #   steps:
-      #     - checkout: self
-      #     - task: PowerShell@2
-      #       inputs:
-      #         targetType: "inline"
-      #         script: |
-      #           Write-Host "This would be a deployment"
       - deployment: prodDeployJob
         environment: PAC-PROD
         displayName: "PROD Environment: Main Branch"
@@ -205,7 +192,7 @@ stages:
                   inputs:
                     azureSubscription: $(prodServiceConnection)
                     ScriptPath: "Scripts/Deploy/Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1"
-                    ScriptArguments: "-PlanFile $(prodPlanFileIn) -RolesPlanFile $(prodRolesPlan) -InformationAction Continue"
+                    ScriptArguments: "-PacEnvironmentSelector $(prodPacEnvironmentSelector) -PlanFile $(prodPlanFileIn) -RolesPlanFile $(prodRolesPlan) -InformationAction Continue"
                     pwsh: true
                     azurePowerShellVersion: LatestVersion
                 - publish: "$(prodRolesPlan)"
@@ -219,7 +206,9 @@ stages:
                     scriptType: pscore
                     scriptLocation: scriptPath
                     scriptPath: "Scripts/Deploy/Set-AzPolicyRolesFromPlan.ps1"
-                    arguments: -RolesPlanFile $(prodRolesPlan) `
+                    arguments:
+                      -PacEnvironmentSelector $(prodPacEnvironmentSelector) `
+                      -RolesPlanFile $(prodRolesPlan) `
                       -InformationAction Continue
   - stage: prodNoChangesStage
     displayName: "PROD NO CHANGES"

@@ -116,13 +116,12 @@ function Set-AzPolicyAssignmentHelper {
 #region Deploy Plan
 
 $InformationPreference = "Continue"
-Invoke-AzCli config set extension.use_dynamic_install=yes_without_prompt -SuppressOutput
 $environment = Initialize-Environment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder
 if ($PlanFile -eq "") {
     $PlanFile = $environment.planFile
 }
 if ($RolesPlanFile -eq "") {
-    $RolesPlanFile = $environment.rolesPlanFile
+    $RolesPlanFile = $environment.rolesFile
 }
 $plan = Get-DeploymentPlan -PlanFile $PlanFile
 
