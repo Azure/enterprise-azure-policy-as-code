@@ -220,7 +220,7 @@ stages:
   - stage: prodRolesStage
     displayName: "PROD Deploy Policies"
     dependsOn: prodDeployStage
-    condition: and(not(failed()), not(canceled()), eq(dependencies.prodPlanMainStage.outputs['prodPlanMainJob.planStep.deployRoleChanges'], 'yes'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+    condition: and(succeeded(), eq(dependencies.prodPlanMainStage.outputs['prodPlanMainJob.planStep.deployRoleChanges'], 'yes'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
     jobs:
       - deployment: prodDeployJob
         environment: PAC-ROLES
@@ -245,16 +245,14 @@ stages:
   - stage: rolesNoChangesStage
     displayName: "PROD NO ROLE CHANGES"
     dependsOn:
-      - prodRolesStage
+      - prodDeployStage
       - prodNoChangesStage
-    condition: and(not(failed()), not(canceled()), eq(dependencies.prodPlanMainStage.outputs['prodPlanMainJob.planStep.deployRoleChanges'], 'no'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+    condition: and(not(failed('prodDeployStage')), not(failed('prodNoChangesStage')), eq(dependencies.prodPlanMainStage.outputs['prodPlanMainJob.planStep.deployRoleChanges'], 'no'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
     variables:
       stageDeployPolicy: $[stageDependencies.prodPlanMainStage.prodPlanMainJob.outputs['planStep.deployRoleChanges']]
     jobs:
       - job: roleNoChangesJob
         displayName: "PROD no Role changes"
-        variables:
-          jobDeployPolicy: $[stageDependencies.prodPlanMainStage.prodPlanMainJob.outputs['planStep.deployRoleChanges']]
         steps:
           - checkout: self
           - task: PowerShell@2
