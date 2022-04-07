@@ -217,14 +217,11 @@ function Initialize-Environment {
         policyDefinitionsFolder     = "$DefinitionsRootFolder/Policies"
         initiativeDefinitionsFolder = "$DefinitionsRootFolder/Initiatives"
         assignmentsFolder           = "$DefinitionsRootFolder/Assignments"
-        outputRootFolder             = $outputRootFolder
+        outputRootFolder            = $outputRootFolder
         planFolder                  = $planFolder
         planFile                    = "$planFolder/$PacEnvironmentSelector-plan.json"
         rolesFile                   = "$planFolder/$PacEnvironmentSelector-roles.json"
 
     }
-
-    Invoke-AzCli account set --subscription $environment.defaultSubscriptionId -SuppressOutput
-
     return $environment 
 }
