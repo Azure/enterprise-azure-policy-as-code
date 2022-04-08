@@ -178,8 +178,6 @@ stages:
     displayName: "PROD Deploy Policies, Roles"
     dependsOn: prodPlanMainStage
     condition: and(not(failed()), not(canceled()), eq(dependencies.prodPlanMainStage.outputs['prodPlanMainJob.planStep.deployPolicyChanges'], 'yes'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
-    variables:
-      localDeployRoleChanges: $[stageDependencies.prodPlanMainStage.prodPlanMainJob.outputs['planStep.deployRoleChanges']]
     jobs:
       - deployment: prodDeployJob
         environment: PAC-PROD
@@ -218,13 +216,9 @@ stages:
     displayName: "PROD NO CHANGES"
     dependsOn: prodPlanMainStage
     condition: and(not(failed()), not(canceled()), eq(dependencies.prodPlanMainStage.outputs['prodPlanMainJob.planStep.deployPolicyChanges'], 'no'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
-    variables:
-      stageDeployPolicy: $[stageDependencies.prodPlanMainStage.prodPlanMainJob.outputs['planStep.deployPolicyChanges']]
     jobs:
       - job: prodNoChangesJob
         displayName: "PROD no Policy or Role changes"
-        variables:
-          jobDeployPolicy: $[stageDependencies.prodPlanMainStage.prodPlanMainJob.outputs['planStep.deployPolicyChanges']]
         steps:
           - checkout: self
           - task: PowerShell@2

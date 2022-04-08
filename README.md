@@ -5,6 +5,7 @@
 - [Readme (this file)](#policy-as-code)
   - [Azure Security Modernization](#azure-security-modernization)
   - [Warning about Desired State](#warning-about-desired-state)
+  - [Managing Update and Contributions](#managing-update-and-contributions)
   - [Starter Kit](#starter-kit)
   - [Components](#components)
   - [Scenarios](#scenarios)
@@ -79,6 +80,12 @@ The repo contains a script to synchronize directories in both directions: `Sync-
 | `destinationDirectory` | Required | Directory with the destination (cloned or forked/cloned repo) |
 | `suppressDeleteFiles` | Optional | Switch parameter to suppress deleting files in `$destinationDirectory` tree |
 | `omitDocFiles` | Optional | Switch parameter to exclude documentation files *.md, LICENSE, and this script from synchronization |
+
+### GitHub Folder Structure
+
+<br/>
+
+![image](./Docs/Images/folder-structure.png)
 
 <br/>[Back to top](#policy-as-code)<br/>
 
