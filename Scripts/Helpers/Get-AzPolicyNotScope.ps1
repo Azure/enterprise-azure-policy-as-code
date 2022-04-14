@@ -47,7 +47,7 @@ function Get-NotScope {
                                 $notScope += "$($child.id)"
                                 # Write-Host "##[debug] notScope added $($child.Id)"
                             }
-                            elseif ($child.type -eq "/providers/Microsoft.Management/managementGroups") {
+                            elseif ($child.type -eq "Microsoft.Management/managementGroups") {
                                 $null = $queuedManagementGroups.Enqueue($child)
                                 # Write-Host "##[debug] enqueue child $($child.Id)"
                             }
