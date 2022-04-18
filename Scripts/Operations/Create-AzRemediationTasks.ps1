@@ -19,9 +19,10 @@ param(
 
 $InformationPreference = "Continue"
 $environment = Initialize-Environment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder
+$rootScopeId = $environment.rootScopeId
 $rootScope = $environment.rootScope
 
-$collections = Get-AllAzPolicyInitiativeDefinitions -RootScope $rootScope
+$collections = Get-AllAzPolicyInitiativeDefinitions -rootScopeId $rootScopeId
 $allPolicyDefinitions = $collections.builtInPolicyDefinitions + $collections.existingCustomPolicyDefinitions
 $allInitiativeDefinitions = $collections.builtInInitiativeDefinitions + $collections.existingCustomInitiativeDefinitions
 

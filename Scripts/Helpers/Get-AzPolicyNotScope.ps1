@@ -24,58 +24,66 @@ function Get-NotScope {
                 $subscriptionIds += $scope
                 # Write-Host "##[debug] adding subscription to test RGs $($scope.Id)"
             }
-            elseif ($null -eq $scopeTreeInfo.ScopeTree) {
-                # Root scope is a subscription, assignment scope is not allowed to be a Management Group
-                # Flag as error
-                $scopeCollection += @{
-                    scope    = "Error Management Group $scope not allowed when root scope is subscription $($scopeTreeInfo.SubscriptionTable.values[0].Name)"
-                    notScope = @()
+            elseif ($scope.StartsWith("/providers/Microsoft.Management/managementGroups/")) {
+                if ($null -eq $scopeTreeInfo.ScopeTree) {
+                    # Root scope is a subscription, assignment scope is not allowed to be a Management Group
+                    # Flag as error
+                    Write-Error "Error Management Group '$scope' not allowed when root scope is subscription '$($scopeTreeInfo.SubscriptionTable.values[0].Name)'" -ErrorAction Stop
                 }
-            }
-            else {
-                # Management Group -> Process Management Groups and Subscriptions
-                $queuedManagementGroups = [System.Collections.Queue]::new()
-                $null = $queuedManagementGroups.Enqueue($scopeTreeInfo.ScopeTree)
-                $rootFound = $false
-                # Write-Host "##[debug] enqueue $($scopeTreeInfo.ScopeTree.Id)"
-                while ($queuedManagementGroups.Count -gt 0) {
-                    $currentMg = $queuedManagementGroups.Dequeue()
-                    # Write-Host "##[debug] testing $($currentMg.Id)"
-                    if ($rootFound) {
-                        foreach ($child in $currentMg.children) {
-                            if ($notScopeIn.Contains($child.id)) {
-                                $notScope += "$($child.id)"
-                                # Write-Host "##[debug] notScope added $($child.Id)"
+                else {
+                    # Management Group -> Process Management Groups and Subscriptions
+                    $queuedManagementGroups = [System.Collections.Queue]::new()
+                    $null = $queuedManagementGroups.Enqueue($scopeTreeInfo.ScopeTree)
+                    $rootFound = $false
+                    # Write-Host "##[debug] enqueue $($scopeTreeInfo.ScopeTree.Id)"
+                    while ($queuedManagementGroups.Count -gt 0) {
+                        $currentMg = $queuedManagementGroups.Dequeue()
+                        # Write-Host "##[debug] testing $($currentMg.Id)"
+                        if ($rootFound) {
+                            foreach ($child in $currentMg.children) {
+                                if ($notScopeIn.Contains($child.id)) {
+                                    $notScope += "$($child.id)"
+                                    # Write-Host "##[debug] notScope added $($child.Id)"
+                                }
+                                elseif ($child.type -eq "Microsoft.Management/managementGroups") {
+                                    $null = $queuedManagementGroups.Enqueue($child)
+                                    # Write-Host "##[debug] enqueue child $($child.Id)"
+                                }
+                                elseif ($child.type -eq "/subscriptions") {
+                                    # Write-Host "##[debug] subscription testing list += subscription $($child.Id)"
+                                    $subscriptionIds += $child.id
+                                }
+                                else {
+                                    Write-Error "Traversal of scopeTree to find notScopes in scope '$scope' yielded an unknown type '$($child.type)' name='$($child.name)'" -ErrorAction Stop
+                                }
                             }
-                            elseif ($child.type -eq "Microsoft.Management/managementGroups") {
-                                $null = $queuedManagementGroups.Enqueue($child)
-                                # Write-Host "##[debug] enqueue child $($child.Id)"
-                            }
-                            else {
-                                # Write-Host "##[debug] subscription testing list += subscription $($child.Id)"
-                                $subscriptionIds += $child.id
-                            }
-                        }
-                    }
-                    else {
-                        # Are we at $root?
-                        if ($scope -eq $currentMg.id) {
-                            # Root found
-                            # Write-Host "Found root $scope"
-                            $null = $queuedManagementGroups.Clear()
-                            $null = $queuedManagementGroups.Enqueue($currentMg)
-                            $rootFound = $true
                         }
                         else {
-                            foreach ($child in $currentMg.children) {
-                                if ($child.id.StartsWith("/providers/Microsoft.Management/managementGroups/")) {
-                                    $null = $queuedManagementGroups.Enqueue($child)
-                                    # Write-Host "##[command] finding root enqueue child $($child.Id)"
+                            # Are we at $root?
+                            if ($scope -eq $currentMg.id) {
+                                # Root found
+                                # Write-Host "Found root $scope"
+                                $null = $queuedManagementGroups.Clear()
+                                $null = $queuedManagementGroups.Enqueue($currentMg)
+                                $rootFound = $true
+                            }
+                            else {
+                                foreach ($child in $currentMg.children) {
+                                    if ($child.type -eq "Microsoft.Management/managementGroups") {
+                                        $null = $queuedManagementGroups.Enqueue($child)
+                                        # Write-Host "##[command] finding root enqueue child $($child.Id)"
+                                    }
+                                    elseif ($child.type -ne "/subscriptions") {
+                                        Write-Error "Traversal of scopeTree to find scope '$scope' yielded an unknown type '$($child.type)' name='$($child.name)'" -ErrorAction Stop
+                                    }
                                 }
                             }
                         }
                     }
                 }
+            }
+            else {
+                Write-Error "Invalid scope '$scope' specified" -ErrorAction Stop
             }
 
             if ($subscriptionIds.Length -gt 0) {
