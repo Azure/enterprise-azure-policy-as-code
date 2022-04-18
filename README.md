@@ -28,7 +28,7 @@ This repo has been developed in partnership with the Azure Security Modernizatio
 
 ASM improves your new or existing security posture in Azure by securing platforms, services, and workloads at any scale. ASM revolves around a continuous security improvement model (Measure, Plan, Develop & Deliver) giving visibility into security vulnerabilities.
 
-**Note:** Don Koning has published great guidance on naming conventions and other recommendations [here](https://github.com/DonKoning/DonKoning/blob/main/AzurePolicy/Governance/Azure%20Policy%20Governance.docx)
+**Note:** Don Koning has published great guidance on naming conventions and other recommendations [here](https://github.com/DonKoning/AzurePolicy/blob/main/Governance/Azure%20Policy%20Governance.docx)
 
 ## Warning about Desired State
 
