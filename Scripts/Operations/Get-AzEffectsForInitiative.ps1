@@ -33,12 +33,12 @@ param (
 # Get definitions
 $InformationPreference = "Continue"
 $environment = Initialize-Environment -DefinitionsRootFolder $DefinitionsRootFolder -retrieveFirstEnvironment -retrieveInitiativeSet -initiativeSetSelector  $initiativeSetSelector
-$rootScope = $environment.rootScope
+$rootScopeId = $environment.rootScopeId
 if ($outputPath -eq "") {
     $outputPath = "$($environment.outputRootFolder)/AzEffects/Initiatives"
 }
 
-$collections = Get-AllAzPolicyInitiativeDefinitions -RootScope $rootScope -byId
+$collections = Get-AllAzPolicyInitiativeDefinitions -rootScopeId $rootScopeId -byId
 $allPolicyDefinitions = $collections.builtInPolicyDefinitions + $collections.existingCustomPolicyDefinitions
 $allInitiativeDefinitions = $collections.builtInInitiativeDefinitions + $collections.existingCustomInitiativeDefinitions
 
