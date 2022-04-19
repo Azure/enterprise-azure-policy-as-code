@@ -41,26 +41,59 @@ param (
     $omitDocFiles
 )
 
+$InformationPreference = "Continue"
+
+Write-Information "==================================================================================================="
+Write-Information "Sync from '$sourceDirectory' to '$destinationDirectory'"
+Write-Information "==================================================================================================="
+
 # Check if directories exist
-if ((Test-Path $sourceDirectory -PathType Container) -and (Test-Path $destinationDirectory -PathType Container)) {
-    if (!$suppressDeleteFiles.IsPresent) {
-        # Delete $destinationDirectory directories prior to copy - removes obsolete files
-        if (Test-Path "$destinationDirectory/Docs") {
-            Remove-Item "$destinationDirectory/Docs" -Recurse
+if (Test-Path $sourceDirectory -PathType Container) {
+    if (!(Test-Path $destinationDirectory -PathType Container)) {
+        $answer = $null
+        while ($answer -ne "y" -and $answer -ne 'n') {
+            $answer = Read-Host "Destination directory '$destinationDirectory' does not exist. Create it (y/n)?"
         }
-        if (Test-Path "$destinationDirectory/Scripts") {
-            Remove-Item "$destinationDirectory/Scripts" -Recurse
+        if ($answer = "y") {
+            New-Item "$destinationDirectory" -ItemType Directory
         }
-        if (Test-Path "$destinationDirectory/StarterKit") {
-            Remove-Item "$destinationDirectory/StarterKit" -Recurse
+        else {
+            Write-Error "Destination directory '$destinationDirectory' does not exist - Exiting" -ErrorAction Stop
         }
     }
 
-    Copy-Item "$sourceDirectory/Docs" "$destinationDirectory/Docs" -Recurse -Force
-    Copy-Item "$sourceDirectory/Scripts" "$destinationDirectory/Scripts" -Recurse -Force
-    Copy-Item "$sourceDirectory/StarterKit" "$destinationDirectory/StarterKit" -Recurse -Force
+    if ($suppressDeleteFiles.IsPresent) {
+        # Delete $destinationDirectory directories prior to copy - removes obsolete files
+        Write-Information "Copying '$sourceDirectory/Docs'"
+        Copy-Item "$sourceDirectory/Docs" "$destinationDirectory" -Recurse -Force
+        Write-Information "Copying '$sourceDirectory/Scripts'"
+        Copy-Item "$sourceDirectory/Scripts" "$destinationDirectory" -Recurse -Force
+        Write-Information "Copying '$sourceDirectory/StarterKit'"
+        Copy-Item "$sourceDirectory/StarterKit" "$destinationDirectory" -Recurse -Force
+    }
+    else {
+        if (Test-Path "$destinationDirectory/Docs") {
+            Write-Information "Deleting '$destinationDirectory/Docs'"
+            Remove-Item "$destinationDirectory/Docs" -Recurse
+        }
+        if (Test-Path "$destinationDirectory/Scripts") {
+            Write-Information "Deleting '$destinationDirectory/Scripts'"
+            Remove-Item "$destinationDirectory/Scripts" -Recurse
+        }
+        if (Test-Path "$destinationDirectory/StarterKit") {
+            Write-Information "Deleting '$destinationDirectory/StarterKit'"
+            Remove-Item "$destinationDirectory/StarterKit" -Recurse
+        }
+        Write-Information "Copying '$sourceDirectory/Docs'"
+        Copy-Item "$sourceDirectory/Docs" "$destinationDirectory/Docs" -Recurse -Force
+        Write-Information "Copying '$sourceDirectory/Scripts'"
+        Copy-Item "$sourceDirectory/Scripts" "$destinationDirectory/Scripts" -Recurse -Force
+        Write-Information "Copying '$sourceDirectory/StarterKit'"
+        Copy-Item "$sourceDirectory/StarterKit" "$destinationDirectory/StarterKit" -Recurse -Force
+    }
 
     if (!$omitDocFiles.IsPresent) {
+        Write-Information "Copying documentaion files from '$sourceDirectory'"
         if (!(Test-Path "$destinationDirectory/Definitions")) {
             New-Item "$destinationDirectory/Definitions" -ItemType Directory
         }
@@ -80,5 +113,5 @@ if ((Test-Path $sourceDirectory -PathType Container) -and (Test-Path $destinatio
     }
 }
 else {
-    Write-Error "The source '$sourceDirectory' and destination '$destinationDirectory' directories must exist"
+    Write-Error "The source directory '$sourceDirectory' must exist" -ErrorAction Stop
 }
