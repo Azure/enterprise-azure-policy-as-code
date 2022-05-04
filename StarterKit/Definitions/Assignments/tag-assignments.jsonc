@@ -19,22 +19,22 @@
             "nodeName": "tenant/",
             "scope": {
                 "dev": [
-                    "/subscriptions/00000000-0000-0000-000000000000"
+                    "/subscriptions/11111111-2222-3333-4444-555555555555"
                 ],
                 "test": [
-                    "/subscriptions/00000000-0000-0000-000000000000"
+                    "/subscriptions/99999999-8888-7777-4444-333333333333"
                 ],
-                "prod": [
-                    "/providers/Microsoft.Management/managementGroups/Contoso-Root"
+                "tenant1": [
+                    "/providers/Microsoft.Management/managementGroups/Contoso-Prod"
                 ]
             },
             "children": [
                 {
-                    "nodeName": "requireTagsWithExemptedRG/",
+                    "nodeName": "requireTags/",
                     "assignment": {
-                        "name": "rgtag-",
-                        "displayName": "Require Tag on Resource Group",
-                        "description": "Require Tag for Resource Groups when any resource group (not listed in in excludedRg) is created or updated."
+                        "name": "rqtag-",
+                        "displayName": "Required Tag on Resource Group: ",
+                        "description": "Required Tag for Resource Groups when any resource group is created or updated: "
                     },
                     "definitionEntry": {
                         "policyName": "rg-required-tag-dynamic-notscope"
@@ -44,47 +44,77 @@
                     },
                     "children": [
                         {
-                            "nodeName": "Department",
+                            "nodeName": "Account",
                             "assignment": {
-                                "name": "Department",
-                                "displayName": "Department",
-                                "description": "Department"
+                                "name": "Account",
+                                "displayName": "Account",
+                                "description": "Account"
                             },
                             "parameters": {
-                                "tagName": "Department"
+                                "tagName": "Account"
                             }
                         },
                         {
-                            "nodeName": "SubDepartment",
+                            "nodeName": "Contact",
                             "assignment": {
-                                "name": "SubDepartment",
-                                "displayName": "SubDepartment",
-                                "description": "SubDepartment"
+                                "name": "Contact",
+                                "displayName": "Contact",
+                                "description": "Contact"
                             },
                             "parameters": {
-                                "tagName": "SubDepartment"
+                                "tagName": "Contact"
                             }
                         },
                         {
-                            "nodeName": "SLA",
+                            "nodeName": "AppName",
                             "assignment": {
-                                "name": "SLA",
-                                "displayName": "SLA",
-                                "description": "SLA"
+                                "name": "AppName",
+                                "displayName": "AppName",
+                                "description": "AppName"
                             },
                             "parameters": {
-                                "tagName": "SLA"
+                                "tagName": "AppName"
                             }
                         },
+                        {
+                            "nodeName": "CostCenter",
+                            "assignment": {
+                                "name": "CostCenter",
+                                "displayName": "CostCenter",
+                                "description": "CostCenter"
+                            },
+                            "parameters": {
+                                "tagName": "CostCenter"
+                            }
+                        },
+                        {
+                            "nodeName": "TaggingVersion",
+                            "assignment": {
+                                "name": "TaggingVersion",
+                                "displayName": "TaggingVersion",
+                                "description": "TaggingVersion"
+                            },
+                            "parameters": {
+                                "tagName": "TaggingVersion"
+                            }
+                        },
+                        {
+                            "nodeName": "Version",
+                            "assignment": {
+                                "name": "Version",
+                                "displayName": "Version",
+                                "description": "Version"
+                            },
+                            "parameters": {
+                                "tagName": "Version"
+                            }
+                        }
                     ]
                 },
                 {
                     "nodeName": "inheritFromRG/",
                     "definitionEntry": {
-                        "policyName": "resources-inherit-rg-tag-dynamic-notscope",
-                        "roleDefinitionIds": [
-                            "b24988ac-6180-42a0-ab88-20f7382dd24c"
-                        ]
+                        "policyName": "resources-inherit-rg-tag-dynamic-notscope"
                     },
                     "assignment": {
                         "name": "taginh-",
@@ -92,39 +122,6 @@
                         "description": "Modify Tag to comply with governance goal of enforcing Tags by inheriting Tags from RG - "
                     },
                     "children": [
-                        {
-                            "nodeName": "Department",
-                            "assignment": {
-                                "name": "Department",
-                                "displayName": "Department",
-                                "description": "Department"
-                            },
-                            "parameters": {
-                                "tagName": "Department"
-                            }
-                        },
-                        {
-                            "nodeName": "SubDepartment",
-                            "assignment": {
-                                "name": "SubDepartment",
-                                "displayName": "SubDepartment",
-                                "description": "SubDepartment"
-                            },
-                            "parameters": {
-                                "tagName": "SubDepartment"
-                            }
-                        },
-                        {
-                            "nodeName": "SLA",
-                            "assignment": {
-                                "name": "SLA",
-                                "displayName": "SLA",
-                                "description": "SLA"
-                            },
-                            "parameters": {
-                                "tagName": "SLA"
-                            }
-                        },
                         {
                             "nodeName": "Environment",
                             "assignment": {
@@ -135,84 +132,74 @@
                             "parameters": {
                                 "tagName": "Environment"
                             }
+                        },
+                        {
+                            "nodeName": "Account",
+                            "assignment": {
+                                "name": "Account",
+                                "displayName": "Account",
+                                "description": "Account"
+                            },
+                            "parameters": {
+                                "tagName": "Account"
+                            }
+                        },
+                        {
+                            "nodeName": "Contact",
+                            "assignment": {
+                                "name": "Contact",
+                                "displayName": "Contact",
+                                "description": "Contact"
+                            },
+                            "parameters": {
+                                "tagName": "Contact"
+                            }
+                        },
+                        {
+                            "nodeName": "AppName",
+                            "assignment": {
+                                "name": "AppName",
+                                "displayName": "AppName",
+                                "description": "AppName"
+                            },
+                            "parameters": {
+                                "tagName": "AppName"
+                            }
+                        },
+                        {
+                            "nodeName": "CostCenter",
+                            "assignment": {
+                                "name": "CostCenter",
+                                "displayName": "CostCenter",
+                                "description": "CostCenter"
+                            },
+                            "parameters": {
+                                "tagName": "CostCenter"
+                            }
+                        },
+                        {
+                            "nodeName": "TaggingVersion",
+                            "assignment": {
+                                "name": "TaggingVersion",
+                                "displayName": "TaggingVersion",
+                                "description": "TaggingVersion"
+                            },
+                            "parameters": {
+                                "tagName": "TaggingVersion"
+                            }
+                        },
+                        {
+                            "nodeName": "Version",
+                            "assignment": {
+                                "name": "Version",
+                                "displayName": "Version",
+                                "description": "Version"
+                            },
+                            "parameters": {
+                                "tagName": "Version"
+                            }
                         }
                     ]
-                }
-            ]
-        },
-        {
-            "nodeName": "Environment/",
-            "definitionEntry": {
-                "policyName": "rg-addreplace-tag-dynamic-notscope",
-                "roleDefinitionIds": [
-                    "b24988ac-6180-42a0-ab88-20f7382dd24c"
-                ]
-            },
-            "parameters": {
-                "tagName": "Environment"
-            },
-            "children": [
-                {
-                    "nodeName": "TIER0",
-                    "assignment": {
-                        "name": "tier0-env-tag",
-                        "displayName": "Tier0 Environment Tag",
-                        "description": "Set Tag Environment to TIER0"
-                    },
-                    "parameters": {
-                        "tagValue": "TIER0"
-                    },
-                    "scope": {
-                        "prod": [
-                            "/providers/Microsoft.Management/managementGroups/mg"
-                        ]
-                    }
-                },
-                {
-                    "nodeName": "PROD",
-                    "assignment": {
-                        "name": "prod-env-tag",
-                        "displayName": "Prod Environment Tag",
-                        "description": "Set Tag Environment to PROD"
-                    },
-                    "parameters": {
-                        "tagValue": "PROD"
-                    },
-                    "scope": {
-                        "prod": []
-                    }
-                },
-                {
-                    "nodeName": "QA",
-                    "assignment": {
-                        "name": "qa-env-tag",
-                        "displayName": "QA Environment Tag",
-                        "description": "Set Tag Environment to QA"
-                    },
-                    "parameters": {
-                        "tagValue": "QA"
-                    },
-                    "scope": {
-                        "prod": [
-                            "/providers/Microsoft.Management/managementGroups/mg"
-                        ]
-                    }
-                },
-                {
-                    "nodeName": "DEV",
-                    "assignment": {
-                        "name": "dev-env-tag",
-                        "displayName": "Dev Environment Tag",
-                        "description": "Set Tag Environment to DEV"
-                    },
-                    "parameters": {
-                        "tagValue": "DEV"
-                    },
-                    "scope": {
-                        "prod": [
-                            "/providers/Microsoft.Management/managementGroups/mg"
-                        ]
-                    }
                 }
             ]
         }

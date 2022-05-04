@@ -24,7 +24,7 @@ Many scripts use a configuration value called `RootScope`. It denotes the locati
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
 | `PacEnvironmentSelector` | Optional | Selects the tenant, rootScope, defaultSubscription, assignment scopes/notScope and file names. If omitted, interactively prompts for the value. |
-| `DefinitionsRootFolder` | Optional | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_ROOT_FOLDER` or `./Definitions`. It contains `global-settings.jsonc`.
+| `DefinitionsRootFolder` | Optional | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It contains `global-settings.jsonc`.
 
 <br/>[Back to top](#scripts)<br/>
 

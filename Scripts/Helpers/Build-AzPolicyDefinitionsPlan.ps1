@@ -14,7 +14,8 @@ function Build-AzPolicyDefinitionsPlan {
         [hashtable] $replacedPolicyDefinitions,
         [hashtable] $deletedPolicyDefinitions,
         [hashtable] $unchangedPolicyDefinitions,
-        [hashtable] $customPolicyDefinitions
+        [hashtable] $customPolicyDefinitions,
+        [hashtable] $policyNeededRoleDefinitionIds
     )
 
     Write-Information "==================================================================================================="
@@ -28,6 +29,15 @@ function Build-AzPolicyDefinitionsPlan {
     }
     else {
         Write-Information "There aren't any Policy files in the folder provided!"
+    }
+
+    # Calculate roleDefinitionIds for built-in Policies
+    foreach ($policyName in $builtInPolicyDefinitions.Keys) {
+        $policy = $builtInPolicyDefinitions.$policyName
+        if ($policy.policyRule.then.details -and $policy.policyRule.then.details.roleDefinitionIds) {
+            $roleDefinitionIdsInPolicy = $policy.policyRule.then.details.roleDefinitionIds
+            $policyNeededRoleDefinitionIds.Add($policyName, $roleDefinitionIdsInPolicy)
+        }
     }
 
     $obsoletePolicyDefinitions = $existingCustomPolicyDefinitions.Clone()
@@ -69,6 +79,12 @@ function Build-AzPolicyDefinitionsPlan {
             Parameter   = $policyObject.properties.parameters
             Metadata    = $policyObject.properties.metadata
             Mode        = $Mode
+        }
+
+        # Calculate roleDefinitionIds for this Policy
+        if ($policyObject.properties.policyRule.then.details -and $policyObject.properties.policyRule.then.details.roleDefinitionIds) {
+            $roleDefinitionIdsInPolicy = $policyObject.properties.policyRule.then.details.roleDefinitionIds
+            $policyNeededRoleDefinitionIds.Add($name, $roleDefinitionIdsInPolicy)
         }
 
         # Adding SubscriptionId or ManagementGroupName value (depending on the parameter set in use)
@@ -143,6 +159,7 @@ function Build-AzPolicyDefinitionsPlan {
             $deletedPolicyDefinitions.Add($deletedName, $splat)
         }
     }
+
     Write-Information "Number of unchanged Policies = $($unchangedPolicyDefinitions.Count)"
     Write-Information ""
     Write-Information ""

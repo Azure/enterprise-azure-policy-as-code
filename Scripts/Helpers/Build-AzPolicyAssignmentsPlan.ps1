@@ -17,6 +17,8 @@ function Build-AzPolicyAssignmentsPlan {
         [hashtable] $allInitiativeDefinitions,
         [hashtable] $customInitiativeDefinitions,
         [hashtable] $replacedInitiativeDefinitions,
+        [hashtable] $policyNeededRoleDefinitionIds,
+        [hashtable] $initiativeNeededRoleDefinitionIds,
         [hashtable] $existingAssignments,
         [hashtable] $newAssignments,
         [hashtable] $updatedAssignments,
@@ -109,6 +111,7 @@ function Build-AzPolicyAssignmentsPlan {
             $result = $null
             $parametersInDefinition = $null
             $policySpec = @{}
+            $roleDefinitionIds = @()
             # Potential update scenario
             if ($definitionEntry.initiativeName) {
                 $name = $definitionEntry.initiativeName
@@ -134,7 +137,10 @@ function Build-AzPolicyAssignmentsPlan {
                         $policyDefinitionId = "/providers/Microsoft.Authorization/policySetDefinitions/" + $name
                         $parametersInDefinition = $initiativeDefinition.parameters
                     }
-                    $policySpec = @{ initiativeId = $policyDefinitionId } 
+                    $policySpec = @{ initiativeId = $policyDefinitionId }
+                    if ($initiativeNeededRoleDefinitionIds.ContainsKey($name)) {
+                        $roleDefinitionIds = $initiativeNeededRoleDefinitionIds.$name
+                    }
                 }
             }
             elseif ($definitionEntry.policyName) {
@@ -162,11 +168,19 @@ function Build-AzPolicyAssignmentsPlan {
                         $parametersInDefinition = $policyDefinition.parameters
                     }
                     $policySpec = @{ policyId = $policyDefinitionId }
+                    if ($policyNeededRoleDefinitionIds.ContainsKey($name)) {
+                        $roleDefinitionIds = $policyNeededRoleDefinitionIds.$name
+                    }
                 }
             }
             else {
                 Write-Error "Neither policyName nor initiativeName specified for Assignment `'$($def.assignment.DisplayName)`' ($($def.assignment.Name))  - must specify exactly one"
                 continue
+            }
+
+            if ($definitionEntry.roleDefinitionIds) {
+                # Obsolete entry, replaced in v3 by a calculated value from the Policy definition(s) being assigned
+                Write-Information "Warning: roleDefinitionIds in Assignment '$($def.assignment.DisplayName)' is  deprecated. Value in definition is ignored and roleDefinitionIds are calculated from the Policy definitions."
             }
 
             # Check if branch is active
@@ -218,34 +232,34 @@ function Build-AzPolicyAssignmentsPlan {
 
                     # Retrieve roleDefinitionIds
                     $roleAssignmentSpecs = @()
-                    if ($definitionEntry.roleDefinitionIds) {
-                        foreach ($roleDefinitionId in $definitionEntry.roleDefinitionIds) {
-                            $roleDefinitionName = "Unknown"
-                            if ($roleDefinitions.ContainsKey($roleDefinitionId)) {
-                                $roleDefinitionName = $roleDefinitions.$roleDefinitionId
+                    if ($roleDefinitionIds.Length -gt 0) {
+                        foreach ($roleDefinitionId in $roleDefinitionIds) {
+                            $roleDisplayName = "Unknown"
+                            $roleDefinitionName = ($roleDefinitionId.Split("/"))[-1]
+                            if ($roleDefinitions.ContainsKey($roleDefinitionName)) {
+                                $roleDisplayName = $roleDefinitions.$roleDefinitionName
                             }
                             $roleAssignmentSpecs += @{
-                                scope              = $scopeInfo.scope
-                                roleDefinitionId   = $roleDefinitionId
-                                roleDefinitionName = $roleDefinitionName
+                                scope            = $scopeInfo.scope
+                                roleDefinitionId = $roleDefinitionId
+                                roleDisplayName  = $roleDisplayName
                             }
                         }
-                    }
-                    if ($def.additionalRoleAssignments) {
-                        foreach ($additionalRoleAssignment in $def.additionalRoleAssignments) {
-                            $roleDefinitionId = $additionalRoleAssignment.roleDefinitionId
-                            $roleDefinitionName = "Unknown"
-                            if ($roleDefinitions.ContainsKey($roleDefinitionId)) {
-                                $roleDefinitionName = $roleDefinitions.$roleDefinitionId
-                            }
-                            $roleAssignmentSpecs += @{
-                                scope              = $additionalRoleAssignment.scope
-                                roleDefinitionId   = $roleDefinitionId
-                                roleDefinitionName = $roleDefinitionName
+                        if ($def.additionalRoleAssignments) {
+                            foreach ($additionalRoleAssignment in $def.additionalRoleAssignments) {
+                                $roleDefinitionId = $additionalRoleAssignment.roleDefinitionId
+                                $roleDisplayName = "Unknown"
+                                $roleDefinitionName = ($roleDefinitionId.Split("/"))[-1]
+                                if ($roleDefinitions.ContainsKey($roleDefinitionName)) {
+                                    $roleDisplayName = $roleDefinitions.$roleDefinitionName
+                                }
+                                $roleAssignmentSpecs += @{
+                                    scope            = $additionalRoleAssignment.scope
+                                    roleDefinitionId = $roleDefinitionId
+                                    roleDisplayName  = $roleDisplayName
+                                }
                             }
                         }
-                    }
-                    if ($roleAssignmentSpecs.Length -gt 0) {
                         $assignmentConfig.identityRequired = $true
                         $assignmentConfig.Metadata.Add("roles", $roleAssignmentSpecs)
                         if ($null -eq $assignmentConfig.managedIdentityLocation) {

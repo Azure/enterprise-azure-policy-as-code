@@ -6,7 +6,10 @@ function Build-AzPolicyDefinitionsForInitiative {
         [hashtable] $allPolicyDefinitions,
         [hashtable] $replacedPolicyDefinitions,
         $initiativeObject,
-        [string] $definitionScope
+        [string] $definitionScope,
+        [hashtable] $policyNeededRoleDefinitionIds,
+        [hashtable] $initiativeNeededRoleDefinitionIds
+
     )
 
     ######## validating each Policy Definition needed in Inititaive exists ###########
@@ -15,13 +18,31 @@ function Build-AzPolicyDefinitionsForInitiative {
     $usingUndefinedReference = $false
     $usingReplacedReference = $false
     $policyDefinitions = @()
+
     $usedPolicyGroupDefinitions = @{}
     if ($null -ne $initiativeObject.properties.PolicyDefinitions) {
         $policyDefinitionsInJson = $initiativeObject.properties.PolicyDefinitions
+        $roleDefinitionIdsInInitiative = @{}
+        $initiativeName = $initiativeObject.name
         foreach ($policyDefinition in $policyDefinitionsInJson) {
             # check desired state defined in JSON
-            $result = Confirm-PolicyDefinitionUsedExists -allPolicyDefinitions  $allPolicyDefinitions `
-                -replacedPolicyDefinitions $replacedPolicyDefinitions -policyNameRequired $policyDefinition.policyDefinitionName
+            $policyName = $policyDefinition.policyDefinitionName
+            $result = Confirm-PolicyDefinitionUsedExists `
+                -allPolicyDefinitions  $allPolicyDefinitions `
+                -replacedPolicyDefinitions $replacedPolicyDefinitions `
+                -policyNameRequired $policyName
+
+            # Calculate RoleDefinitionIds
+            if ($policyNeededRoleDefinitionIds.ContainsKey($policyName)) {
+                $addRoleDefinitionIds = $policyNeededRoleDefinitionIds.$policyName
+                foreach ($roleDefinitionId in $addRoleDefinitionIds) {
+                    if (-not ($roleDefinitionIdsInInitiative.ContainsKey($roleDefinitionId))) {
+                        $roleDefinitionIdsInInitiative.Add($roleDefinitionId, "added")
+                    }
+                }
+            }
+
+
             if ($result.usingUndefinedReference) {
                 $usingUndefinedReference = $true
             }
@@ -32,7 +53,8 @@ function Build-AzPolicyDefinitionsForInitiative {
                 $policy = $result.policy
                 $id = $policy.id
                 if ($null -eq $id) {
-                    $id = $definitionScope + "/providers/Microsoft.Authorization/policyDefinitions/" + $policyDefinition.policyDefinitionName
+                    # Custom Policy
+                    $id = $definitionScope + "/providers/Microsoft.Authorization/policyDefinitions/" + $policyName
                 }
                 $pd = @{
                     policyDefinitionId          = $id
@@ -55,6 +77,9 @@ function Build-AzPolicyDefinitionsForInitiative {
                 }
                 $policyDefinitions += $pd
             }
+        }
+        if ($roleDefinitionIdsInInitiative.Count -gt 0) {
+            $initiativeNeededRoleDefinitionIds.Add($initiativeName, $roleDefinitionIdsInInitiative.Keys)
         }
     }
 

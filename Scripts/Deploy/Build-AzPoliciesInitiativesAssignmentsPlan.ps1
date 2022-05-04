@@ -11,10 +11,13 @@ param (
     [Parameter(Mandatory = $false, HelpMessage = "When using this switch, the script will NOT delete extraneous Policy definitions, Initiative definitions and Assignments.")]
     [switch]$SuppressDeletes,
 
-    [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_ROOT_FOLDER or './Definitions'.")]
+    [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.")]
     [string]$DefinitionsRootFolder,
 
-    [Parameter(Mandatory = $false, HelpMessage = "Plan output filename. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Plans/`$PacEnvironmentSelector-plan.json or './Outputs/Plans/`$PacEnvironmentSelector-plan.json'.")]
+    [Parameter(Mandatory = $false, HelpMessage = "Output folder path for plan files. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER or './Output'.")]
+    [string]$OutpuFolder,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Plan output filename. Defaults to `$OutputFolder/policy-plan-`$PacEnvironmentSelector/policy-plan.json.")]
     [string]$PlanFile
 
 )
@@ -70,11 +73,11 @@ function Write-AssignmentDetails {
 # Initialize
 $InformationPreference = "Continue"
 Invoke-AzCli config set extension.use_dynamic_install=yes_without_prompt -SuppressOutput
-$environment = Initialize-Environment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder
+$environment = Initialize-Environment $PacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -outputFolder $OutputFolder
 $rootScope = $environment.rootScope
 $rootScopeId = $environment.rootScopeId
 if ($PlanFile -eq "") {
-    $PlanFile = $environment.planFile
+    $PlanFile = $environment.policyPlanOutputFile
 }
 
 # Getting existing Policy Assignmentscls
@@ -91,6 +94,10 @@ $existingAssignments, $null = Get-AzAssignmentsAtScopeRecursive `
 
 # Getting existing Policy/Initiative definitions and Policy Assignments in the chosen scope of Azure
 $collections = Get-AllAzPolicyInitiativeDefinitions -rootScopeId $rootScopeId
+
+# Collections for roleDefinitionIds
+[hashtable] $policyNeededRoleDefinitionIds = @{}
+[hashtable] $initiativeNeededRoleDefinitionIds = @{}
 
 # Process Policy definitions
 $newPolicyDefinitions = @{}
@@ -112,7 +119,8 @@ Build-AzPolicyDefinitionsPlan `
     -replacedPolicyDefinitions $replacedPolicyDefinitions `
     -deletedPolicyDefinitions $deletedPolicyDefinitions `
     -unchangedPolicyDefinitions $unchangedPolicyDefinitions `
-    -customPolicyDefinitions $customPolicyDefinitions
+    -customPolicyDefinitions $customPolicyDefinitions `
+    -policyNeededRoleDefinitionIds $policyNeededRoleDefinitionIds
 
 # Process Initiative definitions
 $newInitiativeDefinitions = @{}
@@ -136,7 +144,9 @@ Build-AzInitiativeDefinitionsPlan `
     -replacedInitiativeDefinitions $replacedInitiativeDefinitions `
     -deletedInitiativeDefinitions $deletedInitiativeDefinitions `
     -unchangedInitiativeDefinitions $unchangedInitiativeDefinitions `
-    -customInitiativeDefinitions $customInitiativeDefinitions
+    -customInitiativeDefinitions $customInitiativeDefinitions `
+    -policyNeededRoleDefinitionIds $policyNeededRoleDefinitionIds `
+    -initiativeNeededRoleDefinitionIds $initiativeNeededRoleDefinitionIds
 
 # Process Assignment JSON files
 $newAssignments = @{}
@@ -162,6 +172,8 @@ if (!$TestInitiativeMerge.IsPresent) {
         -allInitiativeDefinitions $allInitiativeDefinitions `
         -customInitiativeDefinitions $customInitiativeDefinitions `
         -replacedInitiativeDefinitions $replacedInitiativeDefinitions `
+        -policyNeededRoleDefinitionIds $policyNeededRoleDefinitionIds `
+        -initiativeNeededRoleDefinitionIds $initiativeNeededRoleDefinitionIds `
         -existingAssignments $existingAssignments `
         -newAssignments $newAssignments `
         -updatedAssignments $updatedAssignments `

@@ -15,13 +15,19 @@ param (
     [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a vlaue. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
     [string] $PacEnvironmentSelector,
 
-    [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_ROOT_FOLDER or './Definitions'.")]
+    [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.")]
     [string]$DefinitionsRootFolder,
 
-    [Parameter(Mandatory = $false, HelpMessage = "Plan input filename. Defaults to environment variable `"`$env:PAC_OUTPUT_FOLDER/Plans/`$PacEnvironmentSelector-plan.json`" or './Outputs/Plans/`$PacEnvironmentSelector-plan.json`"'.")]
+    [Parameter(Mandatory = $false, HelpMessage = "Input folder path for plan files. Defaults to environment variable `$env:PAC_INPUT_FOLDER, `$env:PAC_OUTPUT_FOLDER or './Output'.")]
+    [string]$InputFolder,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Output folder path for plan files. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER or './Output'.")]
+    [string]$OutputFolder,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Plan input filename. Defaults to `$InputFolder/policy-plan-`$PacEnvironmentSelector/policy-plan.json`"'.")]
     [string] $PlanFile,
 
-    [Parameter(Mandatory = $false, HelpMessage = "Role Assignment plan output filename. Defaults to environment variable `"`$env:PAC_OUTPUT_FOLDER/Plans/`$PacEnvironmentSelector-roles.json`" or './Outputs/Plans/`$PacEnvironmentSelector-roles.json`"'.")]
+    [Parameter(Mandatory = $false, HelpMessage = "Role Assignment plan output filename. Defaults to environment variable `$OutputFolder/roles-plan-`$PacEnvironmentSelector/roles-plan.json.")]
     [string] $RolesPlanFile
 )
 
@@ -67,6 +73,8 @@ function New-AzPolicyAssignmentHelper {
     }
     $splat.Add("WarningAction", "SilentlyContinue")
 
+    Write-Information "`$assignmentDefinition: Name=$($assignmentDefinition.Name), identityRequired=$($assignmentDefinition.identityRequired)"
+    Write-Information "`$assignmentDefinition: $($assignmentDefinition | ConvertTo-Json -Depth 100)"
     if ($assignmentDefinition.identityRequired) {
         $splat.Add("Location", $assignmentDefinition.managedIdentityLocation)
         $assignmentCreated = New-AzPolicyAssignment @splat -AssignIdentity
@@ -116,12 +124,12 @@ function Set-AzPolicyAssignmentHelper {
 #region Deploy Plan
 
 $InformationPreference = "Continue"
-$environment = Initialize-Environment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder
+$environment = Initialize-Environment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -outputFolder $OutputFolder -inputFolder $InputFolder
 if ($PlanFile -eq "") {
-    $PlanFile = $environment.planFile
+    $PlanFile = $environment.policyPlanInputFile
 }
 if ($RolesPlanFile -eq "") {
-    $RolesPlanFile = $environment.rolesFile
+    $RolesPlanFile = $environment.rolesPlanOutputFile
 }
 $plan = Get-DeploymentPlan -PlanFile $PlanFile
 
@@ -310,7 +318,7 @@ if (!$noChanges) {
             Write-Information "            PrincipaId: $($identity.principalId)"
 
             foreach ($roleAssignment in $roleAssignments) {
-                Write-Information "        '$($roleAssignment.roleDefinitionName)' - '$($roleAssignment.roleDefinitionId)', Scope='$($roleAssignment.scope)'"
+                Write-Information "        '$($roleAssignment.roleDisplayName)' - '$($roleAssignment.roleDefinitionId)', Scope='$($roleAssignment.scope)'"
             }
                 
         }
@@ -328,7 +336,7 @@ if (!$noChanges) {
             Write-Information "            PrincipaId: $($identity.principalId)"
 
             foreach ($role in $roles) {
-                Write-Information "        $($role.roleDefinitionName) - $($role.roleDefinitionId), Scope=`'$($role.scope)`'"
+                Write-Information "        $($role.roleDisplayName) - $($role.roleDefinitionId), Scope=`'$($role.scope)`'"
             }
                 
         }

@@ -6,7 +6,7 @@
         "*": [
             "/resourceGroupPatterns/excluded-rg*",
         ],
-        "prod": [
+        "tenant1": [
             "/providers/Microsoft.Management/managementGroups/Policy-as-Code"
         ]
     },
@@ -25,24 +25,24 @@
     "pacEnvironments": [
         {
             "pacSelector": "dev",
-            "tenantId": "00000000-0000-0000-000000000000",
-            "defaultSubscriptionId": "00000000-0000-0000-000000000000",
+            "tenantId": "77777777-8888-9999-1111-222222222222",
+            "defaultSubscriptionId": "11111111-2222-3333-4444-555555555555",
             "rootScope": {
-                "SubscriptionId": "00000000-0000-0000-000000000000"
+                "SubscriptionId": "11111111-2222-3333-4444-555555555555"
             }
         },
         {
             "pacSelector": "test",
-            "tenantId": "00000000-0000-0000-000000000000",
-            "defaultSubscriptionId": "00000000-0000-0000-000000000000",
+            "tenantId": "77777777-8888-9999-1111-222222222222",
+            "defaultSubscriptionId": "99999999-8888-7777-4444-333333333333",
             "rootScope": {
-                "SubscriptionId": "00000000-0000-0000-000000000000"
+                "SubscriptionId": "99999999-8888-7777-4444-333333333333"
             }
         },
         {
-            "pacSelector": "prod",
-            "tenantId": "00000000-0000-0000-000000000000",
-            "defaultSubscriptionId": "00000000-0000-0000-000000000000",
+            "pacSelector": "tenant1",
+            "tenantId": "77777777-8888-9999-1111-222222222222",
+            "defaultSubscriptionId": "99999999-8888-7777-4444-333333333333",
             "rootScope": {
                 "ManagementGroupName": "Contoso-Root"
             }
@@ -84,14 +84,11 @@
             "initiatives": [
                 "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8", // Azure Security Benchmark v3
                 "/providers/Microsoft.Authorization/policySetDefinitions/d5264498-16f4-418a-b659-fa7ef418175f", // FedRAMP High
+                "/providers/Microsoft.Authorization/policySetDefinitions/e95f5a9f-57ad-4d03-bb0b-b1d16db93693", // FedRAMP Moderate
+                "/providers/Microsoft.Authorization/policySetDefinitions/b5629c75-5c77-4422-87b9-2509e680f8de", // CMMC v1 L3
+                "/providers/Microsoft.Authorization/policySetDefinitions/a169a624-5599-4385-a696-c8d643089fab", // HITRUST/HIPAA
                 "/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f", // NIST SP 800-53 Rev. 5
-                "/providers/Microsoft.Authorization/policySetDefinitions/03055927-78bd-4236-86c0-f36125a10dc9" // NIST SP 800-171 Rev. 2
-            ]
-        },
-        {
-            "setName": "ASB",
-            "initiatives": [
-                "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8" // Azure Security Benchmark v3
+                "/providers/Microsoft.Authorization/policySetDefinitions/03055927-78bd-4236-86c0-f36125a10dc9", // NIST SP 800-171 Rev. 2
             ]
         }
     ]
