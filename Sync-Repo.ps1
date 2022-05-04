@@ -54,7 +54,7 @@ if (Test-Path $sourceDirectory -PathType Container) {
         while ($answer -ne "y" -and $answer -ne 'n') {
             $answer = Read-Host "Destination directory '$destinationDirectory' does not exist. Create it (y/n)?"
         }
-        if ($answer = "y") {
+        if ($answer -eq "y") {
             New-Item "$destinationDirectory" -ItemType Directory
         }
         else {

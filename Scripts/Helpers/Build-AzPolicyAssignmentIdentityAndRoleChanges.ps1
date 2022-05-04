@@ -10,22 +10,21 @@ function Build-RemovedRoleAssignment {
         [hashtable] $removedRoleAssignments
     )
 
-    [System.Collections.ArrayList] $simplifiedRoleAssignmentList = [System.Collections.ArrayList]::new()
+    [System.Collections.ArrayList] $flatRoleAssignmentList = [System.Collections.ArrayList]::new()
     foreach ($removedRoleAssignment in $removedRoleAssignmentList) {
-        $shortRoleDefinitionId = $removedRoleAssignment.roleDefinitionId.Split('/')[-1]
-        [void] $simplifiedRoleAssignmentList.Add(@{
-                id                 = $removedRoleAssignment.id
-                scope              = $removedRoleAssignment.scope
-                roleDefinitionId   = $shortRoleDefinitionId
-                roleDefinitionName = $removedRoleAssignment.roleDefinitionName
+        [void] $flatRoleAssignmentList.Add(@{
+                id               = $removedRoleAssignment.id
+                scope            = $removedRoleAssignment.scope
+                roleDefinitionId = $removedRoleAssignment.roleDefinitionId
+                roleDisplayName  = $removedRoleAssignment.roleDisplayName
             }
         )
     }
-    if ($simplifiedRoleAssignmentList.Count -gt 0) {
+    if ($flatRoleAssignmentList.Count -gt 0) {
         [void] $removedRoleAssignments.Add($assignmentId, @{
                 DisplayName     = $displayName
                 identity        = $identity
-                roleAssignments = $simplifiedRoleAssignmentList.ToArray()
+                roleAssignments = $flatRoleAssignmentList.ToArray()
             }
         )
     }
@@ -85,7 +84,7 @@ function Build-AzPolicyAssignmentIdentityAndRoleChanges {
                 [void] $addedRoleAssignments.Add($assignmentId, @{
                         DisplayName = $assignmentConfig.DisplayName
                         identity    = $identity
-                        roles       = $existingRoleAssignments
+                        roles       = $requiredRoleDefinitions
                     }
                 )
                 $changingRoleAssignments = $true
@@ -98,10 +97,11 @@ function Build-AzPolicyAssignmentIdentityAndRoleChanges {
             $removedRoleAssignmentList = @()
             foreach ($existingRoleAssignment in $existingRoleAssignments) {
                 $existingScope = $existingRoleAssignment.scope
-                $shortRoleDefinitionId = $existingRoleAssignment.roleDefinitionId.Split('/')[-1]
+                $shortExistingRoleDefinitionId = $existingRoleAssignment.roleDefinitionId.Split('/')[-1]
                 $matchFound = $false
                 foreach ($requiredRoleDefinition in $requiredRoleDefinitions) {
-                    if (($requiredRoleDefinition.scope -eq $existingScope) -and ($requiredRoleDefinition.roleDefinitionId -eq $shortRoleDefinitionId)) {
+                    $shortRequiredRoleDefinitionId = $requiredRoleDefinition.roleDefinitionId.Split('/')[-1]
+                    if (($requiredRoleDefinition.scope -eq $existingScope) -and ($shortRequiredRoleDefinitionId -eq $shortExistingRoleDefinitionId)) {
                         $matchFound = $true
                         # Nothing to do
                         break
@@ -124,11 +124,12 @@ function Build-AzPolicyAssignmentIdentityAndRoleChanges {
             # Calculate added role assignments (also rare)
             $addedRoleAssignmentList = @()
             foreach ($requiredRoleDefinition in $requiredRoleDefinitions) {
+                $shortRequiredRoleDefinitionId = $requiredRoleDefinition.roleDefinitionId.Split('/')[-1]
                 foreach ($existingRoleAssignment in $existingRoleAssignments) {
                     $existingScope = $existingRoleAssignment.scope
-                    $shortRoleDefinitionId = $existingRoleAssignment.roleDefinitionId.Split('/')[-1]
+                    $shortExistingRoleDefinitionId = $existingRoleAssignment.roleDefinitionId.Split('/')[-1]
                     $matchFound = $false
-                    if (($requiredRoleDefinition.scope -eq $existingScope) -and ($requiredRoleDefinition.roleDefinitionId -eq $shortRoleDefinitionId)) {
+                    if (($requiredRoleDefinition.scope -eq $existingScope) -and ($shortRequiredRoleDefinitionId -eq $shortExistingRoleDefinitionId)) {
                         $matchFound = $true
                         # Nothing to do
                         break

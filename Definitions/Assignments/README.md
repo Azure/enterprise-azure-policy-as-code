@@ -109,10 +109,7 @@ Assignment files are hierarchical for efficient JSON definitions, avoiding dupli
             "nodeName": "NodeTwoName",
             "definitionEntry": {
                 "policyName": "Reference to Initiative or Policy being assigned",
-                "friendlyNameToDocumentIfGuid": "Human friendly name of policy or initiative",
-                "roleDefinitionIds": [
-                    "Role definitions needed. For example: b24988ac-6180-42a0-ab88-20f7382dd24c"
-                ]
+                "friendlyNameToDocumentIfGuid": "Human friendly name of policy or initiative"
             },
             "assignment": {
                 "name": "Assignment Name",
@@ -170,12 +167,13 @@ Assignment files are hierarchical for efficient JSON definitions, avoiding dupli
 | `nodeName` | arbitrary name of the node for usage by the scripts to pinpoint format errors. | Must exist in each node. |
 | `managedIdentityLocation` | Selects the Managed Identity location for Policies with `DeployIfnotExists` and `Modify` effects. | Any node: overrides previous setting. |
 | `scope` | List of scopes for assignment. | Must exist exactly once in each branch of the tree. |
-| `notScope` | List of notScopes. | Cumulative in branch. May not appear at a child node once the scope has been determined. |
+| `notScope` | List of notScopes. | Cumulative in branch. May not appear at a child node once the `scope` has been determined. |
 | `assignment` | Assignment `name`, `displayName` and `description`. | String values are concatenated in each branch. Assignment `name` lengths are limited to 24. Must exist at least once in every branch. |
-| `parameters` | Parameter values for the assignment. Specified parameters not defined in the assigned Policy or Initiative are silently ignored. | Union of all the parameters defined in a branch. Parameters redefined at a child (recursive) node overwrite the parent nodes value. |
+| `parameters` | Parameter values for the assignment. Specified parameters not defined in the assigned Policy or Initiative are silently ignored. | Union of all the `parameters` defined in a branch. `parameters` redefined at a child (recursive) node overwrite the parent nodes value. |
 | `ignoreBranch` | Ignore the rest of the tee staring at this node. Can be used to define future assignments without deploying the assignments. | Any node: overrides are ignored. |
 | `enforcementMode` | Similar to `ignoreBranch`, it deploys the assignment and sets the assignment to `Default` or `DoNotEnforce`. `DoNotEnforce` allows a whatif analysis. | Any node: overrides previous setting |
-| `definitionEntry` | Specifies the `policyName` or `initiativeName` for the assignment. The name should not be a fully qualified `id`. `friendlyNameToDocumentIfGuid` is purely used as a comment to make the Json more readable if the name is a GUID. | Must exist exactly once in each branch of the tree. |
+| `definitionEntry` | Specifies the `policyName` or `initiativeName` for the assignment. The name should not be a fully qualified `id`. `friendlyNameToDocumentIfGuid` and is purely used as a comment to make the Json more readable if the name is a GUID. | Must exist exactly once in each branch of the tree. |
+| `additionalRoleAssignments` | `roleDefinitionIds` are calculated from the included (direct or indirect via Initiative) Policy definition(s). Fo some Policies, such as DINE `diagnosticsSettings` the monitor destination might be in a different branch of the Management Group tree from the Assignment. This field specifies any roles requiring assignments in that MG branch. The value is an array, each element containing two items: `roleDefinitionId` and `scope` | Union of all the `additionalRoleAssignments` defined in this branch |
 
 <br/>[Back to top](#policy-assignments)<br/>
 

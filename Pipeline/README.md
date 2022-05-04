@@ -100,7 +100,7 @@ Create service connections for each of your environments and require minimum rol
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
 | `PacEnvironmentSelector` | Optional | Selects the tenant, rootScope, defaultSubscription, assignment scopes/notScope and file names. If omitted, interactively prompts for the value. |
-| `DefinitionsRootFolder` | Optional | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_ROOT_FOLDER` or `./Definitions`. It contains `global-settings.jsonc`.
+| `DefinitionsRootFolder` | Optional | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It contains `global-settings.jsonc`.
 
 <br/>[Back to top](#pipeline)<br/>
 
@@ -114,8 +114,9 @@ In addition to the [common parameters](#common-parmeters-for-flexible-and-unifie
 |----------|----------|-------------|
 | `IncludeResource GroupsForAssignments` | Optional | Resource Group level assignments are not recommended; therefore, the script excludes Resource Groups from processing to save substantial execution time (tens of minutes to hours). This switch parameter overrides that default behavior. |
 | `SuppressDeletes` | Optional | When using this switch, the script will NOT delete extraneous Policy definitions, Initiative definitions and Assignments. This can be useful for brown field deployments. |
-| `PlanFile` | Optional | Plan filename. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Plans/$PacEnvironmentSelector-plan.json` or `./Outputs/Plans/$PacEnvironmentSelector-plan.json`. |
-| `RolesPlanFile` | Optional | Role Assignment plan output filename. Defaults to environment
+| `OutputFolder` | Optional | Output folder path for plan files. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER` or `./Output`. |
+| `PlanFile` | Optional | Plan output filename. Defaults to `$OutputFolder/policy-plan-$PacEnvironmentSelector/policy-plan.json`. |
+
 <br/>[Back to top](#pipeline)<br/>
 
 ### Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1
@@ -124,8 +125,10 @@ Deploys Policies, Initiatives, and Policy Assignments at their desired scope bas
 
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
-| `PlanFile` | Optional | Plan filename. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Plans/$PacEnvironmentSelector-plan.json` or `./Outputs/Plans/$PacEnvironmentSelector-plan.json`. |
-| `RolesPlanFile` | Optional | Role Assignment plan filename. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Plans/$PacEnvironmentSelector-roles.json` or `./Outputs/Plans/$PacEnvironmentSelector-roles.json`. |
+| `InputFolder` | Optional | Input folder path for plan files. Defaults to environment variable `$env:PAC_INPUT_FOLDER`, `$env:PAC_OUTPUT_FOLDER` or `./Output`. |
+| `OutputFolder` | Optional | Output folder path for plan files. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER` or `./Output`. |
+| `PlanFile` | Optional | Plan input filename. Defaults to `$InputFolder/policy-plan-$PacEnvironmentSelector/policy-plan.json`. |
+| `RolesPlanFile` | Optional | Role Assignment plan output filename. Defaults to environment variable `$OutputFolder/roles-plan-$PacEnvironmentSelector/roles-plan.json`. |
 
 <br/>[Back to top](#pipeline)<br/>
 
@@ -135,7 +138,8 @@ Creates the role assignments for the Managed Identities required for `DeployIfNo
 
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
-| `RolesPlanFile` | Optional | Role Assignment plan filename. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Plans/$PacEnvironmentSelector-roles.json` or `./Outputs/Plans/$PacEnvironmentSelector-roles.json`. |
+| `InputFolder` | Optional | Input folder path for plan files. Defaults to environment variable `$env:PAC_INPUT_FOLDER`, `$env:PAC_OUTPUT_FOLDER` or `./Output`. |
+| `RolesPlanFile` | Optional | Role Assignment plan input filename. Defaults to `$InputFolder/roles-plan-$PacEnvironmentSelector/roles-plan.json`. |
 
 <br/>[Back to top](#pipeline)<br/>
 

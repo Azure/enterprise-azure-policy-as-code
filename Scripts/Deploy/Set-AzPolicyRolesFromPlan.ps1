@@ -15,10 +15,13 @@ param (
     [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a vlaue. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
     [string] $PacEnvironmentSelector,
 
-    [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_ROOT_FOLDER or './Definitions'.")]
+    [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.")]
     [string]$DefinitionsRootFolder,
 
-    [Parameter(Mandatory = $false, HelpMessage = "Role Assignment plan input filename. Defaults to environment variable `"`$env:PAC_OUTPUT_FOLDER/Plans/`$PacEnvironmentSelector-roles.json`" or './Outputs/Plans/`$PacEnvironmentSelector-roles.json`"'.")]
+    [Parameter(Mandatory = $false, HelpMessage = "Input folder path for plan files. Defaults to environment variable `$env:PAC_INPUT_FOLDER, `$env:PAC_OUTPUT_FOLDER or './Output'.")]
+    [string]$InputFolder,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Role Assignment plan input filename. Defaults to `$InputFolder/roles-plan-`$PacEnvironmentSelector/roles-plan.json.")]
     [string] $RolesPlanFile
 )
 
@@ -31,12 +34,13 @@ Write-Information ""
 . "$PSScriptRoot/../Helpers/Split-AzPolicyAssignmentIdForAzCli.ps1"
 . "$PSScriptRoot/../Helpers/Invoke-AzCli.ps1"
 . "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
+. "$PSScriptRoot/../Helpers/Initialize-Environment.ps1"
 
 $InformationPreference = "Continue"
 Invoke-AzCli config set extension.use_dynamic_install=yes_without_prompt -SuppressOutput
-$environment = Initialize-Environment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder
+$environment = Initialize-Environment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -inputFolder $InputFolder
 if ($RolesPlanFile -eq "") {
-    $RolesPlanFile = $environment.rolesPlanFile
+    $RolesPlanFile = $environment.rolesPlanInputFile
 }
 $plan = Get-DeploymentPlan -PlanFile $RolesPlanFile
 
@@ -59,8 +63,8 @@ if ($changesNeeded) {
             foreach ($roleAssignment in $roleAssignments) {
                 $scope = $roleAssignment.scope
                 $roleDefinitionId = $roleAssignment.roleDefinitionId
-                $roleDefinitionName = $roleAssignment.roleDefinitionName
-                Write-Information "    $($roleDefinitionName) - $($roleDefinitionId), Scope=$($scope), Role Assignment Id=$($roleAssignment.id)"
+                $roleDisplayName = $roleAssignment.roleDisplayName
+                Write-Information "    $($roleDisplayName) - $($roleDefinitionId), Scope=$($scope), Role Assignment Id=$($roleAssignment.id)"
                 Invoke-AzCli role assignment delete --ids $roleAssignment.id -SuppressOutput
             }
         }
@@ -81,8 +85,9 @@ if ($changesNeeded) {
             foreach ($role in $roles) {
                 $scope = $role.scope
                 $roleDefinitionId = $role.roleDefinitionId
-                $roleDefinitionName = $role.roleDefinitionName
-                Write-Information "    $($roleDefinitionName) - $($roleDefinitionId), Scope=$($scope)"
+                $roleDefinitionName = $roleDefinitionId.Split('/')[-1]
+                $roleDisplayName = $role.roleDisplayName
+                Write-Information "    $($roleDisplayName) - $($roleDefinitionName), Scope=$($scope)"
 
                 $retries = 0
                 while ($retries -le $retriesLimit) {

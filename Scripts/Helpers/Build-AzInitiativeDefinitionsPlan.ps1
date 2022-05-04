@@ -16,7 +16,9 @@ function Build-AzInitiativeDefinitionsPlan {
         [hashtable] $replacedInitiativeDefinitions,
         [hashtable] $deletedInitiativeDefinitions,
         [hashtable] $unchangedInitiativeDefinitions,
-        [hashtable] $customInitiativeDefinitions
+        [hashtable] $customInitiativeDefinitions,
+        [hashtable] $policyNeededRoleDefinitionIds,
+        [hashtable] $initiativeNeededRoleDefinitionIds
     )
 
     Write-Information "==================================================================================================="
@@ -31,6 +33,28 @@ function Build-AzInitiativeDefinitionsPlan {
     else {
         Write-Information "There aren't any Initiative files in the folder provided!"
     }
+
+    # Calculate roleDefinitionIds for built-in Initiatives
+    foreach ($initiativeName in $builtInInitiativeDefinitions.Keys) {
+        $initiative = $builtInInitiativeDefinitions.$initiativeName
+        $roleDefinitionIdsInInitiative = @{}
+        foreach ($policyDefinition in $initiative.policyDefinitions) {
+            $policyId = $policyDefinition.policyDefinitionId
+            $policyName = $policyId -replace "^\/providers\/Microsoft\.Authorization\/policyDefinitions\/", ""
+            if ($policyNeededRoleDefinitionIds.ContainsKey($policyName)) {
+                $addRoleDefinitionIds = $policyNeededRoleDefinitionIds.$policyName
+                foreach ($roleDefinitionId in $addRoleDefinitionIds) {
+                    if (-not ($roleDefinitionIdsInInitiative.ContainsKey($roleDefinitionId))) {
+                        $roleDefinitionIdsInInitiative.Add($roleDefinitionId, "added")
+                    }
+                }
+            }
+        }
+        if ($roleDefinitionIdsInInitiative.Count -gt 0) {
+            $initiativeNeededRoleDefinitionIds.Add($initiativeName, $roleDefinitionIdsInInitiative.Keys)
+        }
+    }
+
 
     # Getting Initiative definitions from the JSON files
     $obsoleteInitiativeDefinitions = $existingCustomInitiativeDefinitions.Clone()
@@ -66,7 +90,10 @@ function Build-AzInitiativeDefinitionsPlan {
             -allPolicyDefinitions $allPolicyDefinitions `
             -replacedPolicyDefinitions $replacedPolicyDefinitions `
             -initiativeObject $initiativeObject `
-            -definitionScope $rootScopeId
+            -definitionScope $rootScopeId `
+            -policyNeededRoleDefinitionIds $policyNeededRoleDefinitionIds `
+            -initiativeNeededRoleDefinitionIds $initiativeNeededRoleDefinitionIds
+
         [array] $policyDefinitions = $result.policyDefinitions
 
         [hashtable] $groupDefinitions = @{}
