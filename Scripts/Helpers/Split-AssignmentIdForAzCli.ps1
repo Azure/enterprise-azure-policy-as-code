@@ -1,10 +1,10 @@
 
-function Split-AzPolicyAssignmentIdForAzCli {
+function Split-AssignmentIdForAzCli {
     [CmdletBinding()]
     param (
         [string] $id
     )
-    
+
     $name = $id.Split('/')[-1]
     $scope = $id -ireplace [regex]::Escape("/providers/Microsoft.Authorization/policyAssignments/$name"), ""
 
@@ -14,4 +14,3 @@ function Split-AzPolicyAssignmentIdForAzCli {
     }
     return $splat
 }
-

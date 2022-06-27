@@ -1,0 +1,80 @@
+{
+    "documentAssignments": {
+        "environmentCategories": [
+            {
+                "pacEnvironment": "tenant1",
+                "environmentCategory": "PROD",
+                "scopes": [ // Used in Markdown output only
+                    "Management Group: Contoso-Prod"
+                ],
+                "representativeAssignments": [
+                    {
+                        "shortName": "ASB",
+                        "id": "/providers/Microsoft.Management/managementGroups/Contoso-Prod/providers/Microsoft.Authorization/policyAssignments/pr-asb"
+                    },
+                    {
+                        "shortName": "NIST 800-53",
+                        "id": "/providers/Microsoft.Management/managementGroups/Contoso-Prod/providers/Microsoft.Authorization/policyAssignments/pr-nist-800-53-r5"
+                    }
+                ]
+            },
+            {
+                "pacEnvironment": "tenant1",
+                "environmentCategory": "NONPROD",
+                "scopes": [ // Used in Markdown output only
+                    "Management Group: Contoso-NonProd"
+                ],
+                "representativeAssignments": [
+                    {
+                        "shortName": "ASB",
+                        "id": "/providers/Microsoft.Management/managementGroups/Contoso-NonProd/providers/Microsoft.Authorization/policyAssignments/np-asb"
+                    },
+                    {
+                        "shortName": "NIST 800-53",
+                        "id": "/providers/Microsoft.Management/managementGroups/Contoso-NonProd/providers/Microsoft.Authorization/policyAssignments/np-nist-800-53-r5"
+                    }
+                ]
+            }
+        ],
+        "documentationSpecifications": [
+            {
+                "fileNameStem": "contoso-PROD-policy-effects",
+                "type": "effectsPerEnvironment",
+                "environmentCategory": "PROD",
+                "title": "Contoso PROD environments Policy effects"
+            },
+            {
+                "fileNameStem": "contoso-NONPROD-policy-effects",
+                "type": "effectsPerEnvironment",
+                "environmentCategory": "NONPROD",
+                "title": "Contoso NONPROD environment Policy effects"
+            },
+            {
+                "fileNameStem": "contoso-policy-effects-across-environments",
+                "type": "effectsAcrossEnvironments",
+                "environmentCategories": [
+                    "PROD",
+                    "NONPROD"
+                ],
+                "title": "Contoso Policy effects summary"
+            }
+        ]
+    },
+    "documentInitiatives": [
+        {
+            "pacEnvironment": "tenant1",
+            "fileNameStem": "contoso-compliance-initiatives",
+            "title": "Document Initiatives",
+            "initiatives": [
+                {
+                    "shortName": "ASB",
+                    "id": "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8" // Azure Security Benchmark v3
+                },
+                {
+                    "shortName": "NIST 800-53",
+                    "id": "/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f" // NIST SP 800-53 Rev. 5
+                }
+            ]
+        }
+    ]
+}

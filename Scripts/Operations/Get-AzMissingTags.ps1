@@ -8,21 +8,27 @@ param(
     [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.")]
     [string]$DefinitionsRootFolder,
 
-    [Parameter(Mandatory = $false, HelpMessage = "Output file name. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Tags/missing-tags-results.csv or './Outputs/Tags/missing-tags-results.csv'.")] 
-    [string] $OutputFileName
+    [Parameter(Mandatory = $false, HelpMessage = "Output file name. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Tags/missing-tags-results.csv or './Outputs/Tags/missing-tags-results.csv'.")]
+    [string] $OutputFileName,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Set to false if used non-interactive")]
+    [bool] $interactive = $true
 )
 
-. "$PSScriptRoot/../Helpers/Initialize-Environment.ps1"
+. "$PSScriptRoot/../Helpers/Get-PacFolders.ps1"
+. "$PSScriptRoot/../Helpers/Get-GlobalSettings.ps1"
+. "$PSScriptRoot/../Helpers/Select-PacEnvironment.ps1"
+. "$PSScriptRoot/../Helpers/Set-AzCloudTenantSubscription.ps1"
 
 $InformationPreference = "Continue"
-$environment = Initialize-Environment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder
-$targetTenant = $environment.targetTenant
-if ($OutputFileName -eq "") {
-    $OutputFileName = "$($environment.outputRootFolder)/Tags/missing-tags-results.csv"
-}
+Invoke-AzCli config set extension.use_dynamic_install=yes_without_prompt -SuppressOutput
+$pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -outputFolder $OutputFolder -interactive $interactive
+Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -interactive $pacEnvironment.interactive
 
-# Connect to Azure Tenant
-Connect-AzAccount -Tenant $targetTenant
+$targetTenant = $pacEnvironment.targetTenant
+if ($OutputFileName -eq "") {
+    $OutputFileName = "$($pacEnvironment.outputFolder)/Tags/missing-tags-results.csv"
+}
 
 Write-Information "==================================================================================================="
 Write-Information "Processing"
@@ -52,4 +58,4 @@ foreach ($subscription in $subscriptionList) {
 if (-not (Test-Path $OutputFileName)) {
     New-Item $OutputFileName -Force
 }
-$results | Export-Csv $OutputFileName 
+$results | Export-Csv $OutputFileName

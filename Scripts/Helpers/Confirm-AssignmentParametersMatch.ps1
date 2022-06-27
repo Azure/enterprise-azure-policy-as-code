@@ -16,7 +16,7 @@ function Confirm-AssignmentParametersMatch {
             # remove key from $addedParameters
             $addedParameters.Remove($existingParameterName)
 
-            # analyze parmeter
+            # analyze parameter
             if ($match) {
                 $existing = $existingParameters.$existingParameterName.value
                 $defined = $definedParameters.$existingParameterName

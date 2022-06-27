@@ -11,7 +11,7 @@ function Confirm-PolicyDefinitionsUsedMatch {
     foreach ($pd in $matchingPolicyDefinitions) {
         $parameters = "{}"
         $groupNames = "[]"
-        if ($null -ne $pd.parmeters) {
+        if ($null -ne $pd.parameters) {
             $parameters = $pd.parameters | ConvertTo-Json -Depth 100
         }
         if ($null -ne $pd.groupNames) {
@@ -34,7 +34,7 @@ function Confirm-PolicyDefinitionsUsedMatch {
             $matchingHt.Remove($pdRef)
             $parameters = "{}"
             $groupNames = "[]"
-            if ($null -ne $pd.parmeters) {
+            if ($null -ne $pd.parameters) {
                 $parameters = $pd.parameters | ConvertTo-Json -Depth 100
             }
             if ($null -ne $pd.groupNames) {

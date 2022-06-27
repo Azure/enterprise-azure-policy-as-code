@@ -19,13 +19,13 @@
             "nodeName": "tenant/",
             "scope": {
                 "dev": [
-                    "/subscriptions/11111111-2222-3333-4444-555555555555"
+                    "/providers/Microsoft.Management/managementGroups/PAC-Dev"
                 ],
                 "test": [
-                    "/subscriptions/99999999-8888-7777-4444-333333333333"
+                    "/providers/Microsoft.Management/managementGroups/PAC-Test"
                 ],
                 "tenant1": [
-                    "/providers/Microsoft.Management/managementGroups/Contoso-Prod"
+                    "/providers/Microsoft.Management/managementGroups/Contoso-Root"
                 ]
             },
             "children": [

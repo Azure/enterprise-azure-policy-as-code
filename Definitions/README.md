@@ -9,14 +9,12 @@
 
 ## Table of Content
 
-- [Folders](#folders)
-- [Global Settings](#global-settings)
-  - [managedIdentityLocation](#managedidentitylocation)
-  - [globalNotScopes](#globalnotscopes)
-  - [pacEnvironments](#pacenvironments)
-  - [representativeAssignments](#representativeassignments)
-  - [initiativeSetsToCompare](#initiativesetstocompare)
-- [Reading List](#reading-list)
+* [Folders](#folders)
+* [Global Settings](#global-settings)
+  * [managedIdentityLocation](#managedidentitylocation)
+  * [globalNotScopes](#globalnotscopes)
+  * [pacEnvironments](#pacenvironments)
+* [Reading List](#reading-list)
 
 ## Folders
 
@@ -26,6 +24,7 @@ This folder and subfolders contain the definitions to deploy. Tasks:
 1. Create custom Policy definitions (optional) in folder **[Policies](Policies/README.md)**
 1. Create custom Initiative definitions (optional) in folder **[Initiatives](Initiatives/README.md)**
 1. Define the Policy Assignments in folder **[Assignments](Assignments/README.md)**
+1. Define Documentation in folder **[DocumentationSpecs](../Definitions/DocumentationSpecs/README.md)**
 
 ## Global Settings
 
@@ -43,7 +42,7 @@ The `PacEnvironmentSelector` argument to the scripts selects which values are us
 
 Policies with `Modify` and `DeployIfNotExists` effects require a Managed Identity for the remediation task. This section defines the location of the managed identity. It is often created in the tenant's primary location. This location can be overridden in the Policy Assignment files. The star in the example matches all `PacEnvironmentSelector` values. The prod section only applies to PaC `prod`. The two lists are added.
 
-<br/>[Back to top](#definitions-and-global-settings)<br/>
+<br/>
 
 ### globalNotScopes
 
@@ -81,120 +80,52 @@ The arrays can have the following entries:
 pacEnvironments define the environment controlled by Policy as Code. It must be modified in each organization.
 
 ```json
-    "pacEnvironments": [
-        {
-            "pacSelector": "dev",
-            "tenantId": "00000000-0000-0000-000000000000",
-            "defaultSubscriptionId": "00000000-0000-0000-000000000000",
-            "rootScope": {
-                "SubscriptionId": "00000000-0000-0000-000000000000"
-            }
-        },
-        {
-            "pacSelector": "test",
-            "tenantId": "00000000-0000-0000-000000000000",
-            "defaultSubscriptionId": "00000000-0000-0000-000000000000",
-            "rootScope": {
-                "SubscriptionId": "00000000-0000-0000-000000000000"
-            }
-        },
-        {
-            "pacSelector": "prod",
-            "tenantId": "00000000-0000-0000-000000000000",
-            "defaultSubscriptionId": "00000000-0000-0000-000000000000",
-            "rootScope": {
-                "ManagementGroupName": "Contoso-Root"
-            }
+"pacEnvironments": [
+    {
+        "pacSelector": "dev",
+        "cloud": "AzureCloud",
+        "tenantId": "77777777-8888-9999-1111-222222222222",
+        "defaultSubscriptionId": "11111111-2222-3333-4444-555555555555",
+        "rootScope": {
+            "SubscriptionId": "11111111-2222-3333-4444-555555555555"
         }
-    ],
+    },
+    {
+        "pacSelector": "test",
+        "cloud": "AzureCloud",
+        "tenantId": "77777777-8888-9999-1111-222222222222",
+        "defaultSubscriptionId": "99999999-8888-7777-4444-333333333333",
+        "rootScope": {
+            "SubscriptionId": "99999999-8888-7777-4444-333333333333"
+        }
+    },
+    {
+        "pacSelector": "tenant1",
+        "cloud": "AzureCloud",
+        "tenantId": "77777777-8888-9999-1111-222222222222",
+        "defaultSubscriptionId": "99999999-8888-7777-4444-333333333333",
+        "rootScope": {
+            "ManagementGroupName": "Contoso-Root"
+        }
+    }
+]
 ```
+
+`cloud` defines which Azure cloud is the target.
 
 Each entry in the array defines one of the environments:
 
 | Element | Description |
 |---------|-------------|
 | `pacSelector` | Matches entry to `PacEnvironmentSelector`.  A star is not valid. |
+| `cloud` | Azure environment. Examples: `"AzureCloud"`, `"AzureUSGovernment"`, `"AzureGermanCloud"`. Deafults to `"AzureCloud"` with a warning |
 | `tenantId` | Azure Tenant Id |
 | `defaultSubscriptionId` | Primary subscription for login. If the rootScope is a subscription, the default must match. |
-| `rootScope` | Policy and Initiative definitions are **always** deployed at this scope. |
+| `rootScope` | Policy and Initiative definitions are **always** deployed at this scope. Must conatin either a `MangementGroupName` or a `SubscriptionId` element |`
 
-<br/>[Back to top](#definitions-and-global-settings)<br/>
+<br/>
 
-### representativeAssignments
-
-`representativeAssignments` is used by `Get-AzEffectsForEnvironments.ps1` to calculate a spreadsheet containing the effective effects for each Policy assigned.
-
-```json
-    "representativeAssignments": [
-        {
-            "environmentType": "PROD",
-            "policyAssignments": [
-                "/providers/Microsoft.Management/managementGroups/Contoso-Prod/providers/Microsoft.Authorization/policyAssignments/prod-asb",
-                "/providers/Microsoft.Management/managementGroups/Contoso-Prod/providers/Microsoft.Authorization/policyAssignments/prod-org"
-            ]
-        },
-        {
-            "environmentType": "NONPROD",
-            "policyAssignments": [
-                "/providers/Microsoft.Management/managementGroups/Contoso-NonProd/providers/Microsoft.Authorization/policyAssignments/nonprod-asb",
-                "/providers/Microsoft.Management/managementGroups/Contoso-NonProd/providers/Microsoft.Authorization/policyAssignments/nonprod-org"
-            ]
-        },
-        {
-            "environmentType": "DEV",
-            "policyAssignments": [
-                "/providers/Microsoft.Management/managementGroups/Contoso-Dev/providers/Microsoft.Authorization/policyAssignments/dev-asb",
-                "/providers/Microsoft.Management/managementGroups/Contoso-Dev/providers/Microsoft.Authorization/policyAssignments/dev-org"
-            ]
-        },
-        {
-            "environmentType": "SANDBOX",
-            "policyAssignments": [
-                "/providers/Microsoft.Management/managementGroups/Contoso-Sandbox/providers/Microsoft.Authorization/policyAssignments/sandbox-asb",
-                "/providers/Microsoft.Management/managementGroups/Contoso-Sandbox/providers/Microsoft.Authorization/policyAssignments/sandbox-org"
-            ]
-        }
-    ],
-```
-
-Each entry in the array defines one of the environmnent types:
-| Element | Description |
-|---------|-------------|
-| `environmentType` | Environment type to calculate. |
-| `policyAssignments` | List of Policy assignment which are representative of an `environmentType` |
-
-<br/>[Back to top](#definitions-and-global-settings)<br/>
-
-### initiativeSetsToCompare
-
-`initiativeSetsToCompare` is used by `Get-AzEffectsForInitiative.ps1` to calculate a spreadsheet containing the default effects for multiple Initiative definitions and parameter definitions representing the default values. These can be used to generate parameters for Policy Assignments.
-
-```json
-    "initiativeSetsToCompare": [
-        {
-            "setName": "NIST",
-            "initiatives": [
-                "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8", // Azure Security Benchmark v3
-                "/providers/Microsoft.Authorization/policySetDefinitions/d5264498-16f4-418a-b659-fa7ef418175f", // FedRAMP High
-                "/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f", // NIST SP 800-53 Rev. 5
-                "/providers/Microsoft.Authorization/policySetDefinitions/03055927-78bd-4236-86c0-f36125a10dc9" // NIST SP 800-171 Rev. 2
-            ]
-        },
-        {
-            "setName": "ASB",
-            "initiatives": [
-                "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8" // Azure Security Benchmark v3
-            ]
-        }
-    ]
-```
-
-| Element | Description |
-|---------|-------------|
-| `setName` | Matches the script parameter `initiativeSetSelector`. |
-| `initiatives` | List of Initiatives to compare |
-
-<br/>[Back to top](#definitions-and-global-settings)<br/>
+<br/>
 
 ## Reading List
 
@@ -208,7 +139,8 @@ Each entry in the array defines one of the environmnent types:
 
 1. **[Define Policy Assignments](../Definitions/Assignments/README.md)**
 
+1. **[Documenting Assignments and Initiatives](../Definitions/DocumentationSpecs/README.md)**
+
 1. **[Operational Scripts](../Scripts/Operations/README.md)**
 
 **[Return to the main page](../README.md)**
-<br/>[Back to top](#pipeline)<br/>

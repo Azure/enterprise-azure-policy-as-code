@@ -100,7 +100,7 @@ function Get-NotScope {
                         # Write-Host "##[debug] Checking pattern $nsi, trimmed pattern against $nspTrimmed, nsp starts with $($nspTrimmed.Substring(0,1))"
                     }
                 }
-                    
+
                 # Write-Host "Testing subscriptionIds($($subscriptionIds.Count)), notScopeResourceGroupIds($($notScopeResourceGroupIds.Count)), notScopePatterns($($notScopePatterns.Count))"
                 # Find Resource Groups in all subscriptions in notScope
                 $table = $scopeTreeInfo.SubscriptionTable

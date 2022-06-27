@@ -1,8 +1,9 @@
 #Requires -PSEdition Core
 
-function Get-AllAzPolicyInitiativeDefinitions {
+function Get-AzPolicyInitiativeDefinitions {
     [CmdletBinding()]
     param (
+        [parameter(Mandatory = $true)] [hashtable] $rootScope,
         [parameter(Mandatory = $true)] [string] $rootScopeId,
         [switch] $byId
     )
@@ -11,7 +12,13 @@ function Get-AllAzPolicyInitiativeDefinitions {
     Write-Information "Fetching existing Policy definitions from scope ""$rootScopeId"""
     Write-Information "==================================================================================================="
 
-    $policyList = Invoke-AzCli policy definition list
+    $policyList = $null
+    if ($rootScope.ManagementGroupName) {
+        $policyList = Invoke-AzCli policy definition list --management-group $rootScope.ManagementGroupName
+    }
+    else {
+        $policyList = Invoke-AzCli policy definition list
+    }
     $existingCustomPolicyDefinitions = @{}
     $builtInPolicyDefinitions = @{}
     $null = $policyList | `
@@ -30,7 +37,13 @@ function Get-AllAzPolicyInitiativeDefinitions {
     Write-Information "Fetching existing Initiative definitions from scope ""$rootScopeId"""
     Write-Information "==================================================================================================="
 
-    $initiativeList = Invoke-AzCli policy set-definition list
+    $initiativeList = $null
+    if ($rootScope.ManagementGroupName) {
+        $initiativeList = Invoke-AzCli policy set-definition list --management-group $rootScope.ManagementGroupName
+    }
+    else {
+        $initiativeList = Invoke-AzCli policy set-definition list
+    }
     $existingCustomInitiativeDefinitions = @{}
     $builtInInitiativeDefinitions = @{}
     $null = $initiativeList | `
@@ -45,11 +58,11 @@ function Get-AllAzPolicyInitiativeDefinitions {
     Write-Information ""
     Write-Information ""
 
-    $collections = @{
+    $allAzPolicyInitiativeDefinitions = @{
         existingCustomPolicyDefinitions     = $existingCustomPolicyDefinitions
         builtInPolicyDefinitions            = $builtInPolicyDefinitions
         existingCustomInitiativeDefinitions = $existingCustomInitiativeDefinitions
         builtInInitiativeDefinitions        = $builtInInitiativeDefinitions
     }
-    $collections
+    $allAzPolicyInitiativeDefinitions
 }

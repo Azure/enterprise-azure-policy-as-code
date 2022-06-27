@@ -9,14 +9,14 @@
 
 ## Policy Definition Files
 
-The names of the definition JSON files don't matter, the Policy and Initiative definitions are registered based on the `name` attribute. It is recommended that you use a `GUID` as the `name`. The solution also allows the use of JSON with comments by using `.jsonc` instead of `.json` for the file extension.
+The names of the definition Json files don't matter, the Policy and Initiative definitions are registered based on the `name` attribute. It is recommended that you use a `GUID` as the `name`. The solution also allows the use of Json with comments by using `.jsonc` instead of `.json` for the file extension.
 
 > **NOTE**:
 > When authoring policy/initiative definitions, check out the [Maximum count of Azure Policy objects](https://docs.microsoft.com/en-us/azure/governance/policy/overview#maximum-count-of-azure-policy-objects)
 
 The Policy definition files are structured based on the official [Azure Policy definition structure](https://docs.microsoft.com/en-us/azure/governance/policy/concepts/definition-structure) published by Microsoft. There are numerous definition samples available on Microsoft's [GitHub repository for azure-policy](https://github.com/Azure/azure-policy).
 
-<br/>[Back to top](#policy-definitions)<br/>
+<br/>
 
 ## Recommendations
 
@@ -27,7 +27,7 @@ The Policy definition files are structured based on the official [Azure Policy d
 - Whenever feasible, provide a `defaultValue` for parameters, especially for an `effect` parameter.
 - Policy aliases are used by Azure Policy to refer to resource type properties in the `if` condition and in `existenceCondition`: <https://docs.microsoft.com/en-us/azure/governance/policy/concepts/definition-structure#aliases>.
 
-<br/>[Back to top](#policy-definitions)<br/>
+<br/>
 
 ## Example
 
@@ -68,7 +68,7 @@ The Policy definition files are structured based on the official [Azure Policy d
 }
 ```
 
-<br/>[Back to top](#policy-definitions)<br/>
+<br/>
 
 ## Reading List
 
@@ -82,7 +82,8 @@ The Policy definition files are structured based on the official [Azure Policy d
 
 1. **[Define Policy Assignments](../../Definitions/Assignments/README.md)**
 
+1. **[Documenting Assignments and Initiatives](../../Definitions/DocumentationSpecs/README.md)**
+
 1. **[Operational Scripts](../../Scripts/Operations/README.md)**
 
 **[Return to the main page](../../README.md)**
-<br/>[Back to top](#policy-definitions)<br/>

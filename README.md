@@ -20,6 +20,8 @@
 - [Create Policy Definitions](Definitions/Policies/README.md)
 - [Create Initiative Definitions](Definitions/Initiatives/README.md)
 - [Define Policy Assignments](Definitions/Assignments/README.md)
+- [Documenting Assignments and Initiatives](Definitions/DocumentationSpecs/README.md)
+
 - [Scripts](Scripts/README.md)
 
 ## Azure Security Modernization
@@ -34,7 +36,7 @@ ASM improves your new or existing security posture in Azure by securing platform
 
 This solution uses the desired state strategy. It will remove any custom Policies, Initiatives or Policy Assignments not duplicated in the definition files. The `Build-AzPoliciesInitiativesAssignmentsPlan.ps1` script's switch parameter `SuppressDeletes` changes this behavior. Use a "brownfield" pipeline to pass this parameter preventing deletions of existing Policies, Initiatives and Policy Assignments while transitioning to Enterprise Policy as Code.
 
-<br/>[Back to top](#policy-as-code)<br/>
+<br/>
 
 ## Managing Update and Contributions
 
@@ -87,7 +89,7 @@ The repo contains a script to synchronize directories in both directions: `Sync-
 
 ![image](./Docs/Images/folder-structure.png)
 
-<br/>[Back to top](#policy-as-code)<br/>
+<br/>
 
 ## Starter Kit
 
@@ -120,7 +122,7 @@ Pipelines can customized to fit your needs:
 - Different development approach instead of GitHub flow.
 - ...
 
-<br/>[Back to top](#policy-as-code)<br/>
+<br/>
 
 ## Components
 
@@ -132,9 +134,8 @@ Pipelines can customized to fit your needs:
 | **Deployment Scripts** | Scripts are used to deploy your Policies, Initiatives, and Assignments to Azure. They do not need to be modified. If you have improvements, please offer to contribute them. | Folder `Scripts/Deploy` |
 | **Operational Scripts** | Scripts used to during operations (e.g., creating remediation tasks). | Folder `Scripts/Operations` |
 | **Helper Scripts** | These Scripts are used by other scripts. | Folder `Scripts/Helpers` |
-| **Test Scripts** | Scripts used by this solution's developers to execute other scripts without needing to type all the parameters each time. | Folder <br/> `Scripts/Test` |
 
-<br/>[Back to top](#policy-as-code)<br/>
+<br/>
 
 ## Scenarios
 
@@ -145,9 +146,9 @@ The Policy as Code framework supports the following Policy and Initiative assign
   > **NOTE**: Distributed teams must only include those scopes in their version of the assignments.json that is not covered by another team.
 - **Mixed approach**: A centralized team manages policy and initiative assignments to a certain level (top-down approach), e.g. on the Tenant Root Group level, and top level Management group, and all assignments on lower levels (i.e. lower level Management Groups, Subscriptions and Resource Groups) are managed by multiple teams, in a distributed manner.
 
- **NOTE**: This solution enforces a centralized approach. It is recommended that you follow a centralized approach however, when using the mixed approach, scopes that will not be managed by the central team should be excluded from the assignments JSON file - therefore the assignment configuration script will ignore these scopes (it won't add/remove/update anything in there). Conversly, the distributed teams must only include those scopes in their version of the assignments.json that is not covered by the central team.
+ **NOTE**: This solution enforces a centralized approach. It is recommended that you follow a centralized approach however, when using the mixed approach, scopes that will not be managed by the central team should be excluded from the assignments Json file - therefore the assignment configuration script will ignore these scopes (it won't add/remove/update anything in there). Conversly, the distributed teams must only include those scopes in their version of the assignments.json that is not covered by the central team.
 
- <br/>[Back to top](#policy-assignments)<br/>
+ <br/>
 
 ## Policy as Code Environments
 
@@ -155,7 +156,7 @@ This solution requires environments for DEV, optional DEVINT, TEST and one PROD 
 
 The scripts have a parameter `PacEnvironmentSelector` to select the PaC environment. This string must match the selectors in `global-settings.jsonc` and the Policy Assignment files to select the scopes and notScopes. The scripts accept the parameter directly. If the parameter is missing, the scripts prompt for it interactively.
 
- <br/>[Back to top](#policy-assignments)<br/>
+ <br/>
 
 ## Prerequisites
 
@@ -168,7 +169,7 @@ The scripts have a parameter `PacEnvironmentSelector` to select the PaC environm
   - Azure DevOps Server (if not using Azure DevOps service) and Azure Self-Hosted Agents must be in PROD tenant.
   - Management Group `mg-pac-dev` should be creted in a dev tenant
 
-<br/>[Back to top](#policy-as-code)<br/>
+<br/>
 
 ## Quick Start
 
@@ -231,7 +232,7 @@ The scripts have a parameter `PacEnvironmentSelector` to select the PaC environm
     - Triggered by a commit to a feature branch: stages prodPlanMainStage, prodDeployStage, (optional) prodRolesStage, prodNoPolicyChangesStage, and prodNoRoleChangesStage (optional).
     - You may add additional sections for other triggers, such as pre-PR test build and deploy stages.
 
-<br/>[Back to top](#policy-as-code)<br/>
+<br/>
 
 ## Reading List
 
@@ -240,9 +241,10 @@ The scripts have a parameter `PacEnvironmentSelector` to select the PaC environm
 1. **[Create Policy Definitions](Definitions/Policies/README.md)**
 1. **[Create Initiative Definitions](Definitions/Initiatives/README.md)**
 1. **[Define Policy Assignments](Definitions/Assignments/README.md)**
+1. **[Documenting Assignments and Initiatives](Definitions/DocumentationSpecs/README.md)**
 1. **[Operational Scripts](Scripts/Operations/README.md)**
 
-[Back to top](#policy-as-code) <br/>
+<br/>
 
 ## Contributing
 
@@ -258,12 +260,10 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
-<br/>[Back to top](#policy-as-code)<br/>
+<br/>
 
 ## Trademarks
 
 This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft trademarks or logos is subject to and must follow
 [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship. Any use of third-party trademarks or logos are subject to those third-party's policies.
-
-<br/>[Back to top](#policy-as-code)<br/>
