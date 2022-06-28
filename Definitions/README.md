@@ -9,6 +9,8 @@
 
 ## Table of Content
 
+* [Important](#important)
+* [Table of Content](#table-of-content)
 * [Folders](#folders)
 * [Global Settings](#global-settings)
   * [managedIdentityLocation](#managedidentitylocation)
@@ -111,14 +113,12 @@ pacEnvironments define the environment controlled by Policy as Code. It must be 
 ]
 ```
 
-`cloud` defines which Azure cloud is the target.
-
 Each entry in the array defines one of the environments:
 
 | Element | Description |
 |---------|-------------|
 | `pacSelector` | Matches entry to `PacEnvironmentSelector`.  A star is not valid. |
-| `cloud` | Azure environment. Examples: `"AzureCloud"`, `"AzureUSGovernment"`, `"AzureGermanCloud"`. Deafults to `"AzureCloud"` with a warning |
+| `cloud` | Azure environment. Examples: `"AzureCloud"`, `"AzureUSGovernment"`, `"AzureGermanCloud"`. Defaults to `"AzureCloud"` with a warning |
 | `tenantId` | Azure Tenant Id |
 | `defaultSubscriptionId` | Primary subscription for login. If the rootScope is a subscription, the default must match. |
 | `rootScope` | Policy and Initiative definitions are **always** deployed at this scope. Must conatin either a `MangementGroupName` or a `SubscriptionId` element |`
