@@ -7,7 +7,7 @@ function Invoke-AzCli {
     <#
     .SYNOPSIS
     Invokes the az cli from PowerShell providing better error handling and converts the output from Json to a custom object or a hash table.
- 
+
     .DESCRIPTION
     Invokes the az cli from PowerShell:
         * SplatSelection
@@ -19,7 +19,7 @@ function Invoke-AzCli {
         * Formating based on inferred or explicit format specifier (SplatSelection)
             json: writes json string to a temporary file and uses the filename as the argument
                 --argName filename
-            array: optional, value must be an array of simple types or a single item - creates 
+            array: optional, value must be an array of simple types or a single item - creates
                 --argName followed by a space separted list of values
             key: optional, automatic if value is $null - creates
                     --argName
@@ -27,7 +27,7 @@ function Invoke-AzCli {
                 --argName akey=avalue bkey=bvalue ...
             value: optional, required if splat parameter is used to change the argName for a single value (see next format below)
     Unless specified otherwise, converts the output from Json to a custom object.
- 
+
     .PARAMETER Arguments
     The remaining arguments are passed to the az cli.
 
@@ -182,7 +182,7 @@ function Invoke-AzCli {
                             break
                         }
                         Default {
-                            Write-Error "Unknown format ""$_"" for -SplatTransform specified ""$transform""" -ErrorAction Stop 
+                            Write-Error "Unknown format ""$_"" for -SplatTransform specified ""$transform""" -ErrorAction Stop
                             break
                         }
                     }
@@ -190,12 +190,12 @@ function Invoke-AzCli {
             }
         }
     }
-    
-    $result = $null
+
+    $result = ""
     try {
         $result = az @Arguments @splatArguments @additionalArguments
         if (!$?) {
-            throw "Command exited with error"
+            throw "Command 'az $Arguments $splatArguments' command exited with error"
         }
     }
     finally {
@@ -209,12 +209,21 @@ function Invoke-AzCli {
         $hostInfo.ui.rawui.BackgroundColor = $BackgroundColor
     }
 
-    if (!$SuppressOutput.IsPresent -and $null -ne $result) {
-        if ($AsHashTable.IsPresent) {
-            $result | ConvertFrom-Json -AsHashTable
+    if ($null -ne $result) {
+        try {
+            $obj = $null
+            if ($AsHashTable.IsPresent) {
+                $obj = $result | ConvertFrom-Json -AsHashTable
+            }
+            else {
+                $obj = $result | ConvertFrom-Json
+            }
+            if (!$SuppressOutput.IsPresent) {
+                return $obj
+            }
         }
-        else {
-            $result | ConvertFrom-Json
+        catch {
+            Write-Error "Command 'az $Arguments $splatArguments' retrurned an error message: $($result)" -ErrorAction Stop
         }
     }
 }

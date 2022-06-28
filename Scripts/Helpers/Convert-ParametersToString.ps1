@@ -4,7 +4,6 @@
 function Convert-ParametersToString {
     param (
         [hashtable] $parameters,
-        [string] $shortName = "",
         [switch] $Markdown
     )
 
@@ -25,7 +24,6 @@ function Convert-ParametersToString {
             $parameterList += "$parameterName=``$value``"
         }
         if ($Markdown.IsPresent) {
-            $text += "<br/>**$($shortName):**"
             foreach ($parameterText in $parameterList) {
                 $text += "<br/>&nbsp;&nbsp;&nbsp;&nbsp;*$parameterText*"
             }

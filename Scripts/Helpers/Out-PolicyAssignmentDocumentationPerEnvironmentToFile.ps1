@@ -39,7 +39,7 @@ function Out-PolicyAssignmentDocumentationPerEnvironmentToFile {
     [System.Collections.Generic.List[string]] $allLines = [System.Collections.Generic.List[string]]::new()
     [System.Collections.Generic.List[string]] $headerAndToc = [System.Collections.Generic.List[string]]::new()
     [System.Collections.Generic.List[string]] $body = [System.Collections.Generic.List[string]]::new()
-        
+
     $null = $headerAndToc.Add("# $title`n")
     $null = $headerAndToc.Add("Auto-generaed Policy effect documentation for environment '$($environmentCategory)' grouped by Effect and sorted by Policy category and Policy display name.`n")
     $null = $headerAndToc.Add("## Table of contents`n")
@@ -82,7 +82,7 @@ function Out-PolicyAssignmentDocumentationPerEnvironmentToFile {
             $null = $body.Add("| :------- | :----- |$addedTableDivider")
             $previousOrdinal = $currentOrdinal
         }
-                
+
         # Build additional columns
         $allAssignments = $_.allAssignments
         $parameterFragment = ""
@@ -103,10 +103,8 @@ function Out-PolicyAssignmentDocumentationPerEnvironmentToFile {
 
                 $parameters = $assignmentFlat.parameters
                 if ($null -ne $parameters -and $parameters.Count -gt 0) {
-                    $text = Convert-ParametersToString `
-                        -parameters $parameters `
-                        -shortName $shortName `
-                        -Markdown
+                    $parameterFragment += "<br/>**$($shortName):**"
+                    $text = Convert-ParametersToString -parameters $parameters -Markdown
                     $parameterFragment += $text
                 }
             }
@@ -141,7 +139,7 @@ function Out-PolicyAssignmentDocumentationPerEnvironmentToFile {
         $shortName = $assignmentEntry.shortName
         $null = $cells.Add("$shortName Parameters")
     }
-    $headerString = Convert-ListToToCsvRow($cells) 
+    $headerString = Convert-ListToToCsvRow($cells)
     $null = $allLines.Add($headerString)
 
     $flatPolicyList.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
@@ -153,7 +151,7 @@ function Out-PolicyAssignmentDocumentationPerEnvironmentToFile {
         $description = $_.description
         $null = $cells.AddRange(@($category, $displayName, $description))
         $allAssignments = $_.allAssignments
-                
+
         # Build effect by Initiative columns
         foreach ($shortName in $shortNames) {
             if ($allAssignments.ContainsKey($shortName)) {
@@ -186,7 +184,7 @@ function Out-PolicyAssignmentDocumentationPerEnvironmentToFile {
                 $null = $cells.Add("n/a")
             }
         }
-        $row = Convert-ListToToCsvRow($cells) 
+        $row = Convert-ListToToCsvRow($cells)
         $null = $allLines.Add($row)
     }
 

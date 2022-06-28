@@ -130,11 +130,11 @@ function Out-InitiativeDocumentationToFile {
                 $addedEffectColumns += " $text |"
 
                 [array] $groupNames = $perInitiative.groupNames
-                if ($isEffectParameterized -or $groupNames.Count -gt 0) {
+                [hashtable] $parameters = $perInitiative.parameters
+                if ($parameters.Count -gt 0 -or $groupNames.Count -gt 0) {
                     $addedRows += "<br/>**$($shortName):**"
-                    if ($isEffectParameterized) {
-                        $addedRows += "<br/>&nbsp;&nbsp;&nbsp;&nbsp;*$effectParameterName*"
-                    }
+                    $text = Convert-ParametersToString -parameters $parameters -Markdown
+                    $addedRows += $text
                     foreach ($groupName in $groupNames) {
                         $addedRows += "<br>&nbsp;&nbsp;&nbsp;&nbsp;$groupName"
                     }
@@ -212,8 +212,7 @@ function Out-InitiativeDocumentationToFile {
 
                 # Parameters cell
                 $parameters = $perInitiative.parameters
-                $text = Convert-ParametersToString `
-                    -parameters $parameters
+                $text = Convert-ParametersToString -parameters $parameters
                 $null = $cells.Add($text)
 
                 # Group Names cell
