@@ -139,7 +139,7 @@ function Convert-PolicyInitiativeDefinitionsToInfo {
                             }
                         }
                         else {
-                            # Effect paramter is hard-coded (fixed) by Initiative
+                            # Effect parameter is hard-coded (fixed) by Initiative
                             $initiativeLevelEffectParameterName = "n/a"
                             $effectValue = $effectRawValue
                             $effectDefault = $effectRawValue

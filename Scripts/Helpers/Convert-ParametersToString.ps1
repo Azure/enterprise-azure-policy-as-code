@@ -25,17 +25,9 @@ function Convert-ParametersToString {
             $parameterList += "$parameterName=``$value``"
         }
         if ($Markdown.IsPresent) {
-            $break = "<br/>"
-            if ($parameterList.Count -gt 1) {
-                $text += "<br/>**$shortName**"
-                $break = "<br/>`    "
-            }
-            else {
-                $text += "<br/>**$shortName**: "
-                $break = ""
-            }
+            $text += "<br/>**$($shortName):**"
             foreach ($parameterText in $parameterList) {
-                $text += "$break*$parameterText*"
+                $text += "<br/>&nbsp;&nbsp;&nbsp;&nbsp;*$parameterText*"
             }
         }
         else {

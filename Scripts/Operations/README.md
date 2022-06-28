@@ -27,7 +27,7 @@ Creates a custom role `Policy Contributor` at the scope selected with `PacEnviro
 
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
-| `PacEnvironmentSelector` | Optional | Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a vlaue. The values are read from `$DefinitionsRootFolder/global-settings.jsonc`. |
+| `PacEnvironmentSelector` | Optional | Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc`. |
 | `DefinitionsRootFolder` | Optional | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It contains `global-settings.jsonc`. |
 | `interactive` | Optional | Script is being run interactively and can request az login. Defaults to $false if PacEnvironmentSelector parameter provided and $true otherwise. |
 
@@ -43,7 +43,7 @@ This script executes all remediation tasks in a Policy as Code environment speci
 
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
-| `PacEnvironmentSelector` | Optional | Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a vlaue. The values are read from `$DefinitionsRootFolder/global-settings.jsonc`. |
+| `PacEnvironmentSelector` | Optional | Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc`. |
 | `DefinitionsRootFolder` | Optional | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It contains `global-settings.jsonc`. |
 | `interactive` | Optional | Script is being run interactively and can request az login. Defaults to $false if PacEnvironmentSelector parameter provided and $true otherwise. |
 
@@ -51,7 +51,7 @@ This script executes all remediation tasks in a Policy as Code environment speci
 
 ## Build-PolicyAssignmentDocumentation.ps1
 
-Generates documentaion for assignments and inititives based on Json files in `$definitionsFolder/DocumentationSpecs`. [See Define Documentation for details](../../Definitions/DocumentationSpecs/README.md).
+Generates documentation for assignments and initiatives based on Json files in `$definitionsFolder/DocumentationSpecs`. [See Define Documentation for details](../../Definitions/DocumentationSpecs/README.md).
 
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
@@ -68,7 +68,7 @@ Lists missing tags based on non-compliant Resource Groups.
 
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
-| `PacEnvironmentSelector` | Optional | Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a vlaue. The values are read from `$DefinitionsRootFolder/global-settings.jsonc`. |
+| `PacEnvironmentSelector` | Optional | Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc`. |
 | `DefinitionsRootFolder` | Optional | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It contains `global-settings.jsonc`.
 | `OutputFileName` | Optional | Output file name. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Tags/missing-tags-results.csv` or `./Outputs/Tags/missing-tags-results.csv`. |
 | `interactive` | Optional | Script is being run interactively and can request az login. Defaults to $false if PacEnvironmentSelector parameter provided and $true otherwise. |
@@ -81,7 +81,7 @@ Lists all resource tags in tenant.
 
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
-| `PacEnvironmentSelector` | Optional | Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a vlaue. The values are read from `$DefinitionsRootFolder/global-settings.jsonc`. |
+| `PacEnvironmentSelector` | Optional | Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc`. |
 | `DefinitionsRootFolder` | Optional | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It contains `global-settings.jsonc`.
 | `OutputFileName` | Optional | Output file name. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Tags/all-tags.csv` or `./Outputs/Tags/all-tags.csv`. |
 | `interactive` | Optional | Script is being run interactively and can request az login. Defaults to $false if PacEnvironmentSelector parameter provided and $true otherwise. |
@@ -94,7 +94,7 @@ Lists Storage Account network configurations.
 
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
-| `PacEnvironmentSelector` | Optional | Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a vlaue. The values are read from `$DefinitionsRootFolder/global-settings.jsonc`. |
+| `PacEnvironmentSelector` | Optional | Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc`. |
 | `DefinitionsRootFolder` | Optional | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It contains `global-settings.jsonc`.
 | `OutputFileName` | Optional | Output file name. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Storage/StorageNetwork.csv` or `./Outputs/Storage/StorageNetwork.csv` |
 | `interactive` | Optional | Script is being run interactively and can request az login. Defaults to $false if PacEnvironmentSelector parameter provided and $true otherwise. |
@@ -107,7 +107,7 @@ Lists Role assignments per user.
 
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
-| `PacEnvironmentSelector` | Optional | Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a vlaue. The values are read from `$DefinitionsRootFolder/global-settings.jsonc`. |
+| `PacEnvironmentSelector` | Optional | Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc`. |
 | `DefinitionsRootFolder` | Optional | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It contains `global-settings.jsonc`.
 | `OutputFileName` | Optional | Output file name. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Users/RoleAssignments.csv` or `./Outputs/Users/RoleAssignments.csv` |
 | `interactive` | Optional | Script is being run interactively and can request az login. Defaults to $false if PacEnvironmentSelector parameter provided and $true otherwise. |

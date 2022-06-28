@@ -167,7 +167,7 @@ This element defines the outputs. Each entry defines the output of one (1) Markd
 - `fileNameStem`: the file name without the extension (.md, .csv)
 - `type`: two documentation types are supported.
   - `effectsPerEnvironment`: requires a single `environmentCategory`
-    - Creates a Markdown file with Policies grouped by effect, sorted by Policy category and display name with effect columns for each Initiative in the representative Assignments. The effective effect is bolded and the other allowed values are listed in the same cell one per line. **No allowed values listed indicate a hard-coded effect.**
+    - Creates a Markdown file with Policies grouped by effect, sorted by Policy category and display name with effect columns for each Initiative in the representative Assignments. The effective effect is bolded and the other allowed values are listed in the same cell one per line in italics. **No allowed values listed indicate a hard-coded effect.**
     - Creates a csv file with Policies sorted by Policy category and display name with effect columns for each Initiative in the representative Assignments. The effective effect is listed first and the other allowed values are listed in the same cell one per line.
   - `effectsAcrossEnvironments`: compares the most stringent effect from the Assignments across all `environmentCategories` listed as effect columns.
 - `title`: Heading 1 text for Markdown.
@@ -176,11 +176,13 @@ This element defines the outputs. Each entry defines the output of one (1) Markd
 
 ## Specifying Initiative Documentation
 
-Compares Policy and Initiative definitions to  Initaitive Definitions for Policy and effect overlap as Markdown and as Excel csv files.
+Compares Policy and Initiative definitions to  Initiative definitions for Policy and effect overlap as Excel csv files.
 
-Craete a Json file (`.jsonc`) defining all the parameters as Json for the union of Policies in the defined Initiative Definitions sorted an colated by Policy category and Policy display name. This Json file is useful when writting assignment files. You can use them with copy/paste and modify the parameter values in your assignment file(s).
+Creates a Markdown file with Policies sorted by Policy category and display name with effect columns for each Initiative. The Policy column starts with the bolded display Name followed by the description and lines grouped by bolded Initiative short name with the effect parameter name in italics and the group names in normal text. In the per Initiative effect columns the default effect is bolded and the other allowed values are listed in the same cell one per line in italics. **No allowed values listed indicate a hard-coded effect.**
 
-Each array entry defines three (3) files to be generated: Markdown, csv, and Json paramter file (.jsonc)
+Create a Json file (`.jsonc`) defining all the parameters as Json for the union of Policies in the defined Initiative Definitions sorted an collated by Policy category and Policy display name. This Json file is useful when writing assignment files. You can use them with copy/paste and modify the parameter values in your assignment file(s).
+
+Each array entry defines three (3) files to be generated: Markdown, csv, and Json parameter file (.jsonc)
 
 - `pacEnvironment`: references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the Policy and Initiative definitions are deployed.
 - `fileNameStem`: the file name without the extension (.md, .csv, .jsonc)

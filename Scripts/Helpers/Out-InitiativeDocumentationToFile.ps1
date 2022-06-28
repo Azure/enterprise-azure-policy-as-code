@@ -113,7 +113,7 @@ function Out-InitiativeDocumentationToFile {
     $flatPolicyList.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
         $initiativeList = $_.initiativeList
         $addedEffectColumns = ""
-        $addedEffectParameterNameRows = ""
+        $addedRows = ""
         foreach ($initiative in $initiatives) {
             $shortName = $initiative.shortName
             if ($initiativeList.ContainsKey($shortName)) {
@@ -129,13 +129,22 @@ function Out-InitiativeDocumentationToFile {
                     -Markdown
                 $addedEffectColumns += " $text |"
 
-                if ($isParameterized) {
-                    $addedEffectParameterNameRows += "<br/>*$($shortName): $effectParameterName*"
+                [array] $groupNames = $perInitiative.groupNames
+                if ($isEffectParameterized -or $groupNames.Count -gt 0) {
+                    $addedRows += "<br/>**$($shortName):**"
+                    if ($isEffectParameterized) {
+                        $addedRows += "<br/>&nbsp;&nbsp;&nbsp;&nbsp;*$effectParameterName*"
+                    }
+                    foreach ($groupName in $groupNames) {
+                        $addedRows += "<br>&nbsp;&nbsp;&nbsp;&nbsp;$groupName"
+                    }
                 }
             }
-            $addedEffectColumns += "  |"
+            else {
+                $addedEffectColumns += "  |"
+            }
         }
-        $null = $body.Add("| $($_.category) | **$($_.displayName)**<br/>$($_.description)$($addedEffectParameterNameRows) |$addedEffectColumns")
+        $null = $body.Add("| $($_.category) | **$($_.displayName)**<br/>$($_.description)$($addedRows) |$addedEffectColumns")
     }
     $null = $headerAndToc.Add("`n<br/>")
     $null = $allLines.AddRange($headerAndToc)

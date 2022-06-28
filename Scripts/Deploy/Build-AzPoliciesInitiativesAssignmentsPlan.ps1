@@ -2,7 +2,7 @@
 
 [CmdletBinding()]
 param (
-    [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a vlaue. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
+    [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
     [string] $PacEnvironmentSelector,
 
     [Parameter(Mandatory = $false, HelpMessage = "When using this switch, the script includes resource groups for assignment calculations. Warning: this is time-consuming.")]
