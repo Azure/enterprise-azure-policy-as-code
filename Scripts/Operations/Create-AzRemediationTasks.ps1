@@ -2,37 +2,46 @@
 
 [CmdletBinding()]
 param(
-    [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a vlaue. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
+    [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
     [string] $PacEnvironmentSelector,
 
     [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.")]
-    [string]$DefinitionsRootFolder
+    [string]$DefinitionsRootFolder,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Set to false if used non-interactive")]
+    [bool] $interactive = $true
 )
 
-. "$PSScriptRoot/../Helpers/Initialize-Environment.ps1"
-. "$PSScriptRoot/../Helpers/Get-AllAzPolicyInitiativeDefinitions.ps1"
+. "$PSScriptRoot/../Helpers/Get-PacFolders.ps1"
+. "$PSScriptRoot/../Helpers/Get-GlobalSettings.ps1"
+. "$PSScriptRoot/../Helpers/Select-PacEnvironment.ps1"
+. "$PSScriptRoot/../Helpers/Get-AzPolicyInitiativeDefinitions.ps1"
 . "$PSScriptRoot/../Helpers/Get-AzAssignmentsAtScopeRecursive.ps1"
 . "$PSScriptRoot/../Helpers/Get-AzScopeTree.ps1"
 . "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
 . "$PSScriptRoot/../Helpers/Invoke-AzCli.ps1"
-. "$PSScriptRoot/../Helpers/Split-AzPolicyAssignmentIdForAzCli.ps1"
+. "$PSScriptRoot/../Helpers/Split-AssignmentIdForAzCli.ps1"
+. "$PSScriptRoot/../Helpers/Set-AzCloudTenantSubscription.ps1"
 
 $InformationPreference = "Continue"
-$environment = Initialize-Environment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder
-$rootScopeId = $environment.rootScopeId
-$rootScope = $environment.rootScope
+Invoke-AzCli config set extension.use_dynamic_install=yes_without_prompt -SuppressOutput
+$pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -outputFolder $OutputFolder -interactive $interactive
+Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -interactive $pacEnvironment.interactive
 
-$collections = Get-AllAzPolicyInitiativeDefinitions -rootScopeId $rootScopeId
-$allPolicyDefinitions = $collections.builtInPolicyDefinitions + $collections.existingCustomPolicyDefinitions
-$allInitiativeDefinitions = $collections.builtInInitiativeDefinitions + $collections.existingCustomInitiativeDefinitions
+$rootScopeId = $pacEnvironment.rootScopeId
+$rootScope = $pacEnvironment.rootScope
+
+$allAzPolicyInitiativeDefinitions = Get-AzPolicyInitiativeDefinitions -rootScope $rootScope -rootScopeId $rootScopeId
+$allPolicyDefinitions = $allAzPolicyInitiativeDefinitions.builtInPolicyDefinitions + $allAzPolicyInitiativeDefinitions.existingCustomPolicyDefinitions
+$allInitiativeDefinitions = $allAzPolicyInitiativeDefinitions.builtInInitiativeDefinitions + $allAzPolicyInitiativeDefinitions.existingCustomInitiativeDefinitions
 
 $scopeTreeInfo = Get-AzScopeTree `
-    -tenantId $environment.tenantId `
+    -tenantId $pacEnvironment.tenantId `
     -scopeParam $rootScope `
-    -defaultSubscriptionId $environment.defaultSubscriptionId
+    -defaultSubscriptionId $pacEnvironment.defaultSubscriptionId
 $null, $remediations = Get-AzAssignmentsAtScopeRecursive `
     -scopeTreeInfo $scopeTreeInfo `
-    -notScopeIn $environment.globalNotScopeList `
+    -notScopeIn $pacEnvironment.globalNotScopeList `
     -includeResourceGroups $false `
     -getAssignments $false `
     -getRemediations $true `

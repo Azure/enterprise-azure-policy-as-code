@@ -9,7 +9,7 @@
 
 ## Initiative (Policy Set) Definition Files
 
-The names of the definition JSON files don't matter, the Initiative definitions are registered based on the `name` attribute. It is recommended that you use a `GUID` as the `name`. The solution also allows the use of JSON with comments by using `.jsonc` instead of `.json` for the file extension.
+The names of the definition Json files don't matter, the Initiative definitions are registered based on the `name` attribute. It is recommended that you use a `GUID` as the `name`. The solution also allows the use of Json with comments by using `.jsonc` instead of `.json` for the file extension.
 
 > **NOTE**:
 > When authoring policy/initiative definitions, check out the [Maximum count of Azure Policy objects](https://docs.microsoft.com/en-us/azure/governance/policy/overview#maximum-count-of-azure-policy-objects)
@@ -26,7 +26,7 @@ The Initiative definition files are structured based on the official [Azure Init
 - Do not specify an `id`
 - Make  the `effects` parameterized
 
-<br/>[Back to top](#initiative-definitions)<br/>
+<br/>
 
 ## Example
 
@@ -83,7 +83,7 @@ The Initiative definition files are structured based on the official [Azure Init
 }
 ```
 
-<br/>[Back to top](#initiative-definitions)<br/>
+<br/>
 
 ## Merging Built-In Initiatives
 
@@ -101,7 +101,9 @@ The Initiative definition files are structured based on the official [Azure Init
 
 1. **[Define Policy Assignments](../../Definitions/Assignments/README.md)**
 
+1. **[Documenting Assignments and Initiatives](../../Definitions/DocumentationSpecs/README.md)**
+
 1. **[Operational Scripts](../../Scripts/Operations/README.md)**
 
 **[Return to the main page](../../README.md)**
-<br/>[Back to top](#initiative-definitions)<br/>
+<br/>

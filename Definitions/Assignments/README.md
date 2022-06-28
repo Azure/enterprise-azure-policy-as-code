@@ -5,7 +5,7 @@
 
 - [Components](#components)
 - [Assignment File Overview Diagram](#assignment-file-overview-diagram)
-- [Assignment JSON file structure](#assignment-json-file-structure)
+- [Assignment Json file structure](#assignment-json-file-structure)
 - [Assignment Node Components](#assignment-node-components)
 - [Details for `scope` and `notScope` Values](#details-for--scope--and--notscope--values)
 - [Using the `PacAssignmentSelector`](#using-the--pacassignmentselector-)
@@ -21,21 +21,21 @@ The components required for **creating / updating / deleting Policy assignments 
 
 | Component | What is it used for? | Where can it be found? |
 |--|--|--|
-| **Assignment JSON files** | The assignments JSON file follows the management group hierarchy (optionally including subscriptions and resource groups) and defines all policy and initiative assignments on these scopes. | `Definitions/Assignments` folder |
+| **Assignment Json files** | The assignments Json file follows the management group hierarchy (optionally including subscriptions and resource groups) and defines all policy and initiative assignments on these scopes. | `Definitions/Assignments` folder |
 | **Global Settings File** | The `global-settings.jsonc` file specifies common values for Policy Assignments  | `Definitions` folder |
 
-<br/>[Back to top](#policy-assignments)<br/>
+<br/>
 
 ## Assignment File Overview Diagram
 
-Assignment files are hierarchical for efficient JSON definitions, avoiding duplication of JSON with copy/paste.
+Assignment files are hierarchical for efficient Json definitions, avoiding duplication of Json with copy/paste.
 <br/>
 
 ![Assignment File Overview Diagram](../../Docs/Images/PaC-Assignment-Structure.png)
 
-<br/>[Back to top](#policy-assignments)<br/>
+<br/>
 
-## Assignment JSON file structure
+## Assignment Json file structure
 
 `scope` and `notScope` use a `PacAssignmentSelector` to specify which scope to use for different environments and tenants. The value for the `PacAssignmentSelector` is passed to the build script as a parameter. A star matches any `PacAssignmentSelector` specified.
 
@@ -175,7 +175,7 @@ Assignment files are hierarchical for efficient JSON definitions, avoiding dupli
 | `definitionEntry` | Specifies the `policyName` or `initiativeName` for the assignment. The name should not be a fully qualified `id`. `friendlyNameToDocumentIfGuid` and is purely used as a comment to make the Json more readable if the name is a GUID. | Must exist exactly once in each branch of the tree. |
 | `additionalRoleAssignments` | `roleDefinitionIds` are calculated from the included (direct or indirect via Initiative) Policy definition(s). Fo some Policies, such as DINE `diagnosticsSettings` the monitor destination might be in a different branch of the Management Group tree from the Assignment. This field specifies any roles requiring assignments in that MG branch. The value is an array, each element containing two items: `roleDefinitionId` and `scope` | Union of all the `additionalRoleAssignments` defined in this branch |
 
-<br/>[Back to top](#policy-assignments)<br/>
+<br/>
 
 ## Details for `scope` and `notScope` Values
 
@@ -195,7 +195,7 @@ The assignment selector determines the array being selected for this run of the 
 | Subscription | `/subscriptions/<subscriptionId>` |
 | Resource Group | `/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>` |
 
-<br/>[Back to top](#policy-assignments)<br/>
+<br/>
 
 ## Reading List
 
@@ -209,7 +209,8 @@ The assignment selector determines the array being selected for this run of the 
 
 1. **[Define Policy Assignments](../../Definitions/Assignments/README.md)**
 
+1. **[Documenting Assignments and Initiatives](../../Definitions/DocumentationSpecs/README.md)**
+
 1. **[Operational Scripts](../../Scripts/Operations/README.md)**
 
 **[Return to the main page](../../README.md)**
-<br/>[Back to top](#policy-assignments)<br/>

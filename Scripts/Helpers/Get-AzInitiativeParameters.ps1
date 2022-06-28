@@ -6,7 +6,7 @@ function Get-AzInitiativeParameters {
         [hashtable] $parametersIn = @{}, # empty hashtable means processing an initiative definitions instead of assignemnet(s)
         [hashtable] $definedParameters
     )
-    
+
     [hashtable] $parametersOut = @{}
     foreach ($name in $definedParameters.Keys) {
         $definedParameter = $definedParameters.$name
@@ -20,7 +20,7 @@ function Get-AzInitiativeParameters {
         else {
             $parametersOut.Add($name, @{
                     paramValue   = $definedParameter.defaultValue
-                    type         = "InititiativeDefaultValue"
+                    type         = "InitiativeDefaultValue"
                     defaultValue = $definedParameter.defaultValue
                 })
         }

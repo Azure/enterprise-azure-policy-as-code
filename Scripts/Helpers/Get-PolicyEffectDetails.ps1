@@ -7,7 +7,7 @@ function Get-PolicyEffectDetails {
     )
 
     $effectValue = $policy.policyRule.then.effect
-    $found, $parameterName = Get-ParmeterNameFromValueString -paramValue $effectValue
+    $found, $parameterName = Get-ParameterNameFromValueString -paramValue $effectValue
 
     $result = @{}
     if ($found) {
@@ -34,4 +34,3 @@ function Get-PolicyEffectDetails {
     }
     return $result
 }
-

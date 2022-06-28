@@ -87,7 +87,7 @@ function Get-AssignmentDefs {
         }
     }
 
-    # Process parameters; parameters defined at a deeper level override previous parmeters (union operator)
+    # Process parameters; parameters defined at a deeper level override previous parameters (union operator)
     if ($definitionNode.parameters) {
         Write-Debug "        parameters inherited $($def.parameters | ConvertTo-Json -Depth 100)"
         Write-Debug "        parameters at node   $($definitionNode.parameters | ConvertTo-Json -Depth 100)"

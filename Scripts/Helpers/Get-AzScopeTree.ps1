@@ -10,7 +10,7 @@ function Get-AzResourceGroupsForSubscription {
     param (
         [string] $SubscriptionId
     )
-    
+
     $resourceGroups = Invoke-AzCli group list --subscription $SubscriptionId
     $resourceGroupIdsHashTable = @{}
     $null = $resourceGroups | ForEach-Object { $resourceGroupIdsHashTable[$_.id] = $_ }
@@ -56,10 +56,10 @@ function Get-AzScopeTree {
             ResourceGroupIds = $resourceGroupIdsHashTable
         }
     }
-    elseif ($scopeParam.ContainsKey("ManagementGroupName")) { 
+    elseif ($scopeParam.ContainsKey("ManagementGroupName")) {
 
         $scopeTree = Invoke-AzCli account management-group show --name $scopeParam.ManagementGroupName --expand --recurse
-        Write-Information "    Management Group $($scopeTree.displayName) ($($scopeTree.id))"
+        Write-Information "Management Group $($scopeTree.displayName) ($($scopeTree.id))"
 
         # Get all subscriptions and their resource groups and put them in a hashtable by subscription id
         # Write-Host "##[command] Get-AzSubscription"
@@ -72,7 +72,7 @@ function Get-AzScopeTree {
                     $resourceGroupIdsHashTable = Get-AzResourceGroupsForSubscription -SubscriptionId $subscription.id
                 }
                 $fullSubscriptionId = "/subscriptions/$($subscription.id)"
-                Write-Information "    Subscription $($subscription.name) ($($fullSubscriptionId)) with $($resourceGroupIdsHashTable.Count) Resource Groups"
+                Write-Information "Subscription $($subscription.name) ($($fullSubscriptionId)) with $($resourceGroupIdsHashTable.Count) Resource Groups"
                 $subscriptionTable[$fullSubscriptionId] = @{
                     Name             = $subscription.name
                     State            = $subscription.state

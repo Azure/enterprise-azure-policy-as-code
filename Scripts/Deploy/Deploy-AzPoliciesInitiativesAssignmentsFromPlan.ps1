@@ -2,7 +2,7 @@
 
 <#
 .SYNOPSIS
-    This script deploys the component as defined in the plan JSON:
+    This script deploys the component as defined in the plan Json:
 
 .NOTES
     This script is designed to be run in Azure DevOps pipelines.
@@ -12,7 +12,7 @@
 
 [CmdletBinding()]
 param (
-    [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a vlaue. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
+    [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
     [string] $PacEnvironmentSelector,
 
     [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.")]
@@ -28,7 +28,9 @@ param (
     [string] $PlanFile,
 
     [Parameter(Mandatory = $false, HelpMessage = "Role Assignment plan output filename. Defaults to environment variable `$OutputFolder/roles-plan-`$PacEnvironmentSelector/roles-plan.json.")]
-    [string] $RolesPlanFile
+    [string] $RolesPlanFile,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Use switch to indicate interactive use")] [switch] $interactive
 )
 
 #region Az Helper Functions
@@ -98,8 +100,8 @@ function Set-AzPolicyAssignmentHelper {
 
     $splatTransform = "Id Description DisplayName EnforcementMode Metadata"
     [hashtable] $splat = $assignmentDefinition | Get-FilteredHashTable -Filter $splatTransform
-    $parmeterObject = $assignmentDefinition.PolicyParameterObject | ConvertTo-HashTable
-    $splat.Add("PolicyParameterObject", $parmeterObject) 
+    $parameterObject = $assignmentDefinition.PolicyParameterObject | ConvertTo-HashTable
+    $splat.Add("PolicyParameterObject", $parameterObject)
     $splat.Add("WarningAction", "SilentlyContinue")
     $notScope = $assignmentDefinition.NotScope
     if ($null -ne $notScope) {
@@ -114,22 +116,26 @@ function Set-AzPolicyAssignmentHelper {
 
 #endregion
 
+. "$PSScriptRoot/../Helpers/Get-PacFolders.ps1"
+. "$PSScriptRoot/../Helpers/Get-GlobalSettings.ps1"
+. "$PSScriptRoot/../Helpers/Select-PacEnvironment.ps1"
 . "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
 . "$PSScriptRoot/../Helpers/Get-DeepClone.ps1"
 . "$PSScriptRoot/../Helpers/Get-FilteredHashTable.ps1"
-. "$PSScriptRoot/../Helpers/Get-AllAzPolicyInitiativeDefinitions.ps1"
+. "$PSScriptRoot/../Helpers/Get-AzPolicyInitiativeDefinitions.ps1"
 . "$PSScriptRoot/../Helpers/Get-DeploymentPlan.ps1"
-. "$PSScriptRoot/../Helpers/Initialize-Environment.ps1"
+. "$PSScriptRoot/../Helpers/Set-AzCloudTenantSubscription.ps1"
 
 #region Deploy Plan
 
 $InformationPreference = "Continue"
-$environment = Initialize-Environment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -outputFolder $OutputFolder -inputFolder $InputFolder
+$pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -outputFolder $OutputFolder -interactive $interactive.IsPresent
+Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -interactive $pacEnvironment.interactive -useAzPowerShell
 if ($PlanFile -eq "") {
-    $PlanFile = $environment.policyPlanInputFile
+    $PlanFile = $pacEnvironment.policyPlanInputFile
 }
 if ($RolesPlanFile -eq "") {
-    $RolesPlanFile = $environment.rolesPlanOutputFile
+    $RolesPlanFile = $pacEnvironment.rolesPlanOutputFile
 }
 $plan = Get-DeploymentPlan -PlanFile $PlanFile
 
@@ -320,7 +326,7 @@ if (!$noChanges) {
             foreach ($roleAssignment in $roleAssignments) {
                 Write-Information "        '$($roleAssignment.roleDisplayName)' - '$($roleAssignment.roleDefinitionId)', Scope='$($roleAssignment.scope)'"
             }
-                
+
         }
         Write-Information ""
     }
@@ -338,7 +344,7 @@ if (!$noChanges) {
             foreach ($role in $roles) {
                 Write-Information "        $($role.roleDisplayName) - $($role.roleDefinitionId), Scope=`'$($role.scope)`'"
             }
-                
+
         }
         Write-Information ""
     }
@@ -349,7 +355,7 @@ if (!$noChanges) {
     }
 
     #endregion
-    
+
 }
 
 $numberOfRoleChanges = ($rolesPlan.removed).Count + ($rolesPlan.removed).Count

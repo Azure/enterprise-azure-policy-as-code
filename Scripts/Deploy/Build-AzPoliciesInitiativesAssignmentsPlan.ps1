@@ -2,7 +2,7 @@
 
 [CmdletBinding()]
 param (
-    [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a vlaue. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
+    [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
     [string] $PacEnvironmentSelector,
 
     [Parameter(Mandatory = $false, HelpMessage = "When using this switch, the script includes resource groups for assignment calculations. Warning: this is time-consuming.")]
@@ -18,8 +18,9 @@ param (
     [string]$OutpuFolder,
 
     [Parameter(Mandatory = $false, HelpMessage = "Plan output filename. Defaults to `$OutputFolder/policy-plan-`$PacEnvironmentSelector/policy-plan.json.")]
-    [string]$PlanFile
+    [string]$PlanFile,
 
+    [Parameter(Mandatory = $false, HelpMessage = "Use switch to indicate interactive use")] [switch] $interactive
 )
 
 function Write-AssignmentDetails {
@@ -47,7 +48,9 @@ function Write-AssignmentDetails {
 }
 
 # Load cmdlets
-. "$PSScriptRoot/../Helpers/Initialize-Environment.ps1"
+. "$PSScriptRoot/../Helpers/Get-PacFolders.ps1"
+. "$PSScriptRoot/../Helpers/Get-GlobalSettings.ps1"
+. "$PSScriptRoot/../Helpers/Select-PacEnvironment.ps1"
 . "$PSScriptRoot/../Helpers/Build-AzInitiativeDefinitionsPlan.ps1"
 . "$PSScriptRoot/../Helpers/Build-AzPolicyAssignmentIdentityAndRoleChanges.ps1"
 . "$PSScriptRoot/../Helpers/Build-AzPolicyAssignmentsPlan.ps1"
@@ -59,41 +62,45 @@ function Write-AssignmentDetails {
 . "$PSScriptRoot/../Helpers/Confirm-ParametersMatch.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-PolicyDefinitionUsedExists.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-PolicyDefinitionsUsedMatch.ps1"
-. "$PSScriptRoot/../Helpers/Get-AllAzPolicyInitiativeDefinitions.ps1"
+. "$PSScriptRoot/../Helpers/Get-AzPolicyInitiativeDefinitions.ps1"
 . "$PSScriptRoot/../Helpers/Get-AssignmentDefs.ps1"
 . "$PSScriptRoot/../Helpers/Get-AzAssignmentsAtScopeRecursive.ps1"
-. "$PSScriptRoot/../Helpers/Get-AzPolicyNotScope.ps1"
+. "$PSScriptRoot/../Helpers/Get-NotScope.ps1"
 . "$PSScriptRoot/../Helpers/Get-AzScopeTree.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-ObjectValueEqualityDeep.ps1"
 . "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
 . "$PSScriptRoot/../Helpers/Get-DeepClone.ps1"
 . "$PSScriptRoot/../Helpers/Get-FilteredHashTable.ps1"
 . "$PSScriptRoot/../Helpers/Invoke-AzCli.ps1"
+. "$PSScriptRoot/../Helpers/Set-AzCloudTenantSubscription.ps1"
 
 # Initialize
 $InformationPreference = "Continue"
 Invoke-AzCli config set extension.use_dynamic_install=yes_without_prompt -SuppressOutput
-$environment = Initialize-Environment $PacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -outputFolder $OutputFolder
-$rootScope = $environment.rootScope
-$rootScopeId = $environment.rootScopeId
+$pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -outputFolder $OutputFolder -interactive $interactive.IsPresent
+Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -interactive $pacEnvironment.interactive
+
+# Process resulting values
+$rootScope = $pacEnvironment.rootScope
+$rootScopeId = $pacEnvironment.rootScopeId
 if ($PlanFile -eq "") {
-    $PlanFile = $environment.policyPlanOutputFile
+    $PlanFile = $pacEnvironment.policyPlanOutputFile
 }
 
 # Getting existing Policy Assignmentscls
 $existingAssignments = $null
 $scopeTreeInfo = Get-AzScopeTree `
-    -tenantId $environment.tenantId `
+    -tenantId $pacEnvironment.tenantId `
     -scopeParam $rootScope `
-    -defaultSubscriptionId $environment.defaultSubscriptionId
+    -defaultSubscriptionId $pacEnvironment.defaultSubscriptionId
 
 $existingAssignments, $null = Get-AzAssignmentsAtScopeRecursive `
     -scopeTreeInfo $scopeTreeInfo `
-    -notScopeIn $environment.globalNotScopeList `
+    -notScopeIn $pacEnvironment.globalNotScopeList `
     -includeResourceGroups $IncludeResourceGroupsForAssignments.IsPresent
 
 # Getting existing Policy/Initiative definitions and Policy Assignments in the chosen scope of Azure
-$collections = Get-AllAzPolicyInitiativeDefinitions -rootScopeId $rootScopeId
+$allAzPolicyInitiativeDefinitions = Get-AzPolicyInitiativeDefinitions -rootScope $rootScope -rootScopeId $rootScopeId
 
 # Collections for roleDefinitionIds
 [hashtable] $policyNeededRoleDefinitionIds = @{}
@@ -105,14 +112,14 @@ $updatedPolicyDefinitions = @{}
 $replacedPolicyDefinitions = @{}
 $deletedPolicyDefinitions = @{}
 $unchangedPolicyDefinitions = @{}
-$allPolicyDefinitions = ($collections.builtInPolicyDefinitions).Clone()
+$allPolicyDefinitions = ($allAzPolicyInitiativeDefinitions.builtInPolicyDefinitions).Clone()
 $customPolicyDefinitions = @{}
 Build-AzPolicyDefinitionsPlan `
-    -policyDefinitionsRootFolder $environment.policyDefinitionsFolder `
+    -policyDefinitionsRootFolder $pacEnvironment.policyDefinitionsFolder `
     -noDelete $SuppressDeletes.IsPresent `
     -rootScope $rootScope `
-    -existingCustomPolicyDefinitions $collections.existingCustomPolicyDefinitions `
-    -builtInPolicyDefinitions $collections.builtInPolicyDefinitions `
+    -existingCustomPolicyDefinitions $allAzPolicyInitiativeDefinitions.existingCustomPolicyDefinitions `
+    -builtInPolicyDefinitions $allAzPolicyInitiativeDefinitions.builtInPolicyDefinitions `
     -allPolicyDefinitions $allPolicyDefinitions `
     -newPolicyDefinitions $newPolicyDefinitions `
     -updatedPolicyDefinitions $updatedPolicyDefinitions `
@@ -128,15 +135,15 @@ $updatedInitiativeDefinitions = @{}
 $replacedInitiativeDefinitions = @{}
 $deletedInitiativeDefinitions = @{}
 $unchangedInitiativeDefinitions = @{}
-$allInitiativeDefinitions = ($collections.builtInInitiativeDefinitions).Clone()
+$allInitiativeDefinitions = ($allAzPolicyInitiativeDefinitions.builtInInitiativeDefinitions).Clone()
 $customInitiativeDefinitions = @{}
 Build-AzInitiativeDefinitionsPlan `
-    -initiativeDefinitionsRootFolder $environment.initiativeDefinitionsFolder `
+    -initiativeDefinitionsRootFolder $pacEnvironment.initiativeDefinitionsFolder `
     -noDelete $SuppressDeletes.IsPresent `
     -rootScope $rootScope `
     -rootScopeId $rootScopeId `
-    -existingCustomInitiativeDefinitions $collections.existingCustomInitiativeDefinitions `
-    -builtInInitiativeDefinitions $collections.builtInInitiativeDefinitions `
+    -existingCustomInitiativeDefinitions $allAzPolicyInitiativeDefinitions.existingCustomInitiativeDefinitions `
+    -builtInInitiativeDefinitions $allAzPolicyInitiativeDefinitions.builtInInitiativeDefinitions `
     -allPolicyDefinitions $allPolicyDefinitions `
     -allInitiativeDefinitions $allInitiativeDefinitions `
     -newInitiativeDefinitions $newInitiativeDefinitions `
@@ -148,7 +155,7 @@ Build-AzInitiativeDefinitionsPlan `
     -policyNeededRoleDefinitionIds $policyNeededRoleDefinitionIds `
     -initiativeNeededRoleDefinitionIds $initiativeNeededRoleDefinitionIds
 
-# Process Assignment JSON files
+# Process Assignment Json files
 $newAssignments = @{}
 $updatedAssignments = @{}
 $replacedAssignments = @{}
@@ -158,14 +165,14 @@ $removedRoleAssignments = @{}
 $addedRoleAssignments = @{}
 if (!$TestInitiativeMerge.IsPresent) {
     Build-AzPolicyAssignmentsPlan `
-        -pacEnvironmentSelector $environment.pacEnvironmentSelector `
-        -assignmentsRootFolder $environment.assignmentsFolder `
+        -pacEnvironmentSelector $pacEnvironment.pacEnvironmentSelector `
+        -assignmentsRootFolder $pacEnvironment.assignmentsFolder `
         -noDelete $SuppressDeletes.IsPresent `
         -rootScope $rootScope `
         -rootScopeId $rootScopeId `
         -scopeTreeInfo $scopeTreeInfo `
-        -globalNotScopeList $environment.globalNotScopeList `
-        -managedIdentityLocation $environment.managedIdentityLocation `
+        -globalNotScopeList $pacEnvironment.globalNotScopeList `
+        -managedIdentityLocation $pacEnvironment.managedIdentityLocation `
         -allPolicyDefinitions $allPolicyDefinitions `
         -customPolicyDefinitions $customPolicyDefinitions `
         -replacedPolicyDefinitions $replacedPolicyDefinitions `

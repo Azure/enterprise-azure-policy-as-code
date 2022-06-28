@@ -22,101 +22,66 @@ function Get-AzPolicyEffectsForInitiative {
     foreach ($policy in $policyDefinitionsInSet) {
         $policyDefinition = $PolicyDefinitions[$policy.policyDefinitionId]
         $effect = Get-PolicyEffectDetails -policy $policyDefinition
-        $result = $null
+        $paramValue = ""
+        $allowedValues = ""
+        $defaultValue = ""
+        $defaultValue = ""
+        $definitionType = ""
+        $paramName = "na"
         if ($effect.type -eq "FixedByPolicyDefinition") {
             # parameter is hard-coded into Policy definition
-            $result = @{
-                paramValue                  = $effect.fixedValue
-                allowedValues               = @( $effect.fixedValue )
-                defaultValue                = $effect.fixedValue
-                definitionType              = $effect.type
-                assignmentName              = $assignment.name
-                assignmentDisplayName       = $assignment.displayName
-                assignmentDescription       = $assignment.description
-                initiativeId                = $initiativeDefinition.id
-                initiativeDisplayName       = $initiativeDefinition.displayName
-                initiativeDescription       = $initiativeDefinition.description
-                initiativeParameterName     = "na"
-                policyDefinitionReferenceId = $policy.policyDefinitionReferenceId
-                policyDefinitionGroupNames  = $policy.groupNames
-                policyId                    = $policyDefinition.id
-                policyDisplayName           = $policyDefinition.displayName
-                policyDescription           = $policyDefinition.description
-            }
+            $paramValue = $effect.fixedValue
+            $allowedValues = @( $effect.fixedValue )
+            $defaultValue = $effect.fixedValue
+            $definitionType = $effect.type
         }
         else {
             $policyParameters = $policy.parameters | ConvertTo-HashTable
             if ($policyParameters.ContainsKey($effect.parameterName)) {
-                # parmeter value is specified in initiative
+                # parameter value is specified in initiative
                 $param = $policyParameters[$effect.parameterName]
                 $paramValue = $param.value
-                # find the translated parameterName, found means it was parmeterized, not found means it is hard coded which would be weird, but legal
-                $found, $policyDefinitionParameterName = Get-ParmeterNameFromValueString -paramValue $paramValue
+                # find the translated parameterName, found means it was parameterized, not found means it is hard coded
+                $found, $policyDefinitionParameterName = Get-ParameterNameFromValueString -paramValue $paramValue
                 if ($found) {
                     $initiativeParameter = $initiativeParameters[$policyDefinitionParameterName]
-                    $result = @{
-                        paramValue                  = $initiativeParameter.paramValue
-                        allowedValues               = $effect.allowedValues
-                        defaultValue                = $initiativeParameter.defaultValue
-                        definitionType              = $initiativeParameter.type
-                        assignmentName              = $assignment.name
-                        assignmentDisplayName       = $assignment.displayName
-                        assignmentDescription       = $assignment.description
-                        initiativeId                = $initiativeDefinition.id
-                        initiativeDisplayName       = $initiativeDefinition.displayName
-                        initiativeDescription       = $initiativeDefinition.description
-                        initiativeParameterName     = $policyDefinitionParameterName
-                        policyDefinitionReferenceId = $policy.policyDefinitionReferenceId
-                        policyDefinitionGroupNames  = $policy.groupNames
-                        policyId                    = $policyDefinition.id
-                        policyDisplayName           = $policyDefinition.displayName
-                        policyDescription           = $policyDefinition.description
-                    }
+                    $paramValue = $initiativeParameter.paramValue
+                    $paramName = $policyDefinitionParameterName
+                    $allowedValues = $effect.allowedValues
+                    $defaultValue = $initiativeParameter.defaultValue
+                    $definitionType = $initiativeParameter.type
                 }
                 else {
-                    $parameterName = $effect.parameterName
-                    $initiativeParameter = $initiativeParameters.$parameterName
-                    $result = @{
-                        paramValue                  = $paramValue
-                        allowedValues               = $effect.allowedValues
-                        defaultValue                = $effect.defaultValue
-                        definitionType              = "FixedByInitiativeDefinition"
-                        assignmentName              = $assignment.name
-                        assignmentDisplayName       = $assignment.displayName
-                        assignmentDescription       = $assignment.description
-                        initiativeId                = $initiativeDefinition.id
-                        initiativeDisplayName       = $initiativeDefinition.displayName
-                        initiativeDescription       = $initiativeDefinition.description
-                        initiativeParameterName     = "na"
-                        policyDefinitionReferenceId = $policy.policyDefinitionReferenceId
-                        policyDefinitionGroupNames  = $policy.groupNames
-                        policyId                    = $policyDefinition.id
-                        policyDisplayName           = $policyDefinition.displayName
-                        policyDescription           = $policyDefinition.description
-                    }
+                    $allowedValues = $effect.allowedValues
+                    $defaultValue = $effect.defaultValue
+                    $definitionType = "FixedByInitiativeDefinition"
                 }
             }
             else {
                 # parameter is defined by Policy definition default
-                $result = @{
-                    paramValue                  = $effect.paramValue
-                    allowedValues               = $effect.allowedValues
-                    defaultValue                = $effect.defaultValue
-                    definitionType              = $effect.type
-                    assignmentName              = $assignment.name
-                    assignmentDisplayName       = $assignment.displayName
-                    assignmentDescription       = $assignment.description
-                    initiativeId                = $initiativeDefinition.id
-                    initiativeDisplayName       = $initiativeDefinition.displayName
-                    initiativeDescription       = $initiativeDefinition.description
-                    initiativeParameterName     = "na"
-                    policyDefinitionReferenceId = $policy.policyDefinitionReferenceId
-                    policyDefinitionGroupNames  = $policy.groupNames
-                    policyId                    = $policyDefinition.id
-                    policyDisplayName           = $policyDefinition.displayName
-                    policyDescription           = $policyDefinition.description
-                }
+                $paramValue = $effect.paramValue
+                $allowedValues = $effect.allowedValues
+                $defaultValue = $effect.defaultValue
+                $definitionType = $effect.type
             }
+        }
+        $result = @{
+            paramValue                  = $paramValue
+            allowedValues               = $allowedValues
+            defaultValue                = $defaultValue
+            definitionType              = $definitionType
+            assignmentName              = $assignment.name
+            assignmentDisplayName       = $assignment.displayName
+            assignmentDescription       = $assignment.description
+            initiativeId                = $initiativeDefinition.id
+            initiativeDisplayName       = $initiativeDefinition.displayName
+            initiativeDescription       = $initiativeDefinition.description
+            initiativeParameterName     = $paramName
+            policyDefinitionReferenceId = $policy.policyDefinitionReferenceId
+            policyDefinitionGroupNames  = $policy.groupNames
+            policyId                    = $policyDefinition.id
+            policyDisplayName           = $policyDefinition.displayName
+            policyDescription           = $policyDefinition.description
         }
         $effectiveEffectList += $result
     }

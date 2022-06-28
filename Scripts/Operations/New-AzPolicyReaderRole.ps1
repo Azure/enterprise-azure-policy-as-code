@@ -1,16 +1,24 @@
 [CmdletBinding()]
 param(
-    [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a vlaue. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
+    [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
     [string] $PacEnvironmentSelector,
 
     [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.")]
-    [string]$DefinitionsRootFolder
+    [string]$DefinitionsRootFolder,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Set to false if used non-interactive")]
+    [bool] $interactive = $true
 )
 
-. "$PSScriptRoot/../Helpers/Initialize-Environment.ps1"
+. "$PSScriptRoot/../Helpers/Get-PacFolders.ps1"
+. "$PSScriptRoot/../Helpers/Get-GlobalSettings.ps1"
+. "$PSScriptRoot/../Helpers/Select-PacEnvironment.ps1"
+. "$PSScriptRoot/../Helpers/Set-AzCloudTenantSubscription.ps1"
 
 $InformationPreference = "Continue"
-$environment = Initialize-Environment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder
+Invoke-AzCli config set extension.use_dynamic_install=yes_without_prompt -SuppressOutput
+$pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -outputFolder $OutputFolder -interactive $interactive
+Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -interactive $pacEnvironment.interactive
 
 Write-Information "==================================================================================================="
 Write-Information "Creating custom role 'Policy Reader'"
@@ -22,7 +30,7 @@ $role.Name = 'Policy Reader'
 $role.Id = '2baa1a7c-6807-46af-8b16-5e9d03fba029'
 $role.Description = 'Read access to Azure Policy.'
 $role.IsCustom = $true
-$perms = @( 
+$perms = @(
     "Microsoft.Authorization/policyAssignments/read",
     "Microsoft.Authorization/policyDefinitions/read",
     "Microsoft.Authorization/policySetDefinitions/read"
@@ -30,5 +38,5 @@ $perms = @(
 
 $role.Actions = $perms
 $role.NotActions = $()
-$role.AssignableScopes = $environment.rootScopeId
+$role.AssignableScopes = $pacEnvironment.rootScopeId
 New-AzRoleDefinition -Role $role
