@@ -92,12 +92,9 @@ function Out-PolicyAssignmentDocumentationPerEnvironmentToFile {
                 $assignmentFlat = $allAssignments.$shortName
                 $effectValue = $assignmentFlat.effect
                 $effectAllowedValues = $assignmentFlat.effectAllowedValues
-                $effectReason = $assignmentFlat.effectReason
-                $isParameterized = $effectReason -ne "PolicyFixed" -and $effectReason -ne "InitiativeFixed" -and $effectReason -ne "PolicyDefault"
                 $text = Convert-EffectToString `
                     -effect $effectValue `
                     -allowedValues $effectAllowedValues `
-                    -isParameterized $isParameterized `
                     -Markdown
                 $addedEffectColumns += " $text |"
 
@@ -158,12 +155,9 @@ function Out-PolicyAssignmentDocumentationPerEnvironmentToFile {
                 $assignmentFlat = $allAssignments.$shortName
                 $effectValue = $assignmentFlat.effect
                 $effectAllowedValues = $assignmentFlat.effectAllowedValues
-                $effectReason = $assignmentFlat.effectReason
-                $isParameterized = $effectReason -ne "PolicyFixed" -and $effectReason -ne "InitiativeFixed" -and $effectReason -ne "PolicyDefault"
                 $text = Convert-EffectToString `
                     -effect $effectValue `
-                    -allowedValues $effectAllowedValues `
-                    -isParameterized $isParameterized
+                    -allowedValues $effectAllowedValues
                 $null = $cells.Add($text)
             }
             else {

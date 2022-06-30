@@ -125,7 +125,6 @@ function Out-InitiativeDocumentationToFile {
                 $text = Convert-EffectToString `
                     -effect $effectValue `
                     -allowedValues $effectAllowedValues `
-                    -isParameterized $isEffectParameterized `
                     -Markdown
                 $addedEffectColumns += " $text |"
 
@@ -191,11 +190,9 @@ function Out-InitiativeDocumentationToFile {
                 $perInitiative = $initiativeList.$shortName
                 $effectValue = $perInitiative.effectValue
                 $effectAllowedValues = $perInitiative.effectAllowedValues
-                $isEffectParameterized = $perInitiative.isEffectParameterized
                 $text = Convert-EffectToString `
                     -effect $effectValue `
-                    -allowedValues $effectAllowedValues `
-                    -isParameterized $isEffectParameterized
+                    -allowedValues $effectAllowedValues
                 $null = $cells.Add($text)
             }
             else {

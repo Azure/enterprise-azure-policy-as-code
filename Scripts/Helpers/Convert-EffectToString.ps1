@@ -2,33 +2,33 @@
 
 function Convert-EffectToString {
     param (
-        [string] $effect, 
+        [string] $effect,
         [array] $allowedValues,
-        [bool] $isParameterized,
         [switch] $Markdown
     )
 
     [string] $text = ""
     $effectShort = Convert-EffectToShortForm -effect $effect
     if ($Markdown.IsPresent) {
-        $text = "**$effectShort**"
-        if ($isParameterized) {
-            foreach ($allowed in $allowedValues) {
-                if ($allowed -ne $effect) {
-                    $effectShort = Convert-EffectToShortForm -effect $allowed
-                    $text += "<br/>*$effectShort*"
-                }
+        if ($allowedValues.Count -eq 1) {
+            $text = "***$effectShort***"
+        }
+        else {
+            $text = "**$effectShort**"
+        }
+        foreach ($allowed in $allowedValues) {
+            if ($allowed -cne $effect) {
+                $effectShort = Convert-EffectToShortForm -effect $allowed
+                $text += "<br/>*$effectShort*"
             }
         }
     }
     else {
         $text += $effectShort
-        if ($isParameterized) {
-            foreach ($allowed in $allowedValues) {
-                if ($allowed -ne $effect) {
-                    $effectShort = Convert-EffectToShortForm -effect $allowed
-                    $text += "\n$effectShort"
-                }
+        foreach ($allowed in $allowedValues) {
+            if ($allowed -cne $effect) {
+                $effectShort = Convert-EffectToShortForm -effect $allowed
+                $text += "\n$effectShort"
             }
         }
     }

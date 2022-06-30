@@ -33,7 +33,7 @@ More details:
 - [Operational Scripts](Scripts/Operations/README.md)
 
 <br/><p style="background-color:Yellow;color:Black;border:5px solid Red;padding-left: 10px;padding-right: 10px;padding-top: 10px;padding-bottom: 10px;">
-<b><u>Warning:</u> If you have a existing Policies, Initiatives and Assignments in your environment, do not forget to change the "brownfield" variable in the pipeline to true.<br/><br/><u>Why?</u> This solution uses the desired state strategy. It will remove any custom Policies, Initiatives or Policy Assignments not duplicated in the definition files. The Build-AzPoliciesInitiativesAssignmentsPlan.ps1 script's switch parameter SuppressDeletes changes this behavior. Set the "brownfield" variable in the pipeline to true; it will set the switch parameter preventing deletions of existing Policies, Initiatives and Policy Assignments while transitioning to Enterprise Policy as Code.</b>
+<b><u>Warning:</u> If you have a existing Policies, Initiatives and Assignments in your environment, you have not transferred to EPAC, do not forget to change the "brownfield" variable in the pipeline to true.<br/><br/><u>Why?</u> This solution uses the desired state strategy. It will remove any custom Policies, Initiatives or Policy Assignments not duplicated in the definition files. The Build-AzPoliciesInitiativesAssignmentsPlan.ps1 script's switch parameter SuppressDeletes changes this behavior. Set the "brownfield" variable in the pipeline to true; it will set the switch parameter preventing deletions of existing Policies, Initiatives and Policy Assignments. This allows for a gradual transition from your existing Policy management to Enterprise Policy as Code.</b>
 </p><br/>
 
 ## Security & Compliance for Cloud Infrastructure
@@ -69,10 +69,10 @@ Git lacks a capability to ignore files/directories during a PR only. This repo h
   - You may add additional folders, such as a folder for your own operational scripts.
 - Syncing from GitHub repo.
   - Fetch changes from GitHub to `MyForkRepo`.
-  - Execute `Sync-Repo.ps1` to copy files from `MyForkRepo` to `MyWorkingRepo` feature branch.
+  - Execute [`Sync-Repo.ps1`](#sync-repops1) to copy files from `MyForkRepo` to `MyWorkingRepo` feature branch.
   - PR `MyWorkingRepo` feature branch.
 - Contribute to GitHub
-  - Execute `Sync-Repo.ps1` to copy files from `MyWorkingRepo` to `MyForkRepo` feature branch
+  - Execute [`Sync-Repo.ps1`](#sync-repops1) to copy files from `MyWorkingRepo` to `MyForkRepo` feature branch
   - PR `MyForkRepo` feature branch.
   - PR changes in your fork (`MyForkRepo`) to GitHub.
   - GitHub maintainers will review PR.
@@ -173,9 +173,16 @@ Explanations
 - `cloud` is used to select clouds (e.g., `AzureCloud`, `AzureUSGovernment`, `AzureGermanCloud`, ...).
 - `tenantId` is the GUID of your Azure AD tenant
 - `defaultSubscriptionId` is required to resolve Azure scopes correctly.
-- `rootScope` defines the location of your custom Policy and Initiative definitions. It also denotes the highest scope for an assignment. The roles for the CI/CD SPNs must assigned here.
+- `rootScope` defines the location of your custom Policy and Initiative definitions. It also denotes the highest scope for an assignment. The roles for the CI/CD SPNs must be assigned here.
 
 We explain the `managedIdentityLocations` and `globalNotScopes` elements in `global-settings.jsonc` [here](Definitions/README.md).
+
+<p style="background-color:Yellow;color:Black;border:5px solid Red;padding-left: 10px;padding-right: 10px;padding-top: 10px;padding-bottom: 10px;"><b><u>Note:</u>&nbsp;&nbsp;If the default output for az cli is configured wrong then you will encounter an unexpected error from ConvertFrom-Json in Invoke-AzCli. The initial default in az cli out-of-box is correct. You can set it back to the correct default with "az config set core.output=json"
+</b></p><br/>
+
+```ps1
+az config set core.output=json
+```
 
 <br/>
 
@@ -184,8 +191,8 @@ We explain the `managedIdentityLocations` and `globalNotScopes` elements in `glo
 Setup your pipeline based on the provided starter kit pipeline. The yml file contains commented out sections to run in a IaaS Azure DevOps server (it requires a different approach to artifact storage) and for 2 additional tenants. Uncomment or delete the commented sections to fit your environment.
 
 <p style="background-color:Yellow;color:Black;border:5px solid Red;padding-left: 10px;padding-right: 10px;padding-top: 10px;padding-bottom: 10px;">
-<b><u>Warning:</u> If you have a existing Policies, Initiatives and Policy Assignments in your environment, do not forget to change the "brownfield" variable in the pipeline to true.</b>
-</p><br/>
+<b><u>Warning:</u>&nbsp;&nbsp;If you have a existing Policies, Initiatives and Policy Assignments in your environment you have not transferred to EPAC, do not forget to change the "brownfield" variable in the pipeline to true.
+</b></p><br/>
 
 Pipelines can customized to fit your needs:
 
@@ -200,9 +207,13 @@ Pipelines can customized to fit your needs:
 
 ### Edit and create Policies, Initiatives and Assignments
 
-Using the sttarter kit edit the directories in the `Definitions` folder
+Using the starter kit edit the directories in the `Definitions` folder. To simplify entering parameters, you can use the [Initiative documenting feature](Definitions/DocumentationSpecs/README.md#documenting-assignments-and-initiatives) which creates Markdown, CSV and a Json parameter file. You need to specify your initiatives to be documented (folder [`Definitions\DocumentationSpecs`](Definitions/DocumentationSpecs/README.md#specifying-initiative-documentation)) and execute script [`./Scripts/Operations/Build-PolicyAssignmentDocumentation.ps1`](Scripts/Operations/README.md#build-policyassignmentdocumentationps1)
 
 <br/>
+
+### Document your Assignments
+
+This solution can generate [documentation in markdown and csv formats](Definitions/DocumentationSpecs/README.md).
 
 ## GitHub Folder Structure
 

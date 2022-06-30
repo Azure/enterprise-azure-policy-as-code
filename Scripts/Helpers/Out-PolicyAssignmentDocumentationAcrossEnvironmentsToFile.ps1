@@ -62,31 +62,34 @@ function Out-PolicyAssignmentDocumentationAcrossEnvironmentsToFile {
         foreach ($id in $flatPolicyList.Keys) {
             $flatPolicyEntry = $flatPolicyList.$id
 
-            [hashtable] $policyEffectsFlatEntry = @{}
+            [hashtable] $policyEffectsFlatEntry = $null
             if ($policyEffectsFlatList.ContainsKey($id)) {
                 $policyEffectsFlatEntry = $policyEffectsFlatList.$id
-                $effectAllowedValuesCurrent = $policyEffectsFlatEntry.effectAllowedValues
-                $effectAllowedValuesNew = $flatPolicyEntry.effectAllowedValues
-                if ($effectAllowedValuesNew.Count -gt $effectAllowedValuesCurrent.Count) {
-                    $policyEffectsFlatEntry.effectAllowedValue = $effectAllowedValuesNew
-                }
             }
             else {
 
                 $policyEffectsFlatEntry = @{
-                    category            = $flatPolicyEntry.category
-                    displayName         = $flatPolicyEntry.displayName
-                    description         = $flatPolicyEntry.description
-                    effectByEnvironment = @{}
-                    effectAllowedValues = $flatPolicyEntry.effectAllowedValues
+                    category      = $flatPolicyEntry.category
+                    displayName   = $flatPolicyEntry.displayName
+                    description   = $flatPolicyEntry.description
+                    byEnvironment = @{}
                 }
                 $policyEffectsFlatList.Add($id, $policyEffectsFlatEntry)
             }
 
             $effectiveAssignment = $flatPolicyEntry.effectiveAssignment
             $effect = $effectiveAssignment.effect
-            $effectByEnvironment = $policyEffectsFlatEntry.effectByEnvironment
-            $effectByEnvironment.Add($environmentCategory, $effect)
+            $effectAllowedValues = $effectiveAssignment.effectAllowedValues
+            $parameters = $effectiveAssignment.parameters
+            $byEnvironment = $policyEffectsFlatEntry.byEnvironment
+            if (!$byEnvironment.ContainsKey($environmentCategory)) {
+                $byEnvironment.Add($environmentCategory, @{
+                        effect              = $effect
+                        effectAllowedValues = $effectAllowedValues
+                        parameters          = $parameters
+                    }
+                )
+            }
         }
     }
 
@@ -132,21 +135,36 @@ function Out-PolicyAssignmentDocumentationAcrossEnvironmentsToFile {
     $policyEffectsFlatList.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
         # Build additional columns
         $addedEffectColumns = ""
-        $effectByEnvironment = $_.effectByEnvironment
+        $byEnvironment = $_.byEnvironment
+        $parameterFragment = ""
         foreach ($environmentCategory in $environmentCategories) {
-            if ($effectByEnvironment.ContainsKey($environmentCategory)) {
-                $effect = Convert-EffectToShortForm -effect  $effectByEnvironment.$environmentCategory
-                $addedEffectColumns += " $effect |"
+            if ($byEnvironment.ContainsKey($environmentCategory)) {
+                $environmentCategoryValues = $byEnvironment.$environmentCategory
+                $effectValue = $environmentCategoryValues.effect
+                $effectAllowedValues = $environmentCategoryValues.effectAllowedValues
+                # $parameters = $environmentCategoryValues.parameters
+
+                $text = Convert-EffectToString `
+                    -effect $effectValue `
+                    -allowedValues $effectAllowedValues `
+                    -Markdown
+                $addedEffectColumns += " $text |"
+
+                # if ($null -ne $parameters -and $parameters.Count -gt 0) {
+                #     $parameterFragment += "<br/>**$($environmentCategory):**"
+                #     $text = Convert-ParametersToString -parameters $parameters -Markdown
+                #     $parameterFragment += $text
+                # }
             }
             else {
                 $addedEffectColumns += "  |"
             }
         }
-        $null = $body.Add("| $($_.category) | **$($_.displayName)**<br/>$($_.description) | $addedEffectColumns")
+        $null = $body.Add("| $($_.category) | **$($_.displayName)**<br/>$($_.description)$($parameterFragment) | $addedEffectColumns")
     }
     $null = $allLines.AddRange($headerAndToc)
     $null = $allLines.AddRange($body)
-    
+
     # Output file
     $outputFilePath = "$($outputPath -replace '[/\\]$', '')/$fileNameStem.md"
     $allLines | Out-File $outputFilePath -Force
@@ -162,7 +180,7 @@ function Out-PolicyAssignmentDocumentationAcrossEnvironmentsToFile {
     foreach ($environmentCategory in $environmentCategories) {
         $null = $cells.Add($environmentCategory)
     }
-    $headerString = Convert-ListToToCsvRow($cells) 
+    $headerString = Convert-ListToToCsvRow($cells)
     $null = $allLines.Add($headerString)
 
     $policyEffectsFlatList.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
@@ -170,18 +188,25 @@ function Out-PolicyAssignmentDocumentationAcrossEnvironmentsToFile {
         $cells.Clear()
         $null = $cells.AddRange(@($_.category, $_.displayName, $_.description))
 
-        $effectByEnvironment = $_.effectByEnvironment
+        $byEnvironment = $_.byEnvironment
         # Build effect by environmentCategory columns
         foreach ($environmentCategory in $environmentCategories) {
-            if ($effectByEnvironment.ContainsKey($environmentCategory)) {
-                $effect = Convert-EffectToShortForm -effect $effectByEnvironment.$environmentCategory
-                $null = $cells.Add($effect)
+            if ($byEnvironment.ContainsKey($environmentCategory)) {
+                $environmentCategoryValues = $byEnvironment.$environmentCategory
+                $effectValue = $environmentCategoryValues.effect
+                $effectAllowedValues = $environmentCategoryValues.effectAllowedValues
+                # $parameters = $environmentCategoryValues.parameters
+
+                $text = Convert-EffectToString `
+                    -effect $effectValue `
+                    -allowedValues $effectAllowedValues
+                $null = $cells.Add($text)
             }
             else {
                 $null = $cells.Add("n/a")
             }
         }
-        $row = Convert-ListToToCsvRow($cells) 
+        $row = Convert-ListToToCsvRow($cells)
         $null = $allLines.Add($row)
     }
 
