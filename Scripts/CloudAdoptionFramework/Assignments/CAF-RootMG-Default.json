@@ -1,0 +1,85 @@
+{
+    "nodeName": "/Root/",
+    "scope": {
+        "tenant1": [
+            "/providers/Microsoft.Management/managementGroups/contoso"
+        ]
+    },
+    "children": [
+        {
+            "nodeName": "Security/",
+            "children": [
+                {
+                    "nodeName": "ASB",
+                    "assignment": {
+                        "Name": "Deploy-ASC-Monitoring",
+                        "displayName": "Azure Security Benchmark",
+                        "description": "Azure Security Benchmark policy initiative"
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
+                        "friendlyNameToDocumentIfGuid": "Azure Security Benchmark"
+                    },
+                    "parameters": {
+                        "identityDesignateLessThanOwnersMonitoringEffect": "Disabled",
+                        "useRbacRulesMonitoringEffect": "Disabled",
+                        "useServicePrincipalToProtectSubscriptionsMonitoringEffect": "Disabled",
+                        "identityEnableMFAForOwnerPermissionsMonitoringEffect": "Disabled",
+                        "networkWatcherShouldBeEnabledMonitoringEffect": "Disabled",
+                        "autoProvisioningOfTheLogAnalyticsAgentShouldBeEnabledOnYourSubscriptionMonitoringEffect": "Disabled"
+                    }
+                },
+                {
+                    "nodeName": "MDFC",
+                    "assignment": {
+                        "Name": "Deploy-MDFC-Config",
+                        "displayName": "Deploy Microsoft Defender for Cloud configuration",
+                        "description": "Deploy Microsoft Defender for Cloud and Security Contacts"
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "Deploy-MDFC-Config",
+                        "friendlyNameToDocumentIfGuid": "Microsoft Defender For Cloud"
+                    },
+                    "parameters": {
+                        "logAnalytics": "/subscriptions/7397f5d2-c4bc-4696-91d6-3894f684ef38/resourcegroups/monitoring/providers/microsoft.operationalinsights/workspaces/dof-la-ae-001",
+                        "emailSecurityContact": "anwather@microsoft.com",
+                        "enableAscForServers": "DeployIfNotExists",
+                        "enableAscForSql": "DeployIfNotExists",
+                        "enableAscForAppServices": "DeployIfNotExists",
+                        "enableAscForStorage": "DeployIfNotExists",
+                        "enableAscForContainers": "DeployIfNotExists",
+                        "enableAscForKeyVault": "DeployIfNotExists",
+                        "enableAscForSqlOnVm": "DeployIfNotExists",
+                        "enableAscForArm": "DeployIfNotExists",
+                        "enableAscForDns": "DeployIfNotExists",
+                        "enableAscForOssDb": "DeployIfNotExists",
+                        "ascExportResourceGroupName": "contoso-asc-export",
+                        "ascExportResourceGroupLocation": "australiaeast"
+                    }
+                }
+            ]
+        },
+        {
+            "nodeName": "Logging/",
+            "children": [
+                {
+                    "nodeName": "ActivityLogs",
+                    "assignment": {
+                        "Name": "Deploy-AzActivity-Log",
+                        "displayName": "Configure Azure Activity logs to stream to specified Log Analytics workspace",
+                        "description": "Deploys the diagnostic settings for Azure Activity to stream subscriptions audit logs to a Log Analytics workspace to monitor subscription-level events"
+                    },
+                    "definitionEntry": {
+                        "policyName": "2465583e-4e78-4c15-b6be-a36cbc7c8b0f",
+                        "friendlyNameToDocumentIfGuid": "Activity Logs"
+                    },
+                    "parameters": {
+                        "logAnalytics": "/subscriptions/7397f5d2-c4bc-4696-91d6-3894f684ef38/resourcegroups/monitoring/providers/microsoft.operationalinsights/workspaces/dof-la-ae-001",
+                        "effect": "DeployIfNotExists",
+                        "logsEnabled": "True"
+                    }
+                }
+            ]
+        }
+    ]
+}
