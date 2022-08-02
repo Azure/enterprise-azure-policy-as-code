@@ -46,7 +46,7 @@ function New-AzPolicyAssignmentHelper {
     )
 
     $splatTransform = "Name Description DisplayName Metadata EnforcementMode Scope"
-    [hashtable] $splat = $assignmentDefinition | Get-FilteredHashTable -Filter $splatTransform
+    [hashtable] $splat = $assignmentDefinition | Get-FilteredHashTable -splatTransform $splatTransform
     $splat.Add("PolicyParameterObject", ($assignmentDefinition.PolicyParameterObject | ConvertTo-HashTable))
     $notScope = $assignmentDefinition.NotScope
     if ($null -ne $notScope -and $notScope.Length -gt 0) {
@@ -99,7 +99,7 @@ function Set-AzPolicyAssignmentHelper {
     )
 
     $splatTransform = "Id Description DisplayName EnforcementMode Metadata"
-    [hashtable] $splat = $assignmentDefinition | Get-FilteredHashTable -Filter $splatTransform
+    [hashtable] $splat = $assignmentDefinition | Get-FilteredHashTable -splatTransform $splatTransform
     $parameterObject = $assignmentDefinition.PolicyParameterObject | ConvertTo-HashTable
     $splat.Add("PolicyParameterObject", $parameterObject)
     $splat.Add("WarningAction", "SilentlyContinue")
@@ -190,14 +190,14 @@ if (!$noChanges) {
     Write-Information "Create new and replaced (create) Policy definitions ($($policyDefinitions.Count))"
     $splatTransform = "Name DisplayName Description Metadata Mode Parameter Policy ManagementGroupName SubscriptionId"
     foreach ($policyDefinitionName in $policyDefinitions.Keys) {
-        $policyDefinition = $policyDefinitions[$policyDefinitionName] | Get-FilteredHashTable -Filter $splatTransform
+        $policyDefinition = $policyDefinitions[$policyDefinitionName] | Get-FilteredHashTable -splatTransform $splatTransform
         Write-Information "    ""$($policyDefinition.Name)"" - ""$($policyDefinition.DisplayName)"""
         $null = New-AzPolicyDefinition @policyDefinition
     }
     $policyDefinitions = $plan.updatedPolicyDefinitions | ConvertTo-HashTable
     Write-Information "Update Policy definitions ($($policyDefinitions.Count))"
     foreach ($policyDefinitionName in $policyDefinitions.Keys) {
-        $policyDefinition = $policyDefinitions[$policyDefinitionName] | Get-FilteredHashTable -Filter $splatTransform
+        $policyDefinition = $policyDefinitions[$policyDefinitionName] | Get-FilteredHashTable -splatTransform $splatTransform
         Write-Information "    ""$($policyDefinition.Name)"" - ""$($policyDefinition.DisplayName)"""
         $null = Set-AzPolicyDefinition @policyDefinition
     }
@@ -209,7 +209,7 @@ if (!$noChanges) {
     Write-Information "Create new and replaced Initiative definitions ($($initiativeDefinitions.Count))"
     $splatTransform = "Name DisplayName Description Metadata Parameter PolicyDefinition GroupDefinition ManagementGroupName SubscriptionId"
     foreach ($initiativeDefinitionName in $initiativeDefinitions.Keys) {
-        $initiativeDefinition = $initiativeDefinitions[$initiativeDefinitionName] | Get-FilteredHashTable -Filter $splatTransform
+        $initiativeDefinition = $initiativeDefinitions[$initiativeDefinitionName] | Get-FilteredHashTable -splatTransform $splatTransform
         $initiativeDefinition.Add("ApiVersion", "2020-08-01")
         Write-Information "      ""$($initiativeDefinition.Name)"" - ""$($initiativeDefinition.DisplayName)"""
         $null = New-AzPolicySetDefinition @initiativeDefinition
@@ -217,7 +217,7 @@ if (!$noChanges) {
     $initiativeDefinitions = $plan.updatedInitiativeDefinitions | ConvertTo-HashTable
     Write-Information "Updated Initiative definitions ($($initiativeDefinitions.Count))"
     foreach ($initiativeDefinitionName in $initiativeDefinitions.Keys) {
-        $initiativeDefinition = $initiativeDefinitions[$initiativeDefinitionName] | Get-FilteredHashTable -Filter $splatTransform
+        $initiativeDefinition = $initiativeDefinitions[$initiativeDefinitionName] | Get-FilteredHashTable -splatTransform $splatTransform
         $initiativeDefinition.Add("ApiVersion", "2020-08-01")
         Write-Information "      ""$($initiativeDefinition.Name)"" - ""$($initiativeDefinition.DisplayName)"""
         $null = Set-AzPolicySetDefinition @initiativeDefinition
@@ -295,6 +295,7 @@ if (!$noChanges) {
     #endregion
 
     #region Delete obsolete Policy definitions
+
     Write-Information "---------------------------------------------------------------------------------------------------"
     $policyDefinitions = $plan.deletedPolicyDefinitions | ConvertTo-HashTable
     Write-Information "Deleted Policy definitions ($($policyDefinitions.Count))"
@@ -303,6 +304,54 @@ if (!$noChanges) {
         Write-Information "    ""$($policyDefinition.name)"" - ""$($policyDefinition.displayName)"""
         $null = Remove-AzPolicyDefinition -Id $policyDefinition.id -Force
     }
+
+    #endregion
+
+    #region Exemptions
+
+    Write-Information "---------------------------------------------------------------------------------------------------"
+    $exemptions = (ConvertTo-HashTable $plan.deletedExemptions) + (ConvertTo-HashTable $plan.replacedExemptions)
+    Write-Information "Delete obsolete and replaced Exemptions ($($exemptions.Count))"
+    foreach ($exemptionId in $exemptions.Keys) {
+        $exemption = $exemptions[$exemptionId]
+        Write-Information "    ""$($exemptionId)"" - ""$($exemption.DisplayName)"""
+        Remove-AzPolicyExemption -Id $exemptionId -Force
+    }
+
+    Write-Information "---------------------------------------------------------------------------------------------------"
+    $exemptions = (ConvertTo-HashTable $plan.newExemptions) + (ConvertTo-HashTable $plan.replacedExemptions)
+    Write-Information "Create new and replaced Exemptions ($($exemptions.Count))"
+    $splatTransform = "Name Scope DisplayName Description Metadata ExemptionCategory ExpiresOn PolicyDefinitionReferenceIds/PolicyDefinitionReferenceId"
+    $assignmentsCache = @{}
+    foreach ($exemptionId in $exemptions.Keys) {
+        $exemption = $exemptions[$exemptionId]
+        $policyAssignmentId = $exemption.policyAssignmentId
+        $filteredExemption = $exemptions[$exemptionId] | Get-FilteredHashTable -splatTransform $splatTransform
+        Write-Information "    ""$($exemptionId)"" - ""$($exemption.DisplayName)"""
+        # Need assignment
+        $assignment = $null
+        if ($assignmentsCache.ContainsKey($policyAssignmentId)) {
+            $assignment = $assignmentsCache.$policyAssignmentId
+        }
+        else {
+            # Retrieve Policy Assignment
+            $assignment = Get-AzPolicyAssignment -Id $policyAssignmentId
+            $null = $assignmentsCache.Add($policyAssignmentId, $assignment)
+        }
+        $null = New-AzPolicyExemption @filteredExemption -PolicyAssignment $assignment
+    }
+
+    Write-Information "---------------------------------------------------------------------------------------------------"
+    $exemptions = (ConvertTo-HashTable $plan.updatedExemptions)
+    Write-Information "Update Exemptions ($($exemptions.Count))"
+    $splatTransform = "Id DisplayName Description Metadata ExemptionCategory ExpiresOn ClearExpiration PolicyDefinitionReferenceIds/PolicyDefinitionReferenceId"
+    foreach ($exemptionId in $exemptions.Keys) {
+        $exemption = $exemptions[$exemptionId]
+        $filteredExemption = $exemptions[$exemptionId] | Get-FilteredHashTable -splatTransform $splatTransform
+        Write-Information "    ""$($exemptionId)"""
+        $null = Set-AzPolicyExemption @filteredExemption
+    }
+
     #endregion
 
     #region Role Assignment Plan

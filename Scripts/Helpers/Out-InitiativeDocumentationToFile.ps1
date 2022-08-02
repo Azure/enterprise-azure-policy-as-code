@@ -216,7 +216,7 @@ function Out-InitiativeDocumentationToFile {
                 $groupNames = $perInitiative.groupNames
                 $groupNamesFragment = "n/a"
                 if ($groupNames.Count -gt 0) {
-                    $groupNamesFragment = $groupNames -join "\n"
+                    $groupNamesFragment = $groupNames -join ", "
                 }
                 $null = $cells.Add($groupNamesFragment)
             }
@@ -247,7 +247,7 @@ function Out-InitiativeDocumentationToFile {
 
         [void] $sb.Append("`n    // ")
         [void] $sb.Append("`n    // -----------------------------------------------------------------------------------------------------------------------------")
-        [void] $sb.Append("`n    // '$($_.category)' Policy: '$($_.displayName)'")
+        [void] $sb.Append("`n    // $($_.category): $($_.displayName)")
         [void] $sb.Append("`n    // -----------------------------------------------------------------------------------------------------------------------------")
 
         $parametersForThisPolicy = @{}
@@ -264,10 +264,10 @@ function Out-InitiativeDocumentationToFile {
                         $initiativesForThisParameter = $parameterForThisPolicy.initiativesForThisParameter
                         $initiativeText = ""
                         if ($perInitiative.isEffectParameterized) {
-                            $initiativeText = "'$($initiativeDisplayName)':       effect default) = $($perInitiative.effectDefault)"
+                            $initiativeText = "$($initiativeDisplayName): $($perInitiative.effectDefault) (default)"
                         }
                         else {
-                            $initiativeText = "'$($initiativeDisplayName)':       effect fixed = $($perInitiative.effectValue)"
+                            $initiativeText = "$($initiativeDisplayName): $($perInitiative.effectValue) (fixed)"
                         }
                         $null = $initiativesForThisParameter.Add("$initiativeText")
                     }
@@ -294,10 +294,10 @@ function Out-InitiativeDocumentationToFile {
                         $initiativesForThisParameter = [System.Collections.ArrayList]::new()
                         $initiativeText = ""
                         if ($perInitiative.isEffectParameterized) {
-                            $initiativeText = "'$($initiativeDisplayName)':       effect default = $($perInitiative.effectDefault)"
+                            $initiativeText = "$($initiativeDisplayName): $($perInitiative.effectDefault) (default)"
                         }
                         else {
-                            $initiativeText = "'$($initiativeDisplayName)':       effect fixed = $($perInitiative.effectValue)"
+                            $initiativeText = "$($initiativeDisplayName): $($perInitiative.effectValue) (fixed)"
                         }
                         $null = $initiativesForThisParameter.Add("$initiativeText")
                         $parameterForThisPolicy = @{
@@ -325,7 +325,7 @@ function Out-InitiativeDocumentationToFile {
                     [void] $sb.Append("`n    $($parameterForThisPolicy.parameterString),")
                     $null = $parametersAlreadyCovered.Add($parameterName, "covered")
                 }
-                [void] $sb.Append("`n    //    Alowed Values = $($parameterForThisPolicy.allowedValuesString)")
+                [void] $sb.Append("`n    //    Allowed Values = $($parameterForThisPolicy.allowedValuesString)")
                 $initiativesForThisParameter = $parameterForThisPolicy.initiativesForThisParameter
                 foreach ($initiativeForThisParameter in $initiativesForThisParameter) {
                     [void] $sb.Append("`n    //    $($initiativeForThisParameter)")

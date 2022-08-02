@@ -203,7 +203,9 @@ Each array entry defines three (3) files to be generated: Markdown, csv, and Jso
 
 1. **[Define Policy Assignments](../../Definitions/Assignments/README.md)**
 
-1. **[Documenting Assignments and Initiatives](../../Definitions/DocumentationSpecs/README.md)**
+1. **[Define Policy Exemptions](../../Definitions/Exemptions/README.md)**
+
+1. **[Documenting Assignments and Initiatives](../../Definitions/Documentation/README.md)**
 
 1. **[Operational Scripts](../../Scripts/Operations/README.md)**
 

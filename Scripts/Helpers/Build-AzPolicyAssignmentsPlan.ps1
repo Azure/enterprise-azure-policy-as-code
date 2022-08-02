@@ -19,6 +19,7 @@ function Build-AzPolicyAssignmentsPlan {
         [hashtable] $replacedInitiativeDefinitions,
         [hashtable] $policyNeededRoleDefinitionIds,
         [hashtable] $initiativeNeededRoleDefinitionIds,
+        [hashtable] $allAssignments,
         [hashtable] $existingAssignments,
         [hashtable] $newAssignments,
         [hashtable] $updatedAssignments,
@@ -150,7 +151,7 @@ function Build-AzPolicyAssignmentsPlan {
                 }
                 else {
                     $policySpecText = "Policy '$($name)'"
-                }       
+                }
                 $result = Confirm-PolicyDefinitionUsedExists -allPolicyDefinitions $allPolicyDefinitions -replacedPolicyDefinitions $replacedPolicyDefinitions -policyNameRequired $name
                 if ($result.usingUndefinedReference) {
                     continue
@@ -286,7 +287,7 @@ function Build-AzPolicyAssignmentsPlan {
                         $assignmentConfig += @{
                             existingAssignment = $value
                         }
-                
+
                         $policyDefinitionMatches = $policyDefinitionId -eq $assignmentInAzure.policyDefinitionId
                         $replaceIn = (-not $policyDefinitionMatches) -or $result.usingReplacedReference
                         $replace, $changingRoleAssignments = Build-AzPolicyAssignmentIdentityAndRoleChanges `
@@ -295,7 +296,7 @@ function Build-AzPolicyAssignmentsPlan {
                             -assignmentConfig $assignmentConfig `
                             -removedRoleAssignments $removedRoleAssignments `
                             -addedRoleAssignments $addedRoleAssignments
-                
+
                         if ($replace) {
                             $replacedAssignments.Add($id, $assignmentConfig)
                             $changesString = ($policyDefinitionMatches ? "-" : "P") `
@@ -330,7 +331,7 @@ function Build-AzPolicyAssignmentsPlan {
                                 # Write-Information "        *** NOTSCOPE UPDATE at $($scopeInfo.scope)"
                                 $numberOfNotScopeChanges += 1
                                 $updatedAssignments.Add($Id, $assignmentConfig)
-                            } 
+                            }
                             elseif ($match) {
                                 if ($changingRoleAssignments) {
                                     Write-AssignmentDetails `
@@ -354,7 +355,7 @@ function Build-AzPolicyAssignmentsPlan {
                                     + ($parametersMatch ? "-": "p") `
                                     + ($notScopeMatches ? "-": "N") `
                                     + ($changingRoleAssignments ? "R": "-")
-                            
+
                                 Write-AssignmentDetails `
                                     -printHeader $noChangedAssignments `
                                     -def $def `
@@ -386,6 +387,7 @@ function Build-AzPolicyAssignmentsPlan {
                             -prefix "+++ NEW"
                         $noChangedAssignments = $false
                     }
+                    $allAssignments.Add($id, $assignmentConfig)
                 }
             }
         }
@@ -398,7 +400,7 @@ function Build-AzPolicyAssignmentsPlan {
     }
 
     if ($obsoleteAssignments.Count -gt 0) {
-        if ($SuppressDeletes.IsPresent) {
+        if ($noDelete) {
             Write-Information "Suppressing Delete Assignments ($($obsoleteAssignments.Count))"
             foreach ($id in $obsoleteAssignments.Keys) {
                 Write-Information "    '$id'"

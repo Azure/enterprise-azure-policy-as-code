@@ -113,20 +113,26 @@ function Get-GlobalSettings {
     Write-Information "Output folder: $outputFolder"
     Write-Information ""
 
+    $documentationDefinitionsFolder = "$definitionsRootFolder/Documentation"
+    if (!(Test-Path $documentationDefinitionsFolder -PathType Container)) {
+        $documentationDefinitionsFolder = "$definitionsRootFolder/DocumentationSpecs" # Legacy location
+    }
+
     [hashtable] $globalSettings = @{
-        definitionsRootFolder       = $definitionsRootFolder
-        globalSettingsFile          = $globalSettingsFile
-        outputFolder                = $outputFolder
-        inputFolder                 = $inputFolder
-        policyDefinitionsFolder     = "$definitionsRootFolder/Policies"
-        initiativeDefinitionsFolder = "$definitionsRootFolder/Initiatives"
-        assignmentsFolder           = "$definitionsRootFolder/Assignments"
-        documentationSpecsFolder    = "$definitionsRootFolder/DocumentationSpecs"
-        pacEnvironmentSelectors     = $pacEnvironmentSelectors
-        pacEnvironmentPrompt        = $prompt
-        pacEnvironments             = $pacEnvironmentDefinitions
-        globalNotScopes             = $globalNotScopes
-        managedIdentityLocations    = $managedIdentityLocations
+        definitionsRootFolder          = $definitionsRootFolder
+        globalSettingsFile             = $globalSettingsFile
+        outputFolder                   = $outputFolder
+        inputFolder                    = $inputFolder
+        policyDefinitionsFolder        = "$definitionsRootFolder/Policies"
+        initiativeDefinitionsFolder    = "$definitionsRootFolder/Initiatives"
+        assignmentsFolder              = "$definitionsRootFolder/Assignments"
+        exemptionsFolder               = "$definitionsRootFolder/Exemptions"
+        documentationDefinitionsFolder = "$documentationDefinitionsFolder"
+        pacEnvironmentSelectors        = $pacEnvironmentSelectors
+        pacEnvironmentPrompt           = $prompt
+        pacEnvironments                = $pacEnvironmentDefinitions
+        globalNotScopes                = $globalNotScopes
+        managedIdentityLocations       = $managedIdentityLocations
     }
     return $globalSettings
 }

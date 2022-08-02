@@ -32,7 +32,7 @@ function Convert-ParametersToString {
             $newLine = ""
             foreach ($parameterText in $parameterList) {
                 $text += "$newLine$parameterText"
-                $newLine = "\n"
+                $newLine = "; "
             }
         }
     }

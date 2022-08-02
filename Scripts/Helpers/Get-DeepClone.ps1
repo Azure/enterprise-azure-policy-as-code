@@ -2,9 +2,9 @@
 function Get-DeepClone {
     [cmdletbinding()]
     param(
-        [PSObject] $InputObject
+        $InputObject
     )
-    
+
     if ($InputObject -is [hashtable]) {
         $clone = @{}
         foreach ($key in $InputObject.Keys) {

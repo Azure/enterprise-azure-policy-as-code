@@ -93,7 +93,7 @@ if (Test-Path $sourceDirectory -PathType Container) {
     }
 
     if (!$omitDocFiles.IsPresent) {
-        Write-Information "Copying documentaion files from '$sourceDirectory'"
+        Write-Information "Copying documentation files from '$sourceDirectory'"
         if (!(Test-Path "$destinationDirectory/Definitions")) {
             New-Item "$destinationDirectory/Definitions" -ItemType Directory
         }
