@@ -11,7 +11,8 @@ function Add-Assignments {
         [bool]      $getAssignments,
         [bool]      $getRemediations,
         [hashtable] $assignments,
-        [hashtable] $remediations
+        [hashtable] $remediations,
+        [bool]      $supressRoleAssignments
     )
 
     #region $maybeRemediations
@@ -55,14 +56,11 @@ function Add-Assignments {
                 $headerDisplayed = $true
             }
             $existingRoleAssignments = @()
-            if ($null -ne $assignment.identity -and $null -ne $assignment.identity.principalId) {
+            if (-not $supressRoleAssignments -and $null -ne $assignment.identity -and $null -ne $assignment.identity.principalId) {
+                # Collate existing role assignments at Policy assignment scope and at additionalRoleAssignments scope(s)
                 $existingRoleAssignments = @() + (Invoke-AzCli role assignment list --scope $scope --assignee $assignment.identity.principalId --only-show-errors)
-            }
-
-            # Collate existing role assignments at Policy assignment scope and at additionalRoleAssignments scope(s)
-            if ($null -ne $assignment.identity -and $null -ne $assignment.identity.principalId) {
                 $principalId = $assignment.identity.principalId
-                $scopesChecked = @{ 
+                $scopesChecked = @{
                     $assignment.scope = $true
                 }
                 if ($assignment.metadata -and $assignment.metadata.roles) {
@@ -74,18 +72,19 @@ function Add-Assignments {
                         }
                     }
                 }
-                Write-Information "    `'$($assignment.displayName)`': $($existingRoleAssignments.Length) Role Assignments" 
+                Write-Information "    `'$($assignment.displayName)`': $($existingRoleAssignments.Length) Role Assignments"
             }
             else {
                 Write-Information "    `'$($assignment.displayName)`'"
             }
 
-            $value = @{ 
+            $value = @{
                 assignment      = $assignment
                 roleAssignments = $existingRoleAssignments
             }
             $assignments.Add($assignment.id, $value)
         }
+
         #endregion
 
         #region Remediations
@@ -181,6 +180,7 @@ function Add-Assignments {
         }
         #endregion
     }
+
 }
 
 function Get-AzAssignmentsAtSpecificScope {
@@ -188,12 +188,14 @@ function Get-AzAssignmentsAtSpecificScope {
     param (
         [string]    $scope,
         [bool]      $getAssignments,
+        [bool]      $getExemptions,
         [bool]      $getRemediations,
         [hashtable] $allPolicyDefinitions,
         [hashtable] $allInitiativeDefinitions,
         [hashtable] $assignments,
-        [hashtable] $remediations
-
+        [hashtable] $exemptions,
+        [hashtable] $remediations,
+        [bool]      $supressRoleAssignments
     )
 
     $splits = $scope.Split('/')
@@ -203,69 +205,123 @@ function Get-AzAssignmentsAtSpecificScope {
         $null = Invoke-AzCli account set --subscription $subscriptionId
         if ($splits.Length -ge 5) {
             # Resource Group scope
-            $assignmentList = @() + (Invoke-AzCli policy assignment list --resource-group $scope)
-            if ($assignmentList.Length -gt 0) {
-                $header = "Resource Group $scope with $($assignmentList.Length) Policy Assignments"
-                $rg = $splits[-1]
-                [hashtable] $scopeSplat = @{
-                    subscription     = $subscriptionId
-                    "resource-group" = $rg
+            if ($getAssignments -or $getRemediations) {
+                $assignmentList = @() + (Invoke-AzCli policy assignment list --resource-group $scope)
+                if ($assignmentList.Length -gt 0) {
+                    $header = "Resource Group $scope with $($assignmentList.Length) Policy Assignments"
+                    $rg = $splits[-1]
+                    [hashtable] $scopeSplat = @{
+                        subscription     = $subscriptionId
+                        "resource-group" = $rg
+                    }
+                    Add-Assignments `
+                        -assignmentList $assignmentList `
+                        -header $header `
+                        -scope $scope `
+                        -scopeSplat $scopeSplat `
+                        -allPolicyDefinitions $allPolicyDefinitions `
+                        -allInitiativeDefinitions $allInitiativeDefinitions `
+                        -getAssignments $getAssignments `
+                        -getRemediations $getRemediations `
+                        -assignments $assignments `
+                        -remediations $remediations `
+                        -supressRoleAssignments $supressRoleAssignments
                 }
-                Add-Assignments `
-                    -assignmentList $assignmentList `
-                    -header $header `
-                    -scope $scope `
-                    -scopeSplat $scopeSplat `
-                    -allPolicyDefinitions $allPolicyDefinitions `
-                    -allInitiativeDefinitions $allInitiativeDefinitions `
-                    -getAssignments $getAssignments `
-                    -getRemediations $getRemediations `
-                    -assignments $assignments `
-                    -remediations $remediations
             }
         }
         else {
             # Subscription scope
-            $assignmentList = @() + (Invoke-AzCli policy assignment list --scope $scope)
-            if ($assignmentList.Length -gt 0) {
-                $header = "Subscription $subscriptionId with $($assignmentList.Length) Policy Assignments"
-                [hashtable] $scopeSplat = @{
-                    subscription = $subscriptionId
+            if ($getAssignments -or $getRemediations) {
+                $assignmentList = @() + (Invoke-AzCli policy assignment list --scope $scope)
+                if ($assignmentList.Length -gt 0) {
+                    $header = "Subscription $subscriptionId with $($assignmentList.Length) Policy Assignments"
+                    [hashtable] $scopeSplat = @{
+                        subscription = $subscriptionId
+                    }
+                    Add-Assignments `
+                        -assignmentList $assignmentList `
+                        -header $header `
+                        -scope $scope `
+                        -scopeSplat $scopeSplat `
+                        -allPolicyDefinitions $allPolicyDefinitions `
+                        -allInitiativeDefinitions $allInitiativeDefinitions `
+                        -getAssignments $getAssignments `
+                        -getRemediations $getRemediations `
+                        -assignments $assignments `
+                        -remediations $remediations `
+                        -supressRoleAssignments $supressRoleAssignments
                 }
-                Add-Assignments `
-                    -assignmentList $assignmentList `
-                    -header $header `
-                    -scope $scope `
-                    -scopeSplat $scopeSplat `
-                    -allPolicyDefinitions $allPolicyDefinitions `
-                    -allInitiativeDefinitions $allInitiativeDefinitions `
-                    -getAssignments $getAssignments `
-                    -getRemediations $getRemediations `
-                    -assignments $assignments `
-                    -remediations $remediations
+            }
+            if ($getExemptions) {
+                $exemptionList = (Invoke-AzCli policy exemption list --disable-scope-strict-match --scope $scope)
+                foreach ($exemptionRaw in $exemptionList) {
+                    $exemptionId = $exemptionRaw.id
+                    if (-not $exemptions.ContainsKey($exemptionId)) {
+                        $name = $exemptionRaw.name
+
+                        [array] $splits = $exemptionId -split "/"
+                        $numberOfSplits = $splits.Count
+                        $scopeLastIndex = $numberOfSplits - 5
+                        $scopeSplits = $splits[0..$scopeLastIndex]
+                        $scope = $scopeSplits -join "/"
+
+                        $displayName = $exemptionRaw.displayName
+                        $description = $exemptionRaw.description
+                        $exemptionCategory = $exemptionRaw.exemptionCategory
+                        $expiresOn = $exemptionRaw.expiresOn
+                        $policyAssignmentId = $exemptionRaw.policyAssignmentId
+                        $policyDefinitionReferenceIds = $exemptionRaw.policyDefinitionReferenceIds
+                        $metadata = $exemptionRaw.metadata
+                        $exemption = @{
+                            name               = $name
+                            scope              = $scope
+                            policyAssignmentId = $policyAssignmentId
+                            exemptionCategory  = $exemptionCategory
+                        }
+                        if ($displayName -and $displayName -ne "") {
+                            $exemption.Add("displayName", $displayName)
+                        }
+                        if ($description -and $description -ne "") {
+                            $exemption.Add("description", $description)
+                        }
+                        if ($expiresOn -and $expiresOn -ne "") {
+                            $exemption.Add("expiresOn", $expiresOn)
+                        }
+                        if ($policyDefinitionReferenceIds -and $policyDefinitionReferenceIds.Count -gt 0) {
+                            $exemption.Add("policyDefinitionReferenceIds", $policyDefinitionReferenceIds)
+                        }
+                        if ($metadata -and $metadata -ne @{} ) {
+                            $exemption.Add("metadata", $metadata)
+                        }
+                        $null = $exemptions.Add($exemptionId, $exemption)
+                    }
+                }
             }
         }
     }
     else {
         # Management Groups scope
-        $assignmentList = @() + (Invoke-AzCli policy assignment list --scope $scope)
-        $mg = $splits[-1]
-        if ($assignmentList.Length -gt 0) {
-            $header = "Management Group $mg with $($assignmentList.Length) Policy Assignments"
-            [hashtable] $scopeSplat = @{
-                "management-group" = $mg
+        if ($getAssignments -or $getRemediations) {
+            $assignmentList = @() + (Invoke-AzCli policy assignment list --scope $scope)
+            $mg = $splits[-1]
+            if ($assignmentList.Length -gt 0) {
+                $header = "Management Group $mg with $($assignmentList.Length) Policy Assignments"
+                [hashtable] $scopeSplat = @{
+                    "management-group" = $mg
+                }
+                Add-Assignments `
+                    -assignmentList $assignmentList `
+                    -header $header `
+                    -scope $scope `
+                    -scopeSplat $scopeSplat `
+                    -allPolicyDefinitions $allPolicyDefinitions `
+                    -allInitiativeDefinitions $allInitiativeDefinitions `
+                    -getAssignments $getAssignments `
+                    -getRemediations $getRemediations `
+                    -assignments $assignments `
+                    -remediations $remediations `
+                    -supressRoleAssignments $supressRoleAssignments
             }
-            Add-Assignments `
-                -assignmentList $assignmentList `
-                -header $header `
-                -scope $scope `
-                -scopeSplat $scopeSplat `
-                -allPolicyDefinitions $allPolicyDefinitions `
-                -allInitiativeDefinitions $allInitiativeDefinitions `
-                -getAssignments $getAssignments `
-                -getRemediations $getRemediations `
-                -assignments $assignments `
-                -remediations $remediations
         }
     }
 }
@@ -277,13 +333,17 @@ function Get-AzAssignmentsAtScopeRecursive {
         [parameter(Mandatory = $True)] [string[]]   $notScopeIn,
         [parameter(Mandatory = $false)] [bool]      $includeResourceGroups = $false,
         [parameter(Mandatory = $false)] [bool]      $getAssignments = $true,
+        [parameter(Mandatory = $false)] [bool]      $getExemptions = $true,
+        [Parameter(Mandatory = $false)] [int]       $expiringInDays = 7,
         [parameter(Mandatory = $false)] [bool]      $getRemediations = $false,
         [parameter(Mandatory = $false)] [hashtable] $allPolicyDefinitions = $null,
-        [parameter(Mandatory = $false)] [hashtable] $allInitiativeDefinitions = $null
+        [parameter(Mandatory = $false)] [hashtable] $allInitiativeDefinitions = $null,
+        [switch] $supressRoleAssignments
     )
 
     [array] $subscriptionIds = @()
-    [hashtable] $assignmentsInAzure = @{} 
+    [hashtable] $assignmentsInAzure = @{}
+    [hashtable] $exemptions = @{}
     [hashtable] $remediations = @{}
 
     # Check parameters
@@ -297,7 +357,7 @@ function Get-AzAssignmentsAtScopeRecursive {
     if (-not ($getAssignments -or $getRemediations)) {
 
     }
-  
+
     Write-Information "==================================================================================================="
     Write-Information "Get Policy and Role Assignments recursively"
     Write-Information "==================================================================================================="
@@ -306,11 +366,14 @@ function Get-AzAssignmentsAtScopeRecursive {
         $subscriptionIds += $scopeTreeInfo.SingleSubscription
         Get-AzAssignmentsAtSpecificScope -scope "$($scopeTreeInfo.SingleSubscription)" `
             -getAssignments $getAssignments `
+            -getExemptions $getExemptions `
             -getRemediations $getRemediations `
             -allPolicyDefinitions $allPolicyDefinitions `
             -allInitiativeDefinitions $allInitiativeDefinitions `
             -assignments $assignmentsInAzure `
-            -remediations $remediations
+            -exemptions $exemptions `
+            -remediations $remediations `
+            -supressRoleAssignments $supressRoleAssignments.IsPresent
     }
     elseif ($null -ne $scopeTreeInfo.ScopeTree) {
         # Management Group -> Process Management Groups and Subscriptions
@@ -327,7 +390,8 @@ function Get-AzAssignmentsAtScopeRecursive {
                 -allPolicyDefinitions $allPolicyDefinitions `
                 -allInitiativeDefinitions $allInitiativeDefinitions `
                 -assignments $assignmentsInAzure `
-                -remediations $remediations
+                -remediations $remediations `
+                -supressRoleAssignments $supressRoleAssignments.IsPresent
             foreach ($child in $currentMg.children) {
                 if ($notScopeIn.Contains($child.id)) {
                     Write-Information "Skipping notScope $($child.name) ($($child.id))"
@@ -344,11 +408,14 @@ function Get-AzAssignmentsAtScopeRecursive {
                             Write-Debug "    Subscription testing list += subscription $($child.id)"
                             Get-AzAssignmentsAtSpecificScope -scope $child.id `
                                 -getAssignments $getAssignments `
+                                -getExemptions $getExemptions `
                                 -getRemediations $getRemediations `
                                 -allPolicyDefinitions $allPolicyDefinitions `
                                 -allInitiativeDefinitions $allInitiativeDefinitions `
                                 -assignments $assignmentsInAzure `
-                                -remediations $remediations
+                                -exemptions $exemptions `
+                                -remediations $remediations `
+                                -supressRoleAssignments $supressRoleAssignments.IsPresent
                             $subscriptionIds += $child.id
                         }
                     }
@@ -356,7 +423,7 @@ function Get-AzAssignmentsAtScopeRecursive {
             }
         }
     }
-                    
+
     Write-Debug "Testing subscriptionIds($($subscriptionIds.Count)), notScopeResourceGroupIds($($notScopeResourceGroupIds.Count)), notScopePatterns($($notScopePatterns.Count))"
     # Find Resource Groups in all subscriptions in notScope
     if ($subscriptionIds.Length -gt 0 -and $includeResourceGroups) {
@@ -412,7 +479,8 @@ function Get-AzAssignmentsAtScopeRecursive {
                         -allPolicyDefinitions $allPolicyDefinitions `
                         -allInitiativeDefinitions $allInitiativeDefinitions `
                         -assignments $assignmentsInAzure `
-                        -remediations $remediations
+                        -remediations $remediations `
+                        -supressRoleAssignments $supressRoleAssignments.IsPresent
                 }
             }
         }
@@ -420,6 +488,7 @@ function Get-AzAssignmentsAtScopeRecursive {
     Write-Information ""
     Write-Information ""
 
-    return $assignmentsInAzure, $remediations
+
+    return $assignmentsInAzure, $remediations, $exemptions
 
 }

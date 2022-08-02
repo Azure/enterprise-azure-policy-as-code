@@ -64,7 +64,7 @@ function Build-AzInitiativeDefinitionsPlan {
             Write-Error "Initiative Json file '$($initiativeFile.Name)' is not valid = $Json" -ErrorAction Stop
         }
         $initiativeObject = $Json | ConvertFrom-Json -Depth 100
-        
+
         $name = $initiativeObject.name
         $displayName = $initiativeObject.properties.displayName
         if ($null -eq $name) {
@@ -98,7 +98,7 @@ function Build-AzInitiativeDefinitionsPlan {
 
         [hashtable] $groupDefinitions = @{}
         if ($null -ne $initiativeObject.properties.policyDefinitionGroups) {
-            $null = ($initiativeObject.properties.policyDefinitionGroups) | ForEach-Object { 
+            $null = ($initiativeObject.properties.policyDefinitionGroups) | ForEach-Object {
                 $groupDefinitions.Add($_.name, $_)
             }
         }
@@ -127,10 +127,11 @@ function Build-AzInitiativeDefinitionsPlan {
                                             break
                                         }
                                         $null = $groupDefinitions.Add($policyDefinitionGroupName, $policyDefinitionGroup)
-                                        Write-Information "        $policyDefinitionGroupName"
+                                        # Write-Information "        $policyDefinitionGroupName"
                                     }
                                 }
                             }
+                            Write-Information "    Imported $($groupDefinitions.Count) PolicyDefinitionGroups from '$($importedInitiative.displayName)'"
                         }
                         else {
                             Write-Error "    Initiative $($importedInitiative.displayName) does not contain PolicyDefinitionGroups to import" -ErrorAction Stop
@@ -164,7 +165,9 @@ function Build-AzInitiativeDefinitionsPlan {
                 Description      = $description
                 Parameter        = $parameterTable
                 PolicyDefinition = $policyDefinitions
-                GroupDefinition  = $groupDefinitions.Values
+            }
+            if ($groupDefinitions.Count -gt 0) {
+                $initiativeDefinitionConfig.Add("GroupDefinition", $groupDefinitions.Values)
             }
             # Adding SubscriptionId or ManagementGroupName value and optional fields to the splat
             $initiativeDefinitionConfig += $rootScope
@@ -225,7 +228,6 @@ function Build-AzInitiativeDefinitionsPlan {
                             Write-Information "Update($changesString) '$($name)' - '$($displayName)'"
                             $updatedInitiativeDefinitions.Add($name, $initiativeDefinitionConfig)
                         }
-                
                     }
                 }
             }
@@ -237,7 +239,7 @@ function Build-AzInitiativeDefinitionsPlan {
     }
     foreach ($deletedName in $obsoleteInitiativeDefinitions.Keys) {
         $deleted = $obsoleteInitiativeDefinitions[$deletedName]
-        if ($SuppressDeletes.IsPresent) {
+        if ($noDelete) {
             Write-Information "Suppressing Delete '$($deletedName)' - '$($deleted.displayName)'"
         }
         else {

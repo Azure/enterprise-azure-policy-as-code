@@ -29,7 +29,10 @@ More details:
 - [Create Policy Definitions](Definitions/Policies/README.md)
 - [Create Initiative Definitions](Definitions/Initiatives/README.md)
 - [Define Policy Assignments](Definitions/Assignments/README.md)
-- [Documenting Assignments and Initiatives](Definitions/DocumentationSpecs/README.md)
+- [Define Policy Exemptions](Definitions/Exemptions/README.md)
+
+
+- [Documenting Assignments and Initiatives](Definitions/Documentation/README.md)
 - [Operational Scripts](Scripts/Operations/README.md)
 
 <br/><p style="background-color:Yellow;color:Black;border:5px solid Red;padding-left: 10px;padding-right: 10px;padding-top: 10px;padding-bottom: 10px;">
@@ -207,13 +210,13 @@ Pipelines can customized to fit your needs:
 
 ### Edit and create Policies, Initiatives and Assignments
 
-Using the starter kit edit the directories in the `Definitions` folder. To simplify entering parameters, you can use the [Initiative documenting feature](Definitions/DocumentationSpecs/README.md#documenting-assignments-and-initiatives) which creates Markdown, CSV and a Json parameter file. You need to specify your initiatives to be documented (folder [`Definitions\DocumentationSpecs`](Definitions/DocumentationSpecs/README.md#specifying-initiative-documentation)) and execute script [`./Scripts/Operations/Build-PolicyAssignmentDocumentation.ps1`](Scripts/Operations/README.md#build-policyassignmentdocumentationps1)
+Using the starter kit edit the directories in the `Definitions` folder. To simplify entering parameters, you can use the [Initiative documenting feature](Definitions/Documentation/README.md#documenting-assignments-and-initiatives) which creates Markdown, CSV and a Json parameter file. You need to specify your initiatives to be documented (folder [`Definitions\Documentation`](Definitions/Documentation/README.md#specifying-initiative-documentation)) and execute script [`./Scripts/Operations/Build-PolicyAssignmentDocumentation.ps1`](Scripts/Operations/README.md#build-policyassignmentdocumentationps1)
 
 <br/>
 
 ### Document your Assignments
 
-This solution can generate [documentation in markdown and csv formats](Definitions/DocumentationSpecs/README.md).
+This solution can generate [documentation in markdown and csv formats](Definitions/Documentation/README.md).
 
 ## GitHub Folder Structure
 
@@ -261,7 +264,8 @@ The repo contains a script to synchronize directories in both directions: `Sync-
 1. **[Create Policy Definitions](Definitions/Policies/README.md)**
 1. **[Create Initiative Definitions](Definitions/Initiatives/README.md)**
 1. **[Define Policy Assignments](Definitions/Assignments/README.md)**
-1. **[Documenting Assignments and Initiatives](Definitions/DocumentationSpecs/README.md)**
+1. **[Define Policy Exemptions](Definitions/Exemptions/README.md)**
+1. **[Documenting Assignments and Initiatives](Definitions/Documentation/README.md)**
 1. **[Operational Scripts](Scripts/Operations/README.md)**
 
 <br/>

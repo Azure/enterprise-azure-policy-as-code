@@ -82,7 +82,9 @@ The Policy definition files are structured based on the official [Azure Policy d
 
 1. **[Define Policy Assignments](../../Definitions/Assignments/README.md)**
 
-1. **[Documenting Assignments and Initiatives](../../Definitions/DocumentationSpecs/README.md)**
+1. **[Define Policy Exemptions](../../Definitions/Exemptions/README.md)**
+
+1. **[Documenting Assignments and Initiatives](../../Definitions/Documentation/README.md)**
 
 1. **[Operational Scripts](../../Scripts/Operations/README.md)**
 

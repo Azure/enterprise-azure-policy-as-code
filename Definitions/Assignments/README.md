@@ -99,10 +99,10 @@ Assignment files are hierarchical for efficient Json definitions, avoiding dupli
                                 "Lowest Level Local Parameter": "Value"
                             }
                         }
-                        
+
                     ]
                 },
-                
+
             ]
         },
         {
@@ -155,7 +155,7 @@ Assignment files are hierarchical for efficient Json definitions, avoiding dupli
             ]
         }
     ]
-} 
+}
 ```
 
 <br/>
@@ -209,7 +209,9 @@ The assignment selector determines the array being selected for this run of the 
 
 1. **[Define Policy Assignments](../../Definitions/Assignments/README.md)**
 
-1. **[Documenting Assignments and Initiatives](../../Definitions/DocumentationSpecs/README.md)**
+1. **[Define Policy Exemptions](../../Definitions/Exemptions/README.md)**
+
+1. **[Documenting Assignments and Initiatives](../../Definitions/Documentation/README.md)**
 
 1. **[Operational Scripts](../../Scripts/Operations/README.md)**
 

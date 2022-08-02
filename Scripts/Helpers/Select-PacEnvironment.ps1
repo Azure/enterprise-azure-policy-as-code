@@ -88,26 +88,27 @@ function Select-PacEnvironment {
         }
     }
     $pacEnvironmentDefinition = @{
-        pacEnvironmentSelector      = $pacEnvironmentSelector
-        interactive                 = $interactive
-        cloud                       = $pacEnvironment.cloud
-        tenantId                    = $pacEnvironment.tenantId
-        defaultSubscriptionId       = $pacEnvironment.defaultSubscriptionId
-        rootScope                   = $pacEnvironment.rootScope
-        rootScopeId                 = $pacEnvironment.rootScopeId
-        globalNotScopeList          = $globalNotScopeList
-        managedIdentityLocation     = $managedIdentityLocation
-        definitionsRootFolder       = $globalSettings.definitionsRootFolder
-        policyDefinitionsFolder     = $globalSettings.policyDefinitionsFolder
-        initiativeDefinitionsFolder = $globalSettings.initiativeDefinitionsFolder
-        assignmentsFolder           = $globalSettings.assignmentsFolder
-        documentationSpecsFolder    = $globalSettings.documentationSpecsFolder
-        outputFolder                = $globalSettings.outputFolder
-        inputFolder                 = $globalSettings.inputFolder
-        policyPlanOutputFile        = "$($globalSettings.outputFolder)/policy-plan-$pacEnvironmentSelector/policy-plan.json"
-        rolesPlanOutputFile         = "$($globalSettings.outputFolder)/roles-plan-$pacEnvironmentSelector/roles-plan.json"
-        policyPlanInputFile         = "$($globalSettings.inputFolder)/policy-plan-$pacEnvironmentSelector/policy-plan.json"
-        rolesPlanInputFile          = "$($globalSettings.inputFolder)/roles-plan-$pacEnvironmentSelector/roles-plan.json"
+        pacEnvironmentSelector         = $pacEnvironmentSelector
+        interactive                    = $interactive
+        cloud                          = $pacEnvironment.cloud
+        tenantId                       = $pacEnvironment.tenantId
+        defaultSubscriptionId          = $pacEnvironment.defaultSubscriptionId
+        rootScope                      = $pacEnvironment.rootScope
+        rootScopeId                    = $pacEnvironment.rootScopeId
+        globalNotScopeList             = $globalNotScopeList
+        managedIdentityLocation        = $managedIdentityLocation
+        definitionsRootFolder          = $globalSettings.definitionsRootFolder
+        policyDefinitionsFolder        = $globalSettings.policyDefinitionsFolder
+        initiativeDefinitionsFolder    = $globalSettings.initiativeDefinitionsFolder
+        assignmentsFolder              = $globalSettings.assignmentsFolder
+        exemptionsFolder               = $globalSettings.exemptionsFolder
+        documentationDefinitionsFolder = $globalSettings.documentationDefinitionsFolder
+        outputFolder                   = $globalSettings.outputFolder
+        inputFolder                    = $globalSettings.inputFolder
+        policyPlanOutputFile           = "$($globalSettings.outputFolder)/policy-plan-$pacEnvironmentSelector/policy-plan.json"
+        rolesPlanOutputFile            = "$($globalSettings.outputFolder)/roles-plan-$pacEnvironmentSelector/roles-plan.json"
+        policyPlanInputFile            = "$($globalSettings.inputFolder)/policy-plan-$pacEnvironmentSelector/policy-plan.json"
+        rolesPlanInputFile             = "$($globalSettings.inputFolder)/roles-plan-$pacEnvironmentSelector/roles-plan.json"
 
     }
     return $pacEnvironmentDefinition

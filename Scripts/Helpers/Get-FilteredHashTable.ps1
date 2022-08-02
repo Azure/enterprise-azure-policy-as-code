@@ -5,46 +5,95 @@ function Get-FilteredHashTable {
     param
     (
         [parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true)]
-        [pscustomobject] $Object,
+        [pscustomobject] $splat,
 
         [Parameter()]
-        [string] $Filter = $null
+        [string] $splatTransform = $null
 
     )
 
-    [hashtable] $result = @{}
-    [hashtable] $inHt = @{}
-    if ($null -ne $Object) {
-        if ($Object -is [hashtable]) {
-            $inHt = $Object
+    [hashtable] $filteredSplat = @{}
+    if ($null -ne $splat) {
+        # ignore an empty splat
+        if (-not ($splat -is [hashtable])) {
+            $ht = $splat | ConvertTo-HashTable
+            $splat = $ht
         }
-        else {
-            $inHt = $Object | ConvertTo-HashTable
+
+        $transforms = $splat.Keys
+        if ($splatTransform) {
+            $transforms = $splatTransform.Split()
         }
-        if ($null -eq $Filter -or $Filter -eq "") {
-            $result = $inHt
-        }
-        else {
-            $transforms = $Filter.Split()
-            # ignore an empty splat
-            foreach ($transform in $transforms) {
-                $splits = $transform.Split("/")
-                $selector = $splits[0]
-                if ($inHt.ContainsKey($selector)) {
-                    $entry = $inHt[$selector]
-                    $value = $entry
-                    if ($entry -is [array] -or $entry -is [PSCustomObject] -or $entry -is [hashtable]) {
-                        $json = ConvertTo-Json $entry -Depth 100 -Compress
-                        $value = $json
+        foreach ($transform in $transforms) {
+            $splits = $transform.Split("/")
+            $splatSelector = $splits[0]
+            if ($splat.ContainsKey($splatSelector)) {
+                $argName = $splatSelector
+                $argValue = $splat.$splatSelector
+                $splatValue = $argValue
+
+                # Infer format from data type
+                $type = "value"
+                if ($null -eq $splatValue -or $splatValue -eq "") {
+                    $type = "key"
+                }
+                elseif ($splatValue -is [array]) {
+                    $type = "array"
+                    foreach ($value in $splatValue) {
+                        if (-not($value -is [string] -or $value -is [System.ValueType])) {
+                            $type = "json"
+                            break
+                        }
                     }
-                    switch ($splits.Length) {
-                        1 { $result.Add($selector, $value); break } #
-                        2 { $result.Add($splits[1], $value); break }
-                        Default { throw "inHtTransform has too menay parts ""$transform""" }
+                }
+                elseif ($splatValue -is [string] -or $splatValue -is [System.ValueType]) {
+                    $type = "value"
+                }
+                else {
+                    $type = "json"
+                }
+
+                # Check overrides
+                if ($splits.Length -in @(2, 3)) {
+                    if ($splits[1] -in @("json", "array", "key", "value")) {
+                        # Infered type is explicitly overriden
+                        $type = $splits[1]
+                        if ($splits.Length -eq 3) {
+                            $argName = $splits[2]
+                        }
+                    }
+                    elseif ($splits.Length -eq 2) {
+                        # Inferred type used and the second part is the newArgName
+                        $argName = $splits[1]
+                    }
+                    else {
+                        # Unknown type specified
+                        Write-Error "Invalid `splatTransform = '$transform', second part must be one of the following json, array, keyvalues, key, string, value." -ErrorAction Stop
+                    }
+                }
+                switch ($type) {
+                    "json" {
+                        $argValue = ConvertTo-Json $splatValue -Depth 100
+                        $null = $filteredSplat.Add($argName, $argValue)
+                    }
+                    "key" {
+                        # Just the key (no value)
+                        $null = $filteredSplat.Add($argName, $true)
+                    }
+                    "value" {
+                        $null = $filteredSplat.Add($argName, $argValue)
+                    }
+                    "array" {
+                        $null = $filteredSplat.Add($argName, $argValue)
+                    }
+                    Default {
+                        Write-Error "Unknown format '$_' for -splatTransform specified '$transform'" -ErrorAction Stop
+                        break
                     }
                 }
             }
         }
     }
-    return $result
+
+    return $filteredSplat
 }

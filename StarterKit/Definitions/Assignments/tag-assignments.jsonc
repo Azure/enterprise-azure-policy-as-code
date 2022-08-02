@@ -44,17 +44,6 @@
                     },
                     "children": [
                         {
-                            "nodeName": "Account",
-                            "assignment": {
-                                "name": "Account",
-                                "displayName": "Account",
-                                "description": "Account"
-                            },
-                            "parameters": {
-                                "tagName": "Account"
-                            }
-                        },
-                        {
                             "nodeName": "Contact",
                             "assignment": {
                                 "name": "Contact",
@@ -85,28 +74,6 @@
                             },
                             "parameters": {
                                 "tagName": "CostCenter"
-                            }
-                        },
-                        {
-                            "nodeName": "TaggingVersion",
-                            "assignment": {
-                                "name": "TaggingVersion",
-                                "displayName": "TaggingVersion",
-                                "description": "TaggingVersion"
-                            },
-                            "parameters": {
-                                "tagName": "TaggingVersion"
-                            }
-                        },
-                        {
-                            "nodeName": "Version",
-                            "assignment": {
-                                "name": "Version",
-                                "displayName": "Version",
-                                "description": "Version"
-                            },
-                            "parameters": {
-                                "tagName": "Version"
                             }
                         }
                     ]
@@ -134,17 +101,6 @@
                             }
                         },
                         {
-                            "nodeName": "Account",
-                            "assignment": {
-                                "name": "Account",
-                                "displayName": "Account",
-                                "description": "Account"
-                            },
-                            "parameters": {
-                                "tagName": "Account"
-                            }
-                        },
-                        {
                             "nodeName": "Contact",
                             "assignment": {
                                 "name": "Contact",
@@ -164,39 +120,6 @@
                             },
                             "parameters": {
                                 "tagName": "AppName"
-                            }
-                        },
-                        {
-                            "nodeName": "CostCenter",
-                            "assignment": {
-                                "name": "CostCenter",
-                                "displayName": "CostCenter",
-                                "description": "CostCenter"
-                            },
-                            "parameters": {
-                                "tagName": "CostCenter"
-                            }
-                        },
-                        {
-                            "nodeName": "TaggingVersion",
-                            "assignment": {
-                                "name": "TaggingVersion",
-                                "displayName": "TaggingVersion",
-                                "description": "TaggingVersion"
-                            },
-                            "parameters": {
-                                "tagName": "TaggingVersion"
-                            }
-                        },
-                        {
-                            "nodeName": "Version",
-                            "assignment": {
-                                "name": "Version",
-                                "displayName": "Version",
-                                "description": "Version"
-                            },
-                            "parameters": {
-                                "tagName": "Version"
                             }
                         }
                     ]

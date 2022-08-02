@@ -44,6 +44,7 @@ $null, $remediations = Get-AzAssignmentsAtScopeRecursive `
     -notScopeIn $pacEnvironment.globalNotScopeList `
     -includeResourceGroups $false `
     -getAssignments $false `
+    -getExemptions $false `
     -getRemediations $true `
     -allPolicyDefinitions $allPolicyDefinitions `
     -allInitiativeDefinitions $allInitiativeDefinitions

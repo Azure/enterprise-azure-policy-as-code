@@ -28,7 +28,7 @@ function Convert-EffectToString {
         foreach ($allowed in $allowedValues) {
             if ($allowed -cne $effect) {
                 $effectShort = Convert-EffectToShortForm -effect $allowed
-                $text += "\n$effectShort"
+                $text += ", $effectShort"
             }
         }
     }

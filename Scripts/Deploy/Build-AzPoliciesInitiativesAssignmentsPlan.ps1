@@ -54,6 +54,7 @@ function Write-AssignmentDetails {
 . "$PSScriptRoot/../Helpers/Build-AzInitiativeDefinitionsPlan.ps1"
 . "$PSScriptRoot/../Helpers/Build-AzPolicyAssignmentIdentityAndRoleChanges.ps1"
 . "$PSScriptRoot/../Helpers/Build-AzPolicyAssignmentsPlan.ps1"
+. "$PSScriptRoot/../Helpers/Build-AzPolicyExemptionsPlan.ps1"
 . "$PSScriptRoot/../Helpers/Build-AzPolicyDefinitionsForInitiative.ps1"
 . "$PSScriptRoot/../Helpers/Build-AzPolicyDefinitionsPlan.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-AssignmentParametersMatch.ps1"
@@ -94,7 +95,7 @@ $scopeTreeInfo = Get-AzScopeTree `
     -scopeParam $rootScope `
     -defaultSubscriptionId $pacEnvironment.defaultSubscriptionId
 
-$existingAssignments, $null = Get-AzAssignmentsAtScopeRecursive `
+$existingAssignments, $null, $existingExemptions = Get-AzAssignmentsAtScopeRecursive `
     -scopeTreeInfo $scopeTreeInfo `
     -notScopeIn $pacEnvironment.globalNotScopeList `
     -includeResourceGroups $IncludeResourceGroupsForAssignments.IsPresent
@@ -156,6 +157,7 @@ Build-AzInitiativeDefinitionsPlan `
     -initiativeNeededRoleDefinitionIds $initiativeNeededRoleDefinitionIds
 
 # Process Assignment Json files
+$allAssignments = @{}
 $newAssignments = @{}
 $updatedAssignments = @{}
 $replacedAssignments = @{}
@@ -163,33 +165,55 @@ $deletedAssignments = @{}
 $unchangedAssignments = @{}
 $removedRoleAssignments = @{}
 $addedRoleAssignments = @{}
-if (!$TestInitiativeMerge.IsPresent) {
-    Build-AzPolicyAssignmentsPlan `
-        -pacEnvironmentSelector $pacEnvironment.pacEnvironmentSelector `
-        -assignmentsRootFolder $pacEnvironment.assignmentsFolder `
-        -noDelete $SuppressDeletes.IsPresent `
-        -rootScope $rootScope `
-        -rootScopeId $rootScopeId `
-        -scopeTreeInfo $scopeTreeInfo `
-        -globalNotScopeList $pacEnvironment.globalNotScopeList `
-        -managedIdentityLocation $pacEnvironment.managedIdentityLocation `
-        -allPolicyDefinitions $allPolicyDefinitions `
-        -customPolicyDefinitions $customPolicyDefinitions `
-        -replacedPolicyDefinitions $replacedPolicyDefinitions `
-        -allInitiativeDefinitions $allInitiativeDefinitions `
-        -customInitiativeDefinitions $customInitiativeDefinitions `
-        -replacedInitiativeDefinitions $replacedInitiativeDefinitions `
-        -policyNeededRoleDefinitionIds $policyNeededRoleDefinitionIds `
-        -initiativeNeededRoleDefinitionIds $initiativeNeededRoleDefinitionIds `
-        -existingAssignments $existingAssignments `
-        -newAssignments $newAssignments `
-        -updatedAssignments $updatedAssignments `
-        -replacedAssignments $replacedAssignments `
-        -deletedAssignments $deletedAssignments `
-        -unchangedAssignments $unchangedAssignments `
-        -removedRoleAssignments $removedRoleAssignments `
-        -addedRoleAssignments $addedRoleAssignments
-}
+Build-AzPolicyAssignmentsPlan `
+    -pacEnvironmentSelector $pacEnvironment.pacEnvironmentSelector `
+    -assignmentsRootFolder $pacEnvironment.assignmentsFolder `
+    -noDelete $SuppressDeletes.IsPresent `
+    -rootScope $rootScope `
+    -rootScopeId $rootScopeId `
+    -scopeTreeInfo $scopeTreeInfo `
+    -globalNotScopeList $pacEnvironment.globalNotScopeList `
+    -managedIdentityLocation $pacEnvironment.managedIdentityLocation `
+    -allPolicyDefinitions $allPolicyDefinitions `
+    -customPolicyDefinitions $customPolicyDefinitions `
+    -replacedPolicyDefinitions $replacedPolicyDefinitions `
+    -allInitiativeDefinitions $allInitiativeDefinitions `
+    -customInitiativeDefinitions $customInitiativeDefinitions `
+    -replacedInitiativeDefinitions $replacedInitiativeDefinitions `
+    -policyNeededRoleDefinitionIds $policyNeededRoleDefinitionIds `
+    -initiativeNeededRoleDefinitionIds $initiativeNeededRoleDefinitionIds `
+    -allAssignments $allAssignments `
+    -existingAssignments $existingAssignments `
+    -newAssignments $newAssignments `
+    -updatedAssignments $updatedAssignments `
+    -replacedAssignments $replacedAssignments `
+    -deletedAssignments $deletedAssignments `
+    -unchangedAssignments $unchangedAssignments `
+    -removedRoleAssignments $removedRoleAssignments `
+    -addedRoleAssignments $addedRoleAssignments
+
+# Process exemption JSON files
+[hashtable] $newExemptions = @{}
+[hashtable] $updatedExemptions = @{}
+[hashtable] $replacedExemptions = @{}
+[hashtable] $deletedExemptions = @{}
+[hashtable] $unchangedExemptions = @{}
+[hashtable] $orphanedExemptions = @{}
+[hashtable] $expiredExemptions = @{}
+Build-AzPolicyExemptionsPlan `
+    -pacEnvironmentSelector $pacEnvironment.pacEnvironmentSelector `
+    -exemptionsRootFolder $pacEnvironment.exemptionsFolder `
+    -noDelete $SuppressDeletes.IsPresent `
+    -allAssignments $allAssignments `
+    -replacedAssignments $replacedAssignments `
+    -existingExemptions $existingExemptions `
+    -newExemptions $newExemptions `
+    -updatedExemptions $updatedExemptions `
+    -replacedExemptions $replacedExemptions `
+    -deletedExemptions $deletedExemptions `
+    -unchangedExemptions $unchangedExemptions `
+    -orphanedExemptions $orphanedExemptions `
+    -expiredExemptions $expiredExemptions
 
 # Publish plan to be consumed by next stage
 $numberOfPolicyChanges = `
@@ -204,7 +228,11 @@ $numberOfPolicyChanges = `
     $deletedAssignments.Count + `
     $replacedAssignments.Count + `
     $updatedAssignments.Count + `
-    $newAssignments.Count
+    $newAssignments.Count + `
+    $newExemptions.Count + `
+    $updatedExemptions.Count + `
+    $replacedExemptions.Count + `
+    $deletedExemptions.Count
 $numberOfRoleChanges = `
     $removedRoleAssignments.Count + `
     $addedRoleAssignments.Count
@@ -231,6 +259,13 @@ $plan = @{
     replacedAssignments           = $replacedAssignments
     updatedAssignments            = $updatedAssignments
     newAssignments                = $newAssignments
+
+    deletedExemptions             = $deletedExemptions
+    replacedExemptions            = $replacedExemptions
+    updatedExemptions             = $updatedExemptions
+    newExemptions                 = $newExemptions
+    orphanedExemptions            = $orphanedExemptions
+    expiredExemptions             = $expiredExemptions
 
     removedRoleAssignments        = $removedRoleAssignments
     addedRoleAssignments          = $addedRoleAssignments
@@ -265,33 +300,38 @@ Write-Information "Initiative definitions - updated   : $($updatedInitiativeDefi
 Write-Information "Initiative definitions - replaced  : $($replacedInitiativeDefinitions.Count)"
 Write-Information "Initiative definitions - deleted   : $($deletedInitiativeDefinitions.Count)"
 Write-Information "---------------------------------------------------------------------------------------------------"
-if (!$TestInitiativeMerge.IsPresent) {
-    Write-Information "Assignments - unchanged : $($unchangedAssignments.Count)"
-    Write-Information "Assignments - new       : $($newAssignments.Count)"
-    Write-Information "Assignments - updated   : $($updatedAssignments.Count)"
-    Write-Information "Assignments - replaced  : $($replacedAssignments.Count)"
-    Write-Information "Assignments - deleted   : $($deletedAssignments.Count)"
-    Write-Information "---------------------------------------------------------------------------------------------------"
-    Write-Information "Assignments - Removed Role Assignment(s) : $($removedRoleAssignments.Count)"
-    Write-Information "Assignments - New Role Assignment(s)     : $($addedRoleAssignments.Count)"
+Write-Information "Assignments - unchanged : $($unchangedAssignments.Count)"
+Write-Information "Assignments - new       : $($newAssignments.Count)"
+Write-Information "Assignments - updated   : $($updatedAssignments.Count)"
+Write-Information "Assignments - replaced  : $($replacedAssignments.Count)"
+Write-Information "Assignments - deleted   : $($deletedAssignments.Count)"
+Write-Information "Assignments - Removed Role Assignment(s) : $($removedRoleAssignments.Count)"
+Write-Information "Assignments - New Role Assignment(s)     : $($addedRoleAssignments.Count)"
+Write-Information "---------------------------------------------------------------------------------------------------"
+Write-Information "Exemptions - unchanged : $($unchangedExemptions.Count)"
+Write-Information "Exemptions - new       : $($newExemptions.Count)"
+Write-Information "Exemptions - updated   : $($updatedExemptions.Count)"
+Write-Information "Exemptions - replaced  : $($replacedExemptions.Count)"
+Write-Information "Exemptions - deleted   : $($deletedExemptions.Count)"
+Write-Information "Exemptions - orphaned in definition file : $($orphanedExemptions.Count)"
+Write-Information "Exemptions - expired in definition file  : $($expiredExemptions.Count)"
 
-    Write-Information "***************************************************************************************************"
-    if ($numberOfRoleChanges -gt 0) {
-        Write-Host "##vso[task.setvariable variable=deployPolicyChanges;isOutput=true]yes"
-        Write-Host "##vso[task.setvariable variable=deployRoleChanges;isOutput=true]yes"
-        Write-Information "Executing Policy deployment stage/step"
-        Write-Information "Executing Role Assignment stage/step"
-    }
-    elseif ($numberOfPolicyChanges -gt 0) {
-        Write-Host "##vso[task.setvariable variable=deployPolicyChanges;isOutput=true]yes"
-        Write-Host "##vso[task.setvariable variable=deployRoleChanges;isOutput=true]no"
-        Write-Information "Executing Policy deployment stage/step"
-        Write-Information "Skipping Role Assignment stage/step - no changes"
-    }
-    else {
-        Write-Host "##vso[task.setvariable variable=deployPolicyChanges;isOutput=true]no"
-        Write-Host "##vso[task.setvariable variable=deployRoleChanges;isOutput=true]no"
-        Write-Information "Skipping Policy deployment stage/step - no changes"
-        Write-Information "Skipping Role Assignment stage/step - no changes"
-    }
+Write-Information "***************************************************************************************************"
+if ($numberOfRoleChanges -gt 0) {
+    Write-Host "##vso[task.setvariable variable=deployPolicyChanges;isOutput=true]yes"
+    Write-Host "##vso[task.setvariable variable=deployRoleChanges;isOutput=true]yes"
+    Write-Information "Executing Policy deployment stage/step"
+    Write-Information "Executing Role Assignment stage/step"
+}
+elseif ($numberOfPolicyChanges -gt 0) {
+    Write-Host "##vso[task.setvariable variable=deployPolicyChanges;isOutput=true]yes"
+    Write-Host "##vso[task.setvariable variable=deployRoleChanges;isOutput=true]no"
+    Write-Information "Executing Policy deployment stage/step"
+    Write-Information "Skipping Role Assignment stage/step - no changes"
+}
+else {
+    Write-Host "##vso[task.setvariable variable=deployPolicyChanges;isOutput=true]no"
+    Write-Host "##vso[task.setvariable variable=deployRoleChanges;isOutput=true]no"
+    Write-Information "Skipping Policy deployment stage/step - no changes"
+    Write-Information "Skipping Role Assignment stage/step - no changes"
 }

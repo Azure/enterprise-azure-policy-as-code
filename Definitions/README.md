@@ -26,7 +26,8 @@ This folder and subfolders contain the definitions to deploy. Tasks:
 1. Create custom Policy definitions (optional) in folder **[Policies](Policies/README.md)**
 1. Create custom Initiative definitions (optional) in folder **[Initiatives](Initiatives/README.md)**
 1. Define the Policy Assignments in folder **[Assignments](Assignments/README.md)**
-1. Define Documentation in folder **[DocumentationSpecs](../Definitions/DocumentationSpecs/README.md)**
+1. Define the Policy Exemptions in folder **[Define Policy Exemptions](../Definitions/Exemptions/README.md)**
+1. Define Documentation in folder **[Documentation](../Definitions/Documentation/README.md)**
 
 ## Global Settings
 
@@ -139,7 +140,9 @@ Each entry in the array defines one of the environments:
 
 1. **[Define Policy Assignments](../Definitions/Assignments/README.md)**
 
-1. **[Documenting Assignments and Initiatives](../Definitions/DocumentationSpecs/README.md)**
+1. **[Define Policy Exemptions](../Definitions/Exemptions/README.md)**
+
+1. **[Documenting Assignments and Initiatives](../Definitions/Documentation/README.md)**
 
 1. **[Operational Scripts](../Scripts/Operations/README.md)**
 

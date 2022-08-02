@@ -49,7 +49,7 @@ param (
 
 $InformationPreference = 'Continue'
 $globalSettings = Get-GlobalSettings -definitionsRootFolder $definitionsRootFolder -outputFolder $outputFolder
-$definitionsFolder = $globalSettings.documentationSpecsFolder
+$definitionsFolder = $globalSettings.documentationDefinitionsFolder
 $pacEnvironments = $globalSettings.pacEnvironments
 $outputPath = "$($globalSettings.outputFolder)/AzPolicyDocumentation"
 if (-not (Test-Path $outputPath)) {
@@ -145,12 +145,12 @@ foreach ($file in $files) {
                     Write-Error "Json document does not contain the required 'pacEnvironment' element." -ErrorAction Stop
                 }
                 # Load pacEnvironment
-                $pacEnvironmenSelector = $environmentCategoryEntry.pacEnvironment
+                $pacEnvironmentSelector = $environmentCategoryEntry.pacEnvironment
                 Write-Information ""
-                if ($currentPacEnvironmentSelector -ne $pacEnvironmenSelector) {
-                    $currentPacEnvironmentSelector = $pacEnvironmenSelector
+                if ($currentPacEnvironmentSelector -ne $pacEnvironmentSelector) {
+                    $currentPacEnvironmentSelector = $pacEnvironmentSelector
                     Write-Information "==================================================================================================="
-                    Write-Information "Policy as Code environment (pacEnvironment) '$($pacEnvironmenSelector)'"
+                    Write-Information "Policy as Code environment (pacEnvironment) '$($pacEnvironmentSelector)'"
                     Write-Information "==================================================================================================="
                     Write-Information ""
                     $pacEnvironment = Switch-PacEnvironment `
@@ -246,11 +246,10 @@ foreach ($file in $files) {
                 }
 
                 if (-not $cachedPolicyInitiativeInfos.ContainsKey($pacEnvironmentSelector)) {
-                    if ($currentPacEnvironmentSelector -ne $pacEnvironmenSelector) {
-                        # Should always be true
+                    if ($currentPacEnvironmentSelector -ne $pacEnvironmentSelector) {
                         $currentPacEnvironmentSelector = $pacEnvironmentSelector
                         Write-Information "==================================================================================================="
-                        Write-Information "Policy as Code environment (pacEnvironment) '$($pacEnvironmenSelector)'"
+                        Write-Information "Policy as Code environment (pacEnvironment) '$($pacEnvironmentSelector)'"
                         Write-Information "==================================================================================================="
                         Write-Information ""
                         $pacEnvironment = Switch-PacEnvironment `
@@ -263,7 +262,7 @@ foreach ($file in $files) {
 
                 # Retrieve Policies and Initiatives for current pacEnvironment from cache or from Azure
                 $policyInitiativeInfo = Get-PolicyInitiativeInfos `
-                    -pacEnvironmentSelector $currentPacEnvironmentSelector `
+                    -pacEnvironmentSelector $pacEnvironmentSelector `
                     -pacEnvironment $pacEnvironment `
                     -cachedPolicyInitiativeInfos $cachedPolicyInitiativeInfos
 

@@ -15,6 +15,7 @@ This repository contains starter pipeline definitions for Azure DevOps. **The au
   - [Build-AzPoliciesInitiativesAssignmentsPlan.ps1](#build-azpoliciesinitiativesassignmentsplanps1)
   - [Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1](#deploy-azpoliciesinitiativesassignmentsfromplanps1)
   - [Set-AzPolicyRolesFromPlan.ps1](#set-azpolicyrolesfromplanps1)
+- [Consuming Excel Files](#consuming-excel-files)
 - [Pipeline Execution](#pipeline-execution)
 - [Reading List](#reading-list)
 
@@ -143,6 +144,12 @@ Creates the role assignments for the Managed Identities required for `DeployIfNo
 
 <br/>
 
+## Consuming Excel Files
+
+Exemptions and assignments can use Json, CSV and Excel (.xlsx) files. Support for Excel files uses a third-party PowerShell module from the PowerShell Gallery. However, the StarterKit pipeline disables the use of .xslx files module (`Convert-XlsToCSV.ps1`) to mitigate potential vulnerability risks in a third-party utility (this does not imply any such vulnerabilities exist). You can enable it at your own risk by uncommenting the sections in each planning stage. The pipeline further mitigates the risk by executing this step without Azure credentials.
+
+<br/>
+
 ## Pipeline Execution
 
 Upon `commit to a feature branch or a manual pipeline run`, the pipeline runs stage devAllStage to deploy Policies, Initiatives and Assignments to the PAC DEV environment. Second, it calculates the plan for PROD environment deployment based on the Feature branch. This plan is never executed. Instead the logs and if desired the artifact generated are used by the developer to verify the definition files and to determine if the code is ready for a Pull Request. The PR approver(s) will use the same input plus the source code changes to decide the PR approval or rejection.
@@ -181,7 +188,9 @@ If there are no changes, empty stage(s) are executed to explicitly show that no 
 
 1. **[Define Policy Assignments](../Definitions/Assignments/README.md)**
 
-1. **[Documenting Assignments and Initiatives](../../Definitions/DocumentationSpecs/README.md)**
+1. **[Define Policy Exemptions](../Definitions/Exemptions/README.md)**
+
+1. **[Documenting Assignments and Initiatives](../Definitions/Documentation/README.md)**
 
 1. **[Operational Scripts](../Scripts/Operations/README.md)**
 

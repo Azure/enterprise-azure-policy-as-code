@@ -10,18 +10,6 @@
             "/providers/Microsoft.Management/managementGroups/Policy-as-Code"
         ]
     },
-    /* "notScope" Instructions
-        Formats of array entries:
-            managementGroups:      "/providers/Microsoft.Management/managementGroups/myManagementGroupId"
-            subscriptions:         "/subscriptions/00000000-0000-0000-000000000000"
-            resourceGroups:        "/subscriptions/00000000-0000-0000-000000000000/resourceGroups/myResourceGroup"
-            resourceGroupPatterns: Extra feature in EPAC:
-                                   No wild card or single * wild card at beginning or end of name or both; wild card in middle is invalid
-                                   "/resourceGroupPatterns/name"
-                                   "/resourceGroupPatterns/name*"
-                                   "/resourceGroupPatterns/*name"
-                                   "/resourceGroupPatterns/*name*"
-    */
     "pacEnvironments": [
         {
             "pacSelector": "dev",

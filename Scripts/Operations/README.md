@@ -51,7 +51,7 @@ This script executes all remediation tasks in a Policy as Code environment speci
 
 ## Build-PolicyAssignmentDocumentation.ps1
 
-Generates documentation for assignments and initiatives based on Json files in `$definitionsFolder/DocumentationSpecs`. [See Define Documentation for details](../../Definitions/DocumentationSpecs/README.md).
+Generates documentation for assignments and initiatives based on Json files in `$definitionsFolder/Documentation`. [See Define Documentation for details](../../Definitions/Documentation/README.md).
 
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
@@ -126,7 +126,9 @@ Lists Role assignments per user.
 
 1. **[Define Policy Assignments](../../Definitions/Assignments/README.md)**
 
-1. **[Documenting Assignments and Initiatives](../../Definitions/DocumentationSpecs/README.md)**
+1. **[Define Policy Exemptions](../../Definitions/Exemptions/README.md)**
+
+1. **[Documenting Assignments and Initiatives](../../Definitions/Documentation/README.md)**
 
 1. **[Operational Scripts](#Scripts)**
 
