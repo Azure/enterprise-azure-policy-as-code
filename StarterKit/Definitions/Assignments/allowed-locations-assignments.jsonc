@@ -1,7 +1,7 @@
 {
     "nodeName": "/Loc/",
     "assignment": {
-        "Name": "Allowed Locations",
+        "name": "allowed-locations",
         "displayName": "Allowed Locations",
         "description": "Sets the allowed locations"
     },
@@ -15,13 +15,13 @@
         ]
     },
     "scope": {
-        "dev": [
-            "/providers/Microsoft.Management/managementGroups/PAC-Dev"
+        "epac-dev": [
+            "/providers/Microsoft.Management/managementGroups/EPAC-Dev"
         ],
-        "test": [
-            "/providers/Microsoft.Management/managementGroups/PAC-Test"
+        "epac-test": [
+            "/providers/Microsoft.Management/managementGroups/EPAC-Test"
         ],
-        "tenant1": [
+        "tenant": [
             "/providers/Microsoft.Management/managementGroups/Contoso-Root"
         ]
     }

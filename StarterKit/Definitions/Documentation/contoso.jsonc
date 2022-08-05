@@ -2,7 +2,7 @@
     "documentAssignments": {
         "environmentCategories": [
             {
-                "pacEnvironment": "tenant1",
+                "pacEnvironment": "tenant",
                 "environmentCategory": "PROD",
                 "scopes": [ // Used in Markdown output only
                     "Management Group: Contoso-Prod"
@@ -19,7 +19,7 @@
                 ]
             },
             {
-                "pacEnvironment": "tenant1",
+                "pacEnvironment": "tenant",
                 "environmentCategory": "NONPROD",
                 "scopes": [ // Used in Markdown output only
                     "Management Group: Contoso-NonProd"
@@ -62,7 +62,7 @@
     },
     "documentInitiatives": [
         {
-            "pacEnvironment": "tenant1",
+            "pacEnvironment": "tenant",
             "fileNameStem": "contoso-compliance-initiatives",
             "title": "Document Initiatives",
             "initiatives": [

@@ -16,113 +16,129 @@
     },
     "children": [
         {
-            "nodeName": "tenant/",
+            "nodeName": "required-and-inherit/",
             "scope": {
-                "dev": [
-                    "/providers/Microsoft.Management/managementGroups/PAC-Dev"
+                "epac-dev": [
+                    "/providers/Microsoft.Management/managementGroups/EPAC-Dev"
                 ],
-                "test": [
-                    "/providers/Microsoft.Management/managementGroups/PAC-Test"
+                "epac-test": [
+                    "/providers/Microsoft.Management/managementGroups/EPAC-Test"
                 ],
-                "tenant1": [
+                "tenant": [
                     "/providers/Microsoft.Management/managementGroups/Contoso-Root"
                 ]
             },
-            "children": [
+            "definitionEntryList": [
                 {
-                    "nodeName": "requireTags/",
+                    "policyName": "rg-required-tag-dynamic-notscope",
                     "assignment": {
-                        "name": "rqtag-",
-                        "displayName": "Required Tag on Resource Group: ",
-                        "description": "Required Tag for Resource Groups when any resource group is created or updated: "
-                    },
-                    "definitionEntry": {
-                        "policyName": "rg-required-tag-dynamic-notscope"
-                    },
-                    "parameters": {
-                        "effect": "Audit"
-                    },
-                    "children": [
-                        {
-                            "nodeName": "Contact",
-                            "assignment": {
-                                "name": "Contact",
-                                "displayName": "Contact",
-                                "description": "Contact"
-                            },
-                            "parameters": {
-                                "tagName": "Contact"
-                            }
-                        },
-                        {
-                            "nodeName": "AppName",
-                            "assignment": {
-                                "name": "AppName",
-                                "displayName": "AppName",
-                                "description": "AppName"
-                            },
-                            "parameters": {
-                                "tagName": "AppName"
-                            }
-                        },
-                        {
-                            "nodeName": "CostCenter",
-                            "assignment": {
-                                "name": "CostCenter",
-                                "displayName": "CostCenter",
-                                "description": "CostCenter"
-                            },
-                            "parameters": {
-                                "tagName": "CostCenter"
-                            }
-                        }
-                    ]
+                        "name": "rgtag-",
+                        "displayName": "Require Tag on Resource Group - ",
+                        "description": "Require Tag for Resource Groups when any resource group (not listed in in excludedRg) is created or updated - "
+                    }
                 },
                 {
-                    "nodeName": "inheritFromRG/",
-                    "definitionEntry": {
-                        "policyName": "resources-inherit-rg-tag-dynamic-notscope"
-                    },
+                    "policyName": "resources-inherit-rg-tag-dynamic-notscope",
                     "assignment": {
                         "name": "taginh-",
-                        "displayName": "Inherit Tag from RG - ",
+                        "displayName": "Inherit Tag from Resource Group - ",
                         "description": "Modify Tag to comply with governance goal of enforcing Tags by inheriting Tags from RG - "
+                    }
+                }
+            ],
+            "children": [
+                {
+                    "nodeName": "Contact",
+                    "assignment": {
+                        "name": "Contact",
+                        "displayName": "Contact",
+                        "description": "Contact"
                     },
-                    "children": [
-                        {
-                            "nodeName": "Environment",
-                            "assignment": {
-                                "name": "Environment",
-                                "displayName": "Environment",
-                                "description": "Environment"
-                            },
-                            "parameters": {
-                                "tagName": "Environment"
-                            }
-                        },
-                        {
-                            "nodeName": "Contact",
-                            "assignment": {
-                                "name": "Contact",
-                                "displayName": "Contact",
-                                "description": "Contact"
-                            },
-                            "parameters": {
-                                "tagName": "Contact"
-                            }
-                        },
-                        {
-                            "nodeName": "AppName",
-                            "assignment": {
-                                "name": "AppName",
-                                "displayName": "AppName",
-                                "description": "AppName"
-                            },
-                            "parameters": {
-                                "tagName": "AppName"
-                            }
-                        }
-                    ]
+                    "parameters": {
+                        "tagName": "Contact"
+                    }
+                },
+                {
+                    "nodeName": "AppName",
+                    "assignment": {
+                        "name": "AppName",
+                        "displayName": "AppName",
+                        "description": "AppName"
+                    },
+                    "parameters": {
+                        "tagName": "AppName"
+                    }
+                },
+                {
+                    "nodeName": "CostCenter",
+                    "assignment": {
+                        "name": "CostCenter",
+                        "displayName": "CostCenter",
+                        "description": "CostCenter"
+                    },
+                    "parameters": {
+                        "tagName": "CostCenter"
+                    }
+                },
+                {
+                    "nodeName": "Environment",
+                    "assignment": {
+                        "name": "Environment",
+                        "displayName": "Environment",
+                        "description": "Environment"
+                    },
+                    "parameters": {
+                        "tagName": "Environment"
+                    }
+                }
+            ]
+        },
+        {
+            "nodeName": "Environment/",
+            "definitionEntry": {
+                "policyName": "rg-addreplace-tag-dynamic-notscope"
+            },
+            "parameters": {
+                "tagName": "Environment"
+            },
+            "children": [
+                {
+                    "nodeName": "PROD",
+                    "assignment": {
+                        "name": "prod-env-tag",
+                        "displayName": "Prod Environment Tag",
+                        "description": "Set Tag Environment to PROD"
+                    },
+                    "parameters": {
+                        "tagValue": "PROD"
+                    },
+                    "scope": {
+                        "epac-test": [
+                            "/providers/Microsoft.Management/managementGroups/EPAC-Test"
+                        ],
+                        "tenant": [
+                            "/providers/Microsoft.Management/managementGroups/Contoso-Prod"
+                        ]
+                    }
+                },
+                {
+                    "nodeName": "NONPROD",
+                    "assignment": {
+                        "name": "prod-env-tag",
+                        "displayName": "NonProd Environment Tag",
+                        "description": "Set Tag Environment to NONPROD"
+                    },
+                    "parameters": {
+                        "tagValue": "NONPROD"
+                    },
+                    "scope": {
+                        "epac-test": [
+                            "/providers/Microsoft.Management/managementGroups/EPAC-Test"
+                        ],
+                        "tenant": [
+                            "/providers/Microsoft.Management/managementGroups/Contoso-NonProd"
+                        ]
+                    }
                 }
             ]
         }

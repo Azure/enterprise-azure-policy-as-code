@@ -14,7 +14,7 @@ function Confirm-InitiativeDefinitionUsedExists {
     $initiativeId = $null
 
     if (-not ($allInitiativeDefinitions.ContainsKey($initiativeNameRequired))) {
-        Write-Error "Referenced Initiative ""$($initiativeNameRequired)"" doesn't exist at the specified scope"
+        Write-Error "Referenced Initiative ""$($initiativeNameRequired)"" doesn't exist at the specified scope" -ErrorAction Stop
         $usingUndefinedReference = $true
     }
     else {

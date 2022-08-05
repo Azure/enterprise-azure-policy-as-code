@@ -60,7 +60,7 @@ Policies with `Modify` and `DeployIfNotExists` effects require a Managed Identit
             "/resourceGroupPatterns/LogAnalyticsDefault*",
             "/resourceGroupPatterns/cloud-shell-storage*"
         ],
-        "prod": [
+        "tenant": [
             "/providers/Microsoft.Management/managementGroups/mg-personal-subscriptions",
             "/providers/Microsoft.Management/managementGroups/mg-policy-as-code"
         ]
@@ -85,7 +85,7 @@ pacEnvironments define the environment controlled by Policy as Code. It must be 
 ```json
 "pacEnvironments": [
     {
-        "pacSelector": "dev",
+        "pacSelector": "epac-dev",
         "cloud": "AzureCloud",
         "tenantId": "77777777-8888-9999-1111-222222222222",
         "defaultSubscriptionId": "11111111-2222-3333-4444-555555555555",
@@ -94,7 +94,7 @@ pacEnvironments define the environment controlled by Policy as Code. It must be 
         }
     },
     {
-        "pacSelector": "test",
+        "pacSelector": "epac-test",
         "cloud": "AzureCloud",
         "tenantId": "77777777-8888-9999-1111-222222222222",
         "defaultSubscriptionId": "99999999-8888-7777-4444-333333333333",
@@ -103,7 +103,7 @@ pacEnvironments define the environment controlled by Policy as Code. It must be 
         }
     },
     {
-        "pacSelector": "tenant1",
+        "pacSelector": "tenant",
         "cloud": "AzureCloud",
         "tenantId": "77777777-8888-9999-1111-222222222222",
         "defaultSubscriptionId": "99999999-8888-7777-4444-333333333333",
@@ -122,7 +122,7 @@ Each entry in the array defines one of the environments:
 | `cloud` | Azure environment. Examples: `"AzureCloud"`, `"AzureUSGovernment"`, `"AzureGermanCloud"`. Defaults to `"AzureCloud"` with a warning |
 | `tenantId` | Azure Tenant Id |
 | `defaultSubscriptionId` | Primary subscription for login. If the rootScope is a subscription, the default must match. |
-| `rootScope` | Policy and Initiative definitions are **always** deployed at this scope. Must conatin either a `MangementGroupName` or a `SubscriptionId` element |`
+| `rootScope` | Policy and Initiative definitions are **always** deployed at this scope. Must contain either a `MangementGroupName` or a `SubscriptionId` element |`
 
 <br/>
 

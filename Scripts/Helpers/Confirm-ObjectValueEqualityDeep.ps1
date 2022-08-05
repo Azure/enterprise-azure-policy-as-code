@@ -3,7 +3,7 @@
 function Confirm-ObjectValueEqualityDeep {
     [CmdletBinding()]
     param(
-        $existingObj, 
+        $existingObj,
         $definedObj
     )
 
@@ -38,7 +38,7 @@ function Confirm-ObjectValueEqualityDeep {
                 return $false
             }
         }
-        # Does defined conatin additional items
+        # Does defined contain additional items
         return $definedHt.Count -lt 1
     }
     elseif ($definedObj -is [array] -or $existingObj -is [array]) {

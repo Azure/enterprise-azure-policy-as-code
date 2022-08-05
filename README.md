@@ -35,9 +35,15 @@ More details:
 - [Documenting Assignments and Initiatives](Definitions/Documentation/README.md)
 - [Operational Scripts](Scripts/Operations/README.md)
 
-<br/><p style="background-color:Yellow;color:Black;border:5px solid Red;padding-left: 10px;padding-right: 10px;padding-top: 10px;padding-bottom: 10px;">
-<b><u>Warning:</u> If you have a existing Policies, Initiatives and Assignments in your environment, you have not transferred to EPAC, do not forget to change the "brownfield" variable in the pipeline to true.<br/><br/><u>Why?</u> This solution uses the desired state strategy. It will remove any custom Policies, Initiatives or Policy Assignments not duplicated in the definition files. The Build-AzPoliciesInitiativesAssignmentsPlan.ps1 script's switch parameter SuppressDeletes changes this behavior. Set the "brownfield" variable in the pipeline to true; it will set the switch parameter preventing deletions of existing Policies, Initiatives and Policy Assignments. This allows for a gradual transition from your existing Policy management to Enterprise Policy as Code.</b>
-</p><br/>
+<br/>
+
+> **Desired State Warning**
+>
+> **If you have a existing Policies, Initiatives and Assignments in your environment, you have not transferred to EPAC, do not forget to change the "brownfield" variable in the pipeline to true.**
+>
+> This solution uses the desired state strategy. It will remove any custom Policies, Initiatives or Policy Assignments not duplicated in the definition files. The Build-AzPoliciesInitiativesAssignmentsPlan.ps1 script's switch parameter SuppressDeletes changes this behavior. Set the "brownfield" variable in the pipeline to true; it will set the switch parameter preventing deletions of existing Policies, Initiatives and Policy Assignments. This allows for a gradual transition from your existing Policy management to Enterprise Policy as Code.
+
+<br/>
 
 ## Security & Compliance for Cloud Infrastructure
 
@@ -54,7 +60,7 @@ The Policy as Code framework supports the following Policy and Initiative assign
   > **NOTE**: Distributed teams must only include those scopes in their version of the assignments.json that is not covered by another team.
 - **Mixed approach**: A centralized team manages policy and initiative assignments to a certain level (top-down approach), e.g. on the Tenant Root Group level, and top level Management group, and all assignments on lower levels (i.e. lower level Management Groups, Subscriptions and Resource Groups) are managed by multiple teams, in a distributed manner.
 
- **NOTE**: This solution enforces a centralized approach. It is recommended that you follow a centralized approach however, when using the mixed approach, scopes that will not be managed by the central team should be excluded from the assignments Json file - therefore the assignment configuration script will ignore these scopes (it won't add/remove/update anything in there). Conversly, the distributed teams must only include those scopes in their version of the assignments.json that is not covered by the central team.
+ **NOTE**: This solution enforces a centralized approach. It is recommended that you follow a centralized approach however, when using the mixed approach, scopes that will not be managed by the central team should be excluded from the assignments Json file - therefore the assignment configuration script will ignore these scopes (it won't add/remove/update anything in there). Conversely, the distributed teams must only include those scopes in their version of the assignments.json that is not covered by the central team.
 
  <br/>
 
@@ -141,7 +147,7 @@ The solution needs to know the Azure scopes for your EPAC environments. This is 
 ```jsonc
     "pacEnvironments": [
         {
-            "pacSelector": "dev",
+            "pacSelector": "epac-dev",
             "cloud": "AzureCloud",
             "tenantId": "77777777-8888-9999-1111-222222222222",
             "defaultSubscriptionId": "11111111-2222-3333-4444-555555555555",
@@ -150,7 +156,7 @@ The solution needs to know the Azure scopes for your EPAC environments. This is 
             }
         },
         {
-            "pacSelector": "test",
+            "pacSelector": "epac-test",
             "cloud": "AzureCloud",
             "tenantId": "77777777-8888-9999-1111-222222222222",
             "defaultSubscriptionId": "99999999-8888-7777-4444-333333333333",
@@ -159,7 +165,7 @@ The solution needs to know the Azure scopes for your EPAC environments. This is 
             }
         },
         {
-            "pacSelector": "tenant1",
+            "pacSelector": "tenant",
             "cloud": "AzureCloud",
             "tenantId": "77777777-8888-9999-1111-222222222222",
             "defaultSubscriptionId": "99999999-8888-7777-4444-333333333333",
@@ -180,22 +186,19 @@ Explanations
 
 We explain the `managedIdentityLocations` and `globalNotScopes` elements in `global-settings.jsonc` [here](Definitions/README.md).
 
-<p style="background-color:Yellow;color:Black;border:5px solid Red;padding-left: 10px;padding-right: 10px;padding-top: 10px;padding-bottom: 10px;"><b><u>Note:</u>&nbsp;&nbsp;If the default output for az cli is configured wrong then you will encounter an unexpected error from ConvertFrom-Json in Invoke-AzCli. The initial default in az cli out-of-box is correct. You can set it back to the correct default with "az config set core.output=json"
-</b></p><br/>
-
-```ps1
-az config set core.output=json
-```
-
 <br/>
 
 ### Azure DevOps CI/CD Pipeline
 
 Setup your pipeline based on the provided starter kit pipeline. The yml file contains commented out sections to run in a IaaS Azure DevOps server (it requires a different approach to artifact storage) and for 2 additional tenants. Uncomment or delete the commented sections to fit your environment.
 
-<p style="background-color:Yellow;color:Black;border:5px solid Red;padding-left: 10px;padding-right: 10px;padding-top: 10px;padding-bottom: 10px;">
-<b><u>Warning:</u>&nbsp;&nbsp;If you have a existing Policies, Initiatives and Policy Assignments in your environment you have not transferred to EPAC, do not forget to change the "brownfield" variable in the pipeline to true.
-</b></p><br/>
+<br/>
+
+> **Desired State Warning**
+>
+> **If you have a existing Policies, Initiatives and Assignments in your environment, you have not transferred to EPAC, do not forget to change the "brownfield" variable in the pipeline to true.**
+
+<br/>
 
 Pipelines can customized to fit your needs:
 

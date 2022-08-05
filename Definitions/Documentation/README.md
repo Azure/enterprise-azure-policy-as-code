@@ -33,7 +33,7 @@ Each file must contain one or both documentation topics. This example file has b
     "documentAssignments": {
         "environmentCategories": [
             {
-                "pacEnvironment": "tenant1",
+                "pacEnvironment": "tenant",
                 "environmentCategory": "PROD",
                 "scopes": [ // Used in Markdown output only
                     "Management Groups: Contoso-Prod"
@@ -50,7 +50,7 @@ Each file must contain one or both documentation topics. This example file has b
                 ]
             },
             {
-                "pacEnvironment": "tenant1",
+                "pacEnvironment": "tenant",
                 "environmentCategory": "NONPROD",
                 "scopes": [ // Used in Markdown output only
                     "Management Groups: Contoso-NonProd"
@@ -67,7 +67,7 @@ Each file must contain one or both documentation topics. This example file has b
                 ]
             },
             {
-                "pacEnvironment": "tenant1",
+                "pacEnvironment": "tenant",
                 "environmentCategory": "DEV",
                 "scopes": [ // Used in Markdown output only
                     "Management Groups: Contoso-Dev"
@@ -117,7 +117,7 @@ Each file must contain one or both documentation topics. This example file has b
     },
     "documentInitiatives": [
         {
-            "pacEnvironment": "tenant1",
+            "pacEnvironment": "tenant",
             "fileNameStem": "contoso-compliance-initiatives",
             "title": "Document interesting Initiatives",
             "initiatives": [

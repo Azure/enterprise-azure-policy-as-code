@@ -193,7 +193,7 @@ function Invoke-AzCli {
 
     $result = ""
     try {
-        $result = az @Arguments @splatArguments @additionalArguments --only-show-errors
+        $result = az @Arguments @splatArguments @additionalArguments --only-show-errors --output json
         if (!$?) {
             throw "Command 'az $Arguments $splatArguments' command exited with error"
         }

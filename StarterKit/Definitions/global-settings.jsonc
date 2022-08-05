@@ -6,13 +6,13 @@
         "*": [
             "/resourceGroupPatterns/excluded-rg*",
         ],
-        "tenant1": [
+        "tenant": [
             "/providers/Microsoft.Management/managementGroups/Policy-as-Code"
         ]
     },
     "pacEnvironments": [
         {
-            "pacSelector": "dev",
+            "pacSelector": "epac-dev",
             "cloud": "AzureCloud",
             "tenantId": "77777777-8888-9999-1111-222222222222",
             "defaultSubscriptionId": "11111111-2222-3333-4444-555555555555",
@@ -21,7 +21,7 @@
             }
         },
         {
-            "pacSelector": "test",
+            "pacSelector": "epac-test",
             "cloud": "AzureCloud",
             "tenantId": "77777777-8888-9999-1111-222222222222",
             "defaultSubscriptionId": "99999999-8888-7777-4444-333333333333",
@@ -30,12 +30,12 @@
             }
         },
         {
-            "pacSelector": "tenant1",
+            "pacSelector": "tenant",
             "cloud": "AzureCloud",
             "tenantId": "77777777-8888-9999-1111-222222222222",
             "defaultSubscriptionId": "99999999-8888-7777-4444-333333333333",
             "rootScope": {
-                "ManagementGroupName": "Contoso-Root"
+                "ManagementGroupName": "77777777-8888-9999-1111-222222222222" // tenant root
             }
         }
     ]

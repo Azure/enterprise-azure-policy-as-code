@@ -284,8 +284,10 @@ function Get-AzAssignmentsAtSpecificScope {
                         if ($description -and $description -ne "") {
                             $exemption.Add("description", $description)
                         }
-                        if ($expiresOn -and $expiresOn -ne "") {
-                            $exemption.Add("expiresOn", $expiresOn)
+                        if ($expiresOn) {
+                            $expiresOnUtc = $expiresOn.ToUniversalTime()
+                            $exemption.Add("expiresOn", $expiresOnUtc)
+
                         }
                         if ($policyDefinitionReferenceIds -and $policyDefinitionReferenceIds.Count -gt 0) {
                             $exemption.Add("policyDefinitionReferenceIds", $policyDefinitionReferenceIds)
