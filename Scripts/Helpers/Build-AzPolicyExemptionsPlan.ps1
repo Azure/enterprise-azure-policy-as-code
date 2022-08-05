@@ -33,7 +33,7 @@ function Build-AzPolicyExemptionsPlan {
         [hashtable] $obsoleteExemptions = $existingExemptions.Clone()
         if ($exemptionFiles.Length -gt 0) {
             Write-Information "Number of Policy Exemption files = $($exemptionFiles.Length)"
-            $now = Get-Date
+            $now = Get-Date -AsUTC
             foreach ($file  in $exemptionFiles) {
                 $exemptionArray = @()
                 $extension = $file.Extension
@@ -154,7 +154,7 @@ function Build-AzPolicyExemptionsPlan {
                         elseif ($expiresOnRaw -is [string]) {
                             if ($expiresOnRaw -ne "") {
                                 try {
-                                    $expiresOn = [datetime]::Parse($expiresOnRaw)
+                                    $expiresOn = [datetime]::Parse($expiresOnRaw, $null, [System.Globalization.DateTimeStyles]::AssumeUniversal -bor [System.Globalization.DateTimeStyles]::AdjustToUniversal)
                                 }
                                 catch {
                                     Write-Error "$_" -ErrorAction Stop
@@ -232,7 +232,7 @@ function Build-AzPolicyExemptionsPlan {
                                 -existingMetadataObj $existingExemption.metadata `
                                 -definedMetadataObj $metadata
                             # Update policy definition in Azure if necessary
-                            if ($displayNameMatches -and $descriptionMatches -and $exemptionCategoryMatches -and $expiresOnMatches -and $policyDefinitionReferenceIdsMatches -and $metadataMatches) {
+                            if ($displayNameMatches -and $descriptionMatches -and $exemptionCategoryMatches -and $expiresOnMatches -and $policyDefinitionReferenceIdsMatches -and $metadataMatches -and (-not $clearExpiration)) {
                                 # Write-Information "Unchanged '$($name)' - '$($displayName)'"
                                 $null = $unchangedExemptions.Add($id, $displayName)
                             }

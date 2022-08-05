@@ -23,30 +23,6 @@ param (
     [Parameter(Mandatory = $false, HelpMessage = "Use switch to indicate interactive use")] [switch] $interactive
 )
 
-function Write-AssignmentDetails {
-    [CmdletBinding()]
-    param (
-        $printHeader,
-        $def,
-        $policySpecText,
-        $scopeInfo,
-        $roleDefinitions,
-        $prefix
-    )
-
-    if ($printHeader) {
-        Write-Information "    Assignment `'$($def.assignment.DisplayName)`' ($($def.assignment.Name))"
-        Write-Information "                Description: $($def.assignment.Description)"
-        Write-Information "                $($policySpecText)"
-    }
-    Write-Information "        $($prefix) at $($scopeInfo.scope)"
-    # if ($roleDefinitions.Length -gt 0) {
-    #     foreach ($roleDefinition in $roleDefinitions) {
-    #         Write-Information "                RoleId=$($roleDefinition.roleDefinitionId), Scope=$($roleDefinition.scope)"
-    #     }
-    # }
-}
-
 # Load cmdlets
 . "$PSScriptRoot/../Helpers/Get-PacFolders.ps1"
 . "$PSScriptRoot/../Helpers/Get-GlobalSettings.ps1"
@@ -64,7 +40,7 @@ function Write-AssignmentDetails {
 . "$PSScriptRoot/../Helpers/Confirm-PolicyDefinitionUsedExists.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-PolicyDefinitionsUsedMatch.ps1"
 . "$PSScriptRoot/../Helpers/Get-AzPolicyInitiativeDefinitions.ps1"
-. "$PSScriptRoot/../Helpers/Get-AssignmentDefs.ps1"
+. "$PSScriptRoot/../Helpers/Get-AssignmentDefinitions.ps1"
 . "$PSScriptRoot/../Helpers/Get-AzAssignmentsAtScopeRecursive.ps1"
 . "$PSScriptRoot/../Helpers/Get-NotScope.ps1"
 . "$PSScriptRoot/../Helpers/Get-AzScopeTree.ps1"
@@ -74,6 +50,7 @@ function Write-AssignmentDetails {
 . "$PSScriptRoot/../Helpers/Get-FilteredHashTable.ps1"
 . "$PSScriptRoot/../Helpers/Invoke-AzCli.ps1"
 . "$PSScriptRoot/../Helpers/Set-AzCloudTenantSubscription.ps1"
+. "$PSScriptRoot/../Helpers/Write-AssignmentDetails.ps1"
 
 # Initialize
 $InformationPreference = "Continue"

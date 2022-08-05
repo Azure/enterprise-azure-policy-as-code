@@ -32,7 +32,7 @@ $excelFiles = @() + (Get-ChildItem -Path $definitionsRootFolder -Recurse -File -
 foreach ($excelFile  in $excelFiles) {
     $excelFileFullName = $excelFile.fullName
     Write-Information $excelFileFullName
-    $excelArray += (Import-Excel $excelFileFullName -ErrorAction Stop)
+    $excelArray = Import-Excel $excelFileFullName -ErrorAction Stop
 
     $csvFileFullName = $excelFileFullName -replace '\.xlsx$', '.csv'
     $excelArray | ConvertTo-Csv -UseQuotes AsNeeded | Out-File $csvFileFullName -Force

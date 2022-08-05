@@ -80,12 +80,13 @@ function Build-AzInitiativeDefinitionsPlan {
             $customInitiativeDefinitions.Add($name, $policyFile)
         }
 
-        # Prep additional fields
+        # Prep parameters
         [hashtable] $parameterTable = @{}
         if ($null -ne $initiativeObject.properties.parameters) {
             $parameterTable = ConvertTo-HashTable $initiativeObject.properties.parameters
         }
 
+        # Calculate included policyDefinitions
         $result = Build-AzPolicyDefinitionsForInitiative `
             -allPolicyDefinitions $allPolicyDefinitions `
             -replacedPolicyDefinitions $replacedPolicyDefinitions `
@@ -93,56 +94,71 @@ function Build-AzInitiativeDefinitionsPlan {
             -definitionScope $rootScopeId `
             -policyNeededRoleDefinitionIds $policyNeededRoleDefinitionIds `
             -initiativeNeededRoleDefinitionIds $initiativeNeededRoleDefinitionIds
-
         [array] $policyDefinitions = $result.policyDefinitions
 
-        [hashtable] $groupDefinitions = @{}
+        # Process policyDefinitionGroups
+        [hashtable] $policyDefinitionGroupsHashTable = @{}
         if ($null -ne $initiativeObject.properties.policyDefinitionGroups) {
+            # Explicitely defined policyDefinitionGroups
             $null = ($initiativeObject.properties.policyDefinitionGroups) | ForEach-Object {
-                $groupDefinitions.Add($_.name, $_)
+                $policyDefinitionGroupsHashTable.Add($_.name, $_)
             }
         }
+        # Importing policyDefinitionGroups from built-in Initiatives?
         if ($initiativeObject.properties.importPolicyDefinitionGroups) {
             $importInitiativeNames = $initiativeObject.properties.importPolicyDefinitionGroups
             $limitNotReachedPolicyDefinitionGroups = $true
-            [hashtable] $usedPolicyGroupDefinitions = $result.usedPolicyGroupDefinitions
 
+            # Finding groupDefinitions (names) used but not yet covered with a (direct) policyDefinitionGroups
+            [hashtable] $remainingPolicyGroupDefinitionNames = $result.usedPolicyGroupDefinitions
+            [hashtable] $currentPolicyGroupDefinitionNames = $remainingPolicyGroupDefinitionNames.Clone()
+            foreach ($policyDefinitionGroupName in $currentPolicyGroupDefinitionNames) {
+                if ($policyDefinitionGroupsHashTable.ContainsKey($policyDefinitionGroupName)) {
+                    $null = $remainingPolicyGroupDefinitionNames.Remove($policyDefinitionGroupName)
+                }
+            }
+
+            # Trying to import missing policyDefinitionGroups entries
             foreach ($importInitiativeName in $importInitiativeNames) {
+                if ($remainingPolicyGroupDefinitionNames.Count -eq 0) {
+                    break
+                }
                 if ($builtInInitiativeDefinitions.ContainsKey($importInitiativeName)) {
                     $importedInitiative = $builtInInitiativeDefinitions.$importInitiativeName
                     if ($limitNotReachedPolicyDefinitionGroups) {
                         if ($importedInitiative.policyDefinitionGroups) {
-                            Write-Information "    Importing PolicyDefinitionGroups from '$($importedInitiative.displayName)'"
+                            # Write-Information "$($displayName): Importing PolicyDefinitionGroups from '$($importedInitiative.displayName)'"
+
                             foreach ($policyDefinitionGroup in $importedInitiative.policyDefinitionGroups) {
                                 $policyDefinitionGroupName = $policyDefinitionGroup.name
-                                if ($usedPolicyGroupDefinitions.ContainsKey($policyDefinitionGroupName)) {
-                                    # Only import a PolicyGroupDefinition if it is used
-
-                                    if (!$groupDefinitions.ContainsKey($policyDefinitionGroupName)) {
-                                        # Ignores duplicates
-
-                                        if ($groupDefinitions.Count -ge 1000) {
-                                            $limitNotReachedPolicyDefinitionGroups = true;
-                                            Write-Information "        Too many PolicyDefinitionGroups (1000+) to import"
-                                            break
-                                        }
-                                        $null = $groupDefinitions.Add($policyDefinitionGroupName, $policyDefinitionGroup)
-                                        # Write-Information "        $policyDefinitionGroupName"
+                                if ($remainingPolicyGroupDefinitionNames.ContainsKey($policyDefinitionGroupName) -and (-not $policyDefinitionGroupsHashTable.ContainsKey($policyDefinitionGroupName))) {
+                                    # Only import a PolicyGroupDefinition if it is used and not yet covered
+                                    if ($policyDefinitionGroupsHashTable.Count -ge 1000) {
+                                        $limitNotReachedPolicyDefinitionGroups = true;
+                                        Write-Information "$($displayName): Too many PolicyDefinitionGroups (1000+) - ignore remaining inports"
+                                        break
                                     }
+                                    $null = $policyDefinitionGroupsHashTable.Add($policyDefinitionGroupName, $policyDefinitionGroup)
+                                    $null = $remainingPolicyGroupDefinitionNames.Remove($policyDefinitionGroupName)
+                                    # Write-Information "        $policyDefinitionGroupName"
+                                }
+                                if ($remainingPolicyGroupDefinitionNames.Count -eq 0) {
+                                    break
                                 }
                             }
-                            Write-Information "    Imported $($groupDefinitions.Count) PolicyDefinitionGroups from '$($importedInitiative.displayName)'"
+                            Write-Information "$($displayName): Imported $($policyDefinitionGroupsHashTable.Count) PolicyDefinitionGroups from '$($importedInitiative.displayName)'"
                         }
                         else {
-                            Write-Error "    Initiative $($importedInitiative.displayName) does not contain PolicyDefinitionGroups to import" -ErrorAction Stop
+                            Write-Error "$($displayName): Initiative $($importedInitiative.displayName) does not contain PolicyDefinitionGroups to import" -ErrorAction Stop
                         }
                     }
                     else {
-                        Write-Information "    Importing PolicyDefinitionGroups from Initiative '$($importedInitiative.displayName)' exceeds maximum number of PolicyDefinitionGroups (1000)"
+                        Write-Information "$($displayName): Importing PolicyDefinitionGroups from Initiative '$($importedInitiative.displayName)' exceeds maximum number of PolicyDefinitionGroups (1000)"
+                        break
                     }
                 }
                 else {
-                    Write-Error "    Initiative $importInitiativeName not found for importing PolicyDefinitionGroups" ErrorAction Stop
+                    Write-Error "$($displayName): Initiative $importInitiativeName not found for importing PolicyDefinitionGroups" ErrorAction Stop
                 }
             }
         }
@@ -166,8 +182,11 @@ function Build-AzInitiativeDefinitionsPlan {
                 Parameter        = $parameterTable
                 PolicyDefinition = $policyDefinitions
             }
-            if ($groupDefinitions.Count -gt 0) {
-                $initiativeDefinitionConfig.Add("GroupDefinition", $groupDefinitions.Values)
+            if ($policyDefinitionGroupsHashTable.Count -gt 0) {
+                if ($policyDefinitionGroupsHashTable.Count -gt 1000) {
+                    Write-Error "Too many PolicyDefinitionGroups (1000+) in Initiative '$displayName'" -ErrorAction Stop
+                }
+                $initiativeDefinitionConfig.Add("GroupDefinition", $policyDefinitionGroupsHashTable.Values)
             }
             # Adding SubscriptionId or ManagementGroupName value and optional fields to the splat
             $initiativeDefinitionConfig += $rootScope
@@ -190,7 +209,7 @@ function Build-AzInitiativeDefinitionsPlan {
                     $replacedInitiativeDefinitions.Add($name, $initiativeDefinitionConfig)
                 }
                 else {
-                    # Check if policy definition in Azure is the same as in the Json file
+                    # Check if Initiative definition in Azure is the same as in the Json file
                     $displayNameMatches = $matchingCustomDefinition.displayName -eq $initiativeDefinitionConfig.DisplayName
                     $descriptionMatches = $matchingCustomDefinition.description -eq $initiativeDefinitionConfig.Description
                     $metadataMatches = Confirm-MetadataMatches `
@@ -206,7 +225,7 @@ function Build-AzInitiativeDefinitionsPlan {
                         -existingObj $matchingCustomDefinition.policyDefinitions `
                         -definedObj $initiativeDefinitionConfig.PolicyDefinition
 
-                    # Update policy definition in Azure if necessary
+                    # Update Initiative definition in Azure if necessary
                     if ($displayNameMatches -and $groupDefinitionMatches -and $parameterMatchResults.match -and $metadataMatches -and $policyDefinitionsMatch -and $descriptionMatches) {
                         # Write-Information "Unchanged '$($name)' - '$($displayName)'"
                         $unchangedInitiativeDefinitions.Add($name, $displayName)

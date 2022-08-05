@@ -31,9 +31,13 @@ $role.Id = '2baa1a7c-6807-46af-8b16-5e9d03fba029'
 $role.Description = 'Read access to Azure Policy.'
 $role.IsCustom = $true
 $perms = @(
-    "Microsoft.Authorization/policyAssignments/read",
-    "Microsoft.Authorization/policyDefinitions/read",
-    "Microsoft.Authorization/policySetDefinitions/read"
+    "*/read",
+    "Microsoft.Authorization/policyassignments/read",
+    "Microsoft.Authorization/policydefinitions/read",
+    "Microsoft.Authorization/policyexemptions/read",
+    "Microsoft.Authorization/policysetdefinitions/read",
+    "Microsoft.PolicyInsights/*",
+    "Microsoft.Support/*"
 )
 
 $role.Actions = $perms
