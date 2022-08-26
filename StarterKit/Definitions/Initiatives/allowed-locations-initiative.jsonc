@@ -1,8 +1,8 @@
 {
-  "name": "Allowed Locations",
+  "name": "general-allowed-locations-policy-set",
   "properties": {
-    "displayName": "Allowed Locations Initiative",
-    "description": "This initiative contains the policies necessary to limit Azure region deployments.",
+    "displayName": "Allowed locations Initiative",
+    "description": "This initiative contains the policies necessary to limit Azure region deployments for all resources and resource groups.",
     "metadata": {
       "version": "1.0.0",
       "category": "Org Governance"
@@ -20,7 +20,7 @@
     },
     "PolicyDefinitions": [
       {
-        "policyDefinitionReferenceId": "Allowed Locations",
+        "policyDefinitionReferenceId": "allowed-locations-resources",
         "policyDefinitionName": "e56962a6-4747-49cd-b67b-bf8b01975c4c",
         "parameters": {
           "listOfAllowedLocations": {
@@ -29,7 +29,7 @@
         }
       },
       {
-        "policyDefinitionReferenceId": "Allowed Locations for Resource Groups",
+        "policyDefinitionReferenceId": "allowed-locations-resource-groups",
         "policyDefinitionName": "e765b5de-1225-4ba3-bd56-1ac6695af988",
         "parameters": {
           "listOfAllowedLocations": {

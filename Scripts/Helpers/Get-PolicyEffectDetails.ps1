@@ -19,7 +19,7 @@ function Get-PolicyEffectDetails {
                 defaultvalue  = $parameter.defaultValue
                 allowedValues = $parameter.allowedValues
                 parameterName = $parameterName
-                type          = "PolicyDefaultValue"
+                type          = "Policy DefaultValue"
             }
         }
     }

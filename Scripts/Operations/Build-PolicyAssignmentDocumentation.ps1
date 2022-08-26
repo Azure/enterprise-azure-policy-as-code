@@ -19,6 +19,7 @@ param (
 
 # Common Functions
 . "$PSScriptRoot/../Helpers/Get-PacFolders.ps1"
+. "$PSScriptRoot/../Helpers/Get-DeepClone.ps1"
 . "$PSScriptRoot/../Helpers/Get-GlobalSettings.ps1"
 . "$PSScriptRoot/../Helpers/Switch-PacEnvironment.ps1"
 . "$PSScriptRoot/../Helpers/Set-AzCloudTenantSubscription.ps1"
@@ -32,13 +33,12 @@ param (
 . "$PSScriptRoot/../Helpers/Get-PolicyInitiativeInfos.ps1"
 . "$PSScriptRoot/../Helpers/Get-AssignmentsInfo.ps1"
 . "$PSScriptRoot/../Helpers/Convert-PolicyInitiativeDefinitionsToInfo.ps1"
-. "$PSScriptRoot/../Helpers/Convert-AssignmentsInfoToFlatPolicyList.ps1"
 . "$PSScriptRoot/../Helpers/Convert-EffectToOrdinal.ps1"
-. "$PSScriptRoot/../Helpers/Convert-EffectToShortForm.ps1"
 . "$PSScriptRoot/../Helpers/Convert-EffectToString.ps1"
 . "$PSScriptRoot/../Helpers/Convert-OrdinalToEffectDisplayName.ps1"
 . "$PSScriptRoot/../Helpers/Convert-ParametersToString.ps1"
 . "$PSScriptRoot/../Helpers/Convert-ListToToCsvRow.ps1"
+. "$PSScriptRoot/../Helpers/Merge-MultipleInitiativeInfos.ps1"
 . "$PSScriptRoot/../Helpers/Out-InitiativeDocumentationToFile.ps1"
 . "$PSScriptRoot/../Helpers/Out-PolicyAssignmentDocumentationPerEnvironmentToFile.ps1"
 . "$PSScriptRoot/../Helpers/Out-PolicyAssignmentDocumentationAcrossEnvironmentsToFile.ps1"
@@ -133,13 +133,92 @@ foreach ($file in $files) {
             Write-Error "Json document must contain 'documentAssignments' and/or 'documentInitiatives' element(s)." -ErrorAction Stop
         }
 
+        $documentInitiatives = $documentationSpec.documentInitiatives
+        if ($documentInitiatives -and $documentInitiatives.Count -gt 0) {
+            Write-Information ""
+            Write-Information "==================================================================================================="
+            Write-Information "Generate Initiative documents"
+            Write-Information "==================================================================================================="
+            foreach ($documentInitiativeEntry in $documentInitiatives) {
+                $pacEnvironmentSelector = $documentInitiativeEntry.pacEnvironment
+                if (-not $pacEnvironmentSelector) {
+                    Write-Error "documentInitiative entry does not specify pacEnvironment" -ErrorAction Stop
+                }
+
+                $fileNameStem = $documentInitiativeEntry.fileNameStem
+                if (-not $fileNameStem) {
+                    Write-Error "documentInitiative entry does not specify fileNameStem" -ErrorAction Stop
+                }
+
+                $title = $documentInitiativeEntry.title
+                if (-not $title) {
+                    Write-Error "documentInitiative entry does not specify title" -ErrorAction Stop
+                }
+
+                $initiatives = $documentInitiativeEntry.initiatives
+                $itemArrayList = [System.Collections.ArrayList]::new()
+                if ($null -ne $initiatives -and $initiatives.Count -gt 0) {
+                    foreach ($initiative in $initiatives) {
+                        $itemEntry = @{
+                            shortName    = $initiative.shortName
+                            itemId       = $initiative.id
+                            initiativeId = $initiative.id
+                            assignmentId = $null
+                        }
+                        $null = $itemArrayList.Add($itemEntry)
+                    }
+                }
+                else {
+                    Write-Error "documentInitiative entry does not specify an initiatives array or initiatives array is empty" -ErrorAction Stop
+                }
+                $itemList = $itemArrayList.ToArray()
+
+                $environmentColumnsInCsv = $documentInitiativeEntry.environmentColumnsInCsv
+
+                if (-not $cachedPolicyInitiativeInfos.ContainsKey($pacEnvironmentSelector)) {
+                    if ($currentPacEnvironmentSelector -ne $pacEnvironmentSelector) {
+                        $currentPacEnvironmentSelector = $pacEnvironmentSelector
+                        Write-Information "==================================================================================================="
+                        Write-Information "Policy as Code environment (pacEnvironment) '$($pacEnvironmentSelector)'"
+                        Write-Information "==================================================================================================="
+                        Write-Information ""
+                        $pacEnvironment = Switch-PacEnvironment `
+                            -pacEnvironmentSelector $currentPacEnvironmentSelector `
+                            -pacEnvironments $pacEnvironments `
+                            -interactive $interactive
+
+                    }
+                }
+
+                # Retrieve Policies and Initiatives for current pacEnvironment from cache or from Azure
+                $policyInitiativeInfo = Get-PolicyInitiativeInfos `
+                    -pacEnvironmentSelector $pacEnvironmentSelector `
+                    -pacEnvironment $pacEnvironment `
+                    -cachedPolicyInitiativeInfos $cachedPolicyInitiativeInfos
+
+                $flatPolicyList = Merge-MultipleInitiativeInfos `
+                    -itemList $itemList `
+                    -combinedInfos $policyInitiativeInfo.initiativeInfos
+
+                # Print documentation
+                Out-InitiativeDocumentationToFile `
+                    -outputPath $outputPath `
+                    -fileNameStem $fileNameStem `
+                    -title $title `
+                    -itemList $itemList `
+                    -environmentColumnsInCsv $environmentColumnsInCsv `
+                    -initiativeInfos $policyInitiativeInfo.initiativeInfos `
+                    -flatPolicyList $flatPolicyList
+            }
+        }
+
         # Process instructions to document Assignments
         if ($documentationSpec.documentAssignments) {
             $documentAssignments = $documentationSpec.documentAssignments
             $environmentCategories = $documentAssignments.environmentCategories
 
             # Process assignments for every environmentCategory specified
-            [hashtable] $assignmentsDetailsByEnvironmentCategory = @{}
+            [hashtable] $assignmentsByEnvironment = @{}
             foreach ($environmentCategoryEntry in $environmentCategories) {
                 if (-not $environmentCategoryEntry.pacEnvironment) {
                     Write-Error "Json document does not contain the required 'pacEnvironment' element." -ErrorAction Stop
@@ -171,23 +250,23 @@ foreach ($file in $files) {
                 Write-Information "Retrieving and procesing Assignments for environment category '$($environmentCategoryEntry.environmentCategory)'"
                 Write-Information "==================================================================================================="
 
-                $assignmentsInfo = Get-AssignmentsInfo `
+                $itemList, $assignmentsInfos = Get-AssignmentsInfo `
                     -pacEnvironmentSelector $currentPacEnvironmentSelector `
                     -assignmentArray $assignmentArray `
-                    -policyInitiativeInfo $policyInitiativeInfo `
+                    -initiativeInfos $policyInitiativeInfo.initiativeInfos `
                     -cachedAssignmentInfos $cachedAssignmentInfos
 
                 # Flatten Policy lists in Assignments and reconcile the most restrictive effect for each Policy
-                $flatPolicyList = Convert-AssignmentsInfoToFlatPolicyList `
-                    -assignmentArray $assignmentArray `
-                    -assignmentsInfo $assignmentsInfo
+                $flatPolicyList = Merge-MultipleInitiativeInfos `
+                    -itemList $itemList `
+                    -combinedInfos $assignmentsInfos
 
                 # Store results of processing and falttening for use in document generation
-                $assignmentsDetailsByEnvironmentCategory.Add($environmentCategoryEntry.environmentCategory, @{
+                $null = $assignmentsByEnvironment.Add($environmentCategoryEntry.environmentCategory, @{
                         pacEnvironmentSelector = $currentPacEnvironmentSelector
                         scopes                 = $environmentCategoryEntry.scopes
-                        assignmentArray        = $assignmentArray
-                        assignmentsInfo        = $assignmentsInfo
+                        itemList               = $itemList
+                        assignmentsInfos       = $assignmentsInfos
                         flatPolicyList         = $flatPolicyList
                     }
                 )
@@ -201,80 +280,20 @@ foreach ($file in $files) {
             $documentationSpecifications = $documentAssignments.documentationSpecifications
             foreach ($documentationSpecification in $documentationSpecifications) {
                 $documentationType = $documentationSpecification.type
-                switch ($documentationType) {
-                    effectsPerEnvironment {
-                        Out-PolicyAssignmentDocumentationPerEnvironmentToFile `
-                            -outputPath $outputPath `
-                            -documentationSpecification $documentationSpecification `
-                            -assignmentsDetailsByEnvironmentCategory $assignmentsDetailsByEnvironmentCategory
+                if ($null -ne $documentationType) {
+                    if ($documentationType -eq "effectsPerEnvironment") {
+                        Write-Error "Field documentationType ($($documentationType)) is deprecated, effectsPerEnvironment is not supported." -ErrorAction Stop
                     }
-                    effectsAcrossEnvironments {
-                        Out-PolicyAssignmentDocumentationAcrossEnvironmentsToFile `
-                            -outputPath $outputPath `
-                            -documentationSpecification $documentationSpecification `
-                            -assignmentsDetailsByEnvironmentCategory $assignmentsDetailsByEnvironmentCategory
-                    }
-                    Default {
-                        Write-Error "Unknown documentType '$documentationType' encountered" -ErrorAction Stop
+                    else {
+                        Write-Information "Field documentationType ($($documentationType)) is deprecated"
                     }
                 }
-            }
-        }
-
-        $documentInitiatives = $documentationSpec.documentInitiatives
-        if ($documentInitiatives -and $documentInitiatives.Count -gt 0) {
-            Write-Information ""
-            Write-Information "==================================================================================================="
-            Write-Information "Generate Initiative documents"
-            Write-Information "==================================================================================================="
-            foreach ($documentInitiativeEntry in $documentInitiatives) {
-                $pacEnvironmentSelector = $documentInitiativeEntry.pacEnvironment
-                if (-not $pacEnvironmentSelector) {
-                    Write-Error "documentInitiative entry does not specify pacEnvironment" -ErrorAction Stop
-                }
-                $fileNameStem = $documentInitiativeEntry.fileNameStem
-                if (-not $fileNameStem) {
-                    Write-Error "documentInitiative entry does not specify fileNameStem" -ErrorAction Stop
-                }
-                $title = $documentInitiativeEntry.title
-                if (-not $title) {
-                    Write-Error "documentInitiative entry does not specify title" -ErrorAction Stop
-                }
-                $initiatives = $documentInitiativeEntry.initiatives
-                if (-not $initiatives -or $initiatives.Count -eq 0) {
-                    Write-Error "documentInitiative entry does not specify an initiatives array or initiatives array is empty" -ErrorAction Stop
-                }
-
-                if (-not $cachedPolicyInitiativeInfos.ContainsKey($pacEnvironmentSelector)) {
-                    if ($currentPacEnvironmentSelector -ne $pacEnvironmentSelector) {
-                        $currentPacEnvironmentSelector = $pacEnvironmentSelector
-                        Write-Information "==================================================================================================="
-                        Write-Information "Policy as Code environment (pacEnvironment) '$($pacEnvironmentSelector)'"
-                        Write-Information "==================================================================================================="
-                        Write-Information ""
-                        $pacEnvironment = Switch-PacEnvironment `
-                            -pacEnvironmentSelector $currentPacEnvironmentSelector `
-                            -pacEnvironments $pacEnvironments `
-                            -interactive $interactive
-
-                    }
-                }
-
-                # Retrieve Policies and Initiatives for current pacEnvironment from cache or from Azure
-                $policyInitiativeInfo = Get-PolicyInitiativeInfos `
-                    -pacEnvironmentSelector $pacEnvironmentSelector `
-                    -pacEnvironment $pacEnvironment `
-                    -cachedPolicyInitiativeInfos $cachedPolicyInitiativeInfos
-
-                # Print documentation
-                Out-InitiativeDocumentationToFile `
+                Out-PolicyAssignmentDocumentationAcrossEnvironmentsToFile `
                     -outputPath $outputPath `
-                    -fileNameStem $fileNameStem `
-                    -pacEnvironmentSelector $pacEnvironmentSelector `
-                    -title $title `
-                    -initiatives $initiatives `
-                    -policyInitiativeInfo $policyInitiativeInfo
+                    -documentationSpecification $documentationSpecification `
+                    -assignmentsByEnvironment $assignmentsByEnvironment
             }
         }
+
     }
 }

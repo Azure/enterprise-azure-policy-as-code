@@ -99,7 +99,7 @@ foreach ($key in $exemptionsResult.Keys) {
         }
         ConvertTo-Json $jsonArray -Depth 100 | Out-File $jsonFile -Force
 
-        # Spreadsheet outputs (csv and xlsx)
+        # Spreadsheet outputs (CSV)
         $excelArray = @() + $valueArray | Select-Object -Property `
             name, `
             displayName, `

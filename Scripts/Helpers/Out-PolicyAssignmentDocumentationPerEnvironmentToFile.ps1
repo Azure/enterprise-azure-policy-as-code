@@ -5,7 +5,7 @@ function Out-PolicyAssignmentDocumentationPerEnvironmentToFile {
     param (
         [string]  $outputPath,
         $documentationSpecification,
-        [hashtable] $assignmentsDetailsByEnvironmentCategory
+        [hashtable] $assignmentsByEnvironment
     )
 
     [string] $fileNameStem = $documentationSpecification.fileNameStem
@@ -17,14 +17,14 @@ function Out-PolicyAssignmentDocumentationPerEnvironmentToFile {
     if ($null -eq $fileNameStem -or $fileNameStem -eq "") {
         Write-Error "fileNameStem not specified" -ErrorAction Stop
     }
-    if ($null -eq $environmentCategory -or !$assignmentsDetailsByEnvironmentCategory.ContainsKey($environmentCategory)) {
+    if ($null -eq $environmentCategory -or !$assignmentsByEnvironment.ContainsKey($environmentCategory)) {
         Write-Error "Unknown environmentCategory '$environmentCategory' encountered" -ErrorAction Stop
     }
     if ($null -eq $title -or $title -eq "") {
         Write-Error "title not specified" -ErrorAction Stop
     }
 
-    $assignmentsDetails = $assignmentsDetailsByEnvironmentCategory.$environmentCategory
+    $assignmentsDetails = $assignmentsByEnvironment.$environmentCategory
     $assignmentsInfo = $assignmentsDetails.assignmentsInfo
     $assignmentArray = $assignmentsDetails.assignmentArray
     $flatPolicyList = $assignmentsDetails.flatPolicyList
@@ -41,7 +41,7 @@ function Out-PolicyAssignmentDocumentationPerEnvironmentToFile {
     [System.Collections.Generic.List[string]] $body = [System.Collections.Generic.List[string]]::new()
 
     $null = $headerAndToc.Add("# $title`n")
-    $null = $headerAndToc.Add("Auto-generaed Policy effect documentation for environment '$($environmentCategory)' grouped by Effect and sorted by Policy category and Policy display name.`n")
+    $null = $headerAndToc.Add("Auto-generated Policy effect documentation for environment '$($environmentCategory)' grouped by Effect and sorted by Policy category and Policy display name.`n")
     $null = $headerAndToc.Add("## Table of contents`n")
 
     $null = $headerAndToc.Add("- [Assigned Initiatives](#assigned-initiatives)")
@@ -120,72 +120,5 @@ function Out-PolicyAssignmentDocumentationPerEnvironmentToFile {
     $allLines | Out-File $outputFilePath -Force
 
     #endregion Markdown
-
-    #region csv
-
-    [System.Collections.ArrayList] $cells = [System.Collections.ArrayList]::new()
-    $allLines.Clear()
-
-    # Create header row
-    $null = $cells.AddRange(@("Category", "Policy", "Description"))
-    foreach ($assignmentEntry in $assignmentArray) {
-        $shortName = $assignmentEntry.shortName
-        $null = $cells.Add($shortName)
-    }
-    foreach ($assignmentEntry in $assignmentArray) {
-        $shortName = $assignmentEntry.shortName
-        $null = $cells.Add("$shortName Parameters")
-    }
-    $headerString = Convert-ListToToCsvRow($cells)
-    $null = $allLines.Add($headerString)
-
-    $flatPolicyList.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
-
-        # Build common columns
-        $cells.Clear()
-        $category = $_.category
-        $displayName = $_.displayName
-        $description = $_.description
-        $null = $cells.AddRange(@($category, $displayName, $description))
-        $allAssignments = $_.allAssignments
-
-        # Build effect by Initiative columns
-        foreach ($shortName in $shortNames) {
-            if ($allAssignments.ContainsKey($shortName)) {
-                $assignmentFlat = $allAssignments.$shortName
-                $effectValue = $assignmentFlat.effect
-                $effectAllowedValues = $assignmentFlat.effectAllowedValues
-                $text = Convert-EffectToString `
-                    -effect $effectValue `
-                    -allowedValues $effectAllowedValues
-                $null = $cells.Add($text)
-            }
-            else {
-                $null = $cells.Add("n/a")
-            }
-        }
-
-        # Build parameters by Initiave columns
-        foreach ($shortName in $shortNames) {
-            if ($allAssignments.ContainsKey($shortName)) {
-                $assignmentFlat = $allAssignments.$shortName
-                $parameters = $assignmentFlat.parameters
-                $text = Convert-ParametersToString `
-                    -parameters $parameters
-                $null = $cells.Add($text)
-            }
-            else {
-                $null = $cells.Add("n/a")
-            }
-        }
-        $row = Convert-ListToToCsvRow($cells)
-        $null = $allLines.Add($row)
-    }
-
-    # Output file
-    $outputFilePath = "$($outputPath -replace '[/\\]$','')/$fileNameStem.csv"
-    $allLines | Out-File $outputFilePath -Force
-
-    #endregion csv
 
 }

@@ -130,14 +130,15 @@ function Build-AzPolicyAssignmentsPlan {
                         }
                         else {
                             $initiativeDefinition = $allInitiativeDefinitions[$name]
-                            $parametersInDefinition = $initiativeDefinition.Parameter
                             if ($customInitiativeDefinitions.ContainsKey($name)) {
                                 # is custom
                                 $policyDefinitionId = $rootScopeId + "/providers/Microsoft.Authorization/policySetDefinitions/" + $name
+                                $parametersInDefinition = $initiativeDefinition.Parameter
                             }
                             else {
                                 # is built in
                                 $policyDefinitionId = "/providers/Microsoft.Authorization/policySetDefinitions/" + $name
+                                $parametersInDefinition = $initiativeDefinition.parameters
                             }
                             $policySpec = @{ initiativeId = $policyDefinitionId }
                             if ($initiativeNeededRoleDefinitionIds.ContainsKey($name)) {
@@ -159,14 +160,15 @@ function Build-AzPolicyAssignmentsPlan {
                         }
                         else {
                             $policyDefinition = $allPolicyDefinitions[$name]
-                            $parametersInDefinition = $policyDefinition.Parameter
                             if ($customPolicyDefinitions.ContainsKey($name)) {
                                 # is custom
                                 $policyDefinitionId = $rootScopeId + "/providers/Microsoft.Authorization/policyDefinitions/" + $name
+                                $parametersInDefinition = $policyDefinition.Parameter
                             }
                             else {
                                 # is built in
                                 $policyDefinitionId = "/providers/Microsoft.Authorization/policyDefinitions/" + $name
+                                $parametersInDefinition = $policyDefinition.parameters
                             }
                             $policySpec = @{ policyId = $policyDefinitionId }
                             if ($policyNeededRoleDefinitionIds.ContainsKey($name)) {
@@ -422,8 +424,8 @@ function Build-AzPolicyAssignmentsPlan {
                     )
                 }
             }
-        }
-    }
+
+        }   }
     Write-Information ""
     Write-Information ""
 
