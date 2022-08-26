@@ -23,14 +23,13 @@ function Get-AssignmentDefinitions {
     )
 
     # Each tree branch needs a private copy
-    $def = Get-DeepClone -InputObject $assignmentDef
+    $def = Get-DeepClone -InputObject $assignmentDef -AsHashTable
 
     # Process mandatory nodeName
     $nodeName = ""
     if ($definitionNode.nodeName) {
         $nodeName += $definitionNode.nodeName
         $def.nodeName += $nodeName
-        $nodeName =
         # ignore "comment" field
         Write-Debug "        nodePath = $($def.nodeName):"
     }
@@ -65,7 +64,7 @@ function Get-AssignmentDefinitions {
         }
         else {
             # Can contain one or more items at ONE level
-            $def.definitionEntry = $definitionNode.definitionEntry
+            $def.definitionEntry = Get-DeepClone $definitionNode.definitionEntry -AsHashTable
             Write-Debug "        definitionEntry = $($def.definitionEntry | ConvertTo-Json -Depth 100)"
         }
     }
@@ -82,7 +81,7 @@ function Get-AssignmentDefinitions {
         }
         else {
             # Can contain one or more items at ONE level
-            $def.definitionEntryList = $definitionNode.definitionEntryList
+            $def.definitionEntryList = Get-DeepClone $definitionNode.definitionEntryList -AsHashTable
             Write-Debug "        definitionEntryList = $($def.definitionEntryList | ConvertTo-Json -Depth 100)"
         }
     }
@@ -95,7 +94,7 @@ function Get-AssignmentDefinitions {
         }
         else {
             # Can contain one or more items at ONE level
-            $def.metadata = $definitionNode.metadata
+            $def.metadata = Get-DeepClone $definitionNode.metadata -AsHashTable
             Write-Debug "        metadata = $($def.metadata)"
         }
     }
@@ -119,7 +118,7 @@ function Get-AssignmentDefinitions {
         Write-Debug "        parameters inherited $($inheritedParameters | ConvertTo-Json -Depth 100)"
         Write-Debug "        parameters at node   $($addedParameters | ConvertTo-Json -Depth 100)"
         foreach ($parameterName in $addedParameters.Keys) {
-            $parameterValue = $addedParameters.$parameterName
+            $parameterValue = Get-DeepClone $addedParameters.$parameterName -AsHashTable
             if ($inheritedParameters.ContainsKey($parameterName)) {
                 $def.parameters[$parameterName] = $parameterValue
             }
@@ -137,7 +136,7 @@ function Get-AssignmentDefinitions {
         Write-Debug "        additionalRoleAssignments at node   $($additionalRoleAssignments | ConvertTo-Json -Depth 100)"
         foreach ($selector in $additionalRoleAssignments.Keys) {
             if ($selector -eq "*" -or $selector -eq $pacEnvironmentSelector) {
-                $additionalRoleAssignmentsList = $additionalRoleAssignments.$selector
+                $additionalRoleAssignmentsList = Get-DeepClone $additionalRoleAssignments.$selector -AsHashTable
                 if ($def.additionalRoleAssignments) {
                     $def.additionalRoleAssignments += $additionalRoleAssignmentsList
                 }

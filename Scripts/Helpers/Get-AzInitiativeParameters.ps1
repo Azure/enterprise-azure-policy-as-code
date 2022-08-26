@@ -20,7 +20,7 @@ function Get-AzInitiativeParameters {
         else {
             $parametersOut.Add($name, @{
                     paramValue   = $definedParameter.defaultValue
-                    type         = "InitiativeDefaultValue"
+                    type         = "Initiative DefaultValue"
                     defaultValue = $definedParameter.defaultValue
                 })
         }

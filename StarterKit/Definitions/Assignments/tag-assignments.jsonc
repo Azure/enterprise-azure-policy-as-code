@@ -48,17 +48,6 @@
             ],
             "children": [
                 {
-                    "nodeName": "Contact",
-                    "assignment": {
-                        "name": "Contact",
-                        "displayName": "Contact",
-                        "description": "Contact"
-                    },
-                    "parameters": {
-                        "tagName": "Contact"
-                    }
-                },
-                {
                     "nodeName": "AppName",
                     "assignment": {
                         "name": "AppName",
@@ -67,17 +56,6 @@
                     },
                     "parameters": {
                         "tagName": "AppName"
-                    }
-                },
-                {
-                    "nodeName": "CostCenter",
-                    "assignment": {
-                        "name": "CostCenter",
-                        "displayName": "CostCenter",
-                        "description": "CostCenter"
-                    },
-                    "parameters": {
-                        "tagName": "CostCenter"
                     }
                 },
                 {

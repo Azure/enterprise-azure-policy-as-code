@@ -3,8 +3,7 @@
 function Convert-PolicyInitiativeDefinitionsToInfo {
     [CmdletBinding()]
     param (
-        [hashtable] $allAzPolicyInitiativeDefinitions,
-        [hashtable] $cachedPolicyInitiativeInfos
+        [hashtable] $allAzPolicyInitiativeDefinitions
     )
 
     $allPolicyDefinitions = $allAzPolicyInitiativeDefinitions.existingCustomPolicyDefinitions + $allAzPolicyInitiativeDefinitions.builtInPolicyDefinitions
@@ -18,28 +17,22 @@ function Convert-PolicyInitiativeDefinitionsToInfo {
         $effectRawValue = $policy.policyRule.then.effect
         $found, $effectParameterName = Get-ParameterNameFromValueString -paramValue $effectRawValue
 
-        $effectValue = "n/a"
-        $effectDefault = "n/a"
+        $effectValue = $null
+        $effectDefault = $null
         $effectAllowedValues = @()
-        $effectReason = "Unknown"
+        $effectReason = "Policy No Default"
         $parameters = $policy.parameters | ConvertTo-HashTable
         if ($found) {
+            if ($effectParameter.allowedValues) {
+                $effectAllowedValues = $effectParameter.allowedValues
+            }
             if ($parameters.ContainsKey($effectParameterName)) {
                 $effectParameter = $parameters.$effectParameterName
                 if ($effectParameter.defaultValue) {
                     $effectValue = $effectParameter.defaultValue
                     $effectDefault = $effectParameter.defaultValue
-                    $effectReason = "PolicyDefault"
-                }
-                else {
-                    $effectValue = "Undefined"
-                    $effectDefault = "Undefined"
-                }
-                if ($effectParameter.allowedValues) {
-                    $effectAllowedValues = $effectParameter.allowedValues
-                }
-                else {
-                    $effectAllowedValues = @( "Undefined" )
+                    $effectAllowedValues = @( $effectDefault )
+                    $effectReason = "Policy Default"
                 }
             }
             else {
@@ -48,36 +41,47 @@ function Convert-PolicyInitiativeDefinitionsToInfo {
         }
         else {
             # Fixed value
-            $effectParameterName = "n/a"
             $effectValue = $effectRawValue
             $effectDefault = $effectRawValue
             $effectAllowedValues = @( $effectRawValue )
-            $effectReason = "PolicyFixed"
+            $effectReason = "Policy Fixed"
         }
+
         $displayName = $policy.displayName
         if (-not $displayName -or $displayName -eq "") {
             $displayName = $policy.name
         }
+
         $description = $policy.description
         if (-not $description) {
             $description = ""
         }
-        $policyInfo = @{
-            id                          = $policyId
-            name                        = $policy.name
-            displayName                 = $displayName
-            description                 = $description
-            policyType                  = $policy.policyType
-            category                    = $category
-            effectParameterName         = $effectParameterName
-            effectValue                 = $effectValue
-            effectDefault               = $effectDefault
-            effectAllowedValues         = $effectAllowedValues
-            effectReason                = $effectReason
-            parameters                  = $parameters
-            policyDefinitionReferenceId = "n/a"
-            groupNames                  = @()
 
+        $parameterDefinitions = @{}
+        foreach ($parameterName in $parameters.Keys) {
+            $parameter = $parameters.$parameterName
+            $parameterDefinition = @{
+                isEffect     = $parameterName -eq $effectParameterName
+                value        = $null
+                defaultValue = $parameter.defaultValue
+                definition   = $parameter
+            }
+            $null = $parameterDefinitions.Add($parameterName, $parameterDefinition)
+        }
+
+        $policyInfo = @{
+            id                  = $policyId
+            name                = $policy.name
+            displayName         = $displayName
+            description         = $description
+            policyType          = $policy.policyType
+            category            = $category
+            effectParameterName = $effectParameterName
+            effectValue         = $effectValue
+            effectDefault       = $effectDefault
+            effectAllowedValues = $effectAllowedValues
+            effectReason        = $effectReason
+            parameters          = $parameterDefinitions
         }
         $null = $policyInfos.Add($policyId, $policyInfo)
     }
@@ -93,45 +97,44 @@ function Convert-PolicyInitiativeDefinitionsToInfo {
 
         [System.Collections.ArrayList] $policyInInitiativeInfoList = [System.Collections.ArrayList]::new()
         $initiativeParameters = $initiative.parameters | ConvertTo-HashTable
+        $parametersAlreadyCovered = @{}
         foreach ($policyInInitiative in $initiative.policyDefinitions) {
             $policyId = $policyInInitiative.policyDefinitionId
             if ($policyInfos.ContainsKey($policyId)) {
                 $policyInfo = $policyInfos.$policyId
                 $policyInInitiativeParameters = $policyInInitiative.parameters | ConvertTo-HashTable
 
-                $initiativeLevelEffectParameterName = "n/a"
+                $initiativeLevelEffectParameterName = $null
                 $effectParameterName = $policyInfo.effectParameterName
                 $effectValue = $policyInfo.effectValue
                 $effectDefault = $policyInfo.effectDefault
                 $effectAllowedValues = $policyInfo.effectAllowedValues
                 $effectReason = $policyInfo.effectReason
 
-                if ($effectReason -ne "PolicyFixed") {
+                $initiativeLevelEffectParameterFound = $false
+                $initiativeLevelEffectParameterName = ""
+                if ($effectReason -ne "Policy Fixed") {
                     # Effect is parameterized in Policy
                     if ($policyInInitiativeParameters.ContainsKey($effectParameterName)) {
                         # Effect parameter is used by initiative
                         $initiativeLevelEffectParameter = $policyInInitiativeParameters.$effectParameterName
                         $effectRawValue = $initiativeLevelEffectParameter.value
 
-                        $found, $initiativeLevelEffectParameterName = Get-ParameterNameFromValueString -paramValue $effectRawValue
-                        if ($found) {
+                        $initiativeLevelEffectParameterFound, $initiativeLevelEffectParameterName = Get-ParameterNameFromValueString -paramValue $effectRawValue
+                        if ($initiativeLevelEffectParameterFound) {
                             # Effect parameter is surfaced by Initiative
                             if ($initiativeParameters.ContainsKey($initiativeLevelEffectParameterName)) {
                                 $effectParameter = $initiativeParameters.$initiativeLevelEffectParameterName
                                 if ($effectParameter.defaultValue) {
                                     $effectValue = $effectParameter.defaultValue
                                     $effectDefault = $effectParameter.defaultValue
-                                    $effectReason = "InitiativeDefault"
+                                    $effectReason = "Initiative Default"
                                 }
                                 else {
-                                    $effectValue = "Undefined"
-                                    $effectDefault = "Undefined"
+                                    $effectReason = "Initiative No Default"
                                 }
                                 if ($effectParameter.allowedValues) {
                                     $effectAllowedValues = $effectParameter.allowedValues
-                                }
-                                else {
-                                    $effectAllowedValues = @( "Undefined" )
                                 }
                             }
                             else {
@@ -140,10 +143,10 @@ function Convert-PolicyInitiativeDefinitionsToInfo {
                         }
                         else {
                             # Effect parameter is hard-coded (fixed) by Initiative
-                            $initiativeLevelEffectParameterName = "n/a"
+                            $initiativeLevelEffectParameterName = $null
                             $effectValue = $effectRawValue
                             $effectDefault = $effectRawValue
-                            $effectReason = "InitiativeFixed"
+                            $effectReason = "Initiative Fixed"
                         }
                     }
                 }
@@ -157,7 +160,23 @@ function Convert-PolicyInitiativeDefinitionsToInfo {
                         $found, $initiativeParameterName = Get-ParameterNameFromValueString -paramValue $rawValue
                         if ($found) {
                             $initiativeParameter = $initiativeParameters.$initiativeParameterName
-                            $null = $surfacedParameters.Add($initiativeParameterName, $initiativeParameter)
+                            $multiUse = $false
+                            $defaultValue = $initiativeParameter.defaultValue
+                            $isEffect = $initiativeParameterName -eq $initiativeLevelEffectParameterName
+                            if ($parametersAlreadyCovered.ContainsKey($initiativeParameterName)) {
+                                $multiUse = $true
+                            }
+                            else {
+                                $null = $parametersAlreadyCovered.Add($initiativeParameterName, $true)
+                            }
+                            $null = $surfacedParameters.Add($initiativeParameterName, @{
+                                    multiUse     = $multiUse
+                                    isEffect     = $isEffect
+                                    value        = $defaultValue
+                                    defaultValue = $defaultValue
+                                    definition   = $initiativeParameter
+                                }
+                            )
                         }
                     }
                 }
@@ -196,19 +215,46 @@ function Convert-PolicyInitiativeDefinitionsToInfo {
         if (-not $displayName -or $displayName -eq "") {
             $displayName = $initiative.name
         }
+
         $description = $initiative.description
         if (-not $description) {
             $description = ""
         }
+
+        # Find Policy definitions appearing more than once in Initiative
+        $uniquePolicies = @{}
+        $policiesWithMultipleReferenceIds = @{}
+        foreach ($policyInInitiativeInfo in $policyInInitiativeInfoList) {
+            $policyId = $policyInInitiativeInfo.id
+            $policyDefinitionReferenceId = $policyInInitiativeInfo.policyDefinitionReferenceId
+            # Is this a Poli
+            if ($uniquePolicies.ContainsKey($policyId)) {
+                if (-not $policiesWithMultipleReferenceIds.ContainsKey($policyId)) {
+                    # First time detecting that this Policy has multiple references in the same Initiative
+                    $uniquePolicyReferenceIds = $uniquePolicies[$policyId]
+                    $null = $policiesWithMultipleReferenceIds.Add($policyId, $uniquePolicyReferenceIds)
+                }
+                # Add current policyDefinitionReferenceId
+                $multipleReferenceIds = $policiesWithMultipleReferenceIds[$policyId]
+                $multipleReferenceIds += $policyDefinitionReferenceId
+                $policiesWithMultipleReferenceIds[$policyId] = $multipleReferenceIds
+            }
+            else {
+                # First time encounter in this Initiative. Record Policy Id and remember policyDefinitionReferenceId
+                $null = $uniquePolicies.Add($policyId, @( $policyDefinitionReferenceId ))
+            }
+        }
+
         $initiativeInfo = @{
-            id                = $initiativeId
-            name              = $initiative.name
-            displayName       = $displayName
-            description       = $description
-            policyType        = $initiative.policyType
-            category          = $category
-            policyDefinitions = $policyInInitiativeInfoList.ToArray()
-            parameters        = $initiativeParameters
+            id                               = $initiativeId
+            name                             = $initiative.name
+            displayName                      = $displayName
+            description                      = $description
+            policyType                       = $initiative.policyType
+            category                         = $category
+            parameters                       = $initiativeParameters
+            policyDefinitions                = $policyInInitiativeInfoList.ToArray()
+            policiesWithMultipleReferenceIds = $policiesWithMultipleReferenceIds
         }
         $null = $initiativeInfos.Add($initiativeId, $initiativeInfo)
     }

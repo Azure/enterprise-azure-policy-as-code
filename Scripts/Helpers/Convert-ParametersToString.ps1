@@ -4,41 +4,70 @@
 function Convert-ParametersToString {
     param (
         [hashtable] $parameters,
-        [switch] $Markdown
+        [string] $outputType
     )
 
     [string] $text = ""
+    [hashtable] $csvParametersHt = @{}
     if ($parameters.Count -gt 0) {
-        [string[]] $parameterList = @()
         foreach ($parameterName in $parameters.Keys) {
             $parameter = $parameters.$parameterName
+            $multiUse = $parameter.multiUse
+            $isEffect = $parameter.isEffect
             $value = $parameter.value
-            if ($null -eq $value) {
-                $value = "undefined"
-                if ($parameter.defaultValue) {
-                    $value = $parameter.defaultValue
+            $defaultValue = $parameter.defaultValue
+            $definition = $parameter.definition
+            $initiativeDisplayNames = $parameter.initiatives
+            if ($null -eq $value -and $null -eq $defaultValue) {
+                $noDefault = $true
+                $value = "++ no default ++"
+            }
+            elseif ($null -eq $value) {
+                $value = $defaultValue
+            }
+            switch ($outputType) {
+                markdown {
+                    if ($value -is [string]) {
+                        $text += "<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*$parameterName = ``$value``*"
+                    }
+                    else {
+                        $json = ConvertTo-Json $value -Depth 100 -Compress
+                        $jsonTruncated = $json
+                        if ($json.length -gt 40) {
+                            $jsonTruncated = $json.substring(0, 40) + "..."
+                        }
+                        $text += "<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*$parameterName = ``$jsonTruncated``*"
+                    }
                 }
-
+                csvValues {
+                    if (-not ($multiUse -or $isEffect)) {
+                        $null = $csvParametersHt.Add($parameterName, $value)
+                    }
+                }
+                csvDefinitions {
+                    if (-not $multiUse) {
+                        $null = $csvParametersHt.Add($parameterName, $definition)
+                    }
+                }
+                jsonc {
+                    $parameterString = "`"$($parameterName)`": $(ConvertTo-Json $value -Depth 100 -Compress), // '$($initiativeDisplayNames -Join "', '")'"
+                    if ($multiUse) {
+                        $text += "`n    // Multi-use: ($parameterString)"
+                    }
+                    elseif ($noDefault) {
+                        $text += "`n    // No-default: ($parameterString)"
+                    }
+                    else {
+                        $text += "`n    $($parameterString),"
+                    }
+                }
+                Default {
+                    Write-Error "Convert-ParametersToString: unknown outputType '$outputType'" -ErrorAction Stop
+                }
             }
-            $value = ConvertTo-Json $value -Compress
-            $parameterList += "$parameterName=``$value``"
         }
-        if ($Markdown.IsPresent) {
-            foreach ($parameterText in $parameterList) {
-                $text += "<br/>&nbsp;&nbsp;&nbsp;&nbsp;*$parameterText*"
-            }
-        }
-        else {
-            $newLine = ""
-            foreach ($parameterText in $parameterList) {
-                $text += "$newLine$parameterText"
-                $newLine = "; "
-            }
-        }
-    }
-    else {
-        if (-not $Markdown.IsPresent) {
-            $text = "n/a"
+        if (($outputType -eq "csvValues" -or $outputType -eq "csvDefinitions") -and $csvParametersHt.Count -gt 0) {
+            $text = ConvertTo-Json $csvParametersHt -Depth 100 -Compress
         }
     }
     return $text

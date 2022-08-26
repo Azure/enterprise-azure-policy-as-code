@@ -12,6 +12,6 @@ function Get-ParameterNameFromValueString {
         return $true, $parameterName
     }
     else {
-        return $false, $paramValue
+        return $false, $null
     }
 }

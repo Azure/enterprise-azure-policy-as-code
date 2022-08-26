@@ -71,20 +71,24 @@ function Build-AzPolicyDefinitionsPlan {
             $Mode = $policyObject.properties.mode
         }
 
+
+
         # Constructing policy definitions parameters for splatting
         $policyDefinitionConfig = @{
             Name        = $name
             DisplayName = $displayName
             Policy      = $policyObject.properties.policyRule
             Parameter   = $policyObject.properties.parameters
-            Metadata    = $policyObject.properties.metadata
             Mode        = $Mode
+        }
+        if ($null -ne $policyObject.properties.metadata) {
+            $null = $policyDefinitionConfig.Add("Metadata", $policyObject.properties.metadata)
         }
 
         # Calculate roleDefinitionIds for this Policy
         if ($policyObject.properties.policyRule.then.details -and $policyObject.properties.policyRule.then.details.roleDefinitionIds) {
             $roleDefinitionIdsInPolicy = $policyObject.properties.policyRule.then.details.roleDefinitionIds
-            $policyNeededRoleDefinitionIds.Add($name, $roleDefinitionIdsInPolicy)
+            $null = $policyNeededRoleDefinitionIds.Add($name, $roleDefinitionIdsInPolicy)
         }
 
         # Adding SubscriptionId or ManagementGroupName value (depending on the parameter set in use)
