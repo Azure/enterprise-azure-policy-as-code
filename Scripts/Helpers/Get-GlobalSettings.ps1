@@ -26,7 +26,7 @@ function Get-GlobalSettings {
 
     $Json = Get-Content -Path $globalSettingsFile -Raw -ErrorAction Stop
     if (!(Test-Json $Json)) {
-        Write-Error "Json file ""$($globalSettingsFile)"" is not valid = $Json" -ErrorAction Stop
+        Write-Error "JSON file ""$($globalSettingsFile)"" is not valid = $Json" -ErrorAction Stop
     }
     [hashtable] $settings = $Json | ConvertFrom-Json -AsHashtable
     [array] $pacEnvironments = $settings.pacEnvironments

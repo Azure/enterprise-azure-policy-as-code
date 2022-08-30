@@ -38,25 +38,12 @@
         ],
         "documentationSpecifications": [
             {
-                "fileNameStem": "contoso-PROD-policy-effects",
-                "type": "effectsPerEnvironment",
-                "environmentCategory": "PROD",
-                "title": "Contoso PROD environments Policy effects"
-            },
-            {
-                "fileNameStem": "contoso-NONPROD-policy-effects",
-                "type": "effectsPerEnvironment",
-                "environmentCategory": "NONPROD",
-                "title": "Contoso NONPROD environment Policy effects"
-            },
-            {
-                "fileNameStem": "contoso-policy-effects-across-environments",
-                "type": "effectsAcrossEnvironments",
+                "fileNameStem": "contoso-policy-effects",
                 "environmentCategories": [
                     "PROD",
                     "NONPROD"
                 ],
-                "title": "Contoso Policy effects summary"
+                "title": "Contoso Policy effects"
             }
         ]
     },

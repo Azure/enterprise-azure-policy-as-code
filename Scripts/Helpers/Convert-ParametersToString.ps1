@@ -39,6 +39,21 @@ function Convert-ParametersToString {
                         $text += "<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*$parameterName = ``$jsonTruncated``*"
                     }
                 }
+                markdownAssignment {
+                    if (-not $isEffect) {
+                        if ($value -is [string]) {
+                            $text += "<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*$parameterName = ``$value``*"
+                        }
+                        else {
+                            $json = ConvertTo-Json $value -Depth 100 -Compress
+                            $jsonTruncated = $json
+                            if ($json.length -gt 40) {
+                                $jsonTruncated = $json.substring(0, 40) + "..."
+                            }
+                            $text += "<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*$parameterName = ``$jsonTruncated``*"
+                        }
+                    }
+                }
                 csvValues {
                     if (-not ($multiUse -or $isEffect)) {
                         $null = $csvParametersHt.Add($parameterName, $value)

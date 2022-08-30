@@ -133,7 +133,7 @@ Build-AzInitiativeDefinitionsPlan `
     -policyNeededRoleDefinitionIds $policyNeededRoleDefinitionIds `
     -initiativeNeededRoleDefinitionIds $initiativeNeededRoleDefinitionIds
 
-# Process Assignment Json files
+# Process Assignment JSON files
 $allAssignments = @{}
 $newAssignments = @{}
 $updatedAssignments = @{}

@@ -25,7 +25,7 @@ function Build-AzPolicyDefinitionsForInitiative {
         $roleDefinitionIdsInInitiative = @{}
         $initiativeName = $initiativeObject.name
         foreach ($policyDefinition in $policyDefinitionsInJson) {
-            # check desired state defined in Json
+            # check desired state defined in JSON
             $policyName = $policyDefinition.policyDefinitionName
             $result = Confirm-PolicyDefinitionUsedExists `
                 -allPolicyDefinitions  $allPolicyDefinitions `

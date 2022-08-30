@@ -65,7 +65,7 @@ function Out-InitiativeDocumentationToFile {
                 [array] $groupNames = $perInitiative.groupNames
                 $parameters = $perInitiative.parameters
                 if ($parameters.Count -gt 0 -or $groupNames.Count -gt 0) {
-                    $addedRows += "<br/>**$($perInitiative.displayName):**"
+                    $addedRows += "<br/>*$($perInitiative.displayName):*"
                     $text = Convert-ParametersToString -parameters $parameters -outputType "markdown"
                     $addedRows += $text
                     foreach ($groupName in $groupNames) {
@@ -100,15 +100,15 @@ function Out-InitiativeDocumentationToFile {
         Write-Information "No environmentColumnsInCsv '$environmentColumnsInCsv' specified - do not output parameters CSV file."
     }
 
-    $csvOutputTypes = @( "full" )
+    $csvOutputTypes = @( "details" )
     if ($outputParameterFiles) {
-        $csvOutputTypes = @( "full", "parameters" )
+        $csvOutputTypes = @( "details", "parameters" )
     }
 
     [System.Collections.ArrayList] $allRows = [System.Collections.ArrayList]::new()
     [System.Collections.ArrayList] $columnHeaders = [System.Collections.ArrayList]::new()
     foreach ($csvOutputType in $csvOutputTypes) {
-        $fullOutput = $csvOutputType -eq "full"
+        $fullOutput = $csvOutputType -eq "details"
 
         $allRows.Clear()
         $columnHeaders.Clear()
@@ -170,9 +170,9 @@ function Out-InitiativeDocumentationToFile {
 
             # Per environment columns (repeat each per environmnet if it exists)
             $parameters = $_.parameters
-            foreach ($item in $itemList) {
-                $shortName = $item.shortName
-                if ($fullOutput) {
+            if ($fullOutput) {
+                foreach ($item in $itemList) {
+                    $shortName = $item.shortName
                     # Per Initiative parameter definition columns
                     if ($initiativeList.ContainsKey($shortName)) {
                         $perInitiative = $initiativeList.$shortName
@@ -184,16 +184,16 @@ function Out-InitiativeDocumentationToFile {
                         }
                     }
                 }
-                else {
-                    $parametersValueString = Convert-ParametersToString -parameters $parameters -outputType "csvValues"
-                    foreach ($environmentCategory in $environmentColumnsInCsv) {
-                        $rowObj["$($environmentCategory)_Effect"] = $effectDefault
-                        $rowObj["$($environmentCategory)_Parameters"] = $parametersValueString
-                    }
-
+            }
+            else {
+                $parametersValueString = Convert-ParametersToString -parameters $parameters -outputType "csvValues"
+                foreach ($environmentCategory in $environmentColumnsInCsv) {
+                    $rowObj["$($environmentCategory)_Effect"] = $effectDefault
+                    $rowObj["$($environmentCategory)_Parameters"] = $parametersValueString
                 }
 
             }
+
             # Add row to spreadsheet
             $null = $allRows.Add($rowObj)
         }
@@ -204,7 +204,7 @@ function Out-InitiativeDocumentationToFile {
 
     #endregion CSV
 
-    #region Parameters Json
+    #region Parameters JSON
 
     $sb = [System.Text.StringBuilder]::new()
     [void] $sb.Append("{")

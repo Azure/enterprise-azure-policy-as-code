@@ -31,7 +31,7 @@ function Build-AzPolicyAssignmentsPlan {
     )
 
     Write-Information "==================================================================================================="
-    Write-Information "Processing Policy Assignments Json files in folder '$assignmentsRootFolder'"
+    Write-Information "Processing Policy Assignments JSON files in folder '$assignmentsRootFolder'"
     Write-Information "==================================================================================================="
     $assignmentFiles = @()
     $assignmentFiles += Get-ChildItem -Path $assignmentsRootFolder -Recurse -File -Filter "*.json"
@@ -59,7 +59,7 @@ function Build-AzPolicyAssignmentsPlan {
             Write-Information "Process '$($assignmentFile.FullName)'"
         }
         else {
-            Write-Error "Assignment Json file '$($assignmentFile.FullName)' is not valid." -ErrorAction Stop
+            Write-Error "Assignment JSON file '$($assignmentFile.FullName)' is not valid." -ErrorAction Stop
         }
         $assignmentObject = $Json | ConvertFrom-Json -AsHashtable
 
@@ -425,7 +425,8 @@ function Build-AzPolicyAssignmentsPlan {
                 }
             }
 
-        }   }
+        }
+    }
     Write-Information ""
     Write-Information ""
 

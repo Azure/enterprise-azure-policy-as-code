@@ -2,7 +2,7 @@
 
 <#
 .SYNOPSIS
-    This script deploys the component as defined in the plan Json:
+    This script deploys the component as defined in the plan JSON:
 
 .NOTES
     This script is designed to be run in Azure DevOps pipelines.

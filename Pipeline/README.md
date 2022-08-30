@@ -107,7 +107,7 @@ Create service connections for each of your environments and require minimum rol
 
 ### Build-AzPoliciesInitiativesAssignmentsPlan.ps1
 
-Analyzes changes in policy, initiative, and assignment files. It calculates a plan to apply deltas. The deployment scripts are **declarative** and **idempotent**: this means, that regardless how many times they are run, they always push all changes that were implemented in the Json files to the Azure environment, i.e. if a Json file is newly created/updated/deleted, the pipeline will create/update/delete the Policy and/or Initiative definition in Azure. If there are no changes, the pipeline can be run any number of times, as it won't make any changes to Azure.
+Analyzes changes in policy, initiative, and assignment files. It calculates a plan to apply deltas. The deployment scripts are **declarative** and **idempotent**: this means, that regardless how many times they are run, they always push all changes that were implemented in the JSON files to the Azure environment, i.e. if a JSON file is newly created/updated/deleted, the pipeline will create/update/delete the Policy and/or Initiative definition in Azure. If there are no changes, the pipeline can be run any number of times, as it won't make any changes to Azure.
 
 In addition to the [common parameters](#common-parameters-for-flexible-and-unified-definitions), these parameters are defined:
 
@@ -146,7 +146,7 @@ Creates the role assignments for the Managed Identities required for `DeployIfNo
 
 ## Consuming Excel Files
 
-Exemptions and assignments can use Json, CSV and Excel (.xlsx) files. Support for Excel files uses a third-party PowerShell module from the PowerShell Gallery. However, the StarterKit pipeline disables the use of .xslx files module (`Convert-XlsToCSV.ps1`) to mitigate potential vulnerability risks in a third-party utility (this does not imply any such vulnerabilities exist). You can enable it at your own risk by uncommenting the sections in each planning stage. The pipeline further mitigates the risk by executing this step without Azure credentials.
+Exemptions and assignments can use JSON, CSV and Excel (.xlsx) files. Support for Excel files uses a third-party PowerShell module from the PowerShell Gallery. However, the StarterKit pipeline disables the use of .xslx files module (`Convert-XlsToCSV.ps1`) to mitigate potential vulnerability risks in a third-party utility (this does not imply any such vulnerabilities exist). You can enable it at your own risk by uncommenting the sections in each planning stage. The pipeline further mitigates the risk by executing this step without Azure credentials.
 
 <br/>
 
