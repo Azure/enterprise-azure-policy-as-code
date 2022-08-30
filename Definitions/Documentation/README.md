@@ -2,26 +2,31 @@
 
 ## Table of Contents
 
-- [Documentation Specification Files](#documentation-specification-files)
-- [Example File](#example-documentation-specification-file)
-- [Specifying Assignment Documentation](#specifying-assignment-documentation)
-- [Specifying Initiative Documentation](#specifying-initiative-documentation)
-- [Reading List](#reading-list)
+* [Overview](#overview)
+* [Example Documentation Specification File](#example-documentation-specification-file)
+* [Assignment Documentation](#assignment-documentation)
+  * [Element `environmentCategories`](#element-environmentcategories)
+  * [Element `documentationSpecifications`](#element-documentationspecifications)
+  * [Output files](#output-files)
+* [Initiative Documentation](#initiative-documentation)
+  * [Element `documentInitiatives`](#element-documentinitiatives)
+  * [Output files](#output-files-1)
+* [Reading List](#reading-list)
 
 ## Overview
 
-The names of the definition Json files don't matter. reads any file in the folder with a `.json` and `.jsonc` extension.
+The names of the definition JSON files don't matter. The script reads any file in the folder with a `.json` and `.jsonc` extension.
 
-Script [`./Scripts/Operations/Build-PolicyAssignmentDocumentation.ps1`](../../Scripts/Operations/README.md#build-policyassignmentdocumentationps1) documents Initiatives and Assignments in your environment. It retrieves its instruction from Json files in this folder.
+Script [`./Scripts/Operations/Build-PolicyAssignmentDocumentation.ps1`](../../Scripts/Operations/README.md#build-policyassignmentdocumentationps1) documents Initiatives and Assignments in your environment. It retrieves its instruction from the JSON files in this folder.
 
-- Read and process Policy Assignments representative of an environment category, such as PROD, DEV, SANDBOX. It generates Markdown and as Excel csv files.
-- Read and process Initiative definitions to compare them for Policy and effect overlap.  It generates Markdown and as Excel csv files. Additionaly, it generates a Json file (`.jsonc`) defining all the parameters for the union of Policies in the Initiatives. This Json file is useful when writting assignment files to copy/paste/modify the parameter values.
+- Read and process Policy Assignments which are representative of an environment category, such as prod, test, dev, and sandbox. It generates Markdown (`.md`), and Excel (`.csv`) files.
+- Read and process Initiative definitions to compare them for Policy and effect overlap. It generates Markdown (`.md`), Excel (`.csv`) files, and JSON file (`.jsonc`).
 
 <br/>
 
 ## Example Documentation Specification File
 
-Each file must contain one or both documentation topics. This example file has both topics. Element `pacEnvironment` references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the Policy and Initiative definitions are deployed.
+Each file must contain one or both documentation topics. This example file in the StarterKit has both topics. Element `pacEnvironment` references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the custom Policy and Initiative definitions are deployed.
 
 - [`documentAssignments`](#specifying-assignment-documentation)
 - [`documentInitiatives`](#specifying-initiative-documentation)
@@ -34,7 +39,7 @@ Each file must contain one or both documentation topics. This example file has b
         "environmentCategories": [
             {
                 "pacEnvironment": "tenant",
-                "environmentCategory": "PROD",
+                "environmentCategory": "PprodOD",
                 "scopes": [ // Used in Markdown output only
                     "Management Groups: Contoso-Prod"
                 ],
@@ -51,7 +56,7 @@ Each file must contain one or both documentation topics. This example file has b
             },
             {
                 "pacEnvironment": "tenant",
-                "environmentCategory": "NONPROD",
+                "environmentCategory": "test",
                 "scopes": [ // Used in Markdown output only
                     "Management Groups: Contoso-NonProd"
                 ],
@@ -68,7 +73,7 @@ Each file must contain one or both documentation topics. This example file has b
             },
             {
                 "pacEnvironment": "tenant",
-                "environmentCategory": "DEV",
+                "environmentCategory": "dev",
                 "scopes": [ // Used in Markdown output only
                     "Management Groups: Contoso-Dev"
                 ],
@@ -86,32 +91,13 @@ Each file must contain one or both documentation topics. This example file has b
         ],
         "documentationSpecifications": [
             {
-                "fileNameStem": "contoso-PROD-policy-effects",
-                "type": "effectsPerEnvironment",
-                "environmentCategory": "PROD",
-                "title": "Contoso PROD environments Policy effects"
-            },
-            {
-                "fileNameStem": "contoso-NONPROD-policy-effects",
-                "type": "effectsPerEnvironment",
-                "environmentCategory": "NONPROD",
-                "title": "Contoso NONPROD environment Policy effects"
-            },
-            {
-                "fileNameStem": "contoso-DEV-policy-effects",
-                "type": "effectsPerEnvironment",
-                "environmentCategory": "DEV",
-                "title": "Contoso DEV environment Policy effects"
-            },
-            {
                 "fileNameStem": "contoso-policy-effects-across-environments",
-                "type": "effectsAcrossEnvironments",
                 "environmentCategories": [
-                    "PROD",
-                    "NONPROD",
-                    "DEV"
+                    "prod",
+                    "test",
+                    "dev"
                 ],
-                "title": "Contoso Policy effects summary"
+                "title": "Contoso Policy effects"
             }
         ]
     },
@@ -137,6 +123,12 @@ Each file must contain one or both documentation topics. This example file has b
                     "shortName": "ORG",
                     "id": "/providers/Microsoft.Management/managementGroups/Contoso-Root/providers/Microsoft.Authorization/policySetDefinitions/org-security-benchmark" // Organization Security Benchmark for Custom Policies
                 }
+            ],
+            "environmentColumnsInCsv": [
+                "prod",
+                "test",
+                "dev",
+                "lab"
             ]
         }
     ]
@@ -145,50 +137,104 @@ Each file must contain one or both documentation topics. This example file has b
 
 <br/>
 
-## Specifying Assignment Documentation
+## Assignment Documentation
 
 ### Element `environmentCategories`
 
-For any given environment category, such as PROD, NONPROD, DEV, this section list Policy Assignment which are representative deployed in thos environments. In many organization, the same Policies and effects are applied to multiple Management Groups and even Azure tenants.
+For any given environment category, such as `prod`, `test`, `dev`, this section list Policy Assignment which are representative for those environments. In many organization, the same Policies and effects are applied to multiple Management Groups and even Azure tenants with the parameters consistent by environment category.
 
 Each `environmentCategories` entry specifies:
 
 - `pacEnvironment`: references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the Policy and Initiative definitions are deployed.
-- `environmentCategory`: name used for column headings.
-- `scopes`:  used in Markdown output only for the Scopes section.
-- `representativeAssignments`: list Policy Assignment `id`s representing this `environmentCategory`. The `shortName` is used for column headings.
+- `environmentCategory`: name used for column headings and referenced in `documentationSpecifications` below.
+- `scopes`:  used in Markdown output only for the Scopes section as unprocessed text.
+- `representativeAssignments`: list Policy Assignment `id`s representing this `environmentCategory`. The `shortName` is used for CSV column headings and markdown output.
 
 <br/>
 
 ### Element `documentationSpecifications`
 
-This element defines the outputs. Each entry defines the output of one (1) Markdown and one (1) csv file.
+<br/>
 
-- `fileNameStem`: the file name without the extension (.md, .csv)
-- `type`: two documentation types are supported.
-  - `effectsPerEnvironment`: requires a single `environmentCategory`
-    - Creates a Markdown file with Policies grouped by effect, sorted by Policy category and display name with effect columns for each Initiative in the representative Assignments. The effective effect is bolded and the other allowed values are listed in the same cell one per line in italics. **No allowed values listed indicate a hard-coded effect.**
-    - Creates a csv file with Policies sorted by Policy category and display name with effect columns for each Initiative in the representative Assignments. The effective effect is listed first and the other allowed values are listed in the same cell one per line.
-  - `effectsAcrossEnvironments`: compares the most stringent effect from the Assignments across all `environmentCategories` listed as effect columns.
+> **Warning: Breaking change in release v5.3**
+>
+> `type` is no longer needed and the field has been removed. The only previous `type` available is `effectsAcrossEnvironments`; the script will write a warning if it is specified. Specifying `"type": "effectsPerEnvironment",` will result in a script error.
+
+<br/>
+
+Each entry in the array defines a set of outputs:
+
+- `fileNameStem`: the file name stem used to construct the filenames.
+- `environmentCategories` listed as effect columns.
 - `title`: Heading 1 text for Markdown.
 
 <br/>
 
-## Specifying Initiative Documentation
+### Output files
 
-Compares Policy and Initiative definitions to  Initiative definitions for Policy and effect overlap as Excel csv files.
+- `<fileNameStem>-full.csv`: Lists Policies across environments and Initiatives sorted by `category` and ``displayName`.
+  | Column | Description |
+  | :----- | :---------- |
+  | `name` | Policy name (must be unique - a GUID for built-in Policies)
+  | `referencePath` | Disambiguate Policies included multiple times in an Initiative with different `referenceId`s. It is blank if not needed or formatted as `<initiative.name>\\<referenceId>`.
+  | `category` | Policy `category` from Policy `metadata`.
+  | `displayName` |
+  | `description` |
+  | `groupNames` | Union of (compliance Initiative) `groupNames` for this Policy.
+  | `allowedEffects` | List of allowed Policy `effect`s. **Note:** Some Initiatives may have hard coded the effect which is not represented here.
+  | `<environmentCategory>_Effect` | One column per `environmentCategory` listing the highest enforcement level across the initiatives assigned in this environment category.
+  | `<environmentCategory>_Parameters` | One column per `environmentCategory` listing the parameters (JSON - excluding the effect parameter) for this Policy and `environmentCategory`.
+  | `<environmentCategory>-`<br/>`<initiative-short name>-Effect` | Detailed effect per `eventCategory` **and** Initiative. The next table shows examples for the different pattern for this value. An actual document will reflect the actual value in your environment.
+  | `<initiative-short name>-ParameterDefinitions` | Parameter definitions (JSON) per Initiative containing this Policy.
+  <br/>
 
-Creates a Markdown file with Policies sorted by Policy category and display name with effect columns for each Initiative. The Policy column starts with the bolded display Name followed by the description and lines grouped by bolded Initiative short name with the effect parameter name in italics and the group names in normal text. In the per Initiative effect columns the default effect is bolded and the other allowed values are listed in the same cell one per line in italics. **No allowed values listed indicate a hard-coded effect.**
+  | Value | Description |
+  | :---- | :---------- |
+  | `Deny (assignment: secretsExpirationSetEffect)` | Effect is `Deny` specified in a user defined value for parameter `secretsExpirationSetEffect`
+  | `Audit (default: useRbacRulesMonitoringEffect)` | Effect is `Audit` default value for Initiative parameter `useRbacRulesMonitoringEffect`.
+  | `Audit (Initiative Fixed)` | Effect is parameterized in Policy definition. Initiative definition is setting it to a fixed value of `Audit`.
+  | `Audit (Policy Default)` | Effect is parameterized in Policy definition with default value of `Audit`. The Initiative definition does not override or surface this value.
+  | `Modify (Policy Fixed)` | Effect is **not** parameterized in Policy definition. It is set to a fixed value of `Modify`.
 
-Create a Json file (`.jsonc`) defining all the parameters as Json for the union of Policies in the defined Initiative Definitions sorted an collated by Policy category and Policy display name. This Json file is useful when writing assignment files. You can use them with copy/paste and modify the parameter values in your assignment file(s).
+- `<fileNameStem>-parameters.csv`: This file is intended **for a future enhancement** to EPAC which will allow the effect values and parameter values to be specified in a spreadsheet instead of JSON. This file is generated to make it usable as the starting list, or to round-trip the values. It lists Policies across environments and Initiatives sorted by `category` and ``displayName`. Columns (see above for descriptions):
 
-Each array entry defines three (3) files to be generated: Markdown, csv, and Json parameter file (.jsonc)
+  - `name`
+  - `referencePath`
+  - `category` (not required to define the parameters - useful for the author of the spreadsheet)
+  - `displayName` (not required to define the parameters - useful for the author of the spreadsheet)
+  - `description` (not required to define the parameters - useful for the author of the spreadsheet)
+  - `allowedEffects` (not required to define the parameters - useful for the author of the spreadsheet)
+  - `<environmentCategory>_Effect`
+  - `<environmentCategory>_Parameters`
+
+- `<fileNameStem>-summary.md`: This Markdown file is intended for developers for a quick overview of the effects and parameters in place for each `environmentCategory`. It does not provide details about the individual Initiatives assigned.It is equivalent to `<fileNameStem>-parameters.csv`. The Policies are sorted by `category` and ``displayName`. Each `environmentCategory column shows the current enforcement level in bold. If the value is fixed, the value is also in italics. If it is parametrized, the other allowed values are shown in italics.
+
+- `<fileNameStem>-full.md`: This Markdown file is intended for security personel requiring more details about the Assignments and Policies. It displays the same information as the summary plus the additional details equivalent to `<fileNameStem>-full.csv`. The Policies are sorted by `category` and ``displayName`. Each `environmentCategory column shows the current enforcement level in bold. If the value is fixed, the value is also in italics. If it is parametrized, the other allowed values are shown in italics. The additional details are:
+  - Group Names
+  - Effects per `environmentCategory` and Initiative with additional details on the origin of the effect.
+
+## Initiative Documentation
+
+Compares Policy and Initiative definitions to  Initiative definitions for Policy and effect overlap as Markdown and Excel (`.csv`) files.
+
+### Element `documentInitiatives`
 
 - `pacEnvironment`: references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the Policy and Initiative definitions are deployed.
 - `fileNameStem`: the file name without the extension (.md, .csv, .jsonc)
 - `title`: Heading 1 text for Markdown.
-- `initiatives`: list Initiatives (`id`) to be compared and included in the parameter Json file. The `shortName` is used for column headings.
+- `initiatives`: list Initiatives (`id`) to be compared and included in the parameter JSON file. The `shortName` is used for column headings.
+- `environmentColumnsInCsv`: list of columns to generate a parameter file starter equivalent to `<fileNameStem>-parameters.csv` above in the assignment documentation section.
 
+### Output files
+
+- `<fileNameStem>-full.md`: Markdown file with Policies sorted by Policy category and display name with effect columns for each Initiative.
+
+  - Each effect column starts with the bolded display Name followed by the description and lines grouped by bolded Initiative short name with the effect parameter name in italics and the group names in normal text.
+  - The text below the description contains details on parameters and group names for each initiative.
+
+- `<fileNameStem>-full.csv`: Excel file  with the same information as the Markdown file.
+- `<fileNameStem>-parameters.csv`: Excel parameter file starter equivalent to `<fileNameStem>-parameters.csv` above in the assignment documentation section.
+- `<fileNameStem>.jsonc`: Parameter file starter in JSON format to simplify parameter settings for Assignments (traditional approach).
 <br/>
 
 ## Reading List

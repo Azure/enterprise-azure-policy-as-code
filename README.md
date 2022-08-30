@@ -60,7 +60,7 @@ The Policy as Code framework supports the following Policy and Initiative assign
   > **NOTE**: Distributed teams must only include those scopes in their version of the assignments.json that is not covered by another team.
 - **Mixed approach**: A centralized team manages policy and initiative assignments to a certain level (top-down approach), e.g. on the Tenant Root Group level, and top level Management group, and all assignments on lower levels (i.e. lower level Management Groups, Subscriptions and Resource Groups) are managed by multiple teams, in a distributed manner.
 
- **NOTE**: This solution enforces a centralized approach. It is recommended that you follow a centralized approach however, when using the mixed approach, scopes that will not be managed by the central team should be excluded from the assignments Json file - therefore the assignment configuration script will ignore these scopes (it won't add/remove/update anything in there). Conversely, the distributed teams must only include those scopes in their version of the assignments.json that is not covered by the central team.
+ **NOTE**: This solution enforces a centralized approach. It is recommended that you follow a centralized approach however, when using the mixed approach, scopes that will not be managed by the central team should be excluded from the assignments JSON file - therefore the assignment configuration script will ignore these scopes (it won't add/remove/update anything in there). Conversely, the distributed teams must only include those scopes in their version of the assignments.json that is not covered by the central team.
 
  <br/>
 
@@ -213,7 +213,7 @@ Pipelines can customized to fit your needs:
 
 ### Edit and create Policies, Initiatives and Assignments
 
-Using the starter kit edit the directories in the `Definitions` folder. To simplify entering parameters, you can use the [Initiative documenting feature](Definitions/Documentation/README.md#documenting-assignments-and-initiatives) which creates Markdown, CSV and a Json parameter file. You need to specify your initiatives to be documented (folder [`Definitions\Documentation`](Definitions/Documentation/README.md#specifying-initiative-documentation)) and execute script [`./Scripts/Operations/Build-PolicyAssignmentDocumentation.ps1`](Scripts/Operations/README.md#build-policyassignmentdocumentationps1)
+Using the starter kit edit the directories in the `Definitions` folder. To simplify entering parameters, you can use the [Initiative documenting feature](Definitions/Documentation/README.md#documenting-assignments-and-initiatives) which creates Markdown, CSV and a JSON parameter file. You need to specify your initiatives to be documented (folder [`Definitions\Documentation`](Definitions/Documentation/README.md#specifying-initiative-documentation)) and execute script [`./Scripts/Operations/Build-PolicyAssignmentDocumentation.ps1`](Scripts/Operations/README.md#build-policyassignmentdocumentationps1)
 
 <br/>
 

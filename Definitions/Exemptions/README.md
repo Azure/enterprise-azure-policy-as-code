@@ -8,11 +8,11 @@
 
 ## Exemption Files
 
-Exemptions can be defined as Json or CSV files. The names of the definition files don't matter.
+Exemptions can be defined as JSON or CSV files. The names of the definition files don't matter.
 
 Additionally, through the use of a third-party PowerShell module from the PowerShell Gallery `ImportExcel` (https://www.powershellgallery.com/packages/ImportExcel, https://github.com/dfinke/ImportExcel/tree/master/Public). The contributors to this project are not responsible for any issues with that module. To mitigate the risk, the StarterKit has commented out the use of the conversion to protect your system from any vulnerabilities and executes the script without an Azure login.
 
-The pacEnvironment (see global-settings.jsonc) is represented with a folder, such as dev, test, tenant, ... A missing folder indicates that the pacEnvironment's Exemptions are managed by this solution. To extract existing extension, the operations script Get-AzExemptions.ps1 can be used to generate Json and CSV files. The output should be used to start the Exemption definitions.
+The pacEnvironment (see global-settings.jsonc) is represented with a folder, such as dev, test, tenant, ... A missing folder indicates that the pacEnvironment's Exemptions are managed by this solution. To extract existing extension, the operations script Get-AzExemptions.ps1 can be used to generate JSON and CSV files. The output should be used to start the Exemption definitions.
 
 ### JSON Format
 
@@ -41,9 +41,9 @@ The pacEnvironment (see global-settings.jsonc) is represented with a folder, suc
 
 ### CSV/XLSX Format
 If you use spreadsheets (.csv or .xlsx):
-- Column headers must be exactly as the Json labels above.
+- Column headers must be exactly as the JSON labels above.
 - `policyDefinitionReferenceIds` use comma separated list within each cell.
-- `metadata` cells must contain valid Json.
+- `metadata` cells must contain valid JSON.
 
 <br/>
 

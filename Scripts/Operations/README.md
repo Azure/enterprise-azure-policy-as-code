@@ -51,7 +51,7 @@ This script executes all remediation tasks in a Policy as Code environment speci
 
 ## Build-PolicyAssignmentDocumentation.ps1
 
-Generates documentation for assignments and initiatives based on Json files in `$definitionsFolder/Documentation`. [See Define Documentation for details](../../Definitions/Documentation/README.md).
+Generates documentation for assignments and initiatives based on JSON files in `$definitionsFolder/Documentation`. [See Define Documentation for details](../../Definitions/Documentation/README.md).
 
 |Parameter | Required | Explanation |
 |----------|----------|-------------|

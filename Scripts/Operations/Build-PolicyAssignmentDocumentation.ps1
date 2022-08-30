@@ -40,8 +40,7 @@ param (
 . "$PSScriptRoot/../Helpers/Convert-ListToToCsvRow.ps1"
 . "$PSScriptRoot/../Helpers/Merge-MultipleInitiativeInfos.ps1"
 . "$PSScriptRoot/../Helpers/Out-InitiativeDocumentationToFile.ps1"
-. "$PSScriptRoot/../Helpers/Out-PolicyAssignmentDocumentationPerEnvironmentToFile.ps1"
-. "$PSScriptRoot/../Helpers/Out-PolicyAssignmentDocumentationAcrossEnvironmentsToFile.ps1"
+. "$PSScriptRoot/../Helpers/Out-PolicyAssignmentDocumentationToFile.ps1"
 
 #endregion dot sourcing
 
@@ -125,12 +124,12 @@ foreach ($file in $files) {
     if ($processThisFile) {
         $json = Get-Content -Path $file.FullName -Raw -ErrorAction Stop
         if (-not (Test-Json $json)) {
-            Write-Error "The Json file '$($file.Name)' is not valid." -ErrorAction Stop
+            Write-Error "The JSON file '$($file.Name)' is not valid." -ErrorAction Stop
         }
         $documentationSpec = $json | ConvertFrom-Json
 
         if (-not ($documentationSpec.documentAssignments -or $documentationSpec.documentInitiatives)) {
-            Write-Error "Json document must contain 'documentAssignments' and/or 'documentInitiatives' element(s)." -ErrorAction Stop
+            Write-Error "JSON document must contain 'documentAssignments' and/or 'documentInitiatives' element(s)." -ErrorAction Stop
         }
 
         $documentInitiatives = $documentationSpec.documentInitiatives
@@ -221,7 +220,7 @@ foreach ($file in $files) {
             [hashtable] $assignmentsByEnvironment = @{}
             foreach ($environmentCategoryEntry in $environmentCategories) {
                 if (-not $environmentCategoryEntry.pacEnvironment) {
-                    Write-Error "Json document does not contain the required 'pacEnvironment' element." -ErrorAction Stop
+                    Write-Error "JSON document does not contain the required 'pacEnvironment' element." -ErrorAction Stop
                 }
                 # Load pacEnvironment
                 $pacEnvironmentSelector = $environmentCategoryEntry.pacEnvironment
@@ -288,7 +287,7 @@ foreach ($file in $files) {
                         Write-Information "Field documentationType ($($documentationType)) is deprecated"
                     }
                 }
-                Out-PolicyAssignmentDocumentationAcrossEnvironmentsToFile `
+                Out-PolicyAssignmentDocumentationToFile `
                     -outputPath $outputPath `
                     -documentationSpecification $documentationSpecification `
                     -assignmentsByEnvironment $assignmentsByEnvironment

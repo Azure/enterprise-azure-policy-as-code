@@ -1,6 +1,6 @@
 #Requires -PSEdition Core
 
-function Out-PolicyAssignmentDocumentationAcrossEnvironmentsToFile {
+function Out-PolicyAssignmentDocumentationToFile {
     [CmdletBinding()]
     param (
         [string]  $outputPath,
@@ -104,7 +104,7 @@ function Out-PolicyAssignmentDocumentationAcrossEnvironmentsToFile {
                 environmentCategory = $environmentCategory
                 effectValue         = $effectValue
                 parameters          = $flatPolicyEntry.parameters
-                initiativesList     = $flatPolicyEntry.initiativeList
+                initiativeList      = $flatPolicyEntry.initiativeList
             }
             $null = $environmentList.Add($environmentCategory, $environmentCategoryInfo)
 
@@ -142,18 +142,17 @@ function Out-PolicyAssignmentDocumentationAcrossEnvironmentsToFile {
     [System.Collections.Generic.List[string]] $headerAndToc = [System.Collections.Generic.List[string]]::new()
     [System.Collections.Generic.List[string]] $body = [System.Collections.Generic.List[string]]::new()
 
-    $markdownOutputTypes = @( "full", "summary" )
-    $markdownOutputTypes = @( "summary" )
+    $markdownOutputTypes = @( "details", "summary" )
 
     foreach ($markdownOutputType in $markdownOutputTypes) {
-        $fullOutput = $markdownOutputType -eq "full"
+        $fullOutput = $markdownOutputType -eq "details"
 
         $allLines.Clear()
         $headerAndToc.Clear()
         $body.Clear()
 
         #region Overview
-        $null = $headerAndToc.Add("# $title`n")
+        $null = $headerAndToc.Add("# $title $markdownOutputType`n")
         $null = $headerAndToc.Add("Auto-generated Policy effect documentation across environments '$($environmentCategories -join "', '")' sorted by Policy category and Policy display name.`n")
         $null = $headerAndToc.Add("## Table of contents`n")
 
@@ -166,7 +165,7 @@ function Out-PolicyAssignmentDocumentationAcrossEnvironmentsToFile {
             $itemList = $perEnvironment.itemList
             $assignmentsInfos = $perEnvironment.assignmentsInfos
             $scopes = $perEnvironment.scopes
-            $null = $body.Add("`n### **Environment $environmentCategory**")
+            $null = $body.Add("`n### **$environmentCategory nvironment**")
 
             $null = $body.Add("`nScopes`n")
             foreach ($scope in $scopes) {
@@ -204,7 +203,7 @@ function Out-PolicyAssignmentDocumentationAcrossEnvironmentsToFile {
             # Build additional columns
             $addedEffectColumns = ""
             $environmentList = $_.environmentList
-            $parameterFragment = ""
+            $additionalInfoFragment = ""
             foreach ($environmentCategory in $environmentCategories) {
                 if ($environmentList.ContainsKey($environmentCategory)) {
                     $environmentCategoryValues = $environmentList.$environmentCategory
@@ -216,28 +215,54 @@ function Out-PolicyAssignmentDocumentationAcrossEnvironmentsToFile {
                         -Markdown
                     $addedEffectColumns += " $text |"
 
-                    # Todo: Full output (needs clean design)
-                    # if ($null -ne $parameters -and $parameters.Count -gt 0) {
-                    #     $parameterFragment += "<br/>**$($environmentCategory):**"
-                    #     $text = Convert-ParametersToString -parameters $parameters -Markdown
-                    #     $parameterFragment += $text
-                    # }
-                    # [array] $groupNames = $perInitiative.groupNames
-                    # $parameters = $perInitiative.parameters
-                    # if ($parameters.Count -gt 0 -or $groupNames.Count -gt 0) {
-                    #     $addedRows += "<br/>**$($perInitiative.displayName):**"
-                    #     $text = Convert-ParametersToString -parameters $parameters -outputType "markdown"
-                    #     $addedRows += $text
-                    #     foreach ($groupName in $groupNames) {
-                    #         $addedRows += "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$groupName"
-                    #     }
-                    # }
+                    $parameters = $environmentCategoryValues.parameters
+                    $hasParameters = $false
+                    if ($null -ne $parameters -and $parameters.Count -gt 0) {
+                        foreach ($parameterName in $parameters.Keys) {
+                            $parameter = $parameters.$parameterName
+                            if (-not $parameter.isEffect) {
+                                $hasParameters = $true
+                                break
+                            }
+                        }
+                    }
+
+                    if ($fullOutput -or $hasParameters) {
+
+                        $additionalInfoFragment += "<br/>***$($environmentCategory)*** *environment:*"
+                        if ($fullOutput) {
+                            $initiativeList = $environmentCategoryValues.initiativeList
+                            foreach ($shortName in $initiativeList.Keys) {
+                                $perInitiative = $initiativeList.$shortName
+                                # $initiativeDisplayName = $perInitiative.displayName
+                                $effectValueString = $perInitiative.effectValueString
+                                $additionalInfoFragment += "<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$($shortName): ``$($effectValueString)``"
+                            }
+                        }
+
+                        if ($hasParameters) {
+                            $text = Convert-ParametersToString -parameters $parameters -outputType "markdownAssignment"
+                            $additionalInfoFragment += $text
+                        }
+                    }
                 }
                 else {
                     $addedEffectColumns += " |"
                 }
             }
-            $null = $body.Add("| $($_.category) | **$($_.displayName)**<br/>$($_.description)$($parameterFragment) | $($addedEffectColumns)")
+
+            $groupNames = $_.groupNames
+            if ($fullOutput -and $null -ne $groupNames -and $groupNames.Count -gt 0) {
+                $additionalInfoFragment += "<br/>*Compliance:*"
+                $groupNames = $_.groupNames
+                $groupNamesKeys = $groupNames.Keys
+                $sortedGroupNames = $groupNamesKeys | Sort-Object -Unique
+                foreach ($groupName in $sortedGroupNames) {
+                    $additionalInfoFragment += "<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$groupName"
+                }
+
+            }
+            $null = $body.Add("| $($_.category) | **$($_.displayName)**<br/>$($_.description)$($additionalInfoFragment) | $($addedEffectColumns)")
         }
         $null = $allLines.AddRange($headerAndToc)
         $null = $allLines.AddRange($body)
@@ -254,10 +279,10 @@ function Out-PolicyAssignmentDocumentationAcrossEnvironmentsToFile {
 
     #region csv
 
-    $csvOutputTypes = @( "full", "parameters" )
+    $csvOutputTypes = @( "details", "parameters" )
 
     foreach ($csvOutputType in $csvOutputTypes) {
-        $fullOutput = $csvOutputType -eq "full"
+        $fullOutput = $csvOutputType -eq "details"
 
         # Create header rows for CSV
         [System.Collections.ArrayList] $allRows = [System.Collections.ArrayList]::new()
@@ -327,9 +352,9 @@ function Out-PolicyAssignmentDocumentationAcrossEnvironmentsToFile {
                     $rowObj["$($environmentCategory)_Parameters"] = $text
 
                     if ($fullOutput) {
-                        $perEnvironmentInitiativesList = $perEnvironment.initiativesList
-                        foreach ($shortName in $perEnvironmentInitiativesList.Keys) {
-                            $initiative = $perEnvironmentInitiativesList.$shortName
+                        $perEnvironmentInitiativeList = $perEnvironment.initiativeList
+                        foreach ($shortName in $perEnvironmentInitiativeList.Keys) {
+                            $initiative = $perEnvironmentInitiativeList.$shortName
                             if ($initiative.isEffectParameterized) {
                                 $rowObj["$($environmentCategory)-$($shortName)-Effect"] = $initiative.effectValueString
                             }

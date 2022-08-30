@@ -19,7 +19,7 @@ function Build-AzPolicyDefinitionsPlan {
     )
 
     Write-Information "==================================================================================================="
-    Write-Information "Processing Policy definitions Json files in folder '$policyDefinitionsRootFolder'"
+    Write-Information "Processing Policy definitions JSON files in folder '$policyDefinitionsRootFolder'"
     Write-Information "==================================================================================================="
     $policyFiles = @()
     $policyFiles += Get-ChildItem -Path $policyDefinitionsRootFolder -Recurse -File -Filter "*.json"
@@ -44,17 +44,17 @@ function Build-AzPolicyDefinitionsPlan {
     foreach ($policyFile in $policyFiles) {
         $Json = Get-Content -Path $policyFile.FullName -Raw -ErrorAction Stop
         if (!(Test-Json $Json)) {
-            Write-Error "Policy Json file '$($policyFile.FullName)' is not valid = $Json" -ErrorAction Stop
+            Write-Error "Policy JSON file '$($policyFile.FullName)' is not valid = $Json" -ErrorAction Stop
         }
         $policyObject = $Json | ConvertFrom-Json
 
         $name = $policyObject.name
         $displayName = $policyObject.properties.displayName
         if ($null -eq $name) {
-            Write-Error "Policy Json file '$($policyFile.FullName)' is missing a Policy name" -ErrorAction Stop
+            Write-Error "Policy JSON file '$($policyFile.FullName)' is missing a Policy name" -ErrorAction Stop
         }
         elseif ($null -eq $displayName) {
-            Write-Error "Policy Json file '$($policyFile.FullName)' is missing a Policy displayName" -ErrorAction Stop
+            Write-Error "Policy JSON file '$($policyFile.FullName)' is missing a Policy displayName" -ErrorAction Stop
         }
         if ($customPolicyDefinitions.ContainsKey($name)) {
             Write-Error "Duplicate Policy definition '$($name)' in '$($customPolicyDefinitions[$name].FullName)' and '$($policyFile.FullName)'" -ErrorAction Stop
@@ -110,7 +110,7 @@ function Build-AzPolicyDefinitionsPlan {
             $policyDefinitionConfig.Add("id", $matchingCustomDefinition.id)
 
 
-            # Check if policy definition in Azure is the same as in the Json file
+            # Check if policy definition in Azure is the same as in the JSON file
             $displayNameMatches = $matchingCustomDefinition.displayName -eq $displayName
             $descriptionMatches = $matchingCustomDefinition.description -eq $policyDefinitionConfig.Description
             $modeMatches = $matchingCustomDefinition.mode -eq $policyDefinitionConfig.Mode

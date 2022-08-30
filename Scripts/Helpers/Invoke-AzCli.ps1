@@ -6,7 +6,7 @@ function Get-EscapedString($Argument) {
 function Invoke-AzCli {
     <#
     .SYNOPSIS
-    Invokes the az cli from PowerShell providing better error handling and converts the output from Json to a custom object or a hash table.
+    Invokes the az cli from PowerShell providing better error handling and converts the output from JSON to a custom object or a hash table.
 
     .DESCRIPTION
     Invokes the az cli from PowerShell:
@@ -26,7 +26,7 @@ function Invoke-AzCli {
             keyvalues: value must be a hashtable or can be converted to a hashtable - creates
                 --argName akey=avalue bkey=bvalue ...
             value: optional, required if splat parameter is used to change the argName for a single value (see next format below)
-    Unless specified otherwise, converts the output from Json to a custom object.
+    Unless specified otherwise, converts the output from JSON to a custom object.
 
     .PARAMETER Arguments
     The remaining arguments are passed to the az cli.
@@ -199,7 +199,7 @@ function Invoke-AzCli {
         }
     }
     finally {
-        # Cleanup any temp files creaated for Json
+        # Cleanup any temp files creaated for JSON
         foreach ($tempFile in $tempFiles) {
             Remove-Item $tempFile.FullName -Force
         }

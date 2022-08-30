@@ -24,14 +24,14 @@ The components required for **creating / updating / deleting Policy assignments 
 
 | Component | What is it used for? | Where can it be found? |
 |--|--|--|
-| **Assignment Json files** | The assignments Json file follows the management group hierarchy (optionally including subscriptions and resource groups) and defines all policy and initiative assignments on these scopes. | `Definitions/Assignments` folder |
+| **Assignment JSON files** | The assignments JSON file follows the management group hierarchy (optionally including subscriptions and resource groups) and defines all policy and initiative assignments on these scopes. | `Definitions/Assignments` folder |
 | **Global Settings File** | The `global-settings.jsonc` file specifies common values for Policy Assignments  | `Definitions` folder |
 
 <br/>
 
 ## Assignment structure
 
-Assignment Json is hierarchical for efficient definitions, avoiding duplication of Json with copy/paste
+Assignment JSON is hierarchical for efficient definitions, avoiding duplication of JSON with copy/paste
 
 **Note:** the tee is not required to be balanced. The number of levels is not restricted; however, anything beyond 5 levels is unnecessary in real scenarios and would be difficult to read and manage.
 
@@ -52,7 +52,7 @@ Assignment Json is hierarchical for efficient definitions, avoiding duplication 
 | `ignoreBranch` | Ignore the rest of the tee staring at this node. Can be used to define future assignments without deploying the assignments. | Any node: overrides are ignored. |
 | `enforcementMode` | Similar to `ignoreBranch`, it deploys the assignment and sets the assignment to `Default` or `DoNotEnforce`. `DoNotEnforce` allows a what if analysis. | Any node: overrides previous setting |
 | `additionalRoleAssignments` | `roleDefinitionIds` are calculated from the included (direct or indirect via Initiative) Policy definition(s). Fo some Policies, such as DINE `diagnosticsSettings` the monitor destination might be in a different branch of the Management Group tree from the Assignment. This field specifies any roles requiring assignments in that MG branch. The value is an array, each element containing two items: `roleDefinitionId` and `scope` | Union of all the `additionalRoleAssignments` defined in this branch |
-| Option 1: `definitionEntry` | Specify the `policyName` or `initiativeName` for the assignment. The name should not be a fully qualified `id`. `friendlyNameToDocumentIfGuid` is purely used as a comment to make the Json more readable if the name is a GUID (optional). | Either option 1 or option 2 must exist exactly once in each branch of the tree. |
+| Option 1: `definitionEntry` | Specify the `policyName` or `initiativeName` for the assignment. The name should not be a fully qualified `id`. `friendlyNameToDocumentIfGuid` is purely used as a comment to make the JSON more readable if the name is a GUID (optional). | Either option 1 or option 2 must exist exactly once in each branch of the tree. |
 | Option 2: `definitionEntryList` | List of definitions to assign - creates one assignment per list entry for each tree branch. Each entry must specify a `policyName` or `initiativeName` and may specify `friendlyNameToDocumentIfGuid`. A nested `assignment` must be included to differentiate the multiple assignments being created from a `definitionEntryList`. This `assignment` structure may include an `append` boolean field to indicate that the fields should be appended instead of (default) concatenated first. | Either option 1 or option 2 must exist exactly once in each branch of the tree. |
 
 ## Details for `scope` and `notScope`

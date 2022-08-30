@@ -22,7 +22,7 @@ function Build-AzInitiativeDefinitionsPlan {
     )
 
     Write-Information "==================================================================================================="
-    Write-Information "Processing Initiative definitions Json files in folder '$initiativeDefinitionsRootFolder'"
+    Write-Information "Processing Initiative definitions JSON files in folder '$initiativeDefinitionsRootFolder'"
     Write-Information "==================================================================================================="
     $initiativeFiles = @()
     $initiativeFiles += Get-ChildItem -Path $initiativeDefinitionsRootFolder -Recurse -File -Filter "*.json"
@@ -56,22 +56,22 @@ function Build-AzInitiativeDefinitionsPlan {
     }
 
 
-    # Getting Initiative definitions from the Json files
+    # Getting Initiative definitions from the JSON files
     $obsoleteInitiativeDefinitions = $existingCustomInitiativeDefinitions.Clone()
     foreach ($initiativeFile in $initiativeFiles) {
         $Json = Get-Content -Path $initiativeFile.FullName -Raw -ErrorAction Stop
         if (!(Test-Json $Json)) {
-            Write-Error "Initiative Json file '$($initiativeFile.Name)' is not valid = $Json" -ErrorAction Stop
+            Write-Error "Initiative JSON file '$($initiativeFile.Name)' is not valid = $Json" -ErrorAction Stop
         }
         $initiativeObject = $Json | ConvertFrom-Json -Depth 100
 
         $name = $initiativeObject.name
         $displayName = $initiativeObject.properties.displayName
         if ($null -eq $name) {
-            Write-Error "Initiative Json file '$($policyFile.FullName)' is missing an Initiative name" -ErrorAction Stop
+            Write-Error "Initiative JSON file '$($policyFile.FullName)' is missing an Initiative name" -ErrorAction Stop
         }
         elseif ($null -eq $displayName) {
-            Write-Error "Initiative Json file '$($policyFile.FullName)' is missing a Initiative displayName" -ErrorAction Stop
+            Write-Error "Initiative JSON file '$($policyFile.FullName)' is missing a Initiative displayName" -ErrorAction Stop
         }
         if ($customInitiativeDefinitions.ContainsKey($name)) {
             Write-Error "Duplicate Initiative definition '$($name)' in '$($customInitiativeDefinitions[$name].FullName)' and '$($initiativeFile.FullName)'" -ErrorAction Stop
@@ -209,7 +209,7 @@ function Build-AzInitiativeDefinitionsPlan {
                     $replacedInitiativeDefinitions.Add($name, $initiativeDefinitionConfig)
                 }
                 else {
-                    # Check if Initiative definition in Azure is the same as in the Json file
+                    # Check if Initiative definition in Azure is the same as in the JSON file
                     $displayNameMatches = $matchingCustomDefinition.displayName -eq $initiativeDefinitionConfig.DisplayName
                     $descriptionMatches = $matchingCustomDefinition.description -eq $initiativeDefinitionConfig.Description
                     $metadataMatches = Confirm-MetadataMatches `
