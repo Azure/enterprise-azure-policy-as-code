@@ -39,7 +39,7 @@ $scopeTreeInfo = Get-AzScopeTree `
     -tenantId $pacEnvironment.tenantId `
     -scopeParam $rootScope `
     -defaultSubscriptionId $pacEnvironment.defaultSubscriptionId
-$null, $remediations = Get-AzAssignmentsAtScopeRecursive `
+$null, $remediations, $null = Get-AzAssignmentsAtScopeRecursive `
     -scopeTreeInfo $scopeTreeInfo `
     -notScopeIn $pacEnvironment.globalNotScopeList `
     -includeResourceGroups $false `
