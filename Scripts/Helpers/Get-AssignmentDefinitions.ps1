@@ -118,7 +118,12 @@ function Get-AssignmentDefinitions {
         Write-Debug "        parameters inherited $($inheritedParameters | ConvertTo-Json -Depth 100)"
         Write-Debug "        parameters at node   $($addedParameters | ConvertTo-Json -Depth 100)"
         foreach ($parameterName in $addedParameters.Keys) {
-            $parameterValue = Get-DeepClone $addedParameters.$parameterName -AsHashTable
+            if ($addedParameters.$parameterName -is [array]) {
+                $parameterValue = $addedParameters.$parameterName
+            }
+            else {
+                $parameterValue = Get-DeepClone $addedParameters.$parameterName -AsHashTable
+            }
             if ($inheritedParameters.ContainsKey($parameterName)) {
                 $def.parameters[$parameterName] = $parameterValue
             }
