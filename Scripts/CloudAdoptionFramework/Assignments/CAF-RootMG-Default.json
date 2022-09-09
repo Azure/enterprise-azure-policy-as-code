@@ -1,0 +1,175 @@
+{
+    "nodeName": "/Root/",
+    "scope": {
+        "tenant1": [
+            ""
+        ]
+    },
+    "parameters": {
+        "logAnalytics": "",
+        "logAnalytics_1": "",
+        "emailSecurityContact": "",
+        "ascExportResourceGroupName": "",
+        "ascExportResourceGroupLocation": ""
+    },
+    "children": [
+        {
+            "nodeName": "Security/",
+            "children": [
+                {
+                    "nodeName": "ASB",
+                    "assignment": {
+                        "name": "Deploy-ASC-Monitoring",
+                        "displayName": "Azure Security Benchmark",
+                        "description": "Azure Security Benchmark policy initiative"
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
+                        "friendlyNameToDocumentIfGuid": "Azure Security Benchmark"
+                    },
+                    "parameters": {
+                        "aadAuthenticationInSqlServerMonitoringEffect": "Disabled",
+                        "diskEncryptionMonitoringEffect": "Disabled",
+                        "encryptionOfAutomationAccountMonitoringEffect": "Disabled",
+                        "identityDesignateLessThanOwnersMonitoringEffect": "Disabled",
+                        "identityDesignateMoreThanOneOwnerMonitoringEffect": "Disabled",
+                        "identityEnableMFAForWritePermissionsMonitoringEffect": "Disabled",
+                        "identityRemoveDeprecatedAccountMonitoringEffect": "Disabled",
+                        "identityRemoveDeprecatedAccountWithOwnerPermissionsMonitoringEffect": "Disabled",
+                        "identityRemoveExternalAccountWithOwnerPermissionsMonitoringEffect": "Disabled",
+                        "identityRemoveExternalAccountWithReadPermissionsMonitoringEffect": "Disabled",
+                        "identityRemoveExternalAccountWithWritePermissionsMonitoringEffect": "Disabled",
+                        "jitNetworkAccessMonitoringEffect": "Disabled",
+                        "networkSecurityGroupsOnSubnetsMonitoringEffect": "AuditIfNotExists",
+                        "sqlDbEncryptionMonitoringEffect": "Disabled",
+                        "sqlManagedInstanceAdvancedDataSecurityEmailAdminsMonitoringEffect": "Disabled",
+                        "sqlManagedInstanceAdvancedDataSecurityEmailsMonitoringEffect": "Disabled",
+                        "sqlServerAdvancedDataSecurityEmailAdminsMonitoringEffect": "Disabled",
+                        "sqlServerAdvancedDataSecurityMonitoringEffect": "Disabled",
+                        "systemUpdatesMonitoringEffect": "Disabled",
+                        "vmssSystemUpdatesMonitoringEffect": "Disabled",
+                        "windowsDefenderExploitGuardMonitoringEffect": "Disabled",
+                        "useRbacRulesMonitoringEffect": "Disabled",
+                        "useServicePrincipalToProtectSubscriptionsMonitoringEffect": "Disabled",
+                        "identityEnableMFAForOwnerPermissionsMonitoringEffect": "Disabled",
+                        "networkWatcherShouldBeEnabledMonitoringEffect": "Disabled",
+                        "autoProvisioningOfTheLogAnalyticsAgentShouldBeEnabledOnYourSubscriptionMonitoringEffect": "Disabled"
+                    }
+                },
+                {
+                    "nodeName": "MDFC",
+                    "assignment": {
+                        "name": "Deploy-MDFC-Config",
+                        "displayName": "Deploy Microsoft Defender for Cloud configuration",
+                        "description": "Deploy Microsoft Defender for Cloud and Security Contacts"
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "Deploy-MDFC-Config",
+                        "friendlyNameToDocumentIfGuid": "Microsoft Defender For Cloud"
+                    },
+                    "parameters": {
+                        "enableAscForServers": "DeployIfNotExists",
+                        "enableAscForSql": "DeployIfNotExists",
+                        "enableAscForAppServices": "DeployIfNotExists",
+                        "enableAscForStorage": "DeployIfNotExists",
+                        "enableAscForContainers": "DeployIfNotExists",
+                        "enableAscForKeyVault": "DeployIfNotExists",
+                        "enableAscForSqlOnVm": "DeployIfNotExists",
+                        "enableAscForArm": "DeployIfNotExists",
+                        "enableAscForDns": "DeployIfNotExists",
+                        "enableAscForOssDb": "DeployIfNotExists"
+                    }
+                }
+            ]
+        },
+        {
+            "nodeName": "Logging/",
+            "children": [
+                {
+                    "nodeName": "ActivityLogs",
+                    "assignment": {
+                        "name": "Deploy-AzActivity-Log",
+                        "displayName": "Deploy Diagnostic Settings for Activity Log to Log Analytics workspace",
+                        "description": "Ensures that Activity Log Diagnostics settings are set to push logs into Log Analytics workspace."
+                    },
+                    "definitionEntry": {
+                        "policyName": "2465583e-4e78-4c15-b6be-a36cbc7c8b0f",
+                        "friendlyNameToDocumentIfGuid": "Activity Logs"
+                    },
+                    "parameters": {
+                        "effect": "DeployIfNotExists",
+                        "logsEnabled": "True"
+                    }
+                },
+                {
+                    "nodeName": "ResourceDiagnostics",
+                    "assignment": {
+                        "name": "Deploy-Resource-Diag",
+                        "displayName": "Deploy-Resource-Diag",
+                        "description": "Ensures that Azure resources are configured to forward diagnostic logs and metrics to an Azure Log Analytics workspace."
+                    },
+                    "definitionEntry": {
+                        "policyName": "2465583e-4e78-4c15-b6be-a36cbc7c8b0f",
+                        "friendlyNameToDocumentIfGuid": "Activity Logs"
+                    },
+                    "parameters": {
+                        "effect": "DeployIfNotExists"
+                    }
+                },
+                {
+                    "nodeName": "VMMonitoring",
+                    "assignment": {
+                        "name": "Deploy-VM-Monitoring",
+                        "displayName": "Enable Azure Monitor for VMs",
+                        "description": "Enable Azure Monitor for the virtual machines (VMs) in the specified scope (management group, subscription or resource group). Takes Log Analytics workspace as parameter."
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "55f3eceb-5573-4f18-9695-226972c6d74a",
+                        "friendlyNameToDocumentIfGuid": "VM Monitoring"
+                    }
+                },
+                {
+                    "nodeName": "VMSSMonitoring",
+                    "assignment": {
+                        "name": "Deploy-VMSS-Monitoring",
+                        "displayName": "Enable Azure Monitor for Virtual Machine Scale Sets",
+                        "description": "Enable Azure Monitor for the Virtual Machine Scale Sets in the specified scope (Management group, Subscription or resource group). Takes Log Analytics workspace as parameter. Note: if your scale set upgradePolicy is set to Manual, you need to apply the extension to the all VMs in the set by calling upgrade on them. In CLI this would be az vmss update-instances."
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "75714362-cae7-409e-9b99-a8e5075b7fad",
+                        "friendlyNameToDocumentIfGuid": "VMSS Monitoring"
+                    }
+                }
+            ]
+        },
+        {
+            "nodeName": "Compute",
+            "children": [
+                {
+                    "nodeName": "Arc-Linux-Monitoring",
+                    "assignment": {
+                        "name": "Deploy-LX-Arc-Monitoring",
+                        "displayName": "Deploy-Linux-Arc-Monitoring",
+                        "description": "Deploy-Linux-Arc-Monitoring"
+                    },
+                    "definitionEntry": {
+                        "policyName": "9d2b61b4-1d14-4a63-be30-d4498e7ad2cf",
+                        "friendlyNameToDocumentIfGuid": "Arc Linux Monitoring"
+                    }
+                },
+                {
+                    "nodeName": "Arc-Windows-Monitoring",
+                    "assignment": {
+                        "name": "Deploy-Arc-Monitoring",
+                        "displayName": "Deploy-Windows-Arc-Monitoring",
+                        "description": "Deploy-Windows-Arc-Monitoring"
+                    },
+                    "definitionEntry": {
+                        "policyName": "69af7d4a-7b18-4044-93a9-2651498ef203",
+                        "friendlyNameToDocumentIfGuid": "Arc Windows Monitoring"
+                    }
+                }
+            ]
+        }
+    ]
+}
