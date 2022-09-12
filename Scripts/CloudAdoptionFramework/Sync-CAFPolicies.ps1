@@ -1,7 +1,7 @@
 #Requires -PSEdition Core
 
 Param(
-    [Parameter(Mandatory = $false)] [string] $DefinitionsRootFolder, [string]$AzureEnvironment
+    [Parameter(Mandatory = $false)] [string] $DefinitionsRootFolder
 )
 
 if ($definitionsRootFolder -eq "") {

@@ -257,6 +257,7 @@ The repo contains a script to synchronize directories in both directions: `Sync-
 | **Deployment Scripts** | Scripts are used to deploy your Policies, Initiatives, and Assignments to Azure. They do not need to be modified. If you have improvements, please offer to contribute them. | Folder `Scripts/Deploy` |
 | **Operational Scripts** | Scripts used to during operations (e.g., creating remediation tasks). | Folder `Scripts/Operations` |
 | **Helper Scripts** | These Scripts are used by other scripts. | Folder `Scripts/Helpers` |
+| **Cloud Adoption Framework Scripts** | The files in here are used to synchronize policies from the main ESLZ repository | Folder `Scripts\CloudAdoptionFramework` |
 
 <br/>
 
@@ -270,6 +271,7 @@ The repo contains a script to synchronize directories in both directions: `Sync-
 1. **[Define Policy Exemptions](Definitions/Exemptions/README.md)**
 1. **[Documenting Assignments and Initiatives](Definitions/Documentation/README.md)**
 1. **[Operational Scripts](Scripts/Operations/README.md)**
+1. **[Cloud Adoption Framework Policies](Scripts/CloudAdoptionFramework/README.md)**
 
 <br/>
 

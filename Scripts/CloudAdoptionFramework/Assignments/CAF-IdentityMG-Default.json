@@ -2,7 +2,7 @@
     "nodeName": "/Identity/",
     "scope": {
         "tenant1": [
-            ""
+            "/providers/Microsoft.Management/managementGroups/identity"
         ]
     },
     "children": [

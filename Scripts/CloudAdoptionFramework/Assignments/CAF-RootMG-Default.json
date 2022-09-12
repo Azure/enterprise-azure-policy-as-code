@@ -2,7 +2,7 @@
     "nodeName": "/Root/",
     "scope": {
         "tenant1": [
-            ""
+            "/providers/Microsoft.Management/managementGroups/toplevelmanagementgroup"
         ]
     },
     "parameters": {

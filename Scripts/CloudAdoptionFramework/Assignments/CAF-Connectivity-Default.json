@@ -2,7 +2,7 @@
     "nodeName": "/Connectivity/",
     "scope": {
         "tenant1": [
-            ""
+            "/providers/Microsoft.Management/managementGroups/connectivity"
         ]
     },
     "children": [

@@ -2,7 +2,7 @@
     "nodeName": "/Corp/",
     "scope": {
         "tenant1": [
-            ""
+            "/providers/Microsoft.Management/managementGroups/corp"
         ]
     },
     "children": [
