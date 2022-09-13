@@ -1,0 +1,26 @@
+{
+    "nodeName": "/Connectivity/",
+    "scope": {
+        "tenant1": [
+            "/providers/Microsoft.Management/managementGroups/connectivity"
+        ]
+    },
+    "children": [
+        {
+            "nodeName": "Networking",
+            "assignment": {
+                "name": "Enable-DDoS-VNET",
+                "displayName": "Virtual networks should be protected by Azure DDoS Protection Standard",
+                "description": "Protect your virtual networks against volumetric and protocol attacks with Azure DDoS Protection Standard. For more information, visit https://aka.ms/ddosprotectiondocs."
+            },
+            "definitionEntry": {
+                "policyName": "94de2ad3-e0c1-4caf-ad78-5d47bbc83d3d",
+                "friendlyNameToDocumentIfGuid": "Audit D"
+            },
+            "parameters": {
+                "effect": "Modify",
+                "ddosPlan": ""
+            }
+        }
+    ]
+}

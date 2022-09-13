@@ -1,0 +1,34 @@
+{
+    "nodeName": "/Management/",
+    "scope": {
+        "tenant1": [
+            "/providers/Microsoft.Management/managementGroups/management"
+        ]
+    },
+    "parameters": {
+        "logAnalytics": ""
+    },
+    "children": [
+        {
+            "nodeName": "Logging/",
+            "children": [
+                {
+                    "nodeName": "ActivityLogs",
+                    "assignment": {
+                        "name": "Deploy-AzActivity-Log-MG",
+                        "displayName": "Configure Azure Activity logs to stream to specified Log Analytics workspace",
+                        "description": "Deploys the diagnostic settings for Azure Activity to stream subscriptions audit logs to a Log Analytics workspace to monitor subscription-level events"
+                    },
+                    "definitionEntry": {
+                        "policyName": "2465583e-4e78-4c15-b6be-a36cbc7c8b0f",
+                        "friendlyNameToDocumentIfGuid": "Activity Logs"
+                    },
+                    "parameters": {
+                        "effect": "DeployIfNotExists",
+                        "logsEnabled": "True"
+                    }
+                }
+            ]
+        }
+    ]
+}

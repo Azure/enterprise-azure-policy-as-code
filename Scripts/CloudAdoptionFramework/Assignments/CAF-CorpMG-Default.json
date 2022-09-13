@@ -1,0 +1,80 @@
+{
+    "nodeName": "/Corp/",
+    "scope": {
+        "tenant1": [
+            "/providers/Microsoft.Management/managementGroups/corp"
+        ]
+    },
+    "children": [
+        {
+            "nodeName": "Networking/",
+            "children": [
+                {
+                    "nodeName": "PublicEndpoint",
+                    "assignment": {
+                        "name": "Deny-Public-Endpoints",
+                        "displayName": "Public network access should be disabled for PaaS services",
+                        "description": "This policy initiative is a group of policies that prevents creation of Azure PaaS services with exposed public endpoints"
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "Deny-PublicPaaSEndpoints",
+                        "friendlyNameToDocumentIfGuid": "Deny Public PaaS Endpoints"
+                    }
+                },
+                {
+                    "nodeName": "PublicIP",
+                    "assignment": {
+                        "name": "Deny-Public-IP-Corp",
+                        "displayName": "Deny the creation of public IP",
+                        "description": "This policy denies creation of Public IPs under the assigned scope."
+                    },
+                    "definitionEntry": {
+                        "policyName": "Deny-PublicIP",
+                        "friendlyNameToDocumentIfGuid": "Deny Public IP"
+                    }
+                }
+            ]
+        },
+        {
+            "nodeName": "Databricks/",
+            "children": [
+                {
+                    "nodeName": "NoDBPIP",
+                    "assignment": {
+                        "name": "Deny-DataB-Pip",
+                        "displayName": "Prevent usage of Databricks with public IP",
+                        "description": "Prevent the deployment of Databricks workspaces that do not use the noPublicIp feature to host Databricks clusters without public IPs."
+                    },
+                    "definitionEntry": {
+                        "policyName": "Deny-Databricks-NoPublicIp",
+                        "friendlyNameToDocumentIfGuid": "Deny Databricks with Public Ip"
+                    }
+                },
+                {
+                    "nodeName": "DbPremium",
+                    "assignment": {
+                        "name": "Deny-DataB-Sku",
+                        "displayName": "Enforces the use of Premium Databricks workspaces",
+                        "description": "Enforces the use of Premium Databricks workspaces to make sure appropriate security features are available including Databricks Access Controls, Credential Passthrough and SCIM provisioning for AAD."
+                    },
+                    "definitionEntry": {
+                        "policyName": "Deny-Databricks-Sku",
+                        "friendlyNameToDocumentIfGuid": "Deny Databricks Sku"
+                    }
+                },
+                {
+                    "nodeName": "DbVnet",
+                    "assignment": {
+                        "name": "Deny-DataB-Vnet",
+                        "displayName": "Enforces the use of vnet injection for Databricks",
+                        "description": "Enforces the use of vnet injection for Databricks workspaces."
+                    },
+                    "definitionEntry": {
+                        "policyName": "Deny-Databricks-VirtualNetwork",
+                        "friendlyNameToDocumentIfGuid": "Deny Databricks Virtual Network"
+                    }
+                }
+            ]
+        }
+    ]
+}
