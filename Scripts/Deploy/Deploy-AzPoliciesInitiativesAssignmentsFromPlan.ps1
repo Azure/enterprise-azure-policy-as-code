@@ -407,7 +407,7 @@ if (!$noChanges) {
 
 }
 
-$numberOfRoleChanges = ($rolesPlan.removed).Count + ($rolesPlan.removed).Count
+$numberOfRoleChanges = ($rolesPlan.added).Count + ($rolesPlan.removed).Count
 Write-Information "==================================================================================================="
 Write-Information "Writing $($numberOfRoleChanges) Role Assignment changes to plan file $RolesPlanFile"
 Write-Information "==================================================================================================="
