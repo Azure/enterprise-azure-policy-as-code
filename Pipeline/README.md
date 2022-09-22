@@ -63,8 +63,8 @@ Create service connections for each of your environments and require minimum rol
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | sc-pac-dev | devAllStage  | Owner ||||
 | sc-pac-test    | testAllStage || Owner |||
-| sc-pac-plan-1 | prodPlanFeatureStage <br/> prodPlanMainStage ||| Policy Reader<br/>Security Reader ||
-| sc-pac-plan-2 | prodPlanFeatureStage <br/> prodPlanMainStage |||| Policy Reader<br/>Security Reader |
+| sc-pac-plan-1 | prodPlanFeatureStage <br/> prodPlanMainStage ||| EPAC Policy Reader<br/>Security Reader ||
+| sc-pac-plan-2 | prodPlanFeatureStage <br/> prodPlanMainStage |||| EPAC Policy Reader<br/>Security Reader |
 | sc-pac-prod-1 | prodDeployStage-1 ||| Policy Contributor<br/>Security Reader ||
 | sc-pac-prod-2 | prodDeployStage-2 |||| Policy Contributor<br/>Security Reader |
 | sc-pac-roles-1 | prodRolesStage-1 ||| User Administrator<br/>Security Reader ||

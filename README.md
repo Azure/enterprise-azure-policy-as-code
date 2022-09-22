@@ -9,7 +9,7 @@ In this file:
 - [GitHub repository: How to clone or fork, update and contribute](#github-repository-how-to-clone-or-fork-update-and-contribute)
 - [Quick Start](#quick-start)
   - [Starter Kit](#starter-kit)
-  - [Policy Reader role (custom)](#policy-reader-role-custom)
+  - [EPAC Policy Reader role (custom)](#policy-reader-role-custom)
   - [Required Management Groups and subscriptions](#required-management-groups-and-subscriptions)
   - [Service connections for DevOps CI/CD](#service-connections-for-devops-cicd)
   - [EPAC environments setup](#epac-environments-setup)
@@ -100,9 +100,9 @@ This quick is meant as an overview. We highly recommend that you read the entire
 
 The solution has a starter kit (folder `StarterKit`). Copy the contents of the `StarterKit/Definitions` folder to `Definitions` folder. Copy the pipeline definition(s) for your DevOps deployment solution (for example: Azure DevOps, GitHub) to the `Pipeline` folder.
 
-### Policy Reader role (custom)
+### EPAC Policy Reader role (custom)
 
-Create a custom role to be used by the planing stages' service connections **Policy Reader role**. Script `./Scripts/Operations/New-AzPolicyReaderRole.ps1` will create the role at the scope defined in `global-settings.json`. It will contain:
+Create a custom role to be used by the planing stages' service connections **EPAC Policy Reader role**. Script `./Scripts/Operations/New-AzPolicyReaderRole.ps1` will create the role at the scope defined in `global-settings.json`. It will contain:
    - `Microsoft.Authorization/policyAssignments/read`
    - `Microsoft.Authorization/policyDefinitions/read`
    - `Microsoft.Authorization/policySetDefinitions/read`
@@ -132,7 +132,7 @@ Create Service Principals for the pipeline execution and setup your DevOps envir
   - Owner role at subscription for deploying to your EPAC development subscription
   - Owner role at subscription for deploying to your EPAC test subscription
 - Per Azure tenant at your highest Management Group (called rootScope in EPAC vernacular)
-  - Security Reader and Policy Reader (custom) or Policy Contributor roles for planning the EPAC prod deployment
+  - Security Reader and EPAC Policy Reader (custom) or Policy Contributor roles for planning the EPAC prod deployment
   - Security Reader and Policy Contributor for deploying Policies, Initiatives and Assignments in the EPAC prod environment
   - User Administrator for assigning roles to the Assignments' Managed Identities (for remediation tasks) in the EPAC prod environment
 
