@@ -21,12 +21,12 @@ $pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -definitionsRoot
 Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -interactive $pacEnvironment.interactive
 
 Write-Information "==================================================================================================="
-Write-Information "Creating custom role 'Policy Reader'"
+Write-Information "Creating custom role 'EPAC Policy Reader'"
 Write-Information "==================================================================================================="
 
 
 $role = [Microsoft.Azure.Commands.Resources.Models.Authorization.PSRoleDefinition]::new()
-$role.Name = 'Policy Reader'
+$role.Name = 'EPAC Policy Reader'
 $role.Id = '2baa1a7c-6807-46af-8b16-5e9d03fba029'
 $role.Description = 'Read access to Azure Policy.'
 $role.IsCustom = $true
