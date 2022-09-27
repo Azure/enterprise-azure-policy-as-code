@@ -109,8 +109,8 @@
                         "description": "Ensures that Azure resources are configured to forward diagnostic logs and metrics to an Azure Log Analytics workspace."
                     },
                     "definitionEntry": {
-                        "policyName": "2465583e-4e78-4c15-b6be-a36cbc7c8b0f",
-                        "friendlyNameToDocumentIfGuid": "Activity Logs"
+                        "initiativeName": "Deploy-Diagnostics-LogAnalytics",
+                        "friendlyNameToDocumentIfGuid": "Resource Diagnostics"
                     },
                     "parameters": {
                         "effect": "DeployIfNotExists"
