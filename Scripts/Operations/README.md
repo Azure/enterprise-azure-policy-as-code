@@ -114,6 +114,18 @@ Lists Role assignments per user.
 
 <br/>
 
+## Get-AzPolicyAliasOutputCSV.ps1
+
+Pull all policy aliases into a CSV file. This is helpful for Azure Policy development.
+
+|Parameter | Required | Explanation |
+|----------|----------|-------------|
+| `NamespaceMatch` | Optional | Use this to cut out unnecessary aliases by specifying your desired namespace. More documentation here: https://learn.microsoft.com/en-us/powershell/module/az.resources/get-azpolicyalias?view=azps-8.3.0|
+| `ResourceTypeMatch` | Optional | Resource type match can also be used to filter out unnecessary aliases. More documentation here: https://learn.microsoft.com/en-us/powershell/module/az.resources/get-azpolicyalias?view=azps-8.3.0
+
+
+<br/>
+
 ## Reading List
 
 1. **[Pipeline](../../Pipeline/README.md)**
