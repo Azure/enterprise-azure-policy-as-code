@@ -143,8 +143,9 @@ Create Service Principals for the pipeline execution and setup your DevOps envir
 > **Note:** 
 > When creating a Service Connection in Azure DevOps you can set up the service connections on Subscription or a Management Group scope level, when configuring the service connection for the EPAC Developer and Test subscriptions the service connections scope level is **Subscription**, however when creating a Service Connections for EPAC Prod Plan, EPAC Prod Deployment and EPAC Role Assignment the service connection scope level is **Management Group**.
 
-![image](https://user-images.githubusercontent.com/26624010/193749033-a74c871e-a372-4003-9b20-0efea1e11ee3.png)
-![image](https://user-images.githubusercontent.com/26624010/193749169-9514c483-a37b-493c-96d1-c193ea846daa.png)
+Subscription scope level | Management Group scope level
+:-----------:|:----------------: 
+![image](https://user-images.githubusercontent.com/26624010/193749033-a74c871e-a372-4003-9b20-0efea1e11ee3.png) | ![image](https://user-images.githubusercontent.com/26624010/193749169-9514c483-a37b-493c-96d1-c193ea846daa.png)
 
 ### EPAC environments setup
 
