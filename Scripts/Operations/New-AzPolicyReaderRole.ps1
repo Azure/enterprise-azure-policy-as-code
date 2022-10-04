@@ -32,6 +32,7 @@ $role.Description = 'Read access to Azure Policy.'
 $role.IsCustom = $true
 $perms = @(
     "*/read",
+    "Microsoft.Management/register/action",
     "Microsoft.Authorization/policyassignments/read",
     "Microsoft.Authorization/policydefinitions/read",
     "Microsoft.Authorization/policyexemptions/read",
