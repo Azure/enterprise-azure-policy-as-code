@@ -145,7 +145,7 @@ Create Service Principals for the pipeline execution and setup your DevOps envir
 
 Subscription scope level | Management Group scope level
 :-----------:|:----------------: 
-![image](https://user-images.githubusercontent.com/26624010/193749033-a74c871e-a372-4003-9b20-0efea1e11ee3.png) | ![image](https://user-images.githubusercontent.com/26624010/193749169-9514c483-a37b-493c-96d1-c193ea846daa.png)
+![image](./Docs/Images/azdoServiceConnectionSubConf.png) | ![image](./Docs/Images/azdoServiceConnectionMGConf.png)
 
 ### EPAC environments setup
 
