@@ -103,6 +103,7 @@ The solution has a starter kit (folder `StarterKit`). Copy the contents of the `
 ### EPAC Policy Reader role (custom)
 
 Create a custom role to be used by the planing stages' service connections **EPAC Policy Reader role**. Script `./Scripts/Operations/New-AzPolicyReaderRole.ps1` will create the role at the scope defined in `global-settings.json`. It will contain:
+   - `Microsoft.Management/register/action`
    - `Microsoft.Authorization/policyassignments/read`
    - `Microsoft.Authorization/policydefinitions/read`
    - `Microsoft.Authorization/policyexemptions/read`
