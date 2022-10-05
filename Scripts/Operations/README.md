@@ -19,11 +19,15 @@ Many scripts use a configuration value called `RootScope`. It denotes the locati
 
 ## New-AzPolicyReaderRole.ps1
 
-Creates a custom role `Policy Contributor` at the scope selected with `PacEnvironmentSelector`:
+Creates a custom role `Policy Reader` at the scope selected with `PacEnvironmentSelector`:
 
-- `Microsoft.Authorization/policyAssignments/read`
-- `Microsoft.Authorization/policyDefinitions/read`
-- `Microsoft.Authorization/policySetDefinitions/read`
+- `Microsoft.Management/register/action`
+- `Microsoft.Authorization/policyassignments/read`
+- `Microsoft.Authorization/policydefinitions/read`
+- `Microsoft.Authorization/policyexemptions/read`
+- `Microsoft.Authorization/policysetdefinitions/read`
+- `Microsoft.PolicyInsights/*`
+- `Microsoft.Support/*`
 
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
