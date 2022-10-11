@@ -138,7 +138,7 @@ Create Service Principals for the pipeline execution and setup your DevOps envir
 - Per Azure tenant at your highest Management Group (called rootScope in EPAC vernacular)
   - Security Reader and EPAC Policy Reader (custom) or Policy Contributor roles for planning the EPAC prod deployment
   - Security Reader and Policy Contributor for deploying Policies, Initiatives and Assignments in the EPAC prod environment
-  - User Administrator for assigning roles to the Assignments' Managed Identities (for remediation tasks) in the EPAC prod environment
+  - User Access Administrator for assigning roles to the Assignments' Managed Identities (for remediation tasks) in the EPAC prod environment
 
 > **Note:** 
 > When creating a Service Connection in Azure DevOps you can set up the service connections on Subscription or a Management Group scope level, when configuring the service connection for the EPAC Developer and Test subscriptions the service connections scope level is **Subscription**, however when creating a Service Connections for EPAC Prod Plan, EPAC Prod Deployment and EPAC Role Assignment the service connection scope level is **Management Group**.
