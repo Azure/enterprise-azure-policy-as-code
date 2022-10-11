@@ -67,8 +67,8 @@ Create service connections for each of your environments and require minimum rol
 | sc-pac-plan-2 | prodPlanFeatureStage <br/> prodPlanMainStage |||| EPAC Policy Reader<br/>Security Reader |
 | sc-pac-prod-1 | prodDeployStage-1 ||| Policy Contributor<br/>Security Reader ||
 | sc-pac-prod-2 | prodDeployStage-2 |||| Policy Contributor<br/>Security Reader |
-| sc-pac-roles-1 | prodRolesStage-1 ||| User Administrator<br/>Security Reader ||
-| sc-pac-roles-2 | prodRolesStage-2 |||| User Administrator<br/>Security Reader |
+| sc-pac-roles-1 | prodRolesStage-1 ||| User Access Administrator<br/>Security Reader ||
+| sc-pac-roles-2 | prodRolesStage-2 |||| User Access Administrator<br/>Security Reader |
 | none | prodNoPolicyStage-1 <br/> prodNoRoleStage-1 <br/> prodNoPolicyStage-2 </br> prodNoRoleStage-2 |||||
 
 <br/>
