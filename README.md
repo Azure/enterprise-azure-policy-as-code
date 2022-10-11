@@ -9,7 +9,7 @@ In this file:
 - [GitHub repository: How to clone or fork, update and contribute](#github-repository-how-to-clone-or-fork-update-and-contribute)
 - [Quick Start](#quick-start)
   - [Starter Kit](#starter-kit)
-  - [EPAC Policy Reader role (custom)](#policy-reader-role-custom)
+  - [EPAC Resource Policy Reader role (custom)](#epac-resource-policy-reader-role-custom)
   - [Required Management Groups and subscriptions](#required-management-groups-and-subscriptions)
   - [Service connections for DevOps CI/CD](#service-connections-for-devops-cicd)
   - [EPAC environments setup](#epac-environments-setup)
@@ -30,7 +30,6 @@ More details:
 - [Create Initiative Definitions](Definitions/Initiatives/README.md)
 - [Define Policy Assignments](Definitions/Assignments/README.md)
 - [Define Policy Exemptions](Definitions/Exemptions/README.md)
-
 
 - [Documenting Assignments and Initiatives](Definitions/Documentation/README.md)
 - [Operational Scripts](Scripts/Operations/README.md)
@@ -100,16 +99,17 @@ This quick is meant as an overview. We highly recommend that you read the entire
 
 The solution has a starter kit (folder `StarterKit`). Copy the contents of the `StarterKit/Definitions` folder to `Definitions` folder. Copy the pipeline definition(s) for your DevOps deployment solution (for example: Azure DevOps, GitHub) to the `Pipeline` folder.
 
-### EPAC Policy Reader role (custom)
+### EPAC Resource Policy Reader role (custom)
 
 Create a custom role to be used by the planing stages' service connections **EPAC Policy Reader role**. Script `./Scripts/Operations/New-AzPolicyReaderRole.ps1` will create the role at the scope defined in `global-settings.json`. It will contain:
-   - `Microsoft.Management/register/action`
-   - `Microsoft.Authorization/policyassignments/read`
-   - `Microsoft.Authorization/policydefinitions/read`
-   - `Microsoft.Authorization/policyexemptions/read`
-   - `Microsoft.Authorization/policysetdefinitions/read`
-   - `Microsoft.PolicyInsights/*`
-   - `Microsoft.Support/*`
+
+- `Microsoft.Management/register/action`
+- `Microsoft.Authorization/policyassignments/read`
+- `Microsoft.Authorization/policydefinitions/read`
+- `Microsoft.Authorization/policyexemptions/read`
+- `Microsoft.Authorization/policysetdefinitions/read`
+- `Microsoft.PolicyInsights/*`
+- `Microsoft.Support/*`
 
 <br/>
 
@@ -140,11 +140,11 @@ Create Service Principals for the pipeline execution and setup your DevOps envir
   - Security Reader and Policy Contributor for deploying Policies, Initiatives and Assignments in the EPAC prod environment
   - User Access Administrator for assigning roles to the Assignments' Managed Identities (for remediation tasks) in the EPAC prod environment
 
-> **Note:** 
+> **Note:**
 > When creating a Service Connection in Azure DevOps you can set up the service connections on Subscription or a Management Group scope level, when configuring the service connection for the EPAC Developer and Test subscriptions the service connections scope level is **Subscription**, however when creating a Service Connections for EPAC Prod Plan, EPAC Prod Deployment and EPAC Role Assignment the service connection scope level is **Management Group**.
 
 Subscription scope level | Management Group scope level
-:-----------:|:----------------: 
+:-----------:|:----------------:
 ![image](./Docs/Images/azdoServiceConnectionSubConf.png) | ![image](./Docs/Images/azdoServiceConnectionMGConf.png)
 
 ### EPAC environments setup
@@ -254,7 +254,6 @@ The repo contains a script to synchronize directories in both directions: `Sync-
 | `destinationDirectory` | Required | Directory with the destination (cloned or forked/cloned repo) |
 | `suppressDeleteFiles` | Optional | Switch parameter to suppress deleting files in `$destinationDirectory` tree |
 | `omitDocFiles` | Optional | Switch parameter to exclude documentation files *.md, LICENSE, and this script from synchronization |
-
 
 <br/>
 
