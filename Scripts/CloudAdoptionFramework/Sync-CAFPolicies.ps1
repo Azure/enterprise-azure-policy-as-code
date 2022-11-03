@@ -44,15 +44,24 @@ foreach ($policyUri in $defaultPolicyURIs) {
             if ($type -match 'Microsoft.Authorization/policySetDefinitions') {
                 $name = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Name
                 $environments = ($_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Properties).metadata.alzCloudEnvironments
+                if ($environments.Length -eq 3) {
+                    $fileName = $name
+                }
+                else {
+                    switch ($environments | Select-Object -First 1) {
+                        "AzureChinaCloud" { $fileName = "$name.$_" }
+                        "AzureUSGovernment" { $fileName = "$name.$_" }
+                    }
+                }
                 $baseTemplate = @{
                     name       = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Name
                     properties = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Properties
                 }
-                $baseTemplate | ConvertTo-Json -Depth 50 | Out-File -FilePath $definitionsRootFolder\initiatives\CAF\$name.json -Force
-                (Get-Content $definitionsRootFolder\initiatives\CAF\$name.json) -replace "\[\[", "[" | Set-Content $definitionsRootFolder\initiatives\CAF\$name.json
-                (Get-Content $definitionsRootFolder\initiatives\CAF\$name.json) -replace "variables\('scope'\)", "'/providers/Microsoft.Management/managementGroups/$managementGroupId'" | Set-Content $definitionsRootFolder\initiatives\CAF\$name.json
-                (Get-Content $definitionsRootFolder\initiatives\CAF\$name.json) -replace "', '", "" | Set-Content $definitionsRootFolder\initiatives\CAF\$name.json
-                (Get-Content $definitionsRootFolder\initiatives\CAF\$name.json) -replace "\[concat\(('(.+)')\)\]", "`$2" | Set-Content $definitionsRootFolder\initiatives\CAF\$name.json
+                $baseTemplate | ConvertTo-Json -Depth 50 | Out-File -FilePath $definitionsRootFolder\initiatives\CAF\$fileName.json -Force
+                (Get-Content $definitionsRootFolder\initiatives\CAF\$fileName.json) -replace "\[\[", "[" | Set-Content $definitionsRootFolder\initiatives\CAF\$fileName.json
+                (Get-Content $definitionsRootFolder\initiatives\CAF\$fileName.json) -replace "variables\('scope'\)", "'/providers/Microsoft.Management/managementGroups/$managementGroupId'" | Set-Content $definitionsRootFolder\initiatives\CAF\$fileName.json
+                (Get-Content $definitionsRootFolder\initiatives\CAF\$fileName.json) -replace "', '", "" | Set-Content $definitionsRootFolder\initiatives\CAF\$fileName.json
+                (Get-Content $definitionsRootFolder\initiatives\CAF\$fileName.json) -replace "\[concat\(('(.+)')\)\]", "`$2" | Set-Content $definitionsRootFolder\initiatives\CAF\$fileName.json
             } 
             
         }
