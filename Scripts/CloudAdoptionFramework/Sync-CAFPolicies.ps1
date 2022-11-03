@@ -43,6 +43,7 @@ foreach ($policyUri in $defaultPolicyURIs) {
             }
             if ($type -match 'Microsoft.Authorization/policySetDefinitions') {
                 $name = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Name
+                $environments = ($_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Properties).metadata.alzCloudEnvironments
                 $baseTemplate = @{
                     name       = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Name
                     properties = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Properties
