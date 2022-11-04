@@ -13,6 +13,8 @@ Many scripts use a configuration value called `RootScope`. It denotes the locati
 - [Get-AzResourceTags.ps1](#get-azresourcetagsps1)
 - [Get-AzStorageNetworkConfig.ps1](#get-azstoragenetworkconfigps1)
 - [Get-AzUserRoleAssignments.ps1](#get-azuserroleassignmentsps1)
+- [New-EPACPolicyDefinition.ps1](#new-epacpolicydefinitionps1)
+- [New-EPACPolicyAssignmentDefinition.ps1](#new-epacpolicyassignmentdefinitionps1)
 - [Reading List](#reading-list)
 
 <br/>
@@ -127,6 +129,28 @@ Pull all policy aliases into a CSV file. This is helpful for Azure Policy develo
 | `NamespaceMatch` | Optional | Use this to cut out unnecessary aliases by specifying your desired namespace. More documentation here: https://learn.microsoft.com/en-us/powershell/module/az.resources/get-azpolicyalias?view=azps-8.3.0|
 | `ResourceTypeMatch` | Optional | Resource type match can also be used to filter out unnecessary aliases. More documentation here: https://learn.microsoft.com/en-us/powershell/module/az.resources/get-azpolicyalias?view=azps-8.3.0
 
+
+<br/>
+
+## New-EPACPolicyDefinition.ps1
+
+Exports a policy definition from Azure to a local file in the EPAC format. Works for both policy definitions and set definitions (initiatives)
+
+|Parameter | Required | Explanation |
+|----------|----------|-------------|
+| `PolicyDefinitionId`| Required | Resource ID in Azure for the policy you want to export - can take input from a pipeline |
+| `OutputFolder` | Optional | Output folder for the exported policy definition - default is JSON output to console |
+
+<br/>
+
+## New-EPACPolicyAssignmentDefinition.ps1
+
+Exports a policy assignment from Azure to a local file in the EPAC format. Provides a base template only - you may have to manipulate the file to fit in to your current assignment structure
+
+|Parameter | Required | Explanation |
+|----------|----------|-------------|
+| `PolicyAssignmentId`| Required | Resource ID in Azure for the policy assignment you want to export|
+| `OutputFolder` | Optional | Output folder for the exported policy assignment - - default is JSON output to console |
 
 <br/>
 
