@@ -28,27 +28,7 @@
                         "friendlyNameToDocumentIfGuid": "Azure Security Benchmark"
                     },
                     "parameters": {
-                        "aadAuthenticationInSqlServerMonitoringEffect": "Disabled",
-                        "diskEncryptionMonitoringEffect": "Disabled",
-                        "encryptionOfAutomationAccountMonitoringEffect": "Disabled",
                         "identityDesignateLessThanOwnersMonitoringEffect": "Disabled",
-                        "identityDesignateMoreThanOneOwnerMonitoringEffect": "Disabled",
-                        "identityEnableMFAForWritePermissionsMonitoringEffect": "Disabled",
-                        "identityRemoveDeprecatedAccountMonitoringEffect": "Disabled",
-                        "identityRemoveDeprecatedAccountWithOwnerPermissionsMonitoringEffect": "Disabled",
-                        "identityRemoveExternalAccountWithOwnerPermissionsMonitoringEffect": "Disabled",
-                        "identityRemoveExternalAccountWithReadPermissionsMonitoringEffect": "Disabled",
-                        "identityRemoveExternalAccountWithWritePermissionsMonitoringEffect": "Disabled",
-                        "jitNetworkAccessMonitoringEffect": "Disabled",
-                        "networkSecurityGroupsOnSubnetsMonitoringEffect": "AuditIfNotExists",
-                        "sqlDbEncryptionMonitoringEffect": "Disabled",
-                        "sqlManagedInstanceAdvancedDataSecurityEmailAdminsMonitoringEffect": "Disabled",
-                        "sqlManagedInstanceAdvancedDataSecurityEmailsMonitoringEffect": "Disabled",
-                        "sqlServerAdvancedDataSecurityEmailAdminsMonitoringEffect": "Disabled",
-                        "sqlServerAdvancedDataSecurityMonitoringEffect": "Disabled",
-                        "systemUpdatesMonitoringEffect": "Disabled",
-                        "vmssSystemUpdatesMonitoringEffect": "Disabled",
-                        "windowsDefenderExploitGuardMonitoringEffect": "Disabled",
                         "useRbacRulesMonitoringEffect": "Disabled",
                         "useServicePrincipalToProtectSubscriptionsMonitoringEffect": "Disabled",
                         "identityEnableMFAForOwnerPermissionsMonitoringEffect": "Disabled",
@@ -68,16 +48,17 @@
                         "friendlyNameToDocumentIfGuid": "Microsoft Defender For Cloud"
                     },
                     "parameters": {
-                        "enableAscForServers": "DeployIfNotExists",
-                        "enableAscForSql": "DeployIfNotExists",
-                        "enableAscForAppServices": "DeployIfNotExists",
-                        "enableAscForStorage": "DeployIfNotExists",
-                        "enableAscForContainers": "DeployIfNotExists",
-                        "enableAscForKeyVault": "DeployIfNotExists",
-                        "enableAscForSqlOnVm": "DeployIfNotExists",
-                        "enableAscForArm": "DeployIfNotExists",
-                        "enableAscForDns": "DeployIfNotExists",
-                        "enableAscForOssDb": "DeployIfNotExists"
+                        "enableAscForServers": "Disabled",
+                        "enableAscForSql": "Disabled",
+                        "enableAscForAppServices": "Disabled",
+                        "enableAscForStorage": "Disabled",
+                        "enableAscForContainers": "Disabled",
+                        "enableAscForKeyVault": "Disabled",
+                        "enableAscForSqlOnVm": "Disabled",
+                        "enableAscForArm": "Disabled",
+                        "enableAscForDns": "Disabled",
+                        "enableAscForOssDb": "Disabled",
+                        "enableAscForCosmosDbs": "Disabled"
                     }
                 }
             ]
