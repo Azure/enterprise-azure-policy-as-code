@@ -9,7 +9,7 @@ function Build-AzPolicyAssignmentsPlan {
         [hashtable] $rootScope,
         [string] $rootScopeId,
         [hashtable] $scopeTreeInfo,
-        [array] $globalNotScopeList,
+        [array] $globalNotScopeList = @(),
         [string] $managedIdentityLocation,
         [hashtable] $allPolicyDefinitions,
         [hashtable] $customPolicyDefinitions,

@@ -65,7 +65,7 @@ if ($PlanFile -eq "") {
     $PlanFile = $pacEnvironment.policyPlanOutputFile
 }
 
-# Getting existing Policy Assignmentscls
+# Getting existing Policy Assignments
 $existingAssignments = $null
 $scopeTreeInfo = Get-AzScopeTree `
     -tenantId $pacEnvironment.tenantId `

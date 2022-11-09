@@ -12,7 +12,7 @@ function Build-AzPolicyDefinitionsForInitiative {
 
     )
 
-    ######## validating each Policy Definition needed in Inititaive exists ###########
+    ######## validating each Policy Definition needed in Initiative exists ###########
     Write-Verbose  "        Check existence of referenced policyDefinitionIDs and build new array"
 
     $usingUndefinedReference = $false
