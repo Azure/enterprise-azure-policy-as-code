@@ -40,21 +40,23 @@ function Get-NotScope {
                         $currentMg = $queuedManagementGroups.Dequeue()
                         # Write-Host "##[debug] testing $($currentMg.Id)"
                         if ($rootFound) {
-                            foreach ($child in $currentMg.children) {
-                                if ($notScopeIn.Contains($child.id)) {
-                                    $notScope += "$($child.id)"
-                                    # Write-Host "##[debug] notScope added $($child.Id)"
-                                }
-                                elseif ($child.type -eq "Microsoft.Management/managementGroups") {
-                                    $null = $queuedManagementGroups.Enqueue($child)
-                                    # Write-Host "##[debug] enqueue child $($child.Id)"
-                                }
-                                elseif ($child.type -eq "/subscriptions") {
-                                    # Write-Host "##[debug] subscription testing list += subscription $($child.Id)"
-                                    $subscriptionIds += $child.id
-                                }
-                                else {
-                                    Write-Error "Traversal of scopeTree to find notScopes in scope '$scope' yielded an unknown type '$($child.type)' name='$($child.name)'" -ErrorAction Stop
+                            if ($null -ne $currentMg.children) {
+                                foreach ($child in $currentMg.children) {
+                                    if ($notScopeIn.Contains($child.id)) {
+                                        $notScope += "$($child.id)"
+                                        # Write-Host "##[debug] notScope added $($child.Id)"
+                                    }
+                                    elseif ($child.scope.StartsWith("/providers/Microsoft.Management/managementGroups/")) {
+                                        $null = $queuedManagementGroups.Enqueue($child)
+                                        # Write-Host "##[debug] enqueue child $($child.Id)"
+                                    }
+                                    elseif ($child.scope.StartsWith("/subscriptions/")) {
+                                        # Write-Host "##[debug] subscription testing list += subscription $($child.Id)"
+                                        $subscriptionIds += $child.id
+                                    }
+                                    else {
+                                        Write-Error "Traversal of scopeTree to find notScopes in scope '$scope' yielded an unknown type '$($child.type)' name='$($child.name)'" -ErrorAction Stop
+                                    }
                                 }
                             }
                         }
@@ -68,13 +70,15 @@ function Get-NotScope {
                                 $rootFound = $true
                             }
                             else {
-                                foreach ($child in $currentMg.children) {
-                                    if ($child.type -eq "Microsoft.Management/managementGroups") {
-                                        $null = $queuedManagementGroups.Enqueue($child)
-                                        # Write-Host "##[command] finding root enqueue child $($child.Id)"
-                                    }
-                                    elseif ($child.type -ne "/subscriptions") {
-                                        Write-Error "Traversal of scopeTree to find scope '$scope' yielded an unknown type '$($child.type)' name='$($child.name)'" -ErrorAction Stop
+                                if ($null -ne $currentMg.children) {
+                                    foreach ($child in $currentMg.children) {
+                                        if ($child.scope.StartsWith("/providers/Microsoft.Management/managementGroups/")) {
+                                            $null = $queuedManagementGroups.Enqueue($child)
+                                            # Write-Host "##[command] finding root enqueue child $($child.Id)"
+                                        }
+                                        elseif (!$child.scope.StartsWith("/subscriptions/")) {
+                                            Write-Error "Traversal of scopeTree to find scope '$scope' yielded an unknown type '$($child.type)' name='$($child.name)'" -ErrorAction Stop
+                                        }
                                     }
                                 }
                             }
@@ -116,7 +120,7 @@ function Get-NotScope {
                         $subscriptionResourceGroupIds = $subscriptionEntry.ResourceGroupIds
                         # Write-Host "Testing `$ResourceGroupIds($($subscriptionResourceGroupIds.Count)), `$notScopeResourceGroupIds($($notScopeResourceGroupIds.Count)), `$notScopePatterns($($notScopePatterns.Count))"
 
-                        # Process fully quified resource Group Ids
+                        # Process fully qualified resource Group Ids
                         foreach ($nrg in $notScopeResourceGroupIds) {
                             if ($subscriptionResourceGroupIds.ContainsKey($nrg)) {
                                 # Write-Host "##[debug] Added Resource Group from full resourceId to notScope: $nrg"
