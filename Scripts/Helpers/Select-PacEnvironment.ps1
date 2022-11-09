@@ -79,7 +79,6 @@ function Select-PacEnvironment {
     [array] $globalNotScopeList = @()
     if ($globalSettings.globalNotScopes) {
         $globalNotScopes = $globalSettings.globalNotScopes
-        $globalNotScopeList = @()
         if ($globalNotScopes.ContainsKey($pacEnvironmentSelector)) {
             $globalNotScopeList += $globalNotScopes[$pacEnvironmentSelector]
         }

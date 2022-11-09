@@ -331,16 +331,16 @@ function Get-AzAssignmentsAtSpecificScope {
 function Get-AzAssignmentsAtScopeRecursive {
     [CmdletBinding()]
     param(
-        [parameter(Mandatory = $True)] [object]     $scopeTreeInfo,
-        [parameter(Mandatory = $True)] [string[]]   $notScopeIn,
-        [parameter(Mandatory = $false)] [bool]      $includeResourceGroups = $false,
-        [parameter(Mandatory = $false)] [bool]      $getAssignments = $true,
-        [parameter(Mandatory = $false)] [bool]      $getExemptions = $true,
-        [Parameter(Mandatory = $false)] [int]       $expiringInDays = 7,
-        [parameter(Mandatory = $false)] [bool]      $getRemediations = $false,
-        [parameter(Mandatory = $false)] [hashtable] $allPolicyDefinitions = $null,
-        [parameter(Mandatory = $false)] [hashtable] $allInitiativeDefinitions = $null,
-        [switch] $supressRoleAssignments
+        [object]    $scopeTreeInfo,
+        [string[]]  $notScopeIn = @(),
+        [bool]      $includeResourceGroups = $false,
+        [bool]      $getAssignments = $true,
+        [bool]      $getExemptions = $true,
+        [int]       $expiringInDays = 7,
+        [bool]      $getRemediations = $false,
+        [hashtable] $allPolicyDefinitions = $null,
+        [hashtable] $allInitiativeDefinitions = $null,
+        [switch]    $supressRoleAssignments
     )
 
     [array] $subscriptionIds = @()
