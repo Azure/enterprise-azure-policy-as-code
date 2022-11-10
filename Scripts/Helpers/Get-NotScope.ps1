@@ -46,11 +46,11 @@ function Get-NotScope {
                                         $notScope += "$($child.id)"
                                         # Write-Host "##[debug] notScope added $($child.Id)"
                                     }
-                                    elseif ($child.scope.StartsWith("/providers/Microsoft.Management/managementGroups/")) {
+                                    elseif ($child.id.StartsWith("/providers/Microsoft.Management/managementGroups/")) {
                                         $null = $queuedManagementGroups.Enqueue($child)
                                         # Write-Host "##[debug] enqueue child $($child.Id)"
                                     }
-                                    elseif ($child.scope.StartsWith("/subscriptions/")) {
+                                    elseif ($child.id.StartsWith("/subscriptions/")) {
                                         # Write-Host "##[debug] subscription testing list += subscription $($child.Id)"
                                         $subscriptionIds += $child.id
                                     }
@@ -72,11 +72,11 @@ function Get-NotScope {
                             else {
                                 if ($null -ne $currentMg.children) {
                                     foreach ($child in $currentMg.children) {
-                                        if ($child.scope.StartsWith("/providers/Microsoft.Management/managementGroups/")) {
+                                        if ($child.id.StartsWith("/providers/Microsoft.Management/managementGroups/")) {
                                             $null = $queuedManagementGroups.Enqueue($child)
                                             # Write-Host "##[command] finding root enqueue child $($child.Id)"
                                         }
-                                        elseif (!$child.scope.StartsWith("/subscriptions/")) {
+                                        elseif (!$child.id.StartsWith("/subscriptions/")) {
                                             Write-Error "Traversal of scopeTree to find scope '$scope' yielded an unknown type '$($child.type)' name='$($child.name)'" -ErrorAction Stop
                                         }
                                     }
