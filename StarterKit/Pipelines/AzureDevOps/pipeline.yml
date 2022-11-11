@@ -64,7 +64,7 @@ stages:
                     azureSubscription: $(devServiceConnection)
                     scriptType: pscore
                     scriptLocation: scriptPath
-                    scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
+                    scriptPath: "Scripts/Deploy/Build-DeploymentPlans.ps1"
                     arguments:
                       -PacEnvironmentSelector $(pacEnvironmentSelector) `
                       -SuppressDeletes:$$(isBrownfield) `
@@ -85,7 +85,7 @@ stages:
                   condition: and(succeeded(), eq(variables['planStep.deployPolicyChanges'], 'yes'))
                   inputs:
                     azureSubscription: $(devServiceConnection)
-                    ScriptPath: "Scripts/Deploy/Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1"
+                    ScriptPath: "Scripts/Deploy/Deploy-PolicyPlan.ps1"
                     ScriptArguments:
                       -PacEnvironmentSelector $(pacEnvironmentSelector) `
                       -InformationAction Continue
@@ -109,7 +109,7 @@ stages:
                     azureSubscription: $(devServiceConnection)
                     scriptType: pscore
                     scriptLocation: scriptPath
-                    scriptPath: "Scripts/Deploy/Set-AzPolicyRolesFromPlan.ps1"
+                    scriptPath: "Scripts/Deploy/Deploy-RolesPlan.ps1"
                     arguments:
                       -PacEnvironmentSelector $(pacEnvironmentSelector) `
                       -InformationAction Continue
@@ -135,7 +135,7 @@ stages:
               azureSubscription: $(tenantPlanServiceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
+              scriptPath: "Scripts/Deploy/Build-DeploymentPlans.ps1"
               arguments: -PacEnvironmentSelector $(pacEnvironmentSelector) `
                 -SuppressDeletes:$$(isBrownfield) `
                 -InformationAction Continue
@@ -172,7 +172,7 @@ stages:
   #             azureSubscription: $(tenant2PlanServiceConnection)
   #             scriptType: pscore
   #             scriptLocation: scriptPath
-  #             scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
+  #             scriptPath: "Scripts/Deploy/Build-DeploymentPlans.ps1"
   #             arguments: -PacEnvironmentSelector $(pacEnvironmentSelector) `
   #               -SuppressDeletes:$$(isBrownfield) `
   #               -InformationAction Continue
@@ -209,7 +209,7 @@ stages:
   #             azureSubscription: $(tenant3PlanServiceConnection)
   #             scriptType: pscore
   #             scriptLocation: scriptPath
-  #             scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
+  #             scriptPath: "Scripts/Deploy/Build-DeploymentPlans.ps1"
   #             arguments: -PacEnvironmentSelector $(pacEnvironmentSelector) `
   #               -SuppressDeletes:$$(isBrownfield) `
   #               -InformationAction Continue
@@ -265,7 +265,7 @@ stages:
                     azureSubscription: $(testServiceConnection)
                     scriptType: pscore
                     scriptLocation: scriptPath
-                    scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
+                    scriptPath: "Scripts/Deploy/Build-DeploymentPlans.ps1"
                     arguments:
                       -PacEnvironmentSelector $(pacEnvironmentSelector) `
                       -SuppressDeletes:$$(isBrownfield) `
@@ -286,7 +286,7 @@ stages:
                   condition: and(not(failed()), not(canceled()), eq(variables['planStep.deployPolicyChanges'], 'yes'))
                   inputs:
                     azureSubscription: $(testServiceConnection)
-                    ScriptPath: "Scripts/Deploy/Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1"
+                    ScriptPath: "Scripts/Deploy/Deploy-PolicyPlan.ps1"
                     ScriptArguments:
                       -PacEnvironmentSelector $(pacEnvironmentSelector) `
                       -InformationAction Continue
@@ -310,7 +310,7 @@ stages:
                     azureSubscription: $(testServiceConnection)
                     scriptType: pscore
                     scriptLocation: scriptPath
-                    scriptPath: "Scripts/Deploy/Set-AzPolicyRolesFromPlan.ps1"
+                    scriptPath: "Scripts/Deploy/Deploy-RolesPlan.ps1"
                     arguments:
                       -PacEnvironmentSelector $(pacEnvironmentSelector) `
                       -InformationAction Continue
@@ -337,7 +337,7 @@ stages:
               azureSubscription: $(tenantPlanServiceConnection)
               scriptType: pscore
               scriptLocation: scriptPath
-              scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
+              scriptPath: "Scripts/Deploy/Build-DeploymentPlans.ps1"
               arguments: -PacEnvironmentSelector $(pacEnvironmentSelector) `
                 -SuppressDeletes:$$(isBrownfield) `
                 -InformationAction Continue
@@ -373,7 +373,7 @@ stages:
                   displayName: Deploy Policies, Initiatives, Policy Assignments
                   inputs:
                     azureSubscription: $(tenantDeployServiceConnection)
-                    ScriptPath: "Scripts/Deploy/Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1"
+                    ScriptPath: "Scripts/Deploy/Deploy-PolicyPlan.ps1"
                     ScriptArguments:
                       -PacEnvironmentSelector $(pacEnvironmentSelector) `
                       -InformationAction Continue
@@ -412,7 +412,7 @@ stages:
                     azureSubscription: $(tenantRolesServiceConnection)
                     scriptType: pscore
                     scriptLocation: scriptPath
-                    scriptPath: "Scripts/Deploy/Set-AzPolicyRolesFromPlan.ps1"
+                    scriptPath: "Scripts/Deploy/Deploy-RolesPlan.ps1"
                     arguments:
                       -PacEnvironmentSelector $(pacEnvironmentSelector) `
                       -InformationAction Continue
@@ -440,7 +440,7 @@ stages:
   #             azureSubscription: $(tenant2PlanServiceConnection)
   #             scriptType: pscore
   #             scriptLocation: scriptPath
-  #             scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
+  #             scriptPath: "Scripts/Deploy/Build-DeploymentPlans.ps1"
   #             arguments: -PacEnvironmentSelector $(pacEnvironmentSelector) `
   #               -SuppressDeletes:$$(isBrownfield) `
   #               -InformationAction Continue
@@ -476,7 +476,7 @@ stages:
   #                 displayName: Deploy Policies, Initiatives, Policy Assignments
   #                 inputs:
   #                   azureSubscription: $(tenant2DeployServiceConnection)
-  #                   ScriptPath: "Scripts/Deploy/Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1"
+  #                   ScriptPath: "Scripts/Deploy/Deploy-PolicyPlan.ps1"
   #                   ScriptArguments:
   #                     -PacEnvironmentSelector $(pacEnvironmentSelector) `
   #                     -InformationAction Continue
@@ -515,7 +515,7 @@ stages:
   #                   azureSubscription: $(tenant2RolesServiceConnection)
   #                   scriptType: pscore
   #                   scriptLocation: scriptPath
-  #                   scriptPath: "Scripts/Deploy/Set-AzPolicyRolesFromPlan.ps1"
+  #                   scriptPath: "Scripts/Deploy/Deploy-RolesPlan.ps1"
   #                   arguments:
   #                     -PacEnvironmentSelector $(pacEnvironmentSelector) `
   #                     -InformationAction Continue
@@ -543,7 +543,7 @@ stages:
   #             azureSubscription: $(tenant3PlanServiceConnection)
   #             scriptType: pscore
   #             scriptLocation: scriptPath
-  #             scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
+  #             scriptPath: "Scripts/Deploy/Build-DeploymentPlans.ps1"
   #             arguments: -PacEnvironmentSelector $(pacEnvironmentSelector) `
   #               -SuppressDeletes:$$(isBrownfield) `
   #               -InformationAction Continue
@@ -579,7 +579,7 @@ stages:
   #                 displayName: Deploy Policies, Initiatives, Policy Assignments
   #                 inputs:
   #                   azureSubscription: $(tenant3DeployServiceConnection)
-  #                   ScriptPath: "Scripts/Deploy/Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1"
+  #                   ScriptPath: "Scripts/Deploy/Deploy-PolicyPlan.ps1"
   #                   ScriptArguments:
   #                     -PacEnvironmentSelector $(pacEnvironmentSelector) `
   #                     -InformationAction Continue
@@ -618,7 +618,7 @@ stages:
   #                   azureSubscription: $(tenant3RolesServiceConnection)
   #                   scriptType: pscore
   #                   scriptLocation: scriptPath
-  #                   scriptPath: "Scripts/Deploy/Set-AzPolicyRolesFromPlan.ps1"
+  #                   scriptPath: "Scripts/Deploy/Deploy-RolesPlan.ps1"
   #                   arguments:
   #                     -PacEnvironmentSelector $(pacEnvironmentSelector) `
   #                     -InformationAction Continue

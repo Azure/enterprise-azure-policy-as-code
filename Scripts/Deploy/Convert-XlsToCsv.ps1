@@ -16,7 +16,7 @@ if ($importExcelModuleNotInstalled) {
     Write-Information "==================================================================================================="
     Write-Information "Installing ImportExcel from PowerShell Gallery: https://www.powershellgallery.com/packages/ImportExcel"
     Write-Information "==================================================================================================="
-    $result = Install-Module -Name ImportExcel -Force -PassThru -ErrorAction Continue
+    $result = Install-Module -Name ImportExcel -Force -PassThru
     if ($null -eq $result) {
         Write-Error "Install-Module for ImportExcel failed. You cannot use .xlsx files in your environment. Use csv files instead" -ErrorAction Stop
     }

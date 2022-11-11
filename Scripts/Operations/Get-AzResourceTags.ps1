@@ -21,7 +21,6 @@ param(
 . "$PSScriptRoot/../Helpers/Set-AzCloudTenantSubscription.ps1"
 
 $InformationPreference = "Continue"
-Invoke-AzCli config set extension.use_dynamic_install=yes_without_prompt -SuppressOutput
 $pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -outputFolder $OutputFolder -interactive $interactive
 Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -interactive $pacEnvironment.interactive
 
@@ -39,8 +38,8 @@ Write-Information "=============================================================
 
 foreach ($subscription in $subscriptionList) {
 
-    Try { $null = Set-AzContext -SubscriptionId $subscription }
-    catch [Exception] { write-host ("Error occured: " + $($_.Exception.Message)) -ForegroundColor Red; Exit }
+    Try { $null = (Set-AzContext -SubscriptionId $subscription) }
+    catch [Exception] { write-host ("Error occurred: " + $($_.Exception.Message)) -ForegroundColor Red; Exit }
     Write-Host "Azure Login Session successful" -ForegroundColor Green -BackgroundColor Black
 
     # Initialise output array
@@ -57,7 +56,7 @@ foreach ($subscription in $subscriptionList) {
             Add-Member -inputObject $csvObject -memberType NoteProperty -name "ResourceName" -value ''
             Add-Member -inputObject $csvObject -memberType NoteProperty -name "TagKey" -value $key
             Add-Member -inputObject $csvObject -memberType NoteProperty -name "Value" -value $tags.Properties.TagsProperty.Item($($key))
-            $Output.Add($csvObject)
+            $null = $Output.Add($csvObject)
 
             #$Output += "`t ResourceGroup = $($ResourceGroup.ResourceGroupName) `t TagKey= $($key) `t Value = $($tags.Properties.TagsProperty.Item($($key)))"
             Write-Host "`t ResourceGroup = $($ResourceGroup.ResourceGroupName) `t TagKey= $($key) `t Value = $($tags.Properties.TagsProperty.Item($($key)))"
@@ -72,7 +71,7 @@ foreach ($subscription in $subscriptionList) {
                 Add-Member -inputObject $csvObject -memberType NoteProperty -name "ResourceName" -value $res.Name
                 Add-Member -inputObject $csvObject -memberType NoteProperty -name "TagKey" -value $key
                 Add-Member -inputObject $csvObject -memberType NoteProperty -name "Value" -value $tags.Properties.TagsProperty.Item($($key))
-                $Output.Add($csvObject)
+                $null = $Output.Add($csvObject)
 
                 #$Output += "`t ResourceGroup = $($ResourceGroup.ResourceGroupName) `t TagKey= $($key) `t Value = $($tags.Properties.TagsProperty.Item($($key)))"
                 Write-Host "`t `t ResourceID = $($ResourceGroup.ResourceId) `t ResourceGroup = $($ResourceGroup.ResourceGroupName) `t ResourceName = $($res.Name) `t TagKey= $($key) `t Value = $($tags.Properties.TagsProperty.Item($($key)))"

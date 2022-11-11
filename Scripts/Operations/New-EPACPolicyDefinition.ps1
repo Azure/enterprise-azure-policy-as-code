@@ -17,8 +17,6 @@ Param(
     [string]$OutputFolder
 )
 
-. "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
-
 if ($PolicyDefinitionId -match "Microsoft.Authorization/policyDefinitions") {
     $policyDefinition = Get-AzPolicyDefinition -Id $PolicyDefinitionId
     $baseTemplate = @{

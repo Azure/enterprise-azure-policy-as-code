@@ -18,48 +18,32 @@ param(
 . "$PSScriptRoot/../Helpers/Get-PacFolders.ps1"
 . "$PSScriptRoot/../Helpers/Get-GlobalSettings.ps1"
 . "$PSScriptRoot/../Helpers/Select-PacEnvironment.ps1"
-. "$PSScriptRoot/../Helpers/Get-AzPolicyInitiativeDefinitions.ps1"
-. "$PSScriptRoot/../Helpers/Get-AzAssignmentsAtScopeRecursive.ps1"
+. "$PSScriptRoot/../Helpers/Get-AzPolicyResources.ps1"
 . "$PSScriptRoot/../Helpers/Get-AzScopeTree.ps1"
+. "$PSScriptRoot/../Helpers/Confirm-PacOwner.ps1"
+. "$PSScriptRoot/../Helpers/Confirm-DeleteForStrategy.ps1"
 . "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
-. "$PSScriptRoot/../Helpers/Invoke-AzCli.ps1"
-. "$PSScriptRoot/../Helpers/Split-AssignmentIdForAzCli.ps1"
 . "$PSScriptRoot/../Helpers/Set-AzCloudTenantSubscription.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-ActiveAzExemptions.ps1"
+. "$PSScriptRoot/../Helpers/Get-DeepClone.ps1"
+. "$PSScriptRoot/../Helpers/Get-HashtableShallowClone"
+. "$PSScriptRoot/../Helpers/Search-AzGraphAllItems.ps1"
+. "$PSScriptRoot/../Helpers/Get-FilteredHashTable.ps1"
+
 
 $InformationPreference = "Continue"
-Invoke-AzCli config set extension.use_dynamic_install=yes_without_prompt -SuppressOutput
 $pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -outputFolder $OutputFolder -interactive $interactive
-Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -interactive $pacEnvironment.interactive
+Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -interactive $pacEnvironment.interactive
 
-$rootScopeId = $pacEnvironment.rootScopeId
-$rootScope = $pacEnvironment.rootScope
 $outputPath = "$($pacEnvironment.outputFolder)/Exemptions/$($pacEnvironment.pacEnvironmentSelector)"
 if (-not (Test-Path $outputPath)) {
     New-Item $outputPath -Force -ItemType directory
 }
 
-
-$allAzPolicyInitiativeDefinitions = Get-AzPolicyInitiativeDefinitions -rootScope $rootScope -rootScopeId $rootScopeId
-$allPolicyDefinitions = $allAzPolicyInitiativeDefinitions.builtInPolicyDefinitions + $allAzPolicyInitiativeDefinitions.existingCustomPolicyDefinitions
-$allInitiativeDefinitions = $allAzPolicyInitiativeDefinitions.builtInInitiativeDefinitions + $allAzPolicyInitiativeDefinitions.existingCustomInitiativeDefinitions
-
-$scopeTreeInfo = Get-AzScopeTree `
-    -tenantId $pacEnvironment.tenantId `
-    -scopeParam $rootScope `
-    -defaultSubscriptionId $pacEnvironment.defaultSubscriptionId
-
-$assignments, $null, $exemptions = Get-AzAssignmentsAtScopeRecursive `
-    -scopeTreeInfo $scopeTreeInfo `
-    -notScopeIn $pacEnvironment.globalNotScopeList `
-    -includeResourceGroups $false `
-    -getAssignments $true `
-    -getExemptions $true `
-    -expiringInDays $expiringInDays `
-    -getRemediations $false `
-    -allPolicyDefinitions $allPolicyDefinitions `
-    -allInitiativeDefinitions $allInitiativeDefinitions `
-    -supressRoleAssignments
+$scopeTable = Get-AzScopeTree -pacEnvironment $pacEnvironment
+$deployedPolicyResources = Get-AzPolicyResources -pacEnvironment $pacEnvironment -scopeTable $scopeTable -skipRoleAssignments
+$exemptions = $deployedPolicyResources.policyExemptions.managed
+$assignments = $deployedPolicyResources.policyassignments.managed
 
 $numberOfExemptions = $exemptions.Count
 Write-Information "==================================================================================================="

@@ -4,21 +4,22 @@ function Get-DeploymentPlan {
 
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $true,
-            HelpMessage = "Plan input filename.")]
-        [string]$PlanFile
+        [Parameter(Mandatory = $true, HelpMessage = "Plan input filename.")]
+        [string]$planFile,
+
+        [switch] $asHashtable
     )
 
-    # Check if the plan definition JSON file is a valid JSON
-    $Json = Get-Content -Path $PlanFile -Raw -ErrorAction Stop
+    $plan = $null
+    if (Test-Path -Path $planFile ) {
+        # Check if the plan definition JSON file is a valid JSON
+        $Json = Get-Content -Path $planFile -Raw -ErrorAction Stop
 
-    if ((Test-Json $Json)) {
-        Write-Verbose "        The JSON file is valid."
+        if (!(Test-Json $Json)) {
+            Write-Error "The JSON file '$planFile' is not valid." -ErrorAction Stop
+        }
+        $plan = $Json | ConvertFrom-Json -AsHashtable:$asHashtable
     }
-    else {
-        Write-Error "The JSON file ""$PlanFile"" is not valid."
-    }
-    $plan = $Json | ConvertFrom-Json
 
     return $plan
 }

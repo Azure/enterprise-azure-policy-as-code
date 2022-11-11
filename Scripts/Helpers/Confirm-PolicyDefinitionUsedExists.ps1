@@ -4,36 +4,42 @@
 function Confirm-PolicyDefinitionUsedExists {
     [CmdletBinding()]
     param(
-        [hashtable] $allPolicyDefinitions,
-        [hashtable] $replacedPolicyDefinitions,
-        [string] $policyNameRequired
+        $id = $null,
+        $name = $null,
+        $policyDefinitionsScopes,
+        [hashtable] $allDefinitions,
+        [switch] $suppressErrorMessage
     )
 
-    ######## validating Policy Definition existence ###########
-    $usingUndefinedReference = $false
-    $usingReplacedReference = $false
-    $policy = $null
+    # Are the parameters correct?
+    if (!($null -eq $id -xor $null -eq $name)) {
+        Write-Error "Confirm-PolicyDefinitionUsedExists called with a contradictory parameters: must supply either Policy id or Policy name." -ErrorAction Stop
+    }
 
-
-    if ($allPolicyDefinitions.ContainsKey($policyNameRequired)) {
-        $policy = $allPolicyDefinitions.$policyNameRequired
-        if ($replacedPolicyDefinitions.ContainsKey($policyNameRequired)) {
-            $usingReplacedReference = $true
-            Write-Verbose "            Referenced Policy ""$($policyDefinition.policyDefinitionName)"" is being replaced with an incompatible newer vcersion"
+    # Find the Policy definition
+    if ($null -ne $id) {
+        if ($allDefinitions.ContainsKey($id)) {
+            return $id
         }
         else {
-            Write-Verbose  "            Referenced Policy ""$($policyDefinition.policyDefinitionName)"" exist"
+            if (!$suppressErrorMessage) {
+                Write-Error "    Policy '$id' not found."
+            }
+            return $null
         }
     }
     else {
-        Write-Error "Referenced Policy ""$($policyNameRequired)"" doesn't exist at the specified scope"
-        $usingUndefinedReference = $true
-    }
+        foreach ($scopeId in $policyDefinitionsScopes) {
+            $id = "$scopeId/providers/Microsoft.Authorization/policyDefinitions/$name"
+            if ($allDefinitions.ContainsKey($id)) {
+                return $id
+            }
+        }
 
-    $retValue = @{
-        usingUndefinedReference = $usingUndefinedReference
-        usingReplacedReference  = $usingReplacedReference
-        policy                  = $policy
+        # Not found in custom Policy definitions, try built-in Policy definitions
+        if (!$suppressErrorMessage) {
+            Write-Error "    Policy name '$name' not found in custom or built-in Policy definitions."
+        }
+        return $null
     }
-    $retValue
 }

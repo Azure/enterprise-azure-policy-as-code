@@ -9,73 +9,83 @@ param(
     [string]$DefinitionsRootFolder,
 
     [Parameter(Mandatory = $false, HelpMessage = "Set to false if used non-interactive")]
-    [bool] $interactive = $true
+    [bool] $interactive = $true,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Create remediation task only for Policy assignments owned by this Policy as Code repo")]
+    [switch] $onlyCheckManagedAssignments
 )
 
 . "$PSScriptRoot/../Helpers/Get-PacFolders.ps1"
 . "$PSScriptRoot/../Helpers/Get-GlobalSettings.ps1"
 . "$PSScriptRoot/../Helpers/Select-PacEnvironment.ps1"
-. "$PSScriptRoot/../Helpers/Get-AzPolicyInitiativeDefinitions.ps1"
+. "$PSScriptRoot/../Helpers/Get-AzPolicyDefinitions.ps1"
 . "$PSScriptRoot/../Helpers/Get-AzAssignmentsAtScopeRecursive.ps1"
 . "$PSScriptRoot/../Helpers/Get-AzScopeTree.ps1"
 . "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
 . "$PSScriptRoot/../Helpers/Invoke-AzCli.ps1"
 . "$PSScriptRoot/../Helpers/Split-AssignmentIdForAzCli.ps1"
 . "$PSScriptRoot/../Helpers/Set-AzCloudTenantSubscription.ps1"
+. "$PSScriptRoot/../Helpers/Search-AzGraphAllItems.ps1"
+. "$PSScriptRoot/../Helpers/Get-FilteredHashTable.ps1"
 
 $InformationPreference = "Continue"
-Invoke-AzCli config set extension.use_dynamic_install=yes_without_prompt -SuppressOutput
 $pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -outputFolder $OutputFolder -interactive $interactive
-Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -interactive $pacEnvironment.interactive
+Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -interactive $pacEnvironment.interactive
 
-$rootScopeId = $pacEnvironment.rootScopeId
-$rootScope = $pacEnvironment.rootScope
+$query = 'policyresources | where type == "microsoft.policyinsights/policystates" | where properties.complianceState == "NonCompliant" and properties.policyDefinitionAction in ( "modify", "deployifnotexists" ) | summarize count() by tostring(properties.policyAssignmentId), tostring(properties.policyDefinitionReferenceId)  | order by properties_policyAssignmentId asc'
+$result = @() + (Search-AzGraphAllItems -query $query -scope @{ UseTenantScope = $true })
+$remediationsList = $result
+if ($onlyCreateOwnedRemediationTasks) {
+    # Only create remediation task owned by this Policy as Code repo
+    $scopeTable = Get-AzScopeTree -pacEnvironment $pacEnvironment
+    $deployedPolicyResources = Get-AzPolicyResources -pacEnvironment $pacEnvironment -scopeTable $scopeTable -skipExemptions -skipRoleAssignments
+    $managedAssignments = $deployedPolicyResources.policyassignments.managed
+    $strategy = $pacEnvironment.desiredState.strategy
+    $managedRemediations = [System.Collections.ArrayList]::new()
+    foreach ($entry in $result) {
+        $policyAssignmentId = $entry.properties_policyAssignmentId
+        if ($managedAssignments.ContainsKey($policyAssignmentId)) {
+            $managedAssignment = $managedAssignments.$policyAssignmentId
+            $assignmentPacOwner = $managedAssignment.pacOwner
+            if ($assignmentPacOwner -eq "thisPaC" -or ($assignmentPacOwner -eq "unknownOwner" -and $strategy -eq "full")) {
+                $null = $managedRemediations.Add($entry)
+            }
+        }
+    }
+    $remediationsList = $managedRemediations.ToArray()
+}
 
-$allAzPolicyInitiativeDefinitions = Get-AzPolicyInitiativeDefinitions -rootScope $rootScope -rootScopeId $rootScopeId
-$allPolicyDefinitions = $allAzPolicyInitiativeDefinitions.builtInPolicyDefinitions + $allAzPolicyInitiativeDefinitions.existingCustomPolicyDefinitions
-$allInitiativeDefinitions = $allAzPolicyInitiativeDefinitions.builtInInitiativeDefinitions + $allAzPolicyInitiativeDefinitions.existingCustomInitiativeDefinitions
-
-$scopeTreeInfo = Get-AzScopeTree `
-    -tenantId $pacEnvironment.tenantId `
-    -scopeParam $rootScope `
-    -defaultSubscriptionId $pacEnvironment.defaultSubscriptionId
-$null, $remediations, $null = Get-AzAssignmentsAtScopeRecursive `
-    -scopeTreeInfo $scopeTreeInfo `
-    -notScopeIn $pacEnvironment.globalNotScopeList `
-    -includeResourceGroups $false `
-    -getAssignments $false `
-    -getExemptions $false `
-    -getRemediations $true `
-    -allPolicyDefinitions $allPolicyDefinitions `
-    -allInitiativeDefinitions $allInitiativeDefinitions
-
-if ($remediations.Count -lt 1) {
+$numberOfRemediations = $remediationsList.Count
+if ($numberOfRemediations -eq 0) {
     Write-Information "==================================================================================================="
     Write-Information "No Remediation Tasks - zero resources need remediation"
     Write-Information "==================================================================================================="
 }
 else {
     Write-Information "==================================================================================================="
-    Write-Information "Creating Remediation Tasks"
+    Write-Information "Creating Remediation Tasks ($($numberOfRemediations))"
     Write-Information "==================================================================================================="
 
-    foreach ($scope in $remediations.Keys) {
-        $assignments = $remediations[$scope]
-        Write-Information "Scope $scope"
-        foreach ($assignmentId in $assignments.Keys) {
-            $assignment = $assignments[$assignmentId]
-            $remediationTaskDefinitions = $assignment.remediationTasks
-            # Write-Information "    Assignment ""$($assignment.assignmentDisplayName)"", Resources=$($assignment.nonCompliantResources)"
-            if ($assignment.initiativeId -ne "") {
-                # Write-Information "        Assigned Initiative ""$($assignment.initiativeDisplayName)"""
-            }
-            foreach ($remediationTaskDefinition in $remediationTaskDefinitions) {
-                $info = $remediationTaskDefinition.info
-                Write-Information "    Policy=""$($info.policyDisplayName)"", Resources=$($info.nonCompliantResources)"
-                Invoke-AzCli policy remediation create -Splat $remediationTaskDefinition.splat -SuppressOutput
-            }
+    foreach ($entry in $remediationsList) {
+        $policyAssignmentId = $entry.properties_policyAssignmentId
+        $policyDefinitionReferenceId = $entry.properties_policyDefinitionReferenceId
+        $count = $entry.count_
+        $resourceIdParts = Split-AzPolicyResourceId -id $policyAssignmentId
+        $scope = $resourceIdParts.scope
+        $assignmentName = $resourceIdParts.name
+        $taskName = "$assignmentName--$(New-Guid)"
+        $shortScope = $scope
+        if ($resourceIdParts.scopeType -eq "managementGroups") {
+            $shortScope = "/managementGroups/"
         }
-        Write-Information "---------------------------------------------------------------------------------------------------"
+        if ($policyDefinitionReferenceId -ne "") {
+            Write-Information "Assignment='$($assignmentName)', scope=$($shortScope), reference=$($policyDefinitionReferenceId), nonCompliant=$($count)"
+            # $null = Start-AzPolicyRemediation -Name $taskName -Scope $scope -PolicyAssignmentId $policyAssignmentId -PolicyDefinitionReferenceId $policyDefinitionReferenceId
+        }
+        else {
+            Write-Information "Assignment='$($assignmentName)', scope=$($shortScope), nonCompliant=$($count)"
+            # $null = Start-AzPolicyRemediation -Name $taskName -Scope $scope -PolicyAssignmentId $policyAssignmentId
+        }
     }
 }
 Write-Information ""

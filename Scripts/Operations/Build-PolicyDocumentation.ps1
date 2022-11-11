@@ -1,0 +1,292 @@
+#Requires -PSEdition Core
+
+[CmdletBinding()]
+param (
+    [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.")]
+    [string]$definitionsRootFolder,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Output Folder. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER or './Outputs'.")]
+    [string] $outputFolder,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Formats CSV multi-object cells to use new lines and saves it as UTF-8 with BOM - works only fro Excel in Windows. Default uses commas to separate array elements within a cell")]
+    [switch] $windowsNewLineCells,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Set to false if used non-interactive")]
+    [bool] $interactive = $true,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Suppresses prompt for confirmation of each file in interactive mode")]
+    [switch] $suppressConfirmation
+)
+
+#region Script Dot sourcing
+
+# Common Functions
+. "$PSScriptRoot/../Helpers/Get-PacFolders.ps1"
+. "$PSScriptRoot/../Helpers/Get-DeepClone.ps1"
+. "$PSScriptRoot/../Helpers/Get-GlobalSettings.ps1"
+. "$PSScriptRoot/../Helpers/Switch-PacEnvironment.ps1"
+. "$PSScriptRoot/../Helpers/Set-AzCloudTenantSubscription.ps1"
+. "$PSScriptRoot/../Helpers/Get-AzScopeTree.ps1"
+. "$PSScriptRoot/../Helpers/Get-AzPolicyResources.ps1"
+. "$PSScriptRoot/../Helpers/Get-ParameterNameFromValueString.ps1"
+. "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
+. "$PSScriptRoot/../Helpers/Get-FilteredHashTable.ps1"
+. "$PSScriptRoot/../Helpers/Search-AzGraphAllItems.ps1"
+. "$PSScriptRoot/../Helpers/Get-HashtableShallowClone.ps1"
+. "$PSScriptRoot/../Helpers/Confirm-PacOwner.ps1"
+. "$PSScriptRoot/../Helpers/Get-PolicyResourceProperties.ps1"
+
+# Documentation Functions
+. "$PSScriptRoot/../Helpers/Get-AssignmentsDetails.ps1"
+. "$PSScriptRoot/../Helpers/Get-PolicyResourceDetails.ps1"
+. "$PSScriptRoot/../Helpers/Convert-PolicySetsToDetails.ps1"
+. "$PSScriptRoot/../Helpers/Convert-PolicySetsToFlatList.ps1"
+. "$PSScriptRoot/../Helpers/Convert-EffectToOrdinal.ps1"
+. "$PSScriptRoot/../Helpers/Convert-EffectToString.ps1"
+. "$PSScriptRoot/../Helpers/Convert-OrdinalToEffectDisplayName.ps1"
+. "$PSScriptRoot/../Helpers/Convert-ParametersToString.ps1"
+. "$PSScriptRoot/../Helpers/Convert-ListToToCsvRow.ps1"
+. "$PSScriptRoot/../Helpers/Convert-PolicySetsToFlatList.ps1"
+. "$PSScriptRoot/../Helpers/Out-PolicySetsDocumentationToFile.ps1"
+. "$PSScriptRoot/../Helpers/Out-PolicyAssignmentDocumentationToFile.ps1"
+
+#endregion dot sourcing
+
+#region Initialize
+
+$InformationPreference = 'Continue'
+$globalSettings = Get-GlobalSettings -definitionsRootFolder $definitionsRootFolder -outputFolder $outputFolder
+$definitionsFolder = $globalSettings.policyDocumentationsFolder
+$pacEnvironments = $globalSettings.pacEnvironments
+$outputPath = "$($globalSettings.outputFolder)/PolicyDocumentation"
+if (-not (Test-Path $outputPath)) {
+    New-Item $outputPath -Force -ItemType directory
+}
+
+
+# Caching information to optimize different outputs
+$cachedPolicyResourceDetails = @{}
+$cachedAssignmentsDetails = @{}
+$currentPacEnvironmentSelector = ""
+$pacEnvironment = $null
+
+#endregion Initialize
+
+Write-Information ""
+Write-Information "==================================================================================================="
+Write-Information "Reading documentation definitions in folder '$definitionsFolder'"
+Write-Information "==================================================================================================="
+$filesRaw = @()
+$filesRaw += Get-ChildItem -Path $definitionsFolder -Recurse -File -Filter "*.jsonc"
+$filesRaw += Get-ChildItem -Path $definitionsFolder -Recurse -File -Filter "*.json"
+$files = @()
+$files += ($filesRaw  | Sort-Object -Property Name)
+if ($files.Length -gt 0) {
+    Write-Information "Number of documentation definition files = $($files.Length)"
+}
+else {
+    Write-Information "There aren't any documentation definition files in the folder provided!"
+}
+
+$processAllFiles = -not $interactive -or $suppressConfirmation -or $files.Length -eq 1
+foreach ($file in $files) {
+    Write-Information ""
+    Write-Information "==================================================================================================="
+    Write-Information "Reading and Processing '$($file.Name)'"
+    Write-Information "==================================================================================================="
+
+    $processThisFile = $processAllFiles
+    if (-not $processAllFiles) {
+        $title = "Process documentation definition file '$($file.Name)'"
+        $message = "Do you want to process the file?"
+
+        $yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", `
+            "Process the current file."
+        $all = New-Object System.Management.Automation.Host.ChoiceDescription "&All", `
+            "Process remaining files files in folder '$definitionsFolder'."
+        $skip = New-Object System.Management.Automation.Host.ChoiceDescription "&Skip", `
+            "Skip processing this file."
+        $options = [System.Management.Automation.Host.ChoiceDescription[]]($yes, $skip, $all)
+        $result = $Host.UI.PromptForChoice($title, $message, $options, 0)
+        switch ($result) {
+            0 {
+                $processThisFile = $true
+            }
+            1 {
+                $processThisFile = $false
+                Write-Information "***************************************************************************************************"
+                Write-Information "***************************************************************************************************"
+                Write-Information "** Skipping file '$($file.Name)'"
+                Write-Information "***************************************************************************************************"
+                Write-Information "***************************************************************************************************"
+                Write-Information ""
+                Write-Information ""
+            }
+            2 {
+                $processThisFile = $true
+                $processAllFiles = $true
+            }
+        }
+    }
+
+    if ($processThisFile) {
+        $json = Get-Content -Path $file.FullName -Raw -ErrorAction Stop
+        if (-not (Test-Json $json)) {
+            Write-Error "The JSON file '$($file.Name)' is not valid." -ErrorAction Stop
+        }
+        $documentationSpec = $json | ConvertFrom-Json
+
+        if (-not ($documentationSpec.documentAssignments -or $documentationSpec.documentPolicySets)) {
+            Write-Error "JSON document must contain 'documentAssignments' and/or 'documentPolicySets' element(s)." -ErrorAction Stop
+        }
+
+        $documentPolicySets = $documentationSpec.documentPolicySets
+        if ($documentPolicySets -and $documentPolicySets.Count -gt 0) {
+            $pacEnvironment = $null
+            foreach ($documentPolicySetEntry in $documentPolicySets) {
+                $pacEnvironmentSelector = $documentPolicySetEntry.pacEnvironment
+                if (-not $pacEnvironmentSelector) {
+                    Write-Error "documentPolicySet entry does not specify pacEnvironment" -ErrorAction Stop
+                }
+
+                $fileNameStem = $documentPolicySetEntry.fileNameStem
+                if (-not $fileNameStem) {
+                    Write-Error "documentPolicySet entry does not specify fileNameStem" -ErrorAction Stop
+                }
+
+                $title = $documentPolicySetEntry.title
+                if (-not $title) {
+                    Write-Error "documentPolicySet entry does not specify title" -ErrorAction Stop
+                }
+
+                $policySets = $documentPolicySetEntry.initiatives
+                $itemArrayList = [System.Collections.ArrayList]::new()
+                if ($null -ne $policySets -and $policySets.Count -gt 0) {
+                    foreach ($policySet in $policySets) {
+                        $itemEntry = @{
+                            shortName    = $policySet.shortName
+                            itemId       = $policySet.id
+                            policySetId  = $policySet.id
+                            assignmentId = $null
+                        }
+                        $null = $itemArrayList.Add($itemEntry)
+                    }
+                }
+                else {
+                    Write-Error "documentPolicySet entry does not specify an policySets array or policySets array is empty" -ErrorAction Stop
+                }
+                $itemList = $itemArrayList.ToArray()
+
+                $environmentColumnsInCsv = $documentPolicySetEntry.environmentColumnsInCsv
+
+                if (-not $cachedPolicyResourceDetails.ContainsKey($pacEnvironmentSelector)) {
+                    if ($currentPacEnvironmentSelector -ne $pacEnvironmentSelector) {
+                        $currentPacEnvironmentSelector = $pacEnvironmentSelector
+                        $pacEnvironment = Switch-PacEnvironment `
+                            -pacEnvironmentSelector $currentPacEnvironmentSelector `
+                            -pacEnvironments $pacEnvironments `
+                            -interactive $interactive
+
+                    }
+                }
+
+                # Retrieve Policies and PolicySets for current pacEnvironment from cache or from Azure
+                $policyResourceDetails = Get-PolicyResourceDetails `
+                    -pacEnvironmentSelector $pacEnvironmentSelector `
+                    -pacEnvironment $pacEnvironment `
+                    -cachedPolicyResourceDetails $cachedPolicyResourceDetails
+                $policySetDetails = $policyResourceDetails.policySets
+
+                $flatPolicyList = Convert-PolicySetsToFlatList `
+                    -itemList $itemList `
+                    -details $policySetDetails
+
+                # Print documentation
+                Out-PolicySetsDocumentationToFile `
+                    -outputPath $outputPath `
+                    -fileNameStem $fileNameStem `
+                    -windowsNewLineCells:$windowsNewLineCells `
+                    -title $title `
+                    -itemList $itemList `
+                    -environmentColumnsInCsv $environmentColumnsInCsv `
+                    -policySetDetails $policySetDetails `
+                    -flatPolicyList $flatPolicyList
+            }
+        }
+
+        # Process instructions to document Assignments
+        if ($documentationSpec.documentAssignments) {
+            $documentAssignments = $documentationSpec.documentAssignments
+            $environmentCategories = $documentAssignments.environmentCategories
+
+            # Process assignments for every environmentCategory specified
+            [hashtable] $assignmentsByEnvironment = @{}
+            foreach ($environmentCategoryEntry in $environmentCategories) {
+                if (-not $environmentCategoryEntry.pacEnvironment) {
+                    Write-Error "JSON document does not contain the required 'pacEnvironment' element." -ErrorAction Stop
+                }
+                # Load pacEnvironment
+                $pacEnvironmentSelector = $environmentCategoryEntry.pacEnvironment
+                Write-Information ""
+                if ($currentPacEnvironmentSelector -ne $pacEnvironmentSelector) {
+                    $currentPacEnvironmentSelector = $pacEnvironmentSelector
+                    $pacEnvironment = Switch-PacEnvironment `
+                        -pacEnvironmentSelector $currentPacEnvironmentSelector `
+                        -pacEnvironments $pacEnvironments `
+                        -interactive $interactive
+                }
+
+                # Retrieve Policies and PolicySets for current pacEnvironment from cache or from Azure
+                $policyResourceDetails = Get-PolicyResourceDetails `
+                    -pacEnvironmentSelector $currentPacEnvironmentSelector `
+                    -pacEnvironment $pacEnvironment `
+                    -cachedPolicyResourceDetails $cachedPolicyResourceDetails
+
+                # Retrieve assignments and process information or retrieve from cache is assignment previously processed
+                $assignmentArray = $environmentCategoryEntry.representativeAssignments
+
+                $itemList, $assignmentsDetails = Get-AssignmentsDetails `
+                    -pacEnvironmentSelector $currentPacEnvironmentSelector `
+                    -assignmentArray $assignmentArray `
+                    -policyResourceDetails $policyResourceDetails `
+                    -cachedAssignmentsDetails $cachedAssignmentsDetails
+
+                # Flatten Policy lists in Assignments and reconcile the most restrictive effect for each Policy
+                $flatPolicyList = Convert-PolicySetsToFlatList `
+                    -itemList $itemList `
+                    -details $assignmentsDetails
+
+                # Store results of processing and flattening for use in document generation
+                $null = $assignmentsByEnvironment.Add($environmentCategoryEntry.environmentCategory, @{
+                        pacEnvironmentSelector = $currentPacEnvironmentSelector
+                        scopes                 = $environmentCategoryEntry.scopes
+                        itemList               = $itemList
+                        assignmentsDetails     = $assignmentsDetails
+                        flatPolicyList         = $flatPolicyList
+                    }
+                )
+            }
+
+            # Build documents
+            Write-Information ""
+            $documentationSpecifications = $documentAssignments.documentationSpecifications
+            foreach ($documentationSpecification in $documentationSpecifications) {
+                $documentationType = $documentationSpecification.type
+                if ($null -ne $documentationType) {
+                    if ($documentationType -eq "effectsPerEnvironment") {
+                        Write-Error "Field documentationType ($($documentationType)) is deprecated, effectsPerEnvironment is not supported." -ErrorAction Stop
+                    }
+                    else {
+                        Write-Information "Field documentationType ($($documentationType)) is deprecated"
+                    }
+                }
+                Out-PolicyAssignmentDocumentationToFile `
+                    -outputPath $outputPath `
+                    -windowsNewLineCells:$windowsNewLineCells `
+                    -documentationSpecification $documentationSpecification `
+                    -assignmentsByEnvironment $assignmentsByEnvironment
+            }
+        }
+
+    }
+}

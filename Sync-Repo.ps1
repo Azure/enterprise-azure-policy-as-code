@@ -33,12 +33,7 @@ param (
     # Switch parameter to suppress deleting files in $destinationDirectory tree
     [Parameter()]
     [switch]
-    $suppressDeleteFiles,
-
-    # Switch parameter to exclude documentation files *.md, LICENSE from synchronization
-    [Parameter()]
-    [switch]
-    $omitDocFiles
+    $suppressDeleteFiles
 )
 
 $InformationPreference = "Continue"
@@ -62,16 +57,7 @@ if (Test-Path $sourceDirectory -PathType Container) {
         }
     }
 
-    if ($suppressDeleteFiles.IsPresent) {
-        # Delete $destinationDirectory directories prior to copy - removes obsolete files
-        Write-Information "Copying '$sourceDirectory/Docs'"
-        Copy-Item "$sourceDirectory/Docs" "$destinationDirectory" -Recurse -Force
-        Write-Information "Copying '$sourceDirectory/Scripts'"
-        Copy-Item "$sourceDirectory/Scripts" "$destinationDirectory" -Recurse -Force
-        Write-Information "Copying '$sourceDirectory/StarterKit'"
-        Copy-Item "$sourceDirectory/StarterKit" "$destinationDirectory" -Recurse -Force
-    }
-    else {
+    if (!($suppressDeleteFiles)) {
         if (Test-Path "$destinationDirectory/Docs") {
             Write-Information "Deleting '$destinationDirectory/Docs'"
             Remove-Item "$destinationDirectory/Docs" -Recurse
@@ -84,33 +70,22 @@ if (Test-Path $sourceDirectory -PathType Container) {
             Write-Information "Deleting '$destinationDirectory/StarterKit'"
             Remove-Item "$destinationDirectory/StarterKit" -Recurse
         }
-        Write-Information "Copying '$sourceDirectory/Docs'"
-        Copy-Item "$sourceDirectory/Docs" "$destinationDirectory/Docs" -Recurse -Force
-        Write-Information "Copying '$sourceDirectory/Scripts'"
-        Copy-Item "$sourceDirectory/Scripts" "$destinationDirectory/Scripts" -Recurse -Force
-        Write-Information "Copying '$sourceDirectory/StarterKit'"
-        Copy-Item "$sourceDirectory/StarterKit" "$destinationDirectory/StarterKit" -Recurse -Force
     }
 
-    if (!$omitDocFiles.IsPresent) {
-        Write-Information "Copying documentation files from '$sourceDirectory'"
-        if (!(Test-Path "$destinationDirectory/Definitions")) {
-            New-Item "$destinationDirectory/Definitions" -ItemType Directory
-        }
-        Copy-Item "$sourceDirectory/Definitions" "$destinationDirectory" -Filter README.md -Recurse -Force
+    Write-Information "Copying '$sourceDirectory/Docs'"
+    Copy-Item "$sourceDirectory/Docs" "$destinationDirectory/Docs" -Recurse -Force
+    Write-Information "Copying '$sourceDirectory/Scripts'"
+    Copy-Item "$sourceDirectory/Scripts" "$destinationDirectory/Scripts" -Recurse -Force
+    Write-Information "Copying '$sourceDirectory/StarterKit'"
+    Copy-Item "$sourceDirectory/StarterKit" "$destinationDirectory/StarterKit" -Recurse -Force
 
-        if (!(Test-Path "$destinationDirectory/Pipeline")) {
-            New-Item "$destinationDirectory/Pipeline" -ItemType Directory
-        }
-        Copy-Item "$sourceDirectory/Pipeline" "$destinationDirectory" -Filter README.md -Recurse -Force
-
-        Copy-Item "$sourceDirectory/CODE_OF_CONDUCT.md" "$destinationDirectory/CODE_OF_CONDUCT.md"
-        Copy-Item "$sourceDirectory/LICENSE" "$destinationDirectory/LICENSE"
-        Copy-Item "$sourceDirectory/README.md" "$destinationDirectory/README.md"
-        Copy-Item "$sourceDirectory/SECURITY.md" "$destinationDirectory/SECURITY.md"
-        Copy-Item "$sourceDirectory/SUPPORT.md" "$destinationDirectory/SUPPORT.md"
-        Copy-Item "$sourceDirectory/Sync-Repo.ps1" "$destinationDirectory/Sync-Repo.ps1"
-    }
+    Write-Information "Copying documentation files from '$sourceDirectory'"
+    Copy-Item "$sourceDirectory/CODE_OF_CONDUCT.md" "$destinationDirectory/CODE_OF_CONDUCT.md"
+    Copy-Item "$sourceDirectory/LICENSE" "$destinationDirectory/LICENSE"
+    Copy-Item "$sourceDirectory/README.md" "$destinationDirectory/README.md"
+    Copy-Item "$sourceDirectory/SECURITY.md" "$destinationDirectory/SECURITY.md"
+    Copy-Item "$sourceDirectory/SUPPORT.md" "$destinationDirectory/SUPPORT.md"
+    Copy-Item "$sourceDirectory/Sync-Repo.ps1" "$destinationDirectory/Sync-Repo.ps1"
 }
 else {
     Write-Error "The source directory '$sourceDirectory' must exist" -ErrorAction Stop
