@@ -14,7 +14,7 @@ function Build-PolicySetPlan {
 
     Write-Information ""
     Write-Information "==================================================================================================="
-    Write-Information "Processing Policy Set definitions JSON files in folder '$definitionsRootFolder'"
+    Write-Information "Processing Policy Set definition JSON files in folder '$definitionsRootFolder'"
     Write-Information "==================================================================================================="
     $definitionFiles = @()
     $definitionFiles += Get-ChildItem -Path $definitionsRootFolder -Recurse -File -Filter "*.json"

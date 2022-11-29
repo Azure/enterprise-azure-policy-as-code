@@ -64,8 +64,12 @@ param (
 
 # Initialize
 $InformationPreference = "Continue"
-Install-Module Az.ResourceGraph -Force
-Import-Module Az.ResourceGraph -Force
+
+if (!(Get-Module Az.ResourceGraph -ListAvailable)) {
+    Write-Information "Installing Az.ResourceGraph module"
+    Install-Module Az.ResourceGraph -Force
+}
+
 $pacEnvironment = Select-PacEnvironment $pacEnvironmentSelector -definitionsRootFolder $definitionsRootFolder -outputFolder $outputFolder -interactive $interactive
 Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -interactive $pacEnvironment.interactive
 
