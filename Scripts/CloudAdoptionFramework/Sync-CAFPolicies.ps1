@@ -80,5 +80,5 @@ foreach ($initiativeFile in Get-ChildItem $definitionsRootFolder\Initiatives\CAF
     $jsonContent | ConvertTo-Json -Depth 20 | Set-Content $initiativeFile
 }
 
-Copy-Item -Path .\Scripts\CloudAdoptionFramework\Assignments\*.json -Destination "$definitionsRootFolder\assignments\CAF\" -Force
+Copy-Item -Path .\Scripts\CloudAdoptionFramework\Assignments\*.* -Destination "$definitionsRootFolder\assignments\CAF\" -Force
 
