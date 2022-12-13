@@ -17,8 +17,14 @@
                         "description": "This policy denies creation of Public IPs under the assigned scope."
                     },
                     "definitionEntry": {
-                        "policyName": "Deny-PublicIP",
+                        "policyName": "6c112d4e-5bc7-47ae-a041-ea2d9dccd749",
                         "friendlyNameToDocumentIfGuid": "Deny Public IP"
+                    },
+                    "parameters": {
+                        "listOfResourceTypesNotAllowed": [
+                            "Microsoft.Network/publicIPAddresses"
+                        ],
+                        "effect": "Deny"
                     }
                 },
                 {
@@ -60,12 +66,6 @@
                     "definitionEntry": {
                         "policyName": "98d0b9f8-fd90-49c9-88e2-d3baf3b0dd86",
                         "friendlyNameToDocumentIfGuid": "Deploy VM Backup"
-                    },
-                    "parameters": {
-                        "exclusionTagName": "Backup",
-                        "exclusionTagValue": [
-                            "False"
-                        ]
                     }
                 }
             ]

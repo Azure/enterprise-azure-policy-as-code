@@ -107,7 +107,7 @@
                     },
                     "definitionEntry": {
                         "policyName": "94de2ad3-e0c1-4caf-ad78-5d47bbc83d3d",
-                        "friendlyNameToDocumentIfGuid": "Audit D"
+                        "friendlyNameToDocumentIfGuid": "Audit DDOS Landing Zones"
                     },
                     "parameters": {
                         "effect": "Modify",
@@ -163,12 +163,6 @@
                     "definitionEntry": {
                         "policyName": "98d0b9f8-fd90-49c9-88e2-d3baf3b0dd86",
                         "friendlyNameToDocumentIfGuid": "Deploy VM Backup"
-                    },
-                    "parameters": {
-                        "exclusionTagName": "Backup",
-                        "exclusionTagValue": [
-                            "False"
-                        ]
                     }
                 }
             ]
