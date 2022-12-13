@@ -70,7 +70,7 @@ The Policy as Code framework supports the following Policy and Initiative assign
 
 ### Repo Syncronization
 
-Git lacks a capability to ignore files/directories during a PR only. This repo has been organized that Definitions and Pipeline folders (except for README.md files) are not touch by syncing latest update from GitHub to your repo or reverse syncing to contribute to the project.
+Git lacks a capability to ignore files/directories during a PR only. This repo has been organized so that Definitions and Pipeline folders (except for README.md files) are not touched by syncing latest update from GitHub to your repo or reverse syncing to contribute to the project.
 
 1. Initial setup
       1. Create `MyForkRepo` as a fork or clone of [GitHub repo](https://github.com/Azure/enterprise-azure-policy-as-code).
@@ -120,7 +120,7 @@ Create a custom role to be used by the planing stages' service connections **EPA
 
 ### Required Management Groups and subscriptions
 
-This solution requires EPAC environments for development, (optional) integration, and production per tenant. These environments are not the same as the standard Azure environments for solutions - do not confuse them. The regular Sandbox, DEV, DEVINT, TEST/QA and PROD environment are managed with the EPAC PROD deployment(s).
+This solution requires EPAC environments for development, (optional) integration, and production per Azure tenant. These EPAC environments are not the same as the standard Azure environments for applications or solutions - do not confuse them; EPAC non-prod environment are only for development and integration of Azure Policy.  The standard Azure Sandbox, DEV, DEVINT, TEST/QA and PROD app solution environments are managed with policy deployed from the EPAC PROD environment.
 
 * Build a management group dedicated to Policy as Code (PaC) -- `mg-pac-dev` <br/> <https://docs.microsoft.com/en-us/azure/governance/management-groups/create-management-group-portal>
 * Create two subscriptions under the PaC management group mg-pac-dev. Recommended naming:
@@ -146,7 +146,7 @@ Create Service Principals for the pipeline execution and setup your DevOps envir
   * User Access Administrator for assigning roles to the Assignments' Managed Identities (for remediation tasks) in the EPAC prod environment
 
 > **Note:**
-> When creating a Service Connection in Azure DevOps you can set up the service connections on Subscription or a Management Group scope level, when configuring the service connection for the EPAC Developer and Test subscriptions the service connections scope level is **Subscription**, however when creating a Service Connections for EPAC Prod Plan, EPAC Prod Deployment and EPAC Role Assignment the service connection scope level is **Management Group**.
+> When creating a Service Connection in Azure DevOps you can set up the service connections on a Subscription or a Management Group scope level, when configuring the service connection for the EPAC Developer and Test subscriptions the service connections scope level is **Subscription**, however when creating a Service Connections for EPAC Prod Plan, EPAC Prod Deployment and EPAC Role Assignment the service connection scope level is **Management Group**.
 
 Subscription scope level | Management Group scope level
 :-----------:|:----------------:
@@ -154,7 +154,7 @@ Subscription scope level | Management Group scope level
 
 ### EPAC environments setup
 
-Like any other software or X as Code solution, EPAC needs areas for developing and testing new Policies, Initiatives and Assignments before any deployment to EPAC prod environments. In most cases you will need one subscription each for development and testing. EPAC's prod environment will govern all other IaC environments (e.g., sandbox, development, integration, test/qa, pre-prod, prod, ...). This can be slightly confusing.
+Like any other software or X as Code solution, EPAC needs areas for developing and testing new Policies, Initiatives and Assignments before any deployment to EPAC prod environments. In most cases you will need one subscription each for EPAC development and EPAC testing. EPAC's prod environment will govern all other IaC app solution environments (e.g., sandbox, development, integration, test/qa, pre-prod, prod, ...). This can be slightly confusing.
 
 **Note:** This solution will refer to EPAC environments which are selected with a PAC selector and the regular environments as simply environments.
 

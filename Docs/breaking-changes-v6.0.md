@@ -11,7 +11,7 @@ We had make breaking changes to accommodate new features and improve speed. We d
 | Support multiple EPAC (and other PaC) solutions to manage Policy. | Add `"pacOwnerId": "e6581a31-51a3-4dc6-806d-2541dc251d31"` | Modify global-settings.jsonc |
  Support "brownfield" scenarios with smarter more granular approach. | Remove the command line switch `-noDelete`. <br/><br/>Add (optional) element within each pacEnvironment `"desiredState": { "strategy": "ownedOnly" }`.  | Remove switch in CI/CD pipelines. <br/><br/>Modify global-settings.jsonc |
  | Simplify the command line and increase granularity for resource group handling. | Remove the command line switch `-includeResourceGroups`. <br/><br/>Add `"desiredState": { "includeResourceGroups": true }`.  | Remove switch in CI/CD pipelines. <br/><br/>Modify global-settings.jsonc |
- | Increase execution speed and pipeline uniformity. We replaced az cli usage with faster Resource Graph queries and AZ PowerShell Modules. Additionally we simplified the command lets naming. | Pipeline task use `task: AzurePowerShell@5`. <br/><br/>Modify script name and parameters. | Modify pipeline definition |
+ | Increase execution speed and pipeline uniformity. We replaced az cli usage with faster Resource Graph queries and AZ PowerShell Modules. Additionally we simplified the commandlets naming. | Pipeline task use `task: AzurePowerShell@5`. <br/><br/>Modify script name and parameters. | Modify pipeline definition |
  | Rename definition folders to match Microsoft's standard naming in our Policy repo on GitHub. | Rename folders within `Definitions` folder (see below) | Change folder names |
  | Microsoft has deprecated Azure AD Graph API. It has been replaced with Microsoft Graph API impacting service connection setup | Add `MS Graph` [permissions](azure-devops-pipeline.md) for the pipeline service connections | Service Principal Permissions |
  | Centralized documentation files into Docs folder. | Readme.md files in `Definitions` folders are no longer used or updated, | Remove deprecated files from `Definitions` folders. They have been moved to the docs folder. | Remove the legacy `readme.md` files to avoid confusion.
@@ -41,6 +41,17 @@ For details consult the above table and the newly updated samples in StarterKit.
     - `Deploy-PolicyPlan.ps1` to `Deploy-PolicyPlan.ps1`
     - `Deploy-RolesPlan.ps1` to `Deploy-RolesPlan.ps1`
   - Change usage of `task: AzureCLI@2` to `task: AzurePowerShell@5`
-  - Fix the artifact up/downloads.
+    - Add `azurePowerShellVersion: LatestVersion` (or `OtherVersion` with your preferred version at 9.1 or greater)
+    - If `OtherVersion` is used, see the documentation below to see how to set `preferredAzurePowerShellVersion`
+    - (AzurePowerShell@5 Syntax)[https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/azure-powershell-v5?view=azure-pipelines]
+  - Fix the artifact up/downloads by replacing the `publish` and `artifact` line items with those listed below
+
+```yml
+
+- publish: "$(PAC_OUTPUT_FOLDER)/plans-$(pacEnvironmentSelector)"
+  artifact: "plans-$(pacEnvironmentSelector)"
+
+```
+
   - If you're using Azure DevOps pipelines add parameter `-devOpsType "ado"` to `Build-DeploymentPlans.ps1`
 - Add required `MS Graph` [permissions](azure-devops-pipeline.md) for the pipeline service connections.

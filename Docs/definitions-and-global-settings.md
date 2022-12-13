@@ -23,11 +23,11 @@
 This folder and subfolders contain the definitions to deploy. Tasks:
 
 1. Define the Azure environment in **[global-settings.jsonc](#global-settings)**
-1. Create custom Policy definitions (optional) in folder **[Policies](Policies/README.md)**
-1. Create custom Initiative definitions (optional) in folder **[Initiatives](Initiatives/README.md)**
-1. Define the Policy Assignments in folder **[Assignments](Assignments/README.md)**
-1. Define the Policy Exemptions in folder **[Define Policy Exemptions](../Definitions/Exemptions/README.md)**
-1. Define Documentation in folder **[Documentation](../Definitions/Documentation/README.md)**
+1. Create custom Policy definitions (optional) in folder **[policyDefinitions](Policies/README.md)**
+1. Create custom Initiative definitions (optional) in folder **[policySetDefinitions](Initiatives/README.md)**
+1. Define the Policy Assignments in folder **[policyAssignments](Assignments/README.md)**
+1. Define the Policy Exemptions in folder **[policyExemptions](../Definitions/Exemptions/README.md)**
+1. Define Documentation in folder **[policyDocumentations](../Definitions/Documentation/README.md)**
 
 ## Global Settings
 

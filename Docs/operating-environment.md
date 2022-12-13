@@ -22,7 +22,7 @@ Software: Must Meet EPAC Software Requirements
     - Unlike many operations projects, this requires active development of at least yml and json, if not additional scripts
     - As the code being deployed is not static, versioning should be considered in the same manner as a software development project, rather than COTS software deployment
 - Software Requirements
-    - Must Meet EPAC Software Requirements
+    - Must meet EPAC Software Requirements
     - Must have git to retrieve github repo
 - Software Recommendations
     - Visual Studio Code

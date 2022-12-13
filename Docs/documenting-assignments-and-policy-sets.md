@@ -15,9 +15,9 @@
 
 ## Overview
 
-The names of the definition JSON files don't matter. The script reads any file in the folder with a `.json` and `.jsonc` extension.
+The Documentation feature provides reports on Initiatives and Assignments deployed within an environment, and comparisons of Initiatives (deployed or not) for considering differences in policies and effects.  Output is generated as Markdown (`.md`), and Excel (`.csv`) files.
 
-Script [`./Scripts/Operations/Build-PolicyAssignmentDocumentation.ps1`](../../Scripts/Operations/README.md#build-policyassignmentdocumentationps1) documents Initiatives and Assignments in your environment. It retrieves its instruction from the JSON files in this folder.
+The script [`./Scripts/Operations/Build-PolicyAssignmentDocumentation.ps1`](../../Scripts/Operations/README.md#build-policyassignmentdocumentationps1) documents Initiatives and Assignments in your environment. It retrieves its instruction from the JSON files in this folder; the names of the definition JSON files don't matter as the script reads any file in the folder with a `.json` and `.jsonc` extension.
 
 - Read and process Policy Assignments which are representative of an environment category, such as prod, test, dev, and sandbox. It generates Markdown (`.md`), and Excel (`.csv`) files.
 - Read and process Initiative definitions to compare them for Policy and effect overlap. It generates Markdown (`.md`), Excel (`.csv`) files, and JSON file (`.jsonc`).

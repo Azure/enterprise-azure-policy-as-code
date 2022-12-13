@@ -148,11 +148,11 @@ Upon `commit to a feature branch or a manual pipeline run`, the pipeline runs st
 
 After the `pull request is approved and merged`, the pipeline runs stage devAllStage to deploy Policies, Initiatives and Assignments to the PAC TEST environment. Second, it calculates the plan for PROD environment deployment based on the merged Main branch. This plan is executed in one or two stages. The pipeline stops for PROD gate(s) approval at this time. The logs and if desired the artifacts generated are used by the PROD gate(s) approver(s) to decide on the PROD stage approval(s) or rejection(s).
 
-> **Note:** The pipeline stage which deploys to the TEST environment is intended to validate deployment of the compiled set of features that have been individually tested/deployed in the DEV environment prior to deployment to the area of the tenant where workloads exist for testing with the new policies.
+> **Note:** The pipeline stage which deploys to the TEST environment is intended to validate deployment of the integrated set of features that have been individually tested/deployed in the DEV environment prior to deployment to the area of the tenant where workloads exist for testing with the new policies.
 
 ![image.png](Images/PreApprovalGate.png)
 
-Once the `approval gate is passed` deployments to prod will begin. Depending on the configuration a second approval before role assignments will be configured.
+Once the `approval gate is passed` deployments to PROD will begin. Depending on the configuration a second approval before role assignments will be configured.
 
 ![image.png](Images/FinalDeployment.png)
 

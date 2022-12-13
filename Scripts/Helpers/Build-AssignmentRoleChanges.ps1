@@ -16,7 +16,9 @@ function Build-AssignmentRoleChanges {
     $null = $addedList.AddRange($roleAssignments.added)
     $null = $removedList.AddRange($roleAssignments.removed)
     if ($null -eq $principalIdForAddedRoles) {
+        Write-Information "DEBUG: principalIdForAddedRoles is null"
         if ($requiredRoleDefinitions.Length -gt 0) {
+            Write-Information "DEBUG: requiredRoleDefinitions is populated with $($requiredRoleDefinitions.Length) characters"
             # Add all required role assignments for a new or replaced assignment
             foreach ($requiredRoleDefinition in $requiredRoleDefinitions) {
                 $requiredRoleDefinitionId = $requiredRoleDefinition.roleDefinitionId.Split('/')[-1]
@@ -35,6 +37,7 @@ function Build-AssignmentRoleChanges {
             $changingRoleAssignments = $true
         }
         if ($deployedRoleAssignments.Length -gt 0) {
+            Write-Information "DEBUG: deployedRoleAssignments is populated with $($deployedRoleAssignments.Length) characters"
             # Deleting or replacing assignment, remove every deployed role assignment
             foreach ($deployedRoleAssignment in $deployedRoleAssignments) {
                 $null = $removedList.Add($deployedRoleAssignment)
@@ -42,11 +45,12 @@ function Build-AssignmentRoleChanges {
 
             }
             $changingRoleAssignments = $true
+            write-output "DEBUG: RemovedList has $($removedList.count) items in it"
         }
     }
     else {
         # Updating existing assignment
-
+        Write-Information "DEBUG: Updating an existing assignment, principalIdForAddedRoles is $($principalIdForAddedRoles)"
         # Calculate addedList role assignments (also rare)
         foreach ($requiredRoleDefinition in $requiredRoleDefinitions) {
             $requiredRoleDefinitionId = $requiredRoleDefinition.roleDefinitionId.Split('/')[-1]
@@ -62,6 +66,8 @@ function Build-AssignmentRoleChanges {
             }
             if (!$matchFound) {
                 # add role
+                Write-Information "DEBUG: Match Not Found, using requiredRoleDefinition ($($requiredRoleDefinition)), deployedRoleDefinitionId `
+                    ($($deployedRoleDefinitionId)), and deployedScope ($($deployedScope)) as matching criteria"
                 $addedEntry = @{
                     assignmentId     = $assignment.id
                     displayName      = $assignment.DisplayName

@@ -27,8 +27,8 @@ The components required for **creating / updating / deleting Policy assignments 
 | Component | What is it used for? | Where can it be found? |
 |--|--|--|
 | **Global Settings File** | The `global-settings.jsonc` file specifies common values for Policy Assignments. | `Definitions` folder |
-| **Assignment JSON files** | The assignments JSON file follows the management group hierarchy (optionally including subscriptions and resource groups) and defines all policy and initiative assignments on these scopes. | `Definitions/Assignments` folder |
-| **Parameters CSV files** | CSV files are referenced by the JSON files to simplify assignment parameter setting for large complex security and compliance focused Initiatives ([see details below](#define-assignment-parameters-with-a-csv-file)). | `Definitions/Assignments` folder |
+| **Assignment JSON files** | The assignments JSON file follows the management group hierarchy (optionally including subscriptions and resource groups) and defines all policy and initiative assignments on these scopes. | `Definitions/policyAssignments` folder |
+| **Parameters CSV files** (optional)| CSV files are referenced by the JSON files to simplify assignment parameter setting for large complex security and compliance focused Initiatives ([see details below](#define-assignment-parameters-with-a-csv-file)). | `Definitions/policyAssignments` folder |
 
 ## Assignment structure
 
@@ -86,7 +86,7 @@ The assignment selector determines the array being selected for this run of the 
 
 Assigning multiple security and compliance initiatives (e.g., Azure Security Benchmark, NIST 800-53 r5, PCI, NIST 800-171, ...) with just JSON becomes very complex fast. Assigning 5 such Initiatives to 4 environment categories, would require 21 nodes with may repeated items, causing the JSON file to ballon to thousands of lines.
 
-After creating script based documentation generations we realized if we formatted the spreadsheets in a certain way we could use the spreadsheet to drive the parameters when deploying Assignments.
+Based on development of the documentation feature using spreadsheets as report output, that capability was adapted to use spreadsheets as input to control parameters for different parameters when deploying Assignments. 
 
 >Needs much more documentation
 
