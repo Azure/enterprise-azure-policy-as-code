@@ -15,7 +15,7 @@
 
 ## Overview
 
-The Documentation feature provides reports on Initiatives and Assignments deployed within an environment, and comparisons of Initiatives (deployed or not) for considering differences in policies and effects.  Output is generated as Markdown (`.md`), and Excel (`.csv`) files.
+The Documentation feature provides reports on initiatives and assignments deployed within an environment, and comparissions of initatives (deployed or not) for considering differences in policies and effects.  Output is generated as Markdown (`.md`), and Excel (`.csv`) files.
 
 The script [`./Scripts/Operations/Build-PolicyAssignmentDocumentation.ps1`](../../Scripts/Operations/README.md#build-policyassignmentdocumentationps1) documents Initiatives and Assignments in your environment. It retrieves its instruction from the JSON files in this folder; the names of the definition JSON files don't matter as the script reads any file in the folder with a `.json` and `.jsonc` extension.
 

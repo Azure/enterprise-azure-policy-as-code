@@ -9,11 +9,14 @@
 
 ## Exemption Files
 
-Exemptions can be defined as JSON or CSV files. The names of the definition files don't matter.
+Policy exemptions are managed within the EPAC solution by adding the folder `policyExemptions` under `Definitions`.  Within folder `policyExemptions`, exemptions for each pac environment (defined in global-settings.jsonc) are maintained in a matching folder, such as `epac-dev`, `epac-test`, and `tenant`.  If `policyExemptions` folder or indivudual epac environment folders are not present, it means policy exemptions are not managed by the EPAC solution.   
 
-Additionally, through the use of a third-party PowerShell module from the PowerShell Gallery `ImportExcel` (https://www.powershellgallery.com/packages/ImportExcel, https://github.com/dfinke/ImportExcel/tree/master/Public). The contributors to this project are not responsible for any issues with that module. To mitigate the risk, the StarterKit has commented out the use of the conversion to protect your system from any vulnerabilities and executes the script without an Azure login.
+Exemptions can be defined as JSON or CSV files. The names of the definition files don't matter.  To extract existing exemptions, the operations script Get-AzExemptions.ps1 can be used to generate JSON and CSV files. The output should be used to start the Exemption definitions.
 
-The pacEnvironment (see global-settings.jsonc) is represented with a folder, such as dev, test, tenant, ... A missing folder indicates that the pacEnvironment's Exemptions are managed by this solution. To extract existing extension, the operations script Get-AzExemptions.ps1 can be used to generate JSON and CSV files. The output should be used to start the Exemption definitions.
+Additionally, through the use of a third-party PowerShell module from the PowerShell Gallery `ImportExcel` (https://www.powershellgallery.com/packages/ImportExcel, https://github.com/dfinke/ImportExcel/tree/master/Public), .xlsx files can be used to manage exemptions. 
+
+ > **NOTE**: The contributors to this project are not responsible for any issues with the `ImportExcel` module. To mitigate the risk, the StarterKit has commented out the use of the conversion to protect your system from any vulnerabilities and executes the script without an Azure login.
+
 
 ### JSON Format
 

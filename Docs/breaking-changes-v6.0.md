@@ -41,17 +41,6 @@ For details consult the above table and the newly updated samples in StarterKit.
     - `Deploy-PolicyPlan.ps1` to `Deploy-PolicyPlan.ps1`
     - `Deploy-RolesPlan.ps1` to `Deploy-RolesPlan.ps1`
   - Change usage of `task: AzureCLI@2` to `task: AzurePowerShell@5`
-    - Add `azurePowerShellVersion: LatestVersion` (or `OtherVersion` with your preferred version at 9.1 or greater)
-    - If `OtherVersion` is used, see the documentation below to see how to set `preferredAzurePowerShellVersion`
-    - (AzurePowerShell@5 Syntax)[https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/azure-powershell-v5?view=azure-pipelines]
-  - Fix the artifact up/downloads by replacing the `publish` and `artifact` line items with those listed below
-
-```yml
-
-- publish: "$(PAC_OUTPUT_FOLDER)/plans-$(pacEnvironmentSelector)"
-  artifact: "plans-$(pacEnvironmentSelector)"
-
-```
-
+  - Fix the artifact up/downloads.
   - If you're using Azure DevOps pipelines add parameter `-devOpsType "ado"` to `Build-DeploymentPlans.ps1`
 - Add required `MS Graph` [permissions](azure-devops-pipeline.md) for the pipeline service connections.

@@ -25,11 +25,11 @@ The script located at ```Scripts\CloudAdoptionFramework\Sync-CAFPolicies.ps1``` 
 .\Scripts\CloudAdoptionFramework\Sync-CAFPolicies.ps1 [[-DefinitionsRootFolder] <string>]
 ```
 
-Specifying the ```DefinitionsRootFolder``` parameter allows to you sync the policies to a different folder. This may be preferable when running yhe script periodically to sync in changes.
+Specifying the ```DefinitionsRootFolder``` parameter allows to you sync the policies to a different folder. This may be preferable when running the script periodically to sync in changes.
 
 ## Update Assignment Scopes
 
-Each assignment file has a default scope assigned to it - this need to be updated to reflect your environment and ```global-settings.jsonc``` file.
+Each assignment file has a default scope assigned to it - this needs to be updated to reflect your environment and ```global-settings.jsonc``` file.
 
 For example:
 
@@ -50,7 +50,7 @@ For example:
     }
 ```
 
-If my top level management group had an ID of contoso I and my PAC environments specified a production environment I would need to update the block as below.
+If your top level management group had an ID of contoso and my PAC environments specified a production environment you would need to update the block as below.
 
 ```json
 {
