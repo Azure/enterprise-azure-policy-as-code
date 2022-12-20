@@ -7,7 +7,6 @@
     },
     "parameters": {
         "logAnalytics": "",
-        "logAnalytics_1": "",
         "emailSecurityContact": "",
         "ascExportResourceGroupName": "",
         "ascExportResourceGroupLocation": ""
@@ -27,14 +26,7 @@
                         "initiativeName": "1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
                         "friendlyNameToDocumentIfGuid": "Microsoft Cloud Security Benchmark"
                     },
-                    "parameters": {
-                        "identityDesignateLessThanOwnersMonitoringEffect": "Disabled",
-                        "useRbacRulesMonitoringEffect": "Disabled",
-                        "useServicePrincipalToProtectSubscriptionsMonitoringEffect": "Disabled",
-                        "identityEnableMFAForOwnerPermissionsMonitoringEffect": "Disabled",
-                        "networkWatcherShouldBeEnabledMonitoringEffect": "Disabled",
-                        "autoProvisioningOfTheLogAnalyticsAgentShouldBeEnabledOnYourSubscriptionMonitoringEffect": "Disabled"
-                    }
+                    "parameters": {}
                 },
                 {
                     "nodeName": "MDFC",
