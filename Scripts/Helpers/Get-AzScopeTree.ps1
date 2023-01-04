@@ -65,6 +65,9 @@ function Get-AzScopeTree {
         # Write-Host "##[command] Get-AzSubscription"
         $subscriptions = Invoke-AzCli account list --all
         foreach ($subscription in $subscriptions) {
+            if ($subscription.id -eq $subscription.tenantId) {
+                continue 
+                }
             if ($tenantId -eq $subscription.tenantId) {
                 # Ignore subscriptions in other tenants the identity has access permissions (only for interactive users)
                 $resourceGroupIdsHashTable = @{}
