@@ -2,7 +2,7 @@
   uses: Azure/powershell@v1.2.0
   with:
     # Specify the Az PowerShell script here.
-    inlineScript: 
+    inlineScript: "/Scripts/CloudAdoptionFramework/Sync-CAFPolicies.ps1"
     # Azure PS version to be used to execute the script, example: 1.8.0, 2.8.0, 3.4.0. To use the latest version, specify "latest".
     azPSVersion: 
     # Select the value of the ErrorActionPreference variable for executing the script. Options: stop, continue, silentlyContinue. Default is Stop.
@@ -11,5 +11,4 @@
     failOnStandardError: # optional, default is false
     # Used to pull Az module from Azure/az-ps-module-versions.  Since there's a default, this is typically not supplied by the user.
     githubToken: # optional, default is ${{ github.token }}
-    script: /enterprise-azure-policy-as-code/Scripts/CloudAdoptionFramework/Sync-CAFPolicies.ps1
-
+ 
