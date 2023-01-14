@@ -13,7 +13,7 @@
     },
     "parameters": {
       "azureFilePrivateDnsZoneId": {
-        "type": "string",
+        "type": "string",di
         "defaultValue": "",
         "metadata": {
           "displayName": "azureFilePrivateDnsZoneId",

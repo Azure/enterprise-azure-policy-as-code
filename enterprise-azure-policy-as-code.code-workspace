@@ -1,0 +1,14 @@
+{
+  "folders": [
+	{
+		"path": "."
+	},
+	{
+		"name": "gvanbrakel",
+		"path": "../gvanbrakel"
+	}
+],
+  "settings": {
+    "powershell.cwd": "c:\\Users\\g.van.brakel\\Downloads\\gvanbrakel"
+  }
+}
