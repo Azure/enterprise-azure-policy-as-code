@@ -1,0 +1,624 @@
+variables:
+  PAC_OUTPUT_FOLDER: ./Output
+  PAC_DEFINITIONS_FOLDER: ./Definitions
+
+  # Use the plain text name of each service connection as a reference
+  devServiceConnection: "sc-epac-dev"
+  testServiceConnection: "sc-epac-test"
+  tenantPlanServiceConnection: "sc-epac-plan-tenant"
+  tenantDeployServiceConnection: "sc-epac-prod-tenant"
+  tenantRolesServiceConnection: "sc-epac-roles-tenant"
+  tenant2PlanServiceConnection: "sc-epac-plan-tenant2"
+  tenant2DeployServiceConnection: "sc-epac-prod-tenant2"
+  tenant2RolesServiceConnection: "sc-epac-roles-tenant2"
+  tenant3PlanServiceConnection: "sc-epac-plan-tenant3"
+  tenant3DeployServiceConnection: "sc-epac-prod-tenant3"
+  tenant3RolesServiceConnection: "sc-epac-roles-tenant3"
+
+  # Pipeline control
+  isBrownfield: false # Suppresses deletes while moving from an existing Policy environment to Enterprise Policy as Code.
+  # System.Debug: true
+
+# what to build trigger
+trigger:
+  branches:
+    include:
+      - /*
+  paths:
+    include:
+      - $(PAC_DEFINITIONS_FOLDER)
+      - Pipeline
+      - Scripts
+    exclude:
+      - Scripts/Operations
+
+pr: none
+
+# pool: Linux_pool
+# empty = Azure pool
+
+stages:
+  - stage: devStage
+    displayName: "DEV Plan, Deploy Policies, Roles"
+    condition: and(in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), not(contains(variables['Build.SourceBranch'], 'refs/heads/main')))
+    variables:
+      pacEnvironmentSelector: epac-dev
+    jobs:
+      - deployment: allJob
+        environment: PAC-DEV
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: PowerShell@2
+                   displayName: Convert Excel (.xlsx) to CSV
+                   inputs:
+                     pwsh: true
+                     filePath: "Scripts/Deploy/Convert-XlsToCsv.ps1"
+                - task: AzureCLI@2
+                  name: planStep
+                  displayName: Plan
+                  inputs:
+                    azureSubscription: $(devServiceConnection)
+                    scriptType: pscore
+                    scriptLocation: scriptPath
+                    scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
+                    arguments:
+                      -PacEnvironmentSelector $(pacEnvironmentSelector) `
+                      -SuppressDeletes:$$(isBrownfield) `
+                      -InformationAction Continue
+                # Publish pipeline Artifact for ADO Service
+                - publish: "$(PAC_OUTPUT_FOLDER)/policy-plan-$(pacEnvironmentSelector)/policy-plan.json"
+                  artifact: "policy-plan-$(pacEnvironmentSelector)"
+                  condition: succeeded()
+                # Publish build artifact for ADO Server
+                # - task: PublishBuildArtifacts@1
+                #   inputs:
+                #     pathToPublish: "$(PAC_OUTPUT_FOLDER)/policy-plan-$(pacEnvironmentSelector)/policy-plan.json"
+                #     artifactName: "policy-plan-$(pacEnvironmentSelector)"
+                #   condition: succeeded()
+                # End Publish
+                - task: AzurePowerShell@5
+                  displayName: Deploy Policies, Initiatives, Policy Assignments
+                  condition: and(succeeded(), eq(variables['planStep.deployPolicyChanges'], 'yes'))
+                  inputs:
+                    azureSubscription: $(devServiceConnection)
+                    ScriptPath: "Scripts/Deploy/Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1"
+                    ScriptArguments:
+                      -PacEnvironmentSelector $(pacEnvironmentSelector) `
+                      -InformationAction Continue
+                    pwsh: true
+                    azurePowerShellVersion: LatestVersion
+                # Publish pipeline Artifact for ADO Service
+                - publish: "$(PAC_OUTPUT_FOLDER)/roles-plan-$(pacEnvironmentSelector)/roles-plan.json"
+                  artifact: "roles-plan-$(pacEnvironmentSelector)"
+                  condition: and(not(failed()), not(canceled()), eq(variables['planStep.deployRoleChanges'], 'yes'))
+                # Publish build artifact for ADO Server
+                # - task: PublishBuildArtifacts@1
+                #   inputs:
+                #     pathToPublish: "$(PAC_OUTPUT_FOLDER)/roles-plan-$(pacEnvironmentSelector)/roles-plan.json"
+                #     artifactName: "roles-plan-$(pacEnvironmentSelector)"
+                #   condition: and(not(failed()), not(canceled()), eq(variables['planStep.deployRoleChanges'], 'yes'))
+                # End Publish
+                - task: AzureCLI@2
+                  displayName: Deploy Role Assignments
+                  condition: and(not(failed()), not(canceled()), eq(variables['planStep.deployRoleChanges'], 'yes'))
+                  inputs:
+                    azureSubscription: $(devServiceConnection)
+                    scriptType: pscore
+                    scriptLocation: scriptPath
+                    scriptPath: "Scripts/Deploy/Set-AzPolicyRolesFromPlan.ps1"
+                    arguments:
+                      -PacEnvironmentSelector $(pacEnvironmentSelector) `
+                      -InformationAction Continue
+  - stage: tenantPlanFeatureBranchStage
+    displayName: "Tenant1 Plan - Feature Branch"
+    dependsOn:
+      - devStage
+    condition: and(not(failed()), not(canceled()), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), not(contains(variables['Build.SourceBranch'], 'refs/heads/main')))
+    variables:
+      pacEnvironmentSelector: tenant
+    jobs:
+      - job: planJob
+        steps:
+          - checkout: self
+          - task: PowerShell@2
+            displayName: Convert Excel (.xlsx) to CSV
+             inputs:
+             pwsh: true
+              filePath: "Scripts/Deploy/Convert-XlsToCsv.ps1"
+          - task: AzureCLI@2
+            displayName: Plan
+            inputs:
+              azureSubscription: $(tenantPlanServiceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
+              arguments: -PacEnvironmentSelector $(pacEnvironmentSelector) `
+                -SuppressDeletes:$$(isBrownfield) `
+                -InformationAction Continue
+          # Publish pipeline Artifact for ADO Service
+          - publish: "$(PAC_OUTPUT_FOLDER)/policy-plan-$(pacEnvironmentSelector)/policy-plan.json"
+            artifact: "policy-plan-feature-branch-$(pacEnvironmentSelector)"
+            condition: succeeded()
+            # Publish build artifact for ADO Server
+            # - task: PublishBuildArtifacts@1
+            #   inputs:
+            #     pathToPublish: "$(PAC_OUTPUT_FOLDER)/policy-plan-$(pacEnvironmentSelector)/policy-plan.json"
+            #     artifactName: "policy-plan-feature-branch-$(pacEnvironmentSelector)"
+            #   condition: succeeded()
+          # End Publish
+  # - stage: tenant2PlanFeatureBranchStage
+  #   displayName: "Tenant2 Plan - Feature Branch"
+  #   dependsOn:
+  #     - devStage
+  #   condition: and(not(failed()), not(canceled()), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), not(contains(variables['Build.SourceBranch'], 'refs/heads/main')))
+  #   variables:
+  #     pacEnvironmentSelector: tenant2
+  #   jobs:
+  #     - job: planJob
+  #       steps:
+  #         - checkout: self
+  #         - task: PowerShell@2
+  #           displayName: Convert Excel (.xlsx) to CSV
+  #           inputs:
+  #             pwsh: true
+  #             filePath: "Scripts/Deploy/Convert-XlsToCsv.ps1"
+  #         - task: AzureCLI@2
+  #           displayName: Plan
+  #           inputs:
+  #             azureSubscription: $(tenant2PlanServiceConnection)
+  #             scriptType: pscore
+  #             scriptLocation: scriptPath
+  #             scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
+  #             arguments: -PacEnvironmentSelector $(pacEnvironmentSelector) `
+  #               -SuppressDeletes:$$(isBrownfield) `
+  #               -InformationAction Continue
+  #         # Publish pipeline Artifact for ADO Service
+  #         - publish: "$(PAC_OUTPUT_FOLDER)/policy-plan-$(pacEnvironmentSelector)/policy-plan.json"
+  #           artifact: "policy-plan-feature-branch-$(pacEnvironmentSelector)"
+  #           condition: succeeded()
+  #         # Publish build artifact for ADO Server
+  #         # - task: PublishBuildArtifacts@1
+  #         #   inputs:
+  #         #     pathToPublish: "$(PAC_OUTPUT_FOLDER)/policy-plan-$(pacEnvironmentSelector)/policy-plan.json"
+  #         #     artifactName: "policy-plan-feature-branch-$(pacEnvironmentSelector)"
+  #         #   condition: succeeded()
+  #         # End Publish
+  # - stage: tenant3PlanFeatureBranchStage
+  #   displayName: "Tenant3 Plan - Feature Branch"
+  #   dependsOn:
+  #     - devStage
+  #   condition: and(not(failed()), not(canceled()), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), not(contains(variables['Build.SourceBranch'], 'refs/heads/main')))
+  #   variables:
+  #     pacEnvironmentSelector: tenant3
+  #   jobs:
+  #     - job: planJob
+  #       steps:
+  #         - checkout: self
+  #         # - task: PowerShell@2
+  #         #   displayName: Convert Excel (.xlsx) to CSV
+  #         #   inputs:
+  #         #     pwsh: true
+  #         #     filePath: "Scripts/Deploy/Convert-XlsToCsv.ps1"
+  #         - task: AzureCLI@2
+  #           displayName: Plan
+  #           inputs:
+  #             azureSubscription: $(tenant3PlanServiceConnection)
+  #             scriptType: pscore
+  #             scriptLocation: scriptPath
+  #             scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
+  #             arguments: -PacEnvironmentSelector $(pacEnvironmentSelector) `
+  #               -SuppressDeletes:$$(isBrownfield) `
+  #               -InformationAction Continue
+  #         # Publish pipeline Artifact for ADO Service
+  #         - publish: "$(PAC_OUTPUT_FOLDER)/policy-plan-$(pacEnvironmentSelector)/policy-plan.json"
+  #           artifact: "policy-plan-feature-branch-$(pacEnvironmentSelector)"
+  #           condition: succeeded()
+  #         # Publish build artifact for ADO Server
+  #         # - task: PublishBuildArtifacts@1
+  #         #   inputs:
+  #         #     pathToPublish: "$(PAC_OUTPUT_FOLDER)/policy-plan-$(pacEnvironmentSelector)/policy-plan.json"
+  #         #     artifactName: "policy-plan-feature-branch-$(pacEnvironmentSelector)"
+  #         #   condition: succeeded()
+  #         # End Publish
+  # - stage: completedPlanFeatureBranchStage
+  #   displayName: "Completed Plans - Feature Branch"
+  #   dependsOn:
+  #     - tenantPlanFeatureBranchStage
+  #     - tenant2PlanFeatureBranchStage
+  #     - tenant3PlanFeatureBranchStage
+  #   condition: and(not(failed()), not(canceled()), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), not(contains(variables['Build.SourceBranch'], 'refs/heads/main')))
+  #   jobs:
+  #     - job:
+  #       steps:
+  #         - checkout: self
+  #         - task: PowerShell@2
+  #           inputs:
+  #             targetType: "inline"
+  #             script: |
+  #               Write-Host "Completed Plans - Feature Branch"
+  - stage: testStage
+    displayName: "TEST Plan, Deploy Policies, Roles"
+    condition: and(in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+    variables:
+      pacEnvironmentSelector: epac-test
+    jobs:
+      - deployment: allJob
+        environment: PAC-TEST
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                 - task: PowerShell@2
+                  displayName: Convert Excel (.xlsx) to CSV
+                   inputs:
+                   pwsh: true
+                    filePath: "Scripts/Deploy/Convert-XlsToCsv.ps1"
+                - task: AzureCLI@2
+                  name: planStep
+                  displayName: Plan
+                  inputs:
+                    azureSubscription: $(testServiceConnection)
+                    scriptType: pscore
+                    scriptLocation: scriptPath
+                    scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
+                    arguments:
+                      -PacEnvironmentSelector $(pacEnvironmentSelector) `
+                      -SuppressDeletes:$$(isBrownfield) `
+                      -InformationAction Continue
+                # Publish pipeline Artifact for ADO Service
+                - publish: "$(PAC_OUTPUT_FOLDER)/policy-plan-$(pacEnvironmentSelector)/policy-plan.json"
+                  artifact: "policy-plan-$(pacEnvironmentSelector)"
+                  condition: succeeded()
+                # Publish build artifact for ADO Server
+                # - task: PublishBuildArtifacts@1
+                #   inputs:
+                #     pathToPublish: "$(PAC_OUTPUT_FOLDER)/policy-plan-$(pacEnvironmentSelector)/policy-plan.json"
+                #     artifactName: "policy-plan-$(pacEnvironmentSelector)"
+                #   condition: succeeded()
+                # End Publish
+                - task: AzurePowerShell@5
+                  displayName: Deploy Policies, Initiatives, Policy Assignments
+                  condition: and(not(failed()), not(canceled()), eq(variables['planStep.deployPolicyChanges'], 'yes'))
+                  inputs:
+                    azureSubscription: $(testServiceConnection)
+                    ScriptPath: "Scripts/Deploy/Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1"
+                    ScriptArguments:
+                      -PacEnvironmentSelector $(pacEnvironmentSelector) `
+                      -InformationAction Continue
+                    pwsh: true
+                    azurePowerShellVersion: LatestVersion
+                # Publish pipeline Artifact for ADO Service
+                - publish: "$(PAC_OUTPUT_FOLDER)/roles-plan-$(pacEnvironmentSelector)/roles-plan.json"
+                  artifact: "roles-plan-$(pacEnvironmentSelector)"
+                  condition: and(not(failed()), not(canceled()), eq(variables['planStep.deployRoleChanges'], 'yes'))
+                  # Publish build artifact for ADO Server
+                  # - task: PublishBuildArtifacts@1
+                  #   inputs:
+                  #     pathToPublish: "$(PAC_OUTPUT_FOLDER)/roles-plan-$(pacEnvironmentSelector)/roles-plan.json"
+                  #     artifactName: "roles-plan-$(pacEnvironmentSelector)"
+                  #   condition: and(not(failed()), not(canceled()), eq(variables['planStep.deployRoleChanges'], 'yes'))
+                # End Publish
+                - task: AzureCLI@2
+                  displayName: Deploy Role Assignments
+                  condition: and(not(failed()), not(canceled()), eq(variables['planStep.deployRoleChanges'], 'yes'))
+                  inputs:
+                    azureSubscription: $(testServiceConnection)
+                    scriptType: pscore
+                    scriptLocation: scriptPath
+                    scriptPath: "Scripts/Deploy/Set-AzPolicyRolesFromPlan.ps1"
+                    arguments:
+                      -PacEnvironmentSelector $(pacEnvironmentSelector) `
+                      -InformationAction Continue
+  - stage: tenantPlanMainBranchStage
+    displayName: "Tenant1 Plan - Main Branch"
+    dependsOn:
+      - testStage
+    condition: and(not(failed()), not(canceled()), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+    variables:
+      pacEnvironmentSelector: tenant
+    jobs:
+      - job: planJob
+        steps:
+          - checkout: self
+           - task: PowerShell@2
+             displayName: Convert Excel (.xlsx) to CSV
+             inputs:
+               pwsh: true
+               filePath: "Scripts/Deploy/Convert-XlsToCsv.ps1"
+          - task: AzureCLI@2
+            name: planStep
+            displayName: Plan
+            inputs:
+              azureSubscription: $(tenantPlanServiceConnection)
+              scriptType: pscore
+              scriptLocation: scriptPath
+              scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
+              arguments: -PacEnvironmentSelector $(pacEnvironmentSelector) `
+                -SuppressDeletes:$$(isBrownfield) `
+                -InformationAction Continue
+          # Publish pipeline Artifact for ADO Service
+          - publish: "$(PAC_OUTPUT_FOLDER)/policy-plan-$(pacEnvironmentSelector)/policy-plan.json"
+            artifact: "policy-plan-$(pacEnvironmentSelector)"
+            condition: succeeded()
+            # Publish build artifact for ADO Server
+            # - task: PublishBuildArtifacts@1
+            #   inputs:
+            #     pathToPublish: "$(PAC_OUTPUT_FOLDER)/policy-plan-$(pacEnvironmentSelector)/policy-plan.json"
+            #     artifactName: "policy-plan-$(pacEnvironmentSelector)"
+            #   condition: succeeded()
+          # End Publish
+  - stage: tenantDeployPolicyStage
+    displayName: "Tenant1 Deploy Policies"
+    dependsOn:
+      - tenantPlanMainBranchStage
+    condition: and(not(failed()), not(canceled()), eq(dependencies.tenantPlanMainBranchStage.outputs['planJob.planStep.deployPolicyChanges'], 'yes'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+    variables:
+      pacEnvironmentSelector: tenant
+      PAC_INPUT_FOLDER: "$(Pipeline.Workspace)"
+    jobs:
+      - deployment: deployPolicyJob
+        environment: PAC-POLICY
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: AzurePowerShell@5
+                  name: deployStep
+                  displayName: Deploy Policies, Initiatives, Policy Assignments
+                  inputs:
+                    azureSubscription: $(tenantDeployServiceConnection)
+                    ScriptPath: "Scripts/Deploy/Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1"
+                    ScriptArguments:
+                      -PacEnvironmentSelector $(pacEnvironmentSelector) `
+                      -InformationAction Continue
+                    pwsh: true
+                    azurePowerShellVersion: LatestVersion
+                # Publish pipeline Artifact for ADO Service
+                - publish: "$(PAC_OUTPUT_FOLDER)/roles-plan-$(pacEnvironmentSelector)/roles-plan.json"
+                  artifact: "roles-plan-$(pacEnvironmentSelector)"
+                  condition: succeeded()
+                # Publish build artifact for ADO Server
+                # - task: PublishBuildArtifacts@1
+                #   inputs:
+                #     pathToPublish: "$(PAC_OUTPUT_FOLDER)/roles-plan-$(pacEnvironmentSelector)/roles-plan.json"
+                #     artifactName: "roles-plan-$(pacEnvironmentSelector)"
+                #   condition: succeeded()
+                # End Publish
+  - stage: tenantRolesStage
+    displayName: "Tenant1 Role Assignments"
+    dependsOn:
+      - tenantDeployPolicyStage
+    condition: and(not(failed()), not(canceled()), eq(dependencies.tenantPlanMainBranchStage.outputs['planJob.planStep.deployRoleChanges'], 'yes'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+    variables:
+      pacEnvironmentSelector: tenant
+      PAC_INPUT_FOLDER: "$(Pipeline.Workspace)"
+    jobs:
+      - deployment: rolesJob
+        environment: PAC-ROLES
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: AzureCLI@2
+                  displayName: Deploy Role Assignments
+                  inputs:
+                    azureSubscription: $(tenantRolesServiceConnection)
+                    scriptType: pscore
+                    scriptLocation: scriptPath
+                    scriptPath: "Scripts/Deploy/Set-AzPolicyRolesFromPlan.ps1"
+                    arguments:
+                      -PacEnvironmentSelector $(pacEnvironmentSelector) `
+                      -InformationAction Continue
+                  condition: succeeded()
+  # - stage: tenant2PlanMainBranchStage
+  #   displayName: "Tenant2 Plan - Main Branch"
+  #   dependsOn:
+  #     - testStage
+  #   condition: and(not(failed()), not(canceled()), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+  #   variables:
+  #     pacEnvironmentSelector: tenant2
+  #   jobs:
+  #     - job: planJob
+  #       steps:
+  #         - checkout: self
+  #         # - task: PowerShell@2
+  #         #   displayName: Convert Excel (.xlsx) to CSV
+  #         #   inputs:
+  #         #     pwsh: true
+  #         #     filePath: "Scripts/Deploy/Convert-XlsToCsv.ps1"
+  #         - task: AzureCLI@2
+  #           name: planStep
+  #           displayName: Plan
+  #           inputs:
+  #             azureSubscription: $(tenant2PlanServiceConnection)
+  #             scriptType: pscore
+  #             scriptLocation: scriptPath
+  #             scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
+  #             arguments: -PacEnvironmentSelector $(pacEnvironmentSelector) `
+  #               -SuppressDeletes:$$(isBrownfield) `
+  #               -InformationAction Continue
+  #         # Publish pipeline Artifact for ADO Service
+  #         - publish: "$(PAC_OUTPUT_FOLDER)/policy-plan-$(pacEnvironmentSelector)/policy-plan.json"
+  #           artifact: "policy-plan-$(pacEnvironmentSelector)"
+  #           condition: succeeded()
+  #         # Publish build artifact for ADO Server
+  #         # - task: PublishBuildArtifacts@1
+  #         #   inputs:
+  #         #     pathToPublish: "$(PAC_OUTPUT_FOLDER)/policy-plan-$(pacEnvironmentSelector)/policy-plan.json"
+  #         #     artifactName: "policy-plan-$(pacEnvironmentSelector)"
+  #         #   condition: succeeded()
+  #         # End Publish
+  # - stage: tenant2DeployPolicyStage
+  #   displayName: "Tenant2 Deploy Policies"
+  #   dependsOn:
+  #     - tenant2PlanMainBranchStage
+  #   condition: and(not(failed()), not(canceled()), eq(dependencies.tenant2PlanMainBranchStage.outputs['planJob.planStep.deployPolicyChanges'], 'yes'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+  #   variables:
+  #     pacEnvironmentSelector: tenant2
+  #     PAC_INPUT_FOLDER: "$(Pipeline.Workspace)"
+  #   jobs:
+  #     - deployment: deployPolicyJob
+  #       environment: PAC-POLICY
+  #       strategy:
+  #         runOnce:
+  #           deploy:
+  #             steps:
+  #               - checkout: self
+  #               - task: AzurePowerShell@5
+  #                 name: deployStep
+  #                 displayName: Deploy Policies, Initiatives, Policy Assignments
+  #                 inputs:
+  #                   azureSubscription: $(tenant2DeployServiceConnection)
+  #                   ScriptPath: "Scripts/Deploy/Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1"
+  #                   ScriptArguments:
+  #                     -PacEnvironmentSelector $(pacEnvironmentSelector) `
+  #                     -InformationAction Continue
+  #                   pwsh: true
+  #                   azurePowerShellVersion: LatestVersion
+  #               # Publish pipeline Artifact for ADO Service
+  #               - publish: "$(PAC_OUTPUT_FOLDER)/roles-plan-$(pacEnvironmentSelector)/roles-plan.json"
+  #                 artifact: "roles-plan-$(pacEnvironmentSelector)"
+  #                 condition: succeeded()
+  #               # Publish build artifact for ADO Server
+  #               # - task: PublishBuildArtifacts@1
+  #               #   inputs:
+  #               #     pathToPublish: "$(PAC_OUTPUT_FOLDER)/roles-plan-$(pacEnvironmentSelector)/roles-plan.json"
+  #               #     artifactName: "roles-plan-$(pacEnvironmentSelector)"
+  #               #   condition: succeeded()
+  #               # End Publish
+  # - stage: tenant2RolesStage
+  #   displayName: "Tenant2 Role Assignments"
+  #   dependsOn:
+  #     - tenant2DeployPolicyStage
+  #   condition: and(not(failed()), not(canceled()), eq(dependencies.tenant2PlanMainBranchStage.outputs['planJob.planStep.deployRoleChanges'], 'yes'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+  #   variables:
+  #     pacEnvironmentSelector: tenant2
+  #     PAC_INPUT_FOLDER: "$(Pipeline.Workspace)"
+  #   jobs:
+  #     - deployment: rolesJob
+  #       environment: PAC-ROLES
+  #       strategy:
+  #         runOnce:
+  #           deploy:
+  #             steps:
+  #               - checkout: self
+  #               - task: AzureCLI@2
+  #                 displayName: Deploy Role Assignments
+  #                 inputs:
+  #                   azureSubscription: $(tenant2RolesServiceConnection)
+  #                   scriptType: pscore
+  #                   scriptLocation: scriptPath
+  #                   scriptPath: "Scripts/Deploy/Set-AzPolicyRolesFromPlan.ps1"
+  #                   arguments:
+  #                     -PacEnvironmentSelector $(pacEnvironmentSelector) `
+  #                     -InformationAction Continue
+  #                 condition: succeeded()
+  # - stage: tenant3PlanMainBranchStage
+  #   displayName: "Tenant3 Plan - Main Branch"
+  #   dependsOn:
+  #     - testStage
+  #   condition: and(not(failed()), not(canceled()), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+  #   variables:
+  #     pacEnvironmentSelector: tenant3
+  #   jobs:
+  #     - job: planJob
+  #       steps:
+  #         - checkout: self
+  #         # - task: PowerShell@2
+  #         #   displayName: Convert Excel (.xlsx) to CSV
+  #         #   inputs:
+  #         #     pwsh: true
+  #         #     filePath: "Scripts/Deploy/Convert-XlsToCsv.ps1"
+  #         - task: AzureCLI@2
+  #           name: planStep
+  #           displayName: Plan
+  #           inputs:
+  #             azureSubscription: $(tenant3PlanServiceConnection)
+  #             scriptType: pscore
+  #             scriptLocation: scriptPath
+  #             scriptPath: "Scripts/Deploy/Build-AzPoliciesInitiativesAssignmentsPlan.ps1"
+  #             arguments: -PacEnvironmentSelector $(pacEnvironmentSelector) `
+  #               -SuppressDeletes:$$(isBrownfield) `
+  #               -InformationAction Continue
+  #         # Publish pipeline Artifact for ADO Service
+  #         - publish: "$(PAC_OUTPUT_FOLDER)/policy-plan-$(pacEnvironmentSelector)/policy-plan.json"
+  #           artifact: "policy-plan-$(pacEnvironmentSelector)"
+  #           condition: succeeded()
+  #         # Publish build artifact for ADO Server
+  #         # - task: PublishBuildArtifacts@1
+  #         #   inputs:
+  #         #     pathToPublish: "$(PAC_OUTPUT_FOLDER)/policy-plan-$(pacEnvironmentSelector)/policy-plan.json"
+  #         #     artifactName: "policy-plan-$(pacEnvironmentSelector)"
+  #         #   condition: succeeded()
+  #         # End Publish
+  # - stage: tenant3DeployPolicyStage
+  #   displayName: "Tenant3 Deploy Policies"
+  #   dependsOn:
+  #     - tenant3PlanMainBranchStage
+  #   condition: and(not(failed()), not(canceled()), eq(dependencies.tenant3PlanMainBranchStage.outputs['planJob.planStep.deployPolicyChanges'], 'yes'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+  #   variables:
+  #     pacEnvironmentSelector: tenant3
+  #     PAC_INPUT_FOLDER: "$(Pipeline.Workspace)"
+  #   jobs:
+  #     - deployment: deployPolicyJob
+  #       environment: PAC-POLICY
+  #       strategy:
+  #         runOnce:
+  #           deploy:
+  #             steps:
+  #               - checkout: self
+  #               - task: AzurePowerShell@5
+  #                 name: deployStep
+  #                 displayName: Deploy Policies, Initiatives, Policy Assignments
+  #                 inputs:
+  #                   azureSubscription: $(tenant3DeployServiceConnection)
+  #                   ScriptPath: "Scripts/Deploy/Deploy-AzPoliciesInitiativesAssignmentsFromPlan.ps1"
+  #                   ScriptArguments:
+  #                     -PacEnvironmentSelector $(pacEnvironmentSelector) `
+  #                     -InformationAction Continue
+  #                   pwsh: true
+  #                   azurePowerShellVersion: LatestVersion
+  #               # Publish pipeline Artifact for ADO Service
+  #               - publish: "$(PAC_OUTPUT_FOLDER)/roles-plan-$(pacEnvironmentSelector)/roles-plan.json"
+  #                 artifact: "roles-plan-$(pacEnvironmentSelector)"
+  #                 condition: succeeded()
+  #               # Publish build artifact for ADO Server
+  #               # - task: PublishBuildArtifacts@1
+  #               #   inputs:
+  #               #     pathToPublish: "$(PAC_OUTPUT_FOLDER)/roles-plan-$(pacEnvironmentSelector)/roles-plan.json"
+  #               #     artifactName: "roles-plan-$(pacEnvironmentSelector)"
+  #               #   condition: succeeded()
+  #               # End Publish
+  # - stage: tenant3RolesStage
+  #   displayName: "Tenant3 Role Assignments"
+  #   dependsOn:
+  #     - tenant3DeployPolicyStage
+  #   condition: and(not(failed()), not(canceled()), eq(dependencies.tenant3PlanMainBranchStage.outputs['planJob.planStep.deployRoleChanges'], 'yes'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+  #   variables:
+  #     pacEnvironmentSelector: tenant3
+  #     PAC_INPUT_FOLDER: "$(Pipeline.Workspace)"
+  #   jobs:
+  #     - deployment: rolesJob
+  #       environment: PAC-ROLES
+  #       strategy:
+  #         runOnce:
+  #           deploy:
+  #             steps:
+  #               - checkout: self
+  #               - task: AzureCLI@2
+  #                 displayName: Deploy Role Assignments
+  #                 inputs:
+  #                   azureSubscription: $(tenant3RolesServiceConnection)
+  #                   scriptType: pscore
+  #                   scriptLocation: scriptPath
+  #                   scriptPath: "Scripts/Deploy/Set-AzPolicyRolesFromPlan.ps1"
+  #                   arguments:
+  #                     -PacEnvironmentSelector $(pacEnvironmentSelector) `
+  #                     -InformationAction Continue
+  #                 condition: succeeded()
