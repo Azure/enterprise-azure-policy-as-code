@@ -1,5 +1,4 @@
 variables:
-  # This pipeline is used to deploy Policy definitions, Initiative definitions and Assignments into Azure.
   PAC_OUTPUT_FOLDER: ./Output
   PAC_DEFINITIONS_FOLDER: ./Definitions
 
@@ -52,11 +51,11 @@ stages:
             deploy:
               steps:
                 - checkout: self
-                # - task: PowerShell@2
-                #   displayName: Convert Excel (.xlsx) to CSV
-                #   inputs:
-                #     pwsh: true
-                #     filePath: "Scripts/Deploy/Convert-XlsToCsv.ps1"
+                - task: PowerShell@2
+                   displayName: Convert Excel (.xlsx) to CSV
+                   inputs:
+                     pwsh: true
+                     filePath: "Scripts/Deploy/Convert-XlsToCsv.ps1"
                 - task: AzureCLI@2
                   name: planStep
                   displayName: Plan
@@ -124,11 +123,11 @@ stages:
       - job: planJob
         steps:
           - checkout: self
-          # - task: PowerShell@2
-          #   displayName: Convert Excel (.xlsx) to CSV
-          #   inputs:
-          #     pwsh: true
-          #     filePath: "Scripts/Deploy/Convert-XlsToCsv.ps1"
+          - task: PowerShell@2
+            displayName: Convert Excel (.xlsx) to CSV
+             inputs:
+             pwsh: true
+              filePath: "Scripts/Deploy/Convert-XlsToCsv.ps1"
           - task: AzureCLI@2
             displayName: Plan
             inputs:
@@ -253,11 +252,11 @@ stages:
             deploy:
               steps:
                 - checkout: self
-                # - task: PowerShell@2
-                #   displayName: Convert Excel (.xlsx) to CSV
-                #   inputs:
-                #     pwsh: true
-                #     filePath: "Scripts/Deploy/Convert-XlsToCsv.ps1"
+                 - task: PowerShell@2
+                  displayName: Convert Excel (.xlsx) to CSV
+                   inputs:
+                   pwsh: true
+                    filePath: "Scripts/Deploy/Convert-XlsToCsv.ps1"
                 - task: AzureCLI@2
                   name: planStep
                   displayName: Plan
@@ -325,11 +324,11 @@ stages:
       - job: planJob
         steps:
           - checkout: self
-          # - task: PowerShell@2
-          #   displayName: Convert Excel (.xlsx) to CSV
-          #   inputs:
-          #     pwsh: true
-          #     filePath: "Scripts/Deploy/Convert-XlsToCsv.ps1"
+           - task: PowerShell@2
+             displayName: Convert Excel (.xlsx) to CSV
+             inputs:
+               pwsh: true
+               filePath: "Scripts/Deploy/Convert-XlsToCsv.ps1"
           - task: AzureCLI@2
             name: planStep
             displayName: Plan
