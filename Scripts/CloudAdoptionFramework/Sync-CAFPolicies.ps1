@@ -6,7 +6,7 @@ Param(
 
 if ($definitionsRootFolder -eq "") {
     if ($null -eq $env:PAC_DEFINITIONS_FOLDER) {
-        $definitionsRootFolder = "$PSScriptRoot/../../Definitions"
+        $definitionsRootFolder = "C:\Users\g.van.brakel\Downloads\enterprise-azure-policy-as-code\Definitions"
     }
     else {
         $definitionsRootFolder = $env:PAC_DEFINITIONS_FOLDER

@@ -1,0 +1,137 @@
+{
+    "nodeName": "/Corp/",
+    "scope": {
+        "tenant1": [
+            "/providers/Microsoft.Management/managementGroups/corp"
+        ]
+    },
+    "children": [
+        {
+            "nodeName": "Networking/",
+            "children": [
+                {
+                    "nodeName": "PublicEndpoint",
+                    "assignment": {
+                        "name": "Deny-Public-Endpoints",
+                        "displayName": "Public network access should be disabled for PaaS services",
+                        "description": "This policy initiative is a group of policies that prevents creation of Azure PaaS services with exposed public endpoints"
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "Deny-PublicPaaSEndpoints",
+                        "friendlyNameToDocumentIfGuid": "Deny Public PaaS Endpoints"
+                    }
+                },
+                {
+                    "nodeName": "DNZZones",
+                    "assignment": {
+                        "name": "Deploy-Private-DNS-Zones",
+                        "displayName": "Configure Azure PaaS services to use private DNS zones",
+                        "description": "This policy initiative is a group of policies that ensures private endpoints to Azure PaaS services are integrated with Azure Private DNS zones."
+                    },
+                    "definitionEntry": {
+                        "initiativeName": "Deploy-Private-DNS-Zones",
+                        "friendlyNameToDocumentIfGuid": "Deploy Private DNS Zones"
+                    },
+                    "parameters": {
+                        // Replace --DNSZonePrefix-- with a value similar to 
+                        // "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myorg-dns/providers/Microsoft.Network/privateDnsZones/"
+                        // but modify to reference your connectivity subscription.
+                        // If you don't require this then remove the assignment block. 
+                        "azureFilePrivateDnsZoneId": "--DNSZonePrefix--privatelink.afs.azure.net')]",
+                        "azureAutomationWebhookPrivateDnsZoneId": "--DNSZonePrefix--privatelink.azure-automation.net')]",
+                        "azureAutomationDSCHybridPrivateDnsZoneId": "--DNSZonePrefix--privatelink.azure-automation.net')]",
+                        "azureCosmosSQLPrivateDnsZoneId": "--DNSZonePrefix--privatelink.documents.azure.com')]",
+                        "azureCosmosMongoPrivateDnsZoneId": "--DNSZonePrefix--privatelink.mongo.cosmos.azure.com')]",
+                        "azureCosmosCassandraPrivateDnsZoneId": "--DNSZonePrefix--privatelink.cassandra.cosmos.azure.com')]",
+                        "azureCosmosGremlinPrivateDnsZoneId": "--DNSZonePrefix--privatelink.gremlin.cosmos.azure.com')]",
+                        "azureCosmosTablePrivateDnsZoneId": "--DNSZonePrefix--privatelink.table.cosmos.azure.com')]",
+                        "azureDataFactoryPrivateDnsZoneId": "--DNSZonePrefix--privatelink.datafactory.azure.net')]",
+                        "azureDataFactoryPortalPrivateDnsZoneId": "--DNSZonePrefix--privatelink.adf.azure.com')]",
+                        "azureHDInsightPrivateDnsZoneId": "--DNSZonePrefix--privatelink.azurehdinsight.net')]",
+                        "azureMigratePrivateDnsZoneId": "--DNSZonePrefix--privatelink.prod.migration.windowsazure.com')]",
+                        "azureStorageBlobPrivateDnsZoneId": "--DNSZonePrefix--privatelink.blob.core.windows.net')]",
+                        "azureStorageBlobSecPrivateDnsZoneId": "--DNSZonePrefix--privatelink.blob.core.windows.net')]",
+                        "azureStorageQueuePrivateDnsZoneId": "--DNSZonePrefix--privatelink.queue.core.windows.net')]",
+                        "azureStorageQueueSecPrivateDnsZoneId": "--DNSZonePrefix--privatelink.queue.core.windows.net')]",
+                        "azureStorageFilePrivateDnsZoneId": "--DNSZonePrefix--privatelink.file.core.windows.net')]",
+                        "azureStorageStaticWebPrivateDnsZoneId": "--DNSZonePrefix--privatelink.web.core.windows.net')]",
+                        "azureStorageStaticWebSecPrivateDnsZoneId": "--DNSZonePrefix--privatelink.web.core.windows.net')]",
+                        "azureStorageDFSPrivateDnsZoneId": "--DNSZonePrefix--privatelink.dfs.core.windows.net')]",
+                        "azureStorageDFSSecPrivateDnsZoneId": "--DNSZonePrefix--privatelink.dfs.core.windows.net')]",
+                        "azureSynapseSQLPrivateDnsZoneId": "--DNSZonePrefix--privatelink.sql.azuresynapse.net')]",
+                        "azureSynapseSQLODPrivateDnsZoneId": "--DNSZonePrefix--privatelink.sql.azuresynapse.net')]",
+                        "azureSynapseDevPrivateDnsZoneId": "--DNSZonePrefix--privatelink.dev.azuresynapse.net')]",
+                        "azureMediaServicesKeyPrivateDnsZoneId": "--DNSZonePrefix--privatelink.media.azure.net')]",
+                        "azureMediaServicesLivePrivateDnsZoneId": "--DNSZonePrefix--privatelink.media.azure.net')]",
+                        "azureMediaServicesStreamPrivateDnsZoneId": "--DNSZonePrefix--privatelink.media.azure.net')]",
+                        "azureMonitorPrivateDnsZoneId1": "--DNSZonePrefix--privatelink.monitor.azure.com')]",
+                        "azureMonitorPrivateDnsZoneId2": "--DNSZonePrefix--privatelink.oms.opinsights.azure.com')]",
+                        "azureMonitorPrivateDnsZoneId3": "--DNSZonePrefix--privatelink.ods.opinsights.azure.com')]",
+                        "azureMonitorPrivateDnsZoneId4": "--DNSZonePrefix--privatelink.agentsvc.azure-automation.net')]",
+                        "azureMonitorPrivateDnsZoneId5": "--DNSZonePrefix--privatelink.blob.core.windows.net')]",
+                        "azureWebPrivateDnsZoneId": "--DNSZonePrefix--privatelink.webpubsub.azure.com')]",
+                        "azureBatchPrivateDnsZoneId": "--DNSZonePrefix--privatelink.batch.azure.com')]",
+                        "azureAppPrivateDnsZoneId": "--DNSZonePrefix--privatelink.azconfig.io')]",
+                        "azureAsrPrivateDnsZoneId": "--DNSZonePrefix--privatelink.siterecovery.windowsazure.com')]",
+                        "azureIotPrivateDnsZoneId": "--DNSZonePrefix--privatelink.azure-devices-provisioning.net')]",
+                        "azureKeyVaultPrivateDnsZoneId": "--DNSZonePrefix--privatelink.vaultcore.azure.net')]",
+                        "azureSignalRPrivateDnsZoneId": "--DNSZonePrefix--privatelink.service.signalr.net')]",
+                        "azureAppServicesPrivateDnsZoneId": "--DNSZonePrefix--privatelink.azurewebsites.net')]",
+                        "azureEventGridTopicsPrivateDnsZoneId": "--DNSZonePrefix--privatelink.eventgrid.azure.net')]",
+                        "azureDiskAccessPrivateDnsZoneId": "--DNSZonePrefix--privatelink.blob.core.windows.net')]",
+                        "azureCognitiveServicesPrivateDnsZoneId": "--DNSZonePrefix--privatelink.cognitiveservices.azure.com')]",
+                        "azureIotHubsPrivateDnsZoneId": "--DNSZonePrefix--privatelink.azure-devices.net')]",
+                        "azureEventGridDomainsPrivateDnsZoneId": "--DNSZonePrefix--privatelink.eventgrid.azure.net')]",
+                        "azureRedisCachePrivateDnsZoneId": "--DNSZonePrefix--privatelink.redis.cache.windows.net')]",
+                        "azureAcrPrivateDnsZoneId": "--DNSZonePrefix--privatelink.azurecr.io')]",
+                        "azureEventHubNamespacePrivateDnsZoneId": "--DNSZonePrefix--privatelink.servicebus.windows.net')]",
+                        "azureMachineLearningWorkspacePrivateDnsZoneId": "--DNSZonePrefix--privatelink.api.azureml.ms')]",
+                        "azureServiceBusNamespacePrivateDnsZoneId": "--DNSZonePrefix--privatelink.servicebus.windows.net')]",
+                        "azureCognitiveSearchPrivateDnsZoneId": "--DNSZonePrefix--privatelink.search.windows.net')]"
+                    }
+                }
+            ]
+        },
+        {
+            "nodeName": "Databricks/",
+            "children": [
+                {
+                    "nodeName": "NoDBPIP",
+                    "assignment": {
+                        "name": "Deny-DataB-Pip",
+                        "displayName": "Prevent usage of Databricks with public IP",
+                        "description": "Prevent the deployment of Databricks workspaces that do not use the noPublicIp feature to host Databricks clusters without public IPs."
+                    },
+                    "definitionEntry": {
+                        "policyName": "Deny-Databricks-NoPublicIp",
+                        "friendlyNameToDocumentIfGuid": "Deny Databricks with Public Ip"
+                    }
+                },
+                {
+                    "nodeName": "DbPremium",
+                    "assignment": {
+                        "name": "Deny-DataB-Sku",
+                        "displayName": "Enforces the use of Premium Databricks workspaces",
+                        "description": "Enforces the use of Premium Databricks workspaces to make sure appropriate security features are available including Databricks Access Controls, Credential Passthrough and SCIM provisioning for AAD."
+                    },
+                    "definitionEntry": {
+                        "policyName": "Deny-Databricks-Sku",
+                        "friendlyNameToDocumentIfGuid": "Deny Databricks Sku"
+                    }
+                },
+                {
+                    "nodeName": "DbVnet",
+                    "assignment": {
+                        "name": "Deny-DataB-Vnet",
+                        "displayName": "Enforces the use of vnet injection for Databricks",
+                        "description": "Enforces the use of vnet injection for Databricks workspaces."
+                    },
+                    "definitionEntry": {
+                        "policyName": "Deny-Databricks-VirtualNetwork",
+                        "friendlyNameToDocumentIfGuid": "Deny Databricks Virtual Network"
+                    }
+                }
+            ]
+        }
+    ]
+}
