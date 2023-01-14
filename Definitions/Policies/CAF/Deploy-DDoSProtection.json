@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-DDoSProtection",
   "properties": {
     "policyType": "Custom",
     "mode": "All",
@@ -142,6 +143,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-DDoSProtection"
+  }
 }

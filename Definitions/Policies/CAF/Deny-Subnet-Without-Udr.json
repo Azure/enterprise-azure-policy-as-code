@@ -1,4 +1,5 @@
 {
+  "name": "Deny-Subnet-Without-Udr",
   "properties": {
     "policyType": "Custom",
     "mode": "All",
@@ -90,6 +91,5 @@
         "effect": "[parameters('effect')]"
       }
     }
-  },
-  "name": "Deny-Subnet-Without-Udr"
+  }
 }

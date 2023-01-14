@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Sql-AuditingSettings",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -117,6 +118,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-Sql-AuditingSettings"
+  }
 }

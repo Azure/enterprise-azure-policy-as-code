@@ -1,4 +1,5 @@
 {
+  "name": "Deny-AA-child-resources",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -48,6 +49,5 @@
         "effect": "[parameters('effect')]"
       }
     }
-  },
-  "name": "Deny-AA-child-resources"
+  }
 }

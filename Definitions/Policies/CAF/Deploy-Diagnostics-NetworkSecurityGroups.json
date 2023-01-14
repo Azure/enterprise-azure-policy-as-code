@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Diagnostics-NetworkSecurityGroups",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -153,6 +154,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-Diagnostics-NetworkSecurityGroups"
+  }
 }

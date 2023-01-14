@@ -1,4 +1,5 @@
 {
+  "name": "Deny-MachineLearning-ComputeCluster-RemoteLoginPortPublicAccess",
   "properties": {
     "policyType": "Custom",
     "mode": "All",
@@ -56,6 +57,5 @@
         "effect": "[parameters('effect')]"
       }
     }
-  },
-  "name": "Deny-MachineLearning-ComputeCluster-RemoteLoginPortPublicAccess"
+  }
 }

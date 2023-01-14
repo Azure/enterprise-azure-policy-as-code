@@ -1,4 +1,5 @@
 {
+  "name": "Deny-VNET-Peer-Cross-Sub",
   "properties": {
     "policyType": "Custom",
     "mode": "All",
@@ -46,6 +47,5 @@
         "effect": "[parameters('effect')]"
       }
     }
-  },
-  "name": "Deny-VNET-Peer-Cross-Sub"
+  }
 }

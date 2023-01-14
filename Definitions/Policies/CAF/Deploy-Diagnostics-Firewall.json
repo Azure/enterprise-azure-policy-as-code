@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Diagnostics-Firewall",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -237,6 +238,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-Diagnostics-Firewall"
+  }
 }

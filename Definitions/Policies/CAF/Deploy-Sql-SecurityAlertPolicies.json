@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Sql-SecurityAlertPolicies",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -115,6 +116,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-Sql-SecurityAlertPolicies"
+  }
 }

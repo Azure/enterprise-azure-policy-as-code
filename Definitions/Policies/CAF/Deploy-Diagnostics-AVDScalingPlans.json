@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Diagnostics-AVDScalingPlans",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -146,6 +147,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-Diagnostics-AVDScalingPlans"
+  }
 }

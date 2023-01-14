@@ -1,4 +1,5 @@
 {
+  "name": "Deny-PublicPaaSEndpoints",
   "properties": {
     "policyType": "Custom",
     "displayName": "Public network access should be disabled for PaaS services",
@@ -246,6 +247,5 @@
       }
     ],
     "policyDefinitionGroups": null
-  },
-  "name": "Deny-PublicPaaSEndpoints"
+  }
 }

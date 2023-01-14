@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Diagnostics-AA",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -193,6 +194,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-Diagnostics-AA"
+  }
 }

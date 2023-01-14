@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Diagnostics-WVDAppGroup",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -156,6 +157,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-Diagnostics-WVDAppGroup"
+  }
 }

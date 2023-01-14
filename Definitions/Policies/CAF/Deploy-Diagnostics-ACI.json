@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Diagnostics-ACI",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -154,6 +155,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-Diagnostics-ACI"
+  }
 }

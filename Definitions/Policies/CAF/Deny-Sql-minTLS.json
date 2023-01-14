@@ -1,4 +1,5 @@
 {
+  "name": "Deny-Sql-minTLS",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -67,6 +68,5 @@
         "effect": "[parameters('effect')]"
       }
     }
-  },
-  "name": "Deny-Sql-minTLS"
+  }
 }

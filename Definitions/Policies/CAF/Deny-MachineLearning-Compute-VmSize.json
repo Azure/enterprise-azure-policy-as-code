@@ -1,4 +1,5 @@
 {
+  "name": "Deny-MachineLearning-Compute-VmSize",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -140,6 +141,5 @@
         "effect": "[parameters('effect')]"
       }
     }
-  },
-  "name": "Deny-MachineLearning-Compute-VmSize"
+  }
 }

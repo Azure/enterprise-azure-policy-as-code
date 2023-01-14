@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Default-Udr",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -125,6 +126,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-Default-Udr"
+  }
 }

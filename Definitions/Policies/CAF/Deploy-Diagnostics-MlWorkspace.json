@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Diagnostics-MlWorkspace",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -280,6 +281,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-Diagnostics-MlWorkspace"
+  }
 }

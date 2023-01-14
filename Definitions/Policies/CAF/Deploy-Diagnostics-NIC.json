@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Diagnostics-NIC",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -153,6 +154,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-Diagnostics-NIC"
+  }
 }

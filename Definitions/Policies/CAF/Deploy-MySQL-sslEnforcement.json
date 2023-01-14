@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-MySQL-sslEnforcement",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -130,6 +131,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-MySQL-sslEnforcement"
+  }
 }

@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Diagnostics-LogAnalytics",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -181,6 +182,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-Diagnostics-LogAnalytics"
+  }
 }

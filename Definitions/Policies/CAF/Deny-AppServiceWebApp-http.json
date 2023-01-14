@@ -1,4 +1,5 @@
 {
+  "name": "Deny-AppServiceWebApp-http",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -50,6 +51,5 @@
         "effect": "[parameters('effect')]"
       }
     }
-  },
-  "name": "Deny-AppServiceWebApp-http"
+  }
 }

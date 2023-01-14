@@ -1,4 +1,5 @@
 {
+  "name": "Deny-MySql-http",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -72,6 +73,5 @@
         "effect": "[parameters('effect')]"
       }
     }
-  },
-  "name": "Deny-MySql-http"
+  }
 }

@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Diagnostics-WVDHostPools",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -176,6 +177,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-Diagnostics-WVDHostPools"
+  }
 }

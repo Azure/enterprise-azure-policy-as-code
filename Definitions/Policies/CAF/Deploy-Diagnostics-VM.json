@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Diagnostics-VM",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -153,6 +154,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-Diagnostics-VM"
+  }
 }

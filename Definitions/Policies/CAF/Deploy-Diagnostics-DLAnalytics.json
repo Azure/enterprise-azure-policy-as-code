@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Diagnostics-DLAnalytics",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -185,6 +186,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-Diagnostics-DLAnalytics"
+  }
 }

@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Diagnostics-ExpressRoute",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -181,6 +182,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-Diagnostics-ExpressRoute"
+  }
 }

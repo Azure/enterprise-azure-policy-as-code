@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-ASC-SecurityContacts",
   "properties": {
     "policyType": "Custom",
     "mode": "All",
@@ -147,6 +148,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-ASC-SecurityContacts"
+  }
 }

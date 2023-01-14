@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Budget",
   "properties": {
     "policyType": "Custom",
     "mode": "All",
@@ -230,6 +231,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-Budget"
+  }
 }

@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Diagnostics-Website",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -217,6 +218,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-Diagnostics-Website"
+  }
 }

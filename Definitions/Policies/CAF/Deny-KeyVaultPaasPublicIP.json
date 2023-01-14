@@ -1,4 +1,5 @@
 {
+  "name": "Deny-KeyVaultPaasPublicIP",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -51,6 +52,5 @@
         "effect": "[parameters('effect')]"
       }
     }
-  },
-  "name": "Deny-KeyVaultPaasPublicIP"
+  }
 }

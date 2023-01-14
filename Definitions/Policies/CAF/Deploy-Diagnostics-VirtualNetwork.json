@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Diagnostics-VirtualNetwork",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -180,6 +181,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-Diagnostics-VirtualNetwork"
+  }
 }

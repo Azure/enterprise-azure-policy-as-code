@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-ActivityLogs-to-LA-workspace",
   "properties": {
     "policyType": "Custom",
     "mode": "All",
@@ -150,6 +151,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-ActivityLogs-to-LA-workspace"
+  }
 }

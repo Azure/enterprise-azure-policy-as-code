@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Diagnostics-RedisCache",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -154,6 +155,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-Diagnostics-RedisCache"
+  }
 }

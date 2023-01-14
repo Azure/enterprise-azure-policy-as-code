@@ -6,9 +6,8 @@ Param(
 
 if ($definitionsRootFolder -eq "") {
     if ($null -eq $env:PAC_DEFINITIONS_FOLDER) {
-        $definitionsRootFolder = "C:\Users\g.van.brakel\Downloads\enterprise-azure-policy-as-code\Definitions"
-    }
-    else {
+        $definitionsRootFolder = "$PSScriptRoot/../../Definitions"
+    } else {
         $definitionsRootFolder = $env:PAC_DEFINITIONS_FOLDER
     }
 }
@@ -29,7 +28,7 @@ $defaultPolicyURIs = @(
 foreach ($policyUri in $defaultPolicyURIs) {
     $rawContent = (Invoke-WebRequest -Uri $policyUri).Content | ConvertFrom-Json
     $jsonPolicyDefsHash = $rawContent.variables | ConvertTo-HashTable
-    $jsonPolicyDefsHash.GetEnumerator() | Foreach-Object {
+    $jsonPolicyDefsHash.GetEnumerator() | ForEach-Object {
         if ($_.Key -match 'fxv') {
             $type = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Type
             if ($type -eq 'Microsoft.Authorization/policyDefinitions') {
@@ -46,8 +45,7 @@ foreach ($policyUri in $defaultPolicyURIs) {
                 $environments = ($_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Properties).metadata.alzCloudEnvironments
                 if ($environments.Length -eq 3) {
                     $fileName = $name
-                }
-                else {
+                } else {
                     switch ($environments | Select-Object -First 1) {
                         "AzureChinaCloud" { $fileName = "$name.$_" }
                         "AzureUSGovernment" { $fileName = "$name.$_" }
@@ -72,7 +70,7 @@ foreach ($policyUri in $defaultPolicyURIs) {
 foreach ($initiativeFile in Get-ChildItem $definitionsRootFolder\Initiatives\CAF -Filter *.json) {
     $rawContent = Get-Content $initiativeFile | ConvertFrom-Json -Depth 20
     $jsonContent = ConvertTo-HashTable $rawContent
-    $jsonContent.properties.policyDefinitions | Foreach-Object {
+    $jsonContent.properties.policyDefinitions | ForEach-Object {
 
         $_ | Add-Member -Type NoteProperty -Name policyDefinitionName -Value $_.policyDefinitionId.Split("/")[-1]
         $_.psObject.Properties.Remove('policyDefinitionId')
@@ -82,4 +80,3 @@ foreach ($initiativeFile in Get-ChildItem $definitionsRootFolder\Initiatives\CAF
 }
 
 Copy-Item -Path .\Scripts\CloudAdoptionFramework\Assignments\*.* -Destination "$definitionsRootFolder\assignments\CAF\" -Force
-

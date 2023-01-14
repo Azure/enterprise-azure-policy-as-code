@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Private-DNS-Azure-File-Sync",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -113,6 +114,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-Private-DNS-Azure-File-Sync"
+  }
 }

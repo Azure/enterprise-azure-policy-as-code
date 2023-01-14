@@ -1,4 +1,5 @@
 {
+  "name": "Deny-MachineLearning-PublicNetworkAccess",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -44,6 +45,5 @@
         "effect": "[parameters('effect')]"
       }
     }
-  },
-  "name": "Deny-MachineLearning-PublicNetworkAccess"
+  }
 }

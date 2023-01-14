@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Custom-Route-Table",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -205,6 +206,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-Custom-Route-Table"
+  }
 }

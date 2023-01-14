@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Diagnostics-WVDWorkspace",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -160,6 +161,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-Diagnostics-WVDWorkspace"
+  }
 }

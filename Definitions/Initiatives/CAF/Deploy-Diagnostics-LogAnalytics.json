@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Diagnostics-LogAnalytics",
   "properties": {
     "policyType": "Custom",
     "displayName": "Deploy Diagnostic Settings to Azure Services",
@@ -1904,6 +1905,5 @@
       }
     ],
     "policyDefinitionGroups": null
-  },
-  "name": "Deploy-Diagnostics-LogAnalytics"
+  }
 }

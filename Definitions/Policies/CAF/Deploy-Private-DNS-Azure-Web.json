@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-Private-DNS-Azure-Web",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -112,6 +113,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-Private-DNS-Azure-Web"
+  }
 }

@@ -1,4 +1,5 @@
 {
+  "name": "Deny-Storage-minTLS",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -83,6 +84,5 @@
         "effect": "[parameters('effect')]"
       }
     }
-  },
-  "name": "Deny-Storage-minTLS"
+  }
 }

@@ -1,4 +1,5 @@
 {
+  "name": "Deploy-PostgreSQL-sslEnforcement",
   "properties": {
     "policyType": "Custom",
     "mode": "Indexed",
@@ -131,6 +132,5 @@
         }
       }
     }
-  },
-  "name": "Deploy-PostgreSQL-sslEnforcement"
+  }
 }
