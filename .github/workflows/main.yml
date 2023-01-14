@@ -14,5 +14,4 @@ steps:
 - name: PowerShell script
 -uses: Amadevus/pwsh-script@v2.0.3
   with:
-    # PowerShell script to execute in Actions-hydrated context
-    script: "Scripts/CloudAdoptionFramework/Sync-CAFPolicies.ps1"
+  script: Scripts/CloudAdoptionFramework/Sync-CAFPolicies.ps1
