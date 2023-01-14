@@ -11,7 +11,10 @@ param(
 $folders = Get-PacFolders -definitionsRootFolder $definitionsRootFolder
 $InformationPreference = "Continue"
 
-[bool] $importExcelModuleNotInstalled = $null -eq (Get-InstalledModule ImportExcel -ErrorAction SilentlyContinue)
+$folders = Get-PacFolders -definitionsRootFolder $definitionsRootFolder
+$InformationPreference = "Continue"
+
+$importExcelModuleNotInstalled = $null -eq (Get-InstalledModule ImportExcel -ErrorVariable importExcelModuleNotInstalled)
 if ($importExcelModuleNotInstalled) {
     Write-Information "==================================================================================================="
     Write-Information "Installing ImportExcel from PowerShell Gallery: https://www.powershellgallery.com/packages/ImportExcel"
@@ -26,15 +29,13 @@ Write-Information "=============================================================
 Write-Information "Converting definition Excel files (.xlsx) in folder '$definitionsRootFolder' too CSV"
 Write-Information "==================================================================================================="
 
-$definitionsRootFolder = $folders.definitionsRootFolder
-$excelFiles = @() + (Get-ChildItem -Path $definitionsRootFolder -Recurse -File -Filter "*.xlsx")
+$excelFiles = @() + (Get-ChildItem -Path $folders.definitionsRootFolder -Recurse -File -Filter "*.xlsx")
 
 foreach ($excelFile  in $excelFiles) {
     $excelFileFullName = $excelFile.fullName
     Write-Information $excelFileFullName
-    $excelArray = Import-Excel $excelFileFullName -ErrorAction Stop
+    $excelArray = Import-Excel -LiteralPath $excelFileFullName -ErrorAction Stop
 
     $csvFileFullName = $excelFileFullName -replace '\.xlsx$', '.csv'
-    $excelArray | ConvertTo-Csv -UseQuotes AsNeeded | Out-File $csvFileFullName -Force
+    $excelArray | ConvertTo-Csv -UseQuotes AsNeeded -NoTypeInformation | Out-File $csvFileFullName -Force
 }
-Write-Information ""
