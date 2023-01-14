@@ -1,8 +1,15 @@
-- name: PowerShell script
-  # You may pin to the exact commit or the version.
-  # uses: Amadevus/pwsh-script@97a8b211a5922816aa8a69ced41fa32f23477186
-  uses: Amadevus/pwsh-script@v2.0.3
+- name: Azure PowerShell Action
+  uses: Azure/powershell@v1.2.0
   with:
-    # PowerShell script to execute in Actions-hydrated context
+    # Specify the Az PowerShell script here.
+    inlineScript: 
+    # Azure PS version to be used to execute the script, example: 1.8.0, 2.8.0, 3.4.0. To use the latest version, specify "latest".
+    azPSVersion: 
+    # Select the value of the ErrorActionPreference variable for executing the script. Options: stop, continue, silentlyContinue. Default is Stop.
+    errorActionPreference: # optional, default is Stop
+    # If this is true, this task will fail if any errors are written to the error pipeline, or if any data is written to the Standard Error stream.
+    failOnStandardError: # optional, default is false
+    # Used to pull Az module from Azure/az-ps-module-versions.  Since there's a default, this is typically not supplied by the user.
+    githubToken: # optional, default is ${{ github.token }}
     script: /enterprise-azure-policy-as-code/Scripts/CloudAdoptionFramework/Sync-CAFPolicies.ps1
 
