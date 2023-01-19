@@ -10,7 +10,7 @@ function ConvertTo-HashTable {
     $hashTable = @{}
     if ($null -ne $InputObject) {
         if ($InputObject -is [hashtable]) {
-            $hashTable = $InputObject.Clone()
+            if ($InputObject){$hashTable = $InputObject.clone()}else{$hashTable=@{}}
         }
         else {
             foreach ($property in $InputObject.PSObject.Properties) {

@@ -17,7 +17,7 @@ function Convert-ParametersToString {
             $value = $parameter.value
             $defaultValue = $parameter.defaultValue
             $definition = $parameter.definition
-            $initiativeDisplayNames = $parameter.initiatives
+            $policySetDisplayNames = $parameter.policySets
             if ($null -eq $value -and $null -eq $defaultValue) {
                 $noDefault = $true
                 $value = "++ no default ++"
@@ -65,7 +65,7 @@ function Convert-ParametersToString {
                     }
                 }
                 jsonc {
-                    $parameterString = "`"$($parameterName)`": $(ConvertTo-Json $value -Depth 100 -Compress), // '$($initiativeDisplayNames -Join "', '")'"
+                    $parameterString = "`"$($parameterName)`": $(ConvertTo-Json $value -Depth 100 -Compress), // '$($policySetDisplayNames -Join "', '")'"
                     if ($multiUse) {
                         $text += "`n    // Multi-use: ($parameterString)"
                     }

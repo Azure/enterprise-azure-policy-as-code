@@ -21,7 +21,6 @@ param(
 . "$PSScriptRoot/../Helpers/Set-AzCloudTenantSubscription.ps1"
 
 $InformationPreference = "Continue"
-Invoke-AzCli config set extension.use_dynamic_install=yes_without_prompt -SuppressOutput
 $pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -outputFolder $OutputFolder -interactive $interactive
 Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -interactive $pacEnvironment.interactive
 

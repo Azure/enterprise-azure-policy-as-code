@@ -51,7 +51,6 @@ foreach ($policyUri in $defaultPolicyURIs) {
                     switch ($environments | Select-Object -First 1) {
                         "AzureChinaCloud" { $fileName = "$name.$_" }
                         "AzureUSGovernment" { $fileName = "$name.$_" }
-                        "AzureCloud" { $fileName = "$name" }
                     }
                 }
                 $baseTemplate = @{

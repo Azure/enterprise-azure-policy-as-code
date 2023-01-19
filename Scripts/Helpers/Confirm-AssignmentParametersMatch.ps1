@@ -3,35 +3,44 @@
 function Confirm-AssignmentParametersMatch {
     [CmdletBinding()]
     param(
-        [PSCustomObject] $existingParametersObj, 
+        [PSCustomObject] $existingParametersObj,
         [hashtable] $definedParametersObj
     )
-    $match = $true
 
     $existingParameters = ConvertTo-HashTable $existingParametersObj
-    $definedParameters = $definedParametersObj.Clone()
-    $addedParameters = $definedParameters.Clone()
+    $definedParameters = Get-HashtableShallowClone $definedParametersObj
+    $addedParameters = Get-HashtableShallowClone $definedParameters
     foreach ($existingParameterName in $existingParameters.Keys) {
-        if ($definedParameters.ContainsKey($existingParameterName)) {
-            # remove key from $addedParameters
-            $addedParameters.Remove($existingParameterName)
+        $found = $false
+        foreach ($definedParameterName in $definedParameters.Keys) {
+            if ($definedParameterName -eq $existingParameterName) {
+                # remove key from $addedParameters
+                $addedParameters.Remove($definedParameterName)
 
-            # analyze parameter
-            if ($match) {
+                # analyze parameter
                 $existing = $existingParameters.$existingParameterName.value
-                $defined = $definedParameters.$existingParameterName
+                $defined = $definedParameters.$definedParameterName
                 $match = Confirm-ObjectValueEqualityDeep -existingObj $existing -definedObj $defined
+                if (!$match) {
+                    return $false
+                }
+                $found = $true
+                break
             }
         }
-        else {
+        if (!$found) {
             # parameter deleted
-            $match = $false
-            break
+            return $false
         }
     }
-    if ($addedParameters.Count -gt 0) {
-        $match = $false
-    }
 
-    return $match
+    # if condition instead of just returning the bool value is for easier debugging
+    if ( $addedParameters.Count -eq 0) {
+        # full match
+        return $true
+    }
+    else {
+        # parameter added
+        return $false
+    }
 }
