@@ -69,9 +69,9 @@ function Build-AssignmentCsvAndJsonParameters {
                             $modifiedEffect = switch ($desiredEffect) {
                                 append { "audit" }
                                 modify { "audit" }
-                                deny { "audit" }
+                                deny { "deny" }
                                 deployIfNotExists { "auditIfNotExists" }
-                                manual { "disabled" }
+                                manual { "manual" }
                                 Default { $_ }
                             }
                             if ($setEffectAllowedValues -contains $modifiedEffect) {
