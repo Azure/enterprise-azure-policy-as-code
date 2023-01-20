@@ -43,6 +43,7 @@ The pacEnvironment (see global-settings.jsonc) is represented with a folder, suc
 ### CSV/XLSX Format
 
 If you use spreadsheets (.csv or .xlsx):
+
 * Column headers must be exactly as the JSON labels above.
 * `policyDefinitionReferenceIds` use comma separated list within each cell.
 * `metadata` cells must contain valid JSON.
@@ -52,7 +53,7 @@ If you use spreadsheets (.csv or .xlsx):
 * [Setup DevOps Environment](operating-environment.md) .
 * [Create a source repository and import the source code](clone-github.md) from this repository.
 * [Select the desired state strategy](desired-state-strategy.md)
-* [Copy starter kit pipeline definition and definition folder to your folders](starter-kits.md)
+* Copy starter kit pipeline definition and definition folder to your folders.
 * [Define your deployment environment](definitions-and-global-settings.md) in `global-settings.jsonc`.
 * [Build your CI/CD pipeline](ci-cd-pipeline.md) using a starter kit.
 * [Add custom Policy definitions](policy-definitions.md).

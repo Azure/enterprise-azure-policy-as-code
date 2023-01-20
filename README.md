@@ -34,7 +34,7 @@
   * [Create the CI/CD (skip if using the semi-automated approach)](#create-the-cicd-skip-if-using-the-semi-automated-approach)
   * [Build your definitions and assignments](#build-your-definitions-and-assignments)
   * [Manage your Policy environment](#manage-your-policy-environment)
-  * [EPAC issues](#epac-issues)
+  * [Debug EPAC issues](#debug-epac-issues)
 * [Contributing](#contributing)
 * [Trademarks](#trademarks)
 
@@ -48,7 +48,7 @@ Enterprise Policy as Code or EPAC for short comprises a number of scripts which 
 
 Three deployment scripts plan a deployment, deploy Policy resource, and Role assignments respectively as shown in the following diagram. The solution consumes definition files (JSON and/or CSV files). The planning script (`Build-DeploymentPlan`) creates plan files (`policy-plan.json` and `roles-plan.json`) to be consumed by the two deployment steps (`Deploy-PolicyPlan` and `Deploy-RolesPlan`). The scripts require `Reader`, `Contributor` and `User Access Administrator` privileges respectively as indicated in blue text in the diagram. The diagram also shows the usual approval gates after each step/script for prod deployments.
 
-![image.png](Docs/Images/PaC-Deploy-Scripts.png)
+![image.png](Docs/Images/epac-deployment-scripts.png)
 
 <br/>
 
@@ -168,8 +168,8 @@ Desired state strategy documentation can be found [here.](Docs/desired-state-str
 
 ### Define your deployment scenarios
 
-* [Select the desired state strategy](Docs/desired-state-strategy.md)
-* [Copy starter kit pipeline definition and definition folder to your folders](Docs/starter-kits.md)
+* [Select the desired state strategy](Docs/desired-state-strategy.md).
+* Copy starter kit pipeline definition and definition folder to your folders.
 * [Define your deployment environment](Docs/definitions-and-global-settings.md) in `global-settings.jsonc`.
 
 ### Create the CI/CD (skip if using the semi-automated approach)

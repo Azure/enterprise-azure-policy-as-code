@@ -17,13 +17,13 @@
 
 **On this page**
 
-- [Folders](#folders)
-- [Global Settings](#global-settings)
-  - [Uniquely identify deployments `pacOwnerId`](#uniquely-identify-deployments-pacownerid)
-  - [Define EPAC Environments in `pacEnvironments`](#define-epac-environments-in-pacenvironments)
-  - [DeployIfNotExists and Modify Policy Assignments need `managedIdentityLocation`](#deployifnotexists-and-modify-policy-assignments-need-managedidentitylocation)
-  - [Excluding scopes for all Assignments with `globalNotScopes`](#excluding-scopes-for-all-assignments-with-globalnotscopes)
-- [Reading List](#reading-list)
+* [Folders](#folders)
+* [Global Settings](#global-settings)
+  * [Uniquely identify deployments `pacOwnerId`](#uniquely-identify-deployments-pacownerid)
+  * [Define EPAC Environments in `pacEnvironments`](#define-epac-environments-in-pacenvironments)
+  * [DeployIfNotExists and Modify Policy Assignments need `managedIdentityLocation`](#deployifnotexists-and-modify-policy-assignments-need-managedidentitylocation)
+  * [Excluding scopes for all Assignments with `globalNotScopes`](#excluding-scopes-for-all-assignments-with-globalnotscopes)
+* [Reading List](#reading-list)
 
 ## Folders
 
@@ -137,7 +137,7 @@ The arrays can have the following entries:
 - [Setup DevOps Environment](operating-environment.md) .
 - [Create a source repository and import the source code](clone-github.md) from this repository.
 - [Select the desired state strategy](desired-state-strategy.md)
-- [Copy starter kit pipeline definition and definition folder to your folders](starter-kits.md)
+- Copy starter kit pipeline definition and definition folder to your folders.
 - [Define your deployment environment](definitions-and-global-settings.md) in `global-settings.jsonc`.
 - [Build your CI/CD pipeline](ci-cd-pipeline.md) using a starter kit.
 - [Add custom Policy definitions](policy-definitions.md).
