@@ -16,32 +16,33 @@ param(
 . "$PSScriptRoot/../Helpers/Set-AzCloudTenantSubscription.ps1"
 
 $InformationPreference = "Continue"
-Invoke-AzCli config set extension.use_dynamic_install=yes_without_prompt -SuppressOutput
 $pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -outputFolder $OutputFolder -interactive $interactive
 Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -interactive $pacEnvironment.interactive
 
+$policyDefinitionsScopes = $pacEnvironment.policyDefinitionsScopes
+$deploymentRootScope = $policyDefinitionsScopes[0]
+
+
 Write-Information "==================================================================================================="
-Write-Information "Creating custom role 'EPAC Policy Reader'"
+Write-Information "Creating custom role 'Policy Reader'"
 Write-Information "==================================================================================================="
 
 
 $role = [Microsoft.Azure.Commands.Resources.Models.Authorization.PSRoleDefinition]::new()
-$role.Name = 'EPAC Policy Reader'
+$role.Name = 'EPAC Resource Policy Reader'
 $role.Id = '2baa1a7c-6807-46af-8b16-5e9d03fba029'
-$role.Description = 'Read access to Azure Policy.'
+$role.Description = 'Provides read access to all Policy resources for the purpose of planning the EPAC deployments.'
 $role.IsCustom = $true
 $perms = @(
-    "*/read",
-    "Microsoft.Management/register/action",
     "Microsoft.Authorization/policyassignments/read",
     "Microsoft.Authorization/policydefinitions/read",
     "Microsoft.Authorization/policyexemptions/read",
     "Microsoft.Authorization/policysetdefinitions/read",
     "Microsoft.PolicyInsights/*",
-    "Microsoft.Support/*"
+    "Microsoft.Management/register/action"
 )
 
 $role.Actions = $perms
 $role.NotActions = $()
-$role.AssignableScopes = $pacEnvironment.rootScopeId
+$role.AssignableScopes = $deploymentRootScope
 New-AzRoleDefinition -Role $role

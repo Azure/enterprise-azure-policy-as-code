@@ -11,6 +11,7 @@ function Convert-EffectToOrdinal {
         DeployIfNotExists = 0
         Deny              = 1
         Audit             = 2
+        Manual            = 2
         AuditIfNotExists  = 3
         Disabled          = 4
     }

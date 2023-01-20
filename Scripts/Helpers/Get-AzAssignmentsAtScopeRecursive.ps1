@@ -5,14 +5,13 @@ function Add-Assignments {
         [array]     $assignmentList,
         [string]    $header,
         [string]    $scope,
-        [hashtable] $scopeSplat,
         [hashtable] $allPolicyDefinitions,
-        [hashtable] $allInitiativeDefinitions,
+        [hashtable] $allPolicySetDefinitions,
         [bool]      $getAssignments,
         [bool]      $getRemediations,
         [hashtable] $assignments,
         [hashtable] $remediations,
-        [bool]      $supressRoleAssignments
+        [bool]      $suppressRoleAssignments
     )
 
     #region $maybeRemediations
@@ -27,10 +26,10 @@ function Add-Assignments {
         }
         if ($maybeRemediations) {
             # This call is expensive, only issue if at least one assignment may need a remediation
-            # - especially true for subscription-level assignements
-            $complianceStateSummary = (Invoke-AzCli policy state summarize `
+            # - especially true for subscription-level assignments
+            $complianceStateSummary = (Invoke-AzCli policy state summarize -assignmentScopeId $scope `
                     --filter "`"(policyDefinitionAction eq 'deployifnotexists' or policyDefinitionAction eq 'modify')`"" `
-                    -Splat $scopeSplat -AsHashTable)
+                    -AsHashTable)
 
             if ($null -ne $complianceStateSummary) {
                 $complianceStateSummaryCollection = $complianceStateSummary.policyAssignments
@@ -43,6 +42,16 @@ function Add-Assignments {
             }
         }
     }
+    #     policyresources
+    #     | where type == "microsoft.policyinsights/policystates"
+    #     | where properties.complianceState == "NonCompliant" and properties.policyDefinitionAction in ( "modify", "deployifnotexists" )
+    # |
+
+    #     policyresources
+    #     | where type == "microsoft.policyinsights/policystates"
+    #     | where properties.complianceState == "NonCompliant" and properties.policyDefinitionAction in ( "modify", "deplyifnotecists" )
+    #     | summarize count() by tostring(properties.policyAssignmentId), tostring(properties.policyDefinitionAction), tostring(properties.policyDefinitionReferenceId)
+    #     | order by properties_policyAssignmentId asc
     #endregion
 
     $numberOfAssignmentsWithRemediations = 0 # How many assignment requiring remediation(s) are at this scope
@@ -56,7 +65,7 @@ function Add-Assignments {
                 $headerDisplayed = $true
             }
             $existingRoleAssignments = @()
-            if (-not $supressRoleAssignments -and $null -ne $assignment.identity -and $null -ne $assignment.identity.principalId) {
+            if (-not $suppressRoleAssignments -and $null -ne $assignment.identity -and $null -ne $assignment.identity.principalId) {
                 # Collate existing role assignments at Policy assignment scope and at additionalRoleAssignments scope(s)
                 $existingRoleAssignments = @() + (Invoke-AzCli role assignment list --scope $scope --assignee $assignment.identity.principalId --only-show-errors)
                 $principalId = $assignment.identity.principalId
@@ -82,7 +91,7 @@ function Add-Assignments {
                 assignment      = $assignment
                 roleAssignments = $existingRoleAssignments
             }
-            $assignments.Add($assignment.id, $value)
+            $null = $assignments.Add($assignment.id, $value)
         }
 
         #endregion
@@ -109,66 +118,48 @@ function Add-Assignments {
                         # Write-Information "        NonCompliantResources Total=$($assignmentResultNonCompliantResources)"
                         $numberOfAssignmentsWithRemediations++
                         $remediationTasks = @()
-                        $initiativeDefinitionId = $summary.policySetDefinitionId
-                        $initiativeDefinition = $null
-                        if ($initiativeDefinitionId -ne "") {
-                            $initiativeName = $initiativeDefinitionId.Split('/')[-1]
-                            $initiativeDefinition = $allInitiativeDefinitions[$initiativeName]
-                            # Write-Information "        Assigned Initiative '$($initiativeDefinition.displayName)'"
+                        $policySetDefinitionId = $summary.policySetDefinitionId
+                        $policySetDefinition = $null
+                        if ($policySetDefinitionId -ne "") {
+                            $policySetDefinition = $allPolicySetDefinitions[$policySetDefinitionId]
+                            # Write-Information "        Assigned Policy Set '$($policySetDefinition.displayName)'"
                         }
                         foreach ($policyDefinition in $summary.policyDefinitions) {
-                            # Check if this PolicyDefinition needs remmediation
+                            # Check if this PolicyDefinition needs remediation
                             $policyDefinitionResults = $policyDefinition.results
                             if ($policyDefinitionResults.nonCompliantResources -gt 0) {
-                                [hashtable] $splat = $scopeSplat.Clone()
                                 $policyDefinitionId = $policyDefinition.policyDefinitionId
-                                $policyName = $policyDefinitionId.Split('/')[-1]
                                 $nonCompliantResources = $policyDefinitionResults.nonCompliantResources
                                 $policyDefinitionReferenceId = $policyDefinition.policyDefinitionReferenceId
-                                $policyDefinitionFull = $allPolicyDefinitions[$policyName]
-                                # Write-Information "        NonCompliantResources=$($nonCompliantResources), Policy='$($policyDefinitionFull.displayName)'"
-                                [hashtable] $policyInfo = @{
+                                $policyDefinitionFull = $allPolicyDefinitions[$policyDefinitionId]
+                                $assignmentName = $assignment.name
+                                $assignmentDisplayName = $assignment.displayName
+                                $taskName = $assignmentName -replace '\s', '-'
+                                if ($null -ne $policySetDefinition) {
+                                    $taskName = "$($taskName)__$($policyDefinitionReferenceId)"
+                                }
+                                $remediationTask = @{
+                                    assignmentId                = $id
+                                    assignmentName              = $assignmentName
+                                    assignmentDisplayName       = $assignmentDisplayName
+                                    taskName                    = $taskName
                                     policyDefinitionId          = $policyDefinitionId
                                     nonCompliantResources       = $nonCompliantResources
+                                    policySetName               = $policySetDefinition.name
+                                    policySetDisplayName        = $policySetDefinition.displayName
                                     policyDefinitionReferenceId = $policyDefinitionReferenceId
-                                    policyName                  = $policyName
+                                    policyName                  = $policyDefinitionFull.name
                                     policyDisplayName           = $policyDefinitionFull.displayName
                                 }
-                                $splat.Add("policy-assignment", $id)
-                                $assignmentDisplayName = $assignment.name
-                                $taskName = $assignmentDisplayName -replace '\s', '-'
-                                if ($null -eq $initiativeDefinition) {
-                                    # Single Policy
-                                    $splat.Add("name", $taskName)
-                                }
-                                else {
-                                    # Policy within an Initiative
-                                    $splat.Add("name", "$($taskName)__$($policyDefinition.policyDefinitionReferenceId)")
-                                    $splat.Add("definition-reference-id", $policyDefinition.policyDefinitionReferenceId)
-                                }
-                                $remediationTasks += @{
-                                    info  = $policyInfo
-                                    splat = $splat
-                                }
-                            }
-                        }
-                        $assignmentRemediation = @{
-                            assignmentDisplayName = $assignment.displayName
-                            initiativeId          = $initiativeDefinitionId
-                            remediationTasks      = $remediationTasks
-                            nonCompliantResources = $assignmentResult.nonCompliantResources
-                        }
-                        if ($null -ne $initiativeDefinition) {
-                            $assignmentRemediation += @{
-                                initiativeName        = $initiativeName
-                                initiativeDisplayName = $initiativeDefinition.displayName
+                                $remediationTasks += $remediationTask
                             }
                         }
                         if ($remediations.ContainsKey($scope)) {
-                            $remediations[$scope].Add($id, $assignmentRemediation)
+                            $remediationsAtScope = $remediations.$scope
+                            $null = $remediationsAtScope.Add($id, $assignmentRemediation)
                         }
                         else {
-                            $remediations.Add($scope, @{
+                            $null = $remediations.Add($scope, @{
                                     $id = $assignmentRemediation
                                 }
                             )
@@ -191,41 +182,37 @@ function Get-AzAssignmentsAtSpecificScope {
         [bool]      $getExemptions,
         [bool]      $getRemediations,
         [hashtable] $allPolicyDefinitions,
-        [hashtable] $allInitiativeDefinitions,
+        [hashtable] $allPolicySetDefinitions,
         [hashtable] $assignments,
         [hashtable] $exemptions,
         [hashtable] $remediations,
-        [bool]      $supressRoleAssignments
+        [bool]      $suppressRoleAssignments
     )
 
     $splits = $scope.Split('/')
     if ($scope.Contains("/subscriptions/")) {
-        # First element is an emoty string due to leading /
-        $subscriptionId = $splits[2]
-        $null = Invoke-AzCli account set --subscription $subscriptionId
+
+        # First element is an empty string due to leading forward slash (/)
+        # $subscriptionId = $splits[2]
+        # $null = (Invoke-AzCli account set --subscription $subscriptionId)
+
         if ($splits.Length -ge 5) {
             # Resource Group scope
             if ($getAssignments -or $getRemediations) {
-                $assignmentList = @() + (Invoke-AzCli policy assignment list --resource-group $scope)
+                $assignmentList = @() + (Invoke-AzCli policy assignment list --scope $scope)
                 if ($assignmentList.Length -gt 0) {
                     $header = "Resource Group $scope with $($assignmentList.Length) Policy Assignments"
-                    $rg = $splits[-1]
-                    [hashtable] $scopeSplat = @{
-                        subscription     = $subscriptionId
-                        "resource-group" = $rg
-                    }
                     Add-Assignments `
                         -assignmentList $assignmentList `
                         -header $header `
                         -scope $scope `
-                        -scopeSplat $scopeSplat `
                         -allPolicyDefinitions $allPolicyDefinitions `
-                        -allInitiativeDefinitions $allInitiativeDefinitions `
+                        -allPolicySetDefinitions $allPolicySetDefinitions `
                         -getAssignments $getAssignments `
                         -getRemediations $getRemediations `
                         -assignments $assignments `
                         -remediations $remediations `
-                        -supressRoleAssignments $supressRoleAssignments
+                        -suppressRoleAssignments $suppressRoleAssignments
                 }
             }
         }
@@ -235,21 +222,17 @@ function Get-AzAssignmentsAtSpecificScope {
                 $assignmentList = @() + (Invoke-AzCli policy assignment list --scope $scope)
                 if ($assignmentList.Length -gt 0) {
                     $header = "Subscription $subscriptionId with $($assignmentList.Length) Policy Assignments"
-                    [hashtable] $scopeSplat = @{
-                        subscription = $subscriptionId
-                    }
                     Add-Assignments `
                         -assignmentList $assignmentList `
                         -header $header `
                         -scope $scope `
-                        -scopeSplat $scopeSplat `
                         -allPolicyDefinitions $allPolicyDefinitions `
-                        -allInitiativeDefinitions $allInitiativeDefinitions `
+                        -allPolicySetDefinitions $allPolicySetDefinitions `
                         -getAssignments $getAssignments `
                         -getRemediations $getRemediations `
                         -assignments $assignments `
                         -remediations $remediations `
-                        -supressRoleAssignments $supressRoleAssignments
+                        -suppressRoleAssignments $suppressRoleAssignments
                 }
             }
             if ($getExemptions) {
@@ -279,21 +262,21 @@ function Get-AzAssignmentsAtSpecificScope {
                             exemptionCategory  = $exemptionCategory
                         }
                         if ($displayName -and $displayName -ne "") {
-                            $exemption.Add("displayName", $displayName)
+                            $null = $exemption.Add("displayName", $displayName)
                         }
                         if ($description -and $description -ne "") {
-                            $exemption.Add("description", $description)
+                            $null = $exemption.Add("description", $description)
                         }
                         if ($expiresOn) {
                             $expiresOnUtc = $expiresOn.ToUniversalTime()
-                            $exemption.Add("expiresOn", $expiresOnUtc)
+                            $null = $exemption.Add("expiresOn", $expiresOnUtc)
 
                         }
                         if ($policyDefinitionReferenceIds -and $policyDefinitionReferenceIds.Count -gt 0) {
-                            $exemption.Add("policyDefinitionReferenceIds", $policyDefinitionReferenceIds)
+                            $null = $exemption.Add("policyDefinitionReferenceIds", $policyDefinitionReferenceIds)
                         }
                         if ($metadata -and $metadata -ne @{} ) {
-                            $exemption.Add("metadata", $metadata)
+                            $null = $exemption.Add("metadata", $metadata)
                         }
                         $null = $exemptions.Add($exemptionId, $exemption)
                     }
@@ -308,21 +291,17 @@ function Get-AzAssignmentsAtSpecificScope {
             $mg = $splits[-1]
             if ($assignmentList.Length -gt 0) {
                 $header = "Management Group $mg with $($assignmentList.Length) Policy Assignments"
-                [hashtable] $scopeSplat = @{
-                    "management-group" = $mg
-                }
                 Add-Assignments `
                     -assignmentList $assignmentList `
                     -header $header `
                     -scope $scope `
-                    -scopeSplat $scopeSplat `
                     -allPolicyDefinitions $allPolicyDefinitions `
-                    -allInitiativeDefinitions $allInitiativeDefinitions `
+                    -allPolicySetDefinitions $allPolicySetDefinitions `
                     -getAssignments $getAssignments `
                     -getRemediations $getRemediations `
                     -assignments $assignments `
                     -remediations $remediations `
-                    -supressRoleAssignments $supressRoleAssignments
+                    -suppressRoleAssignments $suppressRoleAssignments
             }
         }
     }
@@ -331,16 +310,16 @@ function Get-AzAssignmentsAtSpecificScope {
 function Get-AzAssignmentsAtScopeRecursive {
     [CmdletBinding()]
     param(
-        [object]    $scopeTreeInfo,
-        [string[]]  $notScopeIn = @(),
-        [bool]      $includeResourceGroups = $false,
-        [bool]      $getAssignments = $true,
-        [bool]      $getExemptions = $true,
-        [int]       $expiringInDays = 7,
-        [bool]      $getRemediations = $false,
-        [hashtable] $allPolicyDefinitions = $null,
-        [hashtable] $allInitiativeDefinitions = $null,
-        [switch]    $supressRoleAssignments
+        [parameter(Mandatory = $True)] [object]     $scopeTreeInfo,
+        [parameter(Mandatory = $false)] [array]     $notScopeIn = @(),
+        [parameter(Mandatory = $false)] [bool]      $includeResourceGroups = $false,
+        [parameter(Mandatory = $false)] [bool]      $getAssignments = $true,
+        [parameter(Mandatory = $false)] [bool]      $getExemptions = $true,
+        [Parameter(Mandatory = $false)] [int]       $expiringInDays = 7,
+        [parameter(Mandatory = $false)] [bool]      $getRemediations = $false,
+        [parameter(Mandatory = $false)] [hashtable] $allPolicyDefinitions = $null,
+        [parameter(Mandatory = $false)] [hashtable] $allPolicySetDefinitions = $null,
+        [switch] $suppressRoleAssignments
     )
 
     [array] $subscriptionIds = @()
@@ -350,8 +329,8 @@ function Get-AzAssignmentsAtScopeRecursive {
 
     # Check parameters
     if ($getRemediations) {
-        if ($null -eq $allPolicyDefinitions -or $null -eq $allInitiativeDefinitions) {
-            $errorText = "getRemediations require `$allPolicyDefinitions and `$allInitiativeDefinitions not to be `$null"
+        if ($null -eq $allPolicyDefinitions -or $null -eq $allPolicySetDefinitions) {
+            $errorText = "getRemediations require `$allPolicyDefinitions and `$allPolicySetDefinitions not to be `$null"
             Write-Error $errorText
             Throw $errorText
         }
@@ -363,23 +342,15 @@ function Get-AzAssignmentsAtScopeRecursive {
     Write-Information "==================================================================================================="
     Write-Information "Get Policy and Role Assignments recursively"
     Write-Information "==================================================================================================="
-    if ($scopeTreeInfo.SingleSubscription) {
-        Write-Information "Single Subscription $($scopeTreeInfo.SingleSubscription) and Resource Groups"
-        $subscriptionIds += $scopeTreeInfo.SingleSubscription
-        Get-AzAssignmentsAtSpecificScope -scope "$($scopeTreeInfo.SingleSubscription)" `
-            -getAssignments $getAssignments `
-            -getExemptions $getExemptions `
-            -getRemediations $getRemediations `
-            -allPolicyDefinitions $allPolicyDefinitions `
-            -allInitiativeDefinitions $allInitiativeDefinitions `
-            -assignments $assignmentsInAzure `
-            -exemptions $exemptions `
-            -remediations $remediations `
-            -supressRoleAssignments $supressRoleAssignments.IsPresent
-    }
-    elseif ($null -ne $scopeTreeInfo.ScopeTree) {
+
+    if ($null -ne $scopeTreeInfo.ScopeTree) {
         # Management Group -> Process Management Groups and Subscriptions
-        Write-Information "Management Group $($scopeTreeInfo.ScopeTree.displayName) ($($scopeTreeInfo.ScopeTree.id)), Subscriptions and Resource Groups"
+        if ($includeResourceGroups) {
+            Write-Information "Management Group $($scopeTreeInfo.ScopeTree.displayName) ($($scopeTreeInfo.ScopeTree.id)), Subscriptions and Resource Groups"
+        }
+        else {
+            Write-Information "Management Group $($scopeTreeInfo.ScopeTree.displayName) ($($scopeTreeInfo.ScopeTree.id)) and Subscriptions"
+        }
         $queuedScope = [System.Collections.Queue]::new()
         $null = $queuedScope.Enqueue($scopeTreeInfo.ScopeTree)
         Write-Debug "    Enqueue $($scopeTreeInfo.ScopeTree.id)"
@@ -390,12 +361,12 @@ function Get-AzAssignmentsAtScopeRecursive {
                 -getAssignments $getAssignments `
                 -getRemediations $getRemediations `
                 -allPolicyDefinitions $allPolicyDefinitions `
-                -allInitiativeDefinitions $allInitiativeDefinitions `
+                -allPolicySetDefinitions $allPolicySetDefinitions `
                 -assignments $assignmentsInAzure `
                 -remediations $remediations `
-                -supressRoleAssignments $supressRoleAssignments.IsPresent
+                -suppressRoleAssignments $suppressRoleAssignments
             foreach ($child in $currentMg.children) {
-                if ($notScopeIn.Contains($child.id)) {
+                if (!$notScopeIn -and $notScopeIn.Contains($child.id)) {
                     Write-Information "Skipping notScope $($child.name) ($($child.id))"
                 }
                 else {
@@ -405,19 +376,8 @@ function Get-AzAssignmentsAtScopeRecursive {
                     }
                     else {
                         # Subscription
-                        $subscriptionEntry = $scopeTreeInfo.SubscriptionTable[$child.id]
-                        if ($subscriptionEntry.state -eq "Enabled") {
-                            Write-Debug "    Subscription testing list += subscription $($child.id)"
-                            Get-AzAssignmentsAtSpecificScope -scope $child.id `
-                                -getAssignments $getAssignments `
-                                -getExemptions $getExemptions `
-                                -getRemediations $getRemediations `
-                                -allPolicyDefinitions $allPolicyDefinitions `
-                                -allInitiativeDefinitions $allInitiativeDefinitions `
-                                -assignments $assignmentsInAzure `
-                                -exemptions $exemptions `
-                                -remediations $remediations `
-                                -supressRoleAssignments $supressRoleAssignments.IsPresent
+                        $subscription = $scopeTreeInfo.SubscriptionTable[$child.id]
+                        if ($subscription.state -eq "Enabled") {
                             $subscriptionIds += $child.id
                         }
                     }
@@ -425,64 +385,88 @@ function Get-AzAssignmentsAtScopeRecursive {
             }
         }
     }
+    else {
+        $subscriptionTable = $scopeTreeInfo.SubscriptionTable
+        $fullSubscriptionId = $subscriptionTable.Keys[0]
+        $subscription = $subscriptionTable.$fullSubscriptionId
+        if ($includeResourceGroups) {
+            Write-Information "Single Subscription $($subscription.name) ($($subscription.id)) and Resource Groups"
+        }
+        else {
+            Write-Information "Single Subscription $($subscription.name) ($($subscription.id))"
+        }
+        $subscriptionIds += $fullSubscriptionId
+    }
 
-    Write-Debug "Testing subscriptionIds($($subscriptionIds.Count)), notScopeResourceGroupIds($($notScopeResourceGroupIds.Count)), notScopePatterns($($notScopePatterns.Count))"
     # Find Resource Groups in all subscriptions in notScope
-    if ($subscriptionIds.Length -gt 0 -and $includeResourceGroups) {
+    if ($subscriptionIds.Length -gt 0) {
         # Find out if we need to process any Resource Groups
         $notScopeResourceGroupIds = $()
         $notScopePatterns = @()
-        foreach ($nsi in $notScopeIn) {
-            if ($nsi.Contains("/resourceGroups/")) {
-                $notScopeResourceGroupIds += $nsi
-            }
-            elseif ($nsi.Contains("/resourceGroupPatterns/")) {
-                $nspTrimmed = $nsi.Split("/")[-1]
-                $notScopePatterns += $nspTrimmed
-                Write-Debug "    Checking pattern '$nsi', trimmed pattern '$nspTrimmed'"
+        if ($notScopeIn -and $includeResourceGroups) {
+            foreach ($nsi in $notScopeIn) {
+                if ($nsi.Contains("/resourceGroups/")) {
+                    $notScopeResourceGroupIds += $nsi
+                }
+                elseif ($nsi.Contains("/resourceGroupPatterns/")) {
+                    $nspTrimmed = $nsi.Split("/")[-1]
+                    $notScopePatterns += $nspTrimmed
+                }
             }
         }
 
-        $table = $scopeTreeInfo.SubscriptionTable
+        $subscriptionTable = $scopeTreeInfo.SubscriptionTable
         foreach ($subscriptionId in $subscriptionIds) {
-            $subscriptionEntry = $table[$subscriptionId]
-            Write-Debug "table[$subscriptionId] = $($subscriptionEntry | ConvertTo-Json -Depth 100)"
+            $subscriptionEntry = $subscriptionTable[$subscriptionId]
             if ($subscriptionEntry.State -eq "Enabled") {
-                # Ignore inactive subscriptions
-                $originalSubscriptionResourceGroupIds = $subscriptionEntry.ResourceGroupIds
-                $subscriptionResourceGroupIds = $originalSubscriptionResourceGroupIds.Clone()
-                # Write-Information "    Checking $($originalSubscriptionResourceGroupIds.Count) RGs in subscription $($subscriptionEntry.Name) ($($subscriptionId))"
+                Get-AzAssignmentsAtSpecificScope -scope $subscriptionId `
+                    -getAssignments $getAssignments `
+                    -getExemptions $getExemptions `
+                    -getRemediations $getRemediations `
+                    -allPolicyDefinitions $allPolicyDefinitions `
+                    -allPolicySetDefinitions $allPolicySetDefinitions `
+                    -assignments $assignmentsInAzure `
+                    -exemptions $exemptions `
+                    -remediations $remediations `
+                    -suppressRoleAssignments $suppressRoleAssignments
 
-                # Eliminate notScope fully quified resource Group Ids
-                foreach ($nrg in $notScopeResourceGroupIds) {
-                    if ($originalSubscriptionResourceGroupIds.ContainsKey($nrg)) {
-                        Write-Debug "    Added Resource Group from full resourceId to notScope: $nrg"
-                        $null = $subscriptionResourceGroupIds.Remove($nrg)
-                    }
-                }
+                if ($includeResourceGroups) {
+                    # Ignore inactive subscriptions
+                    $originalSubscriptionResourceGroupIds = $subscriptionEntry.ResourceGroupIds
+                    if ($originalSubscriptionResourceGroupIds){$subscriptionResourceGroupIds = $originalSubscriptionResourceGroupIds.clone()}else{$subscriptionResourceGroupIds=@{}}
+                    # Write-Information "    Checking $($originalSubscriptionResourceGroupIds.Count) RGs in subscription $($subscriptionEntry.Name) ($($subscriptionId))"
 
-                # Eliminate notScope patterns
-                foreach ($nsp in $notScopePatterns) {
-                    foreach ($rg in $originalSubscriptionResourceGroupIds.Keys) {
-                        $rgShort = $rg.Split("/")[-1]
-                        if ($rgShort -like $nsp) {
-                            Write-Debug "    Added Resource Group $rg from pattern $nsp to notScope"
-                            $null = $subscriptionResourceGroupIds.Remove($rg)
+                    # Eliminate notScope fully qualified resource Group Ids
+                    foreach ($nrg in $notScopeResourceGroupIds) {
+                        if ($originalSubscriptionResourceGroupIds.ContainsKey($nrg)) {
+                            Write-Debug "    Added Resource Group from full resourceId to notScope: $nrg"
+                            $null = $subscriptionResourceGroupIds.Remove($nrg)
                         }
                     }
-                }
 
-                # Find assignments
-                foreach ($rg in $subscriptionResourceGroupIds.Keys) {
-                    Write-Debug "    Added Resource Group $rg Assignments"
-                    Get-AzAssignmentsAtSpecificScope -scope $rg `
-                        -getAssignments $getAssignments `
-                        -getRemediations $getRemediations `
-                        -allPolicyDefinitions $allPolicyDefinitions `
-                        -allInitiativeDefinitions $allInitiativeDefinitions `
-                        -assignments $assignmentsInAzure `
-                        -remediations $remediations `
-                        -supressRoleAssignments $supressRoleAssignments.IsPresent
+                    # Eliminate notScope patterns
+                    foreach ($nsp in $notScopePatterns) {
+                        foreach ($rg in $originalSubscriptionResourceGroupIds.Keys) {
+                            $rgShort = $rg.Split("/")[-1]
+                            if ($rgShort -like $nsp) {
+                                Write-Debug "    Added Resource Group $rg from pattern $nsp to notScope"
+                                $null = $subscriptionResourceGroupIds.Remove($rg)
+                            }
+                        }
+                    }
+
+                    # Find assignments
+                    foreach ($rg in $subscriptionResourceGroupIds.Keys) {
+                        Write-Debug "    Added Resource Group $rg Assignments"
+                        Get-AzAssignmentsAtSpecificScope -scope $rg `
+                            -getAssignments $getAssignments `
+                            -getRemediations $getRemediations `
+                            -allPolicyDefinitions $allPolicyDefinitions `
+                            -allPolicySetDefinitions $allPolicySetDefinitions `
+                            -assignments $assignmentsInAzure `
+                            -remediations $remediations `
+                            -suppressRoleAssignments $suppressRoleAssignments
+                    }
                 }
             }
         }

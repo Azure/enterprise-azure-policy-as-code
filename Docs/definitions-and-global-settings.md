@@ -1,0 +1,151 @@
+
+# Definitions and Global Settings
+
+> ---
+> ---
+>
+> Important
+>
+> - `deploymentRootScope` is the deployment scope for Policy and Initiative definitions.
+> - Policy Assignments must be at this scope or below.
+> - Operational tasks, such as `Create-AzRemediationTasks.ps1`, must use the same rootScope or they will fail.
+>
+> ---
+> ---
+
+<br/>
+
+**On this page**
+
+- [Folders](#folders)
+- [Global Settings](#global-settings)
+  - [Uniquely identify deployments `pacOwnerId`](#uniquely-identify-deployments-pacownerid)
+  - [Define EPAC Environments in `pacEnvironments`](#define-epac-environments-in-pacenvironments)
+  - [DeployIfNotExists and Modify Policy Assignments need `managedIdentityLocation`](#deployifnotexists-and-modify-policy-assignments-need-managedidentitylocation)
+  - [Excluding scopes for all Assignments with `globalNotScopes`](#excluding-scopes-for-all-assignments-with-globalnotscopes)
+- [Reading List](#reading-list)
+
+## Folders
+
+This `Definitions` folder and subfolders contains all your definitions. The `Sync-Repo.ps1` script does not copy this folder.
+
+1. Define the Azure environment(s) in file **[global-settings.jsonc](#global-settings)**
+1. Create custom Policy definitions (optional) in folder **[policyDefinitions](policy-definitions.md)**
+1. Create custom Initiative definitions (optional) in folder **[policySetDefinitions](policy-set-definitions.md)**
+1. Define the Policy Assignments in folder **[policyAssignments](policy-assignments.md)**
+1. Define the Policy Exemptions (optional) in folder **[policyExemptions](policy-exemptions.md)**
+1. Define Documentation in folder **[policyDocumentations](documenting-assignments-and-policy-sets.md)**
+
+## Global Settings
+
+`global-settings.jsonc` has following sections explained below:
+
+- `pacOwnerId` uniquely identifies deployments from a specific repo. We recommend using a GUID.
+- `pacEnvironments` defines the EPAC environments.
+- `managedIdentityLocations` is used in Policy Assignments as the location of the created Managed Identities.
+- `globalNotScopes` defines scopes not subject to the Policy Assignments.
+
+### Uniquely identify deployments `pacOwnerId`
+
+`pacOwnerId` is required for [desired state handling](desired-state-strategy.md) to distinguish Policy resources deployed via this EPAC repo, legacy technology, another EPAC repo, or another Policy as Code solution.
+
+### Define EPAC Environments in `pacEnvironments`
+
+EPAC has a concept of an environment identified by a string (unique per repository) called `pacSelector` as defined in `pacEnvironments`. An environment associates the following with the `pacSelector`:
+
+- `cloud` - to select sovereign cloud environments.
+- `tenantId` - enables multi-tenant scenarios.
+- `rootDefinitionScope` - the deployment destination for the Policy and Policy Set definitions to be used in assignments later.
+  - Policy Assignments can only defined at this root scope and child scopes (recursive).
+- Optional: define `desiredState` strategy. This element is documented [here](desired-state-strategy.md).
+
+Like any other software or IaC solution, EPAC needs areas for developing and testing new Policies, Initiatives and Assignments before any deployment to EPAC prod environments. In most cases you will need one management group hierarchy to simulate EPAC production management groups for development and testing of Policies. EPAC's prod environment will govern all other IaC environments (e.g., sandbox, development, integration, test/qa, pre-prod, prod, ...) and tenants. This can be confusing. We will use EPAC environment(s) and IaC environments to disambiguate the environments.
+
+In a centralized single tenant scenario, you will define two EPAC environments: epac-dev and tenant. In a multi-tenant scenario, you will add an additional EPAC environment per additional tenant.
+
+The `pacSelector` is just a name. We highly recommend to call the Policy development environment `epac-dev`, you can name the EPAC prod environments in a way which makes sense to you in your environment. We use `tenant`, `tenant1`, etc in our samples and documentation.
+
+These names are used and therefore must match:
+
+- Defining the association (`pacEnvironments`) of an EPAC environment, `managedIdentityLocation` and `globalNotScopes` in `global-settings.jsonc`
+- Script parameter when executing different deployment stages in a CI/CD pipeline or semi-automated deployment targeting a specific EPAC environments.
+- `scopes` and `notScopes` definitions in Policy Assignment JSON files.
+
+```json
+"pacEnvironments": [
+    {
+        "pacSelector": "epac-dev",
+        "cloud": "AzureCloud",
+        "tenantId": "70238025-b3dc-40a5-bea1-314973cea2db",
+        "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/PAC-Heinrich-Dev"
+    },
+    {
+        "pacSelector": "tenant",
+        "cloud": "AzureCloud",
+        "tenantId": "70238025-b3dc-40a5-bea1-314973cea2db",
+        "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/Contoso-Root",
+        "inheritedDefinitionsScopes": [], // optional for desired state coexistence scenarios
+        "desiredState": { // optional for desired state coexistence scenarios
+        }
+    }
+],
+```
+
+### DeployIfNotExists and Modify Policy Assignments need `managedIdentityLocation`
+
+Policies with `Modify` and `DeployIfNotExists` effects require a Managed Identity for the remediation task. This section defines the location of the managed identity. It is often created in the tenant's primary location. This location can be overridden in the Policy Assignment files. The star in the example matches all `pacEnvironmentSelector` values.
+
+```json
+    "managedIdentityLocation": {
+        "*": "eastus2"
+    },
+```
+
+### Excluding scopes for all Assignments with `globalNotScopes`
+
+Resource Group patterns allow us to exclude "special" managed Resource Groups. The exclusion is not dynamic. It is calculated when the deployment scripts execute.
+
+The arrays can have the following entries:
+
+| Scope type | Example |
+|------------|---------|
+| `managementGroups` | "/providers/Microsoft.Management/managementGroups/myManagementGroupId" |
+| `subscriptions` | "/subscriptions/00000000-0000-0000-000000000000" |
+| `resourceGroups` | "/subscriptions/00000000-0000-0000-000000000000/resourceGroups/myResourceGroup" |
+| `resourceGroupPatterns` | No wild card or single \* wild card at beginning or end of name or both; wild cards in the middle are invalid: <br/> "/resourceGroupPatterns/name" <br/> "/resourceGroupPatterns/name\*" <br/>  "/resourceGroupPatterns/\*name" <br/> "/resourceGroupPatterns/\*name\*"<br/>
+
+```json
+    "globalNotScopes": {
+        "*": [
+            "/resourceGroupPatterns/synapseworkspace-managedrg-*",
+            "/resourceGroupPatterns/managed-rg-*",
+            "/resourceGroupPatterns/databricks-*",
+            "/resourceGroupPatterns/DefaultResourceGroup*",
+            "/resourceGroupPatterns/NetworkWatcherRG",
+            "/resourceGroupPatterns/LogAnalyticsDefault*",
+            "/resourceGroupPatterns/cloud-shell-storage*"
+        ],
+        "tenant": [
+            "/providers/Microsoft.Management/managementGroups/mg-personal-subscriptions",
+            "/providers/Microsoft.Management/managementGroups/mg-policy-as-code"
+        ]
+    },
+```
+
+## Reading List
+
+- [Setup DevOps Environment](operating-environment.md) .
+- [Create a source repository and import the source code](clone-github.md) from this repository.
+- [Select the desired state strategy](desired-state-strategy.md)
+- [Copy starter kit pipeline definition and definition folder to your folders](starter-kits.md)
+- [Define your deployment environment](definitions-and-global-settings.md) in `global-settings.jsonc`.
+- [Build your CI/CD pipeline](ci-cd-pipeline.md) using a starter kit.
+- [Add custom Policy definitions](policy-definitions.md).
+- [Add custom Policy Set definitions](policy-set-definitions.md).
+- [Create Policy Assignments](policy-assignments.md).
+- Import Policies from the [Cloud Adoption Framework](cloud-adoption-framework.md).
+- [Manage Policy Exemptions](policy-exemptions.md).
+- [Document your deployments](documenting-assignments-and-policy-sets.md).
+- [Execute operational tasks](operational-scripts.md).
+
+**[Return to the main page](../README.md)**

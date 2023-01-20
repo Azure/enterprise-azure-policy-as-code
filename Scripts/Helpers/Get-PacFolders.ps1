@@ -8,7 +8,7 @@ function Get-PacFolders {
         [Parameter(Mandatory = $false)] [string] $inputFolder
     )
 
-    # Callcuate folders
+    # Calculate folders
     if ($definitionsRootFolder -eq "") {
         if ($null -eq $env:PAC_DEFINITIONS_FOLDER) {
             $definitionsRootFolder = "$PSScriptRoot/../../Definitions"

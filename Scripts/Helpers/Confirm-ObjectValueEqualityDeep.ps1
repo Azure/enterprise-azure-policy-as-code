@@ -12,13 +12,13 @@ function Confirm-ObjectValueEqualityDeep {
         [hashtable] $definedHt = $null
         [hashtable] $existingHt = $null
         if ($definedObj -is [hashtable]) {
-            $definedHt = $definedObj.Clone()
+            if ($definedObj){$definedHt = $definedObj.clone()}else{$definedHt=@{}}
         }
         else {
             $definedHt = $definedObj | ConvertTo-HashTable
         }
         if ($existingObj -is [hashtable]) {
-            $existingHt = $existingObj.Clone()
+            if ($existingObj){$existingHt = $existingObj.clone()}else{$existingHt=@{}}
         }
         else {
             $existingHt = $existingObj | ConvertTo-HashTable
@@ -55,10 +55,10 @@ function Confirm-ObjectValueEqualityDeep {
             }
             else {
                 $notMatches = $definedArray.Length
-                $nextExistingArray = $existingArray.Clone()
+                if ($existingArray){$nextExistingArray = $existingArray.clone()}else{$nextExistingArray=@{}}
                 foreach ($definedItem in $definedArray) {
                     $found = $false
-                    $currentArray = $nextExistingArray.Clone()
+                    if ($nextExistingArray){$currentArray = $nextExistingArray.clone()}else{$currentArray=@{}}
                     $nextExistingArray = @()
                     foreach ($existingItem in $currentArray) {
                         if ($found) {
@@ -81,6 +81,18 @@ function Confirm-ObjectValueEqualityDeep {
         }
     }
     else {
-        return $definedObj -eq $existingObj
+        if ($definedObj -is [datetime] -xor $existingObj -is [datetime]) {
+            if ($definedObj -is [datetime]) {
+                $date = $definedObj.ToString("yyyy-MM-dd")
+                return $date -eq $existingObj
+            }
+            else {
+                $date = $existingObj.ToString("yyyy-MM-dd")
+                return $date -eq $definedObj
+            }
+        }
+        else {
+            return $definedObj -eq $existingObj
+        }
     }
 }

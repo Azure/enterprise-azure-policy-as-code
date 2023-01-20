@@ -1,103 +1,180 @@
 #Requires -PSEdition Core
-<#
-.SYNOPSIS
-    Finds all Management Groups, Subscriptions and Resource Groups and collects them into a scope Tree structure.
-    Parameters tenantId and scopeParam determine the root of the tree
-#>
 
-function Get-AzResourceGroupsForSubscription {
-    [CmdletBinding()]
-    param (
-        [string] $SubscriptionId
-    )
-
-    $resourceGroups = Invoke-AzCli group list --subscription $SubscriptionId
-    $resourceGroupIdsHashTable = @{}
-    $null = $resourceGroups | ForEach-Object { $resourceGroupIdsHashTable[$_.id] = $_ }
-
-    return $resourceGroupIdsHashTable
-}
 function Get-AzScopeTree {
 
     param(
-        [Parameter(Mandatory = $true,
-            HelpMessage = "tenantID is required to disambiguate users known in multiple teannts.")]
-        [string]$tenantId,
-
-        [parameter(Mandatory = $true,
-            HelpMessage = "scopeParam is the root scope.")]
-        [hashtable] $scopeParam,
-
-        [parameter(Mandatory = $false)]
-        [string] $defaultSubscriptionId = $null
+        [hashtable] $pacEnvironment
     )
 
-    # Management Group -> Find all MGs, Subscriptions
+    $deploymentRootScope = $pacEnvironment.deploymentRootScope
+    $tenantId = $pacEnvironment.tenantId
+    Write-Information "==================================================================================================="
+    Write-Information "Get scope tree information for $($deploymentRootScope -replace '/providers/Microsoft.Management','')"
+    Write-Information "==================================================================================================="
     $prefBackup = $WarningPreference
     $WarningPreference = 'SilentlyContinue'
-    $subscriptionTable = @{}
-    $singleSubscription = $null
-    $scopeTree = $null
-    Write-Information "==================================================================================================="
-    Write-Information "Get scope tree information (Mangement Groups, Subscriptions and Resource Groups)"
-    Write-Information "==================================================================================================="
+    $scope = Split-ScopeId `
+        -scopeId $deploymentRootScope `
+        -parameterNameForManagementGroup "ManagementGroup" `
+        -parameterNameForSubscription "Subscription" `
+        -asSplat
+    $resourceContainers = Search-AzGraphAllItems `
+        -query "ResourceContainers" `
+        -scope $scope
+    $WarningPreference = $prefBackup
+    Write-Information "Processing $($resourceContainers.Count) resource containers:"
 
-    if ($scopeParam.ContainsKey("SubscriptionId")) {
-        $subscriptionId = $scopeParam.SubscriptionId
-        $subscription = Invoke-AzCli account subscription show --subscription-id $scopeParam.SubscriptionId --only-show-errors
-        $resourceGroupIdsHashTable = Get-AzResourceGroupsForSubscription -SubscriptionId $subscriptionId
-        Write-Information "Single Subscription $($subscription.displayName) ($($subscriptionId)) with $($resourceGroupIdsHashTable.Count) Resource Groups"
-        $singleSubscription = $subscription.id
-        $subscriptionTable[$singleSubscription] = @{
-            Name             = $subscription.displayName
-            State            = $subscription.state
-            Id               = $singleSubscriptionsubscriptionId
-            FullId           = $singleSubscription
-            ResourceGroupIds = $resourceGroupIdsHashTable
-        }
-    }
-    elseif ($scopeParam.ContainsKey("ManagementGroupName")) {
-
-        $scopeTree = Invoke-AzCli account management-group show --name $scopeParam.ManagementGroupName --expand --recurse
-        Write-Information "Management Group $($scopeTree.displayName) ($($scopeTree.id))"
-
-        # Get all subscriptions and their resource groups and put them in a hashtable by subscription id
-        # Write-Host "##[command] Get-AzSubscription"
-        $subscriptions = Invoke-AzCli account list --all
-        foreach ($subscription in $subscriptions) {
-            if ($subscription.id -eq $subscription.tenantId) {
-                continue 
+    # Process subscriptions and management groups
+    $scopeTable = @{}
+    $numberOfManagementGroups = 0
+    $numberOfSubscriptions = 0
+    foreach ($resourceContainer in $resourceContainers) {
+        # resource groups require a second pass
+        $type = $resourceContainer.type
+        if ($resourceContainer.tenantId -eq $tenantId -and $type -ne "microsoft.resources/subscriptions/resourcegroups") {
+            $id = $resourceContainer.id
+            $rootScopeReached = $id -eq $deploymentRootScope
+            $managementGroupAncestorsChain = @()
+            if ($type -eq "microsoft.management/managementgroups") {
+                $managementGroupAncestorsChain = $resourceContainer.properties.details.managementGroupAncestorsChain
+            }
+            else {
+                $managementGroupAncestorsChain = $resourceContainer.properties.managementGroupAncestorsChain
+            }
+            $numberOfAncestors = $managementGroupAncestorsChain.Count
+            $newNodeCandidates = [System.Collections.ArrayList]::new()
+            $parentList = @{}
+            $childrenList = @{ $id = $type }
+            $i = 0
+            while (!$rootScopeReached -and $i -lt $numberOfAncestors) {
+                $currentParent = $managementGroupAncestorsChain[$i]
+                $currentId = "/providers/Microsoft.Management/managementGroups/$($currentParent.name)"
+                if ($currentId -eq $deploymentRootScope) {
+                    $rootScopeReached = $true
                 }
-            if ($tenantId -eq $subscription.tenantId) {
-                # Ignore subscriptions in other tenants the identity has access permissions (only for interactive users)
-                $resourceGroupIdsHashTable = @{}
-                if ($subscription.state -eq "Enabled") {
-                    $resourceGroupIdsHashTable = Get-AzResourceGroupsForSubscription -SubscriptionId $subscription.id
+                $null = $parentList.Add($currentId, "microsoft.management/managementgroups")
+                if ($scopeTable.ContainsKey($currentId)) {
+                    $currentScopeInformation = $scopeTable.$currentId
+                    $currentChildrenList = $currentScopeInformation.childrenList
+                    foreach ($child in $childrenList.Keys) {
+                        $currentChildrenList[$child] = $childrenList.$child
+                    }
                 }
-                $fullSubscriptionId = "/subscriptions/$($subscription.id)"
-                Write-Information "Subscription $($subscription.name) ($($fullSubscriptionId)) with $($resourceGroupIdsHashTable.Count) Resource Groups"
-                $subscriptionTable[$fullSubscriptionId] = @{
-                    Name             = $subscription.name
-                    State            = $subscription.state
-                    Id               = $subscription.id
-                    FullId           = $fullSubscriptionId
-                    ResourceGroupIds = $resourceGroupIdsHashTable
+                else {
+                    $scopeInformation = @{
+                        id             = $currentId
+                        type           = "microsoft.management/managementgroups"
+                        name           = $currentParent.name
+                        displayName    = $currentParent.displayName
+                        parentList     = @{}
+                        childrenList   = Get-HashtableShallowClone $childrenList
+                        resourceGroups = @{}
+                        state          = $null
+                        location       = "global"
+                    }
+                    $null = $newNodeCandidates.Add($scopeInformation)
                 }
+                $i++
+            }
+            if ($rootScopeReached) {
+                # candidates become actual nodes (not yet completed)
+                foreach ($newNodeCandidate in $newNodeCandidates) {
+                    $null = $scopeTable.Add($newNodeCandidate.id, $newNodeCandidate)
+                }
+                if ($scopeTable.ContainsKey($id)) {
+                    # has any children already; needs parentList
+                    $scopeInformation = $scopeTable.$id
+                    $scopeInformation.parentList = $parentList
+                    $scopeInformation.state = $resourceContainer.properties.state
+                }
+                else {
+                    $scopeInformation = $null
+                    if ($resourceContainer.type -eq "microsoft.management/managementgroups") {
+                        $scopeInformation = @{
+                            id             = $id
+                            type           = $type
+                            name           = $resourceContainer.name
+                            displayName    = $resourceContainer.properties.displayName
+                            parentList     = $parentList
+                            childrenList   = @{}
+                            resourceGroups = @{}
+                            state          = $null
+                            location       = "global"
+                        }
+                    }
+                    else {
+                        $scopeInformation = @{
+                            id             = $id
+                            type           = $type
+                            name           = $resourceContainer.name
+                            displayName    = $resourceContainer.name
+                            parentList     = $parentList
+                            childrenList   = @{}
+                            resourceGroups = @{}
+                            state          = $resourceContainer.properties.state
+                            location       = "global"
+                        }
+                    }
+                    $null = $scopeTable.Add($id, $scopeInformation)
+                }
+                if ($resourceContainer.type -eq "microsoft.management/managementgroups") {
+                    $numberOfManagementGroups++
+                }
+                else {
+                    $numberOfSubscriptions++
+                }
+            }
+            else {
+                # should not be possible
+                Write-Error "Code bug: Our root is not in this tree" -ErrorAction Stop
             }
         }
     }
-    else {
-        Write-Error "##[Error] Scope must be Management Group or a Subscription"
-    }
-    $WarningPreference = $prefBackup
+    Write-Information "    Management groups = $($numberOfManagementGroups)"
+    Write-Information "    Subscriptions     = $($numberOfSubscriptions)"
 
-    Write-Information ""
+    # Process resourceGroups since the only contain the subscription information, needs managementGroup information as well
+    $numberOfResourceGroups = 0
+    foreach ($resourceContainer in $resourceContainers) {
+        # resource groups require a second pass
+        $type = $resourceContainer.type
+        if ($resourceContainer.tenantId -eq $tenantId -and $type -eq "microsoft.resources/subscriptions/resourcegroups") {
+            $id = $resourceContainer.id
+            $name = $resourceContainer.name
+            $subscriptionId = "/subscriptions/$($resourceContainer.subscriptionId)"
+            if ($scopeTable.ContainsKey($subscriptionId)) {
+                $subscriptionInformation = $scopeTable.$subscriptionId
+                $subscriptionParentList = $subscriptionInformation.parentList
+                $parentList = Get-HashtableShallowClone $subscriptionParentList
+                $null = $parentList.Add($subscriptionId, $subscriptionInformation.type)
+                foreach ($parentId in $parentList.Keys) {
+                    $parentInformation = $scopeTable.$parentId
+                    $parentChildrenList = $parentInformation.childrenList
+                    $parentResourceGroups = $parentInformation.resourceGroups
+                    $null = $parentChildrenList.Add($id, "microsoft.resources/subscriptions/resourcegroups")
+                    $null = $parentResourceGroups.Add($id, "microsoft.resources/subscriptions/resourcegroups")
+                }
+                $scopeInformation = @{
+                    id             = $id
+                    type           = $type
+                    name           = $name
+                    displayName    = $name
+                    parentList     = $parentList
+                    childrenList   = @{}
+                    resourceGroups = @{}
+                    state          = $null
+                    location       = $resourceContainer.location
+                }
+                $null = $scopeTable.Add($id, $scopeInformation)
+                $numberOfResourceGroups++
+            }
+            else {
+                # should not be possible
+            }
+        }
+    }
+    Write-Information "    Resource groups   = $($numberOfResourceGroups)"
     Write-Information ""
 
-    $scopeTreeInfo = @{
-        ScopeTree          = $scopeTree
-        SingleSubscription = $singleSubscription
-        SubscriptionTable  = $subscriptionTable
-    }
-    $scopeTreeInfo
+    return $scopeTable
 }

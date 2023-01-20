@@ -1,0 +1,121 @@
+{
+    // Modify Policies for required tags --- use this comment to trigger deployment
+    "nodeName": "/Tags/",
+    "parameters": {
+        "excludedRG": [
+            "synapseworkspace-managedrg-*",
+            "databricks-rg-*",
+            "managed*",
+            "DefaultResourceGroup*",
+            "NetworkWatcherRG*",
+            "LogAnalyticsDefaultR*",
+            "Orca-Security*",
+            "rg-terraform*",
+            "cloud-shell-storage*"
+        ]
+    },
+    "children": [
+        {
+            "nodeName": "required-and-inherit/",
+            "scope": {
+                "epac-dev": [
+                    "/providers/Microsoft.Management/managementGroups/EPAC-Dev"
+                ],
+                "tenant": [
+                    "/providers/Microsoft.Management/managementGroups/Contoso-Root"
+                ]
+            },
+            "definitionEntryList": [
+                {
+                    "policyName": "rg-required-tag-dynamic-notscope",
+                    "assignment": {
+                        "name": "rgtag-",
+                        "displayName": "Require Tag on Resource Group - ",
+                        "description": "Require Tag for Resource Groups when any resource group (not listed in in excludedRg) is created or updated - "
+                    }
+                },
+                {
+                    "policyName": "resources-inherit-rg-tag-dynamic-notscope",
+                    "assignment": {
+                        "name": "taginh-",
+                        "displayName": "Inherit Tag from Resource Group - ",
+                        "description": "Modify Tag to comply with governance goal of enforcing Tags by inheriting Tags from RG - "
+                    }
+                }
+            ],
+            "children": [
+                {
+                    "nodeName": "AppName",
+                    "assignment": {
+                        "name": "AppName",
+                        "displayName": "AppName",
+                        "description": "AppName"
+                    },
+                    "parameters": {
+                        "tagName": "AppName"
+                    }
+                },
+                {
+                    "nodeName": "Environment",
+                    "assignment": {
+                        "name": "Environment",
+                        "displayName": "Environment",
+                        "description": "Environment"
+                    },
+                    "parameters": {
+                        "tagName": "Environment"
+                    }
+                }
+            ]
+        },
+        {
+            "nodeName": "Environment/",
+            "definitionEntry": {
+                "policyName": "rg-addreplace-tag-dynamic-notscope"
+            },
+            "parameters": {
+                "tagName": "Environment"
+            },
+            "children": [
+                {
+                    "nodeName": "PROD",
+                    "assignment": {
+                        "name": "prod-env-tag",
+                        "displayName": "Prod Environment Tag",
+                        "description": "Set Tag Environment to PROD"
+                    },
+                    "parameters": {
+                        "tagValue": "PROD"
+                    },
+                    "scope": {
+                        "epac-dev": [
+                            "/providers/Microsoft.Management/managementGroups/EPAC-DEv-Prod"
+                        ],
+                        "tenant": [
+                            "/providers/Microsoft.Management/managementGroups/Contoso-Prod"
+                        ]
+                    }
+                },
+                {
+                    "nodeName": "NONPROD",
+                    "assignment": {
+                        "name": "prod-env-tag",
+                        "displayName": "NonProd Environment Tag",
+                        "description": "Set Tag Environment to NONPROD"
+                    },
+                    "parameters": {
+                        "tagValue": "NONPROD"
+                    },
+                    "scope": {
+                        "epac-dev": [
+                            "/providers/Microsoft.Management/managementGroups/EPAC-Dev-NonProd"
+                        ],
+                        "tenant": [
+                            "/providers/Microsoft.Management/managementGroups/Contoso-NonProd"
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

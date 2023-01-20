@@ -1,289 +1,201 @@
-# Policy as Code
-
-## Table of Contents
-
-In this file:
-
-- [Security & Compliance for Cloud Infrastructures](#security--compliance-for-cloud-infrastructure)
-- [Scenarios](#scenarios)
-- [GitHub repository: How to clone or fork, update and contribute](#github-repository-how-to-clone-or-fork-update-and-contribute)
-- [Quick Start](#quick-start)
-  - [Starter Kit](#starter-kit)
-  - [EPAC Resource Policy Reader role (custom)](#epac-resource-policy-reader-role-custom)
-  - [Required Management Groups and subscriptions](#required-management-groups-and-subscriptions)
-  - [Service connections for DevOps CI/CD](#service-connections-for-devops-cicd)
-  - [EPAC environments setup](#epac-environments-setup)
-  - [Azure DevOps CI/CD Pipeline](#azure-devops-cicd-pipeline)
-  - [Edit and create Policies, Initiatives and Assignments](#edit-and-create-policies-initiatives-and-assignments)
-- [GitHub Folder Structure](#github-folder-structure)
-- [Sync-Repo.ps1](#sync-repops1)
-- [Components](#components)
-- [Reading List](#reading-list)
-- [Contributing](#contributing)
-- [Trademarks](#trademarks)
-
-More details:
-
-- [Pipeline](Pipeline/README.md)
-- [Update Global Settings](Definitions/README.md)
-- [Create Policy Definitions](Definitions/Policies/README.md)
-- [Create Initiative Definitions](Definitions/Initiatives/README.md)
-- [Define Policy Assignments](Definitions/Assignments/README.md)
-- [Define Policy Exemptions](Definitions/Exemptions/README.md)
-
-- [Documenting Assignments and Initiatives](Definitions/Documentation/README.md)
-- [Operational Scripts](Scripts/Operations/README.md)
+# Enterprise Azure Policy as Code V6.0
 
 <br/>
 
-> **Desired State Warning**
+> ---
+> ---
 >
-> **If you have a existing Policies, Initiatives and Assignments in your environment, you have not transferred to EPAC, do not forget to change the "brownfield" variable in the pipeline to true.**
+> **Breaking changes in V6.0**
 >
-> This solution uses the desired state strategy. It will remove any custom Policies, Initiatives or Policy Assignments not duplicated in the definition files. The Build-AzPoliciesInitiativesAssignmentsPlan.ps1 script's switch parameter SuppressDeletes changes this behavior. Set the "brownfield" variable in the pipeline to true; it will set the switch parameter preventing deletions of existing Policies, Initiatives and Policy Assignments. This allows for a gradual transition from your existing Policy management to Enterprise Policy as Code.
+> A reorganization of the source code and adding a substantial feature enhancement required breaking changes to the folder structure, scripts, pipeline and global-settings.jsonc file.
+>
+> [Breaking change details and instructions on upgrading from a previous version](Docs/breaking-changes-v6.0.md).
+>
+> ---
+> ---
+
+<br/><br/>
+
+**On this page**
+
+* [Overview](#overview)
+  * [Deployment Scripts](#deployment-scripts)
+  * [CI/CD Tool Compatibility](#cicd-tool-compatibility)
+  * [Multi-Tenant Support](#multi-tenant-support)
+  * [Operational Scripts](#operational-scripts)
+  * [Microsoft's Security \& Compliance for Cloud Infrastructure](#microsofts-security--compliance-for-cloud-infrastructure)
+* [Understanding EPAC Environments and the pacSelector](#understanding-epac-environments-and-the-pacselector)
+* [Approach Flexibility](#approach-flexibility)
+  * [CI/CD Scenarios](#cicd-scenarios)
+  * [Coexistence and Desired State Strategy](#coexistence-and-desired-state-strategy)
+* [Quick Start](#quick-start)
+  * [Create your environment](#create-your-environment)
+  * [Define your deployment scenarios](#define-your-deployment-scenarios)
+  * [Create the CI/CD (skip if using the semi-automated approach)](#create-the-cicd-skip-if-using-the-semi-automated-approach)
+  * [Build your definitions and assignments](#build-your-definitions-and-assignments)
+  * [Manage your Policy environment](#manage-your-policy-environment)
+  * [EPAC issues](#epac-issues)
+* [Contributing](#contributing)
+* [Trademarks](#trademarks)
 
 <br/>
 
-## Security & Compliance for Cloud Infrastructure
+## Overview
 
-This `enterprise-policy-as-code` **(EPAC)** repo has been developed in partnership with the Security & Compliance for Cloud Infrastructure (S&C4CI) offering available from Microsoft's Industry Solutions (Consulting Services). Microsoft Industry Solutions can assist you with securing your cloud. S&C4CI improves your new or existing security posture in Azure by securing platforms, services, and workloads at any scale.
+Enterprise Policy as Code or EPAC for short comprises a number of scripts which can be used in CI/CD based system or a semi-automated use to deploy Policy definitions, Policy Set (Initiative) definitions, Policy Assignments, Policy Exemptions and Policy Assignment related Role assignments.
+
+### Deployment Scripts
+
+Three deployment scripts plan a deployment, deploy Policy resource, and Role assignments respectively as shown in the following diagram. The solution consumes definition files (JSON and/or CSV files). The planning script (`Build-DeploymentPlan`) creates plan files (`policy-plan.json` and `roles-plan.json`) to be consumed by the two deployment steps (`Deploy-PolicyPlan` and `Deploy-RolesPlan`). The scripts require `Reader`, `Contributor` and `User Access Administrator` privileges respectively as indicated in blue text in the diagram. The diagram also shows the usual approval gates after each step/script for prod deployments.
+
+![image.png](Docs/Images/PaC-Deploy-Scripts.png)
 
 <br/>
 
-## Scenarios
+### CI/CD Tool Compatibility
 
-The Policy as Code framework supports the following Policy and Initiative assignment scenarios:
+Since EPAC is based on PowerShell scripts, any CI/CD tool with the ability to execute scripts can be used. The starter kits currently include pipeline definitions for Azure DevOps. Additional starter kits are being implemented and will be added in future releases.
 
-- **Centralized approach**: One centralized team manages all policy and initiative assignments in the Azure organization, at all levels (Management Group, Subscription, Resource Group).
-- **Distributed approach**: Multiple teams can also manage policy and initiative assignments in a distributed manner if there's a parallel set Management Group hierarchies defined. In this case individual teams can have their own top level Management group (and corresponding Management Groups hierarchy with Subscriptions and Resource Groups below), but assignments must not be made on the Tenant Root Group level.
-  > **NOTE**: Distributed teams must only include those scopes in their version of the assignments.json that is not covered by another team.
-- **Mixed approach**: A centralized team manages policy and initiative assignments to a certain level (top-down approach), e.g. on the Tenant Root Group level, and top level Management group, and all assignments on lower levels (i.e. lower level Management Groups, Subscriptions and Resource Groups) are managed by multiple teams, in a distributed manner.
+### Multi-Tenant Support
 
- **NOTE**: This solution enforces a centralized approach. It is recommended that you follow a centralized approach however, when using the mixed approach, scopes that will not be managed by the central team should be excluded from the assignments JSON file - therefore the assignment configuration script will ignore these scopes (it won't add/remove/update anything in there). Conversely, the distributed teams must only include those scopes in their version of the assignments.json that is not covered by the central team.
+EPAC supports single and multi-tenant deployments from a single source. In most cases you should have a fully or partially isolated area for Policy development and testing, such as a Management Group. An entire tenant can be used; however, it is not necessary since EPAC has sophisticated partitioning capabilities.
+
+### Operational Scripts
+
+Scripts to simplify [operational task](Docs/operational-scripts.md) are provided. Examples are:
+
+* `Build-PolicyDocumentation` generates [documentation in markdown and csv formats for Policy Sets and Assignments.](Docs/documenting-assignments-and-policy-sets.md)
+* `Create-AzRemediationTasks` to bulk remediate non-compliant resources for Policies with `DeployIfNotExists` or `Modify` effects.
+
+### Microsoft's Security & Compliance for Cloud Infrastructure
+
+This `enterprise-policy-as-code` **(EPAC)** repo has been developed in partnership with the Security & Compliance for Cloud Infrastructure (S&C4CI) offering available from Microsoft's Industry Solutions (Consulting Services). Microsoft Industry Solutions can assist you with securing your cloud. S&C4CI improves your new or existing security posture in Azure by securing platforms, services, and workloads at scale.
+
+## Understanding EPAC Environments and the pacSelector
+
+> ---
+> ---
+>> **IMPORTANT**
+>
+> ---
+> ---
+>
+> EPAC has a concept of an environment identified by a string (unique per repository) called `pacSelector`. An environment associates the following with the `pacSelector`:
+>
+> * `cloud` - to select sovereign cloud environments.
+> * `tenantId` - enables multi-tenant scenarios.
+> * `rootDefinitionScope` - scope for the Policy and Policy Set definitions.
+>
+>> Note: Policy Assignments can only defined at this root scope and child scopes (recursive).
+>
+> * Optional: define `desiredState`
+>
+> These associations are stored in `global-settings.jsonc` in an element called `pacEnvironments`.
+>
+> Like any other software or IaC solution, EPAC needs areas for developing and testing new Policies, Initiatives and Assignments before any deployment to EPAC prod environments. In most cases you will need one management group hierarchy to simulate EPAC production management groups for development and testing of Policies. EPAC's prod environment will govern all other IaC environments (e.g., sandbox, development, integration, test/qa, pre-prod, prod, ...) and tenants. This can be confusing. We will use EPAC environment(s) and IaC environments to disambiguate the environments.
+>
+> In a centralized single tenant scenario, you will define two EPAC environments: epac-dev and tenant. In a multi-tenant scenario, you will add an additional EPAC environment per additional tenant.
+>
+> The `pacSelector` is just a name. We highly recommend to call the Policy development environment `epac-dev`, you can name the EPAC prod environments in a way which makes sense to you in your environment. We use `tenant`, `tenant1`, etc in our samples and documentation.
+>
+> These names are used and therefore must match:
+>
+> * Defining the association (`pacEnvironments`) of an EPAC environment, `managedIdentityLocation` and `globalNotScopes` in `global-settings.jsonc`
+> * Script parameter when executing different deployment stages in a CI/CD pipeline or semi-automated deployment targeting a specific EPAC environments.
+> * `scopes` and `notScopes` definitions in Policy Assignment JSON files.
+>
+> ---
+> ---
 
  <br/>
 
-## GitHub repository: How to clone or fork, update and contribute
+## Approach Flexibility
 
-Git lacks a capability to ignore files/directories during a PR only. This repo has been organized that Definitions and Pipeline folders (except for README.md files) are not touch by syncing latest update from GitHub to your repo or reverse syncing to contribute to the project.
+### CI/CD Scenarios
 
-- Initial setup
-  - Create `MyForkRepo` as a fork or clone of [GitHub repo](https://github.com/Azure/enterprise-azure-policy-as-code).
-  - Create `MyWorkingRepo`.
-    - Clone your forked repo.
-    - Create a new repo from the clone (do not fork `MyForkRepo`).
-- Work in `MyWorkingRepo`
-  - Use only folders `Definitions` and `Pipeline`, except when working on fixes to be contributed back to GitHub.
-  - You may add additional folders, such as a folder for your own operational scripts.
-- Syncing from GitHub repo.
-  - Fetch changes from GitHub to `MyForkRepo`.
-  - Execute [`Sync-Repo.ps1`](#sync-repops1) to copy files from `MyForkRepo` to `MyWorkingRepo` feature branch.
-  - PR `MyWorkingRepo` feature branch.
-- Contribute to GitHub
-  - Execute [`Sync-Repo.ps1`](#sync-repops1) to copy files from `MyWorkingRepo` to `MyForkRepo` feature branch
-  - PR `MyForkRepo` feature branch.
-  - PR changes in your fork (`MyForkRepo`) to GitHub.
-  - GitHub maintainers will review PR.
+The solution supports any DevOps CI/CD approach you desire. The starter kits assume a GitHub flow approach to branching and CI/CD integration with a standard model below.
 
-<br/>
+* **Simple**
+  * Create a feature branch
+  * Commits to the feature branch trigger:
+    * Plan and deploy changes to a Policy development Management Group or subscription.
+    * Create a plan (based on feature branch) for te EPAC production environment(s)/tenant(s).
+  * Pull request (PR) merges trigger:
+    * Plan and deploy from the merged main branch to your EPAC production environment(s) without additional approvals.
+* **Standard** - starter kits implement this approach
+  * Create a feature branch
+  * Commits to the feature branch trigger:
+    * Plan and deploy changes to a Policy development Management Group or subscription
+    * Create a plan (based on feature branch) for te EPAC production environment(s)/tenant(s).
+  * Pull request (PR) merges trigger:
+    * Plan from the merged main branch to your EPAC production environment(s).
+  * Approval gate for plan deployment is inserted.
+  * Deploy the planned changes to environment(s)/tenant(s)
+    * Deploy Policy, Policy Set (Initiative) definitions, Policy Assignments and Policy Exemptions
+    * [Recommended] Approval gate for Role assignment is inserted.
+    * Deploy Role assignment for Policy required Managed Identities.
 
-![image](./Docs/Images/Sync-Repo.png)
+### Coexistence and Desired State Strategy
 
-<br/>
+EPAC is a desired state system. It will remove Policy resources in an environment which are not defined in the definition files. To facilitate transition from previous Policy implementations and coexistence of multiple EPAC and third party Policy as Code systems, a granular way to control such coexistence is implemented. Specifically, EPAC supports:
 
-## Quick start
+* **Centralized**: One centralized team manages all Policy and Initiative assignments in the Azure organization, at all levels (Management Group, Subscription, Resource Group). This is the default setup.
+* **Distributed**: Multiple teams manage Policy and Initiative assignments in a distributed manner. Distributed is also useful during a brownfield deployment scenario to allow for an orderly transition from pre-EPAC to EPAC.
 
-This quick is meant as an overview. We highly recommend that you read the entire reading list before starting.
+Desired state strategy documentation can be found [here.](Docs/desired-state-strategy.md)
 
-### Starter kit
-
-The solution has a starter kit (folder `StarterKit`). Copy the contents of the `StarterKit/Definitions` folder to `Definitions` folder. Copy the pipeline definition(s) for your DevOps deployment solution (for example: Azure DevOps, GitHub) to the `Pipeline` folder.
-
-### EPAC Resource Policy Reader role (custom)
-
-Create a custom role to be used by the planing stages' service connections **EPAC Policy Reader role**. Script `./Scripts/Operations/New-AzPolicyReaderRole.ps1` will create the role at the scope defined in `global-settings.json`. It will contain:
-
-- `Microsoft.Management/register/action`
-- `Microsoft.Authorization/policyassignments/read`
-- `Microsoft.Authorization/policydefinitions/read`
-- `Microsoft.Authorization/policyexemptions/read`
-- `Microsoft.Authorization/policysetdefinitions/read`
-- `Microsoft.PolicyInsights/*`
-- `Microsoft.Support/*`
-
-<br/>
-
-### Required Management Groups and subscriptions
-
-This solution requires EPAC environments for development, (optional) integration, and production per tenant. These environments are not the same as the standard Azure environments for solutions - do not confuse them. The regular Sandbox, DEV, DEVINT, TEST/QA and PROD environment are managed with the EPAC PROD deployment(s).
-
-- Build a management group dedicated to Policy as Code (PaC) -- `mg-pac-dev` <br/> <https://docs.microsoft.com/en-us/azure/governance/management-groups/create-management-group-portal>
-- Create two subscriptions under the PaC management group mg-pac-dev. Recommended naming:
-  - PAC-DEV-001
-  - PAC-TEST-001
-  - <https://docs.microsoft.com/en-us/azure/cost-management-billing/manage/create-subscription>
-- Note on Multi-Tenant:
-  - Azure DevOps Server (if not using Azure DevOps service) and Azure Self-Hosted Agents must be in PROD tenant.
-  - Management Group `mg-pac-dev` should be created in a development tenant
-
-<br/>
-
-### Service connections for DevOps CI/CD
-
-Create Service Principals for the pipeline execution and setup your DevOps environment with the necessary service connections. You will need SPNs with specific roles:
-
-- EPAC Development and Test subscriptions
-  - Owner role at subscription for deploying to your EPAC development subscription
-  - Owner role at subscription for deploying to your EPAC test subscription
-- Per Azure tenant at your highest Management Group (called rootScope in EPAC vernacular)
-  - Security Reader and EPAC Policy Reader (custom) or Policy Contributor roles for planning the EPAC prod deployment
-  - Security Reader and Policy Contributor for deploying Policies, Initiatives and Assignments in the EPAC prod environment
-  - User Access Administrator for assigning roles to the Assignments' Managed Identities (for remediation tasks) in the EPAC prod environment
-
-> **Note:**
-> When creating a Service Connection in Azure DevOps you can set up the service connections on Subscription or a Management Group scope level, when configuring the service connection for the EPAC Developer and Test subscriptions the service connections scope level is **Subscription**, however when creating a Service Connections for EPAC Prod Plan, EPAC Prod Deployment and EPAC Role Assignment the service connection scope level is **Management Group**.
-
-Subscription scope level | Management Group scope level
-:-----------:|:----------------:
-![image](./Docs/Images/azdoServiceConnectionSubConf.png) | ![image](./Docs/Images/azdoServiceConnectionMGConf.png)
-
-### EPAC environments setup
-
-Like any other software or X as Code solution, EPAC needs areas for developing and testing new Policies, Initiatives and Assignments before any deployment to EPAC prod environments. In most cases you will need one subscription each for development and testing. EPAC's prod environment will govern all other IaC environments (e.g., sandbox, development, integration, test/qa, pre-prod, prod, ...). This can be slightly confusing.
-
-**Note:** This solution will refer to EPAC environments which are selected with a PAC selector and the regular environments as simply environments.
-
-The solution needs to know the Azure scopes for your EPAC environments. This is specified in the `global-settings.jsonc` file in the `Definitions` folder. `pacEnvironments` defines the EPAC environments:
-
-```jsonc
-    "pacEnvironments": [
-        {
-            "pacSelector": "epac-dev",
-            "cloud": "AzureCloud",
-            "tenantId": "77777777-8888-9999-1111-222222222222",
-            "defaultSubscriptionId": "11111111-2222-3333-4444-555555555555",
-            "rootScope": {
-                "SubscriptionId": "11111111-2222-3333-4444-555555555555"
-            }
-        },
-        {
-            "pacSelector": "epac-test",
-            "cloud": "AzureCloud",
-            "tenantId": "77777777-8888-9999-1111-222222222222",
-            "defaultSubscriptionId": "99999999-8888-7777-4444-333333333333",
-            "rootScope": {
-                "SubscriptionId": "99999999-8888-7777-4444-333333333333"
-            }
-        },
-        {
-            "pacSelector": "tenant",
-            "cloud": "AzureCloud",
-            "tenantId": "77777777-8888-9999-1111-222222222222",
-            "defaultSubscriptionId": "99999999-8888-7777-4444-333333333333",
-            "rootScope": {
-                "ManagementGroupName": "Contoso-Root"
-            }
-        }
-    ]
-```
-
-Explanations
-
-- You will use the `pacSelector` values in your CI/CD pipeline and when executing operational scripts.
-- `cloud` is used to select clouds (e.g., `AzureCloud`, `AzureUSGovernment`, `AzureGermanCloud`, ...).
-- `tenantId` is the GUID of your Azure AD tenant
-- `defaultSubscriptionId` is required to resolve Azure scopes correctly.
-- `rootScope` defines the location of your custom Policy and Initiative definitions. It also denotes the highest scope for an assignment. The roles for the CI/CD SPNs must be assigned here.
-
-We explain the `managedIdentityLocations` and `globalNotScopes` elements in `global-settings.jsonc` [here](Definitions/README.md).
-
-<br/>
-
-### Azure DevOps CI/CD Pipeline
-
-Setup your pipeline based on the provided starter kit pipeline. The yml file contains commented out sections to run in a IaaS Azure DevOps server (it requires a different approach to artifact storage) and for 2 additional tenants. Uncomment or delete the commented sections to fit your environment.
-
-<br/>
-
+> ---
+>
 > **Desired State Warning**
 >
-> **If you have a existing Policies, Initiatives and Assignments in your environment, you have not transferred to EPAC, do not forget to change the "brownfield" variable in the pipeline to true.**
+> If you have a existing Policy definitions, Policy Set (Initiative) definitions, Policy assignments, and Policy exemptions in your environment, you have not transferred to EPAC, do not forget to *include* the new `desiredState` element with a `strategy` of `ownedOnly`. This is the equivalent of the deprecated "brownfield" variable in the pipeline. The default `strategy` is `full`.
+>
+> * *`full` deletes any Policy definitions, Policy Set (Initiative) definitions, Policy assignments, and Policy exemptions not deployed by this EPAC solution or another EPAC solution.*
+> * *`ownedOnly` deletes only Policies with this repos’s pacOwnerId. This allows for a gradual transition from your existing Policy management to Enterprise Policy as Code.*
+>
+> Policy resources with another pacOwnerId metadata field are never deleted.
+>
+> ---
 
 <br/>
 
-Pipelines can customized to fit your needs:
+## Quick Start
 
-- Multiple tenants.
-- Pull Request triggers (omitted due to the excessive time consumption).
-- Simplified flows, such as now approvals needed (not a recommended practice).
-- More sophisticated flows.
-- Different development approach instead of GitHub flow.
-- ...
+### Create your environment
 
-<br/>
+* [Setup DevOps Environment](Docs/operating-environment.md) for your developers (on their workstations) and your CI/CD pipeline runners/agents (on a VM or set of VMs) to facilitate correct implementations. Operating Environment Prerequisites:** The EPAC Deployment process is designed for DevOps CI/CD. It requires the [installation of several tools] to facilitate effective development, testing, and deployment during the course of a successful implementation.
+* [Create a source repository and import the source code](Docs/clone-github.md) from this repository.
 
-### Edit and create Policies, Initiatives and Assignments
+### Define your deployment scenarios
 
-Using the starter kit edit the directories in the `Definitions` folder. To simplify entering parameters, you can use the [Initiative documenting feature](Definitions/Documentation/README.md#documenting-assignments-and-initiatives) which creates Markdown, CSV and a JSON parameter file. You need to specify your initiatives to be documented (folder [`Definitions\Documentation`](Definitions/Documentation/README.md#specifying-initiative-documentation)) and execute script [`./Scripts/Operations/Build-PolicyAssignmentDocumentation.ps1`](Scripts/Operations/README.md#build-policyassignmentdocumentationps1)
+* [Select the desired state strategy](Docs/desired-state-strategy.md)
+* [Copy starter kit pipeline definition and definition folder to your folders](Docs/starter-kits.md)
+* [Define your deployment environment](Docs/definitions-and-global-settings.md) in `global-settings.jsonc`.
 
-<br/>
+### Create the CI/CD (skip if using the semi-automated approach)
 
-### Document your Assignments
+* [Build your CI/CD pipeline](Docs/ci-cd-pipeline.md) using a starter kit.
 
-This solution can generate [documentation in markdown and csv formats](Definitions/Documentation/README.md).
+### Build your definitions and assignments
 
-## GitHub Folder Structure
+* [Add custom Policy definitions](Docs/policy-definitions.md).
+* [Add custom Policy Set definitions](Docs/policy-set-definitions.md).
+* [Create Policy Assignments](Docs/policy-assignments.md).
+* Or import Policies from the [Cloud Adoption Framework](Docs/cloud-adoption-framework.md).
 
-<br/>
+### Manage your Policy environment
 
-![image](./Docs/Images/folder-structure.png)
+* [Manage Policy Exemptions](Docs/policy-exemptions.md).
+* [Document your deployments](Docs/documenting-assignments-and-policy-sets.md).
+* [Execute operational tasks](Docs/operational-scripts.md).
 
-<br/>
+### Debug EPAC issues
 
-## Sync-Repo.ps1
+Should you encounter issues with the expected behavior of EPAC, try the following:
 
-The repo contains a script to synchronize directories in both directions: `Sync-Repo.ps1`. It only works if you do not modify
-
-- `Docs`, `Scripts` and `StarterKit` directories
-- `README.md` files in Scripts and Pipeline folders
-- `CODE_OF_CONDUCT.md`, `LICENSE`, `README.md` (this file), `SECURITY.md`, `SUPPORT.md` and `Sync-Repo.ps1` in root folder
-
-|Parameter | Required | Explanation |
-|----------|----------|-------------|
-| `sourceDirectory` | Required | Directory with the source (cloned or forked/cloned repo) |
-| `destinationDirectory` | Required | Directory with the destination (cloned or forked/cloned repo) |
-| `suppressDeleteFiles` | Optional | Switch parameter to suppress deleting files in `$destinationDirectory` tree |
-| `omitDocFiles` | Optional | Switch parameter to exclude documentation files *.md, LICENSE, and this script from synchronization |
-
-<br/>
-
-## Components
-
-| Component | What is it used for? | Where can it be found? |
-|--|--|--|
-| **Pipeline File** | Configure the deployment pipeline for Azure DevOps. **Copy a suitable sample pipeline from the samples provided to the working folder.** | Working folder: `Pipeline` <br/> Starter pipelines: <br/> `StarterKit/Pipelines` |
-| **Definition Files** | Define custom policies, initiatives and assignments. This repo contains a sample for each. **Copy suitable samples as starters from the samples provided to the working folder.** | Working folder: <br/> `Definitions` <br/> Starter definitions: <br/>  `StarterKit/Definitions` |
-| **Service Connections** | Service connections give the pipeline the proper permissions to deploy at desired Azure scopes. [Documentation for Service Connections](https://docs.microsoft.com/en-us/azure/devops/pipelines/library/service-endpoints) | Azure DevOps <br/> project settings  |
-| **Deployment Scripts** | Scripts are used to deploy your Policies, Initiatives, and Assignments to Azure. They do not need to be modified. If you have improvements, please offer to contribute them. | Folder `Scripts/Deploy` |
-| **Operational Scripts** | Scripts used to during operations (e.g., creating remediation tasks). | Folder `Scripts/Operations` |
-| **Helper Scripts** | These Scripts are used by other scripts. | Folder `Scripts/Helpers` |
-| **Cloud Adoption Framework Scripts** | The files in here are used to synchronize policies from the main ESLZ repository | Folder `Scripts\CloudAdoptionFramework` |
-
-<br/>
-
-## Reading List
-
-1. **[Pipeline](Pipeline/README.md)**
-1. **[Update Global Settings](Definitions/README.md)**
-1. **[Create Policy Definitions](Definitions/Policies/README.md)**
-1. **[Create Initiative Definitions](Definitions/Initiatives/README.md)**
-1. **[Define Policy Assignments](Definitions/Assignments/README.md)**
-1. **[Define Policy Exemptions](Definitions/Exemptions/README.md)**
-1. **[Documenting Assignments and Initiatives](Definitions/Documentation/README.md)**
-1. **[Operational Scripts](Scripts/Operations/README.md)**
-1. **[Cloud Adoption Framework Policies](Scripts/CloudAdoptionFramework/README.md)**
-
-<br/>
+* Run the scripts interactively.
+* [Debug the scripts in VS Code](https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/vscode/using-vscode?view=powershell-7.3).
+* Ask for help by raising a [GitHub Issue](https://github.com/Azure/enterprise-azure-policy-as-code/issues/new)
 
 ## Contributing
 
@@ -298,8 +210,6 @@ provided by the bot. You will only need to do this once across all repos using o
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
-
-<br/>
 
 ## Trademarks
 

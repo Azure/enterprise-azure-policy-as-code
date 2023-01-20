@@ -18,8 +18,11 @@ function Switch-PacEnvironment {
     else {
         Write-Error "    pacEnvironment '$pacEnvironmentSelector' in definition on lines $definitionStartingLine - $definitionEndingLine does not exist" -ErrorAction Stop
     }
-    Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -interactive $interactive
-    $pacEnvironmentSelector = $pacEnvironmentSelector
+    Set-AzCloudTenantSubscription `
+        -cloud $pacEnvironment.cloud `
+        -tenantId $pacEnvironment.tenantId `
+        -interactive $interactive
+    # -subscriptionId $pacEnvironment.defaultSubscriptionId `
 
     return $pacEnvironment
 }

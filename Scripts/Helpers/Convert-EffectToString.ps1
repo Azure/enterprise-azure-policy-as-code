@@ -9,7 +9,7 @@ function Convert-EffectToString {
 
     [string] $text = ""
     if ($null -ne $effect) {
-        if ($Markdown.IsPresent) {
+        if ($Markdown) {
             if ($allowedValues.Count -eq 1) {
                 $text = "***$effect***"
             }

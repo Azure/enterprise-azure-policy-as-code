@@ -19,8 +19,8 @@ function Select-PacEnvironment {
         $InformationPreference = "Continue"
         $interactive = $true
         if ($pacEnvironments.Count -eq 1) {
-            $pacEnvironmentSelector = $pacEnvironments.Keys # returns first value if array is exactly one element long
-            $pacEnvironment = $pacEnvironments.Values # returns first value if array is exactly one element long
+            $pacEnvironmentSelector = $pacEnvironments.Keys[0] # returns first value if array is exactly one element long
+            $pacEnvironment = $pacEnvironments.Values[0] # returns first value if array is exactly one element long
             Write-Information "Auto-selected the only Policy as Code environment: $pacEnvironmentSelector"
         }
         else {
@@ -30,7 +30,6 @@ function Select-PacEnvironment {
                 if ($pacEnvironments.ContainsKey($pacEnvironmentSelector)) {
                     # valid input
                     $pacEnvironment = $pacEnvironments[$pacEnvironmentSelector]
-                    Write-Information ""
                 }
                 else {
                     Write-Information "Invalid selection entered."
@@ -48,66 +47,20 @@ function Select-PacEnvironment {
         }
     }
     Write-Information "Environment Selected: $pacEnvironmentSelector"
-    Write-Information "    cloud        = $($pacEnvironment.cloud)"
-    Write-Information "    tenant       = $($pacEnvironment.tenantId)"
-    Write-Information "    rootScope    = $($pacEnvironment.rootScope | ConvertTo-Json -Compress)"
-    Write-Information "    subscription = $($pacEnvironment.defaultSubscriptionId)"
-
-    # Managed identity location
-    $managedIdentityLocation = $null
-    if ($globalSettings.managedIdentityLocations) {
-        $managedIdentityLocations = $globalSettings.managedIdentityLocations
-        if ($managedIdentityLocations.ContainsKey($pacEnvironmentSelector)) {
-            $managedIdentityLocation = $managedIdentityLocations[$pacEnvironmentSelector]
-        }
-        elseif ($managedIdentityLocations.ContainsKey("*")) {
-            $managedIdentityLocation = $managedIdentityLocations["*"]
-
-        }
-    }
-    if ($null -ne $managedIdentityLocation) {
-        Write-Information "    managedIdentityLocation = $managedIdentityLocation"
-    }
-    else {
-        Write-Information "    managedIdentityLocation = Undefined"
-    }
-    Write-Information ""
+    Write-Information "    cloud      = $($pacEnvironment.cloud)"
+    Write-Information "    tenant     = $($pacEnvironment.tenantId)"
+    Write-Information "    root scope = $($pacEnvironment.deploymentRootScope)"
     Write-Information ""
 
 
-    # Global notScope
-    [array] $globalNotScopeList = @()
-    if ($globalSettings.globalNotScopes) {
-        $globalNotScopes = $globalSettings.globalNotScopes
-        if ($globalNotScopes.ContainsKey($pacEnvironmentSelector)) {
-            $globalNotScopeList += $globalNotScopes[$pacEnvironmentSelector]
-        }
-        if ($globalNotScopes.ContainsKey("*")) {
-            $globalNotScopeList += $globalNotScopes["*"]
-        }
-    }
-    $pacEnvironmentDefinition = @{
-        pacEnvironmentSelector         = $pacEnvironmentSelector
-        interactive                    = $interactive
-        cloud                          = $pacEnvironment.cloud
-        tenantId                       = $pacEnvironment.tenantId
-        defaultSubscriptionId          = $pacEnvironment.defaultSubscriptionId
-        rootScope                      = $pacEnvironment.rootScope
-        rootScopeId                    = $pacEnvironment.rootScopeId
-        globalNotScopeList             = $globalNotScopeList
-        managedIdentityLocation        = $managedIdentityLocation
-        definitionsRootFolder          = $globalSettings.definitionsRootFolder
-        policyDefinitionsFolder        = $globalSettings.policyDefinitionsFolder
-        initiativeDefinitionsFolder    = $globalSettings.initiativeDefinitionsFolder
-        assignmentsFolder              = $globalSettings.assignmentsFolder
-        exemptionsFolder               = $globalSettings.exemptionsFolder
-        documentationDefinitionsFolder = $globalSettings.documentationDefinitionsFolder
-        outputFolder                   = $globalSettings.outputFolder
-        inputFolder                    = $globalSettings.inputFolder
-        policyPlanOutputFile           = "$($globalSettings.outputFolder)/policy-plan-$pacEnvironmentSelector/policy-plan.json"
-        rolesPlanOutputFile            = "$($globalSettings.outputFolder)/roles-plan-$pacEnvironmentSelector/roles-plan.json"
-        policyPlanInputFile            = "$($globalSettings.inputFolder)/policy-plan-$pacEnvironmentSelector/policy-plan.json"
-        rolesPlanInputFile             = "$($globalSettings.inputFolder)/roles-plan-$pacEnvironmentSelector/roles-plan.json"
+    $outputFolder = $globalSettings.outputFolder
+    $inputFolder = $globalSettings.inputFolder
+    $pacEnvironmentDefinition = $pacEnvironment + $globalSettings + @{
+        interactive          = $interactive
+        policyPlanOutputFile = "$($outputFolder)/plans-$pacEnvironmentSelector/policy-plan.json"
+        rolesPlanOutputFile  = "$($outputFolder)/plans-$pacEnvironmentSelector/roles-plan.json"
+        policyPlanInputFile  = "$($inputFolder)/plans-$pacEnvironmentSelector/policy-plan.json"
+        rolesPlanInputFile   = "$($inputFolder)/plans-$pacEnvironmentSelector/roles-plan.json"
 
     }
     return $pacEnvironmentDefinition
