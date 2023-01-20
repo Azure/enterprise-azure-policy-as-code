@@ -58,14 +58,14 @@ For details consult the above table and the newly updated samples in StarterKit.
 ```
 
 * If you're using Azure DevOps pipelines add parameter `-devOpsType "ado"` to `Build-DeploymentPlans.ps1`
-* Add required `MS Graph` [permissions](azure-devops-pipeline.md) for the pipeline service connections.
+* Add required `MS Graph` [permissions](ci-cd-pipeline.md#ms-graph-permissions) for the pipeline service connections.
 
 ## Reading List
 
 * [Setup DevOps Environment](operating-environment.md) .
 * [Create a source repository and import the source code](clone-github.md) from this repository.
 * [Select the desired state strategy](desired-state-strategy.md)
-* [Copy starter kit pipeline definition and definition folder to your folders](starter-kits.md)
+* Copy starter kit pipeline definition and definition folder to your folders.
 * [Define your deployment environment](definitions-and-global-settings.md) in `global-settings.jsonc`.
 * [Build your CI/CD pipeline](ci-cd-pipeline.md) using a starter kit.
 * [Add custom Policy definitions](policy-definitions.md).

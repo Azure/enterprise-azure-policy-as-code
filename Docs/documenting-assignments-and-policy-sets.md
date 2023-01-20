@@ -17,7 +17,7 @@
 
 The Documentation feature provides reports on Initiatives and Assignments deployed within an environment, and comparisons of Initiatives (deployed or not) for considering differences in policies and effects.  Output is generated as Markdown (`.md`), and Excel (`.csv`) files.
 
-The script [`./Scripts/Operations/Build-PolicyAssignmentDocumentation.ps1`](../../Scripts/Operations/README.md#build-policyassignmentdocumentationps1) documents Initiatives and Assignments in your environment. It retrieves its instruction from the JSON files in this folder; the names of the definition JSON files don't matter as the script reads any file in the folder with a `.json` and `.jsonc` extension.
+The script [`./Scripts/Operations/Build-PolicyAssignmentDocumentation.ps1`](operational-scripts.md#build-policyassignmentdocumentationps1) documents Initiatives and Assignments in your environment. It retrieves its instruction from the JSON files in this folder; the names of the definition JSON files don't matter as the script reads any file in the folder with a `.json` and `.jsonc` extension.
 
 * Read and process Policy Assignments which are representative of an environment category, such as prod, test, dev, and sandbox. It generates Markdown (`.md`), and Excel (`.csv`) files.
 * Read and process Initiative definitions to compare them for Policy and effect overlap. It generates Markdown (`.md`), Excel (`.csv`) files, and JSON file (`.jsonc`).
@@ -26,8 +26,8 @@ The script [`./Scripts/Operations/Build-PolicyAssignmentDocumentation.ps1`](../.
 
 Each file must contain one or both documentation topics. This example file in the StarterKit has both topics. Element `pacEnvironment` references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the custom Policy and Initiative definitions are deployed.
 
-* [`documentAssignments`](#specifying-assignment-documentation)
-* [`documentInitiatives`](#specifying-initiative-documentation)
+* [`documentAssignments`](#assignment-documentation)
+* [`documentInitiatives`](#initiative-documentation)
 
 ```jsonc
 {
@@ -146,10 +146,6 @@ Each `environmentCategories` entry specifies:
 
 ### Element `documentationSpecifications`
 
-> **Warning: Breaking change in release v5.3**
->
-> `type` is no longer needed and the field has been removed. The only previous `type` available is `effectsAcrossEnvironments`; the script will write a warning if it is specified. Specifying `"type": "effectsPerEnvironment",` will result in a script error.
-
 Each entry in the array defines a set of outputs:
 
 * `fileNameStem`: the file name stem used to construct the filenames.
@@ -226,7 +222,7 @@ Compares Policy and Initiative definitions to  Initiative definitions for Policy
 * [Setup DevOps Environment](operating-environment.md) .
 * [Create a source repository and import the source code](clone-github.md) from this repository.
 * [Select the desired state strategy](desired-state-strategy.md)
-* [Copy starter kit pipeline definition and definition folder to your folders](starter-kits.md)
+* Copy starter kit pipeline definition and definition folder to your folders.
 * [Define your deployment environment](definitions-and-global-settings.md) in `global-settings.jsonc`.
 * [Build your CI/CD pipeline](ci-cd-pipeline.md) using a starter kit.
 * [Add custom Policy definitions](policy-definitions.md).

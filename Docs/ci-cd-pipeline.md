@@ -27,7 +27,7 @@
 * [Azure DevOps Pipeline](#azure-devops-pipeline)
   * [Service Connections](#service-connections)
   * [Deployment Environments](#deployment-environments)
-* [Deployment Scripts for Pipeline](#deployment-scripts-for-pipeline)
+* [Deployment Scripts](#deployment-scripts)
   * [Common Script Parameters](#common-script-parameters)
   * [Build-DeploymentPlans.ps1](#build-deploymentplansps1)
   * [Deploy-PolicyPlan.ps1](#deploy-policyplanps1)
@@ -43,7 +43,7 @@
 
 The diagram below shows the use of GitHub Flow in Policy as Code. Builds are triggered for Commits, optionally for Pull Requests and for successful main branch merges.
 
-![image.png](Images/PaC-GitHub-Flow.png)
+![image.png](Images/epac-github-flow.png)
 
 ## Service connections for DevOps CI/CD
 
@@ -140,6 +140,7 @@ After you configure the Permissions (`Add a permission`), you must `Grant admin 
 ![image,png](Images/ms-graph-permissions.png)
 
 Read the following Microsoft instructions to [learn more about MS Graph Application Permissions](https://learn.microsoft.com/en-us/graph/permissions-overview?tabs=http#application-permissions)
+
 1. [Register your app](https://learn.microsoft.com/en-us/graph/auth-v2-service#1-register-your-app)
 2. [Configure permissions for Microsoft Graph](<https://learn.microsoft.com/en-us/graph/auth-v2-service#2-configure-permissions-for-microsoft-graph>)
 3. [Get administrator consent](https://learn.microsoft.com/en-us/graph/auth-v2-service#3-get-administrator-consent)
@@ -189,7 +190,7 @@ Service connections give the pipeline the proper permissions to deploy at desire
 
 Create distinct ADO environment to configure approval gates. Refer to the following documentation:  <https://docs.microsoft.com/en-us/azure/devops/pipelines/process/environments?view=azure-devops>
 
-## Deployment Scripts for Pipeline
+## Deployment Scripts
 
 > ---
 > ---
@@ -200,6 +201,11 @@ Create distinct ADO environment to configure approval gates. Refer to the follow
 >
 > ---
 > ---
+
+<br/>
+
+
+![image.pmg](Images/epac-deployment-scripts.png)
 
 <br/>
 
@@ -215,7 +221,7 @@ Create distinct ADO environment to configure approval gates. Refer to the follow
 
 Analyzes changes in policy, initiative, and assignment files. It calculates a plan to apply deltas. The deployment scripts are **declarative** and **idempotent**: this means, that regardless how many times they are run, they always push all changes that were implemented in the JSON files to the Azure environment, i.e. if a JSON file is newly created/updated/deleted, the pipeline will create/update/delete the Policy and/or Initiative definition in Azure. If there are no changes, the pipeline can be run any number of times, as it won't make any changes to Azure.
 
-In addition to the [common parameters](#common-parameters-for-flexible-and-unified-definitions), these parameters are defined:
+In addition to the [common parameters](#common-script-parameters), these parameters are defined:
 
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
@@ -290,7 +296,7 @@ Detail view:
 * [Setup DevOps Environment](operating-environment.md) .
 * [Create a source repository and import the source code](clone-github.md) from this repository.
 * [Select the desired state strategy](desired-state-strategy.md)
-* [Copy starter kit pipeline definition and definition folder to your folders](starter-kits.md)
+* Copy starter kit pipeline definition and definition folder to your folders.
 * [Define your deployment environment](definitions-and-global-settings.md) in `global-settings.jsonc`.
 * [Build your CI/CD pipeline](ci-cd-pipeline.md) using a starter kit.
 * [Add custom Policy definitions](policy-definitions.md).
