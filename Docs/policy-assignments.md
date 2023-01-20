@@ -98,17 +98,17 @@ If you are using multiple Policy Sets, than EPAC will:
 
 ### Single node to assign allowed locations enforcement
 
-Assignment file [allowed-locations-assignments.jsonc](../../StarterKit/Definitions/Assignments/allowed-locations-assignments.jsonc) contains a single node to assign a single Initiative to one scope.
+Assignment file [allowed-locations-assignments.jsonc](../../StarterKit/Definitions/policyAssignments/allowed-locations-assignments.jsonc) contains a single node to assign a single Initiative to one scope.
 
 ### Hierarchy to assign security and compliance initiatives
 
-Assignment file [security-baseline-assignments.jsonc](../../StarterKit/Definitions/Assignments/security-baseline-assignments.jsonc) contains 2 levels of hierarchy containing the root node and 2 child nodes. It uses a `definitionEntryList` instead of `definitionEntry`. Defining this with the `definitionEntry` approach would have increased the hierarchy from 2 levels (3 nodes) to 3 levels (7 nodes).
+Assignment file [security-baseline-assignments.jsonc](../../StarterKit/Definitions/policyAssignments/security-baseline-assignments.jsonc) contains 2 levels of hierarchy containing the root node and 2 child nodes. It uses a `definitionEntryList` instead of `definitionEntry`. Defining this with the `definitionEntry` approach would have increased the hierarchy from 2 levels (3 nodes) to 3 levels (7 nodes).
 
 **Note**: With only two types of environments, 3 nodes versus 7 nodes is a small difference; however if you have a more complex environment differentiation with lots of environment types and parameters this becomes quickly untenable. As an extreme illustration with 8 environments (e.g., sandbox, dev, integration, testing, uat, perf, pre-prod and prod), you would need to specify 25 nodes. Such a file would likely be thousands of lines long and completely unreadable.
 
 ### Hierarchy to manage Azure resource tags
 
-Assignment file [tag-assignments.jsonc](../../StarterKit/Definitions/Assignments/tag-assignments.jsonc) defines:
+Assignment file [tag-assignments.jsonc](../../StarterKit/Definitions/policyAssignments/tag-assignments.jsonc) defines:
 
 * Required tags and inherited tags with a `definitionEntryList` using 2 levels (plus the root node)
 * Environment tag values for resource groups with a `definitionEntry` using two levels (plus the shared root node)
