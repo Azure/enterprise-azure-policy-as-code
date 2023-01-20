@@ -19,8 +19,8 @@ function Select-PacEnvironment {
         $InformationPreference = "Continue"
         $interactive = $true
         if ($pacEnvironments.Count -eq 1) {
-            $pacEnvironmentSelector = $pacEnvironments.Keys # returns first value if array is exactly one element long
-            $pacEnvironment = $pacEnvironments.Values # returns first value if array is exactly one element long
+            $pacEnvironmentSelector = $pacEnvironments.Keys[0] # returns first value if array is exactly one element long
+            $pacEnvironment = $pacEnvironments.Values[0] # returns first value if array is exactly one element long
             Write-Information "Auto-selected the only Policy as Code environment: $pacEnvironmentSelector"
         }
         else {

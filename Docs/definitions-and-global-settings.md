@@ -47,7 +47,7 @@ This `Definitions` folder and subfolders contains all your definitions. The `Syn
 
 ### Uniquely identify deployments `pacOwnerId`
 
-`pacOwnerId` is required for [desired state handling](desired-state-strategy.md) to distinguish Policy resources deployed from with legacy technology, another EPAC repo, or another Policy as Code solution.
+`pacOwnerId` is required for [desired state handling](desired-state-strategy.md) to distinguish Policy resources deployed via this EPAC repo, legacy technology, another EPAC repo, or another Policy as Code solution.
 
 ### Define EPAC Environments in `pacEnvironments`
 
@@ -55,7 +55,7 @@ EPAC has a concept of an environment identified by a string (unique per reposito
 
 - `cloud` - to select sovereign cloud environments.
 - `tenantId` - enables multi-tenant scenarios.
-- `rootDefinitionScope` - scope for the Policy and Policy Set definitions.
+- `rootDefinitionScope` - the deployment destination for the Policy and Policy Set definitions to be used in assignments later.
   - Policy Assignments can only defined at this root scope and child scopes (recursive).
 - Optional: define `desiredState` strategy. This element is documented [here](desired-state-strategy.md).
 
@@ -112,7 +112,7 @@ The arrays can have the following entries:
 | `managementGroups` | "/providers/Microsoft.Management/managementGroups/myManagementGroupId" |
 | `subscriptions` | "/subscriptions/00000000-0000-0000-000000000000" |
 | `resourceGroups` | "/subscriptions/00000000-0000-0000-000000000000/resourceGroups/myResourceGroup" |
-| `resourceGroupPatterns` | No wild card or single *wild card at beginning or end of name or both; wild cards in the middle are invalid: <br/> "/resourceGroupPatterns/name" <br/> "/resourceGroupPatterns/name*" <br/> "/resourceGroupPatterns/*name" <br/> "/resourceGroupPatterns/*name*"
+| `resourceGroupPatterns` | No wild card or single \* wild card at beginning or end of name or both; wild cards in the middle are invalid: <br/> "/resourceGroupPatterns/name" <br/> "/resourceGroupPatterns/name\*" <br/>  "/resourceGroupPatterns/\*name" <br/> "/resourceGroupPatterns/\*name\*"<br/>
 
 ```json
     "globalNotScopes": {

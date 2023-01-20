@@ -14,13 +14,16 @@
 **On this page**
 
 * [Simplified GitHub Flow for Policy as Code](#simplified-github-flow-for-policy-as-code)
+* [Service connections for DevOps CI/CD](#service-connections-for-devops-cicd)
 * [Single Tenant Pipeline](#single-tenant-pipeline)
   * [Single Tenant Stages](#single-tenant-stages)
   * [Single Tenant Service Connections and Roles](#single-tenant-service-connections-and-roles)
 * [Multi Tenant Pipeline](#multi-tenant-pipeline)
   * [Multi Tenant Stages](#multi-tenant-stages)
-  * [Service Connections and Roles](#service-connections-and-roles)
-* [Custom EPAC Reader Role Definition](#custom-epac-reader-role-definition)
+  * [Multi Tenant Service Connections and Roles](#multi-tenant-service-connections-and-roles)
+* [Role Assignments for CI/CD SPNs](#role-assignments-for-cicd-spns)
+  * [MS Graph permissions](#ms-graph-permissions)
+  * [Custom EPAC Resource Policy Reader Role](#custom-epac-resource-policy-reader-role)
 * [Azure DevOps Pipeline](#azure-devops-pipeline)
   * [Service Connections](#service-connections)
   * [Deployment Environments](#deployment-environments)
@@ -75,9 +78,9 @@ Create Service Principals and associated service connections in Azure DevOps or 
 | Connection | Stages  | MG: epac-dev-mg | MG: Tenant Root |
 | :--- | :--- | :--- | :--- |
 | sc-pac-dev | devStage  | Owner ||||
-| sc-pac-plan | tenantPlanFeatureStage <br/> tenantPlanMainStage || EPAC Policy Reader<br/>Security Reader |
-| sc-pac-prod | tenantDeployStage || Policy Contributor<br/>Security Reader |
-| sc-pac-roles | tenantRolesStage-1 || User Access Administrator<br/>Security Reader |
+| sc-pac-plan | tenantPlanFeatureStage <br/> tenantPlanMainStage || EPAC Policy Reader<br/>MS Graph Permissions |
+| sc-pac-prod | tenantDeployStage || Policy Contributor |
+| sc-pac-roles | tenantRolesStage-1 || User Access Administrator |
 
 ## Multi Tenant Pipeline
 
@@ -103,15 +106,45 @@ Create Service Principals and associated service connections in Azure DevOps or 
 | Connection | Stages  | MG: epac-dev-mg | MG: Tenant 1 Root | MG: Tenant 2 Root |
 | :--- | :--- | :--- | :--- | :--- |
 | sc-pac-dev | devStage  | Owner ||||
-| sc-pac-plan-1 | tenantPlanFeatureStage-1 <br/> tenantPlanMainStage-1 || EPAC Policy Reader<br/>Security Reader ||
-| sc-pac-plan-2 | tenantPlanFeatureStage-2 <br/> tenantPlanMainStage-2 ||| EPAC Policy Reader<br/>Security Reader |
-| sc-pac-prod-1 | tenantDeployStage-1 || Policy Contributor<br/>Security Reader ||
-| sc-pac-prod-2 | tenantDeployStage-2 ||| Policy Contributor<br/>Security Reader |
-| sc-pac-roles-1 | tenantRolesStage-1 || User Access Administrator<br/>Security Reader ||
-| sc-pac-roles-2 | tenantRolesStage-2 ||| User Access Administrator<br/>Security Reader |
+| sc-pac-plan-1 | tenantPlanFeatureStage-1 <br/> tenantPlanMainStage-1 || EPAC Policy Reader<br/>MS Graph Permissions ||
+| sc-pac-plan-2 | tenantPlanFeatureStage-2 <br/> tenantPlanMainStage-2 ||| EPAC Policy Reader |
+| sc-pac-prod-1 | tenantDeployStage-1 || Policy Contributor ||
+| sc-pac-prod-2 | tenantDeployStage-2 ||| Policy Contributor |
+| sc-pac-roles-1 | tenantRolesStage-1 || User Access Administrator ||
+| sc-pac-roles-2 | tenantRolesStage-2 ||| User Access Administrator |
 | none | completedPlanFeatureStage ||||
 
-## Custom EPAC Reader Role Definition
+## Role Assignments for CI/CD SPNs
+
+**Breaking change:** For the planning stages, the SPN used must use a simpler reader role definition and have MS Graph permissions.
+
+### MS Graph permissions
+
+EPAC uses `Get-AzRoleAssignment` to retrieve role assignments. Microsoft has recently changed the internals from using the deprecated AAD API to use MS Graph. MS Graph queries are more complex and improve security. The cmdlet may call the following Microsoft Graph API according to input parameters:
+
+* GET /users/{id}
+* GET /servicePrincipals/{id}
+* GET /groups/{id}
+* GET /directoryObjects/{id}
+* POST /directoryObjects/getByIds
+
+You must assign these MS Graph `Application permissions` corresponding to the above APIs:
+
+* User.Read.All
+* ServicePrincipalEndpoint.Read.All
+* Group.Read.All
+* Directory.Read.All
+
+After you configure the Permissions (`Add a permission`), you must `Grant admin consent for ...`. The result in Azure AD portal looks like this:
+
+![image,png](Images/ms-graph-permissions.png)
+
+Read the following Microsoft instructions to [learn more about MS Graph Application Permissions](https://learn.microsoft.com/en-us/graph/permissions-overview?tabs=http#application-permissions)
+1. [Register your app](https://learn.microsoft.com/en-us/graph/auth-v2-service#1-register-your-app)
+2. [Configure permissions for Microsoft Graph](<https://learn.microsoft.com/en-us/graph/auth-v2-service#2-configure-permissions-for-microsoft-graph>)
+3. [Get administrator consent](https://learn.microsoft.com/en-us/graph/auth-v2-service#3-get-administrator-consent)
+
+### Custom EPAC Resource Policy Reader Role
 
 EPAC uses a set of Service Principals to execute the Plan phase which do not require as many rights as those that deploy policy assets into Azure. In version 6, we introduced a **breaking change** that leveraged MS Graph API to retrieve information about the current Azure configuration. This both improves performance, and moves us to the replacement technology for the older Azure Graph API. The addition of **Microsoft.Graph/Operations/read** is the change which enables this functionality.
 
@@ -128,7 +161,6 @@ The list of roles, and their descriptions is available online [here](https://lea
         "permissions": [
             {
                 "actions": [
-                    "Microsoft.Graph/Operations/read",
                     "Microsoft.Authorization/policySetDefinitions/read",
                     "Microsoft.Authorization/policyAssignments/read",
                     "Microsoft.Authorization/policyDefinitions/read",

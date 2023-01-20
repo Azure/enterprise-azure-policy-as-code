@@ -6,7 +6,7 @@
   * [Pipeline Runner or Agent](#pipeline-runner-or-agent)
   * [Developer Workstation](#developer-workstation)
 * [Required Management Groups and Subscriptions](#required-management-groups-and-subscriptions)
-* [Considerations for DevOps CI/CD Runners/Agents](#considerations-for-devops-cicd-runnersagents)
+* [Security Considerations for DevOps CI/CD Runners/Agents](#security-considerations-for-devops-cicd-runnersagents)
 * [Reading List](#reading-list)
 
 ## EPAC Software Requirements
@@ -42,7 +42,7 @@ This solution requires EPAC environments for development, (optional) integration
 * Build a management group dedicated to Policy as Code (PaC) -- `mg-epac-dev` <br/> <https://docs.microsoft.com/en-us/azure/governance/management-groups/create-management-group-portal>
 * Create management groups or subscriptions to simulate your EPAC production environments.
 
-## Considerations for DevOps CI/CD Runners/Agents
+## Security Considerations for DevOps CI/CD Runners/Agents
 
 Agents (also called runners) are often hosted in VMs within Azure itself. It is therefore essential to manage them as highly privileged devices.
 

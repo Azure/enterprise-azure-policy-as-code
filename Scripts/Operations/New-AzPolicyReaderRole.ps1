@@ -34,7 +34,6 @@ $role.Id = '2baa1a7c-6807-46af-8b16-5e9d03fba029'
 $role.Description = 'Provides read access to all Policy resources for the purpose of planning the EPAC deployments.'
 $role.IsCustom = $true
 $perms = @(
-    "Microsoft.Graph/Operations/read",
     "Microsoft.Authorization/policyassignments/read",
     "Microsoft.Authorization/policydefinitions/read",
     "Microsoft.Authorization/policyexemptions/read",
