@@ -415,7 +415,7 @@ else {
             }
             else {
                 # Retrieve Policy Assignment
-                $assignment = Get-Assignment -Id $policyAssignmentId
+                $assignment = Get-AzPolicyAssignment -Id $policyAssignmentId
                 $null = $assignmentsCache.Add($policyAssignmentId, $assignment)
             }
             $null = New-AzPolicyExemption @filteredExemption -PolicyAssignment $assignment
@@ -442,7 +442,7 @@ else {
             }
             else {
                 # Retrieve Policy Assignment
-                $assignment = Get-Assignment -Id $policyAssignmentId
+                $assignment = Get-AzPolicyAssignment -Id $policyAssignmentId
                 $null = $assignmentsCache.Add($policyAssignmentId, $assignment)
             }
             $null = New-AzPolicyExemption @filteredExemption -PolicyAssignment $assignment
