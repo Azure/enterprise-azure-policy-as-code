@@ -48,7 +48,7 @@ function Build-ExemptionsPlan {
                 if ($null -ne $jsonObj) {
                     $jsonExemptions = $jsonObj.exemptions
                     if ($null -ne $jsonExemptions -and $jsonExemptions.Count -gt 0) {
-                        $null = $exemptionArrayList.Add($exemption)
+                        $null = $exemptionArrayList.AddRange($jsonExemptions)
                     }
                 }
             }
