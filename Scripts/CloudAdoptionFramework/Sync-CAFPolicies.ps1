@@ -13,12 +13,12 @@ if ($definitionsRootFolder -eq "") {
     }
 }
 
-New-Item -Path "$definitionsRootFolder\Policies" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$definitionsRootFolder\policies\CAF" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$definitionsRootFolder\Initiatives" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$definitionsRootFolder\initiatives\CAF" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$definitionsRootFolder\Assignments" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$definitionsRootFolder\Assignments\CAF" -ItemType Directory -Force -ErrorAction SilentlyContinue
+New-Item -Path "$definitionsRootFolder\policyDefinitions" -ItemType Directory -Force -ErrorAction SilentlyContinue
+New-Item -Path "$definitionsRootFolder\policyDefinitions\CAF" -ItemType Directory -Force -ErrorAction SilentlyContinue
+New-Item -Path "$definitionsRootFolder\policySetDefinitions" -ItemType Directory -Force -ErrorAction SilentlyContinue
+New-Item -Path "$definitionsRootFolder\policySetDefinitions\CAF" -ItemType Directory -Force -ErrorAction SilentlyContinue
+New-Item -Path "$definitionsRootFolder\policyAssignments" -ItemType Directory -Force -ErrorAction SilentlyContinue
+New-Item -Path "$definitionsRootFolder\policyAssignments\CAF" -ItemType Directory -Force -ErrorAction SilentlyContinue
 
 . .\Scripts\Helpers\ConvertTo-HashTable.ps1
 
@@ -38,8 +38,8 @@ foreach ($policyUri in $defaultPolicyURIs) {
                     name       = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Name
                     properties = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Properties
                 }
-                $baseTemplate | ConvertTo-Json -Depth 50 | Out-File -FilePath $definitionsRootFolder\policies\CAF\$name.json -Force
-                (Get-Content $definitionsRootFolder\policies\CAF\$name.json) -replace "\[\[", "[" | Set-Content $definitionsRootFolder\policies\CAF\$name.json
+                $baseTemplate | ConvertTo-Json -Depth 50 | Out-File -FilePath $definitionsRootFolder\policyDefinitions\CAF\$name.json -Force
+                (Get-Content $definitionsRootFolder\policyDefinitions\CAF\$name.json) -replace "\[\[", "[" | Set-Content $definitionsRootFolder\policyDefinitions\CAF\$name.json
             }
             if ($type -match 'Microsoft.Authorization/policySetDefinitions') {
                 $name = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Name
@@ -57,18 +57,18 @@ foreach ($policyUri in $defaultPolicyURIs) {
                     name       = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Name
                     properties = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Properties
                 }
-                $baseTemplate | ConvertTo-Json -Depth 50 | Out-File -FilePath $definitionsRootFolder\initiatives\CAF\$fileName.json -Force
-                (Get-Content $definitionsRootFolder\initiatives\CAF\$fileName.json) -replace "\[\[", "[" | Set-Content $definitionsRootFolder\initiatives\CAF\$fileName.json
-                (Get-Content $definitionsRootFolder\initiatives\CAF\$fileName.json) -replace "variables\('scope'\)", "'/providers/Microsoft.Management/managementGroups/$managementGroupId'" | Set-Content $definitionsRootFolder\initiatives\CAF\$fileName.json
-                (Get-Content $definitionsRootFolder\initiatives\CAF\$fileName.json) -replace "', '", "" | Set-Content $definitionsRootFolder\initiatives\CAF\$fileName.json
-                (Get-Content $definitionsRootFolder\initiatives\CAF\$fileName.json) -replace "\[concat\(('(.+)')\)\]", "`$2" | Set-Content $definitionsRootFolder\initiatives\CAF\$fileName.json
+                $baseTemplate | ConvertTo-Json -Depth 50 | Out-File -FilePath $definitionsRootFolder\policySetDefinitions\CAF\$fileName.json -Force
+                (Get-Content $definitionsRootFolder\policySetDefinitions\CAF\$fileName.json) -replace "\[\[", "[" | Set-Content $definitionsRootFolder\policySetDefinitions\CAF\$fileName.json
+                (Get-Content $definitionsRootFolder\policySetDefinitions\CAF\$fileName.json) -replace "variables\('scope'\)", "'/providers/Microsoft.Management/managementGroups/$managementGroupId'" | Set-Content $definitionsRootFolder\policySetDefinitions\CAF\$fileName.json
+                (Get-Content $definitionsRootFolder\policySetDefinitions\CAF\$fileName.json) -replace "', '", "" | Set-Content $definitionsRootFolder\policySetDefinitions\CAF\$fileName.json
+                (Get-Content $definitionsRootFolder\policySetDefinitions\CAF\$fileName.json) -replace "\[concat\(('(.+)')\)\]", "`$2" | Set-Content $definitionsRootFolder\policySetDefinitions\CAF\$fileName.json
             } 
             
         }
     }
 }
 
-foreach ($initiativeFile in Get-ChildItem $definitionsRootFolder\Initiatives\CAF -Filter *.json) {
+foreach ($initiativeFile in Get-ChildItem $definitionsRootFolder\policySetDefinitions\CAF -Filter *.json) {
     $rawContent = Get-Content $initiativeFile | ConvertFrom-Json -Depth 20
     $jsonContent = ConvertTo-HashTable $rawContent
     $jsonContent.properties.policyDefinitions | Foreach-Object {
@@ -80,5 +80,5 @@ foreach ($initiativeFile in Get-ChildItem $definitionsRootFolder\Initiatives\CAF
     $jsonContent | ConvertTo-Json -Depth 20 | Set-Content $initiativeFile
 }
 
-Copy-Item -Path .\Scripts\CloudAdoptionFramework\Assignments\*.* -Destination "$definitionsRootFolder\assignments\CAF\" -Force
+Copy-Item -Path .\Scripts\CloudAdoptionFramework\policyAssignments\*.* -Destination "$definitionsRootFolder\policyAssignments\CAF\" -Force
 
