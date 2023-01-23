@@ -15,7 +15,7 @@ Your operating environment will include two repos, a runner, and at least one de
 
 * PowerShell 7.2 or later, 7.3.1 (latest) recommended
 * PowerShell Modules
-  * Az required 9.3.1 or later
+  * Az required 9.3.0 or later - **9.2.x has a bug which causes EPAC to fail**
   * ImportExcel (required only if using Excel functionality)
 * Git latest version
 

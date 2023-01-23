@@ -141,7 +141,7 @@ function Convert-PolicySetsToDetails {
                                 }
                             }
                             else {
-                                Write-Error "Policy uses parameter '$effectParameterName' for the effect not defined in the parameters. This should not be possible!" -ErrorAction Stop
+                                Write-Error "Policy '$($policyId)', referenceId '$($policyInPolicySet.policyDefinitionReferenceId)' tries to pass an unknown Policy Set parameter '$policySetLevelEffectParameterName' to the Policy parameter '$effectParameterName'. Check the spelling of the parameters occurrences in the Policy Set definition." -ErrorAction Stop
                             }
                         }
                         else {

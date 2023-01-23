@@ -14,6 +14,16 @@
 > ---
 > ---
 
+> ---
+> ---
+>
+> **Az PowerShell Module 9.2.x has a known issue (bug)**
+>
+> This bug causes multiple failures of EPAC and any other Policy as Code solution depending on Az Module. Az 9.3.0 fixed this issue. Azure DevOps Microsoft hosted agents updates with the fix started rolling out on 1/23/2023.
+>
+> ---
+> ---
+
 <br/><br/>
 
 **On this page**
