@@ -1,7 +1,7 @@
 #Requires -PSEdition Core
 
 Param(
-    [Parameter(Mandatory = $false)] [string] $DefinitionsRootFolder
+    [Parameter(Mandatory = $true)] [string] $DefinitionsRootFolder
 )
 
 if ($definitionsRootFolder -eq "") {
