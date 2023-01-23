@@ -90,7 +90,7 @@ stages:
                     ScriptArguments:
                       -pacEnvironmentSelector $(pacEnvironmentSelector) `
                       -InformationAction Continue
-  - stage: tenantPlanFeatureStage-1
+  - stage: tenant1PlanFeatureStage
     displayName: "Tenant 1 Plan - Feature Branch"
     dependsOn:
       - devStage
@@ -124,7 +124,7 @@ stages:
             #     artifactName: "plans-feature-branch-$(pacEnvironmentSelector)"
             #     condition: and(succeeded(), or(eq(variables['planStep.deployPolicyChanges'], 'yes'), eq(variables['planStep.deployRoleChanges'], 'yes')))
           # End Publish
-  - stage: tenantPlanFeatureStage-2
+  - stage: tenant2PlanFeatureStage
     displayName: "Tenant 2 Plan - Feature Branch"
     dependsOn:
       - devStage
@@ -161,8 +161,8 @@ stages:
   - stage: completedFeature
     displayName: "Completed Plans - Feature Branch"
     dependsOn:
-      - tenant1PlanFeatureStage-1
-      - tenant2PlanFeatureStage-2
+      - tenant1PlanFeatureStage
+      - tenant2PlanFeatureStage
     condition: and(not(failed()), not(canceled()), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), not(contains(variables['Build.SourceBranch'], 'refs/heads/main')))
     jobs:
       - job:
@@ -173,7 +173,7 @@ stages:
               targetType: "inline"
               script: |
                 Write-Host "Completed Plans - Feature Branch"
-  - stage: tenantPlanMainStage-1
+  - stage: tenant1PlanMainStage
     displayName: "Tenant 1 Plan - Main Branch"
     dependsOn:
       - completedFeature
@@ -207,11 +207,11 @@ stages:
             #     artifactName: "policy-plan-$(pacEnvironmentSelector)"
             #   condition: and(succeeded(), or(eq(variables['planStep.deployPolicyChanges'], 'yes'), eq(variables['planStep.deployRoleChanges'], 'yes')))
           # End Publish
-  - stage: tenantDeployPolicyStage-1
+  - stage: tenant1DeployPolicyStage
     displayName: "Tenant 1 Deploy Policy"
     dependsOn:
-      - tenantPlanMainStage-1
-    condition: and(not(failed()), not(canceled()), eq(dependencies.tenantPlanMainStage-1.outputs['planJob.planStep.deployPolicyChanges'], 'yes'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+      - tenant1PlanMainStage
+    condition: and(not(failed()), not(canceled()), eq(dependencies.tenant1PlanMainStage.outputs['planJob.planStep.deployPolicyChanges'], 'yes'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
     variables:
       pacEnvironmentSelector: tenant1
       PAC_INPUT_FOLDER: "$(Pipeline.Workspace)"
@@ -234,11 +234,11 @@ stages:
                     ScriptArguments:
                       -pacEnvironmentSelector $(pacEnvironmentSelector) `
                       -InformationAction Continue
-  - stage: tenantRolesStage-1
+  - stage: tenant1RolesStage
     displayName: "Tenant 1 Deploy Role Assignments"
     dependsOn:
-      - tenantDeployPolicyStage-1
-    condition: and(not(failed()), not(canceled()), eq(dependencies.tenantPlanMainStage-1.outputs['planJob.planStep.deployRoleChanges'], 'yes'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+      - tenant1DeployPolicyStage
+    condition: and(not(failed()), not(canceled()), eq(dependencies.tenant1PlanMainStage.outputs['planJob.planStep.deployRoleChanges'], 'yes'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
     variables:
       pacEnvironmentSelector: tenant1
       PAC_INPUT_FOLDER: "$(Pipeline.Workspace)"
@@ -261,7 +261,7 @@ stages:
                       -pacEnvironmentSelector $(pacEnvironmentSelector) `
                       -InformationAction Continue
                   condition: succeeded()
-  - stage: tenantPlanMainStage-2
+  - stage: tenant2PlanMainStage
     displayName: "Tenant 2 Plan - Main Branch"
     dependsOn:
       - completedFeature
@@ -295,11 +295,11 @@ stages:
             #     artifactName: "policy-plan-$(pacEnvironmentSelector)"
             #   condition: and(succeeded(), or(eq(variables['planStep.deployPolicyChanges'], 'yes'), eq(variables['planStep.deployRoleChanges'], 'yes')))
           # End Publish
-  - stage: tenantDeployPolicyStage-2
+  - stage: tenant2DeployPolicyStage
     displayName: "Tenant 2 Deploy Policy"
     dependsOn:
-      - tenantPlanMainStage-2
-    condition: and(not(failed()), not(canceled()), eq(dependencies.tenantPlanMainStage-2.outputs['planJob.planStep.deployPolicyChanges'], 'yes'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+      - tenant2PlanMainStage
+    condition: and(not(failed()), not(canceled()), eq(dependencies.tenant2PlanMainStage.outputs['planJob.planStep.deployPolicyChanges'], 'yes'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
     variables:
       pacEnvironmentSelector: tenant2
       PAC_INPUT_FOLDER: "$(Pipeline.Workspace)"
@@ -322,11 +322,11 @@ stages:
                     ScriptArguments:
                       -pacEnvironmentSelector $(pacEnvironmentSelector) `
                       -InformationAction Continue
-  - stage: tenantRolesStage-2
+  - stage: tenant2RolesStage
     displayName: "Tenant Deploy Role Assignments"
     dependsOn:
-      - tenantDeployPolicyStage-2
-    condition: and(not(failed()), not(canceled()), eq(dependencies.tenantPlanMainStage-2.outputs['planJob.planStep.deployRoleChanges'], 'yes'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+      - tenant2DeployPolicyStage
+    condition: and(not(failed()), not(canceled()), eq(dependencies.tenant2PlanMainStage.outputs['planJob.planStep.deployRoleChanges'], 'yes'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
     variables:
       pacEnvironmentSelector: tenant2
       PAC_INPUT_FOLDER: "$(Pipeline.Workspace)"
