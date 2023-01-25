@@ -259,11 +259,12 @@ function Build-AssignmentDefinitionNode {
     }
     else {
         # may define notScope
+        $pacEnvironmentSelector = $pacEnvironment.pacSelector
         if ($definitionNode.notScope) {
             $notScope = $definitionNode.notScope
             Write-Debug "         notScope defined at $($nodeName) = $($notScope | ConvertTo-Json -Depth 100)"
             foreach ($selector in $notScope.Keys) {
-                if ($selector -eq "*" -or $selector -eq $pacEnvironment) {
+                if ($selector -eq "*" -or $selector -eq $pacEnvironmentSelector) {
                     $notScopeList = $notScope.$selector
                     if ($definition.notScope) {
                         $definition.notScope += $notScopeList
@@ -280,7 +281,7 @@ function Build-AssignmentDefinitionNode {
             $scopeList = $null
             $scope = $definitionNode.scope
             foreach ($selector in $scope.Keys) {
-                if ($selector -eq "*" -or $selector -eq $pacEnvironment.pacSelector) {
+                if ($selector -eq "*" -or $selector -eq $pacEnvironmentSelector) {
                     $scopeList = @() + $scope.$selector
                     break
                 }
