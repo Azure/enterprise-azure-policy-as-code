@@ -463,7 +463,11 @@ function Get-AzPolicyResources {
                 $null = $deployedRoleAssignmentsByPrincipalId.Add($principalId, @( $normalizedRoleAssignment ))
             }
         }
+
         Write-Information ""
+        if ($scopesCovered.Count -gt 0 -and $deployedRoleAssignmentsByPrincipalId.Count -eq 0) {
+            Write-Error "Role assignment retrieval failed to receive any assignments in $($scopesCovered.Count) scopes. This likely due to a missing permission for the SPN running the pipeline. Please read the pipeline documentation in EPAC." -ErrorAction Continue
+        }
         Write-Information "Role Assignments:"
         Write-Information "    Total principalIds     = $($deployedRoleAssignmentsByPrincipalId.Count)"
         Write-Information "    Total Role Assignments = $($roleAssignmentsById.Count)"

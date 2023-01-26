@@ -11,9 +11,6 @@ variables:
   tenant2PlanServiceConnection: "sc-epac-plan-tenant2"
   tenant2DeployServiceConnection: "sc-epac-prod-tenant2"
   tenant2RolesServiceConnection: "sc-epac-roles-tenant2"
-  tenant3PlanServiceConnection: "sc-epac-plan-tenant3"
-  tenant3DeployServiceConnection: "sc-epac-prod-tenant3"
-  tenant3RolesServiceConnection: "sc-epac-roles-tenant3"
 
   # System.Debug: true
 
@@ -139,7 +136,7 @@ stages:
             name: planStep
             displayName: Plan
             inputs:
-              azureSubscription: $(tenantPlanServiceConnection)
+              azureSubscription: $(tenant2PlanServiceConnection)
               pwsh: true
               azurePowerShellVersion: LatestVersion
               ScriptPath: "Scripts/Deploy/Build-DeploymentPlans.ps1"
@@ -188,7 +185,7 @@ stages:
             name: planStep
             displayName: Plan
             inputs:
-              azureSubscription: $(tenantPlanServiceConnection)
+              azureSubscription: $(tenant1PlanServiceConnection)
               pwsh: true
               azurePowerShellVersion: LatestVersion
               ScriptPath: "Scripts/Deploy/Build-DeploymentPlans.ps1"
@@ -227,7 +224,7 @@ stages:
                   name: deployStep
                   displayName: Deploy Tenant1 Policy
                   inputs:
-                    azureSubscription: $(tenantDeployServiceConnection)
+                    azureSubscription: $(tenant1DeployServiceConnection)
                     pwsh: true
                     azurePowerShellVersion: LatestVersion
                     ScriptPath: "Scripts/Deploy/Deploy-PolicyPlan.ps1"
@@ -253,7 +250,7 @@ stages:
                 - task: AzurePowerShell@5
                   displayName: Deploy Tenant1 Role Assignments
                   inputs:
-                    azureSubscription: $(tenantRolesServiceConnection)
+                    azureSubscription: $(tenant1RolesServiceConnection)
                     pwsh: true
                     azurePowerShellVersion: LatestVersion
                     ScriptPath: "Scripts/Deploy/Deploy-RolesPlan.ps1"
@@ -276,7 +273,7 @@ stages:
             name: planStep
             displayName: Plan
             inputs:
-              azureSubscription: $(tenantPlanServiceConnection)
+              azureSubscription: $(tenant2PlanServiceConnection)
               pwsh: true
               azurePowerShellVersion: LatestVersion
               ScriptPath: "Scripts/Deploy/Build-DeploymentPlans.ps1"
@@ -315,7 +312,7 @@ stages:
                   name: deployStep
                   displayName: Deploy Tenant1 Policy
                   inputs:
-                    azureSubscription: $(tenantDeployServiceConnection)
+                    azureSubscription: $(tenant2DeployServiceConnection)
                     pwsh: true
                     azurePowerShellVersion: LatestVersion
                     ScriptPath: "Scripts/Deploy/Deploy-PolicyPlan.ps1"
@@ -341,7 +338,7 @@ stages:
                 - task: AzurePowerShell@5
                   displayName: Deploy Tenant1 Role Assignments
                   inputs:
-                    azureSubscription: $(tenantRolesServiceConnection)
+                    azureSubscription: $(tenant2RolesServiceConnection)
                     pwsh: true
                     azurePowerShellVersion: LatestVersion
                     ScriptPath: "Scripts/Deploy/Deploy-RolesPlan.ps1"

@@ -16,6 +16,8 @@ function Build-AssignmentDefinitionNode {
 
     # Each tree branch needs a private copy
     $definition = Get-DeepClone -InputObject $assignmentDefinition -AsHashTable
+    $pacEnvironmentSelector = $pacEnvironment.pacSelector
+
 
     # Process mandatory nodeName
     $nodeName = ""
@@ -218,7 +220,7 @@ function Build-AssignmentDefinitionNode {
     if ($definitionNode.additionalRoleAssignments) {
         $additionalRoleAssignments = $definitionNode.additionalRoleAssignments
         foreach ($selector in $additionalRoleAssignments.Keys) {
-            if ($selector -eq "*" -or $selector -eq $pacEnvironment) {
+            if ($selector -eq "*" -or $selector -eq $pacEnvironmentSelector) {
                 $additionalRoleAssignmentsList = Get-DeepClone $additionalRoleAssignments.$selector -AsHashTable
                 if ($definition.additionalRoleAssignments) {
                     $definition.additionalRoleAssignments += $additionalRoleAssignmentsList
@@ -235,7 +237,7 @@ function Build-AssignmentDefinitionNode {
         $managedIdentityLocationValue = $null
         $managedIdentityLocations = $definitionNode.managedIdentityLocations
         foreach ($selector in $managedIdentityLocations.Keys) {
-            if ($selector -eq "*" -or $selector -eq $pacEnvironment) {
+            if ($selector -eq "*" -or $selector -eq $pacEnvironmentSelector) {
                 $managedIdentityLocationValue = $managedIdentityLocation.$selector
                 break
             }
@@ -263,7 +265,7 @@ function Build-AssignmentDefinitionNode {
             $notScope = $definitionNode.notScope
             Write-Debug "         notScope defined at $($nodeName) = $($notScope | ConvertTo-Json -Depth 100)"
             foreach ($selector in $notScope.Keys) {
-                if ($selector -eq "*" -or $selector -eq $pacEnvironment) {
+                if ($selector -eq "*" -or $selector -eq $pacEnvironmentSelector) {
                     $notScopeList = $notScope.$selector
                     if ($definition.notScope) {
                         $definition.notScope += $notScopeList
@@ -280,7 +282,7 @@ function Build-AssignmentDefinitionNode {
             $scopeList = $null
             $scope = $definitionNode.scope
             foreach ($selector in $scope.Keys) {
-                if ($selector -eq "*" -or $selector -eq $pacEnvironment.pacSelector) {
+                if ($selector -eq "*" -or $selector -eq $pacEnvironmentSelector) {
                     $scopeList = @() + $scope.$selector
                     break
                 }
