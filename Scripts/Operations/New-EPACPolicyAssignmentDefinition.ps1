@@ -17,7 +17,7 @@ Param(
     [string]$OutputFolder
 )
 
-. "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
+. "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1" 
 
 $PolicyAssignment = Get-AzPolicyAssignment -Id $PolicyAssignmentId
 if ($PolicyAssignment) {
