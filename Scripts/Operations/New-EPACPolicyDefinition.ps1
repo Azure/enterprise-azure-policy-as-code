@@ -19,9 +19,9 @@ Param(
 
 if ($PolicyDefinitionId -match "Microsoft.Authorization/policyDefinitions") {
     $policyDefinition = Get-AzPolicyDefinition -Id $PolicyDefinitionId
-    $baseTemplate = @{
+    $baseTemplate = [ordered]@{
         name       = $PolicyDefinition.name
-        properties = $policyDefinition.Properties | Select-Object Description, DisplayName, Mode, Parameters, PolicyRule, @{n = "Metadata"; e = { $_.Metadata | Select-Object Version, Category } }
+        properties = $policyDefinition.Properties | Select-Object DisplayName, Mode, Description, @{n = "Metadata"; e = { $_.Metadata | Select-Object Version, Category } }, Parameters, PolicyRule
     }
     if ($OutputFolder) {
         $baseTemplate | ConvertTo-Json -Depth 50 | Out-File "$OutputFolder\$($policyDefinition.Name).json"
@@ -33,9 +33,9 @@ if ($PolicyDefinitionId -match "Microsoft.Authorization/policyDefinitions") {
 
 if ($PolicyDefinitionId -match "Microsoft.Authorization/policySetDefinitions") {
     $policyDefinition = Get-AzPolicySetDefinition -Id $PolicyDefinitionId
-    $baseTemplate = @{
+    $baseTemplate = [ordered]@{
         name       = $PolicyDefinition.Name
-        properties = $policyDefinition.Properties | Select-Object Description, DisplayName, Mode, PolicyDefinitionGroups, Parameters, PolicyDefinitions, @{n = "Metadata"; e = { $_.Metadata | Select-Object Version, Category } }
+        properties = $policyDefinition.Properties | Select-Object DisplayName, Description, @{n = "Metadata"; e = { $_.Metadata | Select-Object Version, Category } }, PolicyDefinitionGroups, Parameters, PolicyDefinitions
     }
     $baseTemplate.properties.PolicyDefinitions | Foreach-Object {
         $_ | Add-Member -Type NoteProperty -Name policyDefinitionName -Value $_.policyDefinitionId.Split("/")[-1]
