@@ -116,15 +116,18 @@ The implementation was changed from Azure AD to MS Graph API impacting the roles
 * [Setup DevOps Environment](operating-environment.md) .
 * [Create a source repository and import the source code](clone-github.md) from this repository.
 * [Select the desired state strategy](desired-state-strategy.md)
-* Copy starter kit pipeline definition and definition folder to your folders.
+* Copy starter kit pipeline definition.
 * [Define your deployment environment](definitions-and-global-settings.md) in `global-settings.jsonc`.
 * [Build your CI/CD pipeline](ci-cd-pipeline.md) using a starter kit.
+* Optional: generate a starting point for the `Definitions` folders:
+  * [Extract existing Policy resources from an environment](extract-existing-policy-resources.md).
+  * [Import Policies from the Cloud Adoption Framework](cloud-adoption-framework.md).
+  * Copy the sample Policy resource definitions in the starter kit to your `Definitions` folders.
 * [Add custom Policy definitions](policy-definitions.md).
 * [Add custom Policy Set definitions](policy-set-definitions.md).
 * [Create Policy Assignments](policy-assignments.md).
 * Import Policies from the [Cloud Adoption Framework](cloud-adoption-framework.md).
 * [Manage Policy Exemptions](policy-exemptions.md).
 * [Document your deployments](documenting-assignments-and-policy-sets.md).
-* [Execute operational tasks](operational-scripts.md).
 
 **[Return to the main page](../README.md)**

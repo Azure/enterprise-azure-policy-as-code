@@ -17,6 +17,17 @@
   * [Hierarchy to manage Azure resource tags](#hierarchy-to-manage-azure-resource-tags)
 * [Reading List](#reading-list)
 
+> ---
+> ---
+>
+> **Note:** <br/>
+> We are aware that this documentation file needs rework. We have this work scheduled and it should be available in February 2023
+>
+> ---
+> ---
+
+<br/>
+
 ## Components
 
 This chapter describes how **Policy Assignments** are handled by EPAC. To learn about how custom Policy and Initiative definitions are managed, see the [Policy Definitions](policy-definitions.md) and [Policy Set (Initiative) Definitions](policy-set-definitions.md).
@@ -118,9 +129,11 @@ Assignment file [tag-assignments.jsonc](../StarterKit/Definitions/policyAssignme
 * [Setup DevOps Environment](operating-environment.md) .
 * [Create a source repository and import the source code](clone-github.md) from this repository.
 * [Select the desired state strategy](desired-state-strategy.md)
-* Copy starter kit pipeline definition and definition folder to your folders.
 * [Define your deployment environment](definitions-and-global-settings.md) in `global-settings.jsonc`.
 * [Build your CI/CD pipeline](ci-cd-pipeline.md) using a starter kit.
+* Optional: generate a starting point for the `Definitions` folders:
+  * [Extract existing Policy resources from an environment](extract-existing-policy-resources.md).
+  * [Import Policies from the Cloud Adoption Framework](cloud-adoption-framework.md).
 * [Add custom Policy definitions](policy-definitions.md).
 * [Add custom Policy Set definitions](policy-set-definitions.md).
 * [Create Policy Assignments](policy-assignments.md).

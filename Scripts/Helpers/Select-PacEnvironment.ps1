@@ -19,9 +19,10 @@ function Select-PacEnvironment {
         $InformationPreference = "Continue"
         $interactive = $true
         if ($pacEnvironments.Count -eq 1) {
-            $pacEnvironmentSelector = $pacEnvironments.Keys[0] # returns first value if array is exactly one element long
-            $pacEnvironment = $pacEnvironments.Values[0] # returns first value if array is exactly one element long
-            Write-Information "Auto-selected the only Policy as Code environment: $pacEnvironmentSelector"
+            $pacEnvironment = @{} # Build hashtable for single PAC environment
+            $pacEnvironments.Values.Keys | Foreach-Object {
+                $pacEnvironment.Add($_, $pacEnvironments.Values.$_)
+            }
         }
         else {
             $prompt = $globalSettings.pacEnvironmentPrompt

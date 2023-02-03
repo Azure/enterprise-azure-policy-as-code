@@ -6,7 +6,7 @@
 .EXAMPLE
     New-EPACPolicyAssignmentDefinition.ps1 -PolicyDefinitionId "/providers/Microsoft.Management/managementGroups/epac/providers/Microsoft.Authorization/policyDefinitions/Append-KV-SoftDelete" -OutputFolder .\
 
-    Export the policy definition to the current folder. 
+    Export the policy definition to the current folder.
 #>
 
 [CmdletBinding()]
@@ -17,7 +17,7 @@ Param(
     [string]$OutputFolder
 )
 
-. "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1" 
+. "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
 
 $PolicyAssignment = Get-AzPolicyAssignment -Id $PolicyAssignmentId
 if ($PolicyAssignment) {
@@ -65,5 +65,4 @@ if ($PolicyAssignment) {
             $baseTemplate | ConvertTo-Json -Depth 50
         }
     }
-    
 }

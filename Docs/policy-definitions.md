@@ -14,15 +14,15 @@ Poliy definition files are managed within the the folder `policyDefintions` unde
 > **NOTE**:
 > When authoring policy/initiative definitions, check out the [Maximum count of Azure Policy objects](https://docs.microsoft.com/en-us/azure/governance/policy/overview#maximum-count-of-azure-policy-objects)
 
-The names of the definition JSON files don't matter, the Policy and Initiative definitions are registered based on the `name` attribute. It is recommended that you use a `GUID` as the `name`. The solution also allows the use of JSON with comments by using `.jsonc` instead of `.json` for the file extension.
+The names of the definition JSON files don't matter, the Policy and Initiative definitions are registered based on the `name` attribute. The solution also allows the use of JSON with comments by using `.jsonc` instead of `.json` for the file extension.
 
 ## Recommendations
 
-* `"name"` should be a GUID - see <https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/new-guid?view=powershell-7.2>.
+* `"name"` is required and should be unique. It can be a GUID or a unique short name.
 * `"category"` should be one of the standard ones defined in built-in Policy definitions.
-* Do not specify an `id`.
-* Make the `effect` parameterized.
-* Whenever feasible, provide a `defaultValue` for parameters, especially for an `effect` parameter.
+* Do not specify an `id`. The solution will ignore it.
+* Make the `effect` parameterized. Always use the parameter name `effect`.
+* Whenever feasible, provide a `defaultValue` for parameters, especially for the `effect` parameter.
 * Policy aliases are used by Azure Policy to refer to resource type properties in the `if` condition and in `existenceCondition`: <https://docs.microsoft.com/en-us/azure/governance/policy/concepts/definition-structure#aliases>.
 
 ## Example
@@ -69,9 +69,11 @@ The names of the definition JSON files don't matter, the Policy and Initiative d
 * [Setup DevOps Environment](operating-environment.md) .
 * [Create a source repository and import the source code](clone-github.md) from this repository.
 * [Select the desired state strategy](desired-state-strategy.md)
-* Copy starter kit pipeline definition and definition folder to your folders.
 * [Define your deployment environment](definitions-and-global-settings.md) in `global-settings.jsonc`.
 * [Build your CI/CD pipeline](ci-cd-pipeline.md) using a starter kit.
+* Optional: generate a starting point for the `Definitions` folders:
+  * [Extract existing Policy resources from an environment](extract-existing-policy-resources.md).
+  * [Import Policies from the Cloud Adoption Framework](cloud-adoption-framework.md).
 * [Add custom Policy definitions](policy-definitions.md).
 * [Add custom Policy Set definitions](policy-set-definitions.md).
 * [Create Policy Assignments](policy-assignments.md).

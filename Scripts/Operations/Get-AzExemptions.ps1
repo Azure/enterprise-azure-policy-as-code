@@ -29,6 +29,7 @@ param(
 . "$PSScriptRoot/../Helpers/Get-HashtableShallowClone"
 . "$PSScriptRoot/../Helpers/Search-AzGraphAllItems.ps1"
 . "$PSScriptRoot/../Helpers/Get-FilteredHashTable.ps1"
+. "$PSScriptRoot/../Helpers/Split-ScopeId.ps1"
 
 
 $InformationPreference = "Continue"

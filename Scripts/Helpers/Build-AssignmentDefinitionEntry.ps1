@@ -16,8 +16,6 @@ function Build-AssignmentDefinitionEntry {
     $policySetId = $definitionEntry.policySetId
     $initiativeName = $definitionEntry.initiativeName
     $initiativeId = $definitionEntry.initiativeId
-    $friendlyNameToDocumentIfGuid = $definitionEntry.friendlyNameToDocumentIfGuid
-    $shortName = $definitionEntry.shortName
     $assignment = $definitionEntry.assignment
 
     $isValid = $true
@@ -39,8 +37,8 @@ function Build-AssignmentDefinitionEntry {
             }
             else {
                 $normalizedEntry = @{
-                    policyId    = $policyId
-                    isPolicySet = $false
+                    policyDefinitionId = $policyId
+                    isPolicySet        = $false
                 }
             }
         }
@@ -55,8 +53,8 @@ function Build-AssignmentDefinitionEntry {
             }
             else {
                 $normalizedEntry = @{
-                    policySetId = $policySetId
-                    isPolicySet = $true
+                    policyDefinitionId = $policySetId
+                    isPolicySet        = $true
                 }
             }
         }
@@ -71,17 +69,20 @@ function Build-AssignmentDefinitionEntry {
             }
             else {
                 $normalizedEntry = @{
-                    policySetId = $policySetId
-                    isPolicySet = $true
+                    policyDefinitionId = $policySetId
+                    isPolicySet        = $true
                 }
             }
         }
-        if ($null -ne $friendlyNameToDocumentIfGuid) {
-            $normalizedEntry.friendlyNameToDocumentIfGuid = $friendlyNameToDocumentIfGuid
+        if ($null -ne $definitionEntry.friendlyNameToDocumentIfGuid) {
+            $normalizedEntry.displayName = $definitionEntry.friendlyNameToDocumentIfGuid
         }
-        if ($null -ne $shortName) {
-            $normalizedEntry.shortName = $shortName
+        elseif ($null -ne $displayName) {
+            $normalizedEntry.displayName = $definitionEntry.displayName
         }
+        # if ($null -ne $shortName) {
+        #     $normalizedEntry.displayName = $shortName
+        # }
         if ($null -ne $assignment) {
             if ($null -ne $assignment.name -and ($assignment.name).Length -gt 0 -and $null -ne $assignment.displayName -and ($assignment.displayName).Length -gt 0) {
                 $normalizedAssignment = ConvertTo-HashTable $assignment

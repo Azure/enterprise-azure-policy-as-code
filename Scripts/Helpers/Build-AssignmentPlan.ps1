@@ -89,6 +89,7 @@ function Build-AssignmentPlan {
             enforcementMode                = "Default"
             parameters                     = @{}
             additionalRoleAssignments      = @()
+            parameterSuppressDefaultValues = $false
             hasErrors                      = $false
             hasOnlyNotSelectedEnvironments = $false
             ignoreBranch                   = $false
@@ -117,10 +118,7 @@ function Build-AssignmentPlan {
             $description = $assignment.description
             $metadata = $assignment.metadata
             $parameters = $assignment.parameters
-            $policyDefinitionId = $assignment.policyId
-            if ($assignment.isPolicySet) {
-                $policyDefinitionId = $assignment.policySetId
-            }
+            $policyDefinitionId = $assignment.policyDefinitionId
             $scope = $assignment.scope
             $notScopes = $assignment.notScopes
             $enforcementMode = $assignment.enforcementMode
@@ -137,7 +135,6 @@ function Build-AssignmentPlan {
                 $notScopesMatch = Confirm-ObjectValueEqualityDeep `
                     -existingObj $deployedPolicyAssignmentProperties.notScopes `
                     -definedObj $notScopes
-                $replaceNotScopes = !$notScopesMatch -and ($null -eq $notScopes -or $notScopes.Length -eq 0)
                 $parametersMatch = Confirm-AssignmentParametersMatch `
                     -existingParametersObj $deployedPolicyAssignmentProperties.parameters `
                     -definedParametersObj $parameters
@@ -146,7 +143,7 @@ function Build-AssignmentPlan {
                     -definedMetadataObj $metadata
                 $enforcementModeMatches = $enforcementMode -eq $deployedPolicyAssignmentProperties.EnforcementMode
 
-                $replace = $replaceNotScopes -or $replacedDefinition -or $changedPolicyDefinitionId
+                $replace = $replacedDefinition -or $changedPolicyDefinitionId
 
                 $changingRoleAssignments = $false
                 $hasExistingIdentity = ($null -ne $deployedPolicyAssignment.identity) -and ($null -ne $deployedPolicyAssignment.identity.principalId)
@@ -210,9 +207,6 @@ function Build-AssignmentPlan {
                         if ($replacedDefinition) {
                             $changesStrings += "replacedDefinition"
                         }
-                        if ($replaceNotScopes) {
-                            $changesStrings += "noNotScopes"
-                        }
                         if ($changedIdentity) {
                             if ($hasExistingIdentity) {
                                 $changesStrings += "removedIdentity"
@@ -226,42 +220,29 @@ function Build-AssignmentPlan {
                         }
                     }
 
-                    $splatTransformStrings = @( "id/Id" )
                     if (!$displayNameMatches) {
                         $changesStrings += "displayName"
-                        $splatTransformStrings += "displayName/DisplayName"
                     }
                     if (!$descriptionMatches) {
                         $changesStrings += "description"
-                        $splatTransformStrings += "description/Description"
                     }
                     if ($changePacOwnerId) {
                         $changesStrings += "owner"
                     }
                     if ($changingRoleAssignments) {
-                        if (!$replaceNotScopes) {
-                            $changesStrings += "roles"
-                        }
+                        $changesStrings += "roles"
                     }
                     if (!$metadataMatches) {
                         $changesStrings += "metadata"
                     }
-                    if ($changePacOwnerId -or !$metadataMatches) {
-                        $splatTransformStrings += "metadata/Metadata"
-                    }
                     if (!$parametersMatch) {
                         $changesStrings += "parameters"
-                        $splatTransformStrings += "parameters/PolicyParameterObject:hashtable"
                     }
                     if (!$enforcementModeMatches) {
                         $changesStrings += "enforcementMode"
-                        $splatTransformStrings += "enforcementMode/EnforcementMode"
                     }
                     if (!$notScopesMatch) {
-                        if (!$replaceNotScopes) {
-                            $changesStrings += "notScopes"
-                            $splatTransformStrings += "notScopes/NotScope"
-                        }
+                        $changesStrings += "notScopes"
                     }
 
                     if ($replace) {
@@ -284,7 +265,7 @@ function Build-AssignmentPlan {
             }
             else {
                 # New Assignment
-                Remove-EmptyFields $assignment
+                # Remove-EmptyFields $assignment
                 $null = $assignments.new.Add($id, $assignment)
                 $assignments.numberOfChanges++
                 $requiredRoleDefinitions = $assignment.metadata.roles

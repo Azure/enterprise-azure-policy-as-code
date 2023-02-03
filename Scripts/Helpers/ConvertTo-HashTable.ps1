@@ -5,15 +5,23 @@ function ConvertTo-HashTable {
     param
     (
         [parameter(Position = 0, ValueFromPipeline = $true)]
-        [PSObject] $InputObject = $null
+        $InputObject = $null
     )
-    $hashTable = @{}
+
+    [hashtable] $hashTable = @{}
     if ($null -ne $InputObject) {
-        if ($InputObject -is [hashtable]) {
-            if ($InputObject){$hashTable = $InputObject.clone()}else{$hashTable=@{}}
+        if ($null -ne $InputObject.Keys -and $null -ne $InputObject.Values) {
+            foreach ($key in $InputObject.Keys) {
+                try {
+                    $null = $hashTable.Add($key, $InputObject[$key])
+                }
+                catch {
+                    Write-Information $key <#Do this if a terminating exception happens#>
+                }
+            }
         }
-        else {
-            foreach ($property in $InputObject.PSObject.Properties) {
+        elseif ($InputObject.psobject.Properties) {
+            foreach ($property in $InputObject.psobject.Properties) {
                 $hashTable[$property.Name] = $property.Value
             }
         }

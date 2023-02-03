@@ -3,12 +3,13 @@
 function Confirm-AssignmentParametersMatch {
     [CmdletBinding()]
     param(
-        [PSCustomObject] $existingParametersObj,
-        [hashtable] $definedParametersObj
+        $existingParametersObj,
+        $definedParametersObj,
+        [switch] $compareTwoExistingParametersObj
     )
 
     $existingParameters = ConvertTo-HashTable $existingParametersObj
-    $definedParameters = Get-HashtableShallowClone $definedParametersObj
+    $definedParameters = ConvertTo-HashTable $definedParametersObj
     $addedParameters = Get-HashtableShallowClone $definedParameters
     foreach ($existingParameterName in $existingParameters.Keys) {
         $found = $false
@@ -20,6 +21,9 @@ function Confirm-AssignmentParametersMatch {
                 # analyze parameter
                 $existing = $existingParameters.$existingParameterName.value
                 $defined = $definedParameters.$definedParameterName
+                if ($compareTwoExistingParametersObj) {
+                    $defined = $definedParameters.$definedParameterName.value
+                }
                 $match = Confirm-ObjectValueEqualityDeep -existingObj $existing -definedObj $defined
                 if (!$match) {
                     return $false

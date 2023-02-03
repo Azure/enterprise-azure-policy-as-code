@@ -1,4 +1,5 @@
 #Requires -PSEdition Core
+
 function Get-DeepClone {
     [cmdletbinding()]
     param(
@@ -8,12 +9,20 @@ function Get-DeepClone {
         [switch] $AsHashTable
     )
 
-    $json = ConvertTo-Json $InputObject -Depth 100 -Compress
-    $clone = ConvertFrom-Json $json -NoEnumerate -Depth 100 -AsHashtable:$AsHashTable
-    if ($InputObject -is [array]) {
-        Write-Output -NoEnumerate $clone
+    if ($null -ne $InputObject) {
+        $json = ConvertTo-Json $InputObject -Depth 100 -Compress
+        $clone = ConvertFrom-Json $json -NoEnumerate -Depth 100 -AsHashtable:$AsHashTable
+        if ($InputObject -is [array]) {
+            Write-Output -NoEnumerate $clone
+        }
+        else {
+            return $clone
+        }
+    }
+    elseif ($AsHashTable) {
+        return @{}
     }
     else {
-        $clone
+        return $null
     }
 }

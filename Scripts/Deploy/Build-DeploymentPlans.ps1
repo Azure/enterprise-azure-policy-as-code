@@ -15,7 +15,7 @@ param (
     [switch] $interactive,
 
     [Parameter(HelpMessage = "If set, outputs variables consumable by conditions in a DevOps pipeline.")]
-    [ValidateSet(“ado”, ”gitlab”, ””)]
+    [ValidateSet("ado", "gitlab", "")]
     [string] $devOpsType = ""
 )
 
@@ -63,6 +63,8 @@ param (
 . "$PSScriptRoot/../Helpers/Search-AzGraphAllItems.ps1"
 . "$PSScriptRoot/../Helpers/Select-PacEnvironment.ps1"
 . "$PSScriptRoot/../Helpers/Set-AzCloudTenantSubscription.ps1"
+. "$PSScriptRoot/../Helpers/Split-AzPolicyResourceId.ps1"
+. "$PSScriptRoot/../Helpers/Split-ScopeId.ps1"
 
 # Initialize
 $InformationPreference = "Continue"
@@ -350,7 +352,7 @@ switch ($devOpsType) {
     }
     gitlab {
         Add-Content "build.env" "deployPolicyChanges=$($policyStage)"
-        Add-Content "build.env" "deployRoleChanges=$($roleStage)"   
+        Add-Content "build.env" "deployRoleChanges=$($roleStage)"
     }
     default {}
 }

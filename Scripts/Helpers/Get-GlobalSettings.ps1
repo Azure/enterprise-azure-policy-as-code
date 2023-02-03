@@ -8,7 +8,7 @@ function Get-GlobalSettings {
         [Parameter(Mandatory = $false)] [string] $inputFolder
     )
 
-    # Callcuate folders
+    # Calculate folders
     $folders = Get-PacFolders `
         -definitionsRootFolder $definitionsRootFolder `
         -outputFolder $outputFolder `

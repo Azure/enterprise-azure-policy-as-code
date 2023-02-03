@@ -34,6 +34,7 @@ param (
 . "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
 . "$PSScriptRoot/../Helpers/Set-AzCloudTenantSubscription.ps1"
 . "$PSScriptRoot/../Helpers/Get-FilteredHashTable.ps1"
+. "$PSScriptRoot/../Helpers/Split-ScopeId.ps1"
 
 $InformationPreference = "Continue"
 $pacEnvironment = Select-PacEnvironment $pacEnvironmentSelector -definitionsRootFolder $definitionsRootFolder -inputFolder $inputFolder  -interactive $interactive
