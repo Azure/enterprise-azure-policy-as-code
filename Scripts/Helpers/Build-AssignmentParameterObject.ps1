@@ -4,7 +4,8 @@ function Build-AssignmentParameterObject {
     # Recursive Function
     param(
         [hashtable] $assignmentParameters,
-        [hashtable] $parametersInPolicyDefinition
+        [hashtable] $parametersInPolicyDefinition,
+        [switch] $parameterSuppressDefaultValues
     )
 
     $parameterObject = @{}
@@ -12,7 +13,17 @@ function Build-AssignmentParameterObject {
         foreach ($parameterName in $parametersInPolicyDefinition.Keys) {
             if ($assignmentParameters.ContainsKey($parameterName)) {
                 $assignmentParameterValue = $assignmentParameters.$parameterName
-                $parameterObject[$parameterName] = $assignmentParameterValue
+                if ($parameterSuppressDefaultValues) {
+                    $parameterDefinition = $parametersInPolicyDefinition.$parameterName
+                    $defaultValue = $parameterDefinition.defaultValue
+                    $isSameAsDefaultValue = Confirm-ObjectValueEqualityDeep -existingObj $defaultValue -definedObj $assignmentParameterValue
+                    if (!$isSameAsDefaultValue) {
+                        $parameterObject[$parameterName] = $assignmentParameterValue
+                    }
+                }
+                else {
+                    $parameterObject[$parameterName] = $assignmentParameterValue
+                }
             }
         }
     }

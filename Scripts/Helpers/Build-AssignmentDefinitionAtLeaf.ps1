@@ -28,6 +28,10 @@ function Build-AssignmentDefinitionAtLeaf {
     }
 
     # Validate optional parameterFileName
+    $parameterSuppressDefaultValues = $true
+    if ($null -ne $assignmentDefinition.parameterSuppressDefaultValues) {
+        $parameterSuppressDefaultValues = $assignmentDefinition.parameterSuppressDefaultValues
+    }
     $parameterFileName = $assignmentDefinition.parameterFileName
     $parameterSelector = $assignmentDefinition.parameterSelector
     $useCsv = $false
@@ -73,6 +77,9 @@ function Build-AssignmentDefinitionAtLeaf {
             $enforcementMode = $assignmentDefinition.enforcementMode
             $metadata = $assignmentDefinition.metadata
             if ($metadata) {
+                if ($metadata.ContainsKey("pacOwnerId")) {
+                    $metadata.Remove("pacOwnerId")
+                }
                 $metadata.pacOwnerId = $thisPacOwnerId
             }
             else {
@@ -81,25 +88,24 @@ function Build-AssignmentDefinitionAtLeaf {
 
 
             $assignmentEntry = $null
-            $policySetId = $definitionEntry.policySetId
-            $policyId = $definitionEntry.policyId
+            $policyDefinitionId = $definitionEntry.policyDefinitionId
             if ($definitionEntry.isPolicySet) {
                 # Set Policy Set id
                 $assignmentEntry = @{
-                    isPolicySet     = $true
-                    policySetId     = $policySetId
-                    name            = $name
-                    displayName     = $displayName
-                    description     = $description
-                    enforcementMode = $enforcementMode
-                    metadata        = $metadata
+                    isPolicySet        = $true
+                    policyDefinitionId = $policyDefinitionId
+                    name               = $name
+                    displayName        = $displayName
+                    description        = $description
+                    enforcementMode    = $enforcementMode
+                    metadata           = $metadata
                 }
 
                 if ($useCsv) {
                     $itemEntry = @{
-                        shortName    = $policySetId
-                        itemId       = $policySetId
-                        policySetId  = $policySetId
+                        shortName    = $policyDefinitionId
+                        itemId       = $policyDefinitionId
+                        policySetId  = $policyDefinitionId
                         assignmentId = $null
                     }
                     $null = $itemArrayList.Add($itemEntry)
@@ -108,13 +114,13 @@ function Build-AssignmentDefinitionAtLeaf {
             else {
                 # Set Policy id
                 $assignmentEntry = @{
-                    isPolicySet     = $false
-                    policyId        = $policyId
-                    name            = $name
-                    displayName     = $displayName
-                    description     = $description
-                    enforcementMode = $enforcementMode
-                    metadata        = $metadata
+                    isPolicySet        = $false
+                    policyDefinitionId = $policyDefinitionId
+                    name               = $name
+                    displayName        = $displayName
+                    description        = $description
+                    enforcementMode    = $enforcementMode
+                    metadata           = $metadata
                 }
             }
             $null = $assignmentEntryList.Add($assignmentEntry)
@@ -202,17 +208,16 @@ function Build-AssignmentDefinitionAtLeaf {
 
             # Finish processing definitions, parameters and compliance messages
             $parameterObject = $null
-            $policySetId = $assignmentEntry.policySetId
-            $policyId = $assignmentEntry.policyId
+            $policyDefinitionId = $assignmentEntry.policyDefinitionId
             if ($assignmentEntry.isPolicySet) {
 
                 $policySetsDetails = $combinedPolicyDetails.policySets
-                $policySetDetails = $policySetsDetails.$policySetId
+                $policySetDetails = $policySetsDetails.$policyDefinitionId
 
                 if ($useCsv) {
                     $finalParameters, $localHasErrors = Build-AssignmentCsvAndJsonParameters `
                         -nodeName $nodeName `
-                        -policySetId $policySetId `
+                        -policySetId $policyDefinitionId `
                         -policyDefinitionsScopes $policyDefinitionsScopes `
                         -assignmentDefinition $assignmentDefinition `
                         -flatPolicyList $flatPolicyList `
@@ -225,27 +230,33 @@ function Build-AssignmentDefinitionAtLeaf {
 
                     $parameterObject = Build-AssignmentParameterObject `
                         -assignmentParameters $finalParameters `
-                        -parametersInPolicyDefinition $policySetDetails.parameters
+                        -parametersInPolicyDefinition $policySetDetails.parameters `
+                        -parameterSuppressDefaultValues:$parameterSuppressDefaultValues
                 }
                 else {
                     $parameterObject = Build-AssignmentParameterObject `
                         -assignmentParameters $assignmentDefinition.parameters `
-                        -parametersInPolicyDefinition $policySetDetails.parameters
+                        -parametersInPolicyDefinition $policySetDetails.parameters `
+                        -parameterSuppressDefaultValues:$parameterSuppressDefaultValues
                 }
 
             }
             else {
 
                 $policiesDetails = $combinedPolicyDetails.policies
-                $policyDetails = $policiesDetails.$policyId
+                $policyDetails = $policiesDetails.$policyDefinitionId
 
                 $parameterObject = Build-AssignmentParameterObject `
                     -assignmentParameters $assignmentDefinition.parameters `
-                    -parametersInPolicyDefinition $policyDetails.parameters
+                    -parametersInPolicyDefinition $policyDetails.parameters `
+                    -parameterSuppressDefaultValues:$parameterSuppressDefaultValues
 
             }
             if ($parameterObject.Count -gt 0) {
                 $assignmentEntry.parameters = $parameterObject
+            }
+            else {
+                $assignmentEntry.parameters = @{}
             }
 
             # Process scopeCollection
@@ -257,19 +268,11 @@ function Build-AssignmentDefinitionAtLeaf {
                 # Complete processing roleDefinitions and additionalRoleAssignments and add with metadata to hashtable
                 $roleAssignmentSpecs = @()
                 $roleDefinitionIds = $null
-                if ($assignmentEntry.isPolicySet) {
-                    if ($policyRoleIds.ContainsKey($policySetId)) {
-                        $roleDefinitionIds = $policyRoleIds.$policySetId
+                if ($policyRoleIds.ContainsKey($policyDefinitionId)) {
+                    $scopedAssignment.identity = @{
+                        type = "SystemAssigned"
                     }
-                }
-                else {
-                    if ($policyRoleIds.ContainsKey($policyId)) {
-                        $roleDefinitionIds = $policyRoleIds.$policyId
-                    }
-                }
-
-
-                if ($null -ne $roleDefinitionIds -and $roleDefinitionIds.Length -gt 0) {
+                    $roleDefinitionIds = $policyRoleIds.$policyDefinitionId
                     $scopedAssignment.identityRequired = $true
                     if ($null -ne $assignmentDefinition.managedIdentityLocation) {
                         $scopedAssignment.managedIdentityLocation = $assignmentDefinition.managedIdentityLocation
@@ -305,7 +308,15 @@ function Build-AssignmentDefinitionAtLeaf {
                             }
                         }
                     }
+                    if ($scopedAssignment.metadata.ContainsKey("roles")) {
+                        $scopedAssignment.metadata.Remove("roles")
+                    }
                     $null = $scopedAssignment.metadata.Add("roles", $roleAssignmentSpecs)
+                }
+                else {
+                    $scopedAssignment.identity = @{
+                        type = "None"
+                    }
                 }
 
                 # Add scope and notScopes(if defined)
@@ -316,7 +327,9 @@ function Build-AssignmentDefinitionAtLeaf {
                 if ($scopeEntry.notScope.Length -gt 0) {
                     $scopedAssignment.notScopes = @() + $scopeEntry.notScope
                 }
-
+                else {
+                    $scopedAssignment.notScopes = @()
+                }
 
                 # Add completed hashtable to collection
                 $assignmentsList += $scopedAssignment

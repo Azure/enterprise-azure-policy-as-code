@@ -99,7 +99,7 @@ function Build-AssignmentDefinitionNode {
         }
     }
 
-    # Process meta data
+    # Process metadata
     if ($definitionNode.metadata) {
         if ($definition.metadata) {
             # merge metadata
@@ -127,6 +127,11 @@ function Build-AssignmentDefinitionNode {
     }
 
     #region Parameters
+
+    # Process parameterSuppressDefaultValues
+    if ($definitionNode.parameterSuppressDefaultValues) {
+        $definition.parameterSuppressDefaultValues = $definitionNode.parameterSuppressDefaultValues
+    }
 
     # Process parameters in JSON; parameters defined at a deeper level override previous parameters (union operator)
     if ($definitionNode.parameters) {
@@ -233,7 +238,7 @@ function Build-AssignmentDefinitionNode {
     }
 
     # Process managedIdentityLocation; can be overridden on the tree
-    if ($definitionNode.managedIdentityLocation) {
+    if ($definitionNode.managedIdentityLocations) {
         $managedIdentityLocationValue = $null
         $managedIdentityLocations = $definitionNode.managedIdentityLocations
         foreach ($selector in $managedIdentityLocations.Keys) {

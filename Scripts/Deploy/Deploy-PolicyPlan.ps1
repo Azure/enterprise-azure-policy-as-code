@@ -24,54 +24,19 @@ param (
     [switch] $interactive
 )
 
-function New-AssignmentHelper {
-    [CmdletBinding()]
-    param (
-        [PSCustomObject] $assignmentDefinition,
-        [hashtable] $allPolicyDefinitions,
-        [hashtable] $allPolicySetDefinitions
-    )
-
-    $splatTransform = "name/Name description/Description displayName/DisplayName metadata/Metadata enforcementMode/EnforcementMode scope/Scope notScope/NotScope parameters/PolicyParameterObject:hashtable managedIdentityLocation/Location"
-    [hashtable] $splat = $assignmentDefinition | Get-FilteredHashTable -splatTransform $splatTransform
-    if ($assignmentDefinition.isPolicySet) {
-        $policySetId = $assignmentDefinition.policySetId
-        if ($allPolicySetDefinitions.ContainsKey($policySetId)) {
-            $null = $splat.Add("PolicySetDefinition", $allPolicySetDefinitions[$policySetId])
-        }
-        else {
-            throw "Invalid Policy Set Id $policySetId"
-        }
-    }
-    else {
-        $policyId = $assignmentDefinition.policyId
-        if ($allPolicyDefinitions.ContainsKey($policyId)) {
-            $null = $splat.Add("PolicyDefinition", $allPolicyDefinitions[$policyId])
-        }
-        else {
-            throw "Invalid Policy Id $policyId"
-        }
-    }
-    $null = $splat.Add("WarningAction", "SilentlyContinue")
-
-    # Write-Information "'$($assignmentDefinition.displayName)', identityRequired=$($assignmentDefinition.identityRequired)"
-    if ($assignmentDefinition.identityRequired) {
-        $null = New-AzPolicyAssignment @splat -AssignIdentity
-    }
-    else {
-        $null = New-AzPolicyAssignment @splat
-    }
-}
-
-. "$PSScriptRoot/../Helpers/Get-PacFolders.ps1"
-. "$PSScriptRoot/../Helpers/Get-GlobalSettings.ps1"
-. "$PSScriptRoot/../Helpers/Select-PacEnvironment.ps1"
 . "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
+
 . "$PSScriptRoot/../Helpers/Get-DeepClone.ps1"
-. "$PSScriptRoot/../Helpers/Get-FilteredHashTable.ps1"
-. "$PSScriptRoot/../Helpers/Get-AzPolicyDefinitions.ps1"
 . "$PSScriptRoot/../Helpers/Get-DeploymentPlan.ps1"
+. "$PSScriptRoot/../Helpers/Get-FilteredHashTable.ps1"
+. "$PSScriptRoot/../Helpers/Get-GlobalSettings.ps1"
+. "$PSScriptRoot/../Helpers/Get-PacFolders.ps1"
+
+. "$PSScriptRoot/../Helpers/Select-PacEnvironment.ps1"
+
 . "$PSScriptRoot/../Helpers/Set-AzCloudTenantSubscription.ps1"
+. "$PSScriptRoot/../Helpers/Set-AzPolicyAssignmentRestMethod.ps1"
+. "$PSScriptRoot/../Helpers/Split-ScopeId.ps1"
 
 $InformationPreference = "Continue"
 $pacEnvironment = Select-PacEnvironment $pacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -inputFolder $inputFolder -interactive $interactive
@@ -81,7 +46,7 @@ $planFile = $pacEnvironment.policyPlanInputFile
 $plan = Get-DeploymentPlan -planFile $planFile
 if ($null -eq $plan) {
     Write-Warning "***************************************************************************************************"
-    Write-Warning "Plan does not exist, skip Policy deployment."
+    Write-Warning "Plan does not exist, skipping Policy deployment."
     Write-Warning "***************************************************************************************************"
     Write-Warning ""
 }
@@ -107,7 +72,7 @@ else {
         foreach ($id in $exemptions.Keys) {
             $exemption = $exemptions[$id]
             Write-Information $exemption.displayName
-            $null = Remove-AzPolicyExemption -Id $id -Force
+            $null = Remove-AzPolicyExemption -Id $id -Force -ErrorAction Continue
         }
     }
 
@@ -303,91 +268,36 @@ else {
 
     #region create and update assignments
 
-    $count = $newAssignments.Count + $replaceAssignments.Count + $updateAssignments.Count
-    if ($count -gt 0) {
-
-        $deploymentRootScope = $pacEnvironment.deploymentRootScope
-        $splatTransform = "scopeId:policyScope"
-        $getPolicyScopeSplat = @{
-            scopeId = $deploymentRootScope
-        }
-        $splat = $getPolicyScopeSplat | Get-FilteredHashTable -splatTransform $splatTransform
+    if ($newAssignments.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Fetching existing Policy and Policy Set (Initiative) Definitions from scope '$deploymentRootScope'"
+        Write-Information "Create new Assignments ($($newAssignments.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
-        $policyDefinitionsList = Get-AzPolicyDefinition @splat
-        $allPolicyDefinitions = @{}
-        Write-Information "Policy definitions     = $($policyDefinitionsList.Count)"
-        foreach ($policyDefinition in $policyDefinitionsList) {
-            $allPolicyDefinitions.Add($policyDefinition.ResourceId, $policyDefinition)
+        $currentDisplayName = "-"
+        $newAssignments.Values | Sort-Object -Property { $_.displayName } | ForEach-Object -Process {
+            $currentDisplayName = Set-AzPolicyAssignmentRestMethod -assignment $_ -currentDisplayName $currentDisplayName
         }
-        $policySetDefinitionsList = Get-AzPolicySetDefinition @splat -ApiVersion "2020-08-01"
-        $allPolicySetDefinitions = @{}
-        Write-Information "Policy Set definitions = $($policySetDefinitionsList.Count)"
-        foreach ($policySetDefinition in $policySetDefinitionsList) {
-            $allPolicySetDefinitions.Add($policySetDefinition.ResourceId, $policySetDefinition)
+    }
+
+    if ($replaceAssignments.Count -gt 0) {
+        Write-Information ""
+        Write-Information "==================================================================================================="
+        Write-Information "Recreate replaced Assignments ($($replaceAssignments.Count))"
+        Write-Information "---------------------------------------------------------------------------------------------------"
+        $currentDisplayName = "-"
+        $replaceAssignments.Values | Sort-Object -Property { $_.displayName } | ForEach-Object -Process {
+            $currentDisplayName = Set-AzPolicyAssignmentRestMethod -assignment $_ -currentDisplayName $currentDisplayName
         }
+    }
 
-        if ($newAssignments.Count -gt 0) {
-            Write-Information ""
-            Write-Information "==================================================================================================="
-            Write-Information "Create new Assignments ($($newAssignments.Count))"
-            Write-Information "---------------------------------------------------------------------------------------------------"
-            $currentDisplayName = "-"
-            $newAssignments.Values | Sort-Object -Property { $_.displayName } | ForEach-Object -Process {
-                $displayName = $_.displayName
-                if ($displayName -ne $currentDisplayName) {
-                    Write-Information $displayName
-                    $currentDisplayName = $displayName
-                }
-                Write-Information "    $($_.scope)"
-                New-AssignmentHelper `
-                    -assignmentDefinition $_ `
-                    -allPolicyDefinitions $allPolicyDefinitions `
-                    -allPolicySetDefinitions $allPolicySetDefinitions
-            }
-        }
-
-        if ($replaceAssignments.Count -gt 0) {
-            Write-Information ""
-            Write-Information "==================================================================================================="
-            Write-Information "Recreate replaced Assignments ($($replaceAssignments.Count))"
-            Write-Information "---------------------------------------------------------------------------------------------------"
-            $currentDisplayName = "-"
-            $replaceAssignments.Values | Sort-Object -Property { $_.displayName } | ForEach-Object -Process {
-                $displayName = $_.displayName
-                if ($displayName -ne $currentDisplayName) {
-                    Write-Information $displayName
-                    $currentDisplayName = $displayName
-                }
-                Write-Information "    $($_.scope)"
-                New-AssignmentHelper `
-                    -assignmentDefinition $_ `
-                    -allPolicyDefinitions $allPolicyDefinitions `
-                    -allPolicySetDefinitions $allPolicySetDefinitions
-            }
-        }
-
-        if ($updateAssignments.Count -gt 0) {
-            Write-Information ""
-            Write-Information "==================================================================================================="
-            Write-Information "Update Assignments ($($updateAssignments.Count))"
-            Write-Information "---------------------------------------------------------------------------------------------------"
-            $currentDisplayName = "-"
-            $updateAssignments.Values | Sort-Object -Property { $_.displayName } | ForEach-Object -Process {
-                $splatTransform = $_.splatTransform
-                $assignment = $_ | Get-FilteredHashTable -splatTransform $splatTransform
-                $null = $assignment.Add("WarningAction", "SilentlyContinue")
-
-                $displayName = $_.displayName
-                if ($displayName -ne $currentDisplayName) {
-                    Write-Information $displayName
-                    $currentDisplayName = $displayName
-                }
-                Write-Information "    $($_.scope)"
-                $null = Set-AzPolicyAssignment @assignment
-            }
+    if ($updateAssignments.Count -gt 0) {
+        Write-Information ""
+        Write-Information "==================================================================================================="
+        Write-Information "Update Assignments ($($updateAssignments.Count))"
+        Write-Information "---------------------------------------------------------------------------------------------------"
+        $currentDisplayName = "-"
+        $updateAssignments.Values | Sort-Object -Property { $_.displayName } | ForEach-Object -Process {
+            $currentDisplayName = Set-AzPolicyAssignmentRestMethod -assignment $_ -currentDisplayName $currentDisplayName
         }
     }
 

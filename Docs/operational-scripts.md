@@ -46,6 +46,18 @@ This script executes all remediation tasks in a Policy as Code environment speci
 | `DefinitionsRootFolder` | Optional | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It contains `global-settings.jsonc`. |
 | `interactive` | Optional | Script is being run interactively and can request az login. Defaults to $false if PacEnvironmentSelector parameter provided and $true otherwise. |
 
+## Build-DefinitionsFolder.ps1
+
+[Extract existing Policy definitions, Policy Set definitions, and Policy Assignments](extract-existing-policy-resources.md) and outputs them in EPAC format into folders which can be directly copied to the `Definitions` folder. This useful when initially transitioning from a pre-EPAC to EPAC environment.
+
+|Parameter | Required | Explanation |
+|----------|----------|-------------|
+| `PacEnvironmentSelector` | Optional | Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc`. |
+| `definitionsRootFolder` | Optional | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It contains `global-settings.jsonc`.
+| `outputFolder` | Optional | Output Folder. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER` or `./Outputs`.
+| `interactive` | Optional | Script is being run interactively and can request az login. It will also prompt for each file to process or skip. Defaults to $true. |
+| `includeChildScopes` | Optional | Switch parameter to include Policy and Policy Set definitions in child scopes; child scopes are normally ignored for definitions. This does not impact Policy Assignments. |
+
 ## Build-PolicyAssignmentDocumentation.ps1
 
 Generates documentation for assignments and initiatives based on JSON files in `$definitionsFolder/Documentation`. [See Define Documentation for details](documenting-assignments-and-policy-sets.md).
@@ -55,7 +67,7 @@ Generates documentation for assignments and initiatives based on JSON files in `
 | `definitionsRootFolder` | Optional | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It contains `global-settings.jsonc`.
 | `outputFolder` | Optional | Output Folder. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER` or `./Outputs`.
 | `interactive` | Optional | Script is being run interactively and can request az login. It will also prompt for each file to process or skip. Defaults to $true. |
-| `suppressConfirmation` | Optional |Switch parameter to suppresses prompt for confirmation of each file in interactive mode. |
+| `suppressConfirmation` | Optional | Switch parameter to suppresses prompt for confirmation of each file in interactive mode. |
 
 ## Get-AzMissingTags.ps1
 
@@ -133,9 +145,11 @@ Exports a policy assignment from Azure to a local file in the EPAC format. Provi
 * [Setup DevOps Environment](operating-environment.md) .
 * [Create a source repository and import the source code](clone-github.md) from this repository.
 * [Select the desired state strategy](desired-state-strategy.md)
-* Copy starter kit pipeline definition and definition folder to your folders.
 * [Define your deployment environment](definitions-and-global-settings.md) in `global-settings.jsonc`.
 * [Build your CI/CD pipeline](ci-cd-pipeline.md) using a starter kit.
+* Optional: generate a starting point for the `Definitions` folders:
+  * [Extract existing Policy resources from an environment](extract-existing-policy-resources.md).
+  * [Import Policies from the Cloud Adoption Framework](cloud-adoption-framework.md).
 * [Add custom Policy definitions](policy-definitions.md).
 * [Add custom Policy Set definitions](policy-set-definitions.md).
 * [Create Policy Assignments](policy-assignments.md).

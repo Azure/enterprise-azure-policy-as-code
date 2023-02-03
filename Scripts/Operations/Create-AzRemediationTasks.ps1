@@ -23,10 +23,11 @@ param(
 . "$PSScriptRoot/../Helpers/Get-AzScopeTree.ps1"
 . "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
 . "$PSScriptRoot/../Helpers/Invoke-AzCli.ps1"
-. "$PSScriptRoot/../Helpers/Split-AssignmentIdForAzCli.ps1"
 . "$PSScriptRoot/../Helpers/Set-AzCloudTenantSubscription.ps1"
 . "$PSScriptRoot/../Helpers/Search-AzGraphAllItems.ps1"
 . "$PSScriptRoot/../Helpers/Get-FilteredHashTable.ps1"
+. "$PSScriptRoot/../Helpers/Split-ScopeId.ps1"
+. "$PSScriptRoot/../Helpers/Split-AzPolicyResourceId.ps1"
 
 $InformationPreference = "Continue"
 $pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -outputFolder $OutputFolder -interactive $interactive
@@ -80,11 +81,11 @@ else {
         }
         if ($policyDefinitionReferenceId -ne "") {
             Write-Information "Assignment='$($assignmentName)', scope=$($shortScope), reference=$($policyDefinitionReferenceId), nonCompliant=$($count)"
-            # $null = Start-AzPolicyRemediation -Name $taskName -Scope $scope -PolicyAssignmentId $policyAssignmentId -PolicyDefinitionReferenceId $policyDefinitionReferenceId
+            $null = Start-AzPolicyRemediation -Name $taskName -Scope $scope -PolicyAssignmentId $policyAssignmentId -PolicyDefinitionReferenceId $policyDefinitionReferenceId
         }
         else {
             Write-Information "Assignment='$($assignmentName)', scope=$($shortScope), nonCompliant=$($count)"
-            # $null = Start-AzPolicyRemediation -Name $taskName -Scope $scope -PolicyAssignmentId $policyAssignmentId
+            $null = Start-AzPolicyRemediation -Name $taskName -Scope $scope -PolicyAssignmentId $policyAssignmentId
         }
     }
 }

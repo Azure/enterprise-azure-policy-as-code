@@ -35,6 +35,7 @@ param (
 . "$PSScriptRoot/../Helpers/Get-HashtableShallowClone.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-PacOwner.ps1"
 . "$PSScriptRoot/../Helpers/Get-PolicyResourceProperties.ps1"
+. "$PSScriptRoot/../Helpers/Split-ScopeId.ps1"
 
 # Documentation Functions
 . "$PSScriptRoot/../Helpers/Get-AssignmentsDetails.ps1"

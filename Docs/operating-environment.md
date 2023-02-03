@@ -13,7 +13,7 @@
 
 Your operating environment will include two repos, a runner, and at least one developer machine. The following software is required on the runners and any developer workstation.
 
-* PowerShell 7.2 or later, 7.3.1 (latest) recommended
+* PowerShell 7.3.1 or later, 7.3.2 (latest) recommended
 * PowerShell Modules
   * Az required 9.3.0 or later - **9.2.x has a bug which causes EPAC to fail**
   * ImportExcel (required only if using Excel functionality)
@@ -67,9 +67,11 @@ Agents (also called runners) are often hosted in VMs within Azure itself. It is 
 * [Setup DevOps Environment](operating-environment.md) .
 * [Create a source repository and import the source code](clone-github.md) from this repository.
 * [Select the desired state strategy](desired-state-strategy.md)
-* Copy starter kit pipeline definition and definition folder to your folders.
 * [Define your deployment environment](definitions-and-global-settings.md) in `global-settings.jsonc`.
 * [Build your CI/CD pipeline](ci-cd-pipeline.md) using a starter kit.
+* Optional: generate a starting point for the `Definitions` folders:
+  * [Extract existing Policy resources from an environment](extract-existing-policy-resources.md).
+  * [Import Policies from the Cloud Adoption Framework](cloud-adoption-framework.md).
 * [Add custom Policy definitions](policy-definitions.md).
 * [Add custom Policy Set definitions](policy-set-definitions.md).
 * [Create Policy Assignments](policy-assignments.md).

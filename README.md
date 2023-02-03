@@ -14,12 +14,16 @@
 > ---
 > ---
 
+<br/>
+
 > ---
 > ---
 >
-> **Az PowerShell Module 9.2.x has a known issue (bug)**
+> **Az PowerShell Module 9.2.x has a known issue (bug)** <br/>
+> This bug causes multiple failures of EPAC and any other Policy as Code solution depending on Az Module.
 >
-> This bug causes multiple failures of EPAC and any other Policy as Code solution depending on Az Module. Az 9.3.0 fixed this issue. Azure DevOps Microsoft hosted agents updates with the fix started rolling out on 1/23/2023.
+> **Az PowerShell Module 9.3.0 fixed this issue.** <br/>
+> Azure DevOps Microsoft hosted agents updates with the fix started rolling out on 1/23/2023.
 >
 > ---
 > ---
@@ -188,10 +192,13 @@ Desired state strategy documentation can be found [here.](Docs/desired-state-str
 
 ### Build your definitions and assignments
 
+* Optional: generate a starting point for the `Definitions` subfolders:
+  * [Extract existing Policy resources from an environment](Docs/extract-existing-policy-resources.md).
+  * [Import Policies from the Cloud Adoption Framework](Docs/cloud-adoption-framework.md).
+  * Use the sample Policy resource definitions in the starter kit.
 * [Add custom Policy definitions](Docs/policy-definitions.md).
 * [Add custom Policy Set definitions](Docs/policy-set-definitions.md).
 * [Create Policy Assignments](Docs/policy-assignments.md).
-* Or import Policies from the [Cloud Adoption Framework](Docs/cloud-adoption-framework.md).
 
 ### Manage your Policy environment
 

@@ -83,7 +83,7 @@ function Build-ExemptionsPlan {
                             Write-Error "  Invalid metadata format, must be empty or legal JSON: '$step2'"
                         }
                     }
-                    $exemption = [ordered]@{
+                    $exemption = @{
                         name                         = $row.name
                         displayName                  = $row.displayName
                         description                  = $row.description

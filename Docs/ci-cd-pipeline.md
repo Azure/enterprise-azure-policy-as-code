@@ -77,8 +77,8 @@ Create Service Principals and associated service connections in Azure DevOps or 
 
 | Connection | Stages  | MG: epac-dev-mg | MG: Tenant Root |
 | :--- | :--- | :--- | :--- |
-| sc-pac-dev | devStage  | Owner ||||
-| sc-pac-plan | tenantPlanFeatureStage <br/> tenantPlanMainStage || EPAC Policy Reader<br/>MS Graph Permissions |
+| sc-pac-dev | devStage  | Owner <br/> [Graph Permissions](#ms-graph-permissions) ||||
+| sc-pac-plan | tenantPlanFeatureStage <br/> tenantPlanMainStage || [EPAC Policy Reader](#custom-epac-resource-policy-reader-role) <br/> [Graph Permissions](#ms-graph-permissions) |
 | sc-pac-prod | tenantDeployStage || Policy Contributor |
 | sc-pac-roles | tenantRolesStage-1 || User Access Administrator |
 
@@ -105,9 +105,9 @@ Create Service Principals and associated service connections in Azure DevOps or 
 
 | Connection | Stages  | MG: epac-dev-mg | MG: Tenant 1 Root | MG: Tenant 2 Root |
 | :--- | :--- | :--- | :--- | :--- |
-| sc-pac-dev | devStage  | Owner ||||
-| sc-pac-plan-1 | tenantPlanFeatureStage-1 <br/> tenantPlanMainStage-1 || EPAC Policy Reader<br/>MS Graph Permissions ||
-| sc-pac-plan-2 | tenantPlanFeatureStage-2 <br/> tenantPlanMainStage-2 ||| EPAC Policy Reader |
+| sc-pac-dev | devStage  | Owner <br/> [Graph Permissions](#ms-graph-permissions) ||||
+| sc-pac-plan-1 | tenantPlanFeatureStage-1 <br/> tenantPlanMainStage-1 || [EPAC Policy Reader](#custom-epac-resource-policy-reader-role) <br/> [Graph Permissions](#ms-graph-permissions) ||
+| sc-pac-plan-2 | tenantPlanFeatureStage-2 <br/> tenantPlanMainStage-2 ||| [EPAC Policy Reader](#custom-epac-resource-policy-reader-role) <br/> [Graph Permissions](#ms-graph-permissions) |
 | sc-pac-prod-1 | tenantDeployStage-1 || Policy Contributor ||
 | sc-pac-prod-2 | tenantDeployStage-2 ||| Policy Contributor |
 | sc-pac-roles-1 | tenantRolesStage-1 || User Access Administrator ||
@@ -204,7 +204,6 @@ Create distinct ADO environment to configure approval gates. Refer to the follow
 
 <br/>
 
-
 ![image.pmg](Images/epac-deployment-scripts.png)
 
 <br/>
@@ -296,9 +295,11 @@ Detail view:
 * [Setup DevOps Environment](operating-environment.md) .
 * [Create a source repository and import the source code](clone-github.md) from this repository.
 * [Select the desired state strategy](desired-state-strategy.md)
-* Copy starter kit pipeline definition and definition folder to your folders.
 * [Define your deployment environment](definitions-and-global-settings.md) in `global-settings.jsonc`.
 * [Build your CI/CD pipeline](ci-cd-pipeline.md) using a starter kit.
+* Optional: generate a starting point for the `Definitions` folders:
+  * [Extract existing Policy resources from an environment](extract-existing-policy-resources.md).
+  * [Import Policies from the Cloud Adoption Framework](cloud-adoption-framework.md).
 * [Add custom Policy definitions](policy-definitions.md).
 * [Add custom Policy Set definitions](policy-set-definitions.md).
 * [Create Policy Assignments](policy-assignments.md).
