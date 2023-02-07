@@ -11,7 +11,7 @@ function Build-PolicySetPolicyDefinitionIds {
         [hashtable] $policyRoleIds
     )
 
-    ######## validating each Policy Definition needed in Policy Set exists ###########
+    ######## validating each Policy Definition needed in Policy Set (Initiative) exists ###########
     Write-Verbose  "        Check existence of referenced policyDefinitionIDs and build new array"
 
     $validPolicyDefinitions = $true

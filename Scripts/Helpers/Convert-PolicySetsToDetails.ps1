@@ -8,7 +8,7 @@ function Convert-PolicySetsToDetails {
     )
 
     $policyDetails = @{}
-    Write-Information "Calculating effect parameters for $($allPolicyDefinitions.Count) Policies."
+    Write-Information "Calculating effect parameters for $($allPolicyDefinitions.Count) Policy definitions."
     foreach ($policyId in $allPolicyDefinitions.Keys) {
         $policy = $allPolicyDefinitions.$policyId
         $properties = Get-PolicyResourceProperties -policyResource $policy
@@ -88,7 +88,7 @@ function Convert-PolicySetsToDetails {
         $null = $policyDetails.Add($policyId, $policyDetail)
     }
 
-    Write-Information "Calculating effect parameters for $($allPolicySetDefinitions.Count) Policy Set definitions."
+    Write-Information "Calculating effect parameters for $($allPolicySetDefinitions.Count) Policy Set (Initiative) definitions."
     $policySetDetails = @{}
     foreach ($policySetId in $allPolicySetDefinitions.Keys) {
         $policySet = $allPolicySetDefinitions.$policySetId
@@ -224,7 +224,7 @@ function Convert-PolicySetsToDetails {
             $description = ""
         }
 
-        # Find Policies appearing more than once in PolicySet
+        # Find Policy definitions appearing more than once in PolicySet
         $uniquePolicies = @{}
         $policiesWithMultipleReferenceIds = @{}
         foreach ($policyInPolicySetDetail in $policyInPolicySetDetailList) {

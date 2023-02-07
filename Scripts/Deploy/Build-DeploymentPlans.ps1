@@ -83,7 +83,7 @@ if ($exemptionsAreNotManaged) {
 $scopeTable = Get-AzScopeTree -pacEnvironment $pacEnvironment
 $deployedPolicyResources = Get-AzPolicyResources -pacEnvironment $pacEnvironment -scopeTable $scopeTable -skipExemptions:$exemptionsAreNotManaged
 
-# Process Policies
+# Process Policy definitions
 $policyDefinitions = @{
     new             = @{}
     update          = @{}
@@ -107,7 +107,7 @@ Build-PolicyPlan `
     -replaceDefinitions $replaceDefinitions `
     -policyRoleIds $policyRoleIds
 
-# Process Policy Sets
+# Process Policy Set definitions
 $policySetDefinitions = @{
     new             = @{}
     update          = @{}
@@ -194,117 +194,117 @@ Write-Information "=============================================================
 $policyChanged = $false
 $count = $policyDefinitions.numberUnchanged
 if ($count -gt 0) {
-    Write-Information "Policies - unchanged : $($count)"
+    Write-Information "Policy definitions     - unchanged : $($count)"
 }
 $count = $policyDefinitions.new.Count
 if ($count -gt 0) {
-    Write-Information "Policies - new       : $($count)"
+    Write-Information "Policy definitions     - new       : $($count)"
     $policyChanged = $true
 }
 $count = $policyDefinitions.update.Count
 if ($count -gt 0) {
-    Write-Information "Policies - updated   : $($count)"
+    Write-Information "Policy definitions     - updated   : $($count)"
     $policyChanged = $true
 }
 $count = $policyDefinitions.replace.Count
 if ($count -gt 0) {
-    Write-Information "Policies - replaced  : $($count)"
+    Write-Information "Policy definitions     - replaced  : $($count)"
     $policyChanged = $true
 }
 $count = $policyDefinitions.delete.Count
 if ($count -gt 0) {
-    Write-Information "Policies - deleted   : $($count)"
+    Write-Information "Policy definitions     - deleted   : $($count)"
     $policyChanged = $true
 }
 $count = $policySetDefinitions.numberUnchanged
 if ($count -gt 0) {
-    Write-Information "Policy Sets - unchanged : $($count)"
+    Write-Information "Policy Set definitions - unchanged : $($count)"
 }
 $count = $policySetDefinitions.new.Count
 if ($count -gt 0) {
-    Write-Information "Policy Sets - new       : $($count)"
+    Write-Information "Policy Set definitions - new       : $($count)"
     $policyChanged = $true
 }
 $count = $policySetDefinitions.update.Count
 if ($count -gt 0) {
-    Write-Information "Policy Sets - updated   : $($count)"
+    Write-Information "Policy Set definitions - updated   : $($count)"
     $policyChanged = $true
 }
 $count = $policySetDefinitions.replace.Count
 if ($count -gt 0) {
-    Write-Information "Policy Sets - replaced  : $($count)"
+    Write-Information "Policy Set definitions - replaced  : $($count)"
     $policyChanged = $true
 }
 $count = $policySetDefinitions.delete.Count
 if ($count -gt 0) {
-    Write-Information "Policy Sets - deleted   : $($count)"
+    Write-Information "Policy Set definitions - deleted   : $($count)"
     $policyChanged = $true
 }
 $count = $assignments.numberUnchanged
 if ($count -gt 0) {
-    Write-Information "Policy Assignments - unchanged : $($count)"
+    Write-Information "Policy Assignments     - unchanged : $($count)"
 }
 $count = $assignments.new.Count
 if ($count -gt 0) {
-    Write-Information "Policy Assignments - new       : $($count)"
+    Write-Information "Policy Assignments     - new       : $($count)"
     $policyChanged = $true
 }
 $count = $assignments.update.Count
 if ($count -gt 0) {
-    Write-Information "Policy Assignments - updated   : $($count)"
+    Write-Information "Policy Assignments     - updated   : $($count)"
     $policyChanged = $true
 }
 $count = $assignments.replace.Count
 if ($count -gt 0) {
-    Write-Information "Policy Assignments - replaced  : $($count)"
+    Write-Information "Policy Assignments     - replaced  : $($count)"
     $policyChanged = $true
 }
 $count = $assignments.delete.Count
 if ($count -gt 0) {
-    Write-Information "Policy Assignments - deleted   : $($count)"
+    Write-Information "Policy Assignments     - deleted   : $($count)"
     $policyChanged = $true
 }
 
 $roleAssignmentsChanged = $false
 $count = $roleAssignments.removed.Count
 if ($count -gt 0) {
-    Write-Information "Role Assignments   - removed   : $($count)"
+    Write-Information "Role Assignments       - removed   : $($count)"
     $roleAssignmentsChanged = $true
 }
 $count = $roleAssignments.added.Count
 if ($count -gt 0) {
-    Write-Information "Role Assignments   - added     : $($count)"
+    Write-Information "Role Assignments       - added     : $($count)"
     $roleAssignmentsChanged = $true
 }
 
 if ($exemptionsAreManaged) {
     $count = $exemptions.numberUnchanged
     if ($count -gt 0) {
-        Write-Information "Policy Exemptions - unchanged : $($count)"
+        Write-Information "Policy Exemptions      - unchanged : $($count)"
     }
     $count = $exemptions.new.Count
     if ($count -gt 0) {
-        Write-Information "Policy Exemptions - new       : $($count)"
+        Write-Information "Policy Exemptions      - new       : $($count)"
         $policyChanged = $true
     }
     $count = $exemptions.update.Count
     if ($count -gt 0) {
-        Write-Information "Policy Exemptions - updated   : $($count)"
+        Write-Information "Policy Exemptions      - updated   : $($count)"
         $policyChanged = $true
     }
     $count = $exemptions.replace.Count
     if ($count -gt 0) {
-        Write-Information "Policy Exemptions - replaced  : $($count)"
+        Write-Information "Policy Exemptions      - replaced  : $($count)"
         $policyChanged = $true
     }
     $count = $exemptions.delete.Count
     if ($count -gt 0) {
-        Write-Information "Policy Exemptions - deleted   : $($count)"
+        Write-Information "Policy Exemptions      - deleted   : $($count)"
         $policyChanged = $true
     }
     $count = $exemptions.numberOfOrphans
     if ($count -gt 0) {
-        Write-Information "Policy Exemptions - orphaned  : $($count)"
+        Write-Information "Policy Exemptions      - orphaned  : $($count)"
     }
 }
 

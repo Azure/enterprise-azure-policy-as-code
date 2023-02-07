@@ -6,7 +6,8 @@
         "description": "Sets the allowed locations"
     },
     "definitionEntry": {
-        "policySetName": "general-allowed-locations-policy-set",
+        "initiativeName": "general-allowed-locations-policy-set",
+        "friendlyNameToDocumentIfGuid": ""
     },
     "parameters": {
         "AllowedLocations": [
