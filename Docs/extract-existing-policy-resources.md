@@ -19,7 +19,7 @@
 
 <br/>
 
-Extracts existing Policy definitions, Policy Set definitions, and Policy Assignments and outputs them in EPAC format into subfolders in folder (`$outputFolders/Definitions`). The subfolders are `policyDefinitions`, `policySetDefinitions`, and `policyAssignments`. In a new EPAC instance these subfolders can be directly copied to the`Definitions` folder enabling an initial transition from a pre-EPAC to EPAC environment.
+Extracts existing Policies, Policy Sets, and Policy Assignments and outputs them in EPAC format into subfolders in folder (`$outputFolders/Definitions`). The subfolders are `policyDefinitions`, `policySetDefinitions`, and `policyAssignments`. In a new EPAC instance these subfolders can be directly copied to the`Definitions` folder enabling an initial transition from a pre-EPAC to EPAC environment.
 
 > ---
 > ---
@@ -36,24 +36,24 @@ Extracts existing Policy definitions, Policy Set definitions, and Policy Assignm
 | `definitionsRootFolder` | Optional | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It contains `global-settings.jsonc`.
 | `outputFolder` | Optional | Output Folder. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER` or `./Outputs`.
 | `interactive` | Optional | Script is being run interactively and can request az login. It will also prompt for each file to process or skip. Defaults to $true. |
-| `includeChildScopes` | Optional | Switch parameter to include Policy and Policy Set definitions in child scopes; child scopes are normally ignored for definitions. This does not impact Policy Assignments. |
+| `includeChildScopes` | Optional | Switch parameter to include Policies and Policy Sets in child scopes; child scopes are normally ignored for definitions. This does not impact Policy Assignments. |
 
 <br/>
 
 The scripts creates a `Definitions` folder in the `outputFolder` and subfolders for `policyDefinitions`, `policySetDefinitions` and `policyAssignments`. To use the genaerated files copy them to your `Definitions` folder.
 
 * `policyDefinitions`, `policySetDefinitions` have a subfolder based on `metadata.category`. If the definition has no `category` `metadata` they are put ina subfolder labeled `Unknown Category`. Duplicates when including child scopes are sorted into the `Duplicates` folder. Creates one file per Policy and Policy Set.
-* `policyAssignments` have a subfolder `policy` for assignments of a single Policy, or a subfolder `policySet` for assignment of a Policy Set (Initiative). Creates one file per unique assigned Policy or Policy Set spanning multiple Assignments.
+* `policyAssignments` have a subfolder `policy` for assignments of a single Policy, or a subfolder `policySet` for assignment of a Policy Set. Creates one file per unique assigned Policy or Policy Set spanning multiple Assignments.
 
 ## Preview Caveats
 
 The extraction are subject to the following assumptions and caveats:
 
-* Names of Policy and Policy Set (Initiative) definitions are unique across multiple scopes (switch `includeChildScopes` is used)
+* Names of Policies and Policy Sets are unique across multiple scopes (switch `includeChildScopes` is used)
 * Assignment names are the same if the parameters match across multiple assignments across scopes for the same `policyDefinitionId` to enable optimization of the JSON.
 * Ignores Assignments auto-assigned by Security Center (Defender for Cloud) at subscription level.
 * Does not collate across multiple tenants.
-* Does not calculate any additionalRoleAssignments.
+* Does not calculate any `additionalRoleAssignments`.
 * Only optimizes the tree structure from the three levels in the following order:
   * `policyDefinition` (name or id)
   * `parameters` per parameter set for the `policyDefinition`
@@ -75,8 +75,8 @@ The extraction are subject to the following assumptions and caveats:
 * Optional: generate a starting point for the `Definitions` folders:
   * [Extract existing Policy resources from an environment](extract-existing-policy-resources.md).
   * [Import Policies from the Cloud Adoption Framework](cloud-adoption-framework.md).
-* [Add custom Policy definitions](policy-definitions.md).
-* [Add custom Policy Set definitions](policy-set-definitions.md).
+* [Add custom Policies](policy-definitions.md).
+* [Add custom Policy Sets](policy-set-definitions.md).
 * [Create Policy Assignments](policy-assignments.md).
 * Import Policies from the [Cloud Adoption Framework](cloud-adoption-framework.md).
 * [Manage Policy Exemptions](policy-exemptions.md).

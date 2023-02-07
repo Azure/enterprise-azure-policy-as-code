@@ -14,7 +14,7 @@ param (
     [Parameter(Mandatory = $false, HelpMessage = "Set to false if used non-interactive")]
     [bool] $interactive = $true,
 
-    [Parameter(Mandatory = $false, HelpMessage = "Switch to include Policy and Policy Set definitions in child scopes")]
+    [Parameter(Mandatory = $false, HelpMessage = "Switch to include Policies and Policy Sets definitions in child scopes")]
     [switch] $includeChildScopes
 )
 
@@ -128,7 +128,7 @@ foreach ($policyDefinition in $policyDefinitions.Values) {
 
 Write-Information ""
 Write-Information "==================================================================================================="
-Write-Information "Processing $($policySetDefinitions.Count) Policy Set (Initiative) definitions"
+Write-Information "Processing $($policySetDefinitions.Count) Policy Set definitions"
 Write-Information "==================================================================================================="
 
 $policySetNames = @{}
@@ -187,7 +187,7 @@ Write-Information "=============================================================
 Write-Information "Processing $($policyAssignments.Count) Policy Assignments"
 Write-Information "==================================================================================================="
 Write-Information "WARNING! This script assumes the following:"
-Write-Information "* Names of Policy and Policy Set (Initiative) definitions are unique across multiple scopes."
+Write-Information "* Names of Policy and Policy Set definitions are unique across multiple scopes."
 Write-Information "* Assignment names are the same if the parameters match across multiple assignments across scopes."
 Write-Information "* Ignores Assignments auto-assigned by Security Center."
 Write-Information "* Does not collate across multiple tenants."

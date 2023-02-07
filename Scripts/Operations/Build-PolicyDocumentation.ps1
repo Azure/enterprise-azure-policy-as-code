@@ -36,8 +36,6 @@ param (
 . "$PSScriptRoot/../Helpers/Confirm-PacOwner.ps1"
 . "$PSScriptRoot/../Helpers/Get-PolicyResourceProperties.ps1"
 . "$PSScriptRoot/../Helpers/Split-ScopeId.ps1"
-. "$PSScriptRoot/../Helpers/Build-NotScopes.ps1"
-. "$PSScriptRoot/../Helpers/Split-AzPolicyResourceId.ps1"
 
 # Documentation Functions
 . "$PSScriptRoot/../Helpers/Get-AssignmentsDetails.ps1"
