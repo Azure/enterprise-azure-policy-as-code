@@ -21,7 +21,7 @@ function Confirm-PolicySetDefinitionUsedExists {
             return $id
         }
         else {
-            Write-Error "    PolicySet (Initiative) '$id' not found."
+            Write-Error "    PolicySet '$id' not found."
             return $null
         }
     }
@@ -33,7 +33,7 @@ function Confirm-PolicySetDefinitionUsedExists {
             }
         }
 
-        Write-Error "    PolicySet (Initiative) name '$name' not found in custom or built-in PolicySet (Initiative) definitions."
+        Write-Error "    PolicySet name '$name' not found in custom or built-in PolicySet definitions."
         return $null
     }
 }

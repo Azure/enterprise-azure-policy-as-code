@@ -58,8 +58,8 @@ If you use spreadsheets (.csv or .xlsx):
 * Optional: generate a starting point for the `Definitions` folders:
   * [Extract existing Policy resources from an environment](extract-existing-policy-resources.md).
   * [Import Policies from the Cloud Adoption Framework](cloud-adoption-framework.md).
-* [Add custom Policy definitions](policy-definitions.md).
-* [Add custom Policy Set definitions](policy-set-definitions.md).
+* [Add custom Policies](policy-definitions.md).
+* [Add custom Policy Sets](policy-set-definitions.md).
 * [Create Policy Assignments](policy-assignments.md).
 * Import Policies from the [Cloud Adoption Framework](cloud-adoption-framework.md).
 * [Manage Policy Exemptions](policy-exemptions.md).

@@ -36,9 +36,9 @@ function Confirm-PolicyDefinitionUsedExists {
             }
         }
 
-        # Not found in custom Policy definitions, try built-in Policy definitions
+        # Not found in custom Policies, try built-in Policies
         if (!$suppressErrorMessage) {
-            Write-Error "    Policy name '$name' not found in custom or built-in Policy definitions."
+            Write-Error "    Policy name '$name' not found in custom or built-in Policies."
         }
         return $null
     }

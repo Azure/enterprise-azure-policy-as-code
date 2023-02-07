@@ -8,7 +8,8 @@
             "category": "Security Center"
         },
         "importPolicyDefinitionGroups": [
-            "1f3afdf9-d0c9-4c3d-847f-89da613e70a8" // built-in Initiative definition (ASB v3)
+            // built-in Initiative definition (ASB v3)
+            "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8"
         ],
         "parameters": {
             "effect": {

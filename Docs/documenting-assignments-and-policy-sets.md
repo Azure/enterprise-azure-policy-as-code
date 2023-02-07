@@ -1,4 +1,4 @@
-# Documenting Assignments and Initiatives
+# Documenting Policy Assignments and Sets of Policy Set (Initiative) definitions
 
 **On this page**
 
@@ -8,26 +8,24 @@
   * [Element `environmentCategories`](#element-environmentcategories)
   * [Element `documentationSpecifications`](#element-documentationspecifications)
   * [Output files](#output-files)
-* [Initiative Documentation](#initiative-documentation)
-  * [Element `documentInitiatives`](#element-documentinitiatives)
+* [Policy Set Documentation](#policy-set-documentation)
+  * [Element `documentPolicySets`](#element-documentpolicysets)
   * [Output files](#output-files-1)
 * [Reading List](#reading-list)
 
 ## Overview
 
-The Documentation feature provides reports on Initiatives and Assignments deployed within an environment, and comparisons of Initiatives (deployed or not) for considering differences in policies and effects.  Output is generated as Markdown (`.md`), and Excel (`.csv`) files.
-
-The script [`./Scripts/Operations/Build-PolicyAssignmentDocumentation.ps1`](operational-scripts.md#build-policyassignmentdocumentationps1) documents Initiatives and Assignments in your environment. It retrieves its instruction from the JSON files in this folder; the names of the definition JSON files don't matter as the script reads any file in the folder with a `.json` and `.jsonc` extension.
+The Documentation feature provides reports on Policy Assignments deployed within an environment, and comparisons of Policy Assignments and Sets of Policy Set definitions for considering differences in policies and effects.  Output is generated as Markdown (`.md`), and Excel (`.csv`) files. with script [`./Scripts/Operations/Build-PolicyDocumentation.ps1`](operational-scripts.md#Build-PolicyDocumentation.ps1) It retrieves its instruction from the JSON files in this folder; the names of the definition JSON files don't matter as the script reads any file in the folder with a `.json` and `.jsonc` extension.
 
 * Read and process Policy Assignments which are representative of an environment category, such as prod, test, dev, and sandbox. It generates Markdown (`.md`), and Excel (`.csv`) files.
-* Read and process Initiative definitions to compare them for Policy and effect overlap. It generates Markdown (`.md`), Excel (`.csv`) files, and JSON file (`.jsonc`).
+* Read and process Policy Sets to compare them for Policy and effect overlap. It generates Markdown (`.md`), Excel (`.csv`) files, and JSON file (`.jsonc`).
 
 ## Example Documentation Specification File
 
-Each file must contain one or both documentation topics. This example file in the StarterKit has both topics. Element `pacEnvironment` references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the custom Policy and Initiative definitions are deployed.
+Each file must contain one or both documentation topics. This example file in the StarterKit has both topics. Element `pacEnvironment` references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the custom Policies and Policy Sets are deployed.
 
 * [`documentAssignments`](#assignment-documentation)
-* [`documentInitiatives`](#initiative-documentation)
+* [`documentPolicySets`](#policy-set-documentation)
 
 ```jsonc
 {
@@ -97,12 +95,12 @@ Each file must contain one or both documentation topics. This example file in th
             }
         ]
     },
-    "documentInitiatives": [
+    "documentPolicySets": [
         {
             "pacEnvironment": "tenant",
-            "fileNameStem": "contoso-compliance-initiatives",
-            "title": "Document interesting Initiatives",
-            "initiatives": [
+            "fileNameStem": "contoso-compliance-policy-sets",
+            "title": "Document interesting Policy Sets",
+            "policySets": [
                 {
                     "shortName": "ASB",
                     "id": "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8" // Azure Security Benchmark v3
@@ -139,7 +137,7 @@ For any given environment category, such as `prod`, `test`, `dev`, this section 
 
 Each `environmentCategories` entry specifies:
 
-* `pacEnvironment`: references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the Policy and Initiative definitions are deployed.
+* `pacEnvironment`: references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the Policies and Policy Sets are deployed.
 * `environmentCategory`: name used for column headings and referenced in `documentationSpecifications` below.
 * `scopes`:  used in Markdown output only for the Scopes section as unprocessed text.
 * `representativeAssignments`: list Policy Assignment `id`s representing this `environmentCategory`. The `shortName` is used for CSV column headings and markdown output.
@@ -154,27 +152,29 @@ Each entry in the array defines a set of outputs:
 
 ### Output files
 
-* `<fileNameStem>-full.csv`: Lists Policies across environments and Initiatives sorted by `category` and ``displayName`.
+* `<fileNameStem>-full.csv`: Lists Policies across environments and multiple Policy Sets sorted by `category` and ``displayName`.
   | Column | Description |
   | :----- | :---------- |
   | `name` | Policy name (must be unique - a GUID for built-in Policies)
-  | `referencePath` | Disambiguate Policies included multiple times in an Initiative with different `referenceId`s. It is blank if not needed or formatted as `<initiative.name>\\<referenceId>`.
+  | `referencePath` | Disambiguate Policies included multiple times in an Policy Set definition with different `referenceId`s. It is blank if not needed or formatted as `<policy-set.name>\\<referenceId>`.
   | `category` | Policy `category` from Policy `metadata`.
   | `displayName` |
   | `description` |
-  | `groupNames` | Union of (compliance Initiative) `groupNames` for this Policy.
-  | `allowedEffects` | List of allowed Policy `effect`s. **Note:** Some Initiatives may have hard coded the effect which is not represented here.
-  | `<environmentCategory>_Effect` | One column per `environmentCategory` listing the highest enforcement level across the initiatives assigned in this environment category.
+  | `groupNames` | Union of (compliance Policy Sets) `groupNames` for this Policy.
+  | `allowedEffects` | List of allowed Policy `effect`s. **Note:** Some Policy Sets may have hard coded the effect which is not represented here.
+  | `<environmentCategory>_Effect` | One column per `environmentCategory` listing the highest enforcement level across the Policy Sets assigned in this environment category.
   | `<environmentCategory>_Parameters` | One column per `environmentCategory` listing the parameters (JSON - excluding the effect parameter) for this Policy and `environmentCategory`.
-  | `<environmentCategory>-`<br/>`<initiative-short name>-Effect` | Detailed effect per `eventCategory` **and** Initiative. The next table shows examples for the different pattern for this value. An actual document will reflect the actual value in your environment.
-  | `<initiative-short name>-ParameterDefinitions` | Parameter definitions (JSON) per Initiative containing this Policy.
+  | `<environmentCategory>-`<br/>`<policy-set-short name>-Effect` | Detailed effect per `environmentCategory` **and** Policy Set. The next table shows examples for the different pattern for this value. An actual document will reflect the actual value in your environment.
+  | `<policy-set-short name>-ParameterDefinitions` | Parameter definitions (JSON) per Policy Set containing this Policy.
+
+  Examples for effects:
 
   | Value | Description |
   | :---- | :---------- |
   | `Deny (assignment: secretsExpirationSetEffect)` | Effect is `Deny` specified in a user defined value for parameter `secretsExpirationSetEffect`
-  | `Audit (default: useRbacRulesMonitoringEffect)` | Effect is `Audit` default value for Initiative parameter `useRbacRulesMonitoringEffect`.
-  | `Audit (Initiative Fixed)` | Effect is parameterized in Policy definition. Initiative definition is setting it to a fixed value of `Audit`.
-  | `Audit (Policy Default)` | Effect is parameterized in Policy definition with default value of `Audit`. The Initiative definition does not override or surface this value.
+  | `Audit (default: useRbacRulesMonitoringEffect)` | Effect is `Audit` default value for Policy Set parameter `useRbacRulesMonitoringEffect`.
+  | `Audit (Initiative Fixed)` | Effect is parameterized in Policy definition. Policy Set definition is setting it to a fixed value of `Audit`.
+  | `Audit (Policy Default)` | Effect is parameterized in Policy definition with default value of `Audit`. The Policy Set definition does not override or surface this value.
   | `Modify (Policy Fixed)` | Effect is **not** parameterized in Policy definition. It is set to a fixed value of `Modify`.
 
 * `<fileNameStem>-parameters.csv`: This file is intended **for a future enhancement** to EPAC which will allow the effect values and parameter values to be specified in a spreadsheet instead of JSON. This file is generated to make it usable as the starting list, or to round-trip the values. It lists Policies across environments and Initiatives sorted by `category` and ``displayName`. Columns (see above for descriptions):
@@ -192,18 +192,18 @@ Each entry in the array defines a set of outputs:
 
 * `<fileNameStem>-full.md`: This Markdown file is intended for security personel requiring more details about the Assignments and Policies. It displays the same information as the summary plus the additional details equivalent to `<fileNameStem>-full.csv`. The Policies are sorted by `category` and ``displayName`. Each`environmentCategory column shows the current enforcement level in bold. If the value is fixed, the value is also in italics. If it is parametrized, the other allowed values are shown in italics. The additional details are:
   * Group Names
-  * Effects per `environmentCategory` and Initiative with additional details on the origin of the effect.
+  * Effects per `environmentCategory` and Policy Set with additional details on the origin of the effect.
 
-## Initiative Documentation
+## Policy Set Documentation
 
-Compares Policy and Initiative definitions to  Initiative definitions for Policy and effect overlap as Markdown and Excel (`.csv`) files.
+Compares multiple Policy Set definitions definitions for Policy and effect overlap as Markdown and Excel (`.csv`) files.
 
-### Element `documentInitiatives`
+### Element `documentPolicySets`
 
-* `pacEnvironment`: references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the Policy and Initiative definitions are deployed.
+* `pacEnvironment`: references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the Policy and Policy Set definitions are deployed.
 * `fileNameStem`: the file name without the extension (.md, .csv, .jsonc)
 * `title`: Heading 1 text for Markdown.
-* `initiatives`: list Initiatives (`id`) to be compared and included in the parameter JSON file. The `shortName` is used for column headings.
+* `policySets`: list Policy Sets (`id`) to be compared and included in the parameter JSON file. The `shortName` is used for column headings.
 * `environmentColumnsInCsv`: list of columns to generate a parameter file starter equivalent to `<fileNameStem>-parameters.csv` above in the assignment documentation section.
 
 ### Output files
@@ -227,8 +227,8 @@ Compares Policy and Initiative definitions to  Initiative definitions for Policy
 * Optional: generate a starting point for the `Definitions` folders:
   * [Extract existing Policy resources from an environment](extract-existing-policy-resources.md).
   * [Import Policies from the Cloud Adoption Framework](cloud-adoption-framework.md).
-* [Add custom Policy definitions](policy-definitions.md).
-* [Add custom Policy Set definitions](policy-set-definitions.md).
+* [Add custom Policies](policy-definitions.md).
+* [Add custom Policy Sets](policy-set-definitions.md).
 * [Create Policy Assignments](policy-assignments.md).
 * Import Policies from the [Cloud Adoption Framework](cloud-adoption-framework.md).
 * [Manage Policy Exemptions](policy-exemptions.md).
