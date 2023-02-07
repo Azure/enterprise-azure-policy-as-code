@@ -1,10 +1,11 @@
 {
+    // Security Baseline for Org (Azure Security Benchmark & NIST 800-53 R5)
     "nodeName": "/Security/",
     "parameterFile": "security-baseline-parameters.csv",
     "definitionEntryList": [
         {
-            "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
-            "displayName": "Azure Security Benchmark",
+            "initiativeName": "1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
+            "friendlyNameToDocumentIfGuid": "Azure Security Benchmark",
             "assignment": {
                 "append": true,
                 "name": "asb",
@@ -13,8 +14,8 @@
             }
         },
         {
-            "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f",
-            "displayName": "NIST SP 800-53 Rev. 5",
+            "initiativeName": "179d1daa-458f-4e47-8086-2a68d0d6c38f",
+            "friendlyNameToDocumentIfGuid": "NIST SP 800-53 Rev. 5",
             "assignment": {
                 "append": true,
                 "name": "nist-800-53-r5",

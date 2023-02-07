@@ -1,4 +1,4 @@
-# Policies
+# Policy Definitions
 
 **On this page**
 
@@ -9,17 +9,17 @@
 
 ## Policy Definition Files
 
-Policy definition files are managed within the the folder `policyDefintions` under `Definitions`.  The Policy definition files are structured based on the official [Azure Policy definition structure](https://docs.microsoft.com/en-us/azure/governance/policy/concepts/definition-structure) published by Microsoft. There are numerous definition samples available on Microsoft's [GitHub repository for azure-policy](https://github.com/Azure/azure-policy).
+Poliy definition files are managed within the the folder `policyDefintions` under `Definitions`.  The Policy definition files are structured based on the official [Azure Policy definition structure](https://docs.microsoft.com/en-us/azure/governance/policy/concepts/definition-structure) published by Microsoft. There are numerous definition samples available on Microsoft's [GitHub repository for azure-policy](https://github.com/Azure/azure-policy).
 
 > **NOTE**:
-> When authoring Policy and Policy definitions, check out the [Maximum count of Azure Policy objects](https://docs.microsoft.com/en-us/azure/governance/policy/overview#maximum-count-of-azure-policy-objects)
+> When authoring policy/initiative definitions, check out the [Maximum count of Azure Policy objects](https://docs.microsoft.com/en-us/azure/governance/policy/overview#maximum-count-of-azure-policy-objects)
 
-The names of the definition JSON files don't matter, the Policy and Policy Set definitions are registered based on the `name` attribute. The solution also allows the use of JSON with comments by using `.jsonc` instead of `.json` for the file extension.
+The names of the definition JSON files don't matter, the Policy and Initiative definitions are registered based on the `name` attribute. The solution also allows the use of JSON with comments by using `.jsonc` instead of `.json` for the file extension.
 
 ## Recommendations
 
 * `"name"` is required and should be unique. It can be a GUID or a unique short name.
-* `"category"` should be one of the standard ones defined in built-in Policies.
+* `"category"` should be one of the standard ones defined in built-in Policy definitions.
 * Do not specify an `id`. The solution will ignore it.
 * Make the `effect` parameterized. Always use the parameter name `effect`.
 * Whenever feasible, provide a `defaultValue` for parameters, especially for the `effect` parameter.
@@ -74,8 +74,8 @@ The names of the definition JSON files don't matter, the Policy and Policy Set d
 * Optional: generate a starting point for the `Definitions` folders:
   * [Extract existing Policy resources from an environment](extract-existing-policy-resources.md).
   * [Import Policies from the Cloud Adoption Framework](cloud-adoption-framework.md).
-* [Add custom Policies](policy-definitions.md).
-* [Add custom Policy Sets](policy-set-definitions.md).
+* [Add custom Policy definitions](policy-definitions.md).
+* [Add custom Policy Set definitions](policy-set-definitions.md).
 * [Create Policy Assignments](policy-assignments.md).
 * Import Policies from the [Cloud Adoption Framework](cloud-adoption-framework.md).
 * [Manage Policy Exemptions](policy-exemptions.md).

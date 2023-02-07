@@ -4,7 +4,6 @@
 
 * [New-AzPolicyReaderRole.ps1](#new-azpolicyreaderroleps1)
 * [Create-AzRemediationTasks.ps1](#create-azremediationtasksps1)
-* [Build-DefinitionsFolder.ps1](#build-definitionsfolderps1)
 * [Build-PolicyAssignmentDocumentation.ps1](#build-policyassignmentdocumentationps1)
 * [Get-AzMissingTags.ps1](#get-azmissingtagsps1)
 * [Get-AzResourceTags.ps1](#get-azresourcetagsps1)
@@ -49,7 +48,7 @@ This script executes all remediation tasks in a Policy as Code environment speci
 
 ## Build-DefinitionsFolder.ps1
 
-[Extract existing Policies, Policy Sets, and Policy Assignments](extract-existing-policy-resources.md) and outputs them in EPAC format into folders which can be directly copied to the `Definitions` folder. This useful when initially transitioning from a pre-EPAC to EPAC environment.
+[Extract existing Policy definitions, Policy Set definitions, and Policy Assignments](extract-existing-policy-resources.md) and outputs them in EPAC format into folders which can be directly copied to the `Definitions` folder. This useful when initially transitioning from a pre-EPAC to EPAC environment.
 
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
@@ -57,11 +56,11 @@ This script executes all remediation tasks in a Policy as Code environment speci
 | `definitionsRootFolder` | Optional | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It contains `global-settings.jsonc`.
 | `outputFolder` | Optional | Output Folder. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER` or `./Outputs`.
 | `interactive` | Optional | Script is being run interactively and can request az login. It will also prompt for each file to process or skip. Defaults to $true. |
-| `includeChildScopes` | Optional | Switch parameter to include Policies and Policy Sets in child scopes; child scopes are normally ignored for definitions. This does not impact Policy Assignments. |
+| `includeChildScopes` | Optional | Switch parameter to include Policy and Policy Set definitions in child scopes; child scopes are normally ignored for definitions. This does not impact Policy Assignments. |
 
 ## Build-PolicyAssignmentDocumentation.ps1
 
-Generates documentation for Assignments and Policy Sets based on JSON files in `$definitionsFolder/Documentation`. [See Define Documentation for details](documenting-assignments-and-policy-sets.md).
+Generates documentation for assignments and initiatives based on JSON files in `$definitionsFolder/Documentation`. [See Define Documentation for details](documenting-assignments-and-policy-sets.md).
 
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
@@ -125,7 +124,7 @@ Pull all policy aliases into a CSV file. This is helpful for Azure Policy develo
 
 ## New-EPACPolicyDefinition.ps1
 
-Exports a policy definition from Azure to a local file in the EPAC format. Works for both Policies and set definitionsPolicy Sets
+Exports a policy definition from Azure to a local file in the EPAC format. Works for both policy definitions and set definitions (initiatives)
 
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
@@ -151,8 +150,8 @@ Exports a policy assignment from Azure to a local file in the EPAC format. Provi
 * Optional: generate a starting point for the `Definitions` folders:
   * [Extract existing Policy resources from an environment](extract-existing-policy-resources.md).
   * [Import Policies from the Cloud Adoption Framework](cloud-adoption-framework.md).
-* [Add custom Policies](policy-definitions.md).
-* [Add custom Policy Sets](policy-set-definitions.md).
+* [Add custom Policy definitions](policy-definitions.md).
+* [Add custom Policy Set definitions](policy-set-definitions.md).
 * [Create Policy Assignments](policy-assignments.md).
 * Import Policies from the [Cloud Adoption Framework](cloud-adoption-framework.md).
 * [Manage Policy Exemptions](policy-exemptions.md).

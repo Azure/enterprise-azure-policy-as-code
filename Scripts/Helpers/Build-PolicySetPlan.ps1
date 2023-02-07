@@ -133,16 +133,13 @@ function Build-PolicySetPlan {
             $limitReachedPolicyDefinitionGroups = $false
 
             # Trying to import missing policyDefinitionGroups entries
-            foreach ($importPolicyDefinitionGroup in $importPolicyDefinitionGroups) {
+            foreach ($importPolicySetName in $importPolicyDefinitionGroups) {
                 if ($usedPolicyGroupDefinitions.Count -eq 0 -or $limitReachedPolicyDefinitionGroups) {
                     break
                 }
-                $importPolicySetId = $importPolicySetName
-                if ($importPolicyDefinitionGroup -notcontains "/providers/Microsoft.Authorization/policySetDefinitions/") {
-                    $importPolicySetId = "/providers/Microsoft.Authorization/policySetDefinitions/$importPolicySetName"
-                }
+                $importPolicySetId = "/providers/Microsoft.Authorization/policySetDefinitions/$importPolicySetName"
                 if (!($deployedDefinitions.readOnly.ContainsKey($importPolicySetId))) {
-                    Write-Error "Built-in Policy Set '$importPolicyDefinitionGroupName' for group name import not found." -ErrorAction Stop
+                    Write-Error "Built-in Policy Set (Initiative) '$importPolicyDefinitionGroupName' for group name import not found." -ErrorAction Stop
                 }
                 $importedPolicySetDefinition = $deployedDefinitions.readOnly[$importPolicySetId]
                 $importedPolicyDefinitionGroups = $importedPolicySetDefinition.properties.policyDefinitionGroups
@@ -175,7 +172,7 @@ function Build-PolicySetPlan {
         }
 
         if (!$validPolicyDefinitions) {
-            Write-Error "One or more invalid Policy Definition entries referenced in Policy Set '$($displayName)' from '$($file.Name)'." -ErrorAction Stop
+            Write-Error "One or more invalid Policy Definition entries referenced in Policy Set (Initiative) '$($displayName)' from '$($file.Name)'." -ErrorAction Stop
         }
 
         # Constructing Policy Set definitions parameters for splatting
@@ -329,6 +326,6 @@ function Build-PolicySetPlan {
         }
     }
 
-    Write-Information "Number of unchanged Policy SetPolicy Sets definition = $($definitions.numberUnchanged)"
+    Write-Information "Number of unchanged Policy Set (Initiatives) definition = $($definitions.numberUnchanged)"
     Write-Information  ""
 }

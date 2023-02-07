@@ -13,7 +13,7 @@ function Out-PolicySetsDocumentationToFile {
         [hashtable] $flatPolicyList
     )
 
-    Write-Information "Generating Policy Set documentation for '$title', files '$fileNameStem'."
+    Write-Information "Generating Policy Set (Initiative) documentation for '$title', files '$fileNameStem'."
 
     #region Markdown
 
