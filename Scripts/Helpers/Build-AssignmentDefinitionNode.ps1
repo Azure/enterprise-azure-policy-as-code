@@ -19,7 +19,7 @@ function Build-AssignmentDefinitionNode {
     $pacEnvironmentSelector = $pacEnvironment.pacSelector
 
 
-    # Process mandatory nodeName
+    #region nodeName (required)
     $nodeName = ""
     if ($definitionNode.nodeName) {
         $nodeName += $definitionNode.nodeName
@@ -32,13 +32,33 @@ function Build-AssignmentDefinitionNode {
         Write-Error "    Missing nodeName at child of $($nodeName)"
         $definition.hasErrors = $true
     }
+    #endregion nodeName (required)
 
+    #region ignoreBranch and enforcementMode
+    # Ignoring a branch can be useful for prep work to an future state
+    # Due to the history of EPAC, there are two ways ignoreBranch and enforcementMode
     if ($definitionNode.ignoreBranch) {
-        # ignoring a branch can be useful for prep work to an future state
+        # Does not deploy assignment(s), precedes Azure Policy feature enforcementMode
         Write-Verbose "        Ignore branch at $($nodeName) reason ignore branch"
         $definition.ignoreBranch = $definitionNode.ignoreBranch
     }
-    # Process assignment name, displayName and description (need at least one per tree). Strings are concatenated
+    if ($definitionNode.enforcementMode) {
+        # Does deploy assignment(s), Azure Policy Engine will not evaluate the Policy Assignment
+        $enforcementMode = $definitionNode.enforcementMode
+        if ("Default", "DoNotEnforce" -contains $enforcementMode) {
+            $definition.enforcementMode = $enforcementMode
+        }
+        else {
+            Write-Error "    Node $($nodeName): enforcementMode must be Default or DoNotEnforce. It is ""$($enforcementMode)."
+            $definition.hasErrors = $true
+        }
+    }
+    #endregion ignoreBranch and enforcementMode
+
+    #region assignment (required at least once per branch, concatenate strings)
+    #           name (required)
+    #           displayName (required)
+    #           description (optional)
     if ($null -ne $definitionNode.assignment) {
         $assignment = $definitionNode.assignment
         if ($null -ne $assignment.name -and ($assignment.name).Length -gt 0 -and $null -ne $assignment.displayName -and ($assignment.displayName).Length -gt 0) {
@@ -56,8 +76,9 @@ function Build-AssignmentDefinitionNode {
             $definition.hasErrors = $true
         }
     }
+    #endregion assignment (required at least once per branch, concatenate strings)
 
-    # Process definitionEntry or definitionEntryList
+    #region definitionEntry or definitionEntryList (required exactly once per branch)
     $definitionEntry = $definitionNode.definitionEntry
     $definitionEntryList = $definitionNode.definitionEntryList
     $defEntryList = $definition.definitionEntryList
@@ -92,14 +113,13 @@ function Build-AssignmentDefinitionNode {
             $definition.definitionEntryList = $normalizedDefinitionEntryList
         }
         else {
-            if ($null -ne $definitionEntry -or $null -ne $definitionEntryList) {
-                Write-Error "   Node $($nodeName): only one definitionEntry or definitionEntryList can appear in any branch."
-                $definition.hasErrors = $true
-            }
+            Write-Error "   Node $($nodeName): only one definitionEntry or definitionEntryList can appear in any branch."
+            $definition.hasErrors = $true
         }
     }
+    #endregion definitionEntry or definitionEntryList (required exactly once per branch)
 
-    # Process metadata
+    #region metadata
     if ($definitionNode.metadata) {
         if ($definition.metadata) {
             # merge metadata
@@ -113,27 +133,16 @@ function Build-AssignmentDefinitionNode {
             $definition.metadata = Get-DeepClone $definitionNode.metadata -AsHashTable
         }
     }
+    #endregion metadata
 
-    # Process enforcementMode
-    if ($definitionNode.enforcementMode) {
-        $enforcementMode = $definitionNode.enforcementMode
-        if ("Default", "DoNotEnforce" -contains $enforcementMode) {
-            $definition.enforcementMode = $enforcementMode
-        }
-        else {
-            Write-Error "    Node $($nodeName): enforcementMode must be Default or DoNotEnforce. It is ""$($enforcementMode)."
-            $definition.hasErrors = $true
-        }
-    }
+    #region parameters
 
-    #region Parameters
-
-    # Process parameterSuppressDefaultValues
+    # parameterSuppressDefaultValues
     if ($definitionNode.parameterSuppressDefaultValues) {
         $definition.parameterSuppressDefaultValues = $definitionNode.parameterSuppressDefaultValues
     }
 
-    # Process parameters in JSON; parameters defined at a deeper level override previous parameters (union operator)
+    # parameters in JSON; parameters defined at a deeper level override previous parameters (union operator)
     if ($definitionNode.parameters) {
         $allParameters = $definition.parameters
         $addedParameters = $definitionNode.parameters
@@ -200,59 +209,10 @@ function Build-AssignmentDefinitionNode {
         # }
         # else {
         #     $definition.parameterFileNonComplianceMessage = $parameterFileNonComplianceMessage
-        # }
     }
+    #endregion parameters
 
-    #endregion Parameters
-
-    # Process nonComplianceMessage
-    # if ($definitionNode.nonComplianceMessage) {
-    #     if ($definition.ContainsKey("nonComplianceMessage")) {
-    #         Write-Error "    Node $($nodeName): multiple nonComplianceMessage definitions at different tree levels are not allowed."
-    #         $definition.hasErrors = $true
-    #     }
-    #     if ($definition.ContainsKey("parameterFileNonComplianceMessage")) {
-    #         Write-Error "    Node $($nodeName): specifying nonComplianceMessage in JSON and nonComplianceMessage in CSV parameter file is not allowed."
-    #         $definition.hasErrors = $true
-    #     }
-    #     else {
-    #         $definition.nonComplianceMessage = $definitionNode.nonComplianceMessage
-    #     }
-    # }
-
-    # Process additional permissions needed to execute remediations; for example permissions to log to Event Hub, Storage Account or Log Analytics
-    # Entries are cumulative (added to an array)
-    if ($definitionNode.additionalRoleAssignments) {
-        $additionalRoleAssignments = $definitionNode.additionalRoleAssignments
-        foreach ($selector in $additionalRoleAssignments.Keys) {
-            if ($selector -eq "*" -or $selector -eq $pacEnvironmentSelector) {
-                $additionalRoleAssignmentsList = Get-DeepClone $additionalRoleAssignments.$selector -AsHashTable
-                if ($definition.additionalRoleAssignments) {
-                    $definition.additionalRoleAssignments += $additionalRoleAssignmentsList
-                }
-                else {
-                    $definition.additionalRoleAssignments = @() + $additionalRoleAssignmentsList
-                }
-            }
-        }
-    }
-
-    # Process managedIdentityLocation; can be overridden on the tree
-    if ($definitionNode.managedIdentityLocations) {
-        $managedIdentityLocationValue = $null
-        $managedIdentityLocations = $definitionNode.managedIdentityLocations
-        foreach ($selector in $managedIdentityLocations.Keys) {
-            if ($selector -eq "*" -or $selector -eq $pacEnvironmentSelector) {
-                $managedIdentityLocationValue = $managedIdentityLocation.$selector
-                break
-            }
-        }
-        if ($null -ne $managedIdentityLocationValue) {
-            $definition.managedIdentityLocation = $managedIdentityLocationValue
-        }
-    }
-
-    # Process scope
+    #region scopes, notScopes
     if ($definition.scopeCollection) {
         # Once a scopeList is defined at a parent, no descendant may define scopeList or notScope
         if ($definitionNode.scope) {
@@ -281,7 +241,6 @@ function Build-AssignmentDefinitionNode {
                 }
             }
         }
-
         if ($definitionNode.scope) {
             ## Found a scope list - process notScope
             $scopeList = $null
@@ -320,11 +279,53 @@ function Build-AssignmentDefinitionNode {
             }
         }
     }
+    #endregion scopes, notScopes
 
+    #region additionalRoleAssignments (optional, cumulative)
+    if ($definitionNode.additionalRoleAssignments) {
+        # Process additional permissions needed to execute remediations; for example permissions to log to Event Hub, Storage Account or Log Analytics
+        $additionalRoleAssignments = $definitionNode.additionalRoleAssignments
+        foreach ($selector in $additionalRoleAssignments.Keys) {
+            if ($selector -eq "*" -or $selector -eq $pacEnvironmentSelector) {
+                $additionalRoleAssignmentsList = Get-DeepClone $additionalRoleAssignments.$selector -AsHashTable
+                if ($definition.additionalRoleAssignments) {
+                    $definition.additionalRoleAssignments += $additionalRoleAssignmentsList
+                }
+                else {
+                    $definition.additionalRoleAssignments = @() + $additionalRoleAssignmentsList
+                }
+            }
+        }
+    }
+    #endregion additionalRoleAssignments (optional, cumulative)
+
+    #region Managed Identity
+    if ($definitionNode.managedIdentityLocations) {
+        # Process managedIdentityLocation; can be overridden
+        $managedIdentityLocationValue = $null
+        $managedIdentityLocations = $definitionNode.managedIdentityLocations
+        foreach ($selector in $managedIdentityLocations.Keys) {
+            if ($selector -eq "*" -or $selector -eq $pacEnvironmentSelector) {
+                $managedIdentityLocationValue = $managedIdentityLocation.$selector
+                break
+            }
+        }
+        if ($null -ne $managedIdentityLocationValue) {
+            $definition.managedIdentityLocation = $managedIdentityLocationValue
+        }
+    }
+    #endregion Managed Identity
+
+    #region nonComplianceMessage
+    # TODO
+    #     if ($definition.ContainsKey("parameterFileNonComplianceMessage")) {
+    #     }
     if ($definitionNode.nonComplianceMessages) {
         $definition.nonComplianceMessages += $definitionNode.nonComplianceMessages
     }
+    #endregion nonComplianceMessage
 
+    #region children
     $assignmentsList = @()
     if ($definitionNode.children) {
         # Process child nodes
@@ -361,6 +362,8 @@ function Build-AssignmentDefinitionNode {
                 -policyRoleIds $policyRoleIds
         }
     }
+    #endregion children
+
     if ($hasErrors) {
         return $true, $null
     }

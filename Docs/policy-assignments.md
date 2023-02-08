@@ -14,6 +14,9 @@
   * [Security-Focused Policy Assignment with JSON parameters](#security-focused-policy-assignment-with-json-parameters)
   * [Security-Focused Policy Assignment with CSV file parameters](#security-focused-policy-assignment-with-csv-file-parameters)
   * [Inverted Policy Assignment (Tag Inheritance and Required Tags)](#inverted-policy-assignment-tag-inheritance-and-required-tags)
+  * [Non-Compliance Messages in a Policy Definition Assignment](#non-compliance-messages-in-a-policy-definition-assignment)
+  * [Non-Compliance Messages in a Policy Set Definition Assignment](#non-compliance-messages-in-a-policy-set-definition-assignment)
+  * [Non-Compliance Messages in a Policy Set Definition Assignment with a `definitionEntryList`](#non-compliance-messages-in-a-policy-set-definition-assignment-with-a-definitionentrylist)
 * [Reading List](#reading-list)
 
 <br/>
@@ -551,7 +554,7 @@ As mentioned above sometimes it is advantageous (to reduce the number of repetit
 }
 ```
 
-### Non-Compliance Messages in a policy definition assignment.
+### Non-Compliance Messages in a Policy Definition Assignment
 
 An example of a policy assignment for a single policy definition with a default non-compliance message.
 
@@ -580,7 +583,7 @@ An example of a policy assignment for a single policy definition with a default 
 }
 ```
 
-### Non-Compliance Messages in a policy set definition assignment.
+### Non-Compliance Messages in a Policy Set Definition Assignment
 
 An example of a policy assignment for a policy set definition with a default non-compliance message and a policy specific non-compliance message.
 
@@ -605,7 +608,7 @@ An example of a policy assignment for a policy set definition with a default non
             "message": "Update main message" // Default nonComplianceMessage
         },
         {
-            "message": "Individual policy message", // Policy specific nonComplianceMessage. You must include the policyDefinitionReferenceId as defined in the initiative. 
+            "message": "Individual policy message", // Policy specific nonComplianceMessage. You must include the policyDefinitionReferenceId as defined in the initiative.
             "policyDefinitionReferenceId": "ASC_DeployAzureDefenderForSqlAdvancedThreatProtectionWindowsAgent"
         }
     ],
@@ -613,9 +616,9 @@ An example of a policy assignment for a policy set definition with a default non
 }
 ```
 
-### Non-Compliance Messages in a policy set definition assignment.
+### Non-Compliance Messages in a Policy Set Definition Assignment with a `definitionEntryList`
 
-An example of how to use a non-compliance message when using a `definitionEntryList` list in the assignment. 
+An example of how to use a non-compliance message when using a `definitionEntryList` list in the assignment.
 
 ```jsonc
 {
@@ -633,7 +636,7 @@ An example of how to use a non-compliance message when using a `definitionEntryL
                 "description": "Audit for network security groups to verify if flow logs are configured and if flow log status is enabled. Enabling flow logs allows to log information about IP traffic flowing through network security group. It can be used for optimizing network flows, monitoring throughput, verifying compliance, detecting intrusions and more.",
                 "name": "62329546"
             },
-            "nonComplianceMessages": [ // nonComplianceMessages must be in the definitionEntryList object for each policy/initiative deployed. 
+            "nonComplianceMessages": [ // nonComplianceMessages must be in the definitionEntryList object for each policy/initiative deployed.
                 {
                     "message": "Updated Default message"
                 },
