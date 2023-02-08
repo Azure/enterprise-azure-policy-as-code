@@ -29,7 +29,7 @@ function Get-AzPolicyEffectsForPolicySet {
         $definitionType = ""
         $paramName = "na"
         if ($effect.type -eq "FixedByPolicyDefinition") {
-            # parameter is hard-coded into Policy definition
+            # parameter is hard-coded into Policy
             $paramValue = $effect.fixedValue
             $allowedValues = @( $effect.fixedValue )
             $defaultValue = $effect.fixedValue
@@ -58,7 +58,7 @@ function Get-AzPolicyEffectsForPolicySet {
                 }
             }
             else {
-                # parameter is defined by Policy definition default
+                # parameter is defined by Policy default
                 $paramValue = $effect.paramValue
                 $allowedValues = $effect.allowedValues
                 $defaultValue = $effect.defaultValue

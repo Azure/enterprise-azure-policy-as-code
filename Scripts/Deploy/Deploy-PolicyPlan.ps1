@@ -46,7 +46,7 @@ $planFile = $pacEnvironment.policyPlanInputFile
 $plan = Get-DeploymentPlan -planFile $planFile
 if ($null -eq $plan) {
     Write-Warning "***************************************************************************************************"
-    Write-Warning "Plan does not exist, skipping Policy deployment."
+    Write-Warning "Plan does not exist, skipping Policy resource deployment."
     Write-Warning "***************************************************************************************************"
     Write-Warning ""
 }
@@ -119,7 +119,7 @@ else {
     if ($policySetDefinitions.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Delete removed Policy Set (Initiative) definitions ($($policySetDefinitions.Count))"
+        Write-Information "Delete removed Policy Sets ($($policySetDefinitions.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policySetDefinitions.Keys) {
             $policySetDefinition = $policySetDefinitions[$id]
@@ -132,7 +132,7 @@ else {
     if ($policySetDefinitions.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Delete replaced Policy Set (Initiative) definitions ($($policySetDefinitions.Count))"
+        Write-Information "Delete replaced Policy Sets ($($policySetDefinitions.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policySetDefinitions.Keys) {
             $policySetDefinition = $policySetDefinitions[$id]
@@ -145,7 +145,7 @@ else {
     if ($policyDefinitions.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Delete replaced Policy definitions ($($policyDefinitions.Count))"
+        Write-Information "Delete replaced Policies ($($policyDefinitions.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policyDefinitions.Keys) {
             $policyDefinition = $policyDefinitions[$id]
@@ -164,7 +164,7 @@ else {
     if ($policyDefinitions.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Create new Policy definitions ($($policyDefinitions.Count))"
+        Write-Information "Create new Policies ($($policyDefinitions.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policyDefinitions.Keys) {
             $policyDefinitionObj = $policyDefinitions[$id]
@@ -178,7 +178,7 @@ else {
     if ($policyDefinitions.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Recreate replaced Policy definitions ($($policyDefinitions.Count))"
+        Write-Information "Recreate replaced Policies ($($policyDefinitions.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policyDefinitions.Keys) {
             $policyDefinitionObj = $policyDefinitions[$id]
@@ -192,7 +192,7 @@ else {
     if ($policyDefinitions.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Update Policy definitions ($($policyDefinitions.Count))"
+        Write-Information "Update Policies ($($policyDefinitions.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policyDefinitions.Keys) {
             $policyDefinitionObj = $policyDefinitions[$id]
@@ -208,7 +208,7 @@ else {
     if ($policySetDefinitions.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Create new Policy Set (Initiative) definitions ($($policySetDefinitions.Count))"
+        Write-Information "Create new Policy Sets ($($policySetDefinitions.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policySetDefinitions.Keys) {
             $policySetDefinitionObj = $policySetDefinitions[$id]
@@ -222,7 +222,7 @@ else {
     if ($policySetDefinitions.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Recreate replaced Policy Set (Initiative) definitions ($($policySetDefinitions.Count))"
+        Write-Information "Recreate replaced Policy Sets  ($($policySetDefinitions.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policySetDefinitions.Keys) {
             $policySetDefinitionObj = $policySetDefinitions[$id]
@@ -236,7 +236,7 @@ else {
     if ($policySetDefinitions.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Update Policy Set (Initiative) definitions ($($policySetDefinitions.Count))"
+        Write-Information "Update Policy Sets ($($policySetDefinitions.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policySetDefinitions.Keys) {
             $policySetDefinitionObj = $policySetDefinitions[$id]
@@ -247,12 +247,12 @@ else {
         }
     }
 
-    # Policy Sets are updated, can now delete the obsolete Policy definitions
+    # Policy Sets are updated, can now delete the obsolete Policies
     $policyDefinitions = ConvertTo-HashTable $plan.policyDefinitions.delete
     if ($policyDefinitions.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Delete Policy definitions ($($policyDefinitions.Count))"
+        Write-Information "Delete Policies ($($policyDefinitions.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
 
         foreach ($policyDefinitionName in $policyDefinitions.Keys) {

@@ -108,7 +108,7 @@ function Get-AzPolicyResources {
         -scope @{ UseTenantScope = $true }
     $WarningPreference = $prefBackup
 
-    Write-Information "Processing $($policyResources.Count) Policy resources (Policy assignments, Policy Set (Initiative) and Policy definitions):"
+    Write-Information "Processing $($policyResources.Count) Policy resources (Policy assignments, Policy Set and Policies):"
     $deployed = @{
         policydefinitions            = @{
             all      = @{}
@@ -329,10 +329,10 @@ function Get-AzPolicyResources {
         $managedByAny = $managedBy.thisPaC + $managedBy.otherPaC + $managedBy.unknown
         Write-Information ""
         if ($kind -eq "policydefinitions") {
-            Write-Information "Policy definitions counts:"
+            Write-Information "Policy counts:"
         }
         else {
-            Write-Information "Policy Set (Initiative) definitions counts:"
+            Write-Information "Policy Set counts:"
         }
         if ($collectAllPolicies) {
             Write-Information "    Custom (all)   = $($deployedPolicyTable.all.Count)"
@@ -357,7 +357,7 @@ function Get-AzPolicyResources {
     $managedBy = $counters.managedBy
     $managedByAny = $managedBy.thisPaC + $managedBy.otherPaC + $managedBy.unknown
     Write-Information ""
-    Write-Information "Policy Assignments:"
+    Write-Information "Policy Assignment counts:"
     Write-Information "    Managed ($($managedByAny)) by:"
     Write-Information "        This PaC    = $($managedBy.thisPaC)"
     Write-Information "        Other PaC   = $($managedBy.otherPaC)"

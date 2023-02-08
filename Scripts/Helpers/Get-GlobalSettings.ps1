@@ -224,10 +224,10 @@ function Get-GlobalSettings {
     if (!(Test-Path $policySetDefinitionsFolder -PathType Container)) {
         $policySetDefinitionsFolder = "$definitionsRootFolder/Initiatives" # Legacy location
         if ((Test-Path $policySetDefinitionsFolder -PathType Container)) {
-            Write-Error "Legacy Policy Set definitions folder name Initiatives used. Rename to 'policySetDefinitions'!" -ErrorAction Stop
+            Write-Error "Legacy Policy Sets folder name Initiatives used. Rename to 'policySetDefinitions'!" -ErrorAction Stop
         }
         else {
-            Write-Error "Policy Set definitions folder 'policySetDefinitions' not found." -ErrorAction Stop
+            Write-Error "Policy Sets folder 'policySetDefinitions' not found." -ErrorAction Stop
         }
     }
 

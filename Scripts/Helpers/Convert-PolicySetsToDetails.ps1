@@ -8,7 +8,7 @@ function Convert-PolicySetsToDetails {
     )
 
     $policyDetails = @{}
-    Write-Information "Calculating effect parameters for $($allPolicyDefinitions.Count) Policy definitions."
+    Write-Information "Calculating effect parameters for $($allPolicyDefinitions.Count) Policies."
     foreach ($policyId in $allPolicyDefinitions.Keys) {
         $policy = $allPolicyDefinitions.$policyId
         $properties = Get-PolicyResourceProperties -policyResource $policy
@@ -88,7 +88,7 @@ function Convert-PolicySetsToDetails {
         $null = $policyDetails.Add($policyId, $policyDetail)
     }
 
-    Write-Information "Calculating effect parameters for $($allPolicySetDefinitions.Count) Policy Set (Initiative) definitions."
+    Write-Information "Calculating effect parameters for $($allPolicySetDefinitions.Count) Policy Sets."
     $policySetDetails = @{}
     foreach ($policySetId in $allPolicySetDefinitions.Keys) {
         $policySet = $allPolicySetDefinitions.$policySetId
@@ -141,7 +141,7 @@ function Convert-PolicySetsToDetails {
                                 }
                             }
                             else {
-                                Write-Error "Policy '$($policyId)', referenceId '$($policyInPolicySet.policyDefinitionReferenceId)' tries to pass an unknown Policy Set parameter '$policySetLevelEffectParameterName' to the Policy parameter '$effectParameterName'. Check the spelling of the parameters occurrences in the Policy Set definition." -ErrorAction Stop
+                                Write-Error "Policy '$($policyId)', referenceId '$($policyInPolicySet.policyDefinitionReferenceId)' tries to pass an unknown Policy Set parameter '$policySetLevelEffectParameterName' to the Policy parameter '$effectParameterName'. Check the spelling of the parameters occurrences in the Policy Set." -ErrorAction Stop
                             }
                         }
                         else {
@@ -224,7 +224,7 @@ function Convert-PolicySetsToDetails {
             $description = ""
         }
 
-        # Find Policy definitions appearing more than once in PolicySet
+        # Find Policies appearing more than once in PolicySet
         $uniquePolicies = @{}
         $policiesWithMultipleReferenceIds = @{}
         foreach ($policyInPolicySetDetail in $policyInPolicySetDetailList) {

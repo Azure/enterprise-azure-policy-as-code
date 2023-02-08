@@ -1,5 +1,5 @@
 variables:
-  # This pipeline is used to deploy Policy definitions, Initiative definitions and Assignments into Azure.
+  # This pipeline is used to deploy Policies, Initiative definitions and Assignments into Azure.
   PAC_OUTPUT_FOLDER: ./Output
   PAC_DEFINITIONS_FOLDER: .//Definitions
 
@@ -27,7 +27,7 @@ pr: none
 
 stages:
   - stage: devStage
-    displayName: "DEV Plan, Deploy Policies, Roles"
+    displayName: "DEV Plan, Deploy and Roles"
     condition: and(in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), not(contains(variables['Build.SourceBranch'], 'refs/heads/main')))
     variables:
       pacEnvironmentSelector: epac-dev

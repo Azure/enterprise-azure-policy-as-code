@@ -74,6 +74,13 @@ function Build-AssignmentDefinitionAtLeaf {
                 $hasErrors = $true
                 continue
             }
+            if ($definitionEntry.nonComplianceMessages) {
+                $nonComplianceMessages = $definitionEntry.nonComplianceMessages
+            }
+            else {
+                $nonComplianceMessages = $assignmentDefinition.nonComplianceMessages
+            }
+
             $enforcementMode = $assignmentDefinition.enforcementMode
             $metadata = $assignmentDefinition.metadata
             if ($metadata) {
@@ -85,6 +92,7 @@ function Build-AssignmentDefinitionAtLeaf {
             else {
                 $metadata = @{ pacOwnerId = $thisPacOwnerId }
             }
+            
 
 
             $assignmentEntry = $null
@@ -92,13 +100,14 @@ function Build-AssignmentDefinitionAtLeaf {
             if ($definitionEntry.isPolicySet) {
                 # Set Policy Set id
                 $assignmentEntry = @{
-                    isPolicySet        = $true
-                    policyDefinitionId = $policyDefinitionId
-                    name               = $name
-                    displayName        = $displayName
-                    description        = $description
-                    enforcementMode    = $enforcementMode
-                    metadata           = $metadata
+                    isPolicySet           = $true
+                    policyDefinitionId    = $policyDefinitionId
+                    name                  = $name
+                    displayName           = $displayName
+                    description           = $description
+                    enforcementMode       = $enforcementMode
+                    metadata              = $metadata
+                    nonComplianceMessages = $nonComplianceMessages
                 }
 
                 if ($useCsv) {
@@ -114,13 +123,14 @@ function Build-AssignmentDefinitionAtLeaf {
             else {
                 # Set Policy id
                 $assignmentEntry = @{
-                    isPolicySet        = $false
-                    policyDefinitionId = $policyDefinitionId
-                    name               = $name
-                    displayName        = $displayName
-                    description        = $description
-                    enforcementMode    = $enforcementMode
-                    metadata           = $metadata
+                    isPolicySet           = $false
+                    policyDefinitionId    = $policyDefinitionId
+                    name                  = $name
+                    displayName           = $displayName
+                    description           = $description
+                    enforcementMode       = $enforcementMode
+                    metadata              = $metadata
+                    nonComplianceMessages = $nonComplianceMessages
                 }
             }
             $null = $assignmentEntryList.Add($assignmentEntry)

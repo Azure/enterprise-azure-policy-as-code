@@ -203,13 +203,13 @@ function Build-ExemptionsPlan {
                     # Replaced Assignment
                     Write-Information "Replace(assignment) '$($name)', '$($scope)'"
                     $null = $replacedExemptions.Add($id, $exemption)
-                    $exemptions.numberOfChanges += 1
+                    $exemptions.numberOfChanges++
                 }
                 elseif ($replacedAssignments.ContainsKey($policyAssignmentId)) {
                     # Replaced Assignment
                     Write-Information "Replace(reference) '$($name)', '$($scope)'"
                     $null = $replacedExemptions.Add($id, $exemption)
-                    $exemptions.numberOfChanges += 1
+                    $exemptions.numberOfChanges++
                 }
                 else {
                     # Maybe update existing Exemption
@@ -228,9 +228,8 @@ function Build-ExemptionsPlan {
                     $metadataMatches = Confirm-MetadataMatches `
                         -existingMetadataObj $deployedManagedExemption.metadata `
                         -definedMetadataObj $metadata
-                    # Update policy definition in Azure if necessary
+                    # Update Exemption in Azure if necessary
                     if ($displayNameMatches -and $descriptionMatches -and $exemptionCategoryMatches -and $expiresOnMatches -and $policyDefinitionReferenceIdsMatches -and $metadataMatches -and (-not $clearExpiration)) {
-                        # Write-Information "Unchanged '$($name)' - '$($displayName)'"
                         $exemptions.numberUnchanged += 1
                     }
                     else {
@@ -264,10 +263,9 @@ function Build-ExemptionsPlan {
                         $changesString = $changesStrings -join ","
                         $splatTransformString = $splatTransformStrings -join " "
                         $exemption.splatTransform = $splatTransformString
+                        $exemptions.numberOfChanges++
                         $null = $exemptions.update.Add($id, $exemption)
-                        $assignments.numberOfChanges++
                         Write-Information "Update($changesString) '$($name)', '$($scope)'"
-                        $exemptions.numberOfChanges += 1
                     }
                 }
             }
@@ -275,7 +273,7 @@ function Build-ExemptionsPlan {
                 # Create Exemption
                 Write-Information "New '$($name)', '$($scope)'"
                 $null = $exemptions.new.Add($id, $exemption)
-                $exemptions.numberOfChanges += 1
+                $exemptions.numberOfChanges++
             }
         }
     }
@@ -285,7 +283,7 @@ function Build-ExemptionsPlan {
         # delete all orphaned exemptions
         Write-Warning "Delete(orphaned) '$($exemption.name)', '$($exemption.scope)'"
         $null = $exemptions.delete[$exemption.id] = $exemption
-        $exemptions.numberOfChanges += 1
+        $exemptions.numberOfChanges++
     }
     $strategy = $pacEnvironment.desiredState.strategy
     foreach ($id in $deleteCandidates.Keys) {
@@ -296,7 +294,7 @@ function Build-ExemptionsPlan {
         if ($shallDelete) {
             Write-Information "Delete '$($exemption.name)', '$($exemption.scope)'"
             $null = $exemptions.delete[$exemption.id] = $exemption
-            $exemptions.numberOfChanges += 1
+            $exemptions.numberOfChanges++
         }
         else {
             # Write-Information "No delete($pacOwner,$strategy) '$($exemption.name)', '$($exemption.scope)'"

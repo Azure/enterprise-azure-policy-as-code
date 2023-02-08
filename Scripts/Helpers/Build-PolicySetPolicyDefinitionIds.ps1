@@ -11,9 +11,6 @@ function Build-PolicySetPolicyDefinitionIds {
         [hashtable] $policyRoleIds
     )
 
-    ######## validating each Policy Definition needed in Policy Set (Initiative) exists ###########
-    Write-Verbose  "        Check existence of referenced policyDefinitionIDs and build new array"
-
     $validPolicyDefinitions = $true
     $policyDefinitionsFinal = [System.Collections.ArrayList]::new()
     $policyRoleIdsInSet = @{}
@@ -45,7 +42,7 @@ function Build-PolicySetPolicyDefinitionIds {
         }
 
 
-        # Check Policy definition exist
+        # Check Policy exist
         if ($validPolicyDefinitions) {
             $policyId = Confirm-PolicyDefinitionUsedExists `
                 -id $policyId `

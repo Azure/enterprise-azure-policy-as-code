@@ -63,14 +63,13 @@ foreach ($policyUri in $defaultPolicyURIs) {
                 (Get-Content $definitionsRootFolder\policySetDefinitions\CAF\$fileName.json) -replace "variables\('scope'\)", "'/providers/Microsoft.Management/managementGroups/$managementGroupId'" | Set-Content $definitionsRootFolder\policySetDefinitions\CAF\$fileName.json
                 (Get-Content $definitionsRootFolder\policySetDefinitions\CAF\$fileName.json) -replace "', '", "" | Set-Content $definitionsRootFolder\policySetDefinitions\CAF\$fileName.json
                 (Get-Content $definitionsRootFolder\policySetDefinitions\CAF\$fileName.json) -replace "\[concat\(('(.+)')\)\]", "`$2" | Set-Content $definitionsRootFolder\policySetDefinitions\CAF\$fileName.json
-            } 
-            
+            }
         }
     }
 }
 
-foreach ($initiativeFile in Get-ChildItem $definitionsRootFolder\policySetDefinitions\CAF -Filter *.json) {
-    $rawContent = Get-Content $initiativeFile | ConvertFrom-Json -Depth 20
+foreach ($policySetFile in Get-ChildItem "$definitionsRootFolder\policySetDefinitions\CAF" -Filter *.json) {
+    $rawContent = Get-Content $policySetFile | ConvertFrom-Json -Depth 20
     $jsonContent = ConvertTo-HashTable $rawContent
     $jsonContent.properties.policyDefinitions | Foreach-Object {
 
@@ -78,8 +77,7 @@ foreach ($initiativeFile in Get-ChildItem $definitionsRootFolder\policySetDefini
         $_.psObject.Properties.Remove('policyDefinitionId')
 
     }
-    $jsonContent | ConvertTo-Json -Depth 20 | Set-Content $initiativeFile
+    $jsonContent | ConvertTo-Json -Depth 20 | Set-Content $policySetFile
 }
 
 Copy-Item -Path .\Scripts\CloudAdoptionFramework\policyAssignments\*.* -Destination "$definitionsRootFolder\policyAssignments\CAF\" -Force
-

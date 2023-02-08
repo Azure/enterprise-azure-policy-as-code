@@ -3,7 +3,7 @@
 function Get-AzPolicySetParameters {
     [CmdletBinding()]
     param (
-        [hashtable] $parametersIn = @{}, # empty hashtable means processing an policySet definitions instead of assignemnet(s)
+        [hashtable] $parametersIn = @{}, # empty hashtable means processing a Policy Set instead of Assignment(s)
         [hashtable] $definedParameters
     )
 

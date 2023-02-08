@@ -1,5 +1,5 @@
 variables:
-  # This pipeline is used to deploy Policy definitions, Initiative definitions and Assignments into Azure.
+  # This pipeline is used to deploy Policies, Initiative definitions and Assignments into Azure.
   PAC_OUTPUT_FOLDER: ./Output
   PAC_DEFINITIONS_FOLDER: ./Definitions
 

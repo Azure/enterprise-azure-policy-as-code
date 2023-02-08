@@ -162,7 +162,15 @@ foreach ($file in $files) {
                     Write-Error "documentPolicySet entry does not specify title" -ErrorAction Stop
                 }
 
-                $policySets = $documentPolicySetEntry.initiatives
+                $policySets = $null
+                if ($documentPolicySetEntry.initiatives -and !($documentPolicySetEntry.policySets)) {
+                    $policySets = $documentPolicySetEntry.initiatives # legacy
+                    Write-Warning "Legacy field `"initiatives`" used, change to `"policySets`"" -WarningAction Continue
+                }
+                elseif (!($documentPolicySetEntry.initiatives) -and !($documentPolicySetEntry.policySets)) {
+                    $policySets = $documentPolicySetEntry.policySets
+                }
+
                 $itemArrayList = [System.Collections.ArrayList]::new()
                 if ($null -ne $policySets -and $policySets.Count -gt 0) {
                     foreach ($policySet in $policySets) {

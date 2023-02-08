@@ -89,6 +89,7 @@ function Build-AssignmentPlan {
             enforcementMode                = "Default"
             parameters                     = @{}
             additionalRoleAssignments      = @()
+            nonComplianceMessages          = @()
             parameterSuppressDefaultValues = $false
             hasErrors                      = $false
             hasOnlyNotSelectedEnvironments = $false
@@ -122,6 +123,7 @@ function Build-AssignmentPlan {
             $scope = $assignment.scope
             $notScopes = $assignment.notScopes
             $enforcementMode = $assignment.enforcementMode
+            $nonComplianceMessages = $assignment.nonComplianceMessages
             if ($deployedPolicyAssignments.ContainsKey($id)) {
                 # Update and replace scenarios
                 $deployedPolicyAssignment = $deployedPolicyAssignments[$id]
@@ -142,6 +144,9 @@ function Build-AssignmentPlan {
                     -existingMetadataObj $deployedPolicyAssignmentProperties.metadata `
                     -definedMetadataObj $metadata
                 $enforcementModeMatches = $enforcementMode -eq $deployedPolicyAssignmentProperties.EnforcementMode
+                $nonComplianceMessagesMatches = Confirm-ObjectValueEqualityDeep `
+                    -existingObj $deployedPolicyAssignmentProperties.nonComplianceMessages `
+                    -definedObj $nonComplianceMessages 
 
                 $replace = $replacedDefinition -or $changedPolicyDefinitionId
 
@@ -185,7 +190,7 @@ function Build-AssignmentPlan {
                 # Check if Policy assignment in Azure is the same as in the JSON file
 
                 $changesStrings = @()
-                $match = $displayNameMatches -and $descriptionMatches -and $parametersMatch -and $metadataMatches -and !$changePacOwnerId -and $enforcementModeMatches -and $notScopesMatch -and !$replace
+                $match = $displayNameMatches -and $descriptionMatches -and $parametersMatch -and $metadataMatches -and !$changePacOwnerId -and $enforcementModeMatches -and $notScopesMatch -and $nonComplianceMessagesMatches -and !$replace
                 if ($match) {
                     # no Assignment properties changed
                     $assignments.numberUnchanged++
@@ -243,6 +248,9 @@ function Build-AssignmentPlan {
                     }
                     if (!$notScopesMatch) {
                         $changesStrings += "notScopes"
+                    }
+                    if (!$nonComplianceMessagesMatches) {
+                        $changesStrings += "nonComplianceMessages"
                     }
 
                     if ($replace) {
