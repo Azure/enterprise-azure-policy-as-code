@@ -80,6 +80,10 @@ function Build-AssignmentDefinitionEntry {
         elseif ($null -ne $displayName) {
             $normalizedEntry.displayName = $definitionEntry.displayName
         }
+
+        if ($null -ne $definitionEntry.nonComplianceMessages) {
+            $normalizedEntry.nonComplianceMessages = $definitionEntry.nonComplianceMessages
+        }
         # if ($null -ne $shortName) {
         #     $normalizedEntry.displayName = $shortName
         # }

@@ -218,7 +218,7 @@ Create distinct ADO environment to configure approval gates. Refer to the follow
 
 ### Build-DeploymentPlans.ps1
 
-Analyzes changes in policy, initiative, and assignment files. It calculates a plan to apply deltas. The deployment scripts are **declarative** and **idempotent**: this means, that regardless how many times they are run, they always push all changes that were implemented in the JSON files to the Azure environment, i.e. if a JSON file is newly created/updated/deleted, the pipeline will create/update/delete the Policy and/or Initiative definition in Azure. If there are no changes, the pipeline can be run any number of times, as it won't make any changes to Azure.
+Analyzes changes in Policy definition, Policy Set definition, and Policy Assignment files. It calculates a plan to apply deltas. The deployment scripts are **declarative** and **idempotent**: this means, that regardless how many times they are run, they always push all changes that were implemented in the JSON files to the Azure environment, i.e. if a JSON file is newly created/updated/deleted, the pipeline will create/update/delete the Policy and/or Policy Set and/or Policy Assignments definition in Azure. If there are no changes, the pipeline can be run any number of times, as it won't make any changes to Azure.
 
 In addition to the [common parameters](#common-script-parameters), these parameters are defined:
 
@@ -229,7 +229,7 @@ In addition to the [common parameters](#common-script-parameters), these paramet
 
 ### Deploy-PolicyPlan.ps1
 
-Deploys Policies, Initiatives, Policy Assignments, and Policy Exemptions at their desired scope based on the plan.
+Deploys Policies, Policy Sets, Policy Assignments, and Policy Exemptions at their desired scope based on the plan.
 
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
@@ -261,7 +261,7 @@ In Azure Devops pipelines the following happens. Your CI/CD tools will display p
 
 ### `Commit` to a feature branch or a manual pipeline run
 
-* Stage devStage to deploy Policies, Initiatives and Assignments to the PAC DEV environment.
+* Stage devStage to deploy Policies, Policy Sets and Policy Assignments to the PAC DEV environment.
 * Calculates the plan for PROD environment deployment based on the Feature branch.
   * This plan is never executed. Instead the logs and if desired the artifact generated are used by the developer to verify the definition files and to determine if the code is ready for a Pull Request.
   * The PR approver(s) will use the same input plus the source code changes to decide the PR approval or rejection.
@@ -300,8 +300,8 @@ Detail view:
 * Optional: generate a starting point for the `Definitions` folders:
   * [Extract existing Policy resources from an environment](extract-existing-policy-resources.md).
   * [Import Policies from the Cloud Adoption Framework](cloud-adoption-framework.md).
-* [Add custom Policy definitions](policy-definitions.md).
-* [Add custom Policy Set definitions](policy-set-definitions.md).
+* [Add custom Policies](policy-definitions.md).
+* [Add custom Policy Sets](policy-set-definitions.md).
 * [Create Policy Assignments](policy-assignments.md).
 * Import Policies from the [Cloud Adoption Framework](cloud-adoption-framework.md).
 * [Manage Policy Exemptions](policy-exemptions.md).

@@ -44,18 +44,18 @@ function Confirm-PolicyDefinitionsUsedMatch {
                 -and ($mpd.parameters -eq $parameters) `
                 -and ($mpd.groupNames -eq $groupNames)
             if (-not $matchingItem) {
-                # policyDefinitionReferenceId matches, but rest of Policy definition doesn't
+                # policyDefinitionReferenceId matches, but rest of Policy Definition doesn't
                 $matching = $false
                 break
             }
         }
         else {
-            # new definition added a Policy definition (new policyDefinitionReferenceId)
+            # new definition added a Policy (new policyDefinitionReferenceId)
             $matching = $false
         }
     }
     if ($matching -and ($matchingHt.Count -gt 0)) {
-        # removed a a Policy definition (removed policyDefinitionReferenceId)
+        # removed a Policy definition (removed policyDefinitionReferenceId)
         $matching = $false
     }
 

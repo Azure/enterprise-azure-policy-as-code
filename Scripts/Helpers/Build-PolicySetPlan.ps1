@@ -14,7 +14,7 @@ function Build-PolicySetPlan {
 
     Write-Information ""
     Write-Information "==================================================================================================="
-    Write-Information "Processing Policy Set definition JSON files in folder '$definitionsRootFolder'"
+    Write-Information "Processing Policy Set JSON files in folder '$definitionsRootFolder'"
     Write-Information "==================================================================================================="
     $definitionFiles = @()
     $definitionFiles += Get-ChildItem -Path $definitionsRootFolder -Recurse -File -Filter "*.json"
@@ -46,7 +46,7 @@ function Build-PolicySetPlan {
     }
 
 
-    # Getting Policy Set definitions from the JSON files
+    # Getting Policy Set from the JSON files
     $managedDefinitions = $deployedDefinitions.managed
     $deleteCandidates = Get-HashtableShallowClone $deployedDefinitions.managed
     $allDeployedDefinitions = $deployedDefinitions.all
@@ -92,7 +92,7 @@ function Build-PolicySetPlan {
             Write-Error "Policy Set '$displayName' from file '$($file.Name)' requires a policyDefinitions array with at least one entry" -ErrorAction Stop
         }
         if ($duplicateDefinitionTracking.ContainsKey($id)) {
-            Write-Error "Duplicate Policy Set definition '$($name)' in '$(($duplicateDefinitionTracking[$id]).FullName)' and '$($file.FullName)'" -ErrorAction Stop
+            Write-Error "Duplicate Policy Set '$($name)' in '$(($duplicateDefinitionTracking[$id]).FullName)' and '$($file.FullName)'" -ErrorAction Stop
         }
         else {
             $null = $duplicateDefinitionTracking.Add($id, $policyFile)
@@ -133,13 +133,16 @@ function Build-PolicySetPlan {
             $limitReachedPolicyDefinitionGroups = $false
 
             # Trying to import missing policyDefinitionGroups entries
-            foreach ($importPolicySetName in $importPolicyDefinitionGroups) {
+            foreach ($importPolicyDefinitionGroup in $importPolicyDefinitionGroups) {
                 if ($usedPolicyGroupDefinitions.Count -eq 0 -or $limitReachedPolicyDefinitionGroups) {
                     break
                 }
-                $importPolicySetId = "/providers/Microsoft.Authorization/policySetDefinitions/$importPolicySetName"
+                $importPolicySetId = $importPolicyDefinitionGroup
+                if ($importPolicyDefinitionGroup -notcontains "/providers/Microsoft.Authorization/policySetDefinitions/") {
+                    $importPolicySetId = "/providers/Microsoft.Authorization/policySetDefinitions/$importPolicyDefinitionGroup"
+                }
                 if (!($deployedDefinitions.readOnly.ContainsKey($importPolicySetId))) {
-                    Write-Error "Built-in Policy Set (Initiative) '$importPolicyDefinitionGroupName' for group name import not found." -ErrorAction Stop
+                    Write-Error "Built-in Policy Set '$importPolicyDefinitionGroup' for group name import not found." -ErrorAction Stop
                 }
                 $importedPolicySetDefinition = $deployedDefinitions.readOnly[$importPolicySetId]
                 $importedPolicyDefinitionGroups = $importedPolicySetDefinition.properties.policyDefinitionGroups
@@ -172,10 +175,10 @@ function Build-PolicySetPlan {
         }
 
         if (!$validPolicyDefinitions) {
-            Write-Error "One or more invalid Policy Definition entries referenced in Policy Set (Initiative) '$($displayName)' from '$($file.Name)'." -ErrorAction Stop
+            Write-Error "One or more invalid Policy entries referenced in Policy Set '$($displayName)' from '$($file.Name)'." -ErrorAction Stop
         }
 
-        # Constructing Policy Set definitions parameters for splatting
+        # Constructing Policy Set parameters for splatting
         $definition = @{
             id                     = $id
             name                   = $name
@@ -194,10 +197,10 @@ function Build-PolicySetPlan {
             $deployedDefinition = $managedDefinitions[$id]
             $deployedDefinition = Get-PolicyResourceProperties -policyResource $deployedDefinition
 
-            # Remove defined Policy Set definition entry from deleted hashtable (the hashtable originally contains all custom Policy definition in the scope)
+            # Remove defined Policy Set entry from deleted hashtable (the hashtable originally contains all custom Policy Sets in the scope)
             $null = $deleteCandidates.Remove($id)
 
-            # Check if Policy Set definition in Azure is the same as in the JSON file
+            # Check if Policy Set in Azure is the same as in the JSON file
             $displayNameMatches = $deployedDefinition.displayName -eq $displayName
             $descriptionMatches = $deployedDefinition.description -eq $description
             $metadataMatches, $changePacOwnerId = Confirm-MetadataMatches `
@@ -214,7 +217,7 @@ function Build-PolicySetPlan {
                 -definedObj $policyDefinitionGroupsFinal
             $deletedPolicyDefinitionGroups = !$policyDefinitionGroupsMatch -and ($null -eq $policyDefinitionGroupsFinal -or $policyDefinitionGroupsFinal.Length -eq 0)
 
-            # Update Policy Set definition in Azure if necessary
+            # Update Policy Set in Azure if necessary
             $containsReplacedPolicy = $false
             foreach ($policyDefinitionEntry in $policyDefinitionsFinal) {
                 $policyId = $policyDefinitionEntry.policyDefinitionId
@@ -326,6 +329,6 @@ function Build-PolicySetPlan {
         }
     }
 
-    Write-Information "Number of unchanged Policy Set (Initiatives) definition = $($definitions.numberUnchanged)"
+    Write-Information "Number of unchanged Policy SetPolicy Sets definition = $($definitions.numberUnchanged)"
     Write-Information  ""
 }

@@ -6,7 +6,7 @@
 .EXAMPLE
     New-EPACPolicyAssignmentDefinition.ps1 -PolicyDefinitionId "/providers/Microsoft.Management/managementGroups/epac/providers/Microsoft.Authorization/policyDefinitions/Append-KV-SoftDelete" -OutputFolder .\
 
-    Export the policy definition to the current folder.
+    Export the Policy to the current folder.
 #>
 
 [CmdletBinding()]
@@ -43,7 +43,7 @@ if ($PolicyAssignment) {
             $baseTemplate | ConvertTo-Json -Depth 50
         }
     }
-    if ($PolicyAssignment.Properties.PolicyDefinitionId -match "Microsoft.Authorization/policySetDefinitions") {
+    elseif ($PolicyAssignment.Properties.PolicyDefinitionId -match "Microsoft.Authorization/policySetDefinitions") {
         $baseTemplate = @{
             assignment      = @{
                 name        = $PolicyAssignment.Name
@@ -51,7 +51,7 @@ if ($PolicyAssignment) {
                 description = $PolicyAssignment.Properties.Description
             }
             definitionEntry = @{
-                initiativeName = $PolicyAssignment.Properties.PolicyDefinitionId.Split("/")[-1]
+                policySetName = $PolicyAssignment.Properties.PolicyDefinitionId.Split("/")[-1]
             }
             parameters      = @{} | ConvertTo-HashTable
         }

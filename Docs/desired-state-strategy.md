@@ -70,7 +70,7 @@ By default, Policy Assignments at resource groups are not managed by EPAC. Prior
 
 ![image.png](Images/shared-excluded.png)
 
-You can exclude any combination of scopes, Policy definitions, Policy Set definitions and Policy Assignments. Simple wild cards are allowed.
+You can exclude any combination of scopes, Policies, Policy Sets and Policy Assignments. Simple wild cards are allowed.
 
 ``` json
 "desiredState": {
@@ -114,8 +114,8 @@ By default, Policy Assignments at resource groups are not managed by EPAC. Prior
 * Optional: generate a starting point for the `Definitions` folders:
   * [Extract existing Policy resources from an environment](extract-existing-policy-resources.md).
   * [Import Policies from the Cloud Adoption Framework](cloud-adoption-framework.md).
-* [Add custom Policy definitions](policy-definitions.md).
-* [Add custom Policy Set definitions](policy-set-definitions.md).
+* [Add custom Policies](policy-definitions.md).
+* [Add custom Policy Sets](policy-set-definitions.md).
 * [Create Policy Assignments](policy-assignments.md).
 * Import Policies from the [Cloud Adoption Framework](cloud-adoption-framework.md).
 * [Manage Policy Exemptions](policy-exemptions.md).

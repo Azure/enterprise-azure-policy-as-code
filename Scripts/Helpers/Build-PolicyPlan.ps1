@@ -14,7 +14,7 @@ function Build-PolicyPlan {
 
     Write-Information ""
     Write-Information "==================================================================================================="
-    Write-Information "Processing Policy definition JSON files in folder '$definitionsRootFolder'"
+    Write-Information "Processing Policy JSON files in folder '$definitionsRootFolder'"
     Write-Information "==================================================================================================="
     $definitionFiles = @()
     $definitionFiles += Get-ChildItem -Path $definitionsRootFolder -Recurse -File -Filter "*.json"
@@ -36,7 +36,7 @@ function Build-PolicyPlan {
         }
     }
 
-    # Getting Policy definitions from the JSON files
+    # Getting Policy from the JSON files
     $managedDefinitions = $deployedDefinitions.managed
     $deleteCandidates = Get-HashtableShallowClone $managedDefinitions
     $allDeployedDefinitions = $deployedDefinitions.all
@@ -83,7 +83,7 @@ function Build-PolicyPlan {
             Write-Error "Policy '$displayName' from file '$($file.Name)' requires a policyRule" -ErrorAction Stop
         }
         if ($duplicateDefinitionTracking.ContainsKey($id)) {
-            Write-Error "Duplicate Policy definition '$($name)' in '$(($duplicateDefinitionTracking[$id]).FullName)' and '$($file.FullName)'" -ErrorAction Stop
+            Write-Error "Duplicate Policy '$($name)' in '$(($duplicateDefinitionTracking[$id]).FullName)' and '$($file.FullName)'" -ErrorAction Stop
         }
         else {
             $null = $duplicateDefinitionTracking.Add($id, $file)
@@ -95,7 +95,7 @@ function Build-PolicyPlan {
             $null = $policyRoleIds.Add($id, $roleDefinitionIdsInPolicy)
         }
 
-        # Constructing policy definitions parameters for splatting
+        # Constructing Policy parameters for splatting
         $definition = @{
             id          = $id
             name        = $name
@@ -115,10 +115,10 @@ function Build-PolicyPlan {
             $deployedDefinition = $managedDefinitions[$id]
             $deployedDefinition = Get-PolicyResourceProperties -policyResource $deployedDefinition
 
-            # Remove defined Policy definition entry from deleted hashtable (the hashtable originally contains all custom Policy definition in the scope)
+            # Remove defined Policy entry from deleted hashtable (the hashtable originally contains all custom Policy in the scope)
             $null = $deleteCandidates.Remove($id)
 
-            # Check if policy definition in Azure is the same as in the JSON file
+            # Check if Policy in Azure is the same as in the JSON file
             $displayNameMatches = $deployedDefinition.displayName -eq $displayName
             $descriptionMatches = $deployedDefinition.description -eq $description
             $modeMatches = $deployedDefinition.mode -eq $definition.Mode
@@ -132,7 +132,7 @@ function Build-PolicyPlan {
                 -existingObj $deployedDefinition.policyRule `
                 -definedObj $policyRule
 
-            # Update policy definition in Azure if necessary
+            # Update Policy in Azure if necessary
             if ($displayNameMatches -and $descriptionMatches -and $modeMatches -and $metadataMatches -and !$changePacOwnerId -and $parametersMatch -and $policyRuleMatches) {
                 # Write-Information "Unchanged '$($displayName)'"
                 $definitions.numberUnchanged++
@@ -227,6 +227,6 @@ function Build-PolicyPlan {
         }
     }
 
-    Write-Information "Number of unchanged Policy definition = $($definitions.numberUnchanged)"
+    Write-Information "Number of unchanged Policies = $($definitions.numberUnchanged)"
     Write-Information ""
 }

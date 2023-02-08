@@ -15,13 +15,13 @@ function Confirm-PolicySetDefinitionUsedExists {
         Write-Error "Confirm-PolicySetDefinitionUsedExists called with a contradictory parameters: must supply either PolicySet id or PolicySet name." -ErrorAction Stop
     }
 
-    # Find the PolicySet definition
+    # Find the Policy Set
     if ($null -ne $id) {
         if ($allPolicySetDefinitions.ContainsKey($id)) {
             return $id
         }
         else {
-            Write-Error "    PolicySet (Initiative) '$id' not found."
+            Write-Error "    PolicySet '$id' not found."
             return $null
         }
     }
@@ -33,7 +33,7 @@ function Confirm-PolicySetDefinitionUsedExists {
             }
         }
 
-        Write-Error "    PolicySet (Initiative) name '$name' not found in custom or built-in PolicySet (Initiative) definitions."
+        Write-Error "    PolicySet name '$name' not found in custom or built-in Policy Sets."
         return $null
     }
 }

@@ -16,7 +16,7 @@ function Confirm-PolicyDefinitionUsedExists {
         Write-Error "Confirm-PolicyDefinitionUsedExists called with a contradictory parameters: must supply either Policy id or Policy name." -ErrorAction Stop
     }
 
-    # Find the Policy definition
+    # Find the Policy
     if ($null -ne $id) {
         if ($allDefinitions.ContainsKey($id)) {
             return $id
@@ -36,9 +36,9 @@ function Confirm-PolicyDefinitionUsedExists {
             }
         }
 
-        # Not found in custom Policy definitions, try built-in Policy definitions
+        # Not found in custom Policies, try built-in Policies
         if (!$suppressErrorMessage) {
-            Write-Error "    Policy name '$name' not found in custom or built-in Policy definitions."
+            Write-Error "    Policy name '$name' not found in custom or built-in Policies."
         }
         return $null
     }

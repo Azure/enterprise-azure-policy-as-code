@@ -321,6 +321,10 @@ function Build-AssignmentDefinitionNode {
         }
     }
 
+    if ($definitionNode.nonComplianceMessages) {
+        $definition.nonComplianceMessages += $definitionNode.nonComplianceMessages
+    }
+
     $assignmentsList = @()
     if ($definitionNode.children) {
         # Process child nodes

@@ -6,7 +6,7 @@
 >
 > Important
 >
-> - `deploymentRootScope` is the deployment scope for Policy and Initiative definitions.
+> - `deploymentRootScope` is the deployment scope for Policies, Policy Set definitions.
 > - Policy Assignments must be at this scope or below.
 > - Operational tasks, such as `Create-AzRemediationTasks.ps1`, must use the same rootScope or they will fail.
 >
@@ -17,21 +17,21 @@
 
 **On this page**
 
-* [Folders](#folders)
-* [Global Settings](#global-settings)
-  * [Uniquely identify deployments `pacOwnerId`](#uniquely-identify-deployments-pacownerid)
-  * [Define EPAC Environments in `pacEnvironments`](#define-epac-environments-in-pacenvironments)
-  * [DeployIfNotExists and Modify Policy Assignments need `managedIdentityLocation`](#deployifnotexists-and-modify-policy-assignments-need-managedidentitylocation)
-  * [Excluding scopes for all Assignments with `globalNotScopes`](#excluding-scopes-for-all-assignments-with-globalnotscopes)
-* [Reading List](#reading-list)
+- [Folders](#folders)
+- [Global Settings](#global-settings)
+  - [Uniquely identify deployments `pacOwnerId`](#uniquely-identify-deployments-pacownerid)
+  - [Define EPAC Environments in `pacEnvironments`](#define-epac-environments-in-pacenvironments)
+  - [DeployIfNotExists and Modify Policy Assignments need `managedIdentityLocation`](#deployifnotexists-and-modify-policy-assignments-need-managedidentitylocation)
+  - [Excluding scopes for all Assignments with `globalNotScopes`](#excluding-scopes-for-all-assignments-with-globalnotscopes)
+- [Reading List](#reading-list)
 
 ## Folders
 
 This `Definitions` folder and subfolders contains all your definitions. The `Sync-Repo.ps1` script does not copy this folder.
 
 1. Define the Azure environment(s) in file **[global-settings.jsonc](#global-settings)**
-1. Create custom Policy definitions (optional) in folder **[policyDefinitions](policy-definitions.md)**
-1. Create custom Initiative definitions (optional) in folder **[policySetDefinitions](policy-set-definitions.md)**
+1. Create custom Policies (optional) in folder **[policyDefinitions](policy-definitions.md)**
+1. Create custom Policy Sets (optional) in folder **[policySetDefinitions](policy-set-definitions.md)**
 1. Define the Policy Assignments in folder **[policyAssignments](policy-assignments.md)**
 1. Define the Policy Exemptions (optional) in folder **[policyExemptions](policy-exemptions.md)**
 1. Define Documentation in folder **[policyDocumentations](documenting-assignments-and-policy-sets.md)**
@@ -55,11 +55,11 @@ EPAC has a concept of an environment identified by a string (unique per reposito
 
 - `cloud` - to select sovereign cloud environments.
 - `tenantId` - enables multi-tenant scenarios.
-- `rootDefinitionScope` - the deployment destination for the Policy and Policy Set definitions to be used in assignments later.
+- `rootDefinitionScope` - the deployment destination for the Policies and Policy Sets to be used in assignments later.
   - Policy Assignments can only defined at this root scope and child scopes (recursive).
 - Optional: define `desiredState` strategy. This element is documented [here](desired-state-strategy.md).
 
-Like any other software or IaC solution, EPAC needs areas for developing and testing new Policies, Initiatives and Assignments before any deployment to EPAC prod environments. In most cases you will need one management group hierarchy to simulate EPAC production management groups for development and testing of Policies. EPAC's prod environment will govern all other IaC environments (e.g., sandbox, development, integration, test/qa, pre-prod, prod, ...) and tenants. This can be confusing. We will use EPAC environment(s) and IaC environments to disambiguate the environments.
+Like any other software or IaC solution, EPAC needs areas for developing and testing new Policies, Policy Sets and Policy Assignments before any deployment to EPAC prod environments. In most cases you will need one management group hierarchy to simulate EPAC production management groups for development and testing of Policies. EPAC's prod environment will govern all other IaC environments (e.g., sandbox, development, integration, test/qa, pre-prod, prod, ...) and tenants. This can be confusing. We will use EPAC environment(s) and IaC environments to disambiguate the environments.
 
 In a centralized single tenant scenario, you will define two EPAC environments: epac-dev and tenant. In a multi-tenant scenario, you will add an additional EPAC environment per additional tenant.
 
@@ -142,8 +142,8 @@ The arrays can have the following entries:
 - Optional: generate a starting point for the `Definitions` folders:
   - [Extract existing Policy resources from an environment](extract-existing-policy-resources.md).
   - [Import Policies from the Cloud Adoption Framework](cloud-adoption-framework.md).
-- [Add custom Policy definitions](policy-definitions.md).
-- [Add custom Policy Set definitions](policy-set-definitions.md).
+- [Add custom Policies](policy-definitions.md).
+- [Add custom Policy Sets](policy-set-definitions.md).
 - [Create Policy Assignments](policy-assignments.md).
 - Import Policies from the [Cloud Adoption Framework](cloud-adoption-framework.md).
 - [Manage Policy Exemptions](policy-exemptions.md).
