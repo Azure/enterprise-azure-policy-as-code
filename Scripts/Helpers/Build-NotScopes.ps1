@@ -3,7 +3,7 @@ function Build-NotScopes {
     param(
         [parameter(Mandatory = $True)] [hashtable] $scopeTable,
         [parameter(Mandatory = $True)] [string[]]  $scopeList,
-        [parameter(Mandatory = $True)] [string[]]  $notScopeIn
+        [parameter(Mandatory = $False)] [string[]]  $notScopeIn = @()
     )
 
     $scopeCollection = @()
@@ -43,6 +43,6 @@ function Build-NotScopes {
             Write-Error "Scope '$scope' not found in environment" -ErrorAction Stop
         }
     }
-    
-    return , $scopeCollection
+
+    Write-Output $scopeCollection -NoEnumerate
 }
