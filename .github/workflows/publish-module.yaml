@@ -10,7 +10,8 @@ jobs:
       - name: checkout
         uses: actions/checkout@v3.3.0
       - shell: pwsh
-        run: gci env:
+        run: |
+          gci env:
       - shell: pwsh
         env:
           APIKEY: ${{ secrets.APIKEY }}
