@@ -23,20 +23,6 @@
 	# Minimum version of the Windows PowerShell engine required by this module
 	PowerShellVersion = '7.0'
 	
-	# Modules that must be imported into the global environment prior to importing this module
-	# RequiredModules = @(@{ ModuleName='PSFramework'; ModuleVersion='1.7.249' })
-	
-	# Assemblies that must be loaded prior to importing this module
-	# RequiredAssemblies = @('bin\epac-module.dll')
-	
-	# Type files (.ps1xml) to be loaded when importing this module
-	# Expensive for import time, no more than one should be used.
-	# TypesToProcess = @('xml\epac-module.Types.ps1xml')
-	
-	# Format files (.ps1xml) to be loaded when importing this module.
-	# Expensive for import time, no more than one should be used.
-	# FormatsToProcess = @('xml\epac-module.Format.ps1xml')
-	
 	# Functions to export from this module
 	FunctionsToExport = ''
 	
@@ -71,7 +57,7 @@
 			# IconUri = ''
 			
 			# ReleaseNotes of this module
-			# ReleaseNotes = ''
+			# ReleaseNotes = 'https://github.com/Azure/enterprise-azure-policy-as-code/releases'
 			
 		} # End of PSData hashtable
 		

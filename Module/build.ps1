@@ -3,7 +3,9 @@ New-Item .\Module\EnterprisePolicyAsCode\functions -ItemType Directory -Force
 
 Copy-Item -Path .\Scripts\Helpers\*.ps1 -Destination .\Module\EnterprisePolicyAsCode\internal\functions -Force
 
-Remove-Item .\Module\EnterprisePolicyAsCode\internal\functions\Add-Helpers.ps1
+if (Test-Path .\Module\EnterprisePolicyAsCode\internal\functions\Add-Helpers.ps1) {
+  Remove-Item .\Module\EnterprisePolicyAsCode\internal\functions\Add-Helpers.ps1
+}
 
 # Deploy Functions
 
@@ -38,11 +40,3 @@ $functionNames | Foreach-Object {
 Copy-Item -Path .\Scripts\CloudAdoptionFramework\policyAssignments -Destination .\Module\EnterprisePolicyAsCode -Force -Recurse
 
 (Get-Content -Path .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1) -replace "FunctionsToExport = ''", "FunctionsToExport = @($((gci -Path .\Module\EnterprisePolicyAsCode\functions | Select-Object -ExpandProperty BaseName) | Join-String -Separator "," -DoubleQuote))" | Set-Content .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1
-
-$version = git describe --tags
-
-if ($version) {
-    (Get-Content -Path .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1) -replace "ModuleVersion     = ''", "ModuleVersion     = '$version'" | Set-Content .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1
-}
-
-Write-Output "Publishing module version: $version"
