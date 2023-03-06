@@ -1,0 +1,15 @@
+name: Publish Module
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - shell: pwsh
+        env:
+          APIKEY: ${{ secrets.APIKEY }}
+        run: |
+          ./Module/build.ps1
+          Publish-Module -Path .\Module\EnterprisePolicyAsCode -NuGetApiKey $APIKEY -Verbose
