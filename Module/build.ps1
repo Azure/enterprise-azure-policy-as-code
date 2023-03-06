@@ -3,7 +3,9 @@ New-Item .\Module\EnterprisePolicyAsCode\functions -ItemType Directory -Force
 
 Copy-Item -Path .\Scripts\Helpers\*.ps1 -Destination .\Module\EnterprisePolicyAsCode\internal\functions -Force
 
-Remove-Item .\Module\EnterprisePolicyAsCode\internal\functions\Add-Helpers.ps1
+if (Test-Path .\Module\EnterprisePolicyAsCode\internal\functions\Add-Helpers.ps1) {
+  Remove-Item .\Module\EnterprisePolicyAsCode\internal\functions\Add-Helpers.ps1
+}
 
 # Deploy Functions
 
