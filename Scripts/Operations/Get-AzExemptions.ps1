@@ -83,7 +83,10 @@ foreach ($key in $exemptionsResult.Keys) {
         if (Test-Path $jsonFile) {
             Remove-Item $jsonFile
         }
-        ConvertTo-Json $jsonArray -Depth 100 | Out-File $jsonFile -Force
+        $outputJson = @{
+            exemptions = @($jsonArray)
+        }
+        ConvertTo-Json $outputJson -Depth 100 | Out-File $jsonFile -Force
 
         # Spreadsheet outputs (CSV)
         $excelArray = @() + $valueArray | Select-Object -Property `
