@@ -6,8 +6,6 @@
 
 .NOTES
     This script is designed to be run in Azure DevOps pipelines.
-    Version:        1.0
-    Creation Date:  2021-08-03
 #>
 
 [CmdletBinding()]
