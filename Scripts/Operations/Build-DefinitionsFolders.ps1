@@ -114,7 +114,7 @@ foreach ($policyDefinition in $policyDefinitions.Values) {
             description = $properties.description
             mode        = $properties.mode
             metadata    = $metadata
-            version     = $version
+            # version     = $version
             parameters  = $properties.parameters
             policyRule  = [PSCustomObject]@{
                 if   = $properties.policyRule.if
@@ -172,7 +172,7 @@ foreach ($policySetDefinition in $policySetDefinitions.Values) {
             displayName            = $properties.displayName
             description            = $properties.description
             metadata               = $metadata
-            version                = $version
+            # version                = $version
             parameters             = $properties.parameters
             policyDefinitions      = $policyDefinitionsOut.ToArray()
             policyDefinitionGroups = $properties.policyDefinitionGroups
