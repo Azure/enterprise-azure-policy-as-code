@@ -1,22 +1,15 @@
-name: Deploy
+name: build
 on:
   push:
     branches:
-      - docs-action
+      - main
 jobs:
-  build:
-    name: Deploy docs to GitHub Pages
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        uses: Tiryoh/actions-mkdocs@v0
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
         with:
-          mkdocs_version: "latest" # option
-          configfile: "mkdocs.yml" # option
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site
+          python-version: 3.x
+      - run: pip install mkdocs
+      - run: mkdocs gh-deploy --force --clean --verbose
