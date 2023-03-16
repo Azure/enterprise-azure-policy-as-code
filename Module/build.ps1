@@ -1,11 +1,7 @@
 New-Item .\Module\EnterprisePolicyAsCode\internal\functions -ItemType Directory -Force
 New-Item .\Module\EnterprisePolicyAsCode\functions -ItemType Directory -Force
 
-Copy-Item -Path .\Scripts\Helpers\*.ps1 -Destination .\Module\EnterprisePolicyAsCode\internal\functions -Force
-
-if (Test-Path .\Module\EnterprisePolicyAsCode\internal\functions\Add-Helpers.ps1) {
-  Remove-Item .\Module\EnterprisePolicyAsCode\internal\functions\Add-Helpers.ps1
-}
+Copy-Item -Path .\Scripts\Helpers\*.ps1 -Destination .\Module\EnterprisePolicyAsCode\internal\functions -Force -Exclude Add-HelperScripts.ps1
 
 # Deploy Functions
 
