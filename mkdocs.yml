@@ -1,9 +1,9 @@
 site_name: Enterprise Policy As Code (EPAC)
-site_url: http://localhost:8000
+site_url: https://azure.github.io/enterprise-azure-policy-as-code/
 repo_url: https://github.com/Azure/enterprise-azure-policy-as-code
 theme:
-  logo: images/10316-icon-service-Policy.svg
-  favicon: images/10316-icon-service-Policy.svg
+  logo: Images/10316-icon-service-Policy.svg
+  favicon: Images/10316-icon-service-Policy.svg
   language: en
   name: material
   font:
