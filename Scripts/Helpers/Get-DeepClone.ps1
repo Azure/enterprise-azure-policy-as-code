@@ -1,7 +1,7 @@
 #Requires -PSEdition Core
 
 function Get-DeepClone {
-    [cmdletbinding()]
+    [CmdletBinding()]
     param(
         [parameter(Position = 0, ValueFromPipeline = $true)]
         $InputObject,

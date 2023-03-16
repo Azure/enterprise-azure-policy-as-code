@@ -38,8 +38,12 @@ foreach ($policyUri in $defaultPolicyURIs) {
                     name       = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Name
                     properties = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Properties
                 }
-                $baseTemplate | ConvertTo-Json -Depth 50 | Out-File -FilePath $definitionsRootFolder\policyDefinitions\CAF\$name.json -Force
-                (Get-Content $definitionsRootFolder\policyDefinitions\CAF\$name.json) -replace "\[\[", "[" | Set-Content $definitionsRootFolder\policyDefinitions\CAF\$name.json
+                $category = $baseTemplate.properties.Metadata.category
+                if (!(Test-Path $definitionsRootFolder\policyDefinitions\CAF\$category)) {
+                    New-Item -Path $definitionsRootFolder\policyDefinitions\CAF\$category -ItemType Directory -Force -ErrorAction SilentlyContinue
+                }
+                $baseTemplate | ConvertTo-Json -Depth 50 | Out-File -FilePath $definitionsRootFolder\policyDefinitions\CAF\$category\$name.json -Force
+                (Get-Content $definitionsRootFolder\policyDefinitions\CAF\$category\$name.json) -replace "\[\[", "[" | Set-Content $definitionsRootFolder\policyDefinitions\CAF\$category\$name.json
             }
             if ($type -match 'Microsoft.Authorization/policySetDefinitions') {
                 $name = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Name
@@ -58,17 +62,21 @@ foreach ($policyUri in $defaultPolicyURIs) {
                     name       = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Name
                     properties = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Properties
                 }
-                $baseTemplate | ConvertTo-Json -Depth 50 | Out-File -FilePath $definitionsRootFolder\policySetDefinitions\CAF\$fileName.json -Force
-                (Get-Content $definitionsRootFolder\policySetDefinitions\CAF\$fileName.json) -replace "\[\[", "[" | Set-Content $definitionsRootFolder\policySetDefinitions\CAF\$fileName.json
-                (Get-Content $definitionsRootFolder\policySetDefinitions\CAF\$fileName.json) -replace "variables\('scope'\)", "'/providers/Microsoft.Management/managementGroups/$managementGroupId'" | Set-Content $definitionsRootFolder\policySetDefinitions\CAF\$fileName.json
-                (Get-Content $definitionsRootFolder\policySetDefinitions\CAF\$fileName.json) -replace "', '", "" | Set-Content $definitionsRootFolder\policySetDefinitions\CAF\$fileName.json
-                (Get-Content $definitionsRootFolder\policySetDefinitions\CAF\$fileName.json) -replace "\[concat\(('(.+)')\)\]", "`$2" | Set-Content $definitionsRootFolder\policySetDefinitions\CAF\$fileName.json
+                $category = $baseTemplate.properties.Metadata.category
+                if (!(Test-Path $definitionsRootFolder\policySetDefinitions\CAF\$category)) {
+                    New-Item -Path $definitionsRootFolder\policySetDefinitions\CAF\$category -ItemType Directory -Force -ErrorAction SilentlyContinue
+                }
+                $baseTemplate | ConvertTo-Json -Depth 50 | Out-File -FilePath $definitionsRootFolder\policySetDefinitions\CAF\$category\$fileName.json -Force
+                (Get-Content $definitionsRootFolder\policySetDefinitions\CAF\$category\$fileName.json) -replace "\[\[", "[" | Set-Content $definitionsRootFolder\policySetDefinitions\CAF\$category\$fileName.json
+                (Get-Content $definitionsRootFolder\policySetDefinitions\CAF\$category\$fileName.json) -replace "variables\('scope'\)", "'/providers/Microsoft.Management/managementGroups/$managementGroupId'" | Set-Content $definitionsRootFolder\policySetDefinitions\CAF\$category\$fileName.json
+                (Get-Content $definitionsRootFolder\policySetDefinitions\CAF\$category\$fileName.json) -replace "', '", "" | Set-Content $definitionsRootFolder\policySetDefinitions\CAF\$category\$fileName.json
+                (Get-Content $definitionsRootFolder\policySetDefinitions\CAF\$category\$fileName.json) -replace "\[concat\(('(.+)')\)\]", "`$2" | Set-Content $definitionsRootFolder\policySetDefinitions\CAF\$category\$fileName.json
             }
         }
     }
 }
 
-foreach ($policySetFile in Get-ChildItem "$definitionsRootFolder\policySetDefinitions\CAF" -Filter *.json) {
+foreach ($policySetFile in Get-ChildItem "$definitionsRootFolder\policySetDefinitions\CAF" -Recurse -Filter *.json) {
     $rawContent = Get-Content $policySetFile | ConvertFrom-Json -Depth 20
     $jsonContent = ConvertTo-HashTable $rawContent
     $jsonContent.properties.policyDefinitions | Foreach-Object {

@@ -32,13 +32,15 @@ function Set-AzPolicyAssignmentRestMethod {
             displayName        = $assignmentObj.displayName
             description        = $assignmentObj.description
             metadata           = $assignmentObj.metadata
-            parameters         = $parameters
             enforcementMode    = $assignmentObj.enforcementMode
             notScopes          = $assignmentObj.notScopes
         }
     }
     if ($assignmentObj.identityRequired) {
         $assignment.location = $assignmentObj.managedIdentityLocation
+    }
+    if ($parameters.Count -gt 0) {
+        $assignment.properties.parameters = $parameters
     }
     if ($assignmentObj.nonComplianceMessages) {
         $assignment.properties.nonComplianceMessages = $assignmentObj.nonComplianceMessages
@@ -58,7 +60,7 @@ function Set-AzPolicyAssignmentRestMethod {
     $statusCode = $response.StatusCode
     if ($statusCode -ne 201) {
         $content = $response.Content
-        Write-Error "Assignment error $($statusCode) -- $($content)" -ErrorAction Continue
+        Write-Error "Assignment error $($statusCode) -- $($content)" -ErrorAction Stop
     }
 
     return $displayName

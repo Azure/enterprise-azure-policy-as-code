@@ -15,7 +15,11 @@ param (
     [bool] $interactive = $true,
 
     [Parameter(Mandatory = $false, HelpMessage = "Switch to include Policies and Policy Sets definitions in child scopes")]
-    [switch] $includeChildScopes
+    [switch] $includeChildScopes,
+
+    [ValidateSet("json", "jsonc")]
+    [Parameter(Mandatory = $false, HelpMessage = "File extension type for the output files. Defaults to '.jsonc'.")]
+    [string] $fileExtension = "jsonc"   
 )
 
 #region Script Dot sourcing
@@ -114,7 +118,7 @@ foreach ($policyDefinition in $policyDefinitions.Values) {
             description = $properties.description
             mode        = $properties.mode
             metadata    = $metadata
-            # version     = $version
+            version     = $version
             parameters  = $properties.parameters
             policyRule  = [PSCustomObject]@{
                 if   = $properties.policyRule.if
@@ -123,7 +127,7 @@ foreach ($policyDefinition in $policyDefinitions.Values) {
         }
         name       = $name
     }
-    Out-PolicyDefinition -definition $definition -folder $policyDefinitionsFolder -policyNames $policyNames -invalidChars $invalidChars -typeString "Policy" -id $id
+    Out-PolicyDefinition -definition $definition -folder $policyDefinitionsFolder -policyNames $policyNames -invalidChars $invalidChars -typeString "Policy" -id $id -fileExtension $fileExtension
 }
 
 Write-Information ""
@@ -172,14 +176,14 @@ foreach ($policySetDefinition in $policySetDefinitions.Values) {
             displayName            = $properties.displayName
             description            = $properties.description
             metadata               = $metadata
-            # version                = $version
+            version                = $version
             parameters             = $properties.parameters
             policyDefinitions      = $policyDefinitionsOut.ToArray()
             policyDefinitionGroups = $properties.policyDefinitionGroups
         }
         name       = $policySetDefinition.name
     }
-    Out-PolicyDefinition -definition $definition -folder $policySetDefinitionsFolder -policyNames $policySetNames -invalidChars $invalidChars -typeString "Policy" -id $policySetDefinition.id
+    Out-PolicyDefinition -definition $definition -folder $policySetDefinitionsFolder -policyNames $policySetNames -invalidChars $invalidChars -typeString "Policy" -id $policySetDefinition.id -fileExtension $fileExtension
 }
 
 Write-Information ""
@@ -281,7 +285,8 @@ foreach ($policyDefinitionKey in $assignments.Keys) {
         -displayName $perDefinition.definitionDisplayName `
         -invalidChars $invalidChars `
         -maxLengthSubFolder 30 `
-        -maxLengthFileName 100
+        -maxLengthFileName 100 `
+        -fileExtension $fileExtension
 
     # Create definitionEntry
     $definitionEntry = @{}

@@ -7,82 +7,123 @@ function Confirm-ObjectValueEqualityDeep {
         $definedObj
     )
 
-    if ($definedObj -is [array] -or $existingObj -is [array]) {
-        [array] $definedArray = $() + $definedObj
-        [array] $existingArray = $() + $existingObj
-        if (($null -eq $definedObj -and $null -ne $existingObj -and $existingArray.Length -eq 0) -or `
-            ($null -eq $existingObj -and $null -ne $definedObj -and $definedArray.Length -eq 0)) {
-            # null and zero length is the same
-            return $true
+    if ($definedObj -eq $existingObj) {
+        # Covers $null, value types, strings and objects referring to the same object
+        return $true
+    }
+    elseif ($definedObj -is [datetime] -or $existingObj -is [datetime]) {
+        $definedDateString = $definedObj
+        if ($definedObj -is [datetime]) {
+            $definedDateString = $definedObj.ToString("yyyy-MM-dd")
         }
-        else {
-            if ($definedArray.Length -ne $existingArray.Length) {
+        $existingDateString = $existingObj
+        if ($existingObj -is [datetime]) {
+            $existingDateString = $existingObj.ToString("yyyy-MM-dd")
+        }
+        return $definedDateString -eq $existingDateString
+    }
+    else {
+
+        # Normalize if PSCustomObject or Hashtable
+        $isHashtable = $false
+        $definedHashtable = @{}
+        if ($null -ne $definedObj) {
+            if ($definedObj -is [System.Collections.IDictionary]) {
+                $definedHashtable = $definedObj.Clone()
+                Remove-EmptyFields -definition $definedHashtable
+                $isHashtable = $true
+            }
+            elseif ($definedObj -is [PSCustomObject] -and $definedObj -isnot [System.Collections.IList]) {
+                $definedHashtable = ConvertTo-HashTable $definedObj
+                Remove-EmptyFields -definition $definedHashtable
+                $isHashtable = $true
+            }
+        }
+        $existingHashtable = @{}
+        if ($null -ne $existingObj) {
+            if ($existingObj -is [System.Collections.IDictionary]) {
+                $existingHashtable = $existingObj.Clone()
+                Remove-EmptyFields -definition $existingHashtable
+                $isHashtable = $true
+            }
+            elseif ($existingObj -is [PSCustomObject] -and $existingObj -isnot [System.Collections.IList]) {
+                $existingHashtable = ConvertTo-HashTable $existingObj
+                Remove-EmptyFields -definition $existingHashtable
+                $isHashtable = $true
+            }
+        }
+        if ($isHashtable) {
+            if ($definedHashtable.Count -ne $existingHashtable.Count) {
                 return $false
             }
-            else {
-                $notMatches = $definedArray.Length
-                if ($existingArray) { $nextExistingArray = $existingArray.clone() }else { $nextExistingArray = @{} }
-                foreach ($definedItem in $definedArray) {
-                    $found = $false
-                    if ($nextExistingArray) { $currentArray = $nextExistingArray.clone() }else { $currentArray = @{} }
-                    $nextExistingArray = @()
-                    foreach ($existingItem in $currentArray) {
-                        if ($found) {
-                            $nextExistingArray += $existingItem
-                        }
-                        elseif (Confirm-ObjectValueEqualityDeep -existingObj $existingItem -definedObj $definedItem) {
-                            $null = $notMatches--
-                            $found = $true
-                        }
-                        else {
-                            $nextExistingArray += $existingItem
-                        }
-                    }
-                    if (!$found) {
+            foreach ($key in $existingHashtable.Keys) {
+                if ($definedHashtable.ContainsKey($key)) {
+                    if (!(Confirm-ObjectValueEqualityDeep -existingObj $existingHt.$key -definedObj $definedHt.$key)) {
                         return $false
                     }
                 }
-                return $notMatches -lt 1
-            }
-        }
-    }
-    elseif ($definedObj -is [datetime] -xor $existingObj -is [datetime]) {
-        if ($definedObj -is [datetime]) {
-            $date = $definedObj.ToString("yyyy-MM-dd")
-            return $date -eq $existingObj
-        }
-        else {
-            $date = $existingObj.ToString("yyyy-MM-dd")
-            return $date -eq $definedObj
-        }
-    }
-    elseif (($null -ne $definedObj.Keys -and $null -ne $definedObj.Values) -or ($null -ne $existingObj.Keys -and $null -ne $existingObj.Values) `
-            -or ($definedObj -is [PSCustomObject] -or $existingObj -is [PSCustomObject])) {
-        # Line 1 Hashtable or [ordered]
-        # Line 2 PSCustomObject
-
-        # Try to convert to [hashtable] - creates a clone if already a hashtable
-        [hashtable] $definedHt = ConvertTo-HashTable $definedObj
-        [hashtable] $existingHt = ConvertTo-HashTable $existingObj
-        foreach ($key in $existingHt.Keys) {
-            if ($definedHt.ContainsKey($key)) {
-                if (!(Confirm-ObjectValueEqualityDeep -existingObj $existingHt.$key -definedObj $definedHt.$key)) {
+                else {
                     return $false
                 }
-                $null = $definedHt.Remove($key)
             }
-            elseif ($null -eq $existingHt.$key) {
-                # not existing and null is the same
+            return $true
+        }
+        else {
+            # normalize arrays if one or both operands are an array
+            $isList = $false
+            [array] $definedList = $()
+            if ($null -ne $definedObj) {
+                if ($definedObj -is [System.Collections.IList]) {
+                    $definedList = $definedObj
+                    $isList = $true
+                }
+                else {
+                    $definedList += $definedObj
+                }
+            }
+            [array] $existingList = $()
+            if ($null -ne $existingObj) {
+                if ($existingObj -is [System.Collections.IList]) {
+                    $existingList = $existingObj
+                    $isList = $true
+                }
+                else {
+                    $existingList += $existingObj
+                }
+            }
+            if ($isList) {
+                if ($definedList.Count -ne $existingList.Count) {
+                    # arrays of differing lengths are by definition not equal
+                    return $false
+                }
+                elseif ($definedList.Count -eq 0 -and $existingList.Count -eq 0) {
+                    # two zero length arrays are equal
+                    return $true
+                }
+                else {
+                    $existingArrayList = [System.Collections.ArrayList]::new($existingList)
+                    foreach ($definedItem in $definedList) {
+                        $foundMatch = $false
+                        $existingCount = $existingArrayList.Count
+                        for ($i = 0; $i -lt $existingCount; ++$i) {
+                            $existingItem = $existingArrayList[$i]
+                            if (Confirm-ObjectValueEqualityDeep -existingObj $existingItem -definedObj $definedItem) {
+                                $existingArrayList.RemoveAt($i)
+                                $foundMatch = $true
+                                break
+                            }
+                        }
+                        if (!$foundMatch) {
+                            return $false
+                        }
+                    }
+                    return $true
+                }
             }
             else {
-                # existing ht has more elements
+                # Value type, equality already tested at beginning
                 return $false
             }
         }
-        # Does defined contain additional items
-        return $definedHt.Count -lt 1
-    }
-    else {
-        return $definedObj -eq $existingObj
     }
 }

@@ -6,15 +6,14 @@ function Get-HashtableShallowClone {
         $InputObject
     )
 
+    $clone = @{}
     if ($null -ne $InputObject) {
         if ($InputObject -isnot [hashtable]) {
-            return ConvertTo-HashTable $InputObject
+            $clone = ConvertTo-HashTable $InputObject
         }
         else {
-            return $InputObject.Clone()
+            $clone = $InputObject.Clone()
         }
     }
-    else {
-        return @{}
-    }
+    return $clone
 }

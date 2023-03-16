@@ -15,10 +15,8 @@ param(
     [bool] $interactive = $true
 )
 
-. "$PSScriptRoot/../Helpers/Get-PacFolders.ps1"
-. "$PSScriptRoot/../Helpers/Get-GlobalSettings.ps1"
-. "$PSScriptRoot/../Helpers/Select-PacEnvironment.ps1"
-. "$PSScriptRoot/../Helpers/Set-AzCloudTenantSubscription.ps1"
+# Dot Source Helper Scripts
+. "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
 
 $InformationPreference = "Continue"
 Invoke-AzCli config set extension.use_dynamic_install=yes_without_prompt -SuppressOutput

@@ -6,6 +6,8 @@
 
 .NOTES
     This script is designed to be run in Azure DevOps pipelines.
+    Version:        1.0
+    Creation Date:  2021-08-03
 #>
 
 [CmdletBinding()]
@@ -25,14 +27,8 @@ param (
     [switch] $interactive
 )
 
-. "$PSScriptRoot/../Helpers/Get-PacFolders.ps1"
-. "$PSScriptRoot/../Helpers/Get-GlobalSettings.ps1"
-. "$PSScriptRoot/../Helpers/Select-PacEnvironment.ps1"
-. "$PSScriptRoot/../Helpers/Get-DeploymentPlan.ps1"
-. "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
-. "$PSScriptRoot/../Helpers/Set-AzCloudTenantSubscription.ps1"
-. "$PSScriptRoot/../Helpers/Get-FilteredHashTable.ps1"
-. "$PSScriptRoot/../Helpers/Split-ScopeId.ps1"
+# Dot Source Helper Scripts
+. "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
 
 $InformationPreference = "Continue"
 $pacEnvironment = Select-PacEnvironment $pacEnvironmentSelector -definitionsRootFolder $definitionsRootFolder -inputFolder $inputFolder  -interactive $interactive

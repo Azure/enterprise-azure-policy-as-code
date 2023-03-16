@@ -15,23 +15,8 @@ param(
     [bool] $interactive = $true
 )
 
-. "$PSScriptRoot/../Helpers/Get-PacFolders.ps1"
-. "$PSScriptRoot/../Helpers/Get-GlobalSettings.ps1"
-. "$PSScriptRoot/../Helpers/Select-PacEnvironment.ps1"
-. "$PSScriptRoot/../Helpers/Get-AzPolicyResources.ps1"
-. "$PSScriptRoot/../Helpers/Get-AzScopeTree.ps1"
-. "$PSScriptRoot/../Helpers/Confirm-PacOwner.ps1"
-. "$PSScriptRoot/../Helpers/Confirm-DeleteForStrategy.ps1"
-. "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
-. "$PSScriptRoot/../Helpers/Set-AzCloudTenantSubscription.ps1"
-. "$PSScriptRoot/../Helpers/Confirm-ActiveAzExemptions.ps1"
-. "$PSScriptRoot/../Helpers/Get-DeepClone.ps1"
-. "$PSScriptRoot/../Helpers/Get-HashtableShallowClone"
-. "$PSScriptRoot/../Helpers/Search-AzGraphAllItems.ps1"
-. "$PSScriptRoot/../Helpers/Get-FilteredHashTable.ps1"
-. "$PSScriptRoot/../Helpers/Split-ScopeId.ps1"
-. "$PSScriptRoot/../Helpers/Split-AzPolicyResourceId.ps1"
-. "$PSScriptRoot/../Helpers/Build-NotScopes.ps1"
+# Dot Source Helper Scripts
+. "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
 
 $InformationPreference = "Continue"
 $pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -outputFolder $OutputFolder -interactive $interactive

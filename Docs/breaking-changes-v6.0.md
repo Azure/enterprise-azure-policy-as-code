@@ -1,17 +1,5 @@
 # Breaking changes in v6.0
 
-**On this page**
-
-* [Changed az cli to Az PowerShell Modules](#changed-az-cli-to-az-powershell-modules)
-* [Recommendation to Simplify GitHub Flow](#recommendation-to-simplify-github-flow)
-* [Renamed `Definitions` Folders](#renamed-definitions-folders)
-* [Replaced `-SuppressDelete` Switch with Desired State Handling](#replaced--suppressdelete-switch-with-desired-state-handling)
-* [Replaced `-IncludeResourceGroups` Switch with Desired State Handling](#replaced--includeresourcegroups-switch-with-desired-state-handling)
-* [Multiple Changes in `global-settings.jsonc`](#multiple-changes-in-global-settingsjsonc)
-* [Centralized Documentation in Docs folder](#centralized-documentation-in-docs-folder)
-* [Microsoft Breaking Change in Implementation of  `Get-AzRoleAssignment`](#microsoft-breaking-change-in-implementation-of--get-azroleassignment)
-* [Reading List](#reading-list)
-
 ## Changed az cli to Az PowerShell Modules
 
 To increase execution speed and pipeline uniformity:
@@ -116,18 +104,15 @@ The implementation was changed from Azure AD to MS Graph API impacting the roles
 * [Setup DevOps Environment](operating-environment.md) .
 * [Create a source repository and import the source code](clone-github.md) from this repository.
 * [Select the desired state strategy](desired-state-strategy.md)
-* Copy starter kit pipeline definition.
 * [Define your deployment environment](definitions-and-global-settings.md) in `global-settings.jsonc`.
 * [Build your CI/CD pipeline](ci-cd-pipeline.md) using a starter kit.
 * Optional: generate a starting point for the `Definitions` folders:
   * [Extract existing Policy resources from an environment](extract-existing-policy-resources.md).
   * [Import Policies from the Cloud Adoption Framework](cloud-adoption-framework.md).
-  * Copy the sample Policy resource definitions in the starter kit to your `Definitions` folders.
 * [Add custom Policies](policy-definitions.md).
 * [Add custom Policy Sets](policy-set-definitions.md).
 * [Create Policy Assignments](policy-assignments.md).
 * Import Policies from the [Cloud Adoption Framework](cloud-adoption-framework.md).
 * [Manage Policy Exemptions](policy-exemptions.md).
 * [Document your deployments](documenting-assignments-and-policy-sets.md).
-
-**[Return to the main page](../README.md)**
+* [Execute operational tasks](operational-scripts.md).

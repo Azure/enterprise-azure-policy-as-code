@@ -1,18 +1,5 @@
 # Documenting Policy Assignments and Sets of Policy Set (Initiative) definitions
 
-**On this page**
-
-* [Overview](#overview)
-* [Example Documentation Specification File](#example-documentation-specification-file)
-* [Assignment Documentation](#assignment-documentation)
-  * [Element `environmentCategories`](#element-environmentcategories)
-  * [Element `documentationSpecifications`](#element-documentationspecifications)
-  * [Output files](#output-files)
-* [Policy Set Documentation](#policy-set-documentation)
-  * [Element `documentPolicySets`](#element-documentpolicysets)
-  * [Output files](#output-files-1)
-* [Reading List](#reading-list)
-
 ## Overview
 
 The Documentation feature provides reports on Policy Assignments deployed within an environment, and comparisons of Policy Assignments and Sets of Policy Set definitions for considering differences in policies and effects.  Output is generated as Markdown (`.md`), and Excel (`.csv`) files. with script [`./Scripts/Operations/Build-PolicyDocumentation.ps1`](operational-scripts.md#Build-PolicyDocumentation.ps1) It retrieves its instruction from the JSON files in this folder; the names of the definition JSON files don't matter as the script reads any file in the folder with a `.json` and `.jsonc` extension.
@@ -133,7 +120,7 @@ Each file must contain one or both documentation topics. This example file in th
 
 ### Element `environmentCategories`
 
-For any given environment category, such as `prod`, `test`, `dev`, this section list Policy Assignment which are representative for those environments. In many organization, the same Policies and effects are applied to multiple Management Groups and even Azure tenants with the parameters consistent by environment category.
+For any given environment category, such as `prod`, `test`, `dev`, this section lists Policy Assignments which are representative for those environments. In many organizations, the same Policies and effects are applied to multiple Management Groups and even Azure tenants with the parameters consistent by environment category.
 
 Each `environmentCategories` entry specifies:
 
@@ -188,15 +175,15 @@ Each entry in the array defines a set of outputs:
   * `<environmentCategory>_Effect`
   * `<environmentCategory>_Parameters`
 
-* `<fileNameStem>-summary.md`: This Markdown file is intended for developers for a quick overview of the effects and parameters in place for each `environmentCategory`. It does not provide details about the individual Initiatives assigned.It is equivalent to `<fileNameStem>-parameters.csv`. The Policies are sorted by `category` and ``displayName`. Each`environmentCategory column shows the current enforcement level in bold. If the value is fixed, the value is also in italics. If it is parametrized, the other allowed values are shown in italics.
+* `<fileNameStem>-summary.md`: This Markdown file is intended for developers for a quick overview of the effects and parameters in place for each `environmentCategory`. It does not provide details about the individual Initiatives assigned. It is equivalent to `<fileNameStem>-parameters.csv`. The Policies are sorted by `category` and ``displayName`. Each `environmentCategory` column shows the current enforcement level in bold. If the value is fixed, the value is also in italics. If it is parametrized, the other allowed values are shown in italics.
 
-* `<fileNameStem>-full.md`: This Markdown file is intended for security personel requiring more details about the Assignments and Policies. It displays the same information as the summary plus the additional details equivalent to `<fileNameStem>-full.csv`. The Policies are sorted by `category` and ``displayName`. Each`environmentCategory column shows the current enforcement level in bold. If the value is fixed, the value is also in italics. If it is parametrized, the other allowed values are shown in italics. The additional details are:
+* `<fileNameStem>-full.md`: This Markdown file is intended for security personel requiring more details about the Assignments and Policies. It displays the same information as the summary plus the additional details equivalent to `<fileNameStem>-full.csv`. The Policies are sorted by `category` and ``displayName`. Each `environmentCategory` column shows the current enforcement level in bold. If the value is fixed, the value is also in italics. If it is parametrized, the other allowed values are shown in italics. The additional details are:
   * Group Names
   * Effects per `environmentCategory` and Policy Set with additional details on the origin of the effect.
 
 ## Policy Set Documentation
 
-Compares multiple Policy Set definitions definitions for Policy and effect overlap as Markdown and Excel (`.csv`) files.
+Compares multiple Policy Set definitions for Policy and effect overlap as Markdown and Excel (`.csv`) files.
 
 ### Element `documentPolicySets`
 
@@ -213,7 +200,7 @@ Compares multiple Policy Set definitions definitions for Policy and effect overl
   * Each effect column starts with the bolded display Name followed by the description and lines grouped by bolded Initiative short name with the effect parameter name in italics and the group names in normal text.
   * The text below the description contains details on parameters and group names for each initiative.
 
-* `<fileNameStem>-full.csv`: Excel file  with the same information as the Markdown file.
+* `<fileNameStem>-full.csv`: Excel file with the same information as the Markdown file.
 * `<fileNameStem>-parameters.csv`: Excel parameter file starter equivalent to `<fileNameStem>-parameters.csv` above in the assignment documentation section.
 * `<fileNameStem>.jsonc`: Parameter file starter in JSON format to simplify parameter settings for Assignments (traditional approach).
 
@@ -234,5 +221,3 @@ Compares multiple Policy Set definitions definitions for Policy and effect overl
 * [Manage Policy Exemptions](policy-exemptions.md).
 * [Document your deployments](documenting-assignments-and-policy-sets.md).
 * [Execute operational tasks](operational-scripts.md).
-
-**[Return to the main page](../README.md)**
