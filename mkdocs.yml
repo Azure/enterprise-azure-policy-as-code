@@ -1,0 +1,53 @@
+site_name: Enterprise Policy As Code (EPAC)
+site_url: https://azure.github.io/enterprise-azure-policy-as-code/
+repo_url: https://github.com/Azure/enterprise-azure-policy-as-code
+docs_dir: Docs
+theme:
+  logo: Images/10316-icon-service-Policy.svg
+  favicon: Images/10316-icon-service-Policy.svg
+  language: en
+  name: material
+  font:
+    text: Roboto
+  palette:
+    primary: black
+    accent: blue
+  features:
+    - navigation.instant
+    - navigation.indexes
+    - navigation.sections:
+        level: 1
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - content.code.annotate
+    - content.tabs.link
+    - content.code.copy
+nav:
+  - Home: index.md
+  - Breaking Changes:
+      - breaking-changes-v6.0.md
+  - Getting Started:
+      - Operating Environment: operating-environment.md
+      - Cloning the Project: clone-github.md
+      - PowerShell Module: powershell-module.md
+      - Definitions and Global Settings: definitions-and-global-settings.md
+      - Desired State Strategy: desired-state-strategy.md
+      - Extracting Existing Policy Resources: extract-existing-policy-resources.md
+  - Policy Objects:
+      - Policy Definitions: policy-definitions.md
+      - Policy Set Definitions: policy-set-definitions.md
+      - Policy Assignments: policy-assignments.md
+      - Policy Exemptions: policy-exemptions.md
+  - CI/CD:
+      - ci-cd-pipeline.md
+  - CAF ALZ Integration:
+      - integrating-with-alz.md
+  - Creating Documentation:
+      - Documenting Policy Resources: documenting-assignments-and-policy-sets.md
+  - Operational Scripts:
+      - operational-scripts.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences

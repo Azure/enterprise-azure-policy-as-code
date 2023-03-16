@@ -91,7 +91,7 @@ EPAC uses `Get-AzRoleAssignment` to retrieve role assignments. Microsoft has rec
 * GET /directoryObjects/{id}
 * POST /directoryObjects/getByIds
 
-You must assign these MS Graph `Application permissions` corresponding to the above APIs:
+You must assign these MS Graph `Application permissions` corresponding to the above APIs:-
 
 * User.Read.All
 * ServicePrincipalEndpoint.Read.All
