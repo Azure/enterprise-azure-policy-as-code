@@ -12,4 +12,6 @@ Import-Module EnterprisePolicyAsCode
 
 ## Known Issues
 
-- ```Build-DeploymentPlans``` - use the -outputFolder parameter otherwise 
+- ```Build-DeploymentPlans``` - use the -outputFolder parameter otherwise it will create an Output folder in the module folder
+- ```Deploy-RolesPlan``` - use the -inputFolder parameter and specify the folder in the previous step
+- ```Deploy-PolicyPlan``` - use the -inputFolder parameter and specify the folder in the previous step
