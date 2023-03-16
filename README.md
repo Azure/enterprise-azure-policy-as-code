@@ -1,59 +1,13 @@
 # Enterprise Azure Policy as Code V6.0
 
-<br/>
+!!! warning
+ **Breaking changes in V6.0**
+ A reorganization of the source code and adding a substantial feature enhancement required breaking changes to the folder structure, scripts, pipeline and global-settings.jsonc file.
 
-> ---
-> ---
->
-> **Breaking changes in V6.0**
->
-> A reorganization of the source code and adding a substantial feature enhancement required breaking changes to the folder structure, scripts, pipeline and global-settings.jsonc file.
->
-> [Breaking change details and instructions on upgrading from a previous version](Docs/breaking-changes-v6.0.md).
->
-> ---
-> ---
+ [Breaking change details and instructions on upgrading from a previous version](Docs/breaking-changes-v6.0.md).
 
-<br/>
-
-> ---
-> ---
->
-> **Az PowerShell Module 9.2.x has a known issue (bug)** <br/>
-> This bug causes multiple failures of EPAC and any other Policy as Code solution depending on Az Module.
->
-> **Az PowerShell Module 9.3.0 fixed this issue.** <br/>
-> Azure DevOps Microsoft hosted agents updates with the fix started rolling out on 1/23/2023.
->
-> ---
-> ---
-
-<br/><br/>
-
-**On this page**
-
-* [Terminology](#terminology)
-* [Overview](#overview)
-  * [Deployment Scripts](#deployment-scripts)
-  * [CI/CD Tool Compatibility](#cicd-tool-compatibility)
-  * [Multi-Tenant Support](#multi-tenant-support)
-  * [Operational Scripts](#operational-scripts)
-  * [Microsoft's Security \& Compliance for Cloud Infrastructure](#microsofts-security--compliance-for-cloud-infrastructure)
-* [Understanding EPAC Environments and the pacSelector](#understanding-epac-environments-and-the-pacselector)
-* [Approach Flexibility](#approach-flexibility)
-  * [CI/CD Scenarios](#cicd-scenarios)
-  * [Coexistence and Desired State Strategy](#coexistence-and-desired-state-strategy)
-* [Quick Start](#quick-start)
-  * [Create your environment](#create-your-environment)
-  * [Define your deployment scenarios](#define-your-deployment-scenarios)
-  * [Create the CI/CD (skip if using the semi-automated approach)](#create-the-cicd-skip-if-using-the-semi-automated-approach)
-  * [Build your definitions and assignments](#build-your-definitions-and-assignments)
-  * [Manage your Policy environment](#manage-your-policy-environment)
-  * [Debug EPAC issues](#debug-epac-issues)
-* [Contributing](#contributing)
-* [Trademarks](#trademarks)
-
-<br/>
+!!! warning
+ **Az PowerShell Module 9.2.x has a known issue (bug).** This bug causes multiple failures of EPAC and any other Policy as Code solution depending on Az Module. **Az PowerShell Module 9.3.0 fixed this issue.**
 
 ## Terminology
 
@@ -77,8 +31,6 @@ Three deployment scripts plan a deployment, deploy Policy resources, and Role As
 
 ![image.png](Docs/Images/epac-deployment-scripts.png)
 
-<br/>
-
 ### CI/CD Tool Compatibility
 
 Since EPAC is based on PowerShell scripts, any CI/CD tool with the ability to execute scripts can be used. The starter kits currently include pipeline definitions for Azure DevOps. Additional starter kits are being implemented and will be added in future releases.
@@ -100,41 +52,30 @@ This `enterprise-policy-as-code` **(EPAC)** repo has been developed in partnersh
 
 ## Understanding EPAC Environments and the pacSelector
 
-> ---
-> ---
->> **IMPORTANT**
->
-> ---
-> ---
->
-> EPAC has a concept of an environment identified by a string (unique per repository) called `pacSelector`. An environment associates the following with the `pacSelector`:
->
-> * `cloud` - to select commercial or sovereign cloud environments.
-> * `tenantId` - enables multi-tenant scenarios.
-> * `rootDefinitionScope` - scope for Policy and Policy Set definitions.
->
->> Note: Policy Assignments can only defined at this root scope and child scopes (recursive).
->
-> * Optional: define `desiredState`
->
-> These associations are stored in `global-settings.jsonc` in an element called `pacEnvironments`.
->
-> Like any other software or IaC solution, EPAC needs areas for developing and testing new Policies, Policy Sets and Assignments before any deployment to EPAC prod environments. In most cases you will need one management group hierarchy to simulate EPAC production management groups for development and testing of Policies. EPAC's prod environment will govern all other IaC environments (e.g., sandbox, development, integration, test/qa, pre-prod, prod, ...) and tenants. This can be confusing. We will use EPAC environment(s) and IaC environment(s) to disambiguate the environments.
->
-> In a centralized single tenant scenario, you will define two EPAC environments: epac-dev and tenant. In a multi-tenant scenario, you will add an additional EPAC environment per additional tenant.
->
-> The `pacSelector` is just a name. We highly recommend to call the Policy development environment `epac-dev`, you can name the EPAC prod environments in a way which makes sense to you in your environment. We use `tenant`, `tenant1`, etc in our samples and documentation.
->
-> These names are used and therefore must match:
->
-> * Defining the association (`pacEnvironments`) of an EPAC environment, `managedIdentityLocation` and `globalNotScopes` in `global-settings.jsonc`
-> * Script parameter when executing different deployment stages in a CI/CD pipeline or semi-automated deployment targeting a specific EPAC environments.
-> * `scopes` and `notScopes` definitions in Policy Assignment JSON files.
->
-> ---
-> ---
+!!! note
+ Understanding of this concept is crucial. Do **not** proceed until you completely understand the implication.
 
- <br/>
+EPAC has a concept of an environment identified by a string (unique per repository) called `pacSelector`. An environment associates the following with the `pacSelector`:
+
+* `cloud` - to select commercial or sovereign cloud environments.
+* `tenantId` - enables multi-tenant scenarios.
+* `rootDefinitionScope` - scope for Policy and Policy Set definitions.
+* Optional: define `desiredState`
+
+!!! note
+ Policy Assignments can only defined at `rootDefinitionScope` and child scopes (recursive).
+
+These associations are stored in `global-settings.jsonc` in an element called `pacEnvironments`.
+
+Like any other software or IaC solution, EPAC needs areas for developing and testing new Policies, Policy Sets and Assignments before any deployment to EPAC prod environments. In most cases you will need one management group hierarchy to simulate EPAC production management groups for development and testing of Policies. EPAC's prod environment will govern all other IaC environments (e.g., sandbox, development, integration, test/qa, pre-prod, prod, ...) and tenants. This can be confusing. We will use EPAC environment(s) and IaC environment(s) to disambiguate the environments.
+
+In a centralized single tenant scenario, you will define two EPAC environments: epac-dev and tenant. In a multi-tenant scenario, you will add an additional EPAC environment per additional tenant.
+
+The `pacSelector` is just a name. We highly recommend to call the Policy development environment `epac-dev`, you can name the EPAC prod environments in a way which makes sense to you in your environment. We use `tenant`, `tenant1`, etc in our samples and documentation. These names are used and therefore must match:
+
+* Defining the association (`pacEnvironments`) of an EPAC environment, `managedIdentityLocation` and `globalNotScopes` in `global-settings.jsonc`
+* Script parameter when executing different deployment stages in a CI/CD pipeline or semi-automated deployment targeting a specific EPAC environments.
+* `scopes`, `notScopes`, `additionalRoleAssignments`, `managedIdentityLocations`, and `userAssignedIdentity` definitions in Policy Assignment JSON files.
 
 ## Approach Flexibility
 
@@ -171,20 +112,14 @@ EPAC is a desired state system. It will remove Policy resources in an environmen
 
 Desired state strategy documentation can be found [here.](Docs/desired-state-strategy.md)
 
-> ---
->
-> **Desired State Warning**
->
-> If you have a existing Policies, Policy Sets, Assignments, and Exemptions in your environment, you have not transferred to EPAC, do not forget to *include* the new `desiredState` element with a `strategy` of `ownedOnly`. This is the equivalent of the deprecated "brownfield" variable in the pipeline. The default `strategy` is `full`.
->
-> * *`full` deletes any Policies, Policy Sets, Assignments, and Exemptions not deployed by this EPAC solution or another EPAC solution.*
-> * *`ownedOnly` deletes only Policies with this repos’s pacOwnerId. This allows for a gradual transition from your existing Policy management to Enterprise Policy as Code.*
->
-> Policy resources with another pacOwnerId metadata field are never deleted.
->
-> ---
+### Desired State Warning
 
-<br/>
+If you have a existing Policies, Policy Sets, Assignments, and Exemptions in your environment, you have not transferred to EPAC, do not forget to *include* the new `desiredState` element with a `strategy` of `ownedOnly`. This is the equivalent of the deprecated "brownfield" variable in the pipeline. The default `strategy` is `full`.
+
+* `full` deletes any Policies, Policy Sets, Assignments, and Exemptions not deployed by this EPAC solution or another EPAC solution.
+* `ownedOnly` deletes only Policies with this repos’s pacOwnerId. This allows for a gradual transition from your existing Policy management to Enterprise Policy as Code.
+
+Policy resources with another pacOwnerId metadata field are never deleted.
 
 ## Quick Start
 

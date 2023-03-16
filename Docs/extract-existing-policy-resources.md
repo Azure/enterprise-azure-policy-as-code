@@ -1,53 +1,30 @@
 # Extract existing Policy Resources from an Environment
 
-**On this page**
+!!! note
+    This is a preview version which [may produce strange assignment files](#preview-caveats) in rare circumstances. If you see such a problem, please [raise a GitHub issue](https://github.com/Azure/enterprise-azure-policy-as-code/issues/new).
 
-* [\[Preview\] Script `Build-DefinitionsFolder`](#preview-script-build-definitionsfolder)
-* [Preview Caveats](#preview-caveats)
-* [Reading List](#reading-list)
+Extracts existing Policies, Policy Sets, and Policy Assignments and outputs them in EPAC format into subfolders in folder (`$outputFolders/Definitions`). The subfolders are `policyDefinitions`, `policySetDefinitions`, and `policyAssignments`. In a new EPAC instance these subfolders can be directly copied to the `Definitions` folder enabling an initial transition from a pre-EPAC to EPAC environment.
 
-## [Preview] Script `Build-DefinitionsFolder`
-
-> ---
-> ---
->
-> **WARNING:** <br/>
-> This is a preview version which [may produce strange assignment files](#preview-caveats) in rare circumstances. If you see such a problem, please [raise a GitHub issue](https://github.com/Azure/enterprise-azure-policy-as-code/issues/new).
->
-> ---
-> ---
-
-<br/>
-
-Extracts existing Policies, Policy Sets, and Policy Assignments and outputs them in EPAC format into subfolders in folder (`$outputFolders/Definitions`). The subfolders are `policyDefinitions`, `policySetDefinitions`, and `policyAssignments`. In a new EPAC instance these subfolders can be directly copied to the`Definitions` folder enabling an initial transition from a pre-EPAC to EPAC environment.
-
-> ---
-> ---
->
-> **WARNING:** <br/>
-> The script deletes the `$outputFolders/Definitions` folder before creating a new set of files. In interactive mode it will ask for confirmation before deleting the directory.
->
-> ---
-> ---
+!!! warning
+    The script deletes the `$outputFolders/Definitions` folder before creating a new set of files. In interactive mode it will ask for confirmation before deleting the directory.
 
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
-| `PacEnvironmentSelector` | Optional | Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc`. |
+| `PacEnvironmentSelector` | Optional | Defines which Policy as Code (PAC) environment we are using; if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc`. |
 | `definitionsRootFolder` | Optional | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It contains `global-settings.jsonc`.
 | `outputFolder` | Optional | Output Folder. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER` or `./Outputs`.
 | `interactive` | Optional | Script is being run interactively and can request az login. It will also prompt for each file to process or skip. Defaults to $true. |
 | `includeChildScopes` | Optional | Switch parameter to include Policies and Policy Sets in child scopes; child scopes are normally ignored for definitions. This does not impact Policy Assignments. |
+| `fileExtension` | Optional | Controls the output files extension. Default is `jsonc` but `json` is also accepted |
 
-<br/>
+The scripts creates a `Definitions` folder in the `outputFolder` and subfolders for `policyDefinitions`, `policySetDefinitions` and `policyAssignments`. To use the generated files copy them to your `Definitions` folder.
 
-The scripts creates a `Definitions` folder in the `outputFolder` and subfolders for `policyDefinitions`, `policySetDefinitions` and `policyAssignments`. To use the genaerated files copy them to your `Definitions` folder.
-
-* `policyDefinitions`, `policySetDefinitions` have a subfolder based on `metadata.category`. If the definition has no `category` `metadata` they are put ina subfolder labeled `Unknown Category`. Duplicates when including child scopes are sorted into the `Duplicates` folder. Creates one file per Policy and Policy Set.
+* `policyDefinitions`, `policySetDefinitions` have a subfolder based on `metadata.category`. If the definition has no `category` `metadata` they are put in a subfolder labeled `Unknown Category`. Duplicates when including child scopes are sorted into the `Duplicates` folder. Creates one file per Policy and Policy Set.
 * `policyAssignments` have a subfolder `policy` for assignments of a single Policy, or a subfolder `policySet` for assignment of a Policy Set. Creates one file per unique assigned Policy or Policy Set spanning multiple Assignments.
 
 ## Preview Caveats
 
-The extraction are subject to the following assumptions and caveats:
+The extractions are subject to the following assumptions and caveats:
 
 * Names of Policies and Policy Sets are unique across multiple scopes (switch `includeChildScopes` is used)
 * Assignment names are the same if the parameters match across multiple assignments across scopes for the same `policyDefinitionId` to enable optimization of the JSON.

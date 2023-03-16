@@ -2,14 +2,6 @@
 
 Git lacks a capability to ignore files/directories during a PR only. This repo has been organized so that Definitions and Pipeline folders are not touched by syncing latest update from GitHub to your repo or reverse syncing to contribute to the project.
 
-**On this page**
-
-* [Setting up your Repo](#setting-up-your-repo)
-* [Syncing latest Version from GitHub repo](#syncing-latest-version-from-github-repo)
-* [Contribute to GitHub](#contribute-to-github)
-* [Sync-Repo.ps1](#sync-repops1)
-* [Reading List](#reading-list)
-
 ## Setting up your Repo
 
 1. Initial setup
@@ -69,5 +61,3 @@ The repo contains a script to synchronize directories in both directions: `Sync-
 * [Manage Policy Exemptions](policy-exemptions.md).
 * [Document your deployments](documenting-assignments-and-policy-sets.md).
 * [Execute operational tasks](operational-scripts.md).
-
-**[Return to the main page](../README.md)**

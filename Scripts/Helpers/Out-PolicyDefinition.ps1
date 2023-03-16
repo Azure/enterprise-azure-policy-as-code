@@ -5,46 +5,60 @@ function Out-PolicyDefinition {
     param (
         $definition,
         $folder,
-        [hashtable] $policyNames,
+        [hashtable] $policyPropertiesByName,
         $invalidChars,
         $typeString,
-        $id
+        $id,
+        $fileExtension
     )
 
     # Fields to calculate file name
     $name = $definition.name
-    $displayName = $properties.displayName
-    $category = $properties.metadata.category
-
-    # Build folder and path
-    $subFolder = "Unknown Category"
-    if ($null -ne $category -and $category -ne "") {
-        $subFolder = $category
-    }
-    $fullPath = Get-DefinitionsFullPath -folder $folder -rawSubFolder $subFolder -name $name -displayName $displayName -invalidChars $invalidChars -maxLengthSubFolder 30 -maxLengthFileName 100
-
-    # Detect duplicates
     $properties = $definition.properties
+    $displayName = $properties.displayName
     if ($null -eq $displayName -or $displayName -eq "") {
         $displayName = $name
     }
+    $metadata = $properties.metadata
+    $subFolder = "Unknown Category"
+    if ($null -ne $metadata) {
+        $category = $metadata.category
+        if ($null -ne $category -and $category -ne "") {
+            $subFolder = $category
+        }
+    }
 
-    if ($policyNames.ContainsKey($name)) {
-        $exactDuplicate = Confirm-ObjectValueEqualityDeep -existingObj $policyNames.$name $properties
+    # Build folder and path
+    $fullPath = Get-DefinitionsFullPath `
+        -folder $folder `
+        -rawSubFolder $subFolder `
+        -name $name `
+        -displayName $displayName `
+        -invalidChars $invalidChars `
+        -maxLengthSubFolder 30 `
+        -maxLengthFileName 100 `
+        -fileExtension $fileExtension
+
+    # Detect duplicates
+
+    if ($policyPropertiesByName.ContainsKey($name)) {
+        $exactDuplicate = Confirm-ObjectValueEqualityDeep -existingObj $policyPropertiesByName.$name -definedObj $properties
         if ($exactDuplicate) {
-            Write-Warning "'$displayName' - '$id' is an exact duplicate" -WarningAction Continue
+            # Write-Warning "'$displayName' - '$id' is an exact duplicate" -WarningAction Continue
+            # Quietly ignore
+            $null = $properties
         }
         else {
-            Write-Warning "'$displayName' - '$id' is a duplicate with different properties" -WarningAction Continue
+            $guid = (New-Guid)
+            $fullPath = "$folder/Duplicates/$($guid.Guid).$fileExtension"
+            Write-Warning "'$displayName' - '$id' is a duplicate with different properties; writing to file $fullPath" -WarningAction Continue
+            $definition | Add-Member -MemberType NoteProperty -Name 'id' -Value $id
         }
-        $guid = (New-Guid).Guid
-        $fullPath = "$folder/Duplicates/$guid.jsonc"
-        $definition | Add-Member -MemberType NoteProperty -Name 'id' -Value $id
     }
     else {
         # Unique name
         Write-Debug "'$displayName' - '$id'"
-        $null = $policyNames.Add($name, $properties)
+        $null = $policyPropertiesByName.Add($name, $properties)
     }
 
     # Write the content

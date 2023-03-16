@@ -46,7 +46,7 @@ function Build-PolicySetPolicyDefinitionIds {
         if ($validPolicyDefinitions) {
             $policyId = Confirm-PolicyDefinitionUsedExists `
                 -id $policyId `
-                -name  $policyName `
+                -name $policyName `
                 -policyDefinitionsScopes $policyDefinitionsScopes `
                 -allDefinitions $allDefinitions
 
@@ -74,6 +74,10 @@ function Build-PolicySetPolicyDefinitionIds {
                 if ($modifiedPolicyDefinition.ContainsKey("policyDefinitionName")) {
                     $modifiedPolicyDefinition.Remove("policyDefinitionName")
                     $modifiedPolicyDefinition.Add("policyDefinitionId", $policyId)
+                }
+                # TODO: remove
+                if ($modifiedPolicyDefinition.ContainsKey("definitionVersion")) {
+                    $modifiedPolicyDefinition.Remove("definitionVersion")
                 }
                 $null = $policyDefinitionsFinal.Add($modifiedPolicyDefinition)
             }

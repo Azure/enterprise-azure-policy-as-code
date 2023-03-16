@@ -18,42 +18,8 @@ param (
     [switch] $suppressConfirmation
 )
 
-#region Script Dot sourcing
-
-# Common Functions
-. "$PSScriptRoot/../Helpers/Get-PacFolders.ps1"
-. "$PSScriptRoot/../Helpers/Get-DeepClone.ps1"
-. "$PSScriptRoot/../Helpers/Get-GlobalSettings.ps1"
-. "$PSScriptRoot/../Helpers/Switch-PacEnvironment.ps1"
-. "$PSScriptRoot/../Helpers/Set-AzCloudTenantSubscription.ps1"
-. "$PSScriptRoot/../Helpers/Get-AzScopeTree.ps1"
-. "$PSScriptRoot/../Helpers/Get-AzPolicyResources.ps1"
-. "$PSScriptRoot/../Helpers/Get-ParameterNameFromValueString.ps1"
-. "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
-. "$PSScriptRoot/../Helpers/Get-FilteredHashTable.ps1"
-. "$PSScriptRoot/../Helpers/Search-AzGraphAllItems.ps1"
-. "$PSScriptRoot/../Helpers/Get-HashtableShallowClone.ps1"
-. "$PSScriptRoot/../Helpers/Confirm-PacOwner.ps1"
-. "$PSScriptRoot/../Helpers/Get-PolicyResourceProperties.ps1"
-. "$PSScriptRoot/../Helpers/Split-ScopeId.ps1"
-. "$PSScriptRoot/../Helpers/Build-NotScopes.ps1"
-. "$PSScriptRoot/../Helpers/Split-AzPolicyResourceId.ps1"
-
-# Documentation Functions
-. "$PSScriptRoot/../Helpers/Get-AssignmentsDetails.ps1"
-. "$PSScriptRoot/../Helpers/Get-PolicyResourceDetails.ps1"
-. "$PSScriptRoot/../Helpers/Convert-PolicySetsToDetails.ps1"
-. "$PSScriptRoot/../Helpers/Convert-PolicySetsToFlatList.ps1"
-. "$PSScriptRoot/../Helpers/Convert-EffectToOrdinal.ps1"
-. "$PSScriptRoot/../Helpers/Convert-EffectToString.ps1"
-. "$PSScriptRoot/../Helpers/Convert-OrdinalToEffectDisplayName.ps1"
-. "$PSScriptRoot/../Helpers/Convert-ParametersToString.ps1"
-. "$PSScriptRoot/../Helpers/Convert-ListToToCsvRow.ps1"
-. "$PSScriptRoot/../Helpers/Convert-PolicySetsToFlatList.ps1"
-. "$PSScriptRoot/../Helpers/Out-PolicySetsDocumentationToFile.ps1"
-. "$PSScriptRoot/../Helpers/Out-PolicyAssignmentDocumentationToFile.ps1"
-
-#endregion dot sourcing
+# Dot Source Helper Scripts
+. "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
 
 #region Initialize
 
@@ -149,26 +115,25 @@ foreach ($file in $files) {
             foreach ($documentPolicySetEntry in $documentPolicySets) {
                 $pacEnvironmentSelector = $documentPolicySetEntry.pacEnvironment
                 if (-not $pacEnvironmentSelector) {
-                    Write-Error "documentPolicySet entry does not specify pacEnvironment" -ErrorAction Stop
+                    Write-Error "documentPolicySet entry does not specify pacEnvironment." -ErrorAction Stop
                 }
 
                 $fileNameStem = $documentPolicySetEntry.fileNameStem
                 if (-not $fileNameStem) {
-                    Write-Error "documentPolicySet entry does not specify fileNameStem" -ErrorAction Stop
+                    Write-Error "documentPolicySet entry does not specify fileNameStem." -ErrorAction Stop
                 }
 
                 $title = $documentPolicySetEntry.title
                 if (-not $title) {
-                    Write-Error "documentPolicySet entry does not specify title" -ErrorAction Stop
+                    Write-Error "documentPolicySet entry does not specify title." -ErrorAction Stop
                 }
 
-                $policySets = $null
-                if ($documentPolicySetEntry.initiatives -and !($documentPolicySetEntry.policySets)) {
-                    $policySets = $documentPolicySetEntry.initiatives # legacy
-                    Write-Warning "Legacy field `"initiatives`" used, change to `"policySets`"" -WarningAction Continue
+                if ($documentPolicySetEntry.initiatives) {
+                    Write-Error "Legacy field `"initiatives`" used, change to `"policySets`"." -ErrorAction Stop
                 }
-                elseif (!($documentPolicySetEntry.initiatives) -and !($documentPolicySetEntry.policySets)) {
-                    $policySets = $documentPolicySetEntry.policySets
+                $policySets = $documentPolicySetEntry.policySets
+                if (-not $policySet -or $policySet.Count -eq 0) {
+                    Write-Error "documentPolicySet entry does not specify required polySets array entry." -ErrorAction Stop
                 }
 
                 $itemArrayList = [System.Collections.ArrayList]::new()
@@ -282,12 +247,7 @@ foreach ($file in $files) {
             foreach ($documentationSpecification in $documentationSpecifications) {
                 $documentationType = $documentationSpecification.type
                 if ($null -ne $documentationType) {
-                    if ($documentationType -eq "effectsPerEnvironment") {
-                        Write-Error "Field documentationType ($($documentationType)) is deprecated, effectsPerEnvironment is not supported." -ErrorAction Stop
-                    }
-                    else {
-                        Write-Information "Field documentationType ($($documentationType)) is deprecated"
-                    }
+                    Write-Information "Field documentationType ($($documentationType)) is deprecated"
                 }
                 Out-PolicyAssignmentDocumentationToFile `
                     -outputPath $outputPath `

@@ -1,43 +1,7 @@
 # CI/CD Pipeline
 
-> ---
-> ---
->
-> This repository contains starter pipeline definitions for Azure DevOps.
-> The authors are interested in supporting other deployment pipelines. If you have developed pipelines for other technologies, such as GitHub, Jenkins, etc., please contribute them to the project as additional starter kits
->
-> ---
-> ---
-
-<br/>
-
-**On this page**
-
-* [Simplified GitHub Flow for Policy as Code](#simplified-github-flow-for-policy-as-code)
-* [Service connections for DevOps CI/CD](#service-connections-for-devops-cicd)
-* [Single Tenant Pipeline](#single-tenant-pipeline)
-  * [Single Tenant Stages](#single-tenant-stages)
-  * [Single Tenant Service Connections and Roles](#single-tenant-service-connections-and-roles)
-* [Multi Tenant Pipeline](#multi-tenant-pipeline)
-  * [Multi Tenant Stages](#multi-tenant-stages)
-  * [Multi Tenant Service Connections and Roles](#multi-tenant-service-connections-and-roles)
-* [Role Assignments for CI/CD SPNs](#role-assignments-for-cicd-spns)
-  * [MS Graph permissions](#ms-graph-permissions)
-  * [Custom EPAC Resource Policy Reader Role](#custom-epac-resource-policy-reader-role)
-* [Azure DevOps Pipeline](#azure-devops-pipeline)
-  * [Service Connections](#service-connections)
-  * [Deployment Environments](#deployment-environments)
-* [Deployment Scripts](#deployment-scripts)
-  * [Common Script Parameters](#common-script-parameters)
-  * [Build-DeploymentPlans.ps1](#build-deploymentplansps1)
-  * [Deploy-PolicyPlan.ps1](#deploy-policyplanps1)
-  * [Deploy-RolesPlan.ps1](#deploy-rolesplanps1)
-* [Consuming Excel Files](#consuming-excel-files)
-* [Pipeline Execution](#pipeline-execution)
-  * [`Commit` to a feature branch or a manual pipeline run](#commit-to-a-feature-branch-or-a-manual-pipeline-run)
-  * [`Pull Request` is approved and branch merged into main](#pull-request-is-approved-and-branch-merged-into-main)
-  * [No changes](#no-changes)
-* [Reading List](#reading-list)
+This repository contains starter pipeline definitions for Azure DevOps.
+The authors are interested in supporting other deployment pipelines. If you have developed pipelines for other technologies, such as GitHub, Jenkins, etc., please contribute them to the project as additional starter kits
 
 ## Simplified GitHub Flow for Policy as Code
 
@@ -52,8 +16,7 @@ Create Service Principals for the pipeline execution and setup your DevOps envir
 * Single tenant [pipeline service connections](#single-tenant-service-connections-and-roles).
 * Multi tenant [pipeline service connections](#multi-tenant-service-connections-and-roles).
 
-> **Note:**
-> When creating a Service Connection in Azure DevOps you can set up the service connections on a Subscription or a Management Group scope level. If you are using subscriptions to simulate a hierarchy during EPAC development, configure the service connection(s) scope level as **Subscription**. When creating a Service Connections for management groups (any EPAC environments) Deployment and EPAC Role Assignment the service connection scope level is **Management Group**.
+When creating a Service Connection in Azure DevOps you can set up the service connections on a Subscription or a Management Group scope level. If you are using subscriptions to simulate a hierarchy during EPAC development, configure the service connection(s) scope level as **Subscription**. When creating a Service Connections for management groups (any EPAC environments) Deployment and EPAC Role Assignment the service connection scope level is **Management Group**.
 
 Subscription scope level | Management Group scope level
 :-----------:|:----------------:
@@ -192,21 +155,12 @@ Create distinct ADO environment to configure approval gates. Refer to the follow
 
 ## Deployment Scripts
 
-> ---
-> ---
-> Note: These script can be run manually to create a semi-automated EPAC solution. This is useful:
->
-> * CI/CD environment is not yet available
-> * Debugging the scripts from Visual Studio Code (or other IDE)
->
-> ---
-> ---
+While this script intended to be used, they can be run manually to create a semi-automated EPAC solution. This is useful:
 
-<br/>
+* CI/CD environment is not yet available
+* Debugging the scripts from Visual Studio Code (or other IDE)
 
 ![image.pmg](Images/epac-deployment-scripts.png)
-
-<br/>
 
 ### Common Script Parameters
 
@@ -307,5 +261,3 @@ Detail view:
 * [Manage Policy Exemptions](policy-exemptions.md).
 * [Document your deployments](documenting-assignments-and-policy-sets.md).
 * [Execute operational tasks](operational-scripts.md).
-
-**[Return to the main page](../README.md)**

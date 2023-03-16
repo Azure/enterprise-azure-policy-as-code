@@ -1,20 +1,5 @@
 # Operational Scripts
 
-**On this page**
-
-* [New-AzPolicyReaderRole.ps1](#new-azpolicyreaderroleps1)
-* [Create-AzRemediationTasks.ps1](#create-azremediationtasksps1)
-* [Build-DefinitionsFolder.ps1](#build-definitionsfolderps1)
-* [Build-PolicyAssignmentDocumentation.ps1](#build-policyassignmentdocumentationps1)
-* [Get-AzMissingTags.ps1](#get-azmissingtagsps1)
-* [Get-AzResourceTags.ps1](#get-azresourcetagsps1)
-* [Get-AzStorageNetworkConfig.ps1](#get-azstoragenetworkconfigps1)
-* [Get-AzUserRoleAssignments.ps1](#get-azuserroleassignmentsps1)
-* [Get-AzPolicyAliasOutputCSV.ps1](#get-azpolicyaliasoutputcsvps1)
-* [New-EPACPolicyDefinition.ps1](#new-epacpolicydefinitionps1)
-* [New-EPACPolicyAssignmentDefinition.ps1](#new-epacpolicyassignmentdefinitionps1)
-* [Reading List](#reading-list)
-
 ## New-AzPolicyReaderRole.ps1
 
 Creates a custom role `Policy Reader` at the scope selected with `PacEnvironmentSelector`:
@@ -141,6 +126,14 @@ Exports a policy assignment from Azure to a local file in the EPAC format. Provi
 | `PolicyAssignmentId`| Required | Resource ID in Azure for the policy assignment you want to export|
 | `OutputFolder` | Optional | Output folder for the exported policy assignment - - default is JSON output to console |
 
+## New-EPACDefinitionFolder.ps1
+
+Creates a definitions folder with the correct folder structure and blank global settings file.
+
+|Parameter | Required | Explanation |
+|----------|----------|-------------|
+| `DefinitionsRootFolder`| Optional | Folder name for definitions (default is ```Definitions```)|
+
 ## Reading List
 
 * [Setup DevOps Environment](operating-environment.md) .
@@ -158,5 +151,3 @@ Exports a policy assignment from Azure to a local file in the EPAC format. Provi
 * [Manage Policy Exemptions](policy-exemptions.md).
 * [Document your deployments](documenting-assignments-and-policy-sets.md).
 * [Execute operational tasks](operational-scripts.md).
-
-**[Return to the main page](../README.md)**

@@ -1,4 +1,4 @@
-# Cloud Adoption Framework Policies
+# Integrating EPAC with Azure Landing Zones
 
 ## Rationale
 
@@ -8,18 +8,39 @@ To enable customers to use the Enterprise Policy as Code solution and combine Mi
 
 As the policies and assignments change in main repository the base files in this solution can be updated to match.
 
-## Sync Script
+## Scenarios
 
-The script located at ```Scripts\CloudAdoptionFramework\Sync-CAFPolicies.ps1``` will synchronise the policies from the upstream repository. You should ensure that you are keeping the main repository in sync with the project fork to ensure that any changes to this script are reflected accurately.
+There are two scenarios for integrating EPAC with ALZ.
 
-```ps1
-.\Scripts\CloudAdoptionFramework\Sync-CAFPolicies.ps1 [[-DefinitionsRootFolder] <string>]
+1) Existing Azure Landing Zone deployment and EPAC is to be used as the policy engine moving forward
+2) Using EPAC to deploy and manage the Azure Landing Zone policies
+
+## 1 - Existing Deployment
+
+## 2 - ALZ Policy Deployment with EPAC
+
+To deploy the ALZ policies using EPAC follow the steps below.
+
+1) Install the EnterprisePolicyAsCode module from the PowerShell gallery and import it.
+
+```
+Install-Module EnterprisePolicyAsCode
+Import-Module EnterprisePolicyAsCode
+```
+2) Create a new policy definition folder structure using the command below.
+
+```
+New-EPACDefinitionFolder -DefinitionsRootFolder .\Definitions
+```
+3) Update the ```global-settings.json``` file in the Definitions folder as described [here](definitions-and-global-settings.md#global-settings)
+
+4) Synchronise the policies from the upstream repository. You should ensure that you are running the latest version of the EPAC module before running this script each time. 
+
+```
+Sync-CAFPolicies -DefinitionsRootFolder .\Definitions
 ```
 
-Specifying the ```DefinitionsRootFolder``` parameter allows to you sync the policies to a different folder. This may be preferable when running yhe script periodically to sync in changes.
-
-## Update Assignment Scopes
-
+5) Update the assignments scopes
 Each assignment file has a default scope assigned to it - this need to be updated to reflect your environment and ```global-settings.jsonc``` file.
 
 For example:
@@ -62,9 +83,11 @@ If my top level management group had an ID of contoso I and my PAC environments 
 
 Each assignment file corresponds to a management group deployed as part of the [CAF Azure Landing Zone](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/design-area/resource-org-management-groups#management-groups-in-the-azure-landing-zone-accelerator) management group structure.
 
-## Update Assignment Parameters
+6) Update assignment parameters
 
 Several of the assignment files also have parameters which need to be in place. Pay attention to the requirements about having a Log Analytics workspace deployed prior to assigning these policies as it is a requirement for several of the assignments. Less generic parameters are also available for modification in the assignment files.
+
+7) Follow the normal steps to deploy the solution to the environment.
 
 ## Reading List
 

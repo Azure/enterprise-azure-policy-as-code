@@ -7,7 +7,7 @@ function Remove-EmptyFields {
     )
 
     $definitionClone = $definition.Clone()
-    foreach ($key in $definitionClone) {
+    foreach ($key in $definitionClone.Keys) {
         if ($null -eq $definition.$key) {
             $null = $definition.Remove($key)
         }

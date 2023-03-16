@@ -1,21 +1,35 @@
 # Exemptions
 
-**On this page**
-
-* [Exemption Files](#exemption-files)
-  * [JSON Format](#json-format)
-  * [CSV/XLSX Format](#csvxlsx-format)
-* [Reading List](#reading-list)
-
 ## Exemption Files
 
-Exemptions can be defined as JSON or CSV files. The names of the definition files don't matter.
+Exemptions can be defined as JSON or CSV files (we recommend that you use CSV files). The names of the definition files don't matter. If multiple files exists in a folder, the lists from all the files are added together.
 
-Additionally, through the use of a third-party PowerShell module from the PowerShell Gallery `ImportExcel` (<https://www.powershellgallery.com/packages/ImportExcel>, <https://github.com/dfinke/ImportExcel/tree/master/Public>). The contributors to this project are not responsible for any issues with that module. To mitigate the risk, the StarterKit has commented out the use of the conversion to protect your system from any vulnerabilities and executes the script without an Azure login.
+The pacEnvironment (see global-settings.jsonc) is represented with a folder structure under the folder policyExemptions, such as epac-dev, tenant, ... A missing folder indicates that the pacEnvironment's Exemptions are not managed by this solution. To extract existing exemptions, the operations script Get-AzExemptions.ps1 can be used to generate JSON and CSV files. The output may be used to start the Exemption definitions.
 
-The pacEnvironment (see global-settings.jsonc) is represented with a folder, such as dev, test, tenant, ... A missing folder indicates that the pacEnvironment's Exemptions are managed by this solution. To extract existing extension, the operations script Get-AzExemptions.ps1 can be used to generate JSON and CSV files. The output should be used to start the Exemption definitions.
+A typical folder structure might look like this:
 
-### JSON Format
+```yaml
+Definitions
+        policyExemptions
+                epac-dev
+                        <name>.csv of <name>.json
+                tenant
+                        <name>.csv of <name>.json
+```
+
+## CSV Format
+
+We recommend that you use spreadsheets (`.csv`). TThe columns must have the following headers:
+
+* `name` - unique name.
+* `displayName` - descriptive name displayed on portal.
+* `exemptionCategory` - `waiver` or `mitigated`.
+* `scope` - Management Group, subscription, Resource Group or resource.
+* `assignmentId` - fully qualified assignment id.
+* `policyDefinitionReferenceIds` use comma separated list within each cell.
+* `metadata` - valid JSON (see JSON format below)
+
+## JSON Format
 
 `name`, `displayName`, `exemptionCategory`, `scope` and `assignmentId` are required fields. The others are optional.
 
@@ -40,14 +54,6 @@ The pacEnvironment (see global-settings.jsonc) is represented with a folder, suc
 }
 ```
 
-### CSV/XLSX Format
-
-If you use spreadsheets (.csv or .xlsx):
-
-* Column headers must be exactly as the JSON labels above.
-* `policyDefinitionReferenceIds` use comma separated list within each cell.
-* `metadata` cells must contain valid JSON.
-
 ## Reading List
 
 * [Setup DevOps Environment](operating-environment.md) .
@@ -65,5 +71,3 @@ If you use spreadsheets (.csv or .xlsx):
 * [Manage Policy Exemptions](policy-exemptions.md).
 * [Document your deployments](documenting-assignments-and-policy-sets.md).
 * [Execute operational tasks](operational-scripts.md).
-
-**[Return to the main page](../README.md)**

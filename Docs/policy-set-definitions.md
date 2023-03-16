@@ -1,19 +1,11 @@
 # Policy Set (Initiative) Definitions
 
-**On this page**
-
-* [Initiative (Policy Set) Definition Files](#initiative-policy-set-definition-files)
-* [Recommendations](#recommendations)
-* [Example](#example)
-* [Merging Built-In Initiatives](#merging-built-in-initiatives)
-* [Reading List](#reading-list)
-
 ## Initiative (Policy Set) Definition Files
 
 Policy Set definition files are managed within the the folder `policySetDefinitions` under `Definitions`. The definition files are structured based on the official [Azure Initiative definition structure](https://docs.microsoft.com/en-us/azure/governance/policy/concepts/initiative-definition-structure) published by Microsoft. There are numerous definition samples available on Microsoft's [GitHub repository for azure-policy](https://github.com/Azure/azure-policy/tree/master/built-in-policies/policySetDefinitions).
 
-> **NOTE**:
-> When authoring Policy or Policy Set definitions, check out the [Maximum count of Azure Policy objects](https://docs.microsoft.com/en-us/azure/governance/policy/overview#maximum-count-of-azure-policy-objects)
+!!! note
+    When authoring Policy or Policy Set definitions, check out the [Maximum count of Azure Policy objects](https://docs.microsoft.com/en-us/azure/governance/policy/overview#maximum-count-of-azure-policy-objects)
 
 The names of the definition JSON files don't matter, the Policy Sets are registered based on the `name` attribute. The solution also allows the use of JSON with comments by using `.jsonc` instead of `.json` for the file extension.
 
@@ -122,5 +114,3 @@ The names of the definition JSON files don't matter, the Policy Sets are registe
 * [Manage Policy Exemptions](policy-exemptions.md).
 * [Document your deployments](documenting-assignments-and-policy-sets.md).
 * [Execute operational tasks](operational-scripts.md).
-
-**[Return to the main page](../README.md)**

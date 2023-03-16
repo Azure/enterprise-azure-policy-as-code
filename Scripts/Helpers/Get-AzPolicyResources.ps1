@@ -279,10 +279,10 @@ function Get-AzPolicyResources {
                     -excludedIds $excludedList `
                     -policyResourceTable $deployedPolicyTable
                 if ($included) {
+                    $policyResource.resourceIdParts = $resourceIdParts
                     $found = $false
                     for ($i = 0; $i -lt $scopesLength -and !$found; $i++) {
                         $currentScopeId = $policyDefinitionsScopes[$i]
-                        $policyResource.resourceIdParts = $resourceIdParts
                         if ($resourceIdParts.scope -eq $currentScopeId) {
                             switch ($i) {
                                 0 {
@@ -314,6 +314,7 @@ function Get-AzPolicyResources {
                     if (!$found) {
                         $deployedPolicyTable.counters.unMangedScope += 1
                         if ($collectAllPolicies -and $policyResource.properties.policyType -eq "Custom") {
+                            $null = $deployedPolicyTable.all.Add($id, $policyResource)
                             $null = $deployedPolicyTable.custom.Add($id, $policyResource)
                         }
                     }

@@ -1,15 +1,5 @@
 # Desired state strategy
 
-**On this page**
-
-* [Use Case 1: Centralized Team](#use-case-1-centralized-team)
-* [Use Case 2: Shared Responsibility](#use-case-2-shared-responsibility)
-* [Use Case 3: Brownfield Transition](#use-case-3-brownfield-transition)
-* [Use Case 4: Hierarchical Organization](#use-case-4-hierarchical-organization)
-* [Use Case 5: Exclude some Scopes and Policy Resources](#use-case-5-exclude-some-scopes-and-policy-resources)
-* [Use case 6: Include Resource Groups](#use-case-6-include-resource-groups)
-* [Reading List](#reading-list)
-
 Desired State strategy enables shared responsibility scenarios. the following documents the archetypical use cases. For complex scenarios it is possible to combine multiple use cases (e.g., Use case 2a and 3, use case 1 and 2a, ...).
 
 ## Use Case 1: Centralized Team
@@ -21,7 +11,7 @@ This original (previously the only) use case assumes one team/repo manages all P
 
 ## Use Case 2: Shared Responsibility
 
-In a shared responsibility model multiple teams manage the same tenant(s) at the same scope. Additionally, a variant of this use case is well suited what previously was called `brownfield` which needs to preserve Policy resources deployed prior to EPAC. The following diagram shows two EPAC solutions managing the same root (tenant). Other Policy as Code solutions can also participate if the solution sets `metadata.pacOwnerId`.
+In a shared responsibility model multiple teams manage the same tenant(s) at the same scope. Additionally, a variant of this use case is well suited to what previously was called `brownfield` which needs to preserve Policy resources deployed prior to EPAC. The following diagram shows two EPAC solutions managing the same root (tenant). Other Policy as Code solutions can also participate if the solution sets `metadata.pacOwnerId`.
 
 ![image.png](Images/shared-responsibility.png)
 
@@ -37,7 +27,7 @@ You may add the following JSON for clarity/documentation of the default behavior
 
 ## Use Case 3: Brownfield Transition
 
-While transitioning to EPAC, existing Policy resources may need to be kept. **Breaking change:** Previously this was accomplished with the `brownfield` variable in the pipeline used to set the `SuppressDeletes` flag on the planning script. Unfortunately, the previous approach was to course grained, preventing an EPAC solution to remove its own deprecated Policy resources. Setting `desiredState` to `ownedOnly` allows EPAC to remove its own resources while preserving brownfield instances.
+While transitioning to EPAC, existing Policy resources may need to be kept. **Breaking change:** Previously this was accomplished with the `brownfield` variable in the pipeline used to set the `SuppressDeletes` flag on the planning script. Unfortunately, the previous approach was to course- grained, preventing an EPAC solution to remove its own deprecated Policy resources. Setting `desiredState` to `ownedOnly` allows EPAC to remove its own resources while preserving brownfield instances.
 
 ``` json
 "desiredState": {
@@ -47,7 +37,7 @@ While transitioning to EPAC, existing Policy resources may need to be kept. **Br
 
 ## Use Case 4: Hierarchical Organization
 
-Hierarchical allows a central team to manage the commonality while giving parts of the organization a capability to further restrict resources with Policies. This is a common scenario in multi-national corporations with additional jurisdictional requirements (e.g., data sovereignty, local regulations, ...).
+The hierarchical model allows a central team to manage the commonality while giving parts of the organization a capability to further restrict resources with Policies. This is a common scenario in multi-national corporations with additional jurisdictional requirements (e.g., data sovereignty, local regulations, ...).
 
 Additionally, it is possible for a solution at a child scope to inherit Policy definitions.
 
@@ -121,5 +111,3 @@ By default, Policy Assignments at resource groups are not managed by EPAC. Prior
 * [Manage Policy Exemptions](policy-exemptions.md).
 * [Document your deployments](documenting-assignments-and-policy-sets.md).
 * [Execute operational tasks](operational-scripts.md).
-
-**[Return to the main page](../README.md)**

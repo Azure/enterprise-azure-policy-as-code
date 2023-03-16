@@ -54,17 +54,21 @@ function Convert-PolicySetsToFlatList {
         # Collate
         $detail = $details.$itemId
         $assignmentParameters = @{}
+        $assignmentOverrides = @()
         if ($null -ne $detail.assignmentId) {
             $assignment = $detail.assignment
             $properties = Get-PolicyResourceProperties -policyResource $assignment
+            $assignmentOverrides = $properties.overrides
             $assignmentParameters = Get-DeepClone $properties.parameters -AsHashTable
         }
 
         foreach ($policyInPolicySetInfo in $detail.policyDefinitions) {
             $policyId = $policyInPolicySetInfo.id
+            $policyDefinitionReferenceId = $policyInPolicySetInfo.policyDefinitionReferenceId
             $effectParameterName = $policyInPolicySetInfo.effectParameterName
             $effectReason = $policyInPolicySetInfo.effectReason
             $effectAllowedValues = $policyInPolicySetInfo.effectAllowedValues
+            $effectAllowedOverrides = $policyInPolicySetInfo.effectAllowedOverrides
             $effectValue = $policyInPolicySetInfo.effectValue
             $effectDefault = $policyInPolicySetInfo.effectDefault
             $parameters = $policyInPolicySetInfo.parameters
@@ -72,7 +76,7 @@ function Convert-PolicySetsToFlatList {
             $flatPolicyEntryKey = $policyId
             $flatPolicyReferencePath = ""
             if ($policiesWithMultipleReferenceIds.ContainsKey($policyId)) {
-                $flatPolicyReferencePath = "$($detail.name)\\$($policyInPolicySetInfo.policyDefinitionReferenceId)"
+                $flatPolicyReferencePath = "$($detail.name)\\$($policyDefinitionReferenceId)"
                 $flatPolicyEntryKey = "$policyId\\$flatPolicyReferencePath"
             }
 
@@ -97,6 +101,7 @@ function Convert-PolicySetsToFlatList {
                     ordinal                = 99
                     isEffectParameterized  = $isEffectParameterized
                     effectAllowedValues    = @{}
+                    effectAllowedOverrides = $effectAllowedOverrides
                     parameters             = @{}
                     policySetList          = @{}
                     groupNames             = @{}
@@ -117,11 +122,12 @@ function Convert-PolicySetsToFlatList {
                 effectValue                 = $policyInPolicySetInfo.effectValue
                 effectDefault               = $effectDefault
                 effectAllowedValues         = $effectAllowedValues
+                effectAllowedOverrides      = $effectAllowedOverrides
                 effectReason                = $effectReason
                 isEffectParameterized       = $isEffectParameterized
                 effectString                = ""
                 parameters                  = $parameters
-                policyDefinitionReferenceId = $policyInPolicySetInfo.policyDefinitionReferenceId
+                policyDefinitionReferenceId = $policyDefinitionReferenceId
                 groupNames                  = $policyInPolicySetInfo.groupNames
                 assignmentId                = $assignmentId
                 assignment                  = $detail.assignment
@@ -154,43 +160,62 @@ function Convert-PolicySetsToFlatList {
             }
 
             $effectString = ""
-            if ($isEffectParameterized) {
-                # Temporary
-
-                $existingOrdinal = $flatPolicyEntry.ordinal
-
-                $effectString = "$($effectDefault) (default: $($effectParameterName))"
-                if ($null -ne $detail.assignmentId) {
-                    # Best actual value if processing an Assignment
-                    $effectValue = $effectDefault
-                    if ($null -ne $assignmentParameters) {
-                        # Assignment has parameters
-                        if ($assignmentParameters.ContainsKey($effectParameterName)) {
-                            # Effect default is replaced by assignment parameter
-                            $assignmentLevelEffectParameter = $assignmentParameters.$effectParameterName
-                            $effectValue = $assignmentLevelEffectParameter.value
-                            $perPolicySet.effectReason = "Assignment"
-                            $effectString = "$($effectValue) (assignment: $($effectParameterName))"
+            if ($null -ne $detail.assignmentId) {
+                $isOverridden = $false
+                if ($null -ne $assignmentOverrides -and $assignmentOverrides.Count -gt 0) {
+                    # Check if we have an override
+                    foreach ($override in $assignmentOverrides) {
+                        if ($override.kind -eq "policyEffect") {
+                            $tempEffect = $override.value
+                            foreach ($selector in $override.selectors) {
+                                if ($selector.kind -eq "policyDefinitionReferenceId") {
+                                    if ($selector.in -contains $policyDefinitionReferenceId) {
+                                        $effectValue = $tempEffect
+                                        $perPolicySet.effectReason = "Override"
+                                        $effectString = "$($effectValue) (override))"
+                                        $isOverridden = $true
+                                    }
+                                }
+                            }
                         }
                     }
-                    $ordinal = Convert-EffectToOrdinal -effect $effectValue
-                    if ($ordinal -lt $existingOrdinal) {
-                        $flatPolicyEntry.ordinal = $ordinal
-                        $flatPolicyEntry.effectValue = $effectValue
-                        $flatPolicyEntry.effectDefault = $effectDefault
+                }
+                if (!$isOverridden) {
+                    if ($isEffectParameterized) {
+                        $existingOrdinal = $flatPolicyEntry.ordinal
+                        $effectString = "$($effectDefault) (default: $($effectParameterName))"
+                        # Best actual value if processing an Assignment
+                        $effectValue = $effectDefault
+                        if ($null -ne $assignmentParameters) {
+                            # Assignment has parameters
+                            if ($assignmentParameters.Keys -contains $effectParameterName) {
+                                # Effect default is replaced by assignment parameter
+                                $assignmentLevelEffectParameter = $assignmentParameters.$effectParameterName
+                                $effectValue = $assignmentLevelEffectParameter.value
+                                $perPolicySet.effectReason = "Assignment"
+                                $effectString = "$($effectValue) (assignment: $($effectParameterName))"
+                            }
+                        }
+                    }
+                    else {
+                        $effectString = "$($effectDefault) ($($effectReason))"
                     }
                 }
-                else {
-                    # Best default to fill effect columns for an PolicySet
-                    $ordinal = Convert-EffectToOrdinal -effect $effectDefault
-                    if ($ordinal -lt $existingOrdinal) {
-                        $flatPolicyEntry.ordinal = $ordinal
-                        $flatPolicyEntry.effectValue = $null
-                        $flatPolicyEntry.effectDefault = $effectDefault
-                    }
+                $ordinal = Convert-EffectToOrdinal -effect $effectValue
+                if ($ordinal -lt $existingOrdinal) {
+                    $flatPolicyEntry.ordinal = $ordinal
+                    $flatPolicyEntry.effectValue = $effectValue
+                    $flatPolicyEntry.effectDefault = $effectDefault
                 }
             }
             else {
+                # Best default to fill effect columns for an PolicySet
+                $ordinal = Convert-EffectToOrdinal -effect $effectDefault
+                if ($ordinal -lt $existingOrdinal) {
+                    $flatPolicyEntry.ordinal = $ordinal
+                    $flatPolicyEntry.effectValue = $effectDefault
+                    $flatPolicyEntry.effectDefault = $effectDefault
+                }
                 $effectString = "$($effectDefault) ($($effectReason))"
             }
 

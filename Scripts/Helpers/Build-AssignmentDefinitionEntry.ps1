@@ -17,6 +17,7 @@ function Build-AssignmentDefinitionEntry {
     $initiativeName = $definitionEntry.initiativeName
     $initiativeId = $definitionEntry.initiativeId
     $assignment = $definitionEntry.assignment
+    $definitionVersion = $definitionEntry.definitionVersion
 
     $isValid = $true
     $normalizedEntry = $null
@@ -74,16 +75,22 @@ function Build-AssignmentDefinitionEntry {
                 }
             }
         }
-        if ($null -ne $definitionEntry.friendlyNameToDocumentIfGuid) {
-            $normalizedEntry.displayName = $definitionEntry.friendlyNameToDocumentIfGuid
-        }
-        elseif ($null -ne $displayName) {
+
+        # if ($null -ne $definitionVersion) {
+        #     $normalizedEntry.definitionVersion = $definitionVersion
+        # }
+
+        if ($null -ne $displayName) {
             $normalizedEntry.displayName = $definitionEntry.displayName
+        }
+        elseif ($null -ne $definitionEntry.friendlyNameToDocumentIfGuid) {
+            $normalizedEntry.displayName = $definitionEntry.friendlyNameToDocumentIfGuid
         }
 
         if ($null -ne $definitionEntry.nonComplianceMessages) {
             $normalizedEntry.nonComplianceMessages = $definitionEntry.nonComplianceMessages
         }
+
         # if ($null -ne $shortName) {
         #     $normalizedEntry.displayName = $shortName
         # }

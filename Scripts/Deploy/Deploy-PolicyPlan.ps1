@@ -24,19 +24,8 @@ param (
     [switch] $interactive
 )
 
-. "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
-
-. "$PSScriptRoot/../Helpers/Get-DeepClone.ps1"
-. "$PSScriptRoot/../Helpers/Get-DeploymentPlan.ps1"
-. "$PSScriptRoot/../Helpers/Get-FilteredHashTable.ps1"
-. "$PSScriptRoot/../Helpers/Get-GlobalSettings.ps1"
-. "$PSScriptRoot/../Helpers/Get-PacFolders.ps1"
-
-. "$PSScriptRoot/../Helpers/Select-PacEnvironment.ps1"
-
-. "$PSScriptRoot/../Helpers/Set-AzCloudTenantSubscription.ps1"
-. "$PSScriptRoot/../Helpers/Set-AzPolicyAssignmentRestMethod.ps1"
-. "$PSScriptRoot/../Helpers/Split-ScopeId.ps1"
+# Dot Source Helper Scripts
+. "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
 
 $InformationPreference = "Continue"
 $pacEnvironment = Select-PacEnvironment $pacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -inputFolder $inputFolder -interactive $interactive
@@ -158,8 +147,6 @@ else {
 
     #region create and update definitions
 
-    $splatTransform = "name/Name displayName/DisplayName scopeId:policyScope description/Description metadata/Metadata mode/Mode parameters/Parameter policyRule/Policy"
-
     $policyDefinitions = ConvertTo-HashTable $plan.policyDefinitions.new
     if ($policyDefinitions.Count -gt 0) {
         Write-Information ""
@@ -167,10 +154,8 @@ else {
         Write-Information "Create new Policies ($($policyDefinitions.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policyDefinitions.Keys) {
-            $policyDefinitionObj = $policyDefinitions[$id]
-            $policyDefinition = $policyDefinitionObj | Get-FilteredHashTable -splatTransform $splatTransform
-            Write-Information $policyDefinitionObj.displayName
-            $null = New-AzPolicyDefinition @policyDefinition
+            $definitionObj = $policyDefinitions[$id]
+            Set-AzPolicyDefinitionRestMethod -definition $definitionObj
         }
     }
 
@@ -181,10 +166,8 @@ else {
         Write-Information "Recreate replaced Policies ($($policyDefinitions.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policyDefinitions.Keys) {
-            $policyDefinitionObj = $policyDefinitions[$id]
-            $policyDefinition = $policyDefinitionObj | Get-FilteredHashTable -splatTransform $splatTransform
-            Write-Information $policyDefinitionObj.displayName
-            $null = New-AzPolicyDefinition @policyDefinition
+            $definitionObj = $policyDefinitions[$id]
+            Set-AzPolicyDefinitionRestMethod -definition $definitionObj
         }
     }
 
@@ -195,15 +178,11 @@ else {
         Write-Information "Update Policies ($($policyDefinitions.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policyDefinitions.Keys) {
-            $policyDefinitionObj = $policyDefinitions[$id]
-            Write-Information $policyDefinitionObj.displayName
-            $splatTransform = $policyDefinitionObj.splatTransform
-            $policyDefinition = $policyDefinitionObj | Get-FilteredHashTable -splatTransform $splatTransform
-            $null = Set-AzPolicyDefinition @policyDefinition
+            $definitionObj = $policyDefinitions[$id]
+            Set-AzPolicyDefinitionRestMethod -definition $definitionObj
         }
     }
 
-    $splatTransform = "name/Name displayName/DisplayName scopeId:policyScope description/Description metadata/Metadata parameters/Parameter policyDefinitions/PolicyDefinition policyDefinitionGroups/GroupDefinition"
     $policySetDefinitions = ConvertTo-HashTable $plan.policySetDefinitions.new
     if ($policySetDefinitions.Count -gt 0) {
         Write-Information ""
@@ -211,10 +190,8 @@ else {
         Write-Information "Create new Policy Sets ($($policySetDefinitions.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policySetDefinitions.Keys) {
-            $policySetDefinitionObj = $policySetDefinitions[$id]
-            $policySetDefinition = $policySetDefinitionObj | Get-FilteredHashTable -splatTransform $splatTransform
-            Write-Information $policySetDefinitionObj.displayName
-            $null = New-AzPolicySetDefinition @policySetDefinition
+            $definitionObj = $policySetDefinitions[$id]
+            Set-AzPolicySetDefinitionRestMethod -definition $definitionObj
         }
     }
 
@@ -225,10 +202,8 @@ else {
         Write-Information "Recreate replaced Policy Sets  ($($policySetDefinitions.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policySetDefinitions.Keys) {
-            $policySetDefinitionObj = $policySetDefinitions[$id]
-            $policySetDefinition = $policySetDefinitionObj | Get-FilteredHashTable -splatTransform $splatTransform
-            Write-Information $policySetDefinitionObj.displayName
-            $null = New-AzPolicySetDefinition @policySetDefinition
+            $definitionObj = $policySetDefinitions[$id]
+            Set-AzPolicySetDefinitionRestMethod -definition $definitionObj
         }
     }
 
@@ -239,11 +214,8 @@ else {
         Write-Information "Update Policy Sets ($($policySetDefinitions.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policySetDefinitions.Keys) {
-            $policySetDefinitionObj = $policySetDefinitions[$id]
-            $splatTransform = $policySetDefinitionObj.splatTransform
-            $policySetDefinition = $policySetDefinitionObj | Get-FilteredHashTable -splatTransform $splatTransform
-            Write-Information $policySetDefinitionObj.displayName
-            $null = Set-AzPolicySetDefinition @policySetDefinition
+            $definitionObj = $policySetDefinitions[$id]
+            Set-AzPolicySetDefinitionRestMethod -definition $definitionObj
         }
     }
 
