@@ -88,4 +88,9 @@ foreach ($policySetFile in Get-ChildItem "$definitionsRootFolder\policySetDefini
     $jsonContent | ConvertTo-Json -Depth 20 | Set-Content $policySetFile
 }
 
-Copy-Item -Path .\Scripts\CloudAdoptionFramework\policyAssignments\*.* -Destination "$definitionsRootFolder\policyAssignments\CAF\" -Force
+if ($ModuleRoot) {
+    Copy-Item -Path $ModuleRoot\policyAssignments\*.* -Destination "$definitionsRootFolder\policyAssignments\CAF\" -Force
+}
+else {
+    Copy-Item -Path .\Scripts\CloudAdoptionFramework\policyAssignments\*.* -Destination "$definitionsRootFolder\policyAssignments\CAF\" -Force
+}
