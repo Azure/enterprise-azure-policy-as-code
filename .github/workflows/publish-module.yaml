@@ -15,3 +15,4 @@ jobs:
         run: |
           .\Module\build.ps1
           Publish-Module -Path .\Module\EnterprisePolicyAsCode -NuGetApiKey $env:APIKEY -Verbose
+

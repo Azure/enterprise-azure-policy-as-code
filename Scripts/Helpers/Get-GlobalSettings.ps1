@@ -199,55 +199,32 @@ function Get-GlobalSettings {
 
     $policyDocumentationsFolder = "$definitionsRootFolder/policyDocumentations"
     if (!(Test-Path $policyDocumentationsFolder -PathType Container)) {
-        $policyDocumentationsFolder1 = "$definitionsRootFolder/DocumentationSpecs" # Legacy location
-        $policyDocumentationsFolder2 = "$definitionsRootFolder/Documentation"
-        if (Test-Path $policyDocumentationsFolder1 -PathType Container) {
-            Write-Error "Legacy documentation definition folder name 'DocumentationSpecs' used. Rename to 'policyDocumentations'!"  -ErrorAction Stop
-        }
-        elseif (Test-Path $policyDocumentationsFolder2 -PathType Container) {
-            Write-Error "Legacy documentation definition folder name 'Documentation' used. Rename to 'policyDocumentations'!"  -ErrorAction Stop
-        }
+        Write-Warning "Policy documentation specification folder 'policyDocumentations not found.  This instance of EPAC cannot export Policy resources or generate documentation."
+        $policyDocumentationsFolder = $null
     }
 
     $policyDefinitionsFolder = "$definitionsRootFolder/policyDefinitions"
     if (!(Test-Path $policyDefinitionsFolder -PathType Container)) {
-        $policyDefinitionsFolder = # Legacy location
-        if ((Test-Path "$definitionsRootFolder/Policies" -PathType Container)) {
-            Write-Error "Legacy Policy definitions folder name 'Policies' used. Rename to 'policyDefinitions'!" -ErrorAction Stop
-        }
-        else {
-            Write-Error "Policy definitions 'policyDefinitions' folder not found."  -ErrorAction Stop
-        }
+        Write-Warning "Policy definitions 'policyDefinitions' folder not found. Policy definitions not managed by this instance of EPAC." -ErrorAction Stop
+        $policyDocumentationsFolder = $null
     }
 
     $policySetDefinitionsFolder = "$definitionsRootFolder/policySetDefinitions"
     if (!(Test-Path $policySetDefinitionsFolder -PathType Container)) {
-        $policySetDefinitionsFolder = "$definitionsRootFolder/Initiatives" # Legacy location
-        if ((Test-Path $policySetDefinitionsFolder -PathType Container)) {
-            Write-Error "Legacy Policy Sets folder name Initiatives used. Rename to 'policySetDefinitions'!" -ErrorAction Stop
-        }
-        else {
-            Write-Error "Policy Sets folder 'policySetDefinitions' not found." -ErrorAction Stop
-        }
+        Write-Warning "Policy Sets folder 'policySetDefinitions' not found. Policy Set definitions not managed by this instance of EPAC." -ErrorAction Stop
+        $policySetDefinitionsFolder = $null
     }
 
     $policyAssignmentsFolder = "$definitionsRootFolder/policyAssignments"
     if (!(Test-Path $policyAssignmentsFolder -PathType Container)) {
-        $policyAssignmentsFolder = "$definitionsRootFolder/Assignments" # Legacy location
-        if ((Test-Path $policyAssignmentsFolder -PathType Container)) {
-            Write-Error "Legacy Policy Assignments folder name 'Assignments' used. Rename to 'policyAssignments'!" -ErrorAction Stop
-        }
-        else {
-            Write-Error "Policy Assignments folder 'policyAssignments' not found." -ErrorAction Stop
-        }
+        Write-Warning "Policy Assignments folder 'policyAssignments' not found. Assignments not managed by this instance of EPAC." -ErrorAction Stop
+        $policyAssignmentsFolder = $null
     }
 
     $policyExemptionsFolder = "$definitionsRootFolder/policyExemptions"
     if (!(Test-Path $policyExemptionsFolder -PathType Container)) {
-        $policyExemptionsFolder = "$definitionsRootFolder/Exemptions" # Legacy location
-        if ((Test-Path $policyExemptionsFolder -PathType Container)) {
-            Write-Error "Legacy Policy Exemptions folder name 'policyExemptions' used. Rename to 'policyExemptions'!" -ErrorAction Stop
-        }
+        Write-Warning "Policy Exemptions folder 'policyExemptions' not found. Exemptions not managed by this instance of EPAC."
+        $policyExemptionsFolder = $null
     }
 
     [hashtable] $globalSettings = @{

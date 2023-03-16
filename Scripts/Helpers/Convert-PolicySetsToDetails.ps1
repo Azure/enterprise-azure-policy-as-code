@@ -22,31 +22,84 @@ function Convert-PolicySetsToDetails {
         $effectValue = $null
         $effectDefault = $null
         $effectAllowedValues = @()
+        $effectAllowedOverrides = @()
         $effectReason = "Policy No Default"
         $parameters = $properties.parameters | ConvertTo-HashTable
         if ($found) {
-            if ($effectParameter.allowedValues) {
-                $effectAllowedValues = $effectParameter.allowedValues
-            }
-            if ($parameters.ContainsKey($effectParameterName)) {
+            if ($parameters.Keys -contains $effectParameterName) {
                 $effectParameter = $parameters.$effectParameterName
                 if ($effectParameter.defaultValue) {
                     $effectValue = $effectParameter.defaultValue
                     $effectDefault = $effectParameter.defaultValue
-                    $effectAllowedValues = @( $effectDefault )
                     $effectReason = "Policy Default"
                 }
             }
             else {
                 Write-Error "Policy uses parameter '$effectParameterName' for the effect not defined in the parameters. This should not be possible!" -ErrorAction Stop
             }
+            if ($effectParameter.allowedValues) {
+                $effectAllowedValues = $effectParameter.allowedValues
+                $effectAllowedOverrides = $effectParameter.allowedValues
+            }
         }
         else {
             # Fixed value
             $effectValue = $effectRawValue
             $effectDefault = $effectRawValue
-            $effectAllowedValues = @( $effectRawValue )
+            $effectAllowedValues = @( $effectDefault )
             $effectReason = "Policy Fixed"
+        }
+        if ($effectAllowedOverrides.Count -eq 0) {
+            # Analyze Policy
+            $then = $properties.policyRule.then
+            $details = $then.details
+            $denyAction = $details -and $details.actionNames
+            $auditIfNotExists = $details -and $details.existenceCondition
+            $deployIfNotExists = $auditIfNotExists -and $details.deployment
+            $modify = $details -and $details.operations
+            $manual = $details -and $details.defaultState
+            $append = $details -and $details -is [array]
+
+            if ($denyAction) {
+                $effectAllowedOverrides = @("Disabled", "DenyAction")
+            }
+            elseif ($manual) {
+                $effectAllowedOverrides = @("Disabled", "Manual")
+            }
+            elseif ($deployIfNotExists) {
+                $effectAllowedOverrides = @("Disabled", "AuditIfNotExists", "DeployIfNotExists")
+            }
+            elseif ($auditIfNotExists) {
+                $effectAllowedOverrides = @("Disabled", "AuditIfNotExists")
+            }
+            elseif ($modify) {
+                $effectAllowedOverrides = @("Disabled", "Audit", "Modify")
+            }
+            elseif ($append) {
+                $effectAllowedOverrides = @("Disabled", "Audit", "Deny", "Append")
+            }
+            else {
+                if ($effectReason -eq "Policy Fixed") {
+                    if ($effectValue -eq "deny") {
+                        $effectAllowedOverrides = @("Disabled", "Audit", "Deny")
+                    }
+                    elseif ($effectValue -eq "audit") {
+                        $effectAllowedOverrides = @("Disabled", "Audit") # Safe assumption if Audit or Disabled
+                    }
+                    else {
+                        # Disabled: very weird for hard coded
+                        $effectAllowedOverrides = @("Disabled", "Audit") # Safe assumption
+                    }
+                }
+                else {
+                    if ($effectDefault -eq "deny") {
+                        $effectAllowedOverrides = @("Disabled", "Audit", "Deny")
+                    }
+                    else {
+                        $effectAllowedOverrides = @("Disabled", "Audit", "Deny") # Guess, could be @("Disabled", "Audit")
+                    }
+                }
+            }
         }
 
         $displayName = $properties.displayName
@@ -72,18 +125,19 @@ function Convert-PolicySetsToDetails {
         }
 
         $policyDetail = @{
-            id                  = $policyId
-            name                = $policy.name
-            displayName         = $displayName
-            description         = $description
-            policyType          = $properties.policyType
-            category            = $category
-            effectParameterName = $effectParameterName
-            effectValue         = $effectValue
-            effectDefault       = $effectDefault
-            effectAllowedValues = $effectAllowedValues
-            effectReason        = $effectReason
-            parameters          = $parameterDefinitions
+            id                     = $policyId
+            name                   = $policy.name
+            displayName            = $displayName
+            description            = $description
+            policyType             = $properties.policyType
+            category               = $category
+            effectParameterName    = $effectParameterName
+            effectValue            = $effectValue
+            effectDefault          = $effectDefault
+            effectAllowedValues    = $effectAllowedValues
+            effectAllowedOverrides = $effectAllowedOverrides
+            effectReason           = $effectReason
+            parameters             = $parameterDefinitions
         }
         $null = $policyDetails.Add($policyId, $policyDetail)
     }
@@ -112,13 +166,14 @@ function Convert-PolicySetsToDetails {
                 $effectValue = $policyDetail.effectValue
                 $effectDefault = $policyDetail.effectDefault
                 $effectAllowedValues = $policyDetail.effectAllowedValues
+                $effectAllowedOverrides = $policyDetail.effectAllowedOverrides
                 $effectReason = $policyDetail.effectReason
 
                 $policySetLevelEffectParameterFound = $false
                 $policySetLevelEffectParameterName = ""
                 if ($effectReason -ne "Policy Fixed") {
                     # Effect is parameterized in Policy
-                    if ($policyInPolicySetParameters.ContainsKey($effectParameterName)) {
+                    if ($policyInPolicySetParameters.Keys -contains $effectParameterName) {
                         # Effect parameter is used by policySet
                         $policySetLevelEffectParameter = $policyInPolicySetParameters.$effectParameterName
                         $effectRawValue = $policySetLevelEffectParameter.value
@@ -126,7 +181,7 @@ function Convert-PolicySetsToDetails {
                         $policySetLevelEffectParameterFound, $policySetLevelEffectParameterName = Get-ParameterNameFromValueString -paramValue $effectRawValue
                         if ($policySetLevelEffectParameterFound) {
                             # Effect parameter is surfaced by PolicySet
-                            if ($policySetParameters.ContainsKey($policySetLevelEffectParameterName)) {
+                            if ($policySetParameters.Keys -contains $policySetLevelEffectParameterName) {
                                 $effectParameter = $policySetParameters.$policySetLevelEffectParameterName
                                 if ($effectParameter.defaultValue) {
                                     $effectValue = $effectParameter.defaultValue
@@ -135,6 +190,7 @@ function Convert-PolicySetsToDetails {
                                 }
                                 else {
                                     $effectReason = "PolicySet No Default"
+
                                 }
                                 if ($effectParameter.allowedValues) {
                                     $effectAllowedValues = $effectParameter.allowedValues
@@ -200,6 +256,7 @@ function Convert-PolicySetsToDetails {
                     effectValue                 = $effectValue
                     effectDefault               = $effectDefault
                     effectAllowedValues         = $effectAllowedValues
+                    effectAllowedOverrides      = $effectAllowedOverrides
                     effectReason                = $effectReason
                     parameters                  = $surfacedParameters
                     policyDefinitionReferenceId = $policyInPolicySet.policyDefinitionReferenceId

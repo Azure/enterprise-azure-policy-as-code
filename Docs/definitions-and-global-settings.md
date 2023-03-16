@@ -1,29 +1,4 @@
-
 # Definitions and Global Settings
-
-> ---
-> ---
->
-> Important
->
-> - `deploymentRootScope` is the deployment scope for Policies, Policy Set definitions.
-> - Policy Assignments must be at this scope or below.
-> - Operational tasks, such as `Create-AzRemediationTasks.ps1`, must use the same rootScope or they will fail.
->
-> ---
-> ---
-
-<br/>
-
-**On this page**
-
-- [Folders](#folders)
-- [Global Settings](#global-settings)
-  - [Uniquely identify deployments `pacOwnerId`](#uniquely-identify-deployments-pacownerid)
-  - [Define EPAC Environments in `pacEnvironments`](#define-epac-environments-in-pacenvironments)
-  - [DeployIfNotExists and Modify Policy Assignments need `managedIdentityLocation`](#deployifnotexists-and-modify-policy-assignments-need-managedidentitylocation)
-  - [Excluding scopes for all Assignments with `globalNotScopes`](#excluding-scopes-for-all-assignments-with-globalnotscopes)
-- [Reading List](#reading-list)
 
 ## Folders
 
@@ -55,21 +30,20 @@ EPAC has a concept of an environment identified by a string (unique per reposito
 
 - `cloud` - to select sovereign cloud environments.
 - `tenantId` - enables multi-tenant scenarios.
-- `rootDefinitionScope` - the deployment destination for the Policies and Policy Sets to be used in assignments later.
-  - Policy Assignments can only defined at this root scope and child scopes (recursive).
+- `rootDefinitionScope` - the deployment scope for the Policies and Policy Sets to be used in assignments later.
+  - Policy Assignments can only defined at this scope and child scopes (recursive).
+  - Operational tasks, such as `Create-AzRemediationTasks.ps1`, must use the same `rootDefinitionScope` or they will fail.
 - Optional: define `desiredState` strategy. This element is documented [here](desired-state-strategy.md).
 
 Like any other software or IaC solution, EPAC needs areas for developing and testing new Policies, Policy Sets and Policy Assignments before any deployment to EPAC prod environments. In most cases you will need one management group hierarchy to simulate EPAC production management groups for development and testing of Policies. EPAC's prod environment will govern all other IaC environments (e.g., sandbox, development, integration, test/qa, pre-prod, prod, ...) and tenants. This can be confusing. We will use EPAC environment(s) and IaC environments to disambiguate the environments.
 
 In a centralized single tenant scenario, you will define two EPAC environments: epac-dev and tenant. In a multi-tenant scenario, you will add an additional EPAC environment per additional tenant.
 
-The `pacSelector` is just a name. We highly recommend to call the Policy development environment `epac-dev`, you can name the EPAC prod environments in a way which makes sense to you in your environment. We use `tenant`, `tenant1`, etc in our samples and documentation.
-
-These names are used and therefore must match:
+The `pacSelector` is just a name. We highly recommend to call the Policy development environment `epac-dev`, you can name the EPAC prod environments in a way which makes sense to you in your environment. We use `tenant`, `tenant1`, etc in our samples and documentation. These names are used and therefore must match:
 
 - Defining the association (`pacEnvironments`) of an EPAC environment, `managedIdentityLocation` and `globalNotScopes` in `global-settings.jsonc`
 - Script parameter when executing different deployment stages in a CI/CD pipeline or semi-automated deployment targeting a specific EPAC environments.
-- `scopes` and `notScopes` definitions in Policy Assignment JSON files.
+- `scopes`, `notScopes`, `additionalRoleAssignments`, `managedIdentityLocations`, and `userAssignedIdentity` definitions in Policy Assignment JSON files.
 
 ```json
 "pacEnvironments": [
@@ -134,20 +108,18 @@ The arrays can have the following entries:
 
 ## Reading List
 
-- [Setup DevOps Environment](operating-environment.md) .
-- [Create a source repository and import the source code](clone-github.md) from this repository.
-- [Select the desired state strategy](desired-state-strategy.md)
-- [Define your deployment environment](definitions-and-global-settings.md) in `global-settings.jsonc`.
-- [Build your CI/CD pipeline](ci-cd-pipeline.md) using a starter kit.
-- Optional: generate a starting point for the `Definitions` folders:
-  - [Extract existing Policy resources from an environment](extract-existing-policy-resources.md).
-  - [Import Policies from the Cloud Adoption Framework](cloud-adoption-framework.md).
-- [Add custom Policies](policy-definitions.md).
-- [Add custom Policy Sets](policy-set-definitions.md).
-- [Create Policy Assignments](policy-assignments.md).
-- Import Policies from the [Cloud Adoption Framework](cloud-adoption-framework.md).
-- [Manage Policy Exemptions](policy-exemptions.md).
-- [Document your deployments](documenting-assignments-and-policy-sets.md).
-- [Execute operational tasks](operational-scripts.md).
-
-**[Return to the main page](../README.md)**
+* [Setup DevOps Environment](operating-environment.md) .
+* [Create a source repository and import the source code](clone-github.md) from this repository.
+* [Select the desired state strategy](desired-state-strategy.md)
+* [Define your deployment environment](definitions-and-global-settings.md) in `global-settings.jsonc`.
+* [Build your CI/CD pipeline](ci-cd-pipeline.md) using a starter kit.
+* Optional: generate a starting point for the `Definitions` folders:
+  * [Extract existing Policy resources from an environment](extract-existing-policy-resources.md).
+  * [Import Policies from the Cloud Adoption Framework](cloud-adoption-framework.md).
+* [Add custom Policies](policy-definitions.md).
+* [Add custom Policy Sets](policy-set-definitions.md).
+* [Create Policy Assignments](policy-assignments.md).
+* Import Policies from the [Cloud Adoption Framework](cloud-adoption-framework.md).
+* [Manage Policy Exemptions](policy-exemptions.md).
+* [Document your deployments](documenting-assignments-and-policy-sets.md).
+* [Execute operational tasks](operational-scripts.md).

@@ -13,7 +13,7 @@ function Confirm-ParametersMatch {
     $definedParameters = ConvertTo-HashTable $definedParametersObj
     $addedParameters = Get-HashtableShallowClone $definedParameters
     foreach ($existingParameterName in $existingParameters.Keys) {
-        if ($definedParameters.ContainsKey($existingParameterName)) {
+        if ($definedParameters.Keys -contains $existingParameterName) {
             # Remove key from $addedParameters
             $addedParameters.Remove($existingParameterName)
             $existing = $existingParameters.$existingParameterName

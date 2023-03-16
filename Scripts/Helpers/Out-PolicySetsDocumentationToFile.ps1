@@ -129,6 +129,8 @@ function Out-PolicySetsDocumentationToFile {
 
         # Cache loop values
         $effectAllowedValues = $_.effectAllowedValues
+        $isEffectParameterized = $_.isEffectParameterized
+        $effectAllowedOverrides = $_.effectAllowedOverrides
         $groupNamesList = $_.groupNamesList
         $effectDefault = $_.effectDefault
         $policySetEffectStrings = $_.policySetEffectStrings
@@ -146,8 +148,11 @@ function Out-PolicySetsDocumentationToFile {
         if ($policySetEffectStrings.Count -gt 0) {
             $rowObj.policySets = $policySetEffectStrings -join $inCellSeparator
         }
-        if ($effectAllowedValues.Count -gt 0) {
+        if ($isEffectParameterized -and $effectAllowedValues.Count -gt 1) {
             $rowObj.allowedEffects = $effectAllowedValues.Keys -join $inCellSeparator
+        }
+        elseif ($effectAllowedOverrides.Count -gt 0) {
+            $rowObj.allowedEffects = $effectAllowedOverrides -join $inCellSeparator
         }
 
         # Per environment columns

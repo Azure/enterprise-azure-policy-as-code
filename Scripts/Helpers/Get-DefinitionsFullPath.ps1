@@ -9,7 +9,8 @@ function Get-DefinitionsFullPath {
         $displayName,
         $invalidChars,
         $maxLengthSubFolder,
-        $maxLengthFileName
+        $maxLengthFileName,
+        $fileExtension
     )
 
     $subFolder = Get-ScrubbedString -string $rawSubFolder -invalidChars $invalidChars -maxLength $maxLengthSubFolder -trimEnds -singleReplace
@@ -22,15 +23,13 @@ function Get-DefinitionsFullPath {
     $fileName = Get-ScrubbedString -string $name -invalidChars $invalidChars -replaceWith "" -replaceSpaces -replaceSpacesWith "-" -maxLength $maxLengthFileName -trimEnds -toLower -singleReplace
     if ($isGuid) {
         # try to avoid GUID file names
-        if ($null -ne $displayName -and $displayName.Length -gt 0) {
-            $fileNameTemp = $displayName
-            $fileNameTemp = Get-ScrubbedString -string $fileNameTemp -invalidChars $invalidChars -replaceWith "" -replaceSpaces -replaceSpacesWith "-" -maxLength $maxLengthFileName -trimEnds -toLower -singleReplace
-            if ($fileNameTemp.Length -gt 0) {
-                $fileName = $fileNameTemp
-            }
+        $fileNameTemp = $displayName
+        $fileNameTemp = Get-ScrubbedString -string $fileNameTemp -invalidChars $invalidChars -replaceWith "" -replaceSpaces -replaceSpacesWith "-" -maxLength $maxLengthFileName -trimEnds -toLower -singleReplace
+        if ($fileNameTemp.Length -gt 0) {
+            $fileName = $fileNameTemp
         }
     }
-    $fullPath = "$folder/$subFolder/$($fileName).jsonc"
+    $fullPath = "$folder/$subFolder/$($fileName).$fileExtension"
 
     return $fullPath
 }

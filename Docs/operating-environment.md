@@ -1,14 +1,5 @@
 # Operating Environment
 
-**On this page**
-
-* [EPAC Software Requirements](#epac-software-requirements)
-  * [Pipeline Runner or Agent](#pipeline-runner-or-agent)
-  * [Developer Workstation](#developer-workstation)
-* [Required Management Groups and Subscriptions](#required-management-groups-and-subscriptions)
-* [Security Considerations for DevOps CI/CD Runners/Agents](#security-considerations-for-devops-cicd-runnersagents)
-* [Reading List](#reading-list)
-
 ## EPAC Software Requirements
 
 Your operating environment will include two repos, a runner, and at least one developer machine. The following software is required on the runners and any developer workstation.
@@ -19,7 +10,8 @@ Your operating environment will include two repos, a runner, and at least one de
   * ImportExcel (required only if using Excel functionality)
 * Git latest version
 
-> Note: AzCli Module, Azure CLI, and Python are no longer required as of our v6.0 (January 2023) release.
+!!! note
+    AzCli Module, Azure CLI, and Python are no longer required as of our v6.0 (January 2023) release.
 
 ### Pipeline Runner or Agent
 
@@ -46,21 +38,11 @@ This solution requires EPAC environments for development, (optional) integration
 
 Agents (also called runners) are often hosted in VMs within Azure itself. It is therefore essential to manage them as highly privileged devices.
 
-> ---
-> ---
->
-> **Servers/VMs requirements:**
->
-> * Utilize hardened images.
-> * Be managed as high-privilege assets to minimize the risk of compromise.
-> * Only used for a single purpose.
-> * Hosted in PROD tenant in multi-tenant scenarios.
-> * Hosted in the hub VNET or a shared services VNET.
->
-> ---
-> ---
-
-<br/>
+* Utilize hardened images.
+* Be managed as high-privilege assets to minimize the risk of compromise.
+* Only used for a single purpose.
+* Hosted in PROD tenant in multi-tenant scenarios.
+* Hosted in the hub VNET or a shared services VNET.
 
 ## Reading List
 
@@ -79,5 +61,3 @@ Agents (also called runners) are often hosted in VMs within Azure itself. It is 
 * [Manage Policy Exemptions](policy-exemptions.md).
 * [Document your deployments](documenting-assignments-and-policy-sets.md).
 * [Execute operational tasks](operational-scripts.md).
-
-**[Return to the main page](../README.md)**

@@ -70,6 +70,7 @@ function Build-PolicySetPlan {
         $displayName = $definitionProperties.displayName
         $description = $definitionProperties.description
         $metadata = Get-DeepClone $definitionProperties.metadata -AsHashTable
+        $version = $definitionProperties.version
         $parameters = $definitionProperties.parameters
         $policyDefinitions = $definitionProperties.policyDefinitions
         $policyDefinitionGroups = $definitionProperties.policyDefinitionGroups
@@ -154,7 +155,7 @@ function Build-PolicySetPlan {
                             $usedPolicyGroupDefinitions.Remove($groupName)
                             $policyDefinitionGroupsHashTable.Add($groupName, $importedPolicyDefinitionGroup)
                             if ($policyDefinitionGroupsHashTable.Count -ge 1000) {
-                                $limitReachedPolicyDefinitionGroups = $true;
+                                $limitReachedPolicyDefinitionGroups = $true
                                 if ($usedPolicyGroupDefinitions.Count -gt 0) {
                                     Write-Warning "$($displayName): Too many PolicyDefinitionGroups (1000+) - ignore remaining imports."
                                 }
@@ -186,10 +187,12 @@ function Build-PolicySetPlan {
             displayName            = $displayName
             description            = $description
             metadata               = $metadata
+            # version                = $version
             parameters             = $parameters
             policyDefinitions      = $policyDefinitionsFinal
             policyDefinitionGroups = $policyDefinitionGroupsFinal
         }
+        Remove-EmptyFields -definition $definition
         $allDefinitions.policysetdefinitions[$id] = $definition
 
         if ($managedDefinitions.ContainsKey($id)) {
@@ -206,9 +209,11 @@ function Build-PolicySetPlan {
             $metadataMatches, $changePacOwnerId = Confirm-MetadataMatches `
                 -existingMetadataObj $deployedDefinition.metadata `
                 -definedMetadataObj $metadata
+            # $versionMatches = $version -eq $deployedDefinition.version
+            $versionMatches = $true
             $parametersMatch, $incompatible = Confirm-ParametersMatch `
                 -existingParametersObj $deployedDefinition.parameters `
-                -definedParametersObj  $parameters
+                -definedParametersObj $parameters
             $policyDefinitionsMatch = Confirm-ObjectValueEqualityDeep `
                 -existingObj $deployedDefinition.policyDefinitions `
                 -definedObj $policyDefinitionsFinal
@@ -226,13 +231,12 @@ function Build-PolicySetPlan {
                     break
                 }
             }
-            if (!$containsReplacedPolicy -and $displayNameMatches -and $descriptionMatches -and $metadataMatches -and !$changePacOwnerId -and $parametersMatch -and $policyDefinitionsMatch -and $policyDefinitionGroupsMatch) {
+            if (!$containsReplacedPolicy -and $displayNameMatches -and $descriptionMatches -and $metadataMatches -and $versionMatches -and !$changePacOwnerId -and $parametersMatch -and $policyDefinitionsMatch -and $policyDefinitionGroupsMatch) {
                 # Write-Information "Unchanged '$($displayName)'"
                 $definitions.numberUnchanged++
             }
             else {
                 $definitions.numberOfChanges++
-                $splatTransformStrings = @( "id/Id" )
                 $changesStrings = @()
                 if ($incompatible) {
                     $changesStrings += "paramIncompat"
@@ -242,11 +246,9 @@ function Build-PolicySetPlan {
                 }
                 if (!$displayNameMatches) {
                     $changesStrings += "displayName"
-                    $splatTransformStrings += "displayName/DisplayName"
                 }
                 if (!$descriptionMatches) {
                     $changesStrings += "description"
-                    $splatTransformStrings += "description/Description"
                 }
                 if ($changePacOwnerId) {
                     $changesStrings += "owner"
@@ -254,16 +256,14 @@ function Build-PolicySetPlan {
                 if (!$metadataMatches) {
                     $changesStrings += "metadata"
                 }
-                if ($changePacOwnerId -or !$metadataMatches) {
-                    $splatTransformStrings += "metadata/Metadata"
+                if (!$versionMatches) {
+                    $changesStrings += "version"
                 }
                 if (!$parametersMatch -and !$incompatible) {
                     $changesStrings += "param"
-                    $splatTransformStrings += "parameters/Parameter"
                 }
                 if (!$policyDefinitionsMatch) {
                     $changesStrings += "policyDef"
-                    $splatTransformStrings += "policyDefinitions/PolicyDefinition"
                 }
                 if (!$policyDefinitionGroupsMatch) {
                     if ($deletedPolicyDefinitionGroups) {
@@ -271,12 +271,11 @@ function Build-PolicySetPlan {
                     }
                     else {
                         $changesStrings += "groups"
-                        $splatTransformStrings += "policyDefinitionGroups/GroupDefinition"
                     }
                 }
                 $changesString = $changesStrings -join ","
 
-                if ($incompatible -or $containsReplacedPolicy -or $deletedPolicyDefinitionGroups) {
+                if ($incompatible -or $containsReplacedPolicy) {
                     # Check if parameters are compatible with an update or id the set includes at least one Policy which is being replaced.
                     Write-Information "Replace ($changesString) '$($displayName)'"
                     Remove-EmptyFields $definition
@@ -285,8 +284,6 @@ function Build-PolicySetPlan {
                 }
                 else {
                     Write-Information "Update ($changesString) '$($displayName)'"
-                    $splatTransformString = $splatTransformStrings -join " "
-                    $definition["splatTransform"] = $splatTransformString
                     $null = $definitions.update.Add($id, $definition)
                 }
             }
@@ -330,5 +327,5 @@ function Build-PolicySetPlan {
     }
 
     Write-Information "Number of unchanged Policy SetPolicy Sets definition = $($definitions.numberUnchanged)"
-    Write-Information  ""
+    Write-Information ""
 }

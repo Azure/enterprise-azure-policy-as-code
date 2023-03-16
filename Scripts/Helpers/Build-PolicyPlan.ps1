@@ -59,6 +59,7 @@ function Build-PolicyPlan {
         $displayName = $definitionProperties.displayName
         $description = $definitionProperties.description
         $metadata = Get-DeepClone $definitionProperties.metadata -AsHashTable
+        $version = $definitionProperties.version
         $mode = $definitionProperties.mode
         $parameters = $definitionProperties.parameters
         $policyRule = $definitionProperties.policyRule
@@ -104,9 +105,11 @@ function Build-PolicyPlan {
             description = $description
             mode        = $mode
             metadata    = $metadata
+            # version     = $version
             parameters  = $parameters
             policyRule  = $policyRule
         }
+        Remove-EmptyFields -definition $definition
         $allDefinitions.policydefinitions[$id] = $definition
 
 
@@ -125,6 +128,8 @@ function Build-PolicyPlan {
             $metadataMatches, $changePacOwnerId = Confirm-MetadataMatches `
                 -existingMetadataObj $deployedDefinition.metadata `
                 -definedMetadataObj $metadata
+            # $versionMatches = $version -eq $deployedDefinition.version
+            $versionMatches = $true
             $parametersMatch, $incompatible = Confirm-ParametersMatch `
                 -existingParametersObj $deployedDefinition.parameters `
                 -definedParametersObj $parameters
@@ -133,28 +138,24 @@ function Build-PolicyPlan {
                 -definedObj $policyRule
 
             # Update Policy in Azure if necessary
-            if ($displayNameMatches -and $descriptionMatches -and $modeMatches -and $metadataMatches -and !$changePacOwnerId -and $parametersMatch -and $policyRuleMatches) {
+            if ($displayNameMatches -and $descriptionMatches -and $modeMatches -and $metadataMatches -and !$changePacOwnerId -and $versionMatches -and $parametersMatch -and $policyRuleMatches) {
                 # Write-Information "Unchanged '$($displayName)'"
                 $definitions.numberUnchanged++
             }
             else {
                 $definitions.numberOfChanges++
                 $changesStrings = @()
-                $splatTransformStrings = @( "id/Id" )
                 if ($incompatible) {
                     $changesStrings += "param-incompat"
                 }
                 if (!$displayNameMatches) {
                     $changesStrings += "display"
-                    $splatTransformStrings += "displayName/DisplayName"
                 }
                 if (!$descriptionMatches) {
                     $changesStrings += "description"
-                    $splatTransformStrings += "description/Description"
                 }
                 if (!$modeMatches) {
                     $changesStrings += "mode"
-                    $splatTransformStrings += "mode/Mode"
                 }
                 if ($changePacOwnerId) {
                     $changesStrings += "owner"
@@ -162,16 +163,14 @@ function Build-PolicyPlan {
                 if (!$metadataMatches) {
                     $changesStrings += "metadata"
                 }
-                if ($changePacOwnerId -or !$metadataMatches) {
-                    $splatTransformStrings += "metadata/Metadata"
+                if (!$versionMatches) {
+                    $changesStrings += "version"
                 }
                 if (!$parametersMatch -and !$incompatible) {
                     $changesStrings += "param"
-                    $splatTransformStrings += "parameters/Parameter"
                 }
                 if (!$policyRuleMatches) {
                     $changesStrings += "rule"
-                    $splatTransformStrings += "policyRule/Policy"
                 }
                 $changesString = $changesStrings -join ","
 
@@ -184,8 +183,6 @@ function Build-PolicyPlan {
                 }
                 else {
                     Write-Information "Update ($changesString) '$($displayName)'"
-                    $splatTransformString = $splatTransformStrings -join " "
-                    $definition["splatTransform"] = $splatTransformString
                     $null = $definitions.update.Add($id, $definition)
                 }
             }
