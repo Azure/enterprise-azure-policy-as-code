@@ -9,3 +9,7 @@ Enterprise Policy as Code is now available as a PowerShell module. To install fo
 Install-Module EnterprisePolicyAsCode
 Import-Module EnterprisePolicyAsCode
 ```
+
+## Known Issues
+
+- ```Build-DeploymentPlans``` - use the -outputFolder parameter otherwise 
