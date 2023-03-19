@@ -27,6 +27,12 @@ param (
     [switch] $interactive
 )
 
+$PSDefaultParameterValues = @{
+    "Write-Information:InformationVariable" = "+global:epacInfoStream"
+}
+
+Clear-Variable -Name epacInfoStream -Scope global -Force -ErrorAction SilentlyContinue
+
 # Dot Source Helper Scripts
 . "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
 
