@@ -150,7 +150,7 @@ Sync-CAFPolicies -DefinitionsRootFolder .\Definitions
 
 7. Follow the normal steps to deploy the solution to the environment.
 
-# Keeping up to date with changes
+## Keeping up to date with changes
 
 The Azure Landing Zone deployment contains a number of policies which help provide guardrails to an environment, and the team which works on these policies is always providing updates to the original content to keep in line with Microsoft best practice and roadmap. The EPAC solution contains a function to help synchronise changes from the upstream project
 

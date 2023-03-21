@@ -101,9 +101,9 @@
                 {
                     "nodeName": "Networking",
                     "assignment": {
-                        "name": "Enable-DDoS-VNET-lzones",
-                        "displayName": "Virtual networks should be protected by Azure DDoS Protection Standard",
-                        "description": "Protect your virtual networks against volumetric and protocol attacks with Azure DDoS Protection Standard. For more information, visit https://aka.ms/ddosprotectiondocs."
+                        "name": "Enable-DDoS-VNET",
+                        "displayName": "Virtual networks should be protected by Azure DDoS Network Protection",
+                        "description": "Protect your virtual networks against volumetric and protocol attacks with Azure DDoS Network Protection. For more information, visit https://aka.ms/ddosprotectiondocs."
                     },
                     "definitionEntry": {
                         "policyName": "94de2ad3-e0c1-4caf-ad78-5d47bbc83d3d",
@@ -178,7 +178,7 @@
                         "description": "Choose either Deploy if not exist and append in combination with audit or Select Deny in the Policy effect. Deny polices shift left. Deploy if not exist and append enforce but can be changed, and because missing exsistense condition require then the combination of Audit."
                     },
                     "definitionEntry": {
-                        "initiativeName": "Enforce-EncryptTransit",
+                        "policySetName": "Enforce-EncryptTransit",
                         "friendlyNameToDocumentIfGuid": "Enforce Encrypt Transit"
                     }
                 },
