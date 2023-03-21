@@ -17,7 +17,7 @@
                         "description": "This policy initiative is a group of policies that prevents creation of Azure PaaS services with exposed public endpoints"
                     },
                     "definitionEntry": {
-                        "initiativeName": "Deny-PublicPaaSEndpoints",
+                        "policySetName": "Deny-PublicPaaSEndpoints",
                         "friendlyNameToDocumentIfGuid": "Deny Public PaaS Endpoints"
                     }
                 },
@@ -29,7 +29,7 @@
                         "description": "This policy initiative is a group of policies that ensures private endpoints to Azure PaaS services are integrated with Azure Private DNS zones."
                     },
                     "definitionEntry": {
-                        "initiativeName": "Deploy-Private-DNS-Zones",
+                        "policySetName": "Deploy-Private-DNS-Zones",
                         "friendlyNameToDocumentIfGuid": "Deploy Private DNS Zones"
                     },
                     "parameters": {
