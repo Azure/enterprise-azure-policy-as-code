@@ -71,7 +71,7 @@ function Confirm-ObjectValueEqualityDeep {
         else {
             # normalize arrays if one or both operands are an array
             $isList = $false
-            [array] $definedList = $()
+            [array] $definedList = @()
             if ($null -ne $definedObj) {
                 if ($definedObj -is [System.Collections.IList]) {
                     $definedList = $definedObj
@@ -81,7 +81,7 @@ function Confirm-ObjectValueEqualityDeep {
                     $definedList += $definedObj
                 }
             }
-            [array] $existingList = $()
+            [array] $existingList = @()
             if ($null -ne $existingObj) {
                 if ($existingObj -is [System.Collections.IList]) {
                     $existingList = $existingObj
