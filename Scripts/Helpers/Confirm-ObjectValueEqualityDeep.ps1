@@ -58,7 +58,7 @@ function Confirm-ObjectValueEqualityDeep {
             }
             foreach ($key in $existingHashtable.Keys) {
                 if ($definedHashtable.ContainsKey($key)) {
-                    if (!(Confirm-ObjectValueEqualityDeep -existingObj $existingHt.$key -definedObj $definedHt.$key)) {
+                    if (!(Confirm-ObjectValueEqualityDeep -existingObj $existingHashtable.$key -definedObj $definedHashtable.$key)) {
                         return $false
                     }
                 }
