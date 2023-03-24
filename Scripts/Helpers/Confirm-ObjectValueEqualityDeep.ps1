@@ -53,7 +53,7 @@ function Confirm-ObjectValueEqualityDeep {
             }
         }
         if ($isHashtable) {
-            if ($definedHashtable.Count -ne $existingHashtable.Count) {
+            if ($definedHashtable.psbase.Count -ne $existingHashtable.psbase.Count) {
                 return $false
             }
             foreach ($key in $existingHashtable.Keys) {
