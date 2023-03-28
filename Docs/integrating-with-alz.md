@@ -98,7 +98,7 @@ To deploy the ALZ policies using EPAC follow the steps below.
 
 4. Synchronise the policies from the upstream repository. You should ensure that you are running the latest version of the EPAC module before running this script each time. 
 ```
-Sync-CAFPolicies -DefinitionsRootFolder .\Definitions
+Sync-CAFPolicies -DefinitionsRootFolder .\Definitions -CloudEnvironment AzureCloud # Also accepts AzureUSGovernment or AzureChinaCloud
 ```
 
 5. Update the assignments scopes
@@ -156,7 +156,7 @@ The Azure Landing Zone deployment contains a number of policies which help provi
 
 To pull the latest changes from the upstream repository - use the code below.
 ```
-Sync-CAFPolicies
+Sync-CAFPolicies -DefinitionsRootFolder .\Definitions -CloudEnvironment AzureCloud # Also accepts AzureUSGovernment or AzureChinaCloud
 ```
 Carefully review the proposed changes before deploying them. It is best to make sure you're project is stored in source control so you can easily see which files have changed before deployment. 
 
