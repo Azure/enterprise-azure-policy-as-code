@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Convert-OrdinalToEffectDisplayName {
     param (
         [string] $ordinal

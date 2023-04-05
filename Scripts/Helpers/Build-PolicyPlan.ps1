@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Build-PolicyPlan {
     [CmdletBinding()]
     param (
@@ -109,7 +107,7 @@ function Build-PolicyPlan {
             parameters  = $parameters
             policyRule  = $policyRule
         }
-        Remove-EmptyFields -definition $definition
+        Remove-NullOrEmptyFields $definition
         $allDefinitions.policydefinitions[$id] = $definition
 
 
@@ -134,8 +132,8 @@ function Build-PolicyPlan {
                 -existingParametersObj $deployedDefinition.parameters `
                 -definedParametersObj $parameters
             $policyRuleMatches = Confirm-ObjectValueEqualityDeep `
-                -existingObj $deployedDefinition.policyRule `
-                -definedObj $policyRule
+                $deployedDefinition.policyRule `
+                $policyRule
 
             # Update Policy in Azure if necessary
             if ($displayNameMatches -and $descriptionMatches -and $modeMatches -and $metadataMatches -and !$changePacOwnerId -and $versionMatches -and $parametersMatch -and $policyRuleMatches) {
@@ -177,7 +175,6 @@ function Build-PolicyPlan {
                 if ($incompatible) {
                     # check if parameters are compatible with an update. Otherwise the Policy will need to be deleted (and any PolicySets and Assignments referencing the Policy)
                     Write-Information "Replace ($changesString) '$($displayName)'"
-                    Remove-EmptyFields $definition
                     $null = $definitions.replace.Add($id, $definition)
                     $null = $replaceDefinitions.Add($id, $definition)
                 }
@@ -188,7 +185,6 @@ function Build-PolicyPlan {
             }
         }
         else {
-            Remove-EmptyFields $definition
             $null = $definitions.new.Add($id, $definition)
             $definitions.numberOfChanges++
             Write-Information "New '$($displayName)'"

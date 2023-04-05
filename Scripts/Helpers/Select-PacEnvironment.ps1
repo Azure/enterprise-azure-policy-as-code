@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Select-PacEnvironment {
     [CmdletBinding()]
     param (

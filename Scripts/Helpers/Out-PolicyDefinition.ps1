@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Out-PolicyDefinition {
     [CmdletBinding()]
     param (
@@ -7,7 +5,6 @@ function Out-PolicyDefinition {
         $folder,
         [hashtable] $policyPropertiesByName,
         $invalidChars,
-        $typeString,
         $id,
         $fileExtension
     )
@@ -42,18 +39,21 @@ function Out-PolicyDefinition {
     # Detect duplicates
 
     if ($policyPropertiesByName.ContainsKey($name)) {
-        $exactDuplicate = Confirm-ObjectValueEqualityDeep -existingObj $policyPropertiesByName.$name -definedObj $properties
-        if ($exactDuplicate) {
-            # Write-Warning "'$displayName' - '$id' is an exact duplicate" -WarningAction Continue
-            # Quietly ignore
-            $null = $properties
-        }
-        else {
-            $guid = (New-Guid)
-            $fullPath = "$folder/Duplicates/$($guid.Guid).$fileExtension"
-            Write-Warning "'$displayName' - '$id' is a duplicate with different properties; writing to file $fullPath" -WarningAction Continue
-            $definition | Add-Member -MemberType NoteProperty -Name 'id' -Value $id
-        }
+        $duplicateProperties = $policyPropertiesByName.$name
+        # quietly ignore
+        #
+        # $exactDuplicate = Confirm-ObjectValueEqualityDeep $duplicateProperties $properties
+        # if ($exactDuplicate) {
+        #     # Write-Warning "'$displayName' - '$id' is an exact duplicate" -WarningAction Continue
+        #     # Quietly ignore
+        #     $null = $properties
+        # }
+        # else {
+        #     $guid = (New-Guid)
+        #     $fullPath = "$folder/Duplicates/$($guid.Guid).$fileExtension"
+        #     Write-Warning "'$displayName' - '$id' is a duplicate with different properties; writing to file $fullPath" -WarningAction Continue
+        #     $definition | Add-Member -MemberType NoteProperty -Name 'id' -Value $id
+        # }
     }
     else {
         # Unique name
@@ -62,6 +62,7 @@ function Out-PolicyDefinition {
     }
 
     # Write the content
+    Remove-NullOrEmptyFields $definition
     $json = ConvertTo-Json $definition -Depth 100
     $null = New-Item $fullPath -Force -ItemType File -Value $json
 }

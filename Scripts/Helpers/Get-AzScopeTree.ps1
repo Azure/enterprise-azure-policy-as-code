@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Get-AzScopeTree {
 
     param(
@@ -8,8 +6,9 @@ function Get-AzScopeTree {
 
     $deploymentRootScope = $pacEnvironment.deploymentRootScope
     $tenantId = $pacEnvironment.tenantId
+    Write-Information ""
     Write-Information "==================================================================================================="
-    Write-Information "Get scope tree information for $($deploymentRootScope -replace '/providers/Microsoft.Management','')"
+    Write-Information "Get scope tree for EPAC environment '$($pacEnvironment.pacSelector)' at root scope $($deploymentRootScope -replace '/providers/Microsoft.Management','')"
     Write-Information "==================================================================================================="
     $prefBackup = $WarningPreference
     $WarningPreference = 'SilentlyContinue'
@@ -174,7 +173,6 @@ function Get-AzScopeTree {
         }
     }
     Write-Information "    Resource groups   = $($numberOfResourceGroups)"
-    Write-Information ""
 
     return $scopeTable
 }

@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Write-AssignmentDetails {
     [CmdletBinding()]
     param (
@@ -95,6 +93,7 @@ function Build-AssignmentPlan {
             Write-Error "Assignment JSON file '$($assignmentFile.FullName)' is not valid." -ErrorAction Stop
         }
         $assignmentObject = $Json | ConvertFrom-Json -AsHashtable
+        Remove-NullOrEmptyFields $assignmentObject
 
         # Collect all assignment definitions (values)
         $rootAssignmentDefinition = @{
@@ -135,6 +134,7 @@ function Build-AssignmentPlan {
         $isUserAssignedAny = $false
         foreach ($assignment in $assignmentsList) {
 
+            Remove-NullOrEmptyFields $assignment
             $id = $assignment.id
             $allAssignments[$id] = $assignment
             $displayName = $assignment.displayName
@@ -159,8 +159,8 @@ function Build-AssignmentPlan {
                 $displayNameMatches = $displayName -eq $deployedPolicyAssignmentProperties.displayName
                 $descriptionMatches = $description -eq $deployedPolicyAssignmentProperties.description
                 $notScopesMatch = Confirm-ObjectValueEqualityDeep `
-                    -existingObj $deployedPolicyAssignmentProperties.notScopes `
-                    -definedObj $notScopes
+                    $deployedPolicyAssignmentProperties.notScopes `
+                    $notScopes
                 $parametersMatch = Confirm-AssignmentParametersMatch `
                     -existingParametersObj $deployedPolicyAssignmentProperties.parameters `
                     -definedParametersObj $parameters
@@ -169,14 +169,14 @@ function Build-AssignmentPlan {
                     -definedMetadataObj $metadata
                 $enforcementModeMatches = $enforcementMode -eq $deployedPolicyAssignmentProperties.EnforcementMode
                 $nonComplianceMessagesMatches = Confirm-ObjectValueEqualityDeep `
-                    -existingObj $deployedPolicyAssignmentProperties.nonComplianceMessages `
-                    -definedObj $nonComplianceMessages
+                    $deployedPolicyAssignmentProperties.nonComplianceMessages `
+                    $nonComplianceMessages
                 $overridesMatch = Confirm-ObjectValueEqualityDeep `
-                    -existingObj $deployedPolicyAssignmentProperties.overrides `
-                    -definedObj $overrides
+                    $deployedPolicyAssignmentProperties.overrides `
+                    $overrides
                 $resourceSelectorsMatch = Confirm-ObjectValueEqualityDeep `
-                    -existingObj $deployedPolicyAssignmentProperties.resourceSelectors `
-                    -definedObj $resourceSelectors
+                    $deployedPolicyAssignmentProperties.resourceSelectors `
+                    $resourceSelectors
 
                 $identityStatus = Build-AssignmentIdentityChanges `
                     -existing $deployedPolicyAssignment `
@@ -253,7 +253,6 @@ function Build-AssignmentPlan {
                     }
 
                     $changesString = $changesStrings -join ","
-                    Remove-EmptyFields $assignment
                     if ($identityStatus.replaced) {
                         # Assignment must be deleted and recreated (new)
                         $null = $assignments.replace.Add($id, $assignment)
@@ -268,7 +267,6 @@ function Build-AssignmentPlan {
             }
             else {
                 # New Assignment
-                # Remove-EmptyFields $assignment
                 $null = $assignments.new.Add($id, $assignment)
                 $assignments.numberOfChanges++
                 $identityStatus = Build-AssignmentIdentityChanges `
@@ -289,7 +287,7 @@ function Build-AssignmentPlan {
     }
 
     $strategy = $pacEnvironment.desiredState.strategy
-    if ($deleteCandidates.Count -gt 0) {
+    if ($deleteCandidates.psbase.Count -gt 0) {
         Write-Information ""
         Write-Information "Cleanup removed Policy resources (delete)"
         foreach ($id in $deleteCandidates.Keys) {

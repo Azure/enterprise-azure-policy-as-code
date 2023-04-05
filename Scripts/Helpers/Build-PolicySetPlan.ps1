@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Build-PolicySetPlan {
     [CmdletBinding()]
     param (
@@ -40,7 +38,7 @@ function Build-PolicySetPlan {
                 }
             }
         }
-        if ($roleIds.Count -gt 0) {
+        if ($roleIds.psbase.Count -gt 0) {
             $null = $policyRoleIds.Add($id, $roleIds.Keys)
         }
     }
@@ -107,7 +105,7 @@ function Build-PolicySetPlan {
             -allDefinitions $allDefinitions.policydefinitions `
             -policyRoleIds $policyRoleIds
         $policyDefinitions = $policyDefinitionsFinal.ToArray()
-        if ($policyRoleIdsInSet.Count -gt 0) {
+        if ($policyRoleIdsInSet.psbase.Count -gt 0) {
             $null = $policyRoleIds.Add($id, $policyRoleIdsInSet.Keys)
         }
 
@@ -135,7 +133,7 @@ function Build-PolicySetPlan {
 
             # Trying to import missing policyDefinitionGroups entries
             foreach ($importPolicyDefinitionGroup in $importPolicyDefinitionGroups) {
-                if ($usedPolicyGroupDefinitions.Count -eq 0 -or $limitReachedPolicyDefinitionGroups) {
+                if ($usedPolicyGroupDefinitions.psbase.Count -eq 0 -or $limitReachedPolicyDefinitionGroups) {
                     break
                 }
                 $importPolicySetId = $importPolicyDefinitionGroup
@@ -154,16 +152,16 @@ function Build-PolicySetPlan {
                         if ($usedPolicyGroupDefinitions.ContainsKey($groupName)) {
                             $usedPolicyGroupDefinitions.Remove($groupName)
                             $policyDefinitionGroupsHashTable.Add($groupName, $importedPolicyDefinitionGroup)
-                            if ($policyDefinitionGroupsHashTable.Count -ge 1000) {
+                            if ($policyDefinitionGroupsHashTable.psbase.Count -ge 1000) {
                                 $limitReachedPolicyDefinitionGroups = $true
-                                if ($usedPolicyGroupDefinitions.Count -gt 0) {
+                                if ($usedPolicyGroupDefinitions.psbase.Count -gt 0) {
                                     Write-Warning "$($displayName): Too many PolicyDefinitionGroups (1000+) - ignore remaining imports."
                                 }
                                 break
                             }
                         }
                     }
-                    # Write-Information "$($displayName): Imported $($policyDefinitionGroupsHashTable.Count) PolicyDefinitionGroups from '$($importedPolicySetDefinition.displayName)'."
+                    # Write-Information "$($displayName): Imported $($policyDefinitionGroupsHashTable.psbase.psbase.Count) PolicyDefinitionGroups from '$($importedPolicySetDefinition.displayName)'."
                 }
                 else {
                     Write-Error "$($displayName): Policy Set $($importedPolicySet.displayName) does not contain PolicyDefinitionGroups to import." -ErrorAction Stop
@@ -192,7 +190,7 @@ function Build-PolicySetPlan {
             policyDefinitions      = $policyDefinitionsFinal
             policyDefinitionGroups = $policyDefinitionGroupsFinal
         }
-        Remove-EmptyFields -definition $definition
+        Remove-NullOrEmptyFields $definition
         $allDefinitions.policysetdefinitions[$id] = $definition
 
         if ($managedDefinitions.ContainsKey($id)) {
@@ -214,12 +212,12 @@ function Build-PolicySetPlan {
             $parametersMatch, $incompatible = Confirm-ParametersMatch `
                 -existingParametersObj $deployedDefinition.parameters `
                 -definedParametersObj $parameters
-            $policyDefinitionsMatch = Confirm-ObjectValueEqualityDeep `
-                -existingObj $deployedDefinition.policyDefinitions `
-                -definedObj $policyDefinitionsFinal
+            $policyDefinitionsMatch = Confirm-PolicyDefinitionsMatch `
+                $deployedDefinition.policyDefinitions `
+                $policyDefinitionsFinal
             $policyDefinitionGroupsMatch = Confirm-ObjectValueEqualityDeep `
-                -existingObj $deployedDefinition.policyDefinitionGroups `
-                -definedObj $policyDefinitionGroupsFinal
+                $deployedDefinition.policyDefinitionGroups `
+                $policyDefinitionGroupsFinal
             $deletedPolicyDefinitionGroups = !$policyDefinitionGroupsMatch -and ($null -eq $policyDefinitionGroupsFinal -or $policyDefinitionGroupsFinal.Length -eq 0)
 
             # Update Policy Set in Azure if necessary
@@ -263,7 +261,7 @@ function Build-PolicySetPlan {
                     $changesStrings += "param"
                 }
                 if (!$policyDefinitionsMatch) {
-                    $changesStrings += "policyDef"
+                    $changesStrings += "policies"
                 }
                 if (!$policyDefinitionGroupsMatch) {
                     if ($deletedPolicyDefinitionGroups) {
@@ -278,7 +276,6 @@ function Build-PolicySetPlan {
                 if ($incompatible -or $containsReplacedPolicy) {
                     # Check if parameters are compatible with an update or id the set includes at least one Policy which is being replaced.
                     Write-Information "Replace ($changesString) '$($displayName)'"
-                    Remove-EmptyFields $definition
                     $null = $definitions.replace.Add($id, $definition)
                     $null = $replaceDefinitions.Add($id, $definition)
                 }
@@ -290,7 +287,6 @@ function Build-PolicySetPlan {
         }
         else {
             Write-Information "New '$($displayName)'"
-            Remove-EmptyFields $definition
             $null = $definitions.new.Add($id, $definition)
             $definitions.numberOfChanges++
 

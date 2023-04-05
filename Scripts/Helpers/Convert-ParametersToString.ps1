@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 
 function Convert-ParametersToString {
     param (
@@ -9,7 +7,7 @@ function Convert-ParametersToString {
 
     [string] $text = ""
     [hashtable] $csvParametersHt = @{}
-    if ($parameters.Count -gt 0) {
+    if ($parameters.psbase.Count -gt 0) {
         foreach ($parameterName in $parameters.Keys) {
             $parameter = $parameters.$parameterName
             $multiUse = $parameter.multiUse
@@ -81,7 +79,7 @@ function Convert-ParametersToString {
                 }
             }
         }
-        if (($outputType -eq "csvValues" -or $outputType -eq "csvDefinitions") -and $csvParametersHt.Count -gt 0) {
+        if (($outputType -eq "csvValues" -or $outputType -eq "csvDefinitions") -and $csvParametersHt.psbase.Count -gt 0) {
             $text = ConvertTo-Json $csvParametersHt -Depth 100 -Compress
         }
     }

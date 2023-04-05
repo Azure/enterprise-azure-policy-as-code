@@ -19,11 +19,12 @@ Definitions
 
 ## CSV Format
 
-We recommend that you use spreadsheets (`.csv`). TThe columns must have the following headers:
+We recommend that you use spreadsheets (`.csv`). The columns must have the following headers:
 
 * `name` - unique name.
 * `displayName` - descriptive name displayed on portal.
 * `exemptionCategory` - `waiver` or `mitigated`.
+* `expiresOn` - empty or expiry date.
 * `scope` - Management Group, subscription, Resource Group or resource.
 * `assignmentId` - fully qualified assignment id.
 * `policyDefinitionReferenceIds` use comma separated list within each cell.

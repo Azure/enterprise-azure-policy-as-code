@@ -174,10 +174,10 @@ if ($null -ne $pacEnvironment.policyDefinitionsFolder) {
     }
     else {
         Write-Information "    $($policyDefinitions.numberOfChanges) changes:"
-        Write-Information "        new     = $($policyDefinitions.new.Count)"
-        Write-Information "        update  = $($policyDefinitions.update.Count)"
-        Write-Information "        replace = $($policyDefinitions.replace.Count)"
-        Write-Information "        delete  = $($policyDefinitions.delete.Count)"
+        Write-Information "        new     = $($policyDefinitions.new.psbase.Count)"
+        Write-Information "        update  = $($policyDefinitions.update.psbase.Count)"
+        Write-Information "        replace = $($policyDefinitions.replace.psbase.Count)"
+        Write-Information "        delete  = $($policyDefinitions.delete.psbase.Count)"
     }
 }
 else {
@@ -192,10 +192,10 @@ if ($null -ne $pacEnvironment.policySetDefinitionsFolder) {
     }
     else {
         Write-Information "    $($policySetDefinitions.numberOfChanges) changes:"
-        Write-Information "        new     = $($policySetDefinitions.new.Count)"
-        Write-Information "        update  = $($policySetDefinitions.update.Count)"
-        Write-Information "        replace = $($policySetDefinitions.replace.Count)"
-        Write-Information "        delete  = $($policySetDefinitions.delete.Count)"
+        Write-Information "        new     = $($policySetDefinitions.new.psbase.Count)"
+        Write-Information "        update  = $($policySetDefinitions.update.psbase.Count)"
+        Write-Information "        replace = $($policySetDefinitions.replace.psbase.Count)"
+        Write-Information "        delete  = $($policySetDefinitions.delete.psbase.Count)"
     }
 }
 else {
@@ -210,10 +210,10 @@ if ($null -ne $pacEnvironment.policyAssignmentsFolder) {
     }
     else {
         Write-Information "    $($assignments.numberOfChanges) changes:"
-        Write-Information "        new     = $($assignments.new.Count)"
-        Write-Information "        update  = $($assignments.update.Count)"
-        Write-Information "        replace = $($assignments.replace.Count)"
-        Write-Information "        delete  = $($assignments.delete.Count)"
+        Write-Information "        new     = $($assignments.new.psbase.Count)"
+        Write-Information "        update  = $($assignments.update.psbase.Count)"
+        Write-Information "        replace = $($assignments.replace.psbase.Count)"
+        Write-Information "        delete  = $($assignments.delete.psbase.Count)"
     }
 }
 else {
@@ -228,10 +228,10 @@ if ($exemptionsAreManaged) {
     }
     else {
         Write-Information "    $($exemptions.numberOfChanges) changes:"
-        Write-Information "        new     = $($exemptions.new.Count)"
-        Write-Information "        update  = $($exemptions.update.Count)"
-        Write-Information "        replace = $($exemptions.replace.Count)"
-        Write-Information "        delete  = $($exemptions.delete.Count)"
+        Write-Information "        new     = $($exemptions.new.psbase.Count)"
+        Write-Information "        update  = $($exemptions.update.psbase.Count)"
+        Write-Information "        replace = $($exemptions.replace.psbase.Count)"
+        Write-Information "        delete  = $($exemptions.delete.psbase.Count)"
         Write-Information "        orphans = $($exemptions.numberOfOrphans)"
     }
 }
@@ -246,8 +246,8 @@ if ($null -ne $pacEnvironment.policyAssignmentsFolder) {
     }
     else {
         Write-Information "    $($roleAssignments.numberOfChanges) changes:"
-        Write-Information "        add     = $($roleAssignments.added.Count)"
-        Write-Information "        remove  = $($roleAssignments.removed.Count)"
+        Write-Information "        add     = $($roleAssignments.added.psbase.Count)"
+        Write-Information "        remove  = $($roleAssignments.removed.psbase.Count)"
     }
 }
 

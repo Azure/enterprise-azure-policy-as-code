@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Search-AzGraphAllItems {
     param (
         [string] $query,

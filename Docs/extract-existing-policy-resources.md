@@ -1,46 +1,78 @@
 # Extract existing Policy Resources from an Environment
 
-!!! note
-    This is a preview version which [may produce strange assignment files](#preview-caveats) in rare circumstances. If you see such a problem, please [raise a GitHub issue](https://github.com/Azure/enterprise-azure-policy-as-code/issues/new).
-
-Extracts existing Policies, Policy Sets, and Policy Assignments and outputs them in EPAC format into subfolders in folder (`$outputFolders/Definitions`). The subfolders are `policyDefinitions`, `policySetDefinitions`, and `policyAssignments`. In a new EPAC instance these subfolders can be directly copied to the `Definitions` folder enabling an initial transition from a pre-EPAC to EPAC environment.
-
-!!! warning
-    The script deletes the `$outputFolders/Definitions` folder before creating a new set of files. In interactive mode it will ask for confirmation before deleting the directory.
-
-|Parameter | Required | Explanation |
-|----------|----------|-------------|
-| `PacEnvironmentSelector` | Optional | Defines which Policy as Code (PAC) environment we are using; if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc`. |
-| `definitionsRootFolder` | Optional | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It contains `global-settings.jsonc`.
-| `outputFolder` | Optional | Output Folder. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER` or `./Outputs`.
-| `interactive` | Optional | Script is being run interactively and can request az login. It will also prompt for each file to process or skip. Defaults to $true. |
-| `includeChildScopes` | Optional | Switch parameter to include Policies and Policy Sets in child scopes; child scopes are normally ignored for definitions. This does not impact Policy Assignments. |
-| `fileExtension` | Optional | Controls the output files extension. Default is `jsonc` but `json` is also accepted |
+Script `Export-AzPolicyResources.ps1` (Operations) extracts existing Policies, Policy Sets, and Policy Assignments and Exemptions outputing them in EPAC format into subfolders in folder `$outputFolders/Definitions`. The subfolders are `policyDefinitions`, `policySetDefinitions`, `policyAssignments` and `policyExemptions`. In a new EPAC instance these subfolders can be directly copied to the `Definitions` folder enabling an initial transition from a pre-EPAC to EPAC environment.
 
 The scripts creates a `Definitions` folder in the `outputFolder` and subfolders for `policyDefinitions`, `policySetDefinitions` and `policyAssignments`. To use the generated files copy them to your `Definitions` folder.
 
 * `policyDefinitions`, `policySetDefinitions` have a subfolder based on `metadata.category`. If the definition has no `category` `metadata` they are put in a subfolder labeled `Unknown Category`. Duplicates when including child scopes are sorted into the `Duplicates` folder. Creates one file per Policy and Policy Set.
-* `policyAssignments` have a subfolder `policy` for assignments of a single Policy, or a subfolder `policySet` for assignment of a Policy Set. Creates one file per unique assigned Policy or Policy Set spanning multiple Assignments.
+* `policyAssignments` creates one file per unique assigned Policy or Policy Set spanning multiple Assignments.
+* `policyExemptions` creates one subfolder per EPAC environment
 
-## Preview Caveats
+The script works for two principal use cases indicated by three modes:
+
+## Use case 1: Interactive or non-interactive single tenant
+
+`-mode 'export'` is used to collect the Policy resources and generate the definitions file. This works for `-interactive $true` (the default) to extract Policy resources in single tenant or multi-tenant scenario, prompting the user to logon to each new tenant in turn.
+
+It also works for a single tenant scenario for an automated collection, assuming that the Service Principal has read permissions for every EPAC Environment in `global-settings.jsonc`.
+
+```ps1
+Export-AzPolicyResources
+```
+
+The parameter `-inputPacSelector` can be used to only extract Policy resources for one of the EPAC environments.
+
+!!! warning
+    The script deletes the `$outputFolders/Definitions` folder before creating a new set of files. In interactive mode it will ask for confirmation before deleting the directory.
+
+## Use case 2: Non-interactive multi-tenant
+
+While this pattern can be used for interactive users too, it is most often used for multi-tenant non-interactive usage since an SPN is bound to a tenant and the script cannot prompt for new credentials.
+
+The solution is a multi-step process:
+
+Collect the raw information for very EPAC environment after logging into each EPAC environment (tenant):
+
+```ps1
+Connect-AzAccount -Environment $cloud -Tenant $tenantIdForDev
+Export-AzPolicyResources -interactive $false -mode collectRawFile -inputPacSelector 'epac-dev'
+
+Connect-AzAccount -Environment $cloud -Tenant $tenantId1
+Export-AzPolicyResources -interactive $false -mode collectRawFile -inputPacSelector 'tenant1'
+
+Connect-AzAccount -Environment $cloud -Tenant $tenantId2
+Export-AzPolicyResources -interactive $false -mode collectRawFile -inputPacSelector 'tenant2'
+```
+
+Next, the collected raw files are used to generate the same output:
+
+```ps1
+Export-AzPolicyResources -interactive $false -mode exportFromRawFiles
+```
+
+!!! warning
+    This last script deletes the `$outputFolders/Definitions` folder before creating a new set of files.
+
+## Caveats
 
 The extractions are subject to the following assumptions and caveats:
 
-* Names of Policies and Policy Sets are unique across multiple scopes (switch `includeChildScopes` is used)
-* Assignment names are the same if the parameters match across multiple assignments across scopes for the same `policyDefinitionId` to enable optimization of the JSON.
-* Ignores Assignments auto-assigned by Security Center (Defender for Cloud) at subscription level.
-* Does not collate across multiple tenants.
-* Does not calculate any `additionalRoleAssignments`.
-* Only optimizes the tree structure from the three levels in the following order:
-  * `policyDefinition` (name or id)
-  * `parameters` per parameter set for the `policyDefinition`
-  * Assignment name, **scopes**, and other attributes
-* In some cases, ordering scope would yield a more compact tree structure:
-  * `policyDefinition` (name or id)
-  * Assignment name, **scopes**, and other attributes
-  * `parameters` per parameter set for the `policyDefinition`
-* Doesn't (yet) collate multiple assignments in support of CSV files for parameters. Use `Build-PolicyDocumentation.ps1` to generate CSV files and edit the corresponding assignments to reference the CSV file
-* Doesn't generate Exemptions; use `Get-AzExemptions.ps1` instead.
+* Assumes Policies and Policy Sets with the same name define the same properties independent of scope and EPAC environment.
+* Ignores Assignments auto-assigned by Defender for Cloud. This behavior can be overridden with the switch parameter `-includeAutoAssigned`.
+
+## Script parameters
+
+|Parameter | Explanation |
+|----------|-------------|
+| `definitionsRootFolder` | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It contains `global-settings.jsonc`.
+| `outputFolder` | Output Folder. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER` or `./Outputs`.
+| `interactive` | Script is being run interactively and can request az login. It will also prompt for each file to process or skip. Defaults to $true. |
+| `includeChildScopes` | Switch parameter to include Policies and Policy Sets in child scopes; child scopes are normally ignored for definitions. This does not impact Policy Assignments. |
+| `includeAutoAssigned` | Switch parameter to include Assignments auto-assigned by Defender for Cloud. |
+| `exemptionFiles` | Create Exemption files (none=suppress, csv=as a csv file, json=as a json or jsonc file). Defaults to 'csv'. |
+| `fileExtension` | Controls the output files extension. Default is `jsonc` but `json` is also accepted |
+| `mode` | a) `export` exports EPAC environments, must be used with -interactive in a multi-tenant scenario<br/> b) `collectRawFile` exports the raw data only; used with `inputPacSelector` when running non-interactive in a multi-tenant scenario to collect the raw data once per tenant <br/> c) `exportFromRawFiles` reads the files generated with one or more runs of b) and outputs the files like the normal 'export' without re-reading the environment. |
+| `inputPacSelector` | Limits the collection to one EPAC environment, useful for non-interactive use in a multi-tenant scenario, especially with -mode 'collectRawFile'. Default is `'*'` which will execute all EPAC environments. This can be used in other scenarios.|
 
 ## Reading List
 

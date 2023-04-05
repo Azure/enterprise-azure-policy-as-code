@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Split-AzPolicyResourceId {
     [CmdletBinding()]
     param (

@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Convert-PolicySetsToFlatList {
     [CmdletBinding()]
     param (
@@ -30,7 +28,7 @@ function Convert-PolicySetsToFlatList {
 
         $detail = $details.$itemId
         $policiesWithMultipleReferenceIdsInThisPolicySet = $detail.policiesWithMultipleReferenceIds
-        if ($policiesWithMultipleReferenceIdsInThisPolicySet.Count -gt 0) {
+        if ($policiesWithMultipleReferenceIdsInThisPolicySet.psbase.Count -gt 0) {
             foreach ($policyId in $policiesWithMultipleReferenceIdsInThisPolicySet.Keys) {
                 if (-not $policiesWithMultipleReferenceIds.ContainsKey($policyId)) {
                     $null = $policiesWithMultipleReferenceIds.Add($policyId, $policyId)

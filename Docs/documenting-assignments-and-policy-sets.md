@@ -140,6 +140,7 @@ Each entry in the array defines a set of outputs:
 ### Output files
 
 * `<fileNameStem>-full.csv`: Lists Policies across environments and multiple Policy Sets sorted by `category` and ``displayName`.
+  
   | Column | Description |
   | :----- | :---------- |
   | `name` | Policy name (must be unique - a GUID for built-in Policies)

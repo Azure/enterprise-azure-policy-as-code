@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Out-PolicySetsDocumentationToFile {
     [CmdletBinding()]
     param (
@@ -65,7 +63,7 @@ function Out-PolicySetsDocumentationToFile {
 
                 [array] $groupNames = $perPolicySet.groupNames
                 $parameters = $perPolicySet.parameters
-                if ($parameters.Count -gt 0 -or $groupNames.Count -gt 0) {
+                if ($parameters.psbase.Count -gt 0 -or $groupNames.Count -gt 0) {
                     $addedRows += "<br/>*$($perPolicySet.displayName):*"
                     $text = Convert-ParametersToString -parameters $parameters -outputType "markdown"
                     $addedRows += $text
@@ -125,7 +123,9 @@ function Out-PolicySetsDocumentationToFile {
     $flatPolicyList.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
         # Initialize row - with empty strings
         $rowObj = [ordered]@{}
-        foreach ($key in $columnHeaders) { $null = $rowObj.Add($key, "") }
+        foreach ($key in $columnHeaders) {
+            $null = $rowObj.Add($key, "")
+        }
 
         # Cache loop values
         $effectAllowedValues = $_.effectAllowedValues

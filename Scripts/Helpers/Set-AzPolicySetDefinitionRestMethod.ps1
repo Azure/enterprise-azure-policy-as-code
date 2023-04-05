@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Set-AzPolicySetDefinitionRestMethod {
     [CmdletBinding()]
     param (
@@ -20,7 +18,7 @@ function Set-AzPolicySetDefinitionRestMethod {
         policyDefinitions      = $definitionObj.policyDefinitions
         policyDefinitionGroups = $definitionObj.policyDefinitionGroups
     }
-    Remove-EmptyFields -definition $properties
+    Remove-NullOrEmptyFields $properties
     $definition = @{
         properties = $properties
     }

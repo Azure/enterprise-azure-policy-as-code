@@ -1,11 +1,9 @@
-#Requires -PSEdition Core
-
 function Get-PolicyResourceProperties {
     [CmdletBinding()]
     param (
         $policyResource
     )
-    
+
     if ($policyResource.properties) {
         return $policyResource.properties
     }

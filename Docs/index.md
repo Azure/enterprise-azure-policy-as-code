@@ -66,7 +66,7 @@ This `enterprise-policy-as-code` **(EPAC)** repo has been developed in partnersh
 >
 > * Defining the association (`pacEnvironments`) of an EPAC environment, `managedIdentityLocation` and `globalNotScopes` in `global-settings.jsonc`
 > * Script parameter when executing different deployment stages in a CI/CD pipeline or semi-automated deployment targeting a specific EPAC environments.
-> * `scopes` and `notScopes` definitions in Policy Assignment JSON files.
+> * `managedIdentityLocation`, `additionalRoleAssignments`, `userAssignedIdentity`,`scopes`, and `notScopes` definitions in Policy Assignment JSON files.
 
 ## Approach Flexibility
 
@@ -101,16 +101,14 @@ EPAC is a desired state system. It will remove Policy resources in an environmen
 * **Centralized**: One centralized team manages all Policy resources in the Azure organization, at all levels (Management Group, Subscription, Resource Group). This is the default setup.
 * **Distributed**: Multiple teams manage Policy resources in a distributed manner. Distributed is also useful during a brownfield deployment scenario to allow for an orderly transition from pre-EPAC to EPAC.
 
-Desired state strategy documentation can be found [here.](desired-state-strategy.md)
+Desired state strategy documentation can be found [here.](desired-state-strategy.md). The short version:
 
+* `full` deletes any Policies, Policy Sets, Assignments, and Exemptions not deployed by this EPAC solution or another EPAC solution.*
+* `ownedOnly` deletes only Policies with this repos’s pacOwnerId. This allows for a gradual transition from your existing Policy management to Enterprise Policy as Code.*
+* Policy resources with another `pacOwnerId` `metadata` field are never deleted.
 
 !!! warning
     If you have a existing Policies, Policy Sets, Assignments, and Exemptions in your environment, you have not transferred to EPAC, do not forget to *include* the new `desiredState` element with a `strategy` of `ownedOnly`. This is the equivalent of the deprecated "brownfield" variable in the pipeline. The default `strategy` is `full`.
-
-    * *`full` deletes any Policies, Policy Sets, Assignments, and Exemptions not deployed by this EPAC solution or another EPAC solution.*
-    * *`ownedOnly` deletes only Policies with this repos’s pacOwnerId. This allows for a gradual transition from your existing Policy management to Enterprise Policy as Code.*
-
-    Policy resources with another pacOwnerId metadata field are never deleted.
 
 ## Reading List
 

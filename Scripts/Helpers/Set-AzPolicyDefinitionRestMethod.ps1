@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Set-AzPolicyDefinitionRestMethod {
     [CmdletBinding()]
     param (
@@ -8,7 +6,7 @@ function Set-AzPolicyDefinitionRestMethod {
 
     # Write log info
     $displayName = $definitionObj.displayName
-    Write-Information "  $displayName"
+    # Write-Information "  $displayName"
 
     # Build the REST API body
     $properties = @{
@@ -20,7 +18,7 @@ function Set-AzPolicyDefinitionRestMethod {
         parameters  = $definitionObj.parameters
         policyRule  = $definitionObj.policyRule
     }
-    Remove-EmptyFields -definition $properties
+    Remove-NullOrEmptyFields $properties
     $definition = @{
         properties = $properties
     }

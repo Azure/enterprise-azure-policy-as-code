@@ -1,10 +1,9 @@
-#Requires -PSEdition Core
-
 function Get-DefinitionsFullPath {
     [CmdletBinding()]
     param (
         $folder,
-        $rawSubFolder,
+        $rawSubFolder = $null,
+        $fileSuffix = "",
         $name,
         $displayName,
         $invalidChars,
@@ -13,14 +12,17 @@ function Get-DefinitionsFullPath {
         $fileExtension
     )
 
-    $subFolder = Get-ScrubbedString -string $rawSubFolder -invalidChars $invalidChars -maxLength $maxLengthSubFolder -trimEnds -singleReplace
-    if ($subFolder.Length -eq 0) {
-        $subFolder = "Unknown"
+    $subFolder = "Unknown"
+    if ($null -ne $rawSubFolder) {
+        $sub = Get-ScrubbedString -string $rawSubFolder -invalidChars $invalidChars -maxLength $maxLengthSubFolder -trimEnds -singleReplace
+        if ($sub.Length -gt 0) {
+            $subFolder = $sub
+        }
     }
 
     $ObjectGuid = [System.Guid]::empty
     $isGuid = [System.Guid]::TryParse($name, [System.Management.Automation.PSReference]$ObjectGuid)
-    $fileName = Get-ScrubbedString -string $name -invalidChars $invalidChars -replaceWith "" -replaceSpaces -replaceSpacesWith "-" -maxLength $maxLengthFileName -trimEnds -toLower -singleReplace
+    $fileName = $name
     if ($isGuid) {
         # try to avoid GUID file names
         $fileNameTemp = $displayName
@@ -29,7 +31,16 @@ function Get-DefinitionsFullPath {
             $fileName = $fileNameTemp
         }
     }
-    $fullPath = "$folder/$subFolder/$($fileName).$fileExtension"
+    else {
+        $fileName = Get-ScrubbedString -string $name -invalidChars $invalidChars -replaceWith "" -replaceSpaces -replaceSpacesWith "-" -maxLength $maxLengthFileName -trimEnds -toLower -singleReplace
+    }
+
+    $fullPath = if ($null -ne $rawSubFolder) {
+        "$folder/$subFolder/$($fileName)$($fileSuffix).$fileExtension"
+    }
+    else {
+        "$folder/$($fileName)$($fileSuffix).$fileExtension"
+    }
 
     return $fullPath
 }

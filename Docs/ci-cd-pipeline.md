@@ -91,7 +91,7 @@ EPAC uses `Get-AzRoleAssignment` to retrieve role assignments. Microsoft has rec
 * GET /directoryObjects/{id}
 * POST /directoryObjects/getByIds
 
-You must assign these MS Graph `Application permissions` corresponding to the above APIs:-
+You must assign these MS Graph `Application permissions` corresponding to the above APIs:
 
 * User.Read.All
 * ServicePrincipalEndpoint.Read.All
@@ -164,11 +164,11 @@ While this script intended to be used, they can be run manually to create a semi
 
 ### Common Script Parameters
 
-|Parameter | Required | Explanation |
-|----------|----------|-------------|
-| `pacEnvironmentSelector` | Optional | Selects the EPAC environment for this plan. If omitted, interactively prompts for the value. |
-| `definitionsRootFolder` | Optional | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It must contain file `global-settings.jsonc`. |
-| `interactive` | Optional | Defaults to `$false`. |
+|Parameter | Explanation |
+|----------|-------------|
+| `pacEnvironmentSelector` | Selects the EPAC environment for this plan. If omitted, interactively prompts for the value. |
+| `definitionsRootFolder` | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It must contain file `global-settings.jsonc`. |
+| `interactive` | Defaults to `$false`. |
 
 ### Build-DeploymentPlans.ps1
 
@@ -176,26 +176,26 @@ Analyzes changes in Policy definition, Policy Set definition, and Policy Assignm
 
 In addition to the [common parameters](#common-script-parameters), these parameters are defined:
 
-|Parameter | Required | Explanation |
-|----------|----------|-------------|
-| `outputFolder` | Optional | Output folder path for plan files. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER` or `./Output`. |
-| `devOpsType` | Optional | If set, outputs variables consumable by conditions in a DevOps pipeline. Default: not set. |
+|Parameter | Explanation |
+|----------|-------------|
+| `outputFolder` | Output folder path for plan files. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER` or `./Output`. |
+| `devOpsType` | If set, outputs variables consumable by conditions in a DevOps pipeline. Default: not set. |
 
 ### Deploy-PolicyPlan.ps1
 
 Deploys Policies, Policy Sets, Policy Assignments, and Policy Exemptions at their desired scope based on the plan.
 
-|Parameter | Required | Explanation |
-|----------|----------|-------------|
-| `inputFolder` | Optional | Input folder path for plan files. Defaults to environment variable `$env:PAC_INPUT_FOLDER`, `$env:PAC_OUTPUT_FOLDER` or `./Output`. |
+|Parameter | Explanation |
+|----------|-------------|
+| `inputFolder` | Input folder path for plan files. Defaults to environment variable `$env:PAC_INPUT_FOLDER`, `$env:PAC_OUTPUT_FOLDER` or `./Output`. |
 
 ### Deploy-RolesPlan.ps1
 
 Creates the role assignments for the Managed Identities required for `DeployIfNotExists` and `Modify` Policies.
 
-|Parameter | Required | Explanation |
-|----------|----------|-------------|
-| `inputFolder` | Optional | Input folder path for plan files. Defaults to environment variable `$env:PAC_INPUT_FOLDER`, `$env:PAC_OUTPUT_FOLDER` or `./Output`. |
+|Parameter | Explanation |
+|----------|-------------|
+| `inputFolder` | Input folder path for plan files. Defaults to environment variable `$env:PAC_INPUT_FOLDER`, `$env:PAC_OUTPUT_FOLDER` or `./Output`. |
 
 ## Consuming Excel Files
 

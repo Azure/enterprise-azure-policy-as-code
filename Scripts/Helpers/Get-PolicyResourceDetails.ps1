@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Get-PolicyResourceDetails {
     [CmdletBinding()]
     param (
@@ -17,7 +15,7 @@ function Get-PolicyResourceDetails {
         $scopeTable = Get-AzScopeTree -pacEnvironment $pacEnvironment
         $deployed = Get-AzPolicyResources `
             -pacEnvironment $pacEnvironment `
-            -scopeTable  $scopeTable `
+            -scopeTable $scopeTable `
             -skipRoleAssignments `
             -skipExemptions
 

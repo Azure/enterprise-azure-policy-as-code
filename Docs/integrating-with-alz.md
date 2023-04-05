@@ -17,6 +17,9 @@ There are two scenarios for integrating EPAC with ALZ.
 
 ## Scenario 1 - Existing Deployment
 
+!!! warning
+    This feature is currently unsupported while an update to the extraction process is made. ETA is April 2023. This warning will be removed when the feature is available again.
+
 With an existing Azure Landing Zone deployment you can use EPAC's extract scripts to extract the existing policies and assignments. 
 
 1. Install the EnterprisePolicyAsCode module from the PowerShell gallery and import it.
@@ -41,7 +44,7 @@ With an existing Azure Landing Zone deployment you can use EPAC's extract script
 6. At this point you can run the build script and generate a plan to validate what is going to be changed in the existing environment.
 
     ```
-    Build-DeploymentPlans
+    Build-DeploymentPlans -DefinitionsRootFolder Definitions -OutputFolder Output
     ```
     In a newly deployed CAF environment with no other policies the results of the plan should be similar to below - EPAC will update each policy definition, set definition and assignment with a [PacOwnerId](definitions-and-global-settings.md#global-settings)
 
@@ -150,7 +153,7 @@ Sync-CAFPolicies -DefinitionsRootFolder .\Definitions -CloudEnvironment AzureClo
 
 7. Follow the normal steps to deploy the solution to the environment.
 
-## Keeping up to date with changes
+## Keeping up to date with changes manually
 
 The Azure Landing Zone deployment contains a number of policies which help provide guardrails to an environment, and the team which works on these policies is always providing updates to the original content to keep in line with Microsoft best practice and roadmap. The EPAC solution contains a function to help synchronise changes from the upstream project
 
@@ -165,6 +168,22 @@ Carefully review the proposed changes before deploying them. It is best to make 
 
 !!! note
     Assignments deployed via the ALZ accelerators are kept in sync with the EnterprisePolicyAsCode module so ensure you have the latest PowerShell module installed before running ```Sync-CAFPolicies```
+
+## Keeping up to date with GitHub Actions
+
+There is a GitHub action workflow which executes the above script. The process for configuring it is below. 
+
+1. Copy the ```alz-sync.yaml``` file from [here](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/StarterKit/Pipelines/GitHubActions/.github/workflows/azl-sync.yaml) to ```.github\workflows\alz-sync.yaml``` in your repository. 
+2. Update the ```env:``` section with details below
+
+| Environment Variable Name | Value | Notes |
+|---|---|---|
+| REVIEWER | Add a GitHub user to review the PR |
+| definitionsRootFolder | The folder containing ```global-settings.jsonc``` and definitions |
+
+3. Run the workflow - new policies will be synced from the source.
+4. Before merging the PR - checkout the branch and confirm that changes. Note that the sync script will overwrite the default assignments so ensure you compare for new functionality before reverting. 
+5. When changes are confirmed - merge the PR. 
 
 ## Reading List
 

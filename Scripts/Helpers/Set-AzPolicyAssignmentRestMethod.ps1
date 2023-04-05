@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Set-AzPolicyAssignmentRestMethod {
     [CmdletBinding()]
     param (
@@ -39,7 +37,7 @@ function Set-AzPolicyAssignmentRestMethod {
     if ($assignmentObj.identityRequired) {
         $assignment.location = $assignmentObj.managedIdentityLocation
     }
-    if ($parameters.Count -gt 0) {
+    if ($parameters.psbase.Count -gt 0) {
         $assignment.properties.parameters = $parameters
     }
     if ($assignmentObj.nonComplianceMessages) {

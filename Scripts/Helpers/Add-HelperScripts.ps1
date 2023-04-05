@@ -17,11 +17,13 @@
 . "$PSScriptRoot/../Helpers/Confirm-ActiveAzExemptions.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-AssignmentParametersMatch.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-MetadataMatches.ps1"
+. "$PSScriptRoot/../Helpers/Confirm-NullOrEmptyValue.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-PacOwner.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-DeleteForStrategy.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-ObjectValueEqualityDeep.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-ParametersMatch.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-PolicyDefinitionUsedExists.ps1"
+. "$PSScriptRoot/../Helpers/Confirm-PolicyDefinitionsMatch.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-PolicyDefinitionsUsedMatch.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-PolicySetDefinitionUsedExists.ps1"
 
@@ -32,6 +34,7 @@
 . "$PSScriptRoot/../Helpers/Convert-ParametersToString.ps1"
 . "$PSScriptRoot/../Helpers/Convert-PolicySetsToDetails.ps1"
 . "$PSScriptRoot/../Helpers/Convert-PolicySetsToFlatList.ps1"
+. "$PSScriptRoot/../Helpers/ConvertTo-ArrayList.ps1"
 . "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
 
 . "$PSScriptRoot/../Helpers/Get-AssignmentsDetails.ps1"
@@ -44,6 +47,7 @@
 . "$PSScriptRoot/../Helpers/Get-FilteredHashTable.ps1"
 . "$PSScriptRoot/../Helpers/Get-GlobalSettings.ps1"
 . "$PSScriptRoot/../Helpers/Get-HashtableShallowClone"
+. "$PSScriptRoot/../Helpers/Get-HashtableWithPropertyNamesRemoved.ps1"
 . "$PSScriptRoot/../Helpers/Get-PacFolders.ps1"
 . "$PSScriptRoot/../Helpers/Get-ParameterNameFromValueString.ps1"
 . "$PSScriptRoot/../Helpers/Get-PolicyResourceDetails.ps1"
@@ -52,12 +56,19 @@
 . "$PSScriptRoot/../Helpers/Get-SelectedPacValue.ps1"
 
 . "$PSScriptRoot/../Helpers/Merge-AssignmentParametersEx.ps1"
+. "$PSScriptRoot/../Helpers/Merge-ExportNodeAncestors.ps1"
+. "$PSScriptRoot/../Helpers/Merge-ExportNodeChild.ps1"
 
+. "$PSScriptRoot/../Helpers/New-ExportNode.ps1"
+
+. "$PSScriptRoot/../Helpers/Out-PolicyAssignmentFile.ps1"
 . "$PSScriptRoot/../Helpers/Out-PolicyAssignmentDocumentationToFile.ps1"
 . "$PSScriptRoot/../Helpers/Out-PolicyDefinition.ps1"
+. "$PSScriptRoot/../Helpers/Out-PolicyExemptions.ps1"
 . "$PSScriptRoot/../Helpers/Out-PolicySetsDocumentationToFile.ps1"
 
-. "$PSScriptRoot/../Helpers/Remove-EmptyFields.ps1"
+. "$PSScriptRoot/../Helpers/Remove-NullOrEmptyFields.ps1"
+. "$PSScriptRoot/../Helpers/Remove-GlobalNotScopes.ps1"
 
 . "$PSScriptRoot/../Helpers/Search-AzGraphAllItems.ps1"
 
@@ -67,6 +78,10 @@
 . "$PSScriptRoot/../Helpers/Set-AzPolicyAssignmentRestMethod.ps1"
 . "$PSScriptRoot/../Helpers/Set-AzPolicyDefinitionRestMethod.ps1"
 . "$PSScriptRoot/../Helpers/Set-AzPolicySetDefinitionRestMethod.ps1"
+
+. "$PSScriptRoot/../Helpers/Set-AssignmentNode.ps1"
+. "$PSScriptRoot/../Helpers/Set-ExportNode.ps1"
+. "$PSScriptRoot/../Helpers/Set-ExportNodeAncestors.ps1"
 
 . "$PSScriptRoot/../Helpers/Split-AzPolicyResourceId.ps1"
 . "$PSScriptRoot/../Helpers/Split-ScopeId.ps1"

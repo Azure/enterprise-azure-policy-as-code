@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Set-UniqueRoleAssignmentScopes {
     [CmdletBinding()]
     param (
@@ -23,7 +21,9 @@ function Set-UniqueRoleAssignmentScopes {
             "resources"
             break
         }
-        Default { "unknown" }
+        Default {
+            "unknown"
+        }
     }
     $table = $uniqueRoleAssignmentScopes.$scopeType
     $table[$scopeId] = $scopeType
@@ -98,8 +98,9 @@ function Get-AzPolicyResources {
 
     $deploymentRootScope = $pacEnvironment.deploymentRootScope
     $tenantId = $pacEnvironment.tenantId
+    Write-Information ""
     Write-Information "==================================================================================================="
-    Write-Information "Get Policy Resources for $($deploymentRootScope -replace '/providers/Microsoft.Management','')"
+    Write-Information "Get Policy Resources for EPAC environment '$($pacEnvironment.pacSelector)' at root scope $($deploymentRootScope -replace '/providers/Microsoft.Management','')"
     Write-Information "==================================================================================================="
     $prefBackup = $WarningPreference
     $WarningPreference = 'SilentlyContinue'
@@ -239,6 +240,7 @@ function Get-AzPolicyResources {
                     $scope = $resourceIdParts.scope
                     $policyResource.resourceIdParts = $resourceIdParts
                     $policyResource.pacOwner = Confirm-PacOwner -thisPacOwnerId $thisPacOwnerId -metadata $policyResource.properties.metadata -managedByCounters $policyAssignmentsTable.counters.managedBy
+                    Remove-NullOrEmptyFields $policyResource -nullOnly
                     $null = $policyAssignmentsTable.all.Add($id, $policyResource)
                     $null = $policyAssignmentsTable.managed.Add($id, $policyResource)
                     if ($policyResource.identity -and $policyResource.identity.type -ne "None") {
@@ -287,6 +289,7 @@ function Get-AzPolicyResources {
                             switch ($i) {
                                 0 {
                                     # deploymentRootScope
+                                    Remove-NullOrEmptyFields $policyResource
                                     $null = $deployedPolicyTable.all.Add($id, $policyResource)
                                     $null = $deployedPolicyTable.managed.Add($id, $policyResource)
                                     $null = $deployedPolicyTable.custom.Add($id, $policyResource)
@@ -336,7 +339,7 @@ function Get-AzPolicyResources {
             Write-Information "Policy Set counts:"
         }
         if ($collectAllPolicies) {
-            Write-Information "    Custom (all)   = $($deployedPolicyTable.all.Count)"
+            Write-Information "    Custom (all)   = $($deployedPolicyTable.all.psbase.Count)"
             Write-Information "    Managed ($($managedByAny)) by:"
             Write-Information "        This PaC   = $($managedBy.thisPaC)"
             Write-Information "        Other PaC  = $($managedBy.otherPaC)"
@@ -363,7 +366,7 @@ function Get-AzPolicyResources {
     Write-Information "        This PaC    = $($managedBy.thisPaC)"
     Write-Information "        Other PaC   = $($managedBy.otherPaC)"
     Write-Information "        Unknown     = $($managedBy.unknown)"
-    Write-Information "    With identity   = $($assignmentsWithIdentity.Count)"
+    Write-Information "    With identity   = $($assignmentsWithIdentity.psbase.Count)"
     Write-Information "    Excluded scopes = $($counters.excludedScopes)"
     Write-Information "    Excluded        = $($counters.excluded)"
     Write-Information "    Not our scopes  = $($counters.unMangedScope)"
@@ -521,22 +524,25 @@ function Get-AzPolicyResources {
             $scopeInformation = $scopeTable.$scopeId
             if ($scopeInformation.type -eq "microsoft.resources/subscriptions") {
                 Get-AzPolicyExemption -Scope $scopeId -IncludeDescendent | Sort-Object Properties.PolicyAssignmentId, ResourceId |  ForEach-Object {
-                    $properties = $_.Properties
-                    $id = $_.ResourceId
+                    $exemption = Get-DeepClone $_
+                    $id = $exemption.ResourceId
                     if (!$exemptionsProcessed.ContainsKey($id)) {
                         # Filter out duplicates in parent Management Groups
-                        $null = $exemptionsProcessed.Add($id, $_)
+
+                        Remove-NullOrEmptyFields $exemption
+                        $null = $exemptionsProcessed.Add($id, $exemption)
 
                         # normalize values to az cli representation
+                        $properties = $exemption.Properties
                         $description = $properties.Description
                         $displayName = $properties.DisplayName
                         $exemptionCategory = $properties.ExemptionCategory
                         $expiresOn = $properties.ExpiresOn
                         $metadata = $properties.Metadata
-                        $name = $_.Name
+                        $name = $exemption.Name
                         $policyAssignmentId = $properties.PolicyAssignmentId
                         $policyDefinitionReferenceIds = $properties.PolicyDefinitionReferenceIds
-                        $resourceGroup = $_.ResourceGroupName
+                        $resourceGroup = $exemption.ResourceGroupName
 
                         # Find scope
                         $resourceIdParts = Split-AzPolicyResourceId -id $id
@@ -602,7 +608,6 @@ function Get-AzPolicyResources {
                                 }
                             }
                             $null = $exemptionsTable.excluded.Add($id, $exemption)
-                            $null = $exemptionsTable.all.Add($id, $exemption)
                         }
                         else {
                             $included, $resourceIdParts = Confirm-PolicyResourceExclusions `
@@ -633,7 +638,7 @@ function Get-AzPolicyResources {
         Write-Information "        This PaC    = $($managedBy.thisPaC)"
         Write-Information "        Other PaC   = $($managedBy.otherPaC)"
         Write-Information "        Unknown     = $($managedBy.unknown)"
-        Write-Information "    Orphaned   = $($exemptionsTable.orphaned.Count)"
+        Write-Information "    Orphaned   = $($exemptionsTable.orphaned.psbase.Count)"
     }
 
     return $deployed

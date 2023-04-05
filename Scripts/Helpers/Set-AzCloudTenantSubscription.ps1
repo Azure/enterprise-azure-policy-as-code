@@ -11,13 +11,12 @@ function Set-AzCloudTenantSubscription {
         Write-Information "Installing Az.ResourceGraph module"
         Install-Module Az.ResourceGraph -Force -Repository PSGallery
     }
-    Write-Information "PowerShell Versions: $($PSVersionTable.PSVersion)"
 
     $account = Get-AzContext
     if ($null -eq $account -or $account.Environment.Name -ne $cloud -or $account.Tenant.TenantId -ne $tenantId) {
         # Wrong tenant - login to tenant
         if ($interactive) {
-            $null = Connect-AzAccount -Environment $cloud -Tenant $tenantId # -SubscriptionId $subscriptionId
+            $null = Connect-AzAccount -Environment $cloud -Tenant $tenantId
         }
         else {
             # Cannot interactively login - error

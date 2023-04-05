@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Out-PolicyAssignmentDocumentationToFile {
     [CmdletBinding()]
     param (
@@ -212,7 +210,7 @@ function Out-PolicyAssignmentDocumentationToFile {
 
                 # $parameters = $environmentCategoryValues.parameters
                 # $hasParameters = $false
-                # if ($null -ne $parameters -and $parameters.Count -gt 0) {
+                # if ($null -ne $parameters -and $parameters.psbase.Count -gt 0) {
                 #     foreach ($parameterName in $parameters.Keys) {
                 #         $parameter = $parameters.$parameterName
                 #         if (-not $parameter.isEffect) {
@@ -285,7 +283,9 @@ function Out-PolicyAssignmentDocumentationToFile {
     $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
         # Initialize row - with empty strings
         $rowObj = [ordered]@{}
-        foreach ($key in $columnHeaders) { $null = $rowObj.Add($key, "") }
+        foreach ($key in $columnHeaders) {
+            $null = $rowObj.Add($key, "")
+        }
 
         # Cache loop values
         $effectAllowedValues = $_.effectAllowedValues

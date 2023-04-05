@@ -1,8 +1,8 @@
 function Confirm-ActiveAzExemptions {
     [CmdletBinding()]
     param (
-        [hashtable] $exemptions,
-        [hashtable] $assignments
+        $exemptions,
+        $assignments
     )
 
     # Process Exemptions

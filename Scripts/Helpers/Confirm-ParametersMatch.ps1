@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Confirm-ParametersMatch {
     [CmdletBinding()]
     param(
@@ -20,7 +18,7 @@ function Confirm-ParametersMatch {
             $defined = $definedParameters.$existingParameterName
 
             # Analyze parameter defaultValue
-            $thisMatch = Confirm-ObjectValueEqualityDeep -existingObj $existing.defaultValue -definedObj $defined.defaultValue
+            $thisMatch = Confirm-ObjectValueEqualityDeep $existing.defaultValue $defined.defaultValue
             if (!$thisMatch) {
                 $match = $false
                 if ($null -eq $defined.defaultValue) {
@@ -30,7 +28,7 @@ function Confirm-ParametersMatch {
             }
 
             # Analyze parameter allowedValues
-            $thisMatch = Confirm-ObjectValueEqualityDeep -existingObj $existing.allowedValues -definedObj $defined.allowedValues
+            $thisMatch = Confirm-ObjectValueEqualityDeep $existing.allowedValues $defined.allowedValues
             if (!$thisMatch) {
                 $match = $false
                 if ($null -eq $defined.defaultValue) {
@@ -48,7 +46,7 @@ function Confirm-ParametersMatch {
 
             $existingMetadata = $existing.metadata
             $definedMetadata = $defined.metadata
-            $thisMatch = Confirm-ObjectValueEqualityDeep -existingObj $existingMetadata -definedObj $definedMetadata
+            $thisMatch = Confirm-ObjectValueEqualityDeep $existingMetadata $definedMetadata
             if (!$thisMatch) {
                 $match = $false
                 if ($existingMetadata.strongType -ne $definedMetadata.strongType) {
@@ -64,7 +62,7 @@ function Confirm-ParametersMatch {
             break
         }
     }
-    if ((-not $incompatible) -and ($addedParameters.Count -gt 0)) {
+    if ((-not $incompatible) -and ($addedParameters.psbase.Count -gt 0)) {
         $match = $false
         # If no defaultValue, added parameter makes it incompatible requiring a delete followed by a new.
         foreach ($addedParameterName in $addedParameters.Keys) {

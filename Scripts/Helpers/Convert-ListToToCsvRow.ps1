@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Convert-ListToToCsvRow {
     param (
         [System.Collections.IEnumerable] $list

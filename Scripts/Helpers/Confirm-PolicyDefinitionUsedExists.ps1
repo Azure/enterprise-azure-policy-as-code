@@ -1,6 +1,4 @@
 
-#Requires -PSEdition Core
-
 function Confirm-PolicyDefinitionUsedExists {
     [CmdletBinding()]
     param(

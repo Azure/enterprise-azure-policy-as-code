@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 [CmdletBinding()]
 param (
     [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.")]

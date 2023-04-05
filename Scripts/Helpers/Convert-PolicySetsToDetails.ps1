@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Convert-PolicySetsToDetails {
     [CmdletBinding()]
     param (
@@ -8,7 +6,7 @@ function Convert-PolicySetsToDetails {
     )
 
     $policyDetails = @{}
-    Write-Information "Calculating effect parameters for $($allPolicyDefinitions.Count) Policies."
+    Write-Information "Calculating effect parameters for $($allPolicyDefinitions.psbase.Count) Policies."
     foreach ($policyId in $allPolicyDefinitions.Keys) {
         $policy = $allPolicyDefinitions.$policyId
         $properties = Get-PolicyResourceProperties -policyResource $policy
@@ -142,7 +140,7 @@ function Convert-PolicySetsToDetails {
         $null = $policyDetails.Add($policyId, $policyDetail)
     }
 
-    Write-Information "Calculating effect parameters for $($allPolicySetDefinitions.Count) Policy Sets."
+    Write-Information "Calculating effect parameters for $($allPolicySetDefinitions.psbase.Count) Policy Sets."
     $policySetDetails = @{}
     foreach ($policySetId in $allPolicySetDefinitions.Keys) {
         $policySet = $allPolicySetDefinitions.$policySetId

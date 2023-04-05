@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Build-AssignmentDefinitionEntry {
     [CmdletBinding()]
     param(

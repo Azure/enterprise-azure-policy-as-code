@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Build-PolicySetPolicyDefinitionIds {
     [CmdletBinding()]
     param(
@@ -70,14 +68,16 @@ function Build-PolicySetPolicyDefinitionIds {
                 }
 
                 # Create the modified groupDefinition
-                $modifiedPolicyDefinition = ConvertTo-HashTable $policyDefinition
-                if ($modifiedPolicyDefinition.ContainsKey("policyDefinitionName")) {
-                    $modifiedPolicyDefinition.Remove("policyDefinitionName")
-                    $modifiedPolicyDefinition.Add("policyDefinitionId", $policyId)
+                $modifiedPolicyDefinition = @{
+                    policyDefinitionReferenceId = $policyDefinitionReferenceId
+                    policyDefinitionId          = $policyId
+                    # definitionVersion           = $policyDefinition.definitionVersion
                 }
-                # TODO: remove
-                if ($modifiedPolicyDefinition.ContainsKey("definitionVersion")) {
-                    $modifiedPolicyDefinition.Remove("definitionVersion")
+                if ($null -ne $policyDefinition.parameters) {
+                    $modifiedPolicyDefinition.Add("parameters", $policyDefinition.parameters)
+                }
+                if ($null -ne $policyDefinition.groupNames) {
+                    $modifiedPolicyDefinition.Add("groupNames", $policyDefinition.groupNames)
                 }
                 $null = $policyDefinitionsFinal.Add($modifiedPolicyDefinition)
             }

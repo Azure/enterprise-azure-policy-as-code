@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Get-ParameterNameFromValueString {
     [CmdletBinding()]
     param (

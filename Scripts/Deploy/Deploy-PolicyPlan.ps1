@@ -1,11 +1,5 @@
 #Requires -PSEdition Core
 
-<#
-.SYNOPSIS
-    This script deploys the component as defined in the plan JSON:
-
-#>
-
 [CmdletBinding()]
 param (
     [parameter(
@@ -59,10 +53,10 @@ else {
     #region delete exemptions, assignment, definitions
 
     $exemptions = ConvertTo-HashTable $plan.exemptions.delete
-    if ($exemptions.Count -gt 0) {
+    if ($exemptions.psbase.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Delete orphaned, deleted, and expired Exemptions ($($exemptions.Count))"
+        Write-Information "Delete orphaned, deleted, and expired Exemptions ($($exemptions.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $exemptions.Keys) {
             $exemption = $exemptions[$id]
@@ -72,10 +66,10 @@ else {
     }
 
     $exemptions = ConvertTo-HashTable $plan.exemptions.replace
-    if ($exemptions.Count -gt 0) {
+    if ($exemptions.psbase.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Delete replaced Exemptions ($($exemptions.Count))"
+        Write-Information "Delete replaced Exemptions ($($exemptions.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $exemptions.Keys) {
             $exemption = $exemptions[$id]
@@ -85,10 +79,10 @@ else {
     }
 
     $assignments = ConvertTo-HashTable $plan.assignments.delete
-    if ($assignments.Count -gt 0) {
+    if ($assignments.psbase.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Delete removed Assignments ($($assignments.Count))"
+        Write-Information "Delete removed Assignments ($($assignments.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $assignments.Keys) {
             $assignment = $assignments[$id]
@@ -98,10 +92,10 @@ else {
     }
 
     $assignments = $replaceAssignments
-    if ($assignments.Count -gt 0) {
+    if ($assignments.psbase.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Delete replaced Assignments ($($assignments.Count))"
+        Write-Information "Delete replaced Assignments ($($assignments.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $assignments.Keys) {
             $assignment = $assignments[$id]
@@ -111,10 +105,10 @@ else {
     }
 
     $policySetDefinitions = ConvertTo-HashTable $plan.policySetDefinitions.delete
-    if ($policySetDefinitions.Count -gt 0) {
+    if ($policySetDefinitions.psbase.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Delete removed Policy Sets ($($policySetDefinitions.Count))"
+        Write-Information "Delete removed Policy Sets ($($policySetDefinitions.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policySetDefinitions.Keys) {
             $policySetDefinition = $policySetDefinitions[$id]
@@ -124,10 +118,10 @@ else {
     }
 
     $policySetDefinitions = ConvertTo-HashTable $plan.policySetDefinitions.replace
-    if ($policySetDefinitions.Count -gt 0) {
+    if ($policySetDefinitions.psbase.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Delete replaced Policy Sets ($($policySetDefinitions.Count))"
+        Write-Information "Delete replaced Policy Sets ($($policySetDefinitions.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policySetDefinitions.Keys) {
             $policySetDefinition = $policySetDefinitions[$id]
@@ -137,10 +131,10 @@ else {
     }
 
     $policyDefinitions = ConvertTo-HashTable $plan.policyDefinitions.replace
-    if ($policyDefinitions.Count -gt 0) {
+    if ($policyDefinitions.psbase.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Delete replaced Policies ($($policyDefinitions.Count))"
+        Write-Information "Delete replaced Policies ($($policyDefinitions.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policyDefinitions.Keys) {
             $policyDefinition = $policyDefinitions[$id]
@@ -154,83 +148,83 @@ else {
     #region create and update definitions
 
     $policyDefinitions = ConvertTo-HashTable $plan.policyDefinitions.new
-    if ($policyDefinitions.Count -gt 0) {
+    if ($policyDefinitions.psbase.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Create new Policies ($($policyDefinitions.Count))"
+        Write-Information "Create new Policies ($($policyDefinitions.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policyDefinitions.Keys) {
             $definitionObj = $policyDefinitions[$id]
-            Set-AzPolicyDefinitionRestMethod -definition $definitionObj
+            $null = Set-AzPolicyDefinitionRestMethod -definition $definitionObj
         }
     }
 
     $policyDefinitions = ConvertTo-HashTable $plan.policyDefinitions.replace
-    if ($policyDefinitions.Count -gt 0) {
+    if ($policyDefinitions.psbase.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Recreate replaced Policies ($($policyDefinitions.Count))"
+        Write-Information "Recreate replaced Policies ($($policyDefinitions.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policyDefinitions.Keys) {
             $definitionObj = $policyDefinitions[$id]
-            Set-AzPolicyDefinitionRestMethod -definition $definitionObj
+            $null = Set-AzPolicyDefinitionRestMethod -definition $definitionObj
         }
     }
 
     $policyDefinitions = ConvertTo-HashTable $plan.policyDefinitions.update
-    if ($policyDefinitions.Count -gt 0) {
+    if ($policyDefinitions.psbase.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Update Policies ($($policyDefinitions.Count))"
+        Write-Information "Update Policies ($($policyDefinitions.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policyDefinitions.Keys) {
             $definitionObj = $policyDefinitions[$id]
-            Set-AzPolicyDefinitionRestMethod -definition $definitionObj
+            $null = Set-AzPolicyDefinitionRestMethod -definition $definitionObj
         }
     }
 
     $policySetDefinitions = ConvertTo-HashTable $plan.policySetDefinitions.new
-    if ($policySetDefinitions.Count -gt 0) {
+    if ($policySetDefinitions.psbase.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Create new Policy Sets ($($policySetDefinitions.Count))"
+        Write-Information "Create new Policy Sets ($($policySetDefinitions.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policySetDefinitions.Keys) {
             $definitionObj = $policySetDefinitions[$id]
-            Set-AzPolicySetDefinitionRestMethod -definition $definitionObj
+            $null = Set-AzPolicySetDefinitionRestMethod -definition $definitionObj
         }
     }
 
     $policySetDefinitions = ConvertTo-HashTable $plan.policySetDefinitions.replace
-    if ($policySetDefinitions.Count -gt 0) {
+    if ($policySetDefinitions.psbase.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Recreate replaced Policy Sets  ($($policySetDefinitions.Count))"
+        Write-Information "Recreate replaced Policy Sets  ($($policySetDefinitions.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policySetDefinitions.Keys) {
             $definitionObj = $policySetDefinitions[$id]
-            Set-AzPolicySetDefinitionRestMethod -definition $definitionObj
+            $null = Set-AzPolicySetDefinitionRestMethod -definition $definitionObj
         }
     }
 
     $policySetDefinitions = ConvertTo-HashTable $plan.policySetDefinitions.update
-    if ($policySetDefinitions.Count -gt 0) {
+    if ($policySetDefinitions.psbase.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Update Policy Sets ($($policySetDefinitions.Count))"
+        Write-Information "Update Policy Sets ($($policySetDefinitions.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policySetDefinitions.Keys) {
             $definitionObj = $policySetDefinitions[$id]
-            Set-AzPolicySetDefinitionRestMethod -definition $definitionObj
+            $null = Set-AzPolicySetDefinitionRestMethod -definition $definitionObj
         }
     }
 
     # Policy Sets are updated, can now delete the obsolete Policies
     $policyDefinitions = ConvertTo-HashTable $plan.policyDefinitions.delete
-    if ($policyDefinitions.Count -gt 0) {
+    if ($policyDefinitions.psbase.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Delete Policies ($($policyDefinitions.Count))"
+        Write-Information "Delete Policies ($($policyDefinitions.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
 
         foreach ($policyDefinitionName in $policyDefinitions.Keys) {
@@ -246,10 +240,10 @@ else {
 
     #region create and update assignments
 
-    if ($newAssignments.Count -gt 0) {
+    if ($newAssignments.psbase.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Create new Assignments ($($newAssignments.Count))"
+        Write-Information "Create new Assignments ($($newAssignments.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         $currentDisplayName = "-"
         $newAssignments.Values | Sort-Object -Property { $_.displayName } | ForEach-Object -Process {
@@ -257,10 +251,10 @@ else {
         }
     }
 
-    if ($replaceAssignments.Count -gt 0) {
+    if ($replaceAssignments.psbase.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Recreate replaced Assignments ($($replaceAssignments.Count))"
+        Write-Information "Recreate replaced Assignments ($($replaceAssignments.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         $currentDisplayName = "-"
         $replaceAssignments.Values | Sort-Object -Property { $_.displayName } | ForEach-Object -Process {
@@ -268,10 +262,10 @@ else {
         }
     }
 
-    if ($updateAssignments.Count -gt 0) {
+    if ($updateAssignments.psbase.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Update Assignments ($($updateAssignments.Count))"
+        Write-Information "Update Assignments ($($updateAssignments.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         $currentDisplayName = "-"
         $updateAssignments.Values | Sort-Object -Property { $_.displayName } | ForEach-Object -Process {
@@ -284,10 +278,10 @@ else {
     #region Exemptions
 
     $exemptions = ConvertTo-HashTable $plan.exemptions.new
-    if ($exemptions.Count -gt 0) {
+    if ($exemptions.psbase.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Create new Exemptions ($($exemptions.Count))"
+        Write-Information "Create new Exemptions ($($exemptions.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         $splatTransform = "name/Name scope/Scope displayName/DisplayName description/Description metadata/Metadata exemptionCategory/ExemptionCategory expiresOn/ExpiresOn policyDefinitionReferenceIds/PolicyDefinitionReferenceId"
         $assignmentsCache = @{}
@@ -311,10 +305,10 @@ else {
     }
 
     $exemptions = ConvertTo-HashTable $plan.exemptions.replace
-    if ($exemptions.Count -gt 0) {
+    if ($exemptions.psbase.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Create replaced Exemptions ($($exemptions.Count))"
+        Write-Information "Create replaced Exemptions ($($exemptions.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         $splatTransform = "name/Name scope/Scope displayName/DisplayName description/Description metadata/Metadata exemptionCategory/ExemptionCategory expiresOn/ExpiresOn policyDefinitionReferenceIds/PolicyDefinitionReferenceId"
         $assignmentsCache = @{}
@@ -338,10 +332,10 @@ else {
     }
 
     $exemptions = (ConvertTo-HashTable $plan.exemptions.update)
-    if ($exemptions.Count -gt 0) {
+    if ($exemptions.psbase.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Update Exemptions ($($exemptions.Count))"
+        Write-Information "Update Exemptions ($($exemptions.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($exemptionId in $exemptions.Keys) {
             $exemption = $exemptions[$exemptionId]

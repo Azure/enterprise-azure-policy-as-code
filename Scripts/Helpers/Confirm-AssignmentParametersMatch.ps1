@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Confirm-AssignmentParametersMatch {
     [CmdletBinding()]
     param(
@@ -24,7 +22,7 @@ function Confirm-AssignmentParametersMatch {
                 if ($compareTwoExistingParametersObj) {
                     $defined = $definedParameters.$definedParameterName.value
                 }
-                $match = Confirm-ObjectValueEqualityDeep -existingObj $existing -definedObj $defined
+                $match = Confirm-ObjectValueEqualityDeep $existing $defined
                 if (!$match) {
                     return $false
                 }
@@ -39,7 +37,7 @@ function Confirm-AssignmentParametersMatch {
     }
 
     # if condition instead of just returning the bool value is for easier debugging
-    if ( $addedParameters.Count -eq 0) {
+    if ( $addedParameters.psbase.Count -eq 0) {
         # full match
         return $true
     }

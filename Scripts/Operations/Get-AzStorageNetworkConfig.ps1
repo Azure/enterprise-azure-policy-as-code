@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 [CmdletBinding()]
 param(
     [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]

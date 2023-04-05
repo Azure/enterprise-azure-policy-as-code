@@ -94,6 +94,15 @@ By default, Policy Assignments at resource groups are not managed by EPAC. Prior
 }
 ```
 
+## Use case 7: Manage Policy Definitions, Assignments, or Exemptions differently
+
+In some organizations the lifecycle of different parts may be managed separately. For example, you may have one repo to manage Definitions and Assignments separately from Exemptions. Since the ownership of Exemptions is managed from the Assignment `pacOwnerId`, changing it is not effective.
+
+EPAC only manages items with a directory in the `Definitions` folder. Therefore, you can use the same `pacOwnerId` from  two repos and remove the folders to separate them. In this example:
+
+* Repo1: `Definitions` contains `policyDefinitions`, `policySetDefinitions` and `policyAssignments` folders.
+* Repo2: `Definitions` contains `policyExemptions` folder.
+
 ## Reading List
 
 * [Setup DevOps Environment](operating-environment.md) .

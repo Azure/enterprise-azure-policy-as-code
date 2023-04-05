@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Merge-AssignmentParametersEx {
     # Recursive Function
     param(
@@ -25,7 +23,7 @@ function Merge-AssignmentParametersEx {
             $parametersColumnCell = $row[$parametersColumn]
             if ($null -ne $parametersColumnCell -and $parametersColumnCell -ne "") {
                 $addedParameters = ConvertFrom-Json $parametersColumnCell -Depth 100 -AsHashtable
-                if ($null -ne $addedParameters -and $addedParameters.Count -gt 0) {
+                if ($null -ne $addedParameters -and $addedParameters.psbase.Count -gt 0) {
                     foreach ($parameterName in $addedParameters.Keys) {
                         $rawParameterValue = $addedParameters.$parameterName
                         $parameterValue = Get-DeepClone $rawParameterValue -AsHashTable
@@ -91,22 +89,22 @@ function Merge-AssignmentParametersEx {
                         # Adjust desiredEffect
                         $modifiedEffect = switch ($desiredEffect) {
                             append {
-                                "audit" 
+                                "audit"
                             }
                             modify {
-                                "audit" 
+                                "audit"
                             }
                             deny {
-                                "audit" 
+                                "audit"
                             }
                             deployIfNotExists {
-                                "auditIfNotExists" 
+                                "auditIfNotExists"
                             }
                             manual {
-                                "manual" 
+                                "manual"
                             }
                             Default {
-                                $_ 
+                                $_
                             }
                         }
                         if ($setEffectAllowedValues -contains $modifiedEffect) {
@@ -135,28 +133,28 @@ function Merge-AssignmentParametersEx {
                 if ($wrongCase) {
                     $modifiedEffect = switch ($desiredEffect) {
                         append {
-                            "Append" 
+                            "Append"
                         }
                         audit {
-                            "Audit" 
+                            "Audit"
                         }
                         auditIfNotExists {
-                            "AuditIfNotExists" 
+                            "AuditIfNotExists"
                         }
                         deny {
-                            "Deny" 
+                            "Deny"
                         }
                         deployIfNotExists {
-                            "DeployIfNotExists" 
+                            "DeployIfNotExists"
                         }
                         disabled {
-                            "Disabled" 
+                            "Disabled"
                         }
                         manual {
-                            "Manual" 
+                            "Manual"
                         }
                         modify {
-                            "Modify" 
+                            "Modify"
                         }
                     }
                     if ($setEffectAllowedValues -ccontains $modifiedEffect -or $effectAllowedOverrides -ccontains $modifiedEffect) {
@@ -207,7 +205,7 @@ function Merge-AssignmentParametersEx {
 
     #region optimize overrides
 
-    $effectsCount = $overridesByEffect.Count
+    $effectsCount = $overridesByEffect.psbase.Count
     if ($effectsCount -gt 0) {
         $finalOverrides = [System.Collections.ArrayList]::new()
         foreach ($effectValue in $overridesByEffect.Keys) {

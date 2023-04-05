@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Build-ExemptionsPlan {
     [CmdletBinding()]
     param (
@@ -224,7 +222,7 @@ function Build-ExemptionsPlan {
                             $clearExpiration = $true
                         }
                     }
-                    $policyDefinitionReferenceIdsMatches = Confirm-ObjectValueEqualityDeep -existingObj $deployedManagedExemption.policyDefinitionReferenceIds -definedObj $policyDefinitionReferenceIds
+                    $policyDefinitionReferenceIdsMatches = Confirm-ObjectValueEqualityDeep $deployedManagedExemption.policyDefinitionReferenceIds $policyDefinitionReferenceIds
                     $metadataMatches = Confirm-MetadataMatches `
                         -existingMetadataObj $deployedManagedExemption.metadata `
                         -definedMetadataObj $metadata
@@ -278,7 +276,7 @@ function Build-ExemptionsPlan {
         }
     }
 
-    $exemptions.numberOfOrphans = $deployedExemptions.orphaned.Count
+    $exemptions.numberOfOrphans = $deployedExemptions.orphaned.psbase.Count
     foreach ($exemption in $deployedExemptions.orphaned.Values) {
         # delete all orphaned exemptions
         Write-Warning "Delete(orphaned) '$($exemption.name)', '$($exemption.scope)'"

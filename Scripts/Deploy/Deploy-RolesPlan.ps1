@@ -1,15 +1,5 @@
 #Requires -PSEdition Core
 
-<#
-.SYNOPSIS
-    This script deploys the component as defined in the plan JSON:
-
-.NOTES
-    This script is designed to be run in Azure DevOps pipelines.
-    Version:        1.0
-    Creation Date:  2021-08-03
-#>
-
 [CmdletBinding()]
 param (
     [parameter(HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.",
@@ -58,9 +48,9 @@ else {
 
     $removedRoleAssignments = $plan.roleAssignments.removed
     $addedRoleAssignments = $plan.roleAssignments.added
-    if ($removedRoleAssignments.Count -gt 0) {
+    if ($removedRoleAssignments.psbase.Count -gt 0) {
         Write-Information "==================================================================================================="
-        Write-Information "Remove ($($removedRoleAssignments.Count)) obsolete Role assignments"
+        Write-Information "Remove ($($removedRoleAssignments.psbase.Count)) obsolete Role assignments"
         Write-Information "---------------------------------------------------------------------------------------------------"
         $splatTransform = "principalId/ObjectId scope/Scope roleDefinitionId/RoleDefinitionId"
         foreach ($roleAssignment in $removedRoleAssignments) {
@@ -71,9 +61,9 @@ else {
         Write-Information ""
     }
 
-    if ($addedRoleAssignments.Count -gt 0) {
+    if ($addedRoleAssignments.psbase.Count -gt 0) {
         Write-Information "==================================================================================================="
-        Write-Information "Add ($($addedRoleAssignments.Count)) new Role assignments"
+        Write-Information "Add ($($addedRoleAssignments.psbase.Count)) new Role assignments"
         Write-Information "---------------------------------------------------------------------------------------------------"
         $retriesLimit = 4
         $splatTransform = "principalId/ObjectId objectType/ObjectType scope/Scope roleDefinitionId/RoleDefinitionId"

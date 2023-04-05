@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Confirm-MetadataMatches {
     [CmdletBinding()]
     param(
@@ -43,8 +41,8 @@ function Confirm-MetadataMatches {
             $null = $existingMetadata.Remove("pacOwnerId")
         }
     }
-    if ($existingMetadata.Count -eq $definedMetadata.Count) {
-        $match = Confirm-ObjectValueEqualityDeep -existingObj $existingMetadata -definedObj $definedMetadata
+    if ($existingMetadata.psbase.Count -eq $definedMetadata.psbase.Count) {
+        $match = Confirm-ObjectValueEqualityDeep $existingMetadata $definedMetadata
     }
 
     return $match, $changePacOwnerId

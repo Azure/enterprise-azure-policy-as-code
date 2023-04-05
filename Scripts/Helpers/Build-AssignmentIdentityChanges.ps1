@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Build-AssignmentIdentityChanges {
     [CmdletBinding()]
     param (

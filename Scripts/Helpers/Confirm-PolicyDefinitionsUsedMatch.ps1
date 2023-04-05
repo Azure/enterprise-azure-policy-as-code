@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Confirm-PolicyDefinitionsUsedMatch {
     [CmdletBinding()]
     param (
@@ -54,7 +52,7 @@ function Confirm-PolicyDefinitionsUsedMatch {
             $matching = $false
         }
     }
-    if ($matching -and ($matchingHt.Count -gt 0)) {
+    if ($matching -and ($matchingHt.psbase.Count -gt 0)) {
         # removed a Policy definition (removed policyDefinitionReferenceId)
         $matching = $false
     }

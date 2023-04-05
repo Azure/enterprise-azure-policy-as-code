@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function Build-AssignmentDefinitionAtLeaf {
     # Recursive Function
     param(
@@ -604,7 +602,7 @@ function Build-AssignmentDefinitionAtLeaf {
             -assignmentParameters $baseAssignment.parameters `
             -parametersInPolicyDefinition $parametersInPolicyDefinition
 
-        if ($parameterObject.Count -gt 0) {
+        if ($parameterObject.psbase.Count -gt 0) {
             $baseAssignment.parameters = $parameterObject
         }
         else {

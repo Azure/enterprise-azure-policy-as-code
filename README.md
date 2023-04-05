@@ -1,10 +1,10 @@
 # Enterprise Azure Policy as Code V6.0
 
 !!! warning
- **Breaking changes in V6.0**
- A reorganization of the source code and adding a substantial feature enhancement required breaking changes to the folder structure, scripts, pipeline and global-settings.jsonc file.
+ **Breaking changes in V6.0 and v7.0**
+ Substantial feature enhancements required breaking changes in v6.0 and to a lesser extend v7.0.
 
- [Breaking change details and instructions on upgrading from a previous version](Docs/breaking-changes-v6.0.md).
+ [Breaking change details and instructions on upgrading from a previous version](Docs/breaking-changes.md).
 
 !!! warning
  **Az PowerShell Module 9.2.x has a known issue (bug).** This bug causes multiple failures of EPAC and any other Policy as Code solution depending on Az Module. **Az PowerShell Module 9.3.0 fixed this issue.**
@@ -27,13 +27,13 @@ Enterprise Policy as Code or EPAC for short comprises a number of scripts which 
 
 ### Deployment Scripts
 
-Three deployment scripts plan a deployment, deploy Policy resources, and Role Assignments respectively as shown in the following diagram. The solution consumes definition files (JSON and/or CSV files). The planning script (`Build-DeploymentPlan`) creates plan files (`policy-plan.json` and `roles-plan.json`) to be consumed by the two deployment steps (`Deploy-PolicyPlan` and `Deploy-RolesPlan`). The scripts require `Reader`, `Contributor` and `User Access Administrator` privileges respectively as indicated in blue text in the diagram. The diagram also shows the usual approval gates after each step/script for prod deployments.
+**Three deployment scripts plan a deployment, deploy Policy resources, and Role Assignments** respectively as shown in the following diagram. The solution consumes definition files (JSON and/or CSV files). The planning script (`Build-DeploymentPlan`) creates plan files (`policy-plan.json` and `roles-plan.json`) to be consumed by the two deployment steps (`Deploy-PolicyPlan` and `Deploy-RolesPlan`). The scripts require `Reader`, `Contributor` and `User Access Administrator` privileges respectively as indicated in blue text in the diagram. The diagram also shows the usual approval gates after each step/script for prod deployments.
 
 ![image.png](Docs/Images/epac-deployment-scripts.png)
 
 ### CI/CD Tool Compatibility
 
-Since EPAC is based on PowerShell scripts, any CI/CD tool with the ability to execute scripts can be used. The starter kits currently include pipeline definitions for Azure DevOps. Additional starter kits are being implemented and will be added in future releases.
+Since EPAC is based on PowerShell scripts, any CI/CD tool with the ability to execute scripts can be used. The starter kits currently include pipeline definitions for Azure DevOps and Github Actions. Additional starter kits are being implemented and will be added in future releases.
 
 ### Multi-Tenant Support
 

@@ -1,5 +1,3 @@
-#Requires -PSEdition Core
-
 function ConvertTo-HashTable {
     [CmdletBinding()]
     param
