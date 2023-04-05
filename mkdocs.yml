@@ -25,7 +25,7 @@ theme:
 nav:
   - Home: index.md
   - Breaking Changes:
-      - breaking-changes-v6.0.md
+      - breaking-changes.md
   - Getting Started:
       - Operating Environment: operating-environment.md
       - Cloning the Project: clone-github.md
@@ -40,6 +40,7 @@ nav:
       - Policy Exemptions: policy-exemptions.md
   - CI/CD:
       - ci-cd-pipeline.md
+      - github-actions.md
   - CAF ALZ Integration:
       - integrating-with-alz.md
   - Creating Documentation:

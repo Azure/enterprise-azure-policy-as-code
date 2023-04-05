@@ -127,7 +127,7 @@ This example generates two assignments at the "prod" leaf per scope:
 
 `scope` is required exactly once in each tree branch. Excluded scopes (`notScope`) are cumulative from `global-settings.json` and the entire tree branch; however, once a scope is defined `notScope` may not be defined at any child node.
 
-Both `scope` and `notScope` are specific to an [EPAC Environment using the pacSelector name](../README.md#understanding-epac-environments-and-the-pacselector), e.g., `epac-dev` and `tenant`.
+Both `scope` and `notScope` are specific to an [EPAC Environment using the pacSelector name](index.md#understanding-epac-environments-and-the-pacselector), e.g., `epac-dev` and `tenant`.
 
 ```jsonc
 "scope": {
@@ -915,11 +915,11 @@ An example of how to use a non-compliance message when using a `definitionEntryL
 * [Build your CI/CD pipeline](ci-cd-pipeline.md) using a starter kit.
 * Optional: generate a starting point for the `Definitions` folders:
   * [Extract existing Policy resources from an environment](extract-existing-policy-resources.md).
-  * [Import Policies from the Cloud Adoption Framework](cloud-adoption-framework.md).
+  * [Import Policies from the Cloud Adoption Framework](integrating-with-alz.md).
 * [Add custom Policies](policy-definitions.md).
 * [Add custom Policy Sets](policy-set-definitions.md).
 * [Create Policy Assignments](policy-assignments.md).
-* Import Policies from the [Cloud Adoption Framework](cloud-adoption-framework.md).
+* Import Policies from the [Cloud Adoption Framework](integrating-with-alz.md).
 * [Manage Policy Exemptions](policy-exemptions.md).
 * [Document your deployments](documenting-assignments-and-policy-sets.md).
 * [Execute operational tasks](operational-scripts.md).

@@ -44,29 +44,29 @@ This `enterprise-policy-as-code` **(EPAC)** repo has been developed in partnersh
 ## Understanding EPAC Environments and the pacSelector
 
 !!! warning
-> EPAC has a concept of an environment identified by a string (unique per repository) called `pacSelector`. An environment associates the following with the `pacSelector`:
->
-> * `cloud` - to select commercial or sovereign cloud environments.
-> * `tenantId` - enables multi-tenant scenarios.
-> * `rootDefinitionScope` - scope for Policy and Policy Set definitions.
->
->> Note: Policy Assignments can only defined at this root scope and child scopes (recursive).
->
-> * Optional: define `desiredState`
->
-> These associations are stored in `global-settings.jsonc` in an element called `pacEnvironments`.
->
-> Like any other software or IaC solution, EPAC needs areas for developing and testing new Policies, Policy Sets and Assignments before any deployment to EPAC prod environments. In most cases you will need one management group hierarchy to simulate EPAC production management groups for development and testing of Policies. EPAC's prod environment will govern all other IaC environments (e.g., sandbox, development, integration, test/qa, pre-prod, prod, ...) and tenants. This can be confusing. We will use EPAC environment(s) and IaC environment(s) to disambiguate the environments.
->
-> In a centralized single tenant scenario, you will define two EPAC environments: epac-dev and tenant. In a multi-tenant scenario, you will add an additional EPAC environment per additional tenant.
->
-> The `pacSelector` is just a name. We highly recommend to call the Policy development environment `epac-dev`, you can name the EPAC prod environments in a way which makes sense to you in your environment. We use `tenant`, `tenant1`, etc in our samples and documentation.
->
-> These names are used and therefore must match:
->
-> * Defining the association (`pacEnvironments`) of an EPAC environment, `managedIdentityLocation` and `globalNotScopes` in `global-settings.jsonc`
-> * Script parameter when executing different deployment stages in a CI/CD pipeline or semi-automated deployment targeting a specific EPAC environments.
-> * `managedIdentityLocation`, `additionalRoleAssignments`, `userAssignedIdentity`,`scopes`, and `notScopes` definitions in Policy Assignment JSON files.
+    > EPAC has a concept of an environment identified by a string (unique per repository) called `pacSelector`. An environment associates the following with the `pacSelector`:
+    >
+    > * `cloud` - to select commercial or sovereign cloud environments.
+    > * `tenantId` - enables multi-tenant scenarios.
+    > * `rootDefinitionScope` - scope for Policy and Policy Set definitions.
+    >
+    >> Note: Policy Assignments can only defined at this root scope and child scopes (recursive).
+    >
+    > * Optional: define `desiredState`
+    >
+    > These associations are stored in `global-settings.jsonc` in an element called `pacEnvironments`.
+    >
+    > Like any other software or IaC solution, EPAC needs areas for developing and testing new Policies, Policy Sets and Assignments before any deployment to EPAC prod environments. In most cases you will need one management group hierarchy to simulate EPAC production management groups for development and testing of Policies. EPAC's prod environment will govern all other IaC environments (e.g., sandbox, development, integration, test/qa, pre-prod, prod, ...) and tenants. This can be confusing. We will use EPAC environment(s) and IaC environment(s) to disambiguate the environments.
+    >
+    > In a centralized single tenant scenario, you will define two EPAC environments: epac-dev and tenant. In a multi-tenant scenario, you will add an additional EPAC environment per additional tenant.
+    >
+    > The `pacSelector` is just a name. We highly recommend to call the Policy development environment `epac-dev`, you can name the EPAC prod environments in a way which makes sense to you in your environment. We use `tenant`, `tenant1`, etc in our samples and documentation.
+    >
+    > These names are used and therefore must match:
+    >
+    > * Defining the association (`pacEnvironments`) of an EPAC environment, `managedIdentityLocation` and `globalNotScopes` in `global-settings.jsonc`
+    > * Script parameter when executing different deployment stages in a CI/CD pipeline or semi-automated deployment targeting a specific EPAC environments.
+    > * `managedIdentityLocation`, `additionalRoleAssignments`, `userAssignedIdentity`,`scopes`, and `notScopes` definitions in Policy Assignment JSON files.
 
 ## Approach Flexibility
 
@@ -119,11 +119,11 @@ Desired state strategy documentation can be found [here.](desired-state-strategy
 * [Build your CI/CD pipeline](ci-cd-pipeline.md) using a starter kit.
 * Optional: generate a starting point for the `Definitions` folders:
   * [Extract existing Policy resources from an environment](extract-existing-policy-resources.md).
-  * [Import Policies from the Cloud Adoption Framework](cloud-adoption-framework.md).
+  * [Import Policies from the Cloud Adoption Framework](integrating-with-alz.md).
 * [Add custom Policies](policy-definitions.md).
 * [Add custom Policy Sets](policy-set-definitions.md).
 * [Create Policy Assignments](policy-assignments.md).
-* Import Policies from the [Cloud Adoption Framework](cloud-adoption-framework.md).
+* Import Policies from the [Cloud Adoption Framework](integrating-with-alz.md).
 * [Manage Policy Exemptions](policy-exemptions.md).
 * [Document your deployments](documenting-assignments-and-policy-sets.md).
 * [Execute operational tasks](operational-scripts.md).

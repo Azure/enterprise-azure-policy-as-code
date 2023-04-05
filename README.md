@@ -142,7 +142,7 @@ Policy resources with another pacOwnerId metadata field are never deleted.
 
 * Optional: generate a starting point for the `Definitions` subfolders:
   * [Extract existing Policy resources from an environment](Docs/extract-existing-policy-resources.md).
-  * [Import Policies from the Cloud Adoption Framework](Docs/cloud-adoption-framework.md).
+  * [Import Policies from the Cloud Adoption Framework](Docs/integrating-with-alz.md).
   * Use the sample Policy resource definitions in the starter kit.
 * [Add custom Policies](Docs/policy-definitions.md).
 * [Add custom Policy Sets](Docs/policy-set-definitions.md).
