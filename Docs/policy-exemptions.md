@@ -4,17 +4,17 @@
 
 Exemptions can be defined as JSON or CSV files (we recommend that you use CSV files). The names of the definition files don't matter. If multiple files exists in a folder, the lists from all the files are added together.
 
-The pacEnvironment (see global-settings.jsonc) is represented with a folder structure under the folder policyExemptions, such as epac-dev, tenant, ... A missing folder indicates that the pacEnvironment's Exemptions are not managed by this solution. To extract existing exemptions, the operations script Get-AzExemptions.ps1 can be used to generate JSON and CSV files. The output may be used to start the Exemption definitions.
+The pacEnvironment (see global-settings.jsonc) is represented with a folder structure under the folder policyExemptions, such as epac-dev, tenant, ... A missing folder indicates that the pacEnvironment's Exemptions are not managed by this solution. To extract existing exemptions, the operations script Get-AzExemptions.ps1 can be used to generate JSON and CSV files. The output may be used to start the Exemption definitions. This ame output is also created when [Extract existing Policy Resources from an Environment](extract-existing-policy-resources.md).
 
 A typical folder structure might look like this:
 
-```yaml
+```
 Definitions
-        policyExemptions
-                epac-dev
-                        <name>.csv of <name>.json
-                tenant
-                        <name>.csv of <name>.json
+  policyExemptions
+    epac-dev
+      <name>.csv of <name>.json
+    tenant
+      <name>.csv of <name>.json
 ```
 
 ## CSV Format
@@ -34,7 +34,7 @@ We recommend that you use spreadsheets (`.csv`). The columns must have the follo
 
 `name`, `displayName`, `exemptionCategory`, `scope` and `assignmentId` are required fields. The others are optional.
 
-```jsonc
+```json
 {
     "exemptions": [
         {
@@ -54,21 +54,3 @@ We recommend that you use spreadsheets (`.csv`). The columns must have the follo
     ]
 }
 ```
-
-## Reading List
-
-* [Setup DevOps Environment](operating-environment.md) .
-* [Create a source repository and import the source code](clone-github.md) from this repository.
-* [Select the desired state strategy](desired-state-strategy.md)
-* [Define your deployment environment](definitions-and-global-settings.md) in `global-settings.jsonc`.
-* [Build your CI/CD pipeline](ci-cd-pipeline.md) using a starter kit.
-* Optional: generate a starting point for the `Definitions` folders:
-  * [Extract existing Policy resources from an environment](extract-existing-policy-resources.md).
-  * [Import Policies from the Cloud Adoption Framework](integrating-with-alz.md).
-* [Add custom Policies](policy-definitions.md).
-* [Add custom Policy Sets](policy-set-definitions.md).
-* [Create Policy Assignments](policy-assignments.md).
-* Import Policies from the [Cloud Adoption Framework](integrating-with-alz.md).
-* [Manage Policy Exemptions](policy-exemptions.md).
-* [Document your deployments](documenting-assignments-and-policy-sets.md).
-* [Execute operational tasks](operational-scripts.md).

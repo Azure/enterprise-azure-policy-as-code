@@ -199,15 +199,7 @@ Creates the role assignments for the Managed Identities required for `DeployIfNo
 
 ## Consuming Excel Files
 
-Exemptions and assignments can use JSON, CSV and Excel (.xlsx) files. Support for Excel files uses a third-party PowerShell module from the PowerShell Gallery. However, the StarterKit pipeline disables the use of .xslx files module (`Convert-XlsToCSV.ps1`) as this utilizes third party software, which may or may not be permissable in the deployed environment due to supply chain risk mitigation rules. This does not imply any such vulnerabilities exist, and the project can be reviewed for appropriateness for your environment at [ImportExcel on Github](https://github.com/dfinke/ImportExcel). You may enable it at your own risk by uncommenting the sections in each planning stage. The pipeline further mitigates the risk by executing this step without Azure credentials.
-
-```yml
-  - task: PowerShell@2
-    displayName: Convert Excel (.xlsx) to CSV
-    inputs:
-      pwsh: true
-      filePath: "Scripts/Deploy/Convert-XlsToCsv.ps1"
-```
+This functionality is no longer integrated in EPAC. `Convert-XlsToCSV.ps1` has been removed from the repo.
 
 ## Pipeline Execution
 
@@ -243,21 +235,3 @@ Detail view:
 
 * Deployment steps and stages are skipped. Skipped stages do not need approvals.
 * ![image.png](Images/prod-no-changes.png)
-
-## Reading List
-
-* [Setup DevOps Environment](operating-environment.md) .
-* [Create a source repository and import the source code](clone-github.md) from this repository.
-* [Select the desired state strategy](desired-state-strategy.md)
-* [Define your deployment environment](definitions-and-global-settings.md) in `global-settings.jsonc`.
-* [Build your CI/CD pipeline](ci-cd-pipeline.md) using a starter kit.
-* Optional: generate a starting point for the `Definitions` folders:
-  * [Extract existing Policy resources from an environment](extract-existing-policy-resources.md).
-  * [Import Policies from the Cloud Adoption Framework](integrating-with-alz.md).
-* [Add custom Policies](policy-definitions.md).
-* [Add custom Policy Sets](policy-set-definitions.md).
-* [Create Policy Assignments](policy-assignments.md).
-* Import Policies from the [Cloud Adoption Framework](integrating-with-alz.md).
-* [Manage Policy Exemptions](policy-exemptions.md).
-* [Document your deployments](documenting-assignments-and-policy-sets.md).
-* [Execute operational tasks](operational-scripts.md).

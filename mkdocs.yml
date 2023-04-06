@@ -24,30 +24,27 @@ theme:
     - content.code.copy
 nav:
   - Home: index.md
-  - Breaking Changes:
-      - breaking-changes.md
+  - Breaking Changes: breaking-changes.md
   - Getting Started:
+      - Overview: quick-start.md
       - Operating Environment: operating-environment.md
       - Cloning the Project: clone-github.md
       - PowerShell Module: powershell-module.md
       - Definitions and Global Settings: definitions-and-global-settings.md
       - Desired State Strategy: desired-state-strategy.md
       - Extracting Existing Policy Resources: extract-existing-policy-resources.md
+  - CI/CD:
+      - CI/CD Pipeline: ci-cd-pipeline.md
+      - Desired State Strategy: desired-state-strategy.md
+      - GitHub Actions: github-actions.md
   - Policy Objects:
       - Policy Definitions: policy-definitions.md
       - Policy Set Definitions: policy-set-definitions.md
       - Policy Assignments: policy-assignments.md
       - Policy Exemptions: policy-exemptions.md
-  - CI/CD:
-      - CI/CD Pipeline: ci-cd-pipeline.md
-      - Desired State Strategy: desired-state-strategy.md
-      - GitHub Actions: github-actions.md
-  - CAF ALZ Integration:
-      - integrating-with-alz.md
-  - Creating Documentation:
-      - Documenting Policy Resources: documenting-assignments-and-policy-sets.md
-  - Operational Scripts:
-      - operational-scripts.md
+  - CAF ALZ Integration: integrating-with-alz.md
+  - Documenting Policy Objects: documenting-assignments-and-policy-sets.md
+  - Operational Scripts: operational-scripts.md
 
 markdown_extensions:
   - admonition
