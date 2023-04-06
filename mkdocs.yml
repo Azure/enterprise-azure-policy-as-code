@@ -39,9 +39,9 @@ nav:
       - Policy Assignments: policy-assignments.md
       - Policy Exemptions: policy-exemptions.md
   - CI/CD:
-      - ci-cd-pipeline.md
-      - desired-state-strategy.md
-      - github-actions.md
+      - CI/CD Pipeline: ci-cd-pipeline.md
+      - Desired State Strategy: desired-state-strategy.md
+      - GitHub Actions: github-actions.md
   - CAF ALZ Integration:
       - integrating-with-alz.md
   - Creating Documentation:
