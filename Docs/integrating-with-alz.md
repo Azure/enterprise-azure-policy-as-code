@@ -20,32 +20,35 @@ There are two scenarios for integrating EPAC with ALZ.
 !!! warning
     This feature is currently unsupported while an update to the extraction process is made. ETA is April 2023. This warning will be removed when the feature is available again.
 
-With an existing Azure Landing Zone deployment you can use EPAC's extract scripts to extract the existing policies and assignments. 
+With an existing Azure Landing Zone deployment you can use EPAC's extract scripts to extract the existing policies and assignments.
 
 1. Install the EnterprisePolicyAsCode module from the PowerShell gallery and import it.
-    ```
+
+    ```ps1
     Install-Module EnterprisePolicyAsCode
     Import-Module EnterprisePolicyAsCode
     ```
 
 2. Create a new policy definition folder structure using the command below.
-    ```
+
+    ```ps1
     New-EPACDefinitionFolder -DefinitionsRootFolder .\Definitions
     ```
 
-3. Update the ```global-settings.json``` file in the Definitions folder as described [here](definitions-and-global-settings.md#global-settings)
+3. Update the `global-settings.json` file in the Definitions folder as described [here](definitions-and-global-settings.md#global-settings)
 
 4. Extract the existing policies from the environment by using the extract functionality as described [here](extract-existing-policy-resources.md)
 
-    This will create in the ```Output``` folder a group of folders containing the extracted policies. Note that it extracts all policies in the environment including ones not deployed by any of the Azure Landing Zone deployments.
+    This will create in the `Output` folder a group of folders containing the extracted policies. Note that it extracts all policies in the environment including ones not deployed by any of the Azure Landing Zone deployments.
 
-5. Copy each of the folders in the ```Output\Definitions``` folder to the ```Definitions``` folder you created above. 
+5. Copy each of the folders in the `Output\Definitions` folder to the `Definitions` folder you created above.
 
 6. At this point you can run the build script and generate a plan to validate what is going to be changed in the existing environment.
 
-    ```
+    ```ps1
     Build-DeploymentPlans -DefinitionsRootFolder Definitions -OutputFolder Output
     ```
+
     In a newly deployed CAF environment with no other policies the results of the plan should be similar to below - EPAC will update each policy definition, set definition and assignment with a [PacOwnerId](definitions-and-global-settings.md#global-settings)
 
     ```
@@ -78,7 +81,8 @@ With an existing Azure Landing Zone deployment you can use EPAC's extract script
     ```
 
 7. Run the generated plan to update the objects
-    ```
+
+    ```ps1
     Deploy-PolicyPlan
     ```
 
@@ -87,25 +91,28 @@ With an existing Azure Landing Zone deployment you can use EPAC's extract script
 To deploy the ALZ policies using EPAC follow the steps below.
 
 1. Install the EnterprisePolicyAsCode module from the PowerShell gallery and import it.
-    ```
+
+    ```ps1
     Install-Module EnterprisePolicyAsCode
     Import-Module EnterprisePolicyAsCode
     ```
 
 2. Create a new policy definition folder structure using the command below.
-    ```
+
+    ```ps1
     New-EPACDefinitionFolder -DefinitionsRootFolder .\Definitions
     ```
 
-3. Update the ```global-settings.json``` file in the Definitions folder as described [here](definitions-and-global-settings.md#global-settings)
+3. Update the `global-settings.json` file in the Definitions folder as described [here](definitions-and-global-settings.md#global-settings)
 
-4. Synchronise the policies from the upstream repository. You should ensure that you are running the latest version of the EPAC module before running this script each time. 
-```
-Sync-CAFPolicies -DefinitionsRootFolder .\Definitions -CloudEnvironment AzureCloud # Also accepts AzureUSGovernment or AzureChinaCloud
-```
+4. Synchronize the policies from the upstream repository. You should ensure that you are running the latest version of the EPAC module before running this script each time.
 
-5. Update the assignments scopes
-    Each assignment file has a default scope assigned to it - this need to be updated to reflect your environment and ```global-settings.jsonc``` file.
+    ```ps1
+    Sync-CAFPolicies -DefinitionsRootFolder .\Definitions -CloudEnvironment AzureCloud
+    # Also accepts AzureUSGovernment or AzureChinaCloud
+    ```
+
+5. Update the assignments scopes. Each assignment file has a default scope assigned to it - this need to be updated to reflect your environment and `global-settings.jsonc` file.
 
     For example:
 
@@ -155,50 +162,34 @@ Sync-CAFPolicies -DefinitionsRootFolder .\Definitions -CloudEnvironment AzureClo
 
 ## Keeping up to date with changes manually
 
-The Azure Landing Zone deployment contains a number of policies which help provide guardrails to an environment, and the team which works on these policies is always providing updates to the original content to keep in line with Microsoft best practice and roadmap. The EPAC solution contains a function to help synchronise changes from the upstream project
+The Azure Landing Zone deployment contains a number of policies which help provide guardrails to an environment, and the team which works on these policies is always providing updates to the original content to keep in line with Microsoft best practice and roadmap. The EPAC solution contains a function to help synchronize changes from the upstream project
 
 To pull the latest changes from the upstream repository - use the code below.
-```
+
+```ps1
 Sync-CAFPolicies -DefinitionsRootFolder .\Definitions -CloudEnvironment AzureCloud # Also accepts AzureUSGovernment or AzureChinaCloud
 ```
-Carefully review the proposed changes before deploying them. It is best to make sure you're project is stored in source control so you can easily see which files have changed before deployment. 
+
+Carefully review the proposed changes before deploying them. It is best to make sure you're project is stored in source control so you can easily see which files have changed before deployment.
 
 !!! warning
-    If you have follow Scenario 1 above, the first time you run the ```Sync-CAFPolicies``` there will be many changes recorded due to formatting. Review the files completely before deploying.
+    If you have follow Scenario 1 above, the first time you run the `Sync-CAFPolicies` there will be many changes recorded due to formatting. Review the files completely before deploying.
 
 !!! note
-    Assignments deployed via the ALZ accelerators are kept in sync with the EnterprisePolicyAsCode module so ensure you have the latest PowerShell module installed before running ```Sync-CAFPolicies```
+    Assignments deployed via the ALZ accelerators are kept in sync with the EnterprisePolicyAsCode module so ensure you have the latest PowerShell module installed before running `Sync-CAFPolicies`
 
 ## Keeping up to date with GitHub Actions
 
-There is a GitHub action workflow which executes the above script. The process for configuring it is below. 
+There is a GitHub action workflow which executes the above script. The process for configuring it is below.
 
-1. Copy the ```alz-sync.yaml``` file from [here](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/StarterKit/Pipelines/GitHubActions/.github/workflows/azl-sync.yaml) to ```.github\workflows\alz-sync.yaml``` in your repository. 
-2. Update the ```env:``` section with details below
+1. Copy the `alz-sync.yaml` file from [here](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/StarterKit/Pipelines/GitHubActions/.github/workflows/azl-sync.yaml) to `.github\workflows\alz-sync.yaml` in your repository.
+2. Update the `env:` section with details below
 
-| Environment Variable Name | Value | Notes |
-|---|---|---|
-| REVIEWER | Add a GitHub user to review the PR |
-| definitionsRootFolder | The folder containing ```global-settings.jsonc``` and definitions |
+    | Environment Variable Name | Value | Notes |
+    |---|---|---|
+    | REVIEWER | Add a GitHub user to review the PR |
+    | definitionsRootFolder | The folder containing `global-settings.jsonc` and definitions |
 
 3. Run the workflow - new policies will be synced from the source.
-4. Before merging the PR - checkout the branch and confirm that changes. Note that the sync script will overwrite the default assignments so ensure you compare for new functionality before reverting. 
-5. When changes are confirmed - merge the PR. 
-
-## Reading List
-
-* [Setup DevOps Environment](operating-environment.md) .
-* [Create a source repository and import the source code](clone-github.md) from this repository.
-* [Select the desired state strategy](desired-state-strategy.md)
-* [Define your deployment environment](definitions-and-global-settings.md) in `global-settings.jsonc`.
-* [Build your CI/CD pipeline](ci-cd-pipeline.md) using a starter kit.
-* Optional: generate a starting point for the `Definitions` folders:
-  * [Extract existing Policy resources from an environment](extract-existing-policy-resources.md).
-  * [Import Policies from the Cloud Adoption Framework](integrating-with-alz.md).
-* [Add custom Policies](policy-definitions.md).
-* [Add custom Policy Sets](policy-set-definitions.md).
-* [Create Policy Assignments](policy-assignments.md).
-* Import Policies from the [Cloud Adoption Framework](integrating-with-alz.md).
-* [Manage Policy Exemptions](policy-exemptions.md).
-* [Document your deployments](documenting-assignments-and-policy-sets.md).
-* [Execute operational tasks](operational-scripts.md).
+4. Before merging the PR - checkout the branch and confirm that changes. Note that the sync script will overwrite the default assignments so ensure you compare for new functionality before reverting.
+5. When changes are confirmed - merge the PR.

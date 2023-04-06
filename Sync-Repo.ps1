@@ -72,20 +72,18 @@ if (Test-Path $sourceDirectory -PathType Container) {
         }
     }
 
-    Write-Information "Copying '$sourceDirectory/Docs'"
+    Write-Information "Copying '$sourceDirectory/Docs' to '$destinationDirectory/Docs'"
     Copy-Item "$sourceDirectory/Docs" "$destinationDirectory/Docs" -Recurse -Force
-    Write-Information "Copying '$sourceDirectory/Scripts'"
+    Write-Information "Copying '$sourceDirectory/Scripts' to '$destinationDirectory/Scripts'"
     Copy-Item "$sourceDirectory/Scripts" "$destinationDirectory/Scripts" -Recurse -Force
-    Write-Information "Copying '$sourceDirectory/StarterKit'"
+    Write-Information "Copying '$sourceDirectory/StarterKit' to '$destinationDirectory/StarterKit'"
     Copy-Item "$sourceDirectory/StarterKit" "$destinationDirectory/StarterKit" -Recurse -Force
 
-    Write-Information "Copying documentation files from '$sourceDirectory'"
-    Copy-Item "$sourceDirectory/CODE_OF_CONDUCT.md" "$destinationDirectory/CODE_OF_CONDUCT.md"
-    Copy-Item "$sourceDirectory/LICENSE" "$destinationDirectory/LICENSE"
-    Copy-Item "$sourceDirectory/README.md" "$destinationDirectory/README.md"
-    Copy-Item "$sourceDirectory/SECURITY.md" "$destinationDirectory/SECURITY.md"
-    Copy-Item "$sourceDirectory/SUPPORT.md" "$destinationDirectory/SUPPORT.md"
-    Copy-Item "$sourceDirectory/Sync-Repo.ps1" "$destinationDirectory/Sync-Repo.ps1"
+    Write-Information "Copying files from root directory '$sourceDirectory' to '$destinationDirectory'"
+    Copy-Item "$sourceDirectory/*.md" "$destinationDirectory"
+    Copy-Item "$sourceDirectory/*.ps1" "$destinationDirectory"
+    Copy-Item "$sourceDirectory/*.yml" "$destinationDirectory"
+    Copy-Item "$sourceDirectory/LICENSE" "$destinationDirectory"
 }
 else {
     Write-Error "The source directory '$sourceDirectory' must exist" -ErrorAction Stop

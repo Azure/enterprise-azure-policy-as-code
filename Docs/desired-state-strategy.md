@@ -19,7 +19,7 @@ For standard behavior where each repo manages, no additional entries in `global-
 
 You may add the following JSON for clarity/documentation of the default behavior.
 
-``` json
+```json
 "desiredState": {
     "strategy": "full",
 }
@@ -29,7 +29,7 @@ You may add the following JSON for clarity/documentation of the default behavior
 
 While transitioning to EPAC, existing Policy resources may need to be kept. **Breaking change:** Previously this was accomplished with the `brownfield` variable in the pipeline used to set the `SuppressDeletes` flag on the planning script. Unfortunately, the previous approach was to course- grained, preventing an EPAC solution to remove its own deprecated Policy resources. Setting `desiredState` to `ownedOnly` allows EPAC to remove its own resources while preserving brownfield instances.
 
-``` json
+```json
 "desiredState": {
     "strategy": "ownedOnly",
 }
@@ -45,7 +45,7 @@ Additionally, it is possible for a solution at a child scope to inherit Policy d
 
 Repo A is managed the same as in use cases 1, 2 and 2a. Repo C sets sets the same as repo B in use case 2 or 2a. If inheriting Policy definitions from the parent EPAC solution, add `inheritedDefinitionsScopes` to `global-settings.jsonc`. Inherited definition scopes used but not managed by this repository, scopes must be visible from `deploymentRootScope`.
 
-``` jsonc
+```json
 "inheritedDefinitionsScopes": [],
 "desiredState": {
     "strategy": "full",
@@ -62,7 +62,7 @@ By default, Policy Assignments at resource groups are not managed by EPAC. Prior
 
 You can exclude any combination of scopes, Policies, Policy Sets and Policy Assignments. Simple wild cards are allowed.
 
-``` json
+```json
 "desiredState": {
     "strategy": "full",
     "includeResourceGroups": false,
@@ -87,7 +87,7 @@ You can exclude any combination of scopes, Policies, Policy Sets and Policy Assi
 
 By default, Policy Assignments at resource groups are not managed by EPAC. Prior to v6.0, managing resource groups was to expensive. **Breaking change:** If you used the `-includeResourceGroup` switch in prior versions, set `includeResourceGroups` to `true` to achieve the same effect.
 
-``` json
+```json
 "desiredState": {
     "strategy": "full",
     "includeResourceGroups": true,
@@ -102,21 +102,3 @@ EPAC only manages items with a directory in the `Definitions` folder. Therefore,
 
 * Repo1: `Definitions` contains `policyDefinitions`, `policySetDefinitions` and `policyAssignments` folders.
 * Repo2: `Definitions` contains `policyExemptions` folder.
-
-## Reading List
-
-* [Setup DevOps Environment](operating-environment.md) .
-* [Create a source repository and import the source code](clone-github.md) from this repository.
-* [Select the desired state strategy](desired-state-strategy.md)
-* [Define your deployment environment](definitions-and-global-settings.md) in `global-settings.jsonc`.
-* [Build your CI/CD pipeline](ci-cd-pipeline.md) using a starter kit.
-* Optional: generate a starting point for the `Definitions` folders:
-  * [Extract existing Policy resources from an environment](extract-existing-policy-resources.md).
-  * [Import Policies from the Cloud Adoption Framework](integrating-with-alz.md).
-* [Add custom Policies](policy-definitions.md).
-* [Add custom Policy Sets](policy-set-definitions.md).
-* [Create Policy Assignments](policy-assignments.md).
-* Import Policies from the [Cloud Adoption Framework](integrating-with-alz.md).
-* [Manage Policy Exemptions](policy-exemptions.md).
-* [Document your deployments](documenting-assignments-and-policy-sets.md).
-* [Execute operational tasks](operational-scripts.md).

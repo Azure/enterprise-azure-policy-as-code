@@ -9,7 +9,7 @@ function Get-PacFolders {
     # Calculate folders
     if ($definitionsRootFolder -eq "") {
         if ($null -eq $env:PAC_DEFINITIONS_FOLDER) {
-            $definitionsRootFolder = "$PSScriptRoot/../../Definitions"
+            $definitionsRootFolder = "Definitions"
         }
         else {
             $definitionsRootFolder = $env:PAC_DEFINITIONS_FOLDER
@@ -19,7 +19,7 @@ function Get-PacFolders {
 
     if ($outputFolder -eq "") {
         if ($null -eq $env:PAC_OUTPUT_FOLDER) {
-            $outputFolder = "$PSScriptRoot/../../Output"
+            $outputFolder = "Output"
         }
         else {
             $outputFolder = $env:PAC_OUTPUT_FOLDER

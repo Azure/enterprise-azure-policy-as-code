@@ -14,7 +14,7 @@ Each file must contain one or both documentation topics. This example file in th
 * [`documentAssignments`](#assignment-documentation)
 * [`documentPolicySets`](#policy-set-documentation)
 
-```jsonc
+```json
 {
     "documentAssignments": {
         "environmentCategories": [
@@ -140,30 +140,30 @@ Each entry in the array defines a set of outputs:
 ### Output files
 
 * `<fileNameStem>-full.csv`: Lists Policies across environments and multiple Policy Sets sorted by `category` and ``displayName`.
-  
-  | Column | Description |
-  | :----- | :---------- |
-  | `name` | Policy name (must be unique - a GUID for built-in Policies)
-  | `referencePath` | Disambiguate Policies included multiple times in an Policy Set definition with different `referenceId`s. It is blank if not needed or formatted as `<policy-set.name>\\<referenceId>`.
-  | `category` | Policy `category` from Policy `metadata`.
-  | `displayName` |
-  | `description` |
-  | `groupNames` | Union of (compliance Policy Sets) `groupNames` for this Policy.
-  | `allowedEffects` | List of allowed Policy `effect`s. **Note:** Some Policy Sets may have hard coded the effect which is not represented here.
-  | `<environmentCategory>_Effect` | One column per `environmentCategory` listing the highest enforcement level across the Policy Sets assigned in this environment category.
-  | `<environmentCategory>_Parameters` | One column per `environmentCategory` listing the parameters (JSON - excluding the effect parameter) for this Policy and `environmentCategory`.
-  | `<environmentCategory>-`<br/>`<policy-set-short name>-Effect` | Detailed effect per `environmentCategory` **and** Policy Set. The next table shows examples for the different pattern for this value. An actual document will reflect the actual value in your environment.
-  | `<policy-set-short name>-ParameterDefinitions` | Parameter definitions (JSON) per Policy Set containing this Policy.
 
-  Examples for effects:
+    | Column | Description |
+    | :----- | :---------- |
+    | `name` | Policy name (must be unique - a GUID for built-in Policies)
+    | `referencePath` | Disambiguate Policies included multiple times in an Policy Set definition with different `referenceId`s. It is blank if not needed or formatted as `<policy-set.name>\\<referenceId>`.
+    | `category` | Policy `category` from Policy `metadata`.
+    | `displayName` |
+    | `description` |
+    | `groupNames` | Union of (compliance Policy Sets) `groupNames` for this Policy.
+    | `allowedEffects` | List of allowed Policy `effect`s. **Note:** Some Policy Sets may have hard coded the effect which is not represented here.
+    | `<environmentCategory>_Effect` | One column per `environmentCategory` listing the highest enforcement level across the Policy Sets assigned in this environment category.
+    | `<environmentCategory>_Parameters` | One column per `environmentCategory` listing the parameters (JSON - excluding the effect parameter) for this Policy and `environmentCategory`.
+    | `<environmentCategory>-`<br/>`<policy-set-short name>-Effect` | Detailed effect per `environmentCategory` **and** Policy Set. The next table shows examples for the different pattern for this value. An actual document will reflect the actual value in your environment.
+    | `<policy-set-short name>-ParameterDefinitions` | Parameter definitions (JSON) per Policy Set containing this Policy.
 
-  | Value | Description |
-  | :---- | :---------- |
-  | `Deny (assignment: secretsExpirationSetEffect)` | Effect is `Deny` specified in a user defined value for parameter `secretsExpirationSetEffect`
-  | `Audit (default: useRbacRulesMonitoringEffect)` | Effect is `Audit` default value for Policy Set parameter `useRbacRulesMonitoringEffect`.
-  | `Audit (Initiative Fixed)` | Effect is parameterized in Policy definition. Policy Set definition is setting it to a fixed value of `Audit`.
-  | `Audit (Policy Default)` | Effect is parameterized in Policy definition with default value of `Audit`. The Policy Set definition does not override or surface this value.
-  | `Modify (Policy Fixed)` | Effect is **not** parameterized in Policy definition. It is set to a fixed value of `Modify`.
+    Examples for effects:
+
+    | Value | Description |
+    | :---- | :---------- |
+    | `Deny (assignment: secretsExpirationSetEffect)` | Effect is `Deny` specified in a user defined value for parameter `secretsExpirationSetEffect`
+    | `Audit (default: useRbacRulesMonitoringEffect)` | Effect is `Audit` default value for Policy Set parameter `useRbacRulesMonitoringEffect`.
+    | `Audit (Initiative Fixed)` | Effect is parameterized in Policy definition. Policy Set definition is setting it to a fixed value of `Audit`.
+    | `Audit (Policy Default)` | Effect is parameterized in Policy definition with default value of `Audit`. The Policy Set definition does not override or surface this value.
+    | `Modify (Policy Fixed)` | Effect is **not** parameterized in Policy definition. It is set to a fixed value of `Modify`.
 
 * `<fileNameStem>-parameters.csv`: This file is intended **for a future enhancement** to EPAC which will allow the effect values and parameter values to be specified in a spreadsheet instead of JSON. This file is generated to make it usable as the starting list, or to round-trip the values. It lists Policies across environments and Initiatives sorted by `category` and ``displayName`. Columns (see above for descriptions):
 
@@ -176,9 +176,9 @@ Each entry in the array defines a set of outputs:
   * `<environmentCategory>_Effect`
   * `<environmentCategory>_Parameters`
 
-* `<fileNameStem>-summary.md`: This Markdown file is intended for developers for a quick overview of the effects and parameters in place for each `environmentCategory`. It does not provide details about the individual Initiatives assigned. It is equivalent to `<fileNameStem>-parameters.csv`. The Policies are sorted by `category` and ``displayName`. Each `environmentCategory` column shows the current enforcement level in bold. If the value is fixed, the value is also in italics. If it is parametrized, the other allowed values are shown in italics.
+* `<fileNameStem>-summary.md`: This Markdown file is intended for developers for a quick overview of the effects and parameters in place for each `environmentCategory`. It does not provide details about the individual Initiatives assigned. It is equivalent to `<fileNameStem>-parameters.csv`. The Policies are sorted by `category` and ``displayName`. Each`environmentCategory` column shows the current enforcement level in bold. If the value is fixed, the value is also in italics. If it is parametrized, the other allowed values are shown in italics.
 
-* `<fileNameStem>-full.md`: This Markdown file is intended for security personel requiring more details about the Assignments and Policies. It displays the same information as the summary plus the additional details equivalent to `<fileNameStem>-full.csv`. The Policies are sorted by `category` and ``displayName`. Each `environmentCategory` column shows the current enforcement level in bold. If the value is fixed, the value is also in italics. If it is parametrized, the other allowed values are shown in italics. The additional details are:
+* `<fileNameStem>-full.md`: This Markdown file is intended for security personel requiring more details about the Assignments and Policies. It displays the same information as the summary plus the additional details equivalent to `<fileNameStem>-full.csv`. The Policies are sorted by `category` and ``displayName`. Each`environmentCategory` column shows the current enforcement level in bold. If the value is fixed, the value is also in italics. If it is parametrized, the other allowed values are shown in italics. The additional details are:
   * Group Names
   * Effects per `environmentCategory` and Policy Set with additional details on the origin of the effect.
 
@@ -204,21 +204,3 @@ Compares multiple Policy Set definitions for Policy and effect overlap as Markdo
 * `<fileNameStem>-full.csv`: Excel file with the same information as the Markdown file.
 * `<fileNameStem>-parameters.csv`: Excel parameter file starter equivalent to `<fileNameStem>-parameters.csv` above in the assignment documentation section.
 * `<fileNameStem>.jsonc`: Parameter file starter in JSON format to simplify parameter settings for Assignments (traditional approach).
-
-## Reading List
-
-* [Setup DevOps Environment](operating-environment.md) .
-* [Create a source repository and import the source code](clone-github.md) from this repository.
-* [Select the desired state strategy](desired-state-strategy.md)
-* [Define your deployment environment](definitions-and-global-settings.md) in `global-settings.jsonc`.
-* [Build your CI/CD pipeline](ci-cd-pipeline.md) using a starter kit.
-* Optional: generate a starting point for the `Definitions` folders:
-  * [Extract existing Policy resources from an environment](extract-existing-policy-resources.md).
-  * [Import Policies from the Cloud Adoption Framework](integrating-with-alz.md).
-* [Add custom Policies](policy-definitions.md).
-* [Add custom Policy Sets](policy-set-definitions.md).
-* [Create Policy Assignments](policy-assignments.md).
-* Import Policies from the [Cloud Adoption Framework](integrating-with-alz.md).
-* [Manage Policy Exemptions](policy-exemptions.md).
-* [Document your deployments](documenting-assignments-and-policy-sets.md).
-* [Execute operational tasks](operational-scripts.md).
