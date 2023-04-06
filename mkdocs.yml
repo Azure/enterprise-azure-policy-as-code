@@ -40,6 +40,7 @@ nav:
       - Policy Exemptions: policy-exemptions.md
   - CI/CD:
       - ci-cd-pipeline.md
+      - desired-state-strategy.md
       - github-actions.md
   - CAF ALZ Integration:
       - integrating-with-alz.md
