@@ -54,7 +54,7 @@ jobs:
             gh run cancel ${{ github.run_id }}
             gh run watch ${{ github.run_id }}
           }
-          if (Test-Path Output) {
+          if (Test-Path $env:planFolder) {
             echo "Deploy=true" >> $env:GITHUB_ENV
           }
       - shell: pwsh
