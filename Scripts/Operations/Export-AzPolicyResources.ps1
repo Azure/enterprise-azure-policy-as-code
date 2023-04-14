@@ -1,3 +1,52 @@
+<#
+.SYNOPSIS
+Exports Azure Policy resources in EPAC format or raw format.
+
+.DESCRIPTION
+Exports Azure Policy resources in EPAC format or raw format. It has 4 operating modes - see -mode parameter for details.
+
+.PARAMETER definitionsRootFolder
+Definitions folder path. Defaults to environment variable $env:PAC_DEFINITIONS_FOLDER or './Definitions'.
+
+.PARAMETER outputFolder
+Output Folder. Defaults to environment variable $env:PAC_OUTPUT_FOLDER or './Outputs'.
+
+.PARAMETER interactive
+Set to false if used non-interactive
+
+.PARAMETER includeChildScopes
+Switch to include Policies and Policy Sets definitions in child scopes
+
+.PARAMETER includeAutoAssigned
+Switch parameter to include Assignments auto-assigned by Defender for Cloud
+
+.PARAMETER exemptionFiles
+Create Exemption files (none=suppress, csv=as a csv file, json=as a json or jsonc file). Defaults to 'csv'.
+
+.PARAMETER fileExtension
+File extension type for the output files. Defaults to '.jsonc'.
+
+.PARAMETER mode
+Operating mode:
+    a) 'export' exports EPAC environments in EPAC format, should be used with -interactive $true in a multi-tenant scenario, or use with an inputPacSelector to limit the scope to one EPAC environment.
+    b) 'collectRawFile' exports the raw data only; Often used with 'inputPacSelector' when running non-interactive in a multi-tenant scenario to collect the raw data once per tenant into a file named after the EPAC environment
+    c) 'exportFromRawFiles' reads the files generated with one or more runs of b) and outputs the files the same as normal 'export'.
+    d) 'exportRawToPipeline' exports EPAC environments in EPAC format, should be used with -interactive $true in a multi-tenant scenario, or use with an inputPacSelector to limit the scope to one EPAC environment.
+
+.PARAMETER inputPacSelector
+Limits the collection to one EPAC environment, useful for non-interactive use in a multi-tenant scenario, especially with -mode 'collectRawFile'.
+The default is '*' which will execute all EPAC-Environments.
+
+.EXAMPLE
+Export-AzPolicyResources -definitionsRootFolder ./Definitions -outputFolder ./Outputs -interactive $true -includeChildScopes -includeAutoAssigned -exemptionFiles csv -fileExtension jsonc -mode export -inputPacSelector '*'
+
+.EXAMPLE
+Export-AzPolicyResources -definitionsRootFolder ./Definitions -outputFolder ./Outputs -interactive $true -includeChildScopes -includeAutoAssigned -exemptionFiles csv -fileExtension jsonc -mode export -inputPacSelector 'EPAC-Environment-1'
+
+.LINK
+https://azure.github.io/enterprise-azure-policy-as-code/extract-existing-policy-resources/
+
+#>
 [CmdletBinding()]
 param (
     [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.")]
@@ -23,18 +72,23 @@ param (
     [Parameter(Mandatory = $false, HelpMessage = "File extension type for the output files. Defaults to '.jsonc'.")]
     [string] $fileExtension = "jsonc",
 
-    [ValidateSet("export", "collectRawFile", 'exportFromRawFiles')]
-    [Parameter(Mandatory = $false, HelpMessage = "Operating mode is
-    a) 'export' exports EPAC environments, must be used with -interactive in a multi-tenant scenario;
-    b) 'collectRawFile' exports the raw data only; used with 'inputPacSelector' when running non-interactive in a multi-tenant scenario to collect the raw data once per tenant
-    c) 'exportFromRawFiles' reads the files generated with one or more runs of b) and outputs the files them the same as normal 'export' ")]
+    [ValidateSet("export", "collectRawFile", 'exportFromRawFiles', "exportRawToPipeline")]
+    [Parameter(Mandatory = $false, HelpMessage = "
+        Operating mode:
+        a) 'export' exports EPAC environments in EPAC format, should be used with -interactive `$true in a multi-tenant scenario, or use with an inputPacSelector to limit the scope to one EPAC environment.
+        b) 'collectRawFile' exports the raw data only; Often used with 'inputPacSelector' when running non-interactive in a multi-tenant scenario to collect the raw data once per tenant into a file named after the EPAC environment
+        c) 'exportFromRawFiles' reads the files generated with one or more runs of b) and outputs the files the same as normal 'export'.
+        d) 'exportRawToPipeline' exports EPAC environments in EPAC format, should be used with -interactive `$true in a multi-tenant scenario, or use with an inputPacSelector to limit the scope to one EPAC environment.
+    ")]
     [string] $mode = 'export',
     # [string] $mode = 'collectRawFile',
     # [string] $mode = 'exportFromRawFiles',
+    # [string] $mode = 'exportRawToPipeline',
 
-    [Parameter(Mandatory = $false, HelpMessage = "Limits the collection to one EPAC environment,
-    useful for non-interactive use in a multi-tenant scenario, especially with -mode 'collectRawFile.
-    default is '*' which will execute all EPAC-Environments.")]
+    [Parameter(Mandatory = $false, HelpMessage = "
+        Limits the collection to one EPAC environment, useful for non-interactive use in a multi-tenant scenario, especially with -mode 'collectRawFile'.
+        The default is '*' which will execute all EPAC-Environments.
+    ")]
     [string] $inputPacSelector = '*'
 )
 
@@ -56,7 +110,7 @@ $policyExemptionsFolder = "$definitionsFolder/policyExemptions"
 $invalidChars = [IO.Path]::GetInvalidFileNameChars()
 $invalidChars += ("[]()$".ToCharArray())
 Write-Information "Mode: $mode"
-if ($mode -ne 'collectRawFile') {
+if ($mode -eq 'export' -or $mode -eq 'exportFromRawFiles') {
     if (Test-Path $definitionsFolder) {
         if ($interactive) {
             Write-Information ""
@@ -67,16 +121,22 @@ if ($mode -ne 'collectRawFile') {
             Remove-Item $definitionsFolder -Recurse
         }
     }
-}
 
-Write-Information ""
-Write-Information "==================================================================================================="
-Write-Information "Exporting Policy resources"
-Write-Information "==================================================================================================="
-Write-Information "WARNING! This script::"
-Write-Information "* Assumes Policies and Policy Sets with the same name define the same properties independent of scope and EPAC environment."
-Write-Information "* Ignores Assignments auto-assigned by Security Center unless -includeAutoAssigned is used."
-Write-Information "==================================================================================================="
+    Write-Information ""
+    Write-Information "==================================================================================================="
+    Write-Information "Exporting Policy resources"
+    Write-Information "==================================================================================================="
+    Write-Information "WARNING! This script::"
+    Write-Information "* Assumes Policies and Policy Sets with the same name define the same properties independent of scope and EPAC environment."
+    Write-Information "* Ignores (default) Assignments auto-assigned by Security Center unless -includeAutoAssigned is used."
+    Write-Information "==================================================================================================="
+}
+else {
+    Write-Information ""
+    Write-Information "==================================================================================================="
+    Write-Information "Collecting Policy resources (raw)"
+    Write-Information "==================================================================================================="
+}
 
 $policyPropertiesByName = @{}
 $policySetPropertiesByName = @{}
@@ -134,14 +194,17 @@ if ($mode -ne 'exportFromRawFiles') {
                 $fullPath = "$rawFolder/$pacSelector.json"
                 $json = ConvertTo-Json $policyResources -Depth 100
                 $null = New-Item $fullPath -Force -ItemType File -Value $json
-
-                return 0
             }
         }
     }
 
     if ($mode -eq 'collectRawFile') {
         # exit; we-re done with this run
+        return 0
+    }
+    elseif ($mode -eq 'exportRawToPipeline') {
+        # write to pipeline
+        Write-Output $policyResourcesByPacSelector
         return 0
     }
 
@@ -369,7 +432,7 @@ foreach ($pacEnvironment in $pacEnvironments.Values) {
                 if ($rawMetadata.roles) {
                     $roles = $rawMetadata.roles
                 }
-                $metadata = Get-CustomMetadata $properties.metadata -remove "pacOwnerId,roles"
+                $metadata = Get-CustomMetadata $properties.metadata -remove "pacOwnerId, roles"
 
                 $name = $policyAssignment.name
                 $policyDefinitionId = $properties.policyDefinitionId
