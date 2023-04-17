@@ -1,8 +1,8 @@
 {
-    "nodeName": "/Decommissioned/",
+    "nodeName": "/Sandbox/",
     "scope": {
         "tenant1": [
-            "/providers/Microsoft.Management/managementGroups/decommissioned"
+            "/providers/Microsoft.Management/managementGroups/sandbox"
         ]
     },
     "children": [
@@ -11,7 +11,7 @@
             "assignment": {
                 "name": "Enforce-ALZ-Sandbox",
                 "displayName": "Enforce ALZ Sandbox Guardrails",
-                "description": "This initiative will help enforce and govern subscriptions that are placed within the Sandobx Management Group. See https://aka.ms/alz/policies for more information."
+                "description": "This initiative will help enforce and govern subscriptions that are placed within the Sandbox Management Group. See https://aka.ms/alz/policies for more information."
             },
             "definitionEntry": {
                 "policyName": "Enforce-ALZ-Sandbox",
