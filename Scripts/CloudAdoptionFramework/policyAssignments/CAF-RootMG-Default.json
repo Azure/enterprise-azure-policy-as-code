@@ -51,7 +51,71 @@
                         "enableAscForArm": "Disabled",
                         "enableAscForDns": "Disabled",
                         "enableAscForOssDb": "Disabled",
-                        "enableAscForCosmosDbs": "Disabled"
+                        "enableAscForCosmosDbs": "Disabled",
+                        "enableAscForServersVulnerabilityAssessments": "Disabled",
+                        "enableAscForApis": "Disabled",
+                        "enableAscForCspm": "Disabled"
+                    }
+                },
+                {
+                    "nodeName": "ASB",
+                    "assignment": {
+                        "name": "Deploy-ASC-Monitoring",
+                        "displayName": "Microsoft Cloud Security Benchmark",
+                        "description": "Microsoft Cloud Security Benchmark policy initiative"
+                    },
+                    "definitionEntry": {
+                        "policySetName": "1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
+                        "friendlyNameToDocumentIfGuid": "Microsoft Cloud Security Benchmark"
+                    },
+                    "parameters": {}
+                },
+                {
+                    "nodeName": "MDFE",
+                    "assignment": {
+                        "name": "Deploy-MDEndpoints",
+                        "displayName": "[Preview]: Deploy Microsoft Defender for Endpoint agent",
+                        "description": "Deploy Microsoft Defender for Endpoint agent on applicable images."
+                    },
+                    "definitionEntry": {
+                        "policySetName": "e20d08c5-6d64-656d-6465-ce9e37fd0ebc",
+                        "friendlyNameToDocumentIfGuid": "Microsoft Defender for Endpoint agent"
+                    }
+                },
+                {
+                    "nodeName": "MDFEOSSDB",
+                    "assignment": {
+                        "name": "Deploy-MDFC-OssDb",
+                        "displayName": "Configure Advanced Threat Protection to be enabled on open-source relational databases",
+                        "description": "Enable Advanced Threat Protection on your non-Basic tier open-source relational databases to detect anomalous activities indicating unusual and potentially harmful attempts to access or exploit databases. See https://aka.ms/AzDforOpenSourceDBsDocu."
+                    },
+                    "definitionEntry": {
+                        "policySetName": "e77fc0b3-f7e9-4c58-bc13-cb753ed8e46e",
+                        "friendlyNameToDocumentIfGuid": "Microsoft Defender for Endpoint open-source relational databases"
+                    }
+                },
+                {
+                    "nodeName": "MDFCSQLATP",
+                    "assignment": {
+                        "name": "Deploy-MDFC-SqlAtp",
+                        "displayName": "Configure Azure Defender to be enabled on SQL Servers and SQL Managed Instances",
+                        "description": "Enable Azure Defender on your SQL Servers and SQL Managed Instances to detect anomalous activities indicating unusual and potentially harmful attempts to access or exploit databases."
+                    },
+                    "definitionEntry": {
+                        "policySetName": "9cb3cc7a-b39b-4b82-bc89-e5a5d9ff7b97",
+                        "friendlyNameToDocumentIfGuid": "Microsoft Defender for SQL Servers and SQL Managed Instances"
+                    }
+                },
+                {
+                    "nodeName": "ACSB",
+                    "assignment": {
+                        "name": "Enforce-ACSB",
+                        "displayName": "Enforce Azure Compute Security Baseline compliance auditing",
+                        "description": "This initiative assignment enables Azure Compute Security Baseline compliance auditing for Windows and Linux virtual machines."
+                    },
+                    "definitionEntry": {
+                        "policySetName": "Enforce-ACSB",
+                        "friendlyNameToDocumentIfGuid": "Azure Compute Security Baseline"
                     }
                 }
             ]
@@ -63,8 +127,8 @@
                     "nodeName": "ActivityLogs",
                     "assignment": {
                         "name": "Deploy-AzActivity-Log",
-                        "displayName": "Deploy Diagnostic Settings for Activity Log to Log Analytics workspace",
-                        "description": "Ensures that Activity Log Diagnostics settings are set to push logs into Log Analytics workspace."
+                        "displayName": "Configure Azure Activity logs to stream to specified Log Analytics workspace",
+                        "description": "Deploys the diagnostic settings for Azure Activity to stream subscriptions audit logs to a Log Analytics workspace to monitor subscription-level events"
                     },
                     "definitionEntry": {
                         "policyName": "2465583e-4e78-4c15-b6be-a36cbc7c8b0f",
@@ -84,7 +148,12 @@
                         "friendlyNameToDocumentIfGuid": "Resource Diagnostics"
                     },
                     "parameters": {}
-                },
+                }
+            ]
+        },
+        {
+            "nodeName": "Compute/",
+            "children":[
                 {
                     "nodeName": "VMMonitoring",
                     "assignment": {
@@ -107,6 +176,114 @@
                     "definitionEntry": {
                         "policySetName": "75714362-cae7-409e-9b99-a8e5075b7fad",
                         "friendlyNameToDocumentIfGuid": "VMSS Monitoring"
+                    }
+                },
+                {
+                    "nodeName": "DenyUnmanagedDisk",
+                    "assignment": {
+                        "name": "Deny-UnmanagedDisk",
+                        "displayName": "Deny virtual machines and virtual machine scale sets that do not use managed disk",
+                        "description": "Deny virtual machines that do not use managed disk. It checks the managed disk property on virtual machine OS Disk fields."
+                    },
+                    "definitionEntry": {
+                        "policyName": "06a78e20-9358-41c9-923c-fb736d382a4d",
+                        "friendlyNameToDocumentIfGuid": "Unmanaged Disks"
+                    },
+                    "overrides":[
+                        {
+                            "kind": "policyEffect",
+                            "value": "Deny"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "nodeName": "Platform/",
+            "children": [
+                {
+                    "nodeName": "DenyClassicResources",
+                    "assignment": {
+                        "name": "Deny-Classic-Resources",
+                        "displayName": "Deny the deployment of classic resources",
+                        "description": "Denies deployment of classic resource types under the assigned scope."
+                    },
+                    "definitionEntry": {
+                        "policyName": "6c112d4e-5bc7-47ae-a041-ea2d9dccd749",
+                        "friendlyNameToDocumentIfGuid": "Deny Classic Resources"
+                    },
+                    "parameters": {
+                        "listOfResourceTypesNotAllowed": [
+                            "Microsoft.ClassicCompute/capabilities",
+                            "Microsoft.ClassicCompute/checkDomainNameAvailability",
+                            "Microsoft.ClassicCompute/domainNames",
+                            "Microsoft.ClassicCompute/domainNames/capabilities",
+                            "Microsoft.ClassicCompute/domainNames/internalLoadBalancers",
+                            "Microsoft.ClassicCompute/domainNames/serviceCertificates",
+                            "Microsoft.ClassicCompute/domainNames/slots",
+                            "Microsoft.ClassicCompute/domainNames/slots/roles",
+                            "Microsoft.ClassicCompute/domainNames/slots/roles/metricDefinitions",
+                            "Microsoft.ClassicCompute/domainNames/slots/roles/metrics",
+                            "Microsoft.ClassicCompute/moveSubscriptionResources",
+                            "Microsoft.ClassicCompute/operatingSystemFamilies",
+                            "Microsoft.ClassicCompute/operatingSystems",
+                            "Microsoft.ClassicCompute/operations",
+                            "Microsoft.ClassicCompute/operationStatuses",
+                            "Microsoft.ClassicCompute/quotas",
+                            "Microsoft.ClassicCompute/resourceTypes",
+                            "Microsoft.ClassicCompute/validateSubscriptionMoveAvailability",
+                            "Microsoft.ClassicCompute/virtualMachines",
+                            "Microsoft.ClassicCompute/virtualMachines/diagnosticSettings",
+                            "Microsoft.ClassicCompute/virtualMachines/metricDefinitions",
+                            "Microsoft.ClassicCompute/virtualMachines/metrics",
+                            "Microsoft.ClassicInfrastructureMigrate/classicInfrastructureResources",
+                            "Microsoft.ClassicNetwork/capabilities",
+                            "Microsoft.ClassicNetwork/expressRouteCrossConnections",
+                            "Microsoft.ClassicNetwork/expressRouteCrossConnections/peerings",
+                            "Microsoft.ClassicNetwork/gatewaySupportedDevices",
+                            "Microsoft.ClassicNetwork/networkSecurityGroups",
+                            "Microsoft.ClassicNetwork/operations",
+                            "Microsoft.ClassicNetwork/quotas",
+                            "Microsoft.ClassicNetwork/reservedIps",
+                            "Microsoft.ClassicNetwork/virtualNetworks",
+                            "Microsoft.ClassicNetwork/virtualNetworks/remoteVirtualNetworkPeeringProxies",
+                            "Microsoft.ClassicNetwork/virtualNetworks/virtualNetworkPeerings",
+                            "Microsoft.ClassicStorage/capabilities",
+                            "Microsoft.ClassicStorage/checkStorageAccountAvailability",
+                            "Microsoft.ClassicStorage/disks",
+                            "Microsoft.ClassicStorage/images",
+                            "Microsoft.ClassicStorage/operations",
+                            "Microsoft.ClassicStorage/osImages",
+                            "Microsoft.ClassicStorage/osPlatformImages",
+                            "Microsoft.ClassicStorage/publicImages",
+                            "Microsoft.ClassicStorage/quotas",
+                            "Microsoft.ClassicStorage/storageAccounts",
+                            "Microsoft.ClassicStorage/storageAccounts/blobServices",
+                            "Microsoft.ClassicStorage/storageAccounts/fileServices",
+                            "Microsoft.ClassicStorage/storageAccounts/metricDefinitions",
+                            "Microsoft.ClassicStorage/storageAccounts/metrics",
+                            "Microsoft.ClassicStorage/storageAccounts/queueServices",
+                            "Microsoft.ClassicStorage/storageAccounts/services",
+                            "Microsoft.ClassicStorage/storageAccounts/services/diagnosticSettings",
+                            "Microsoft.ClassicStorage/storageAccounts/services/metricDefinitions",
+                            "Microsoft.ClassicStorage/storageAccounts/services/metrics",
+                            "Microsoft.ClassicStorage/storageAccounts/tableServices",
+                            "Microsoft.ClassicStorage/storageAccounts/vmImages",
+                            "Microsoft.ClassicStorage/vmImages",
+                            "Microsoft.ClassicSubscription/operations"
+                        ]
+                    }
+                },
+                {
+                    "nodeName": "UnusedResources",
+                    "assignment": {
+                        "name": "Audit-UnusedResources",
+                        "displayName": "Unused resources driving cost should be avoided",
+                        "description": "This Policy initiative is a group of Policy definitions that help optimize cost by detecting unused but chargeable resources. Leverage this Policy initiative as a cost control to reveal orphaned resources that are driving cost."
+                    },
+                    "definitionEntry": {
+                        "policySetName": "Audit-UnusedResourcesCostOptimization",
+                        "friendlyNameToDocumentIfGuid": "Unused Resources"
                     }
                 }
             ]

@@ -28,15 +28,15 @@
                     }
                 },
                 {
-                    "nodeName": "RDP",
+                    "nodeName": "DenyMgmt",
                     "assignment": {
-                        "name": "Deny-RDP-From-Internet",
-                        "displayName": "RDP access from the Internet should be blocked",
-                        "description": "This policy denies any network security rule that allows RDP access from Internet."
+                        "name": "Deny-MgmtPorts-Internet",
+                        "displayName": "Management port access from the Internet should be blocked",
+                        "description": "This policy denies any network security rule that allows management port access from the Internet"
                     },
                     "definitionEntry": {
-                        "policyName": "Deny-RDP-From-Internet",
-                        "friendlyNameToDocumentIfGuid": "Deny RDP From Internet"
+                        "policyName": "Deny-MgmtPorts-From-Internet",
+                        "friendlyNameToDocumentIfGuid": "Deny Management Ports"
                     }
                 },
                 {
@@ -66,6 +66,12 @@
                     "definitionEntry": {
                         "policyName": "98d0b9f8-fd90-49c9-88e2-d3baf3b0dd86",
                         "friendlyNameToDocumentIfGuid": "Deploy VM Backup"
+                    },
+                    "parameters":{
+                        "exclusionTagName": "",
+                        "exclusionTagValue": [
+                            
+                        ]
                     }
                 }
             ]
