@@ -67,6 +67,12 @@
                     "definitionEntry": {
                         "policySetName": "e20d08c5-6d64-656d-6465-ce9e37fd0ebc",
                         "friendlyNameToDocumentIfGuid": "Microsoft Defender for Endpoint agent"
+                    },
+                    "parameters": {
+                        "microsoftDefenderForEndpointWindowsVmAgentDeployEffect": "AuditIfNotExists",
+                        "microsoftDefenderForEndpointLinuxVmAgentDeployEffect": "AuditIfNotExists",
+                        "microsoftDefenderForEndpointWindowsArcAgentDeployEffect": "AuditIfNotExists",
+                        "microsoftDefenderForEndpointLinuxArcAgentDeployEffect": "AuditIfNotExists"
                     }
                 },
                 {
@@ -140,7 +146,7 @@
         },
         {
             "nodeName": "Compute/",
-            "children":[
+            "children": [
                 {
                     "nodeName": "VMMonitoring",
                     "assignment": {
@@ -176,7 +182,7 @@
                         "policyName": "06a78e20-9358-41c9-923c-fb736d382a4d",
                         "friendlyNameToDocumentIfGuid": "Unmanaged Disks"
                     },
-                    "overrides":[
+                    "overrides": [
                         {
                             "kind": "policyEffect",
                             "value": "Deny"
