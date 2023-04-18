@@ -101,7 +101,7 @@
                         "friendlyNameToDocumentIfGuid": "Audit DDOS Landing Zones"
                     },
                     "parameters": {
-                        "effect": "Modify",
+                        "effect": "Audit",
                         "ddosPlan": ""
                     }
                 },
