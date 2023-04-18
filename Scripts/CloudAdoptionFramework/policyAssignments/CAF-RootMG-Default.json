@@ -58,19 +58,6 @@
                     }
                 },
                 {
-                    "nodeName": "ASB",
-                    "assignment": {
-                        "name": "Deploy-ASC-Monitoring",
-                        "displayName": "Microsoft Cloud Security Benchmark",
-                        "description": "Microsoft Cloud Security Benchmark policy initiative"
-                    },
-                    "definitionEntry": {
-                        "policySetName": "1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
-                        "friendlyNameToDocumentIfGuid": "Microsoft Cloud Security Benchmark"
-                    },
-                    "parameters": {}
-                },
-                {
                     "nodeName": "MDFE",
                     "assignment": {
                         "name": "Deploy-MDEndpoints",
