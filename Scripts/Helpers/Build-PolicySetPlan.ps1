@@ -137,11 +137,11 @@ function Build-PolicySetPlan {
                     break
                 }
                 $importPolicySetId = $importPolicyDefinitionGroup
-                if ($importPolicyDefinitionGroup -notcontains "/providers/Microsoft.Authorization/policySetDefinitions/") {
+                if (!($importPolicyDefinitionGroup.StartsWith("/providers/Microsoft.Authorization/policySetDefinitions/", [System.StringComparison]::OrdinalIgnoreCase))) {
                     $importPolicySetId = "/providers/Microsoft.Authorization/policySetDefinitions/$importPolicyDefinitionGroup"
                 }
                 if (!($deployedDefinitions.readOnly.ContainsKey($importPolicySetId))) {
-                    Write-Error "Built-in Policy Set '$importPolicyDefinitionGroup' for group name import not found." -ErrorAction Stop
+                    Write-Error "$($displayName): Policy Set '$importPolicySetId' for group name import not found." -ErrorAction Stop
                 }
                 $importedPolicySetDefinition = $deployedDefinitions.readOnly[$importPolicySetId]
                 $importedPolicyDefinitionGroups = $importedPolicySetDefinition.properties.policyDefinitionGroups
@@ -174,7 +174,7 @@ function Build-PolicySetPlan {
         }
 
         if (!$validPolicyDefinitions) {
-            Write-Error "One or more invalid Policy entries referenced in Policy Set '$($displayName)' from '$($file.Name)'." -ErrorAction Stop
+            Write-Error "$($displayName): One or more invalid Policy entries referenced in Policy Set '$($displayName)' from '$($file.Name)'." -ErrorAction Stop
         }
 
         # Constructing Policy Set parameters for splatting
