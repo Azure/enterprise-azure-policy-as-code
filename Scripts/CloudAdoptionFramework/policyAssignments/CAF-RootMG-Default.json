@@ -7,10 +7,7 @@
     },
     "parameters": {
         "logAnalytics": "",
-        "logAnalytics_1": "",
-        "emailSecurityContact": "",
-        "ascExportResourceGroupName": "",
-        "ascExportResourceGroupLocation": ""
+        "logAnalytics_1": ""
     },
     "children": [
         {
@@ -41,6 +38,9 @@
                         "friendlyNameToDocumentIfGuid": "Microsoft Defender For Cloud"
                     },
                     "parameters": {
+                        "emailSecurityContact": "",
+                        "ascExportResourceGroupName": "",
+                        "ascExportResourceGroupLocation": "",
                         "enableAscForServers": "Disabled",
                         "enableAscForSql": "Disabled",
                         "enableAscForAppServices": "Disabled",
