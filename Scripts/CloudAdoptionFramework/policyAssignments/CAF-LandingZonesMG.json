@@ -17,10 +17,10 @@
                         "description": "Do not allow containers to run with privilege escalation to root in a Kubernetes cluster. This recommendation is part of CIS 5.2.5 which is intended to improve the security of your Kubernetes environments. This policy is generally available for Kubernetes Service (AKS), and preview for AKS Engine and Azure Arc enabled Kubernetes. For more information, see https://aka.ms/kubepolicydoc."
                     },
                     "definitionEntry": {
-                        "policyName": " -99f0-4e55-9cf2-0c234dc48f99",
+                        "policyName": "1c6e92c9-99f0-4e55-9cf2-0c234dc48f99",
                         "friendlyNameToDocumentIfGuid": "AKS Privilege Escalation"
                     },
-                    "parameters":{
+                    "parameters": {
                         "effect": "deny"
                     }
                 },
@@ -133,7 +133,7 @@
                         "policyName": "404c3081-a854-4457-ae30-26a93ef643f9",
                         "friendlyNameToDocumentIfGuid": "Deny Storage HTTP"
                     },
-                    "parameters":{
+                    "parameters": {
                         "effect": "deny"
                     }
                 }
@@ -153,10 +153,9 @@
                         "policyName": "25da7dfb-0666-4a15-a8f5-402127efd8bb",
                         "friendlyNameToDocumentIfGuid": "Deploy SQL DB Auditing"
                     },
-                    "parameters":{
+                    "parameters": {
                         "logAnalyticsWorkspaceId": "your-law-resource-id"
                     }
-
                 }
             ]
         },
@@ -174,11 +173,9 @@
                         "policyName": "98d0b9f8-fd90-49c9-88e2-d3baf3b0dd86",
                         "friendlyNameToDocumentIfGuid": "Deploy VM Backup"
                     },
-                    "parameters":{
+                    "parameters": {
                         "exclusionTagName": "",
-                        "exclusionTagValue": [
-                            
-                        ]
+                        "exclusionTagValue": []
                     }
                 }
             ]
