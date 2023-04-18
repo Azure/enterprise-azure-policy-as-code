@@ -18,7 +18,8 @@
                 "friendlyNameToDocumentIfGuid": "Sandbox Guardrails"
             },
             "parameters": {
-                "listOfResourceTypesAllowed": [
+                "topLevelManagementGroupPrefix": "",
+                "listOfResourceTypesNotAllowed": [
                     "microsoft.network/expressroutecircuits",
                     "microsoft.network/expressroutegateways",
                     "microsoft.network/virtualwans",

@@ -18,6 +18,7 @@
                 "friendlyNameToDocumentIfGuid": "Decommissioned Guardrails"
             },
             "parameters": {
+                "topLevelManagementGroupPrefix": "",
                 "listOfResourceTypesAllowed": [
                     "microsoft.consumption/tags",
                     "microsoft.authorization/roleassignments",
