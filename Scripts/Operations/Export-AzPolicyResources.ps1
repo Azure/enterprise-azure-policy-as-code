@@ -484,7 +484,7 @@ foreach ($pacEnvironment in $pacEnvironments.Values) {
                 }
                 if ($identityType -eq "UserAssigned") {
                     $userAssignedIdentities = $properties.identity.userAssignedIdentities
-                    $identityProperty = $userAssignedIdentities.psobject.propertie[0]
+                    $identityProperty = $userAssignedIdentities.psobject.properties[0]
                     $identity = $identityProperty.Name
                     $identityEntry = @{
                         userAssigned = $identity
