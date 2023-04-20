@@ -3,7 +3,7 @@
 	RootModule        = 'EnterprisePolicyAsCode.psm1'
 	
 	# Version number of this module.
-	ModuleVersion     = '7.1.2'
+	ModuleVersion     = '7.1.3'
 	
 	# ID used to uniquely identify this module
 	GUID              = '197a34e5-115d-4c15-a593-b004228be78b'
