@@ -5,6 +5,9 @@
             "/providers/Microsoft.Management/managementGroups/landingzones"
         ]
     },
+    "parameters": {
+        "logAnalyticsWorkspaceId": ""
+    },
     "children": [
         {
             "nodeName": "AKS/",
@@ -139,12 +142,12 @@
                 {
                     "nodeName": "Auditing",
                     "assignment": {
-                        "name": "Deploy-SQL-DB-Auditing",
-                        "displayName": "Auditing on SQL server should be enabled",
-                        "description": "Auditing on your SQL Server should be enabled to track database activities across all databases on the server and save them in an audit log."
+                        "name": "Deploy-AzSqlDb-Auditing",
+                        "description": "To ensure the operations performed against your SQL assets are captured, SQL servers should have auditing enabled. If auditing is not enabled, this policy will configure auditing events to flow to the specified Log Analytics workspace.",
+                        "displayName": "Configure SQL servers to have auditing enabled to Log Analytics workspace"
                     },
                     "definitionEntry": {
-                        "policyName": "a6fb4358-5bf4-4ad7-ba82-2cd2f41ce5e9",
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/25da7dfb-0666-4a15-a8f5-402127efd8bb",
                         "friendlyNameToDocumentIfGuid": "Deploy SQL DB Auditing"
                     }
                 }
@@ -192,6 +195,33 @@
                     "definitionEntry": {
                         "policyName": "36d49e87-48c4-4f2e-beed-ba4ed02b71f5",
                         "friendlyNameToDocumentIfGuid": "Deploy SQL Threat Detection"
+                    }
+                },
+                {
+                    "nodeName": "ACSB",
+                    "assignment": {
+                        "name": "Enforce-ACSB",
+                        "description": "This initiative assignment enables Azure Compute Security Baseline compliance auditing for Windows and Linux virtual machines.",
+                        "displayName": "Enforce Azure Compute Security Baseline compliance auditing"
+                    },
+                    "definitionEntry": {
+                        "policySetName": "Enforce-ACSB"
+                    }
+                }
+            ]
+        },
+        {
+            "nodeName": "KeyVault/",
+            "children": [
+                {
+                    "nodeName": "KeyVault",
+                    "assignment": {
+                        "name": "Enforce-GR-KeyVault",
+                        "description": "This initiative assignment enables recommended ALZ guardrails for Azure Key Vault.",
+                        "displayName": "Enforce recommended guardrails for Azure Key Vault"
+                    },
+                    "definitionEntry": {
+                        "policySetName": "Enforce-Guardrails-KeyVault"
                     }
                 }
             ]
