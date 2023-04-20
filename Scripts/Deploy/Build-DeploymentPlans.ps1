@@ -146,7 +146,7 @@ if ($exemptionsAreManaged) {
         -deployedExemptions $deployedPolicyResources.policyExemptions `
         -exemptions $exemptions
 }
-
+$pacOwnerId = $pacEnvironment.pacOwnerId
 $timestamp = Get-Date -AsUTC -Format "u"
 $policyPlan = @{
     createdOn            = $timestamp
