@@ -190,7 +190,7 @@ function Build-PolicySetPlan {
             policyDefinitions      = $policyDefinitionsFinal
             policyDefinitionGroups = $policyDefinitionGroupsFinal
         }
-        Remove-NullOrEmptyFields $definition
+        Remove-NullOrEmptyFields $definition -nullOnly
         $allDefinitions.policysetdefinitions[$id] = $definition
 
         if ($managedDefinitions.ContainsKey($id)) {
