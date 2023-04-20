@@ -4,6 +4,8 @@ Exports Azure Policy resources in EPAC format or raw format.
 
 .DESCRIPTION
 Exports Azure Policy resources in EPAC format or raw format. It has 4 operating modes - see -mode parameter for details.
+It also generates documentaion for the exported resources (can be suppressed with -suppressDocumentation).
+To just generate EPAC formatted Definitions without generating documentaion files, use -supressEpacOutput.
 
 .PARAMETER definitionsRootFolder
 Definitions folder path. Defaults to environment variable $env:PAC_DEFINITIONS_FOLDER or './Definitions'.
@@ -12,10 +14,10 @@ Definitions folder path. Defaults to environment variable $env:PAC_DEFINITIONS_F
 Output Folder. Defaults to environment variable $env:PAC_OUTPUT_FOLDER or './Outputs'.
 
 .PARAMETER interactive
-Set to false if used non-interactive
+Set to false if used non-interactive. Defaults to $true.
 
 .PARAMETER includeChildScopes
-Switch to include Policies and Policy Sets definitions in child scopes
+Switch parameter to include Policies and Policy Sets definitions in child scopes
 
 .PARAMETER includeAutoAssigned
 Switch parameter to include Assignments auto-assigned by Defender for Cloud
@@ -36,6 +38,12 @@ Operating mode:
 .PARAMETER inputPacSelector
 Limits the collection to one EPAC environment, useful for non-interactive use in a multi-tenant scenario, especially with -mode 'collectRawFile'.
 The default is '*' which will execute all EPAC-Environments.
+
+.PARAMETER suppressDocumentation
+Suppress documentation generation.
+
+.PARAMETER suppressEpacOutput
+Suppress output generation in EPAC format.
 
 .EXAMPLE
 Export-AzPolicyResources -definitionsRootFolder ./Definitions -outputFolder ./Outputs -interactive $true -includeChildScopes -includeAutoAssigned -exemptionFiles csv -fileExtension jsonc -mode export -inputPacSelector '*'
@@ -89,7 +97,13 @@ param (
         Limits the collection to one EPAC environment, useful for non-interactive use in a multi-tenant scenario, especially with -mode 'collectRawFile'.
         The default is '*' which will execute all EPAC-Environments.
     ")]
-    [string] $inputPacSelector = '*'
+    [string] $inputPacSelector = '*',
+
+    [Parameter(Mandatory = $false, HelpMessage = "Suppress documentation generation")]
+    [switch] $suppressDocumentation,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Suppress output generation in EPAC format")]
+    [switch] $suppressEpacOutput
 )
 
 # Dot Source Helper Scripts
