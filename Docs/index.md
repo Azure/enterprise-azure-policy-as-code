@@ -10,21 +10,30 @@ Enterprise Azure Policy as Code or EPAC for short comprises a number of scripts 
 !!! warning
     Substantial feature enhancements required [breaking changes in v6.0 and to a lesser extend in v7.0](Docs/breaking-changes.md).
 
+## Project Links
+
+* [GitHub Repo](https://github.com/Azure/enterprise-azure-policy-as-code)
+* [GitHub Issues](https://github.com/Azure/enterprise-azure-policy-as-code/issues)
+* [Starter Kit](https://github.com/Azure/enterprise-azure-policy-as-code/tree/main/StarterKit)
+* [Enterprise Policy as Code PowerShell Module](https://www.powershellgallery.com/packages/EnterprisePolicyAsCode)
+* [Azure Enterprise Policy as Code – A New Approach](https://techcommunity.microsoft.com/t5/core-infrastructure-and-security/azure-enterprise-policy-as-code-a-new-approach/ba-p/3607843)
+* [Azure Enterprise Policy as Code – Azure Landing Zones Integration](https://techcommunity.microsoft.com/t5/core-infrastructure-and-security/azure-enterprise-policy-as-code-azure-landing-zones-integration/ba-p/3607844)
+
 ## Microsoft's Security & Compliance for Cloud Infrastructure
 
 This `enterprise-policy-as-code` **(EPAC)** repo has been developed in partnership with the Security & Compliance for Cloud Infrastructure (S&C4CI) offering available from Microsoft's Industry Solutions (Consulting Services). Microsoft Industry Solutions can assist you with securing your cloud. S&C4CI improves your new or existing security posture in Azure by securing platforms, services, and workloads at scale.
 
 ## Terminology
 
-| Full name | Simplified use in this documentation |
-| :-------- | :----------------------------------- |
-| Policy definition(s) | Policy, Policies |
-| Initiative definition(s) or Policy Set definition(s) | Policy Set(s) |
-| Policy Assignment(s) of a Policy or Policy Set | Assignment(s) |
-| Policy Assignment(s) of a Policy Set | Policy Set Assignment |
-| Policy Exemption(s) | Exemption(s) |
-| Role Assignment(s)s for Managed Identities required by Policy Assignments | Role Assignment(s) |
-| Policies, Policy Sets, Assignments **and** Exemptions | Policy resources |
+| Full name                                                                 | Simplified use in this documentation |
+| :------------------------------------------------------------------------ | :----------------------------------- |
+| Policy definition(s)                                                      | Policy, Policies                     |
+| Initiative definition(s) or Policy Set definition(s)                      | Policy Set(s)                        |
+| Policy Assignment(s) of a Policy or Policy Set                            | Assignment(s)                        |
+| Policy Assignment(s) of a Policy Set                                      | Policy Set Assignment                |
+| Policy Exemption(s)                                                       | Exemption(s)                         |
+| Role Assignment(s)s for Managed Identities required by Policy Assignments | Role Assignment(s)                   |
+| Policies, Policy Sets, Assignments **and** Exemptions                     | Policy resources                     |
 
 ## Deployment Scripts
 

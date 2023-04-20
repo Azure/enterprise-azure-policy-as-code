@@ -200,13 +200,13 @@ function Build-ExemptionsPlan {
                 if ($deployedManagedExemption.policyAssignmentId -ne $policyAssignmentId) {
                     # Replaced Assignment
                     Write-Information "Replace(assignment) '$($name)', '$($scope)'"
-                    $null = $replacedExemptions.Add($id, $exemption)
+                    $null = $exemptions.replace.Add($id, $exemption)
                     $exemptions.numberOfChanges++
                 }
                 elseif ($replacedAssignments.ContainsKey($policyAssignmentId)) {
                     # Replaced Assignment
                     Write-Information "Replace(reference) '$($name)', '$($scope)'"
-                    $null = $replacedExemptions.Add($id, $exemption)
+                    $null = $exemptions.replace.Add($id, $exemption)
                     $exemptions.numberOfChanges++
                 }
                 else {

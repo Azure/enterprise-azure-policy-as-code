@@ -6,7 +6,7 @@ function Set-AzPolicyDefinitionRestMethod {
 
     # Write log info
     $displayName = $definitionObj.displayName
-    # Write-Information "  $displayName"
+    Write-Information $displayName
 
     # Build the REST API body
     $properties = @{
@@ -18,7 +18,7 @@ function Set-AzPolicyDefinitionRestMethod {
         parameters  = $definitionObj.parameters
         policyRule  = $definitionObj.policyRule
     }
-    Remove-NullOrEmptyFields $properties
+    Remove-NullOrEmptyFields $properties -nullOnly
     $definition = @{
         properties = $properties
     }

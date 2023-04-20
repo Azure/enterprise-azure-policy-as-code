@@ -1,7 +1,14 @@
-# CI/CD Pipeline
+# CI/CD Pipeline and Azure DevOps
 
-This repository contains starter pipeline definitions for Azure DevOps.
-The authors are interested in supporting other deployment pipelines. If you have developed pipelines for other technologies, such as GitHub, Jenkins, etc., please contribute them to the project as additional starter kits
+This page covers the general CI/CD documentation, as well as, Azure DevOps CI/CD specific items.
+
+This repository contains starter pipelines
+
+* Azure DevOps
+* [GitHub Actions](./github-actions.md). 
+
+
+The authors are interested in supporting other deployment pipelines. If you have developed pipelines for other technologies, such as GitLab, Jenkins, etc., please contribute them to the project as additional starter kits.
 
 ## Simplified GitHub Flow for Policy as Code
 

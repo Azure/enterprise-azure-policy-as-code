@@ -107,7 +107,7 @@ function Build-PolicyPlan {
             parameters  = $parameters
             policyRule  = $policyRule
         }
-        Remove-NullOrEmptyFields $definition
+        Remove-NullOrEmptyFields $definition -nullOnly
         $allDefinitions.policydefinitions[$id] = $definition
 
 

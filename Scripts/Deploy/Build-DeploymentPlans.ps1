@@ -44,9 +44,10 @@ if ($exemptionsAreManaged) {
         Write-Warning "Policy Exemptions are not managed by EPAC this PaC environment $($pacEnvironment.pacSelector)!"
     }
 }
+$exemptionsAreNotManaged = !$exemptionsAreManaged
 
 $scopeTable = Get-AzScopeTree -pacEnvironment $pacEnvironment
-$deployedPolicyResources = Get-AzPolicyResources -pacEnvironment $pacEnvironment -scopeTable $scopeTable -skipExemptions:$exemptionsAreManaged
+$deployedPolicyResources = Get-AzPolicyResources -pacEnvironment $pacEnvironment -scopeTable $scopeTable -skipExemptions:$exemptionsAreNotManaged
 
 # Process Policies
 $policyDefinitions = @{

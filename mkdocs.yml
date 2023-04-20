@@ -28,21 +28,22 @@ nav:
   - Getting Started:
       - Overview: quick-start.md
       - Operating Environment: operating-environment.md
-      - Cloning the Project: clone-github.md
-      - PowerShell Module: powershell-module.md
-      - Definitions and Global Settings: definitions-and-global-settings.md
+      - PowerShell Scripts (options):
+          - Cloning the Project: clone-github.md
+          - PowerShell Module: powershell-module.md
       - Desired State Strategy: desired-state-strategy.md
-      - Extracting Existing Policy Resources: extract-existing-policy-resources.md
-  - CI/CD:
+      - Global Settings and Definitions: definitions-and-global-settings.md
+  - CI/CD Integration:
       - CI/CD Pipeline: ci-cd-pipeline.md
-      - Desired State Strategy: desired-state-strategy.md
       - GitHub Actions: github-actions.md
+  - CAF ALZ and Hydrating:
+      - Extracting Existing Policy Resources: extract-existing-policy-resources.md
+      - CAF Azure Landing Zones Integration: integrating-with-alz.md
   - Policy Objects:
       - Policy Definitions: policy-definitions.md
       - Policy Set Definitions: policy-set-definitions.md
       - Policy Assignments: policy-assignments.md
       - Policy Exemptions: policy-exemptions.md
-  - CAF ALZ Integration: integrating-with-alz.md
   - Documenting Policy Objects: documenting-assignments-and-policy-sets.md
   - Operational Scripts: operational-scripts.md
 

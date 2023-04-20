@@ -62,7 +62,7 @@ function Out-PolicyDefinition {
     }
 
     # Write the content
-    Remove-NullOrEmptyFields $definition
+    Remove-NullOrEmptyFields $definition -nullOnly
     $json = ConvertTo-Json $definition -Depth 100
     $null = New-Item $fullPath -Force -ItemType File -Value $json
 }
