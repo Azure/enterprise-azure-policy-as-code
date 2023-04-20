@@ -62,6 +62,10 @@ if (Test-Path $sourceDirectory -PathType Container) {
             Write-Information "Deleting '$destinationDirectory/Docs'"
             Remove-Item "$destinationDirectory/Docs" -Recurse
         }
+        if (Test-Path "$destinationDirectory/Module") {
+            Write-Information "Deleting '$destinationDirectory/Module'"
+            Remove-Item "$destinationDirectory/Module" -Recurse
+        }
         if (Test-Path "$destinationDirectory/Scripts") {
             Write-Information "Deleting '$destinationDirectory/Scripts'"
             Remove-Item "$destinationDirectory/Scripts" -Recurse
@@ -74,6 +78,8 @@ if (Test-Path $sourceDirectory -PathType Container) {
 
     Write-Information "Copying '$sourceDirectory/Docs' to '$destinationDirectory/Docs'"
     Copy-Item "$sourceDirectory/Docs" "$destinationDirectory/Docs" -Recurse -Force
+    Write-Information "Copying '$sourceDirectory/Module' to '$destinationDirectory/Module'"
+    Copy-Item "$sourceDirectory/Module" "$destinationDirectory/Module" -Recurse -Force
     Write-Information "Copying '$sourceDirectory/Scripts' to '$destinationDirectory/Scripts'"
     Copy-Item "$sourceDirectory/Scripts" "$destinationDirectory/Scripts" -Recurse -Force
     Write-Information "Copying '$sourceDirectory/StarterKit' to '$destinationDirectory/StarterKit'"
