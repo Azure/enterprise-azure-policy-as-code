@@ -110,6 +110,23 @@
                         "policySetName": "Enforce-ACSB",
                         "friendlyNameToDocumentIfGuid": "Azure Compute Security Baseline"
                     }
+                },
+                {
+                    "nodeName": "MDE",
+                    "assignment": {
+                        "name": "Deploy-MDEndpoints",
+                        "displayName": "[Preview]: Deploy Microsoft Defender for Endpoint agent",
+                        "description": "Deploy Microsoft Defender for Endpoint agent on applicable images."
+                    },
+                    "definitionEntry": {
+                        "policySetName": "e20d08c5-6d64-656d-6465-ce9e37fd0ebc"
+                    },
+                    "parameters": {
+                        "microsoftDefenderForEndpointWindowsVmAgentDeployEffect": "DeployIfNotExists",
+                        "microsoftDefenderForEndpointLinuxVmAgentDeployEffect": "DeployIfNotExists",
+                        "microsoftDefenderForEndpointWindowsArcAgentDeployEffect": "DeployIfNotExists",
+                        "microsoftDefenderForEndpointLinuxArcAgentDeployEffect": "DeployIfNotExists"
+                    }
                 }
             ]
         },

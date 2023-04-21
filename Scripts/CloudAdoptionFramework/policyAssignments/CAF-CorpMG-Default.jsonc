@@ -91,30 +91,50 @@
                     }
                 },
                 {
-                    "nodeName": "PublicIP",
+                    "nodeName": "NOPublicIP",
                     "assignment": {
                         "name": "Deny-Public-IP-On-NIC",
-                        "displayName": "Deny network interfaces having a public IP associated",
-                        "description": "This policy denies network interfaces from having a public IP associated to it under the assigned scope."
+                        "description": "This policy denies network interfaces from having a public IP associated to it under the assigned scope.",
+                        "displayName": "Deny network interfaces having a public IP associated"
                     },
                     "definitionEntry": {
-                        "policySetName": "83a86a26-fd1f-447c-b59d-e51f44264114",
-                        "friendlyNameToDocumentIfGuid": "Deny Public IP on NIC"
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/83a86a26-fd1f-447c-b59d-e51f44264114"
                     }
                 },
                 {
-                    "nodeName": "AuditPrivateLinkZone",
+                    "nodeName": "DenyNetworking",
                     "assignment": {
-                        "name": "Audit-PeDnsZones",
-                        "displayName": "Audit Private Link Private DNS Zone resources",
-                        "description": "Audits the deployment of Private Link Private DNS Zone resources in the Corp landing zone."
+                        "name": "Deny-HybridNetworking",
+                        "description": "Denies deployment of vWAN/ER/VPN gateway resources in the Corp landing zone.",
+                        "displayName": "Deny the deployment of vWAN/ER/VPN gateway resources"
                     },
                     "definitionEntry": {
-                        "policySetName": "Audit-PrivateLinkDnsZones",
-                        "friendlyNameToDocumentIfGuid": "Audit Private Link Zone"
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/6c112d4e-5bc7-47ae-a041-ea2d9dccd749"
                     },
-                    "parameters":{
-                        "effect": "Audit",
+                    "parameters": {
+                        "listOfResourceTypesNotAllowed": [
+                            "microsoft.network/expressroutecircuits",
+                            "microsoft.network/expressroutegateways",
+                            "microsoft.network/expressrouteports",
+                            "microsoft.network/virtualwans",
+                            "microsoft.network/vpngateways",
+                            "microsoft.network/p2svpngateways",
+                            "microsoft.network/vpnsites",
+                            "microsoft.network/virtualnetworkgateways"
+                        ]
+                    }
+                },
+                {
+                    "nodeName": "PLink",
+                    "assignment": {
+                        "name": "Audit-PeDnsZones",
+                        "description": "Audits the deployment of Private Link Private DNS Zone resources in the Corp landing zone.",
+                        "displayName": "Audit Private Link Private DNS Zone resources"
+                    },
+                    "definitionEntry": {
+                        "policyName": "Audit-PrivateLinkDnsZones"
+                    },
+                    "parameters": {
                         "privateLinkDnsZones": [
                             "privatelink.adf.azure.com",
                             "privatelink.afs.azure.net",
@@ -179,30 +199,6 @@
                             "privatelink.vaultcore.azure.net",
                             "privatelink.web.core.windows.net",
                             "privatelink.webpubsub.azure.com"
-                        ]
-                    }
-                },
-                {
-                    "nodeName": "HybridNetworking",
-                    "assignment": {
-                        "name": "Deny-HybridNetworking",
-                        "displayName": "Deny the deployment of vWAN/ER/VPN gateway resources",
-                        "description": "Denies deployment of vWAN/ER/VPN gateway resources in the Corp landing zone."
-                    },
-                    "definitionEntry": {
-                        "policySetName": "6c112d4e-5bc7-47ae-a041-ea2d9dccd749",
-                        "friendlyNameToDocumentIfGuid": "Deny Hybrid Networking"
-                    },
-                    "parameters":{
-                        "listOfResourceTypesNotAllowed": [
-                            "microsoft.network/expressroutecircuits",
-                            "microsoft.network/expressroutegateways",
-                            "microsoft.network/expressrouteports",                            
-                            "microsoft.network/virtualwans",
-                            "microsoft.network/vpngateways",
-                            "microsoft.network/p2svpngateways",                            
-                            "microsoft.network/vpnsites",
-                            "microsoft.network/virtualnetworkgateways"
                         ]
                     }
                 }

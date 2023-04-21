@@ -178,6 +178,9 @@ Carefully review the proposed changes before deploying them. It is best to make 
 !!! note
     Assignments deployed via the ALZ accelerators are kept in sync with the EnterprisePolicyAsCode module so ensure you have the latest PowerShell module installed before running `Sync-CAFPolicies`
 
+!!! tip
+    Rename or copy the default CAF assignment files - when you do a sync it makes it easier to compare changes. 
+
 ## Keeping up to date with GitHub Actions
 
 There is a GitHub action workflow which executes the above script. The process for configuring it is below.

@@ -5,6 +5,10 @@
             "/providers/Microsoft.Management/managementGroups/landingzones"
         ]
     },
+    "parameters": {
+        "logAnalyticsWorkspaceId": "",
+        "topLevelManagementGroupPrefix": ""
+    },
     "children": [
         {
             "nodeName": "AKS/",
@@ -150,7 +154,7 @@
                         "description": "To ensure the operations performed against your SQL assets are captured, SQL servers should have auditing enabled. If auditing is not enabled, this policy will configure auditing events to flow to the specified Log Analytics workspace."
                     },
                     "definitionEntry": {
-                        "policyName": "25da7dfb-0666-4a15-a8f5-402127efd8bb",
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/25da7dfb-0666-4a15-a8f5-402127efd8bb",
                         "friendlyNameToDocumentIfGuid": "Deploy SQL DB Auditing"
                     },
                     "parameters": {
@@ -222,6 +226,17 @@
                     "definitionEntry": {
                         "policyName": "36d49e87-48c4-4f2e-beed-ba4ed02b71f5",
                         "friendlyNameToDocumentIfGuid": "Deploy SQL Threat Detection"
+                    }
+                },
+                {
+                    "nodeName": "ACSB",
+                    "assignment": {
+                        "name": "Enforce-ACSB",
+                        "description": "This initiative assignment enables Azure Compute Security Baseline compliance auditing for Windows and Linux virtual machines.",
+                        "displayName": "Enforce Azure Compute Security Baseline compliance auditing"
+                    },
+                    "definitionEntry": {
+                        "policySetName": "Enforce-ACSB"
                     }
                 },
                 {

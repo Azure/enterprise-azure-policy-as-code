@@ -134,7 +134,7 @@ function Build-AssignmentPlan {
         $isUserAssignedAny = $false
         foreach ($assignment in $assignmentsList) {
 
-            Remove-NullOrEmptyFields $assignment
+            Remove-NullOrEmptyFields $assignment -nullOnly
             $id = $assignment.id
             $allAssignments[$id] = $assignment
             $displayName = $assignment.displayName

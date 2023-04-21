@@ -226,6 +226,7 @@ function Get-AzPolicyResources {
             $kind = $policyResource.kind
             $included = $true
             $resourceIdParts = $null
+            Remove-NullOrEmptyFields $policyResource -nullOnly
             if ($kind -eq "policyassignments") {
                 $included, $resourceIdParts = Confirm-PolicyResourceExclusions `
                     -testId $id `
@@ -240,7 +241,6 @@ function Get-AzPolicyResources {
                     $scope = $resourceIdParts.scope
                     $policyResource.resourceIdParts = $resourceIdParts
                     $policyResource.pacOwner = Confirm-PacOwner -thisPacOwnerId $thisPacOwnerId -metadata $policyResource.properties.metadata -managedByCounters $policyAssignmentsTable.counters.managedBy
-                    Remove-NullOrEmptyFields $policyResource -nullOnly
                     $null = $policyAssignmentsTable.all.Add($id, $policyResource)
                     $null = $policyAssignmentsTable.managed.Add($id, $policyResource)
                     if ($policyResource.identity -and $policyResource.identity.type -ne "None") {
@@ -289,7 +289,6 @@ function Get-AzPolicyResources {
                             switch ($i) {
                                 0 {
                                     # deploymentRootScope
-                                    Remove-NullOrEmptyFields $policyResource
                                     $null = $deployedPolicyTable.all.Add($id, $policyResource)
                                     $null = $deployedPolicyTable.managed.Add($id, $policyResource)
                                     $null = $deployedPolicyTable.custom.Add($id, $policyResource)
@@ -529,7 +528,7 @@ function Get-AzPolicyResources {
                     if (!$exemptionsProcessed.ContainsKey($id)) {
                         # Filter out duplicates in parent Management Groups
 
-                        Remove-NullOrEmptyFields $exemption
+                        Remove-NullOrEmptyFields $exemption -nullOnly
                         $null = $exemptionsProcessed.Add($id, $exemption)
 
                         # normalize values to az cli representation

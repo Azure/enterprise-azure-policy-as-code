@@ -66,7 +66,7 @@ function Out-PolicyAssignmentFile {
         -propertyNames $propertyNames
 
     # Write structure to file
-    Remove-NullOrEmptyFields $assignmentDefinition
+    Remove-NullOrEmptyFields $assignmentDefinition -nullOnly
     $json = ConvertTo-Json $assignmentDefinition -Depth 100
     $null = New-Item $fullPath -Force -ItemType File -Value $json
 }
