@@ -37,4 +37,6 @@ Copy-Item -Path .\Scripts\CloudAdoptionFramework\policyAssignments -Destination 
 
 (Get-Content -Path .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1) -replace "FunctionsToExport = ''", "FunctionsToExport = @($((gci -Path .\Module\EnterprisePolicyAsCode\functions | Select-Object -ExpandProperty BaseName) | Join-String -Separator "," -DoubleQuote))" | Set-Content .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1
 
-(Get-Content -Path .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1) -replace "ModuleVersion     = ''", "ModuleVersion     = '$($env:TAG_NAME)'" | Set-Content .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1
+$tag_name = $env:TAG_NAME -replace "v", ""
+
+(Get-Content -Path .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1) -replace "ModuleVersion     = ''", "ModuleVersion     = '$tag_name'" | Set-Content .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1
