@@ -6,8 +6,7 @@
         ]
     },
     "parameters": {
-        "logAnalyticsWorkspaceId": "",
-        "topLevelManagementGroupPrefix": ""
+        "logAnalyticsWorkspaceId": ""
     },
     "children": [
         {
@@ -156,9 +155,6 @@
                     "definitionEntry": {
                         "policyId": "/providers/Microsoft.Authorization/policyDefinitions/25da7dfb-0666-4a15-a8f5-402127efd8bb",
                         "friendlyNameToDocumentIfGuid": "Deploy SQL DB Auditing"
-                    },
-                    "parameters": {
-                        "logAnalyticsWorkspaceId": "your-law-resource-id"
                     }
                 }
             ]
