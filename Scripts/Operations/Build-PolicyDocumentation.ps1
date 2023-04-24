@@ -130,8 +130,8 @@ foreach ($file in $files) {
                     Write-Error "Legacy field `"initiatives`" used, change to `"policySets`"." -ErrorAction Stop
                 }
                 $policySets = $documentPolicySetEntry.policySets
-                if (-not $policySet -or $policySet.Count -eq 0) {
-                    Write-Error "documentPolicySet entry does not specify required polySets array entry." -ErrorAction Stop
+                if (-not $policySets -or $policySets.Count -eq 0) {
+                    Write-Error "documentPolicySet entry does not specify required policySets array entry." -ErrorAction Stop
                 }
 
                 $itemArrayList = [System.Collections.ArrayList]::new()
