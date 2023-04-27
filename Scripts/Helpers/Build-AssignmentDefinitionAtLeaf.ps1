@@ -554,8 +554,6 @@ function Build-AssignmentDefinitionAtLeaf {
             enforcementMode       = $enforcementMode
             metadata              = $metadata
             parameters            = $assignmentDefinition.parameters
-            overrides             = $overridesList.ToArray()
-            nonComplianceMessages = $nonComplianceMessagesList.ToArray()
         }
 
         if ($identityRequired) {
@@ -569,6 +567,12 @@ function Build-AssignmentDefinitionAtLeaf {
         }
         if ($resourceSelectorsList.Count -gt 0) {
             $baseAssignment.resourceSelectors = $resourceSelectorsList.ToArray()
+        }
+        if ($overridesList.Count -gt 0) {
+            $baseAssignment.overrides = $overridesList.ToArray()
+        }
+        if ($nonComplianceMessagesList.Count -gt 0) {
+            $baseAssignment.nonComplianceMessages = $nonComplianceMessagesList.ToArray()
         }
 
         #endregion baseAssignment

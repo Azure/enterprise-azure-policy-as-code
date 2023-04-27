@@ -88,7 +88,7 @@ function Set-AssignmentNode {
                             }
                             $userAssignedValue = $value.userAssigned
                             if ($null -ne $userAssignedValue) {
-                                $userAssignedEntry[$selector] = $userAssignedValue
+                                $userAssigned[$selector] = $userAssignedValue
                             }
                         }
                     }

@@ -1,3 +1,33 @@
+<#
+.SYNOPSIS
+Creates remediation tasks for all non-compliant resources in the current tenant.
+
+.PARAMETER PacEnvironmentSelector
+Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.
+
+.PARAMETER DefinitionsRootFolder
+Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
+
+.PARAMETER interactive
+Set to false if used non-interactive
+
+.PARAMETER onlyCheckManagedAssignments
+Create remediation task only for Policy assignments owned by this Policy as Code repo
+
+.EXAMPLE
+Create-AzRemediationTasks.ps1 -PacEnvironmentSelector "dev"
+
+.EXAMPLE
+Create-AzRemediationTasks.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\git\policy-as-code\Definitions"
+
+.EXAMPLE
+Create-AzRemediationTasks.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\git\policy-as-code\Definitions" -interactive $false
+
+.LINK
+https://learn.microsoft.com/en-us/azure/governance/policy/concepts/remediation-structure
+
+#>
+
 [CmdletBinding()]
 param(
     [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
@@ -21,7 +51,9 @@ $pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -definitionsRoot
 Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -interactive $pacEnvironment.interactive
 
 $query = 'policyresources | where type == "microsoft.policyinsights/policystates" | where properties.complianceState == "NonCompliant" and properties.policyDefinitionAction in ( "modify", "deployifnotexists" ) | summarize count() by tostring(properties.policyAssignmentId), tostring(properties.policyDefinitionReferenceId)  | order by properties_policyAssignmentId asc'
-$result = @() + (Search-AzGraphAllItems -query $query -scope @{ UseTenantScope = $true })
+$result = @() + (Search-AzGraphAllItems -query $query -scope @{ UseTenantScope = $true } -progressItemName "Policy remediation records")
+Write-Information ""
+
 $remediationsList = $result
 if ($onlyCreateOwnedRemediationTasks) {
     # Only create remediation task owned by this Policy as Code repo

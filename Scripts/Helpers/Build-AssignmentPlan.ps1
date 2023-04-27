@@ -93,7 +93,7 @@ function Build-AssignmentPlan {
             Write-Error "Assignment JSON file '$($assignmentFile.FullName)' is not valid." -ErrorAction Stop
         }
         $assignmentObject = $Json | ConvertFrom-Json -AsHashtable
-        Remove-NullOrEmptyFields $assignmentObject
+        # Remove-NullFields $assignmentObject
 
         # Collect all assignment definitions (values)
         $rootAssignmentDefinition = @{
@@ -134,7 +134,7 @@ function Build-AssignmentPlan {
         $isUserAssignedAny = $false
         foreach ($assignment in $assignmentsList) {
 
-            Remove-NullOrEmptyFields $assignment -nullOnly
+            # Remove-NullFields $assignment
             $id = $assignment.id
             $allAssignments[$id] = $assignment
             $displayName = $assignment.displayName
