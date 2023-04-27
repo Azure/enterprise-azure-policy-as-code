@@ -18,7 +18,7 @@ function Set-AzPolicySetDefinitionRestMethod {
         policyDefinitions      = $definitionObj.policyDefinitions
         policyDefinitionGroups = $definitionObj.policyDefinitionGroups
     }
-    Remove-NullOrEmptyFields $properties
+    Remove-NullFields $properties
     $definition = @{
         properties = $properties
     }

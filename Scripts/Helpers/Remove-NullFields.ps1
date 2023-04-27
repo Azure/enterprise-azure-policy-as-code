@@ -1,10 +1,8 @@
-function Remove-NullOrEmptyFields {
+function Remove-NullFields {
     [CmdletBinding()]
     param (
         [Parameter(Position = 0, ValueFromPipeline = $true)]
-        $inputObject,
-
-        [switch] $nullOnly
+        $inputObject
     )
 
     if ($null -ne $inputObject) {
@@ -15,7 +13,7 @@ function Remove-NullOrEmptyFields {
             $keys = [System.Collections.ArrayList]::new($inputObject.Keys)
             foreach ($key in $keys) {
                 $value = $inputObject.$key
-                if (Confirm-NullOrEmptyValue $value -nullOnly $nullOnly) {
+                if ($null -eq $value) {
                     $null = $inputObject.Remove($key)
                 }
             }
@@ -23,7 +21,7 @@ function Remove-NullOrEmptyFields {
                 $type = $value.GetType()
                 $typeName = $type.Name
                 if ($typeName -in @( "Object[]", "ArrayList", "Hashtable", "OrderedDictionary", "OrderedHashtable" ) -or $value -is [PSCustomObject]) {
-                    Remove-NullOrEmptyFields $value -nullOnly:$nullOnly
+                    Remove-NullFields $value
                 }
             }
         }
@@ -32,7 +30,7 @@ function Remove-NullOrEmptyFields {
                 $type = $value.GetType()
                 $typeName = $type.Name
                 if ($typeName -in @( "Object[]", "ArrayList", "Hashtable", "OrderedDictionary", "OrderedHashtable") -or $value -is [PSCustomObject]) {
-                    Remove-NullOrEmptyFields $value -nullOnly:$nullOnly
+                    Remove-NullFields $value
                 }
             }
         }
@@ -41,7 +39,7 @@ function Remove-NullOrEmptyFields {
             $removeNames = [System.Collections.ArrayList]::new()
             foreach ($property in $properties) {
                 $value = $property.Value
-                if (Confirm-NullOrEmptyValue $value -nullOnly $nullOnly) {
+                if ($null -eq $value) {
                     $name = $property.Name
                     $null = $removeNames.Add($name)
                 }
@@ -51,14 +49,11 @@ function Remove-NullOrEmptyFields {
             }
             foreach ($property in $properties) {
                 $value = $property.Value
-                if ($null -eq $value) {
-                    $null = $value
-                }
                 $type = $value.GetType()
                 $typeName = $type.Name
 
                 if ($typeName -in @( "Object[]", "ArrayList", "Hashtable", "OrderedDictionary", "OrderedHashtable") -or $value -is [PSCustomObject]) {
-                    Remove-NullOrEmptyFields $value -nullOnly:$nullOnly
+                    Remove-NullFields $value
                 }
             }
         }

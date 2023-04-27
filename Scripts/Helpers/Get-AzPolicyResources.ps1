@@ -106,10 +106,12 @@ function Get-AzPolicyResources {
     $WarningPreference = 'SilentlyContinue'
     $policyResources = Search-AzGraphAllItems `
         -query 'PolicyResources | where (type == "microsoft.authorization/policyassignments") or (type == "microsoft.authorization/policysetdefinitions") or (type == "microsoft.authorization/policydefinitions")' `
-        -scope @{ UseTenantScope = $true }
+        -scope @{ UseTenantScope = $true } `
+        -progressItemName "Policy resources"
     $WarningPreference = $prefBackup
 
-    Write-Information "Processing $($policyResources.Count) Policy resources (Policy assignments, Policy Set and Policies):"
+    Write-Information ""
+    Write-Information "Processing $($policyResources.Count) Policy resources (Policy Assignments, Policy Set and Policy definitionss)"
     $deployed = @{
         policydefinitions            = @{
             all      = @{}
@@ -218,6 +220,7 @@ function Get-AzPolicyResources {
     }
     $uniquePrincipalIds = @{}
     $assignmentsWithIdentity = @{}
+    $numberPolicyResourcesProcessed = 0
     foreach ($policyResourceRaw in $policyResources) {
         $thisTenantId = $policyResourceRaw.tenantId
         if ($thisTenantId -in @("", $tenantId)) {
@@ -226,7 +229,7 @@ function Get-AzPolicyResources {
             $kind = $policyResource.kind
             $included = $true
             $resourceIdParts = $null
-            Remove-NullOrEmptyFields $policyResource -nullOnly
+            # Remove-NullFields $policyResource
             if ($kind -eq "policyassignments") {
                 $included, $resourceIdParts = Confirm-PolicyResourceExclusions `
                     -testId $id `
@@ -244,8 +247,14 @@ function Get-AzPolicyResources {
                     $null = $policyAssignmentsTable.all.Add($id, $policyResource)
                     $null = $policyAssignmentsTable.managed.Add($id, $policyResource)
                     if ($policyResource.identity -and $policyResource.identity.type -ne "None") {
-                        $principalId = $policyResource.identity.principalId
-                        $null = $assignmentsWithIdentity.Add($id, $policyResource)
+                        $principalId = ""
+                        if ($policyResource.identity.type -eq "SystemAssigned") {
+                            $principalId = $policyResource.identity.principalId
+                        }
+                        else {
+                            $userAssignedIdentityId = $policyResource.identity.userAssignedIdentities.PSObject.Properties.Name
+                            $principalId = $policyResource.identity.userAssignedIdentities.$userAssignedIdentityId.principalId
+                        }
                         Set-UniqueRoleAssignmentScopes `
                             -scopeId $scope `
                             -uniqueRoleAssignmentScopes $uniqueRoleAssignmentScopes
@@ -258,6 +267,7 @@ function Get-AzPolicyResources {
                                     -uniqueRoleAssignmentScopes $uniqueRoleAssignmentScopes
                             }
                         }
+                        $null = $assignmentsWithIdentity.Add($id, $policyResource)
                     }
                 }
                 else {
@@ -323,52 +333,14 @@ function Get-AzPolicyResources {
                 }
             }
         }
-    }
-
-    foreach ($kind in @("policydefinitions", "policysetdefinitions")) {
-        $deployedPolicyTable = $deployed.$kind
-        $counters = $deployedPolicyTable.counters
-        $managedBy = $counters.managedBy
-        $managedByAny = $managedBy.thisPaC + $managedBy.otherPaC + $managedBy.unknown
-        Write-Information ""
-        if ($kind -eq "policydefinitions") {
-            Write-Information "Policy counts:"
-        }
-        else {
-            Write-Information "Policy Set counts:"
-        }
-        if ($collectAllPolicies) {
-            Write-Information "    Custom (all)   = $($deployedPolicyTable.all.psbase.Count)"
-            Write-Information "    Managed ($($managedByAny)) by:"
-            Write-Information "        This PaC   = $($managedBy.thisPaC)"
-            Write-Information "        Other PaC  = $($managedBy.otherPaC)"
-            Write-Information "        Unknown    = $($managedBy.unknown)"
-        }
-        else {
-            Write-Information "    BuiltIn        = $($counters.builtIn)"
-            Write-Information "    Managed ($($managedByAny)) by:"
-            Write-Information "        This PaC   = $($managedBy.thisPaC)"
-            Write-Information "        Other PaC  = $($managedBy.otherPaC)"
-            Write-Information "        Unknown    = $($managedBy.unknown)"
-            Write-Information "    Inherited      = $($counters.inherited)"
-            Write-Information "    Excluded       = $($counters.excluded)"
-            Write-Information "    Not our scopes = $($counters.unMangedScope)"
+        $numberPolicyResourcesProcessed++
+        if ($numberPolicyResourcesProcessed % 500 -eq 0) {
+            Write-Information "Processed $numberPolicyResourcesProcessed Policy resources"
         }
     }
-
-    $counters = $deployed.policyassignments.counters
-    $managedBy = $counters.managedBy
-    $managedByAny = $managedBy.thisPaC + $managedBy.otherPaC + $managedBy.unknown
-    Write-Information ""
-    Write-Information "Policy Assignment counts:"
-    Write-Information "    Managed ($($managedByAny)) by:"
-    Write-Information "        This PaC    = $($managedBy.thisPaC)"
-    Write-Information "        Other PaC   = $($managedBy.otherPaC)"
-    Write-Information "        Unknown     = $($managedBy.unknown)"
-    Write-Information "    With identity   = $($assignmentsWithIdentity.psbase.Count)"
-    Write-Information "    Excluded scopes = $($counters.excludedScopes)"
-    Write-Information "    Excluded        = $($counters.excluded)"
-    Write-Information "    Not our scopes  = $($counters.unMangedScope)"
+    if ($numberPolicyResourcesProcessed % 500 -ne 0) {
+        Write-Information "Processed $numberPolicyResourcesProcessed Policy resources"
+    }
 
     if (!$skipRoleAssignments) {
         # Get-AzRoleAssignment from the lowest scopes up. This will reduce the number of calls to Azure
@@ -486,16 +458,6 @@ function Get-AzPolicyResources {
                 $null = $deployedRoleAssignmentsByPrincipalId.Add($principalId, @( $normalizedRoleAssignment ))
             }
         }
-
-        Write-Information ""
-        if ($scopesCovered.Count -gt 0 -and $deployedRoleAssignmentsByPrincipalId.Count -eq 0) {
-            Write-Error "Role assignment retrieval failed to receive any assignments in $($scopesCovered.Count) scopes. This likely due to a missing permission for the SPN running the pipeline. Please read the pipeline documentation in EPAC. In rare cases, this can happen when a previous role assignment failed." -ErrorAction Continue
-            $deployed.roleAssignmentsNotRetrieved = $true
-        }
-        Write-Information "Role Assignments:"
-        Write-Information "    Total principalIds     = $($deployedRoleAssignmentsByPrincipalId.Count)"
-        Write-Information "    Total Role Assignments = $($roleAssignmentsById.Count)"
-        Write-Information "    Total Scopes           = $($scopesCovered.Count)"
     }
 
     # Collect Exemptions
@@ -519,16 +481,19 @@ function Get-AzPolicyResources {
             }
         }
 
+        Write-Information ""
+        Write-Information "Collecting Policy Exemptions (this may take a while):"
         foreach ($scopeId in $scopeTable.Keys) {
             $scopeInformation = $scopeTable.$scopeId
             if ($scopeInformation.type -eq "microsoft.resources/subscriptions") {
+                Write-Information "    $scopeId"
                 Get-AzPolicyExemption -Scope $scopeId -IncludeDescendent | Sort-Object Properties.PolicyAssignmentId, ResourceId |  ForEach-Object {
                     $exemption = Get-DeepClone $_
                     $id = $exemption.ResourceId
                     if (!$exemptionsProcessed.ContainsKey($id)) {
                         # Filter out duplicates in parent Management Groups
 
-                        Remove-NullOrEmptyFields $exemption -nullOnly
+                        # Remove-NullFields $exemption
                         $null = $exemptionsProcessed.Add($id, $exemption)
 
                         # normalize values to az cli representation
@@ -628,6 +593,71 @@ function Get-AzPolicyResources {
                 }
             }
         }
+    }
+
+    Write-Information ""
+    Write-Information "==================================================================================================="
+    Write-Information "Policy Resources found for EPAC environment '$($pacEnvironment.pacSelector)' at root scope $($deploymentRootScope -replace '/providers/Microsoft.Management','')"
+    Write-Information "==================================================================================================="
+
+    foreach ($kind in @("policydefinitions", "policysetdefinitions")) {
+        $deployedPolicyTable = $deployed.$kind
+        $counters = $deployedPolicyTable.counters
+        $managedBy = $counters.managedBy
+        $managedByAny = $managedBy.thisPaC + $managedBy.otherPaC + $managedBy.unknown
+        Write-Information ""
+        if ($kind -eq "policydefinitions") {
+            Write-Information "Policy counts:"
+        }
+        else {
+            Write-Information "Policy Set counts:"
+        }
+        if ($collectAllPolicies) {
+            Write-Information "    Custom (all)   = $($deployedPolicyTable.all.psbase.Count)"
+            Write-Information "    Managed ($($managedByAny)) by:"
+            Write-Information "        This PaC   = $($managedBy.thisPaC)"
+            Write-Information "        Other PaC  = $($managedBy.otherPaC)"
+            Write-Information "        Unknown    = $($managedBy.unknown)"
+        }
+        else {
+            Write-Information "    BuiltIn        = $($counters.builtIn)"
+            Write-Information "    Managed ($($managedByAny)) by:"
+            Write-Information "        This PaC   = $($managedBy.thisPaC)"
+            Write-Information "        Other PaC  = $($managedBy.otherPaC)"
+            Write-Information "        Unknown    = $($managedBy.unknown)"
+            Write-Information "    Inherited      = $($counters.inherited)"
+            Write-Information "    Excluded       = $($counters.excluded)"
+            Write-Information "    Not our scopes = $($counters.unMangedScope)"
+        }
+    }
+
+    $counters = $deployed.policyassignments.counters
+    $managedBy = $counters.managedBy
+    $managedByAny = $managedBy.thisPaC + $managedBy.otherPaC + $managedBy.unknown
+    Write-Information ""
+    Write-Information "Policy Assignment counts:"
+    Write-Information "    Managed ($($managedByAny)) by:"
+    Write-Information "        This PaC    = $($managedBy.thisPaC)"
+    Write-Information "        Other PaC   = $($managedBy.otherPaC)"
+    Write-Information "        Unknown     = $($managedBy.unknown)"
+    Write-Information "    With identity   = $($assignmentsWithIdentity.psbase.Count)"
+    Write-Information "    Excluded scopes = $($counters.excludedScopes)"
+    Write-Information "    Excluded        = $($counters.excluded)"
+    Write-Information "    Not our scopes  = $($counters.unMangedScope)"
+
+    if (!$skipRoleAssignments) {
+        Write-Information ""
+        if ($scopesCovered.Count -gt 0 -and $deployedRoleAssignmentsByPrincipalId.Count -eq 0) {
+            Write-Warning "Role assignment retrieval failed to receive any assignments in $($scopesCovered.Count) scopes. This likely due to a missing permission for the SPN running the pipeline. Please read the pipeline documentation in EPAC. In rare cases, this can happen when a previous role assignment failed." -WarningAction Continue
+            $deployed.roleAssignmentsNotRetrieved = $true
+        }
+        Write-Information "Role Assignments:"
+        Write-Information "    Total principalIds     = $($deployedRoleAssignmentsByPrincipalId.Count)"
+        Write-Information "    Total Role Assignments = $($roleAssignmentsById.Count)"
+        Write-Information "    Total Scopes           = $($scopesCovered.Count)"
+    }
+
+    if (!$skipExemptions) {
         $counters = $exemptionsTable.counters
         $managedBy = $counters.managedBy
         $managedByAny = $managedBy.thisPaC + $managedBy.otherPaC + $managedBy.unknown

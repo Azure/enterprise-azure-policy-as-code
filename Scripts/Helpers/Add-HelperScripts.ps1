@@ -67,7 +67,7 @@
 . "$PSScriptRoot/../Helpers/Out-PolicyExemptions.ps1"
 . "$PSScriptRoot/../Helpers/Out-PolicySetsDocumentationToFile.ps1"
 
-. "$PSScriptRoot/../Helpers/Remove-NullOrEmptyFields.ps1"
+. "$PSScriptRoot/../Helpers/Remove-NullFields.ps1"
 . "$PSScriptRoot/../Helpers/Remove-GlobalNotScopes.ps1"
 
 . "$PSScriptRoot/../Helpers/Search-AzGraphAllItems.ps1"
