@@ -1,4 +1,29 @@
-﻿[CmdletBinding()]
+﻿<#
+.SYNOPSIS
+    Get all tags from all resources in all resource groups in all subscriptions in a tenant.
+
+.PARAMETER PacEnvironmentSelector
+    Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.
+
+.PARAMETER DefinitionsRootFolder
+    Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
+
+.PARAMETER OutputFileName
+    Output file name. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Tags/all-tags.csv or './Outputs/Tags/all-tags.csv'.
+
+.PARAMETER interactive
+    Set to false if used non-interactive
+
+.EXAMPLE
+    .\Get-AzResourceTags.ps1 -pacEnvironmentSelector "dev" -definitionsRootFolder "C:\Src\Definitions" -outputFolder "C:\Src\Outputs" -interactive $true
+    Get all tags from all resources in all resource groups in all subscriptions in a tenant.
+
+.EXAMPLE
+    .\Get-AzResourceTags.ps1 -interactive $true
+    Get all tags from all resources in all resource groups in all subscriptions in a tenant. The script prompts for the PAC environment and uses the default definitions and output folders.
+#>
+
+[CmdletBinding()]
 param(
     [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
     [string] $PacEnvironmentSelector,

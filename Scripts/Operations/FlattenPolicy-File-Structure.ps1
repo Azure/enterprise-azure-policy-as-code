@@ -1,3 +1,8 @@
+<#
+.SYNOPSIS
+    Flattens the policy file structure to a single folder.
+#>
+
 # Remove hidden files, like thumbs.db
 $removeHiddenFiles = $true
 # Get hidden files or not. Depending on removeHiddenFiles setting

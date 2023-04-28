@@ -1,3 +1,39 @@
+<#
+.SYNOPSIS 
+    Builds documentation from instructions in policyDocumentations folder reading the delployed Policy Resources from the EPAC envioronment.   
+
+.PARAMETER definitionsRootFolder
+    Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
+
+.PARAMETER outputFolder
+    Output Folder. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER or './Outputs'.
+
+.PARAMETER windowsNewLineCells
+    Formats CSV multi-object cells to use new lines and saves it as UTF-8 with BOM - works only fro Excel in Windows. Default uses commas to separate array elements within a cell
+
+.PARAMETER interactive
+    Set to false if used non-interactive
+
+.PARAMETER suppressConfirmation
+    Suppresses prompt for confirmation to delete existing file in interactive mode
+
+.EXAMPLE
+    Build-PolicyDocumentation.ps1 -definitionsRootFolder "C:\PAC\Definitions" -outputFolder "C:\PAC\Output" -interactive
+    Builds documentation from instructions in policyDocumentations folder reading the delployed Policy Resources from the EPAC envioronment.
+
+.EXAMPLE
+    Build-PolicyDocumentation.ps1 -interactive
+    Builds documentation from instructions in policyDocumentations folder reading the delployed Policy Resources from the EPAC envioronment. The script prompts for the PAC environment and uses the default definitions and output folders.
+
+.EXAMPLE
+    Build-PolicyDocumentation.ps1 -definitionsRootFolder "C:\PAC\Definitions" -outputFolder "C:\PAC\Output" -interactive -suppressConfirmation
+    Builds documentation from instructions in policyDocumentations folder reading the delployed Policy Resources from the EPAC envioronment. The script prompts for the PAC environment and uses the default definitions and output folders. It suppresses prompt for confirmation to delete existing file in interactive mode.
+
+.LINK
+    https://azure.github.io/enterprise-azure-policy-as-code/#deployment-scripts
+    https://azure.github.io/enterprise-azure-policy-as-code/operational-scripts/#build-policyassignmentdocumentationps1
+#>
+
 [CmdletBinding()]
 param (
     [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.")]
