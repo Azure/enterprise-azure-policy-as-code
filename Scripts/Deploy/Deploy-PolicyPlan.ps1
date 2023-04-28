@@ -1,5 +1,34 @@
 #Requires -PSEdition Core
 
+<#
+.SYNOPSIS
+    Deploys Policy resources from a plan file.
+
+.PARAMETER pacEnvironmentSelector
+    Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.
+
+.PARAMETER definitionsRootFolder
+    Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
+
+.PARAMETER inputFolder
+    Input folder path for plan files. Defaults to environment variable `$env:PAC_INPUT_FOLDER, `$env:PAC_OUTPUT_FOLDER or './Output'.
+
+.PARAMETER interactive
+    Use switch to indicate interactive use
+
+.EXAMPLE
+    Deploy-PolicyPlan.ps1 -pacEnvironmentSelector "dev" -definitionsRootFolder "C:\git\policy-as-code\Definitions" -inputFolder "C:\git\policy-as-code\Output" -interactive
+    Deploys Policy resources from a plan file.
+
+.EXAMPLE
+    Deploy-PolicyPlan.ps1 -pacEnvironmentSelector "dev" -interactive
+    Deploys Policy resources from a plan file.  
+
+.LINK
+    https://azure.github.io/enterprise-azure-policy-as-code/#deployment-scripts
+
+#>
+
 [CmdletBinding()]
 param (
     [parameter(

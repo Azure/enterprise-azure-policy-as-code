@@ -1,5 +1,39 @@
 #Requires -PSEdition Core
 
+<#
+.SYNOPSIS
+    Builds the deployment plans for the Policy as Code (PAC) environment.
+
+.PARAMETER pacEnvironmentSelector
+    Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.
+
+.PARAMETER definitionsRootFolder
+    Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
+
+.PARAMETER outputFolder
+    Output folder path for plan files. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER or './Output'.
+
+.PARAMETER interactive
+    Script is used interactively. Script can prompt the interactive user for input.
+
+.PARAMETER devOpsType
+    If set, outputs variables consumable by conditions in a DevOps pipeline. Valid values are '', 'ado' and 'gitlab'.
+
+.EXAMPLE
+    .\Build-DeploymentPlans.ps1 -pacEnvironmentSelector "dev"
+
+    Builds the deployment plans for the Policy as Code (PAC) environment 'dev'.
+
+.EXAMPLE
+    .\Build-DeploymentPlans.ps1 -pacEnvironmentSelector "dev" -devOpsType "ado"
+
+    Builds the deployment plans for the Policy as Code (PAC) environment 'dev' and outputs variables consumable by conditions in an Azure DevOps pipeline.
+
+.LINK
+    https://azure.github.io/enterprise-azure-policy-as-code/#deployment-scripts
+
+#>
+
 [CmdletBinding()]
 param (
     [parameter(HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]

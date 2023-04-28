@@ -52,8 +52,7 @@ Export-AzPolicyResources -definitionsRootFolder ./Definitions -outputFolder ./Ou
 Export-AzPolicyResources -definitionsRootFolder ./Definitions -outputFolder ./Outputs -interactive $true -includeChildScopes -includeAutoAssigned -exemptionFiles csv -fileExtension jsonc -mode export -inputPacSelector 'EPAC-Environment-1'
 
 .LINK
-https://azure.github.io/enterprise-azure-policy-as-code/extract-existing-policy-resources/
-
+https://azure.github.io/enterprise-azure-policy-as-code/extract-existing-policy-resources
 #>
 [CmdletBinding()]
 param (

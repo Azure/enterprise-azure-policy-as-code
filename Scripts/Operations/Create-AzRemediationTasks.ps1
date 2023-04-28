@@ -25,7 +25,8 @@ Create-AzRemediationTasks.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFold
 
 .LINK
 https://learn.microsoft.com/en-us/azure/governance/policy/concepts/remediation-structure
-
+https://docs.microsoft.com/en-us/azure/governance/policy/how-to/remediate-resources
+https://azure.github.io/enterprise-azure-policy-as-code/operational-scripts/#build-policyassignmentdocumentationps1
 #>
 
 [CmdletBinding()]

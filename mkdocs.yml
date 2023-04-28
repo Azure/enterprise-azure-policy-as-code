@@ -33,6 +33,7 @@ nav:
           - PowerShell Module: powershell-module.md
       - Desired State Strategy: desired-state-strategy.md
       - Global Settings and Definitions: definitions-and-global-settings.md
+      - Tips: tips.md
   - CI/CD Integration:
       - CI/CD Pipeline: ci-cd-pipeline.md
       - GitHub Actions: github-actions.md

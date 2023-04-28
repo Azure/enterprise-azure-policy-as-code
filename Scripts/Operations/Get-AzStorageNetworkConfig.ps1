@@ -1,3 +1,29 @@
+
+<#
+.SYNOPSIS
+    Gets all aliases and outputs them to a CSV file.
+
+.PARAMETER PacEnvironmentSelector    
+    Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.
+
+.PARAMETER DefinitionsRootFolder
+    Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
+
+.PARAMETER OutputFileName
+    Output file name. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Storage/StorageNetwork.csv or './Outputs/Storage/StorageNetwork.csv'.
+
+.PARAMETER interactive
+    Set to false if used non-interactive
+
+.EXAMPLE
+    .\Get-AzStorageNetworkConfig.ps1 -pacEnvironmentSelector "dev" -definitionsRootFolder "C:\Src\Definitions" -outputFolder "C:\Src\Outputs" -interactive $true
+    Gets all aliases and outputs them to a CSV file.
+
+.EXAMPLE
+    .\Get-AzStorageNetworkConfig.ps1 -interactive $true
+    Gets all aliases and outputs them to a CSV file. The script prompts for the PAC environment and uses the default definitions and output folders.
+#>
+
 [CmdletBinding()]
 param(
     [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]

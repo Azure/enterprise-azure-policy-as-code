@@ -1,3 +1,25 @@
+<#
+.SYNOPSIS
+    Creates a custom role 'Policy Reader' that provides read access to all Policy resources for the purpose of planning the EPAC deployments.
+
+.PARAMETER PacEnvironmentSelector
+    Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.
+
+.PARAMETER DefinitionsRootFolder
+    Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
+
+.PARAMETER interactive
+    Set to false if used non-interactive
+
+.EXAMPLE
+    .\New-AzPolicyReaderRole.ps1 -pacEnvironmentSelector "dev" -definitionsRootFolder "C:\Src\Definitions" -interactive $true
+    Creates a custom role 'Policy Reader' that provides read access to all Policy resources for the purpose of planning the EPAC deployments.
+
+.EXAMPLE
+    .\New-AzPolicyReaderRole.ps1 -interactive $true
+    Creates a custom role 'Policy Reader' that provides read access to all Policy resources for the purpose of planning the EPAC deployments. The script prompts for the PAC environment and uses the default definitions and output folders.
+#>
+
 [CmdletBinding()]
 param(
     [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
