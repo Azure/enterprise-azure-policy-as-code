@@ -54,6 +54,7 @@ Export-AzPolicyResources -definitionsRootFolder ./Definitions -outputFolder ./Ou
 .LINK
 https://azure.github.io/enterprise-azure-policy-as-code/extract-existing-policy-resources
 #>
+
 [CmdletBinding()]
 param (
     [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.")]
