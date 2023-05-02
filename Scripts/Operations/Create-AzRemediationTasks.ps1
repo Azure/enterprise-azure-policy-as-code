@@ -55,25 +55,29 @@ $query = 'policyresources | where type == "microsoft.policyinsights/policystates
 $result = @() + (Search-AzGraphAllItems -query $query -scope @{ UseTenantScope = $true } -progressItemName "Policy remediation records")
 Write-Information ""
 
-$remediationsList = $result
-if ($onlyCreateOwnedRemediationTasks) {
-    # Only create remediation task owned by this Policy as Code repo
-    $scopeTable = Get-AzScopeTree -pacEnvironment $pacEnvironment
-    $deployedPolicyResources = Get-AzPolicyResources -pacEnvironment $pacEnvironment -scopeTable $scopeTable -skipExemptions -skipRoleAssignments
-    $managedAssignments = $deployedPolicyResources.policyassignments.managed
-    $strategy = $pacEnvironment.desiredState.strategy
-    $managedRemediations = [System.Collections.ArrayList]::new()
-    foreach ($entry in $result) {
-        $policyAssignmentId = $entry.properties_policyAssignmentId
+$remediationsList = [System.Collections.ArrayList]::new()
+# Only create remediation task owned by this Policy as Code repo
+$scopeTable = Get-AzScopeTree -pacEnvironment $pacEnvironment
+$deployedPolicyResources = Get-AzPolicyResources -pacEnvironment $pacEnvironment -scopeTable $scopeTable -skipExemptions -skipRoleAssignments
+$managedAssignments = $deployedPolicyResources.policyassignments.managed
+$allAssignments = $deployedPolicyResources.policyassignments.all
+$strategy = $pacEnvironment.desiredState.strategy
+foreach ($entry in $result) {
+    $policyAssignmentId = $entry.properties_policyAssignmentId
+    if ($onlyCheckManagedAssignments) {
         if ($managedAssignments.ContainsKey($policyAssignmentId)) {
             $managedAssignment = $managedAssignments.$policyAssignmentId
             $assignmentPacOwner = $managedAssignment.pacOwner
             if ($assignmentPacOwner -eq "thisPaC" -or ($assignmentPacOwner -eq "unknownOwner" -and $strategy -eq "full")) {
-                $null = $managedRemediations.Add($entry)
+                $null = $remediationsList.Add($entry)
             }
         }
     }
-    $remediationsList = $managedRemediations.ToArray()
+    else {
+        if ($allAssignments.ContainsKey($policyAssignmentId)) {
+            $null = $remediationsList.Add($entry)
+        }
+    }
 }
 
 $numberOfRemediations = $remediationsList.Count
@@ -90,14 +94,14 @@ else {
     foreach ($entry in $remediationsList) {
         $policyAssignmentId = $entry.properties_policyAssignmentId
         $policyDefinitionReferenceId = $entry.properties_policyDefinitionReferenceId
-        $count = $entry.count_
+        $count = $entry.count
         $resourceIdParts = Split-AzPolicyResourceId -id $policyAssignmentId
         $scope = $resourceIdParts.scope
         $assignmentName = $resourceIdParts.name
         $taskName = "$assignmentName--$(New-Guid)"
         $shortScope = $scope
         if ($resourceIdParts.scopeType -eq "managementGroups") {
-            $shortScope = "/managementGroups/"
+            $shortScope = "/managementGroups/$($resourceIdParts.splits[4]))"
         }
         if ($policyDefinitionReferenceId -ne "") {
             Write-Information "Assignment='$($assignmentName)', scope=$($shortScope), reference=$($policyDefinitionReferenceId), nonCompliant=$($count)"
