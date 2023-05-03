@@ -375,18 +375,15 @@ else {
         }
     }
 
-    $exemptions = (ConvertTo-HashTable $plan.exemptions.update)
+    $exemptions = (ConvertTo-HashTable $plan.exemptions.delete)
     if ($exemptions.psbase.Count -gt 0) {
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Update Exemptions ($($exemptions.psbase.Count))"
+        Write-Information "Delete Exemptions ($($exemptions.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($exemptionId in $exemptions.Keys) {
-            $exemption = $exemptions[$exemptionId]
-            $splatTransform = $exemption.splatTransform
-            $filteredExemption = $exemption | Get-FilteredHashTable -splatTransform $splatTransform
             Write-Information $exemption.displayName
-            $null = Set-AzPolicyExemption @filteredExemption
+            $null = Remove-AzPolicyExemption -Id $exemptionId -Force
         }
     }
 
