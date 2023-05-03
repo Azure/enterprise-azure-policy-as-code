@@ -375,18 +375,6 @@ else {
         }
     }
 
-    $exemptions = (ConvertTo-HashTable $plan.exemptions.delete)
-    if ($exemptions.psbase.Count -gt 0) {
-        Write-Information ""
-        Write-Information "==================================================================================================="
-        Write-Information "Delete Exemptions ($($exemptions.psbase.Count))"
-        Write-Information "---------------------------------------------------------------------------------------------------"
-        foreach ($exemptionId in $exemptions.Keys) {
-            Write-Information $exemption.displayName
-            $null = Remove-AzPolicyExemption -Id $exemptionId -Force
-        }
-    }
-
     #endregion
 
 }
