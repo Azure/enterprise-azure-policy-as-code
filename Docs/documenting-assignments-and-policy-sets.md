@@ -20,7 +20,7 @@ Each file must contain one or both documentation topics. This example file in th
         "environmentCategories": [
             {
                 "pacEnvironment": "tenant",
-                "environmentCategory": "PprodOD",
+                "environmentCategory": "prod",
                 "scopes": [ // Used in Markdown output only
                     "Management Groups: Contoso-Prod"
                 ],
