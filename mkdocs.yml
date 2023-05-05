@@ -33,13 +33,12 @@ nav:
           - PowerShell Module: powershell-module.md
       - Desired State Strategy: desired-state-strategy.md
       - Global Settings and Definitions: definitions-and-global-settings.md
+      - Extracting Existing Policy Resources: extract-existing-policy-resources.md
       - Tips: tips.md
   - CI/CD Integration:
       - CI/CD Pipeline: ci-cd-pipeline.md
       - GitHub Actions: github-actions.md
-  - CAF ALZ and Hydrating:
-      - Extracting Existing Policy Resources: extract-existing-policy-resources.md
-      - CAF Azure Landing Zones Integration: integrating-with-alz.md
+  - CAF Azure Landing Zones: integrating-with-alz.md
   - Policy Objects:
       - Policy Definitions: policy-definitions.md
       - Policy Set Definitions: policy-set-definitions.md

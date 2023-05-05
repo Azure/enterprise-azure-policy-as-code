@@ -18,8 +18,8 @@ Assignment JSON is hierarchical for efficient definitions, avoiding duplication 
   "children": [
     {
       "nodeName": "Prod/",
-      "definitionEntry": {
-        "policySetName": "org-sec-initiative",
+      "parameters": {
+        "some-effect": "Deny",
       }
     }
   ]
