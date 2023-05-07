@@ -80,10 +80,10 @@ function Out-PolicyExemptions {
                     if (Test-Path $jsonFile) {
                         Remove-Item $jsonFile
                     }
-                    $outputJson = @{
+                    $outputJsonObj = @{
                         exemptions = @($jsonArray)
                     }
-                    ConvertTo-Json $outputJson -Depth 100 | Out-File $jsonFile -Force
+                    ConvertTo-Json $outputJsonObj -Depth 100 | Out-File $jsonFile -Force
                 }
 
                 if ($outputCsv) {
