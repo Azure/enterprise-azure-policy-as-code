@@ -21,3 +21,10 @@ Now just verify the module publish action has run
 
 It should finish successfully - if there is a failure review the build logs. 
 
+# Documentation Release Process
+
+A guide for maintainers on how to update documentation.. 
+
+1. Modify files in the Docs folder following the format of other files. For a list of acceptable admonitions please see [here](https://squidfunk.github.io/mkdocs-material/reference/admonitions/#supported-types)
+2. If you are adding a new file ensure it is added to the ```mkdocs.yml``` file in the appropriate section. Use the built site to determine where a new document should be placed.
+3. Create a PR and merge - the actions will commence automatically. There are two actions which run in the background to update the GitHub Pages site.
