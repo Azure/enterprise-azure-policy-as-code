@@ -114,18 +114,23 @@ else {
             }
             Write-Information "$($policyAssignment.Properties.displayName): $($roleAssignment.roleDisplayName)($($roleAssignment.roleDefinitionId)) at $($roleAssignment.scope)"
             $splat = Get-FilteredHashTable $roleAssignment -splatTransform $splatTransform
+            if (Get-AzRoleAssignment -Scope $splat.Scope -ObjectId $splat.ObjectId -RoleDefinitionId $splat.RoleDefinitionId) {
+                Write-Information "Role assignment already exists"
+            }
+            else {
+                while ($retries -le $retriesLimit) {
 
-            while ($retries -le $retriesLimit) {
-
-                $result = New-AzRoleAssignment @splat -WarningAction SilentlyContinue
-                if ($null -ne $result) {
-                    break
-                }
-                else {
-                    Start-Sleep -Seconds 10
-                    $retries++
+                    $result = New-AzRoleAssignment @splat -WarningAction SilentlyContinue
+                    if ($null -ne $result) {
+                        break
+                    }
+                    else {
+                        Start-Sleep -Seconds 10
+                        $retries++
+                    }
                 }
             }
+            
         }
     }
     Write-Information ""
