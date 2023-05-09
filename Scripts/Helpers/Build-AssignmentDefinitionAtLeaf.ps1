@@ -184,6 +184,7 @@ function Build-AssignmentDefinitionAtLeaf {
         if ($null -ne $definitionEntry.nonComplianceMessages) {
             if ($definitionEntry.nonComplianceMessages.Count -gt 0) {
                 $nonComplianceMessages = $definitionEntry.nonComplianceMessages
+                $nonComplianceMessagesList.AddRange($nonComplianceMessages)
             }
         }
         elseif ($assignmentDefinition.nonComplianceMessages.Count -gt 0) {
@@ -195,12 +196,12 @@ function Build-AssignmentDefinitionAtLeaf {
                         $policySetId = $nonComplianceMessageRaw.policySetId
                         if ($null -ne $policySetNamePolicySetName) {
                             if ($name -eq $policySetName) {
-                                $null = $nonComplianceMessagesList.AddRange($nonComplianceMessageRaw.messages)
+                                $null = $nonComplianceMessagesList.AddRange($nonComplianceMessageRaw.message)
                             }
                         }
                         elseif ($null -ne $policySetId) {
                             if ($policyDefinitionId -eq $policySetId) {
-                                $null = $nonComplianceMessagesList.AddRange($nonComplianceMessageRaw.messages)
+                                $null = $nonComplianceMessagesList.AddRange($nonComplianceMessageRaw.message)
                             }
                         }
                         else {
@@ -214,12 +215,12 @@ function Build-AssignmentDefinitionAtLeaf {
                         $policyId = $nonComplianceMessageRaw.policyId
                         if ($null -ne $policyName) {
                             if ($name -eq $policyName) {
-                                $null = $nonComplianceMessagesList.AddRange($nonComplianceMessageRaw.messages)
+                                $null = $nonComplianceMessagesList.AddRange($nonComplianceMessageRaw.message)
                             }
                         }
                         elseif ($null -ne $policyId) {
                             if ($policyDefinitionId -eq $policyId) {
-                                $null = $nonComplianceMessagesList.AddRange($nonComplianceMessageRaw.messages)
+                                $null = $nonComplianceMessagesList.AddRange($nonComplianceMessageRaw.message)
                             }
                         }
                         else {
@@ -232,14 +233,16 @@ function Build-AssignmentDefinitionAtLeaf {
             }
             else {
                 $firstNonComplianceMessagesRaw = $nonComplianceMessagesRaw[0]
-                if ($assignmentDefinition.nonComplianceMessages.Count -eq 1 -and $null -ne $firstNonComplianceMessagesRaw.messages) {
-                    $null = $nonComplianceMessagesList.AddRange($nonComplianceMessageRaw.messages)
+                if ($assignmentDefinition.nonComplianceMessages.Count -eq 1 -and $null -ne $firstNonComplianceMessagesRaw.message) {
+                    foreach ($nonComplianceMessageRaw in $nonComplianceMessagesRaw) {
+                        $null = $nonComplianceMessagesList.Add($nonComplianceMessageRaw)
+                    }
                 }
-                elseif ($null -eq $firstNonComplianceMessagesRaw.messages) {
-                    $null = $nonComplianceMessagesList.AddRange($nonComplianceMessageRaw)
+                elseif ($null -eq $firstNonComplianceMessagesRaw.message) {
+                    $null = $nonComplianceMessagesList.Add($nonComplianceMessagesRaw)
                 }
                 else {
-                    Write-Error "    Leaf Node $($nodeName): nonComplianceMessage is not valid: $($nonComplianceMessageRaw | ConvertTo-Json -Depth 3 -Compress)"
+                    Write-Error "    Leaf Node $($nodeName): nonComplianceMessage is not valid: $($nonComplianceMessagesRaw | ConvertTo-Json -Depth 3 -Compress)"
                     $hasErrors = $true
                     continue
                 }
@@ -546,14 +549,14 @@ function Build-AssignmentDefinitionAtLeaf {
         #region baseAssignment
 
         $baseAssignment = @{
-            name                  = $name
-            identity              = $identitySpec
-            identityRequired      = $identityRequired
-            policyDefinitionId    = $policyDefinitionId
-            displayName           = $displayName
-            enforcementMode       = $enforcementMode
-            metadata              = $metadata
-            parameters            = $assignmentDefinition.parameters
+            name               = $name
+            identity           = $identitySpec
+            identityRequired   = $identityRequired
+            policyDefinitionId = $policyDefinitionId
+            displayName        = $displayName
+            enforcementMode    = $enforcementMode
+            metadata           = $metadata
+            parameters         = $assignmentDefinition.parameters
         }
 
         if ($identityRequired) {
