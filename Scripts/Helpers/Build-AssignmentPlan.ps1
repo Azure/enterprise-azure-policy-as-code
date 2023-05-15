@@ -168,9 +168,40 @@ function Build-AssignmentPlan {
                     -existingMetadataObj $deployedPolicyAssignmentProperties.metadata `
                     -definedMetadataObj $metadata
                 $enforcementModeMatches = $enforcementMode -eq $deployedPolicyAssignmentProperties.EnforcementMode
+                # Rebuild the non-compliance object
+                $nonComplianceObject = @()
+                if ($nonComplianceMessages.length -gt 1) {
+                    foreach ($nc in $nonComplianceMessages) {
+                        $obj = @{
+                            message                     = $nc.Message
+                            policyDefinitionReferenceId = $nc.policyDefinitionReferenceId
+                        }
+                        $nonComplianceObject += $obj
+                    }
+                }
+                else {
+                    if ($null -ne $nonComplianceMessages[0].policyDefinitionReferenceId) {
+                        foreach ($nc in $nonComplianceMessages) {
+                            $obj = @{
+                                message                     = $nc.Message
+                                policyDefinitionReferenceId = $nc.policyDefinitionReferenceId
+                            }
+                            $nonComplianceObject += $obj
+                        } 
+                    }
+                    else {
+                        foreach ($nc in $nonComplianceMessages.Keys) {
+                            $obj = @{
+                                message                     = $nonComplianceMessages[0][$nc]
+                                policyDefinitionReferenceId = $nc.policyDefinitionReferenceId
+                            }
+                            $nonComplianceObject += $obj
+                        }
+                    }
+                }
                 $nonComplianceMessagesMatches = Confirm-ObjectValueEqualityDeep `
                     $deployedPolicyAssignmentProperties.nonComplianceMessages `
-                    $nonComplianceMessages
+                    $nonComplianceObject
                 $overridesMatch = Confirm-ObjectValueEqualityDeep `
                     $deployedPolicyAssignmentProperties.overrides `
                     $overrides

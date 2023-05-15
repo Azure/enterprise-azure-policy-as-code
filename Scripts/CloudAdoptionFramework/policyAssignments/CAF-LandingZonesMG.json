@@ -24,7 +24,7 @@
                         "friendlyNameToDocumentIfGuid": "AKS Privilege Escalation"
                     },
                     "parameters": {
-                        "effect": "deny"
+                        "effect": "Deny"
                     }
                 },
                 {
@@ -78,7 +78,12 @@
                     "definitionEntry": {
                         "policyId": "/providers/Microsoft.Authorization/policyDefinitions/88c0b9da-ce96-4b03-9635-f29a937e2900",
                         "friendlyNameToDocumentIfGuid": "Deny IP Forwarding"
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Network interfaces must disable IP forwarding."
+                        }
+                    ]
                 },
                 {
                     "nodeName": "NoNSG",
@@ -90,7 +95,12 @@
                     "definitionEntry": {
                         "policyName": "Deny-Subnet-Without-Nsg",
                         "friendlyNameToDocumentIfGuid": "Deny Subnet without NSG"
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Subnets must have a Network Security Group."
+                        }
+                    ]
                 },
                 {
                     "nodeName": "EnableDDOS",
@@ -104,9 +114,14 @@
                         "friendlyNameToDocumentIfGuid": "Audit DDOS Landing Zones"
                     },
                     "parameters": {
-                        "effect": "Audit",
-                        "ddosPlan": ""
-                    }
+                        "effect": "Modify",
+                        "ddosPlan": "null"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Virtual networks must be protected by Azure DDoS Network Protection."
+                        }
+                    ]
                 },
                 {
                     "nodeName": "AppGW-WAF",
@@ -118,7 +133,12 @@
                     "definitionEntry": {
                         "policyId": "/providers/Microsoft.Authorization/policyDefinitions/564feb30-bf6a-4854-b4bb-0d2d2d1e6c66",
                         "friendlyNameToDocumentIfGuid": "Application Gateway with WAF"
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Web Application Firewall (WAF) must be enabled for Application Gateway."
+                        }
+                    ]
                 }
             ]
         },
@@ -137,8 +157,13 @@
                         "friendlyNameToDocumentIfGuid": "Deny Storage HTTP"
                     },
                     "parameters": {
-                        "effect": "deny"
-                    }
+                        "effect": "Deny"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Secure transfer to storage accounts must be enabled."
+                        }
+                    ]
                 }
             ]
         },
@@ -155,7 +180,12 @@
                     "definitionEntry": {
                         "policyId": "/providers/Microsoft.Authorization/policyDefinitions/25da7dfb-0666-4a15-a8f5-402127efd8bb",
                         "friendlyNameToDocumentIfGuid": "Deploy SQL DB Auditing"
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "SQL servers must have auditing enabled to Log Analytics workspace."
+                        }
+                    ]
                 }
             ]
         },
@@ -176,7 +206,12 @@
                     "parameters": {
                         "exclusionTagName": "",
                         "exclusionTagValue": []
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Backup on virtual machines without a given tag must be configured to a new recovery services vault with a default policy."
+                        }
+                    ]
                 }
             ]
         },
@@ -193,7 +228,12 @@
                     "definitionEntry": {
                         "policySetName": "Enforce-Guardrails-KeyVault",
                         "friendlyNameToDocumentIfGuid": "Key Vault Guardrails"
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Recommended guardrails must be enforced for Azure Key Vault."
+                        }
+                    ]
                 }
             ]
         },
@@ -210,7 +250,12 @@
                     "definitionEntry": {
                         "policySetName": "Enforce-EncryptTransit",
                         "friendlyNameToDocumentIfGuid": "Enforce Encrypt Transit"
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "TLS and SSL must be enabled for on resources without encryption in transit."
+                        }
+                    ]
                 },
                 {
                     "nodeName": "SQLThreat",
@@ -222,7 +267,12 @@
                     "definitionEntry": {
                         "policyId": "/providers/Microsoft.Authorization/policyDefinitions/36d49e87-48c4-4f2e-beed-ba4ed02b71f5",
                         "friendlyNameToDocumentIfGuid": "Deploy SQL Threat Detection"
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Threat Detection must be deployed on SQL servers."
+                        }
+                    ]
                 },
                 {
                     "nodeName": "ACSB",
@@ -233,7 +283,12 @@
                     },
                     "definitionEntry": {
                         "policySetName": "Enforce-ACSB"
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Azure Compute Security Baseline compliance auditing must be enforced."
+                        }
+                    ]
                 },
                 {
                     "nodeName": "DenyMgmt",
@@ -245,7 +300,12 @@
                     "definitionEntry": {
                         "policyName": "Deny-MgmtPorts-From-Internet",
                         "friendlyNameToDocumentIfGuid": "Deny Management Ports"
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Management port access from the Internet must be blocked."
+                        }
+                    ]
                 }
             ]
         }

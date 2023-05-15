@@ -20,7 +20,12 @@
             "parameters": {
                 "effect": "Modify",
                 "ddosPlan": ""
-            }
+            },
+            "nonComplianceMessages": [
+                {
+                    "Message": "Virtual networks must be protected by Azure DDoS Network Protection."
+                }
+            ]
         }
     ]
 }

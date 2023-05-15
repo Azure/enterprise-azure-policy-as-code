@@ -235,11 +235,11 @@ function Build-AssignmentDefinitionAtLeaf {
                 $firstNonComplianceMessagesRaw = $nonComplianceMessagesRaw[0]
                 if ($assignmentDefinition.nonComplianceMessages.Count -eq 1 -and $null -ne $firstNonComplianceMessagesRaw.message) {
                     foreach ($nonComplianceMessageRaw in $nonComplianceMessagesRaw) {
-                        $null = $nonComplianceMessagesList.Add($nonComplianceMessageRaw)
+                        $null = $nonComplianceMessagesList.AddRange($nonComplianceMessageRaw)
                     }
                 }
                 elseif ($null -eq $firstNonComplianceMessagesRaw.message) {
-                    $null = $nonComplianceMessagesList.Add($nonComplianceMessagesRaw)
+                    $null = $nonComplianceMessagesList.AddRange($nonComplianceMessagesRaw)
                 }
                 else {
                     Write-Error "    Leaf Node $($nodeName): nonComplianceMessage is not valid: $($nonComplianceMessagesRaw | ConvertTo-Json -Depth 3 -Compress)"

@@ -20,7 +20,7 @@ function Get-AzScopeTree {
     $resourceContainers = Search-AzGraphAllItems `
         -query "ResourceContainers" `
         -scope $scope `
-        -progressItemName "reesource containers"
+        -progressItemName "resource containers"
     $WarningPreference = $prefBackup
     Write-Information ""
     Write-Information "Processing $($resourceContainers.Count) resource containers:"

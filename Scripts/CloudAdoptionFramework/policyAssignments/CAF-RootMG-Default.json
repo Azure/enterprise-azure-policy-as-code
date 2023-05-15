@@ -27,7 +27,12 @@
                         "policySetName": "1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
                         "friendlyNameToDocumentIfGuid": "Microsoft Cloud Security Benchmark"
                     },
-                    "parameters": {}
+                    "parameters": {},
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Microsoft Cloud Security Benchmark must be met."
+                        }
+                    ]
                 },
                 {
                     "nodeName": "MDFC",
@@ -41,9 +46,6 @@
                         "friendlyNameToDocumentIfGuid": "Microsoft Defender For Cloud"
                     },
                     "parameters": {
-                        "emailSecurityContact": "",
-                        "ascExportResourceGroupName": "",
-                        "ascExportResourceGroupLocation": "",
                         "enableAscForServers": "Disabled",
                         "enableAscForSql": "Disabled",
                         "enableAscForAppServices": "Disabled",
@@ -58,7 +60,12 @@
                         "enableAscForServersVulnerabilityAssessments": "Disabled",
                         "enableAscForApis": "Disabled",
                         "enableAscForCspm": "Disabled"
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Microsoft Defender for Cloud and Security Contacts must be deployed."
+                        }
+                    ]
                 },
                 {
                     "nodeName": "MDFE",
@@ -72,11 +79,16 @@
                         "friendlyNameToDocumentIfGuid": "Microsoft Defender for Endpoint agent"
                     },
                     "parameters": {
-                        "microsoftDefenderForEndpointWindowsVmAgentDeployEffect": "AuditIfNotExists",
-                        "microsoftDefenderForEndpointLinuxVmAgentDeployEffect": "AuditIfNotExists",
-                        "microsoftDefenderForEndpointWindowsArcAgentDeployEffect": "AuditIfNotExists",
-                        "microsoftDefenderForEndpointLinuxArcAgentDeployEffect": "AuditIfNotExists"
-                    }
+                        "microsoftDefenderForEndpointWindowsVmAgentDeployEffect": "DeployIfNotExists",
+                        "microsoftDefenderForEndpointLinuxVmAgentDeployEffect": "DeployIfNotExists",
+                        "microsoftDefenderForEndpointWindowsArcAgentDeployEffect": "DeployIfNotExists",
+                        "microsoftDefenderForEndpointLinuxArcAgentDeployEffect": "DeployIfNotExists"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Microsoft Defender for Endpoint agent must be deployed on applicable images."
+                        }
+                    ]
                 },
                 {
                     "nodeName": "MDFEOSSDB",
@@ -88,7 +100,12 @@
                     "definitionEntry": {
                         "policySetName": "e77fc0b3-f7e9-4c58-bc13-cb753ed8e46e",
                         "friendlyNameToDocumentIfGuid": "Microsoft Defender for Endpoint open-source relational databases"
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Advanced Threat Protection must be enabled on open-source relational databases."
+                        }
+                    ]
                 },
                 {
                     "nodeName": "MDFCSQLATP",
@@ -100,7 +117,12 @@
                     "definitionEntry": {
                         "policySetName": "9cb3cc7a-b39b-4b82-bc89-e5a5d9ff7b97",
                         "friendlyNameToDocumentIfGuid": "Microsoft Defender for SQL Servers and SQL Managed Instances"
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Azure Defender must be enabled on SQL Servers and SQL Managed Instances."
+                        }
+                    ]
                 },
                 {
                     "nodeName": "ACSB",
@@ -112,24 +134,12 @@
                     "definitionEntry": {
                         "policySetName": "Enforce-ACSB",
                         "friendlyNameToDocumentIfGuid": "Azure Compute Security Baseline"
-                    }
-                },
-                {
-                    "nodeName": "MDE",
-                    "assignment": {
-                        "name": "Deploy-MDEndpoints",
-                        "displayName": "[Preview]: Deploy Microsoft Defender for Endpoint agent",
-                        "description": "Deploy Microsoft Defender for Endpoint agent on applicable images."
                     },
-                    "definitionEntry": {
-                        "policySetName": "e20d08c5-6d64-656d-6465-ce9e37fd0ebc"
-                    },
-                    "parameters": {
-                        "microsoftDefenderForEndpointWindowsVmAgentDeployEffect": "DeployIfNotExists",
-                        "microsoftDefenderForEndpointLinuxVmAgentDeployEffect": "DeployIfNotExists",
-                        "microsoftDefenderForEndpointWindowsArcAgentDeployEffect": "DeployIfNotExists",
-                        "microsoftDefenderForEndpointLinuxArcAgentDeployEffect": "DeployIfNotExists"
-                    }
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Azure Compute Security Baseline compliance auditing must be enforced."
+                        }
+                    ]
                 }
             ]
         },
@@ -147,7 +157,12 @@
                         "policyName": "2465583e-4e78-4c15-b6be-a36cbc7c8b0f",
                         "friendlyNameToDocumentIfGuid": "Activity Logs"
                     },
-                    "parameters": {}
+                    "parameters": {},
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Azure Activity logs must be configured to stream to specified Log Analytics workspace."
+                        }
+                    ]
                 },
                 {
                     "nodeName": "ResourceDiagnostics",
@@ -160,7 +175,12 @@
                         "policySetName": "Deploy-Diagnostics-LogAnalytics",
                         "friendlyNameToDocumentIfGuid": "Resource Diagnostics"
                     },
-                    "parameters": {}
+                    "parameters": {},
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Diagnostic settings must be deployed to Azure services."
+                        }
+                    ]
                 }
             ]
         },
@@ -177,7 +197,12 @@
                     "definitionEntry": {
                         "policySetName": "55f3eceb-5573-4f18-9695-226972c6d74a",
                         "friendlyNameToDocumentIfGuid": "VM Monitoring"
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Azure Monitor must be enabled for Virtual Machines."
+                        }
+                    ]
                 },
                 {
                     "nodeName": "VMSSMonitoring",
@@ -189,7 +214,12 @@
                     "definitionEntry": {
                         "policySetName": "75714362-cae7-409e-9b99-a8e5075b7fad",
                         "friendlyNameToDocumentIfGuid": "VMSS Monitoring"
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Azure Monitor must be enabled for Virtual Machine Scale Sets."
+                        }
+                    ]
                 },
                 {
                     "nodeName": "DenyUnmanagedDisk",
@@ -202,10 +232,9 @@
                         "policyName": "06a78e20-9358-41c9-923c-fb736d382a4d",
                         "friendlyNameToDocumentIfGuid": "Unmanaged Disks"
                     },
-                    "overrides": [
+                    "nonComplianceMessages": [
                         {
-                            "kind": "policyEffect",
-                            "value": "Deny"
+                            "Message": "Virtual machines and virtual machine scales sets must use a managed disk."
                         }
                     ]
                 }
@@ -285,7 +314,12 @@
                             "Microsoft.ClassicStorage/vmImages",
                             "Microsoft.ClassicSubscription/operations"
                         ]
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Classic resources must not be deployed."
+                        }
+                    ]
                 },
                 {
                     "nodeName": "UnusedResources",
@@ -297,7 +331,12 @@
                     "definitionEntry": {
                         "policySetName": "Audit-UnusedResourcesCostOptimization",
                         "friendlyNameToDocumentIfGuid": "Unused Resources"
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Unused resources driving cost must be avoided."
+                        }
+                    ]
                 }
             ]
         }

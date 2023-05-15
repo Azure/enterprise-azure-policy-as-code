@@ -19,7 +19,12 @@
                     "definitionEntry": {
                         "policySetName": "Deny-PublicPaaSEndpoints",
                         "friendlyNameToDocumentIfGuid": "Deny Public PaaS Endpoints"
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Public network access must be disabled for PaaS services."
+                        }
+                    ]
                 },
                 {
                     "nodeName": "DNZZones",
@@ -88,10 +93,15 @@
                         "azureMachineLearningWorkspacePrivateDnsZoneId": "--DNSZonePrefix--privatelink.api.azureml.ms')]",
                         "azureServiceBusNamespacePrivateDnsZoneId": "--DNSZonePrefix--privatelink.servicebus.windows.net')]",
                         "azureCognitiveSearchPrivateDnsZoneId": "--DNSZonePrefix--privatelink.search.windows.net')]"
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Azure PaaS services must use private DNS zones."
+                        }
+                    ]
                 },
                 {
-                    "nodeName": "NOPublicIP",
+                    "nodeName": "NoPublicIP",
                     "assignment": {
                         "name": "Deny-Public-IP-On-NIC",
                         "description": "This policy denies network interfaces from having a public IP associated to it under the assigned scope.",
@@ -99,7 +109,12 @@
                     },
                     "definitionEntry": {
                         "policyId": "/providers/Microsoft.Authorization/policyDefinitions/83a86a26-fd1f-447c-b59d-e51f44264114"
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Network interfaces must not have a public IP associated."
+                        }
+                    ]
                 },
                 {
                     "nodeName": "DenyNetworking",
@@ -122,7 +137,12 @@
                             "microsoft.network/vpnsites",
                             "microsoft.network/virtualnetworkgateways"
                         ]
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "vWAN/ER/VPN gateway resources must not be deployed in the Corp landing zone."
+                        }
+                    ]
                 },
                 {
                     "nodeName": "PLink",
@@ -200,7 +220,12 @@
                             "privatelink.web.core.windows.net",
                             "privatelink.webpubsub.azure.com"
                         ]
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Private Link Private DNS Zone resources must be deployed in the Corp landing zone."
+                        }
+                    ]
                 }
             ]
         }
