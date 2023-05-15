@@ -25,7 +25,12 @@
                             "Microsoft.Network/publicIPAddresses"
                         ],
                         "effect": "Deny"
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Public IPs must not be created under this scope."
+                        }
+                    ]
                 },
                 {
                     "nodeName": "DenyMgmt",
@@ -37,7 +42,12 @@
                     "definitionEntry": {
                         "policyName": "Deny-MgmtPorts-From-Internet",
                         "friendlyNameToDocumentIfGuid": "Deny Management Ports"
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Management port access from the Internet must be blocked."
+                        }
+                    ]
                 },
                 {
                     "nodeName": "NoNSG",
@@ -49,7 +59,12 @@
                     "definitionEntry": {
                         "policyName": "Deny-Subnet-Without-Nsg",
                         "friendlyNameToDocumentIfGuid": "Deny Subnet without NSG"
-                    }
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Subnets must have a Network Security Group."
+                        }
+                    ]
                 }
             ]
         },
@@ -67,12 +82,15 @@
                         "policyId": "/providers/Microsoft.Authorization/policyDefinitions/98d0b9f8-fd90-49c9-88e2-d3baf3b0dd86",
                         "friendlyNameToDocumentIfGuid": "Deploy VM Backup"
                     },
-                    "parameters":{
+                    "parameters": {
                         "exclusionTagName": "",
-                        "exclusionTagValue": [
-                            
-                        ]
-                    }
+                        "exclusionTagValue": []
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "Message": "Backup on virtual machines without a given tag must be configured to a new recovery services vault with a default policy."
+                        }
+                    ]
                 }
             ]
         }

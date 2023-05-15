@@ -31,7 +31,12 @@
                     "microsoft.authorization/roleassignmentschedules",
                     "microsoft.authorization/roleassignmentscheduleinstances"
                 ]
-            }
+            },
+            "nonComplianceMessages": [
+                {
+                    "Message": "ALZ Decommissioned Guardrails must be enforced."
+                }
+            ]
         }
     ]
 }
