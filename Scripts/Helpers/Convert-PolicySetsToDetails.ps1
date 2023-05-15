@@ -82,7 +82,7 @@ function Convert-PolicySetsToDetails {
                         $effectAllowedOverrides = @("Disabled", "Audit", "Deny")
                     }
                     elseif ($effectValue -eq "audit") {
-                        $effectAllowedOverrides = @("Disabled", "Audit") # Safe assumption if Audit or Disabled
+                        $effectAllowedOverrides = @("Disabled", "Audit", "Deny") # Safe assumption if Audit or Disabled - deny is a valid case as well - see ALZ deny-unmanageddisk
                     }
                     else {
                         # Disabled: very weird for hard coded
