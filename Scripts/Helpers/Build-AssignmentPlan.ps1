@@ -180,22 +180,24 @@ function Build-AssignmentPlan {
                     }
                 }
                 else {
-                    if ($null -ne $nonComplianceMessages[0].policyDefinitionReferenceId) {
-                        foreach ($nc in $nonComplianceMessages) {
-                            $obj = @{
-                                message                     = $nc.Message
-                                policyDefinitionReferenceId = $nc.policyDefinitionReferenceId
+                    if ($null -ne $nonComplianceMessages) {
+                        if ($null -ne $nonComplianceMessages[0].Keys) {
+                            foreach ($nc in $nonComplianceMessages) {
+                                $obj = @{
+                                    message                     = $nc.Message
+                                    policyDefinitionReferenceId = $nc.policyDefinitionReferenceId
+                                }
+                                $nonComplianceObject += $obj
+                            } 
+                        }
+                        else {
+                            foreach ($nc in $nonComplianceMessages.Keys) {
+                                $obj = @{
+                                    message                     = $nonComplianceMessages[0][$nc]
+                                    policyDefinitionReferenceId = $nc.policyDefinitionReferenceId
+                                }
+                                $nonComplianceObject += $obj
                             }
-                            $nonComplianceObject += $obj
-                        } 
-                    }
-                    else {
-                        foreach ($nc in $nonComplianceMessages.Keys) {
-                            $obj = @{
-                                message                     = $nonComplianceMessages[0][$nc]
-                                policyDefinitionReferenceId = $nc.policyDefinitionReferenceId
-                            }
-                            $nonComplianceObject += $obj
                         }
                     }
                 }
