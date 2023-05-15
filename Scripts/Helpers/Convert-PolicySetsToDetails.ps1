@@ -82,7 +82,7 @@ function Convert-PolicySetsToDetails {
                         $effectAllowedOverrides = @("Disabled", "Audit", "Deny")
                     }
                     elseif ($effectValue -eq "audit") {
-                        $effectAllowedOverrides = @("Disabled", "Audit") # Safe assumption if Audit or Disabled
+                        $effectAllowedOverrides = @("Disabled", "Audit", "Deny") # Safe assumption if Audit or Disabled - this is a valid case as well
                     }
                     else {
                         # Disabled: very weird for hard coded
