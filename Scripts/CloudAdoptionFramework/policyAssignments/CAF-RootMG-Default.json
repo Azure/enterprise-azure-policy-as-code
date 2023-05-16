@@ -236,6 +236,12 @@
                         {
                             "Message": "Virtual machines and virtual machine scales sets must use a managed disk."
                         }
+                    ],
+                    "overrides": [
+                        {
+                            "kind": "policyEffect",
+                            "value": "Deny"
+                        }
                     ]
                 }
             ]
