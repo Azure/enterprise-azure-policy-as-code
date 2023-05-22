@@ -34,7 +34,7 @@
             },
             "nonComplianceMessages": [
                 {
-                    "Message": "ALZ Decommissioned Guardrails must be enforced."
+                    "message": "ALZ Decommissioned Guardrails must be enforced."
                 }
             ]
         }

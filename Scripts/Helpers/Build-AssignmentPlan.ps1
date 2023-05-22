@@ -173,7 +173,7 @@ function Build-AssignmentPlan {
                 if ($nonComplianceMessages.length -gt 1) {
                     foreach ($nc in $nonComplianceMessages) {
                         $obj = @{
-                            message                     = $nc.Message
+                            message                     = $nc.message
                             policyDefinitionReferenceId = $nc.policyDefinitionReferenceId
                         }
                         $nonComplianceObject += $obj
@@ -183,11 +183,21 @@ function Build-AssignmentPlan {
                     if ($null -ne $nonComplianceMessages) {
                         if ($null -ne $nonComplianceMessages[0].Keys) {
                             foreach ($nc in $nonComplianceMessages) {
-                                $obj = @{
-                                    message                     = $nc.Message
-                                    policyDefinitionReferenceId = $nc.policyDefinitionReferenceId
+                                if ($nc.ContainsKey("Key")) {
+                                    $obj = @{
+                                        message                     = $nc.Value
+                                        policyDefinitionReferenceId = $nc.policyDefinitionReferenceId
+                                    }
+                                    $nonComplianceObject += $obj
                                 }
-                                $nonComplianceObject += $obj
+                                else {
+                                    $obj = @{
+                                        message                     = $nc.message
+                                        policyDefinitionReferenceId = $nc.policyDefinitionReferenceId
+                                    }
+                                    $nonComplianceObject += $obj
+                                }
+                                
                             } 
                         }
                         else {

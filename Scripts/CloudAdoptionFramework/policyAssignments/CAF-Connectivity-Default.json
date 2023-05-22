@@ -23,7 +23,7 @@
             },
             "nonComplianceMessages": [
                 {
-                    "Message": "Virtual networks must be protected by Azure DDoS Network Protection."
+                    "message": "Virtual networks must be protected by Azure DDoS Network Protection."
                 }
             ]
         }

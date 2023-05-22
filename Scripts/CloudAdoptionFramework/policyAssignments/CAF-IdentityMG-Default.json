@@ -28,7 +28,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Public IPs must not be created under this scope."
+                            "message": "Public IPs must not be created under this scope."
                         }
                     ]
                 },
@@ -45,7 +45,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Management port access from the Internet must be blocked."
+                            "message": "Management port access from the Internet must be blocked."
                         }
                     ]
                 },
@@ -62,7 +62,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Subnets must have a Network Security Group."
+                            "message": "Subnets must have a Network Security Group."
                         }
                     ]
                 }
@@ -88,7 +88,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Backup on virtual machines without a given tag must be configured to a new recovery services vault with a default policy."
+                            "message": "Backup on virtual machines without a given tag must be configured to a new recovery services vault with a default policy."
                         }
                     ]
                 }
