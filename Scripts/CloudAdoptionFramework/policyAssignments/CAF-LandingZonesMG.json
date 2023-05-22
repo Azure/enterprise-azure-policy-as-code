@@ -81,7 +81,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Network interfaces must disable IP forwarding."
+                            "message": "Network interfaces must disable IP forwarding."
                         }
                     ]
                 },
@@ -98,7 +98,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Subnets must have a Network Security Group."
+                            "message": "Subnets must have a Network Security Group."
                         }
                     ]
                 },
@@ -119,7 +119,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Virtual networks must be protected by Azure DDoS Network Protection."
+                            "message": "Virtual networks must be protected by Azure DDoS Network Protection."
                         }
                     ]
                 },
@@ -136,7 +136,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Web Application Firewall (WAF) must be enabled for Application Gateway."
+                            "message": "Web Application Firewall (WAF) must be enabled for Application Gateway."
                         }
                     ]
                 }
@@ -161,7 +161,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Secure transfer to storage accounts must be enabled."
+                            "message": "Secure transfer to storage accounts must be enabled."
                         }
                     ]
                 }
@@ -183,7 +183,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "SQL servers must have auditing enabled to Log Analytics workspace."
+                            "message": "SQL servers must have auditing enabled to Log Analytics workspace."
                         }
                     ]
                 }
@@ -209,7 +209,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Backup on virtual machines without a given tag must be configured to a new recovery services vault with a default policy."
+                            "message": "Backup on virtual machines without a given tag must be configured to a new recovery services vault with a default policy."
                         }
                     ]
                 }
@@ -231,7 +231,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Recommended guardrails must be enforced for Azure Key Vault."
+                            "message": "Recommended guardrails must be enforced for Azure Key Vault."
                         }
                     ]
                 }
@@ -253,7 +253,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "TLS and SSL must be enabled for on resources without encryption in transit."
+                            "message": "TLS and SSL must be enabled for on resources without encryption in transit."
                         }
                     ]
                 },
@@ -270,7 +270,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Threat Detection must be deployed on SQL servers."
+                            "message": "Threat Detection must be deployed on SQL servers."
                         }
                     ]
                 },
@@ -286,7 +286,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Azure Compute Security Baseline compliance auditing must be enforced."
+                            "message": "Azure Compute Security Baseline compliance auditing must be enforced."
                         }
                     ]
                 },
@@ -303,7 +303,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Management port access from the Internet must be blocked."
+                            "message": "Management port access from the Internet must be blocked."
                         }
                     ]
                 }

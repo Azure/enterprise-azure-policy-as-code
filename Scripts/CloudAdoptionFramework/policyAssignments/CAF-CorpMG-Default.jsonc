@@ -22,7 +22,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Public network access must be disabled for PaaS services."
+                            "message": "Public network access must be disabled for PaaS services."
                         }
                     ]
                 },
@@ -96,7 +96,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Azure PaaS services must use private DNS zones."
+                            "message": "Azure PaaS services must use private DNS zones."
                         }
                     ]
                 },
@@ -112,7 +112,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Network interfaces must not have a public IP associated."
+                            "message": "Network interfaces must not have a public IP associated."
                         }
                     ]
                 },
@@ -140,7 +140,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "vWAN/ER/VPN gateway resources must not be deployed in the Corp landing zone."
+                            "message": "vWAN/ER/VPN gateway resources must not be deployed in the Corp landing zone."
                         }
                     ]
                 },
@@ -223,7 +223,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Private Link Private DNS Zone resources must be deployed in the Corp landing zone."
+                            "message": "Private Link Private DNS Zone resources must be deployed in the Corp landing zone."
                         }
                     ]
                 }

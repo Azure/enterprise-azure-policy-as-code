@@ -30,7 +30,7 @@
                     "parameters": {},
                     "nonComplianceMessages": [
                         {
-                            "Message": "Microsoft Cloud Security Benchmark must be met."
+                            "message": "Microsoft Cloud Security Benchmark must be met."
                         }
                     ]
                 },
@@ -63,7 +63,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Microsoft Defender for Cloud and Security Contacts must be deployed."
+                            "message": "Microsoft Defender for Cloud and Security Contacts must be deployed."
                         }
                     ]
                 },
@@ -86,7 +86,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Microsoft Defender for Endpoint agent must be deployed on applicable images."
+                            "message": "Microsoft Defender for Endpoint agent must be deployed on applicable images."
                         }
                     ]
                 },
@@ -103,7 +103,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Advanced Threat Protection must be enabled on open-source relational databases."
+                            "message": "Advanced Threat Protection must be enabled on open-source relational databases."
                         }
                     ]
                 },
@@ -120,7 +120,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Azure Defender must be enabled on SQL Servers and SQL Managed Instances."
+                            "message": "Azure Defender must be enabled on SQL Servers and SQL Managed Instances."
                         }
                     ]
                 },
@@ -137,7 +137,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Azure Compute Security Baseline compliance auditing must be enforced."
+                            "message": "Azure Compute Security Baseline compliance auditing must be enforced."
                         }
                     ]
                 }
@@ -160,7 +160,7 @@
                     "parameters": {},
                     "nonComplianceMessages": [
                         {
-                            "Message": "Azure Activity logs must be configured to stream to specified Log Analytics workspace."
+                            "message": "Azure Activity logs must be configured to stream to specified Log Analytics workspace."
                         }
                     ]
                 },
@@ -178,7 +178,7 @@
                     "parameters": {},
                     "nonComplianceMessages": [
                         {
-                            "Message": "Diagnostic settings must be deployed to Azure services."
+                            "message": "Diagnostic settings must be deployed to Azure services."
                         }
                     ]
                 }
@@ -200,7 +200,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Azure Monitor must be enabled for Virtual Machines."
+                            "message": "Azure Monitor must be enabled for Virtual Machines."
                         }
                     ]
                 },
@@ -217,7 +217,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Azure Monitor must be enabled for Virtual Machine Scale Sets."
+                            "message": "Azure Monitor must be enabled for Virtual Machine Scale Sets."
                         }
                     ]
                 },
@@ -234,7 +234,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Virtual machines and virtual machine scales sets must use a managed disk."
+                            "message": "Virtual machines and virtual machine scales sets must use a managed disk."
                         }
                     ],
                     "overrides": [
@@ -323,7 +323,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Classic resources must not be deployed."
+                            "message": "Classic resources must not be deployed."
                         }
                     ]
                 },
@@ -340,7 +340,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Unused resources driving cost must be avoided."
+                            "message": "Unused resources driving cost must be avoided."
                         }
                     ]
                 }

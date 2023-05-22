@@ -28,7 +28,7 @@
             },
             "nonComplianceMessages": [
                 {
-                    "Message": "ALZ Sandbox Guardrails must be enforced."
+                    "message": "ALZ Sandbox Guardrails must be enforced."
                 }
             ]
         }

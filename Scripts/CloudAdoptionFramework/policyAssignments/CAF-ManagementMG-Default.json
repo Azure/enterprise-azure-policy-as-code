@@ -29,7 +29,7 @@
                     },
                     "nonComplianceMessages": [
                         {
-                            "Message": "Log Analytics workspace and automation account must be configured to centralize logs and monitoring."
+                            "message": "Log Analytics workspace and automation account must be configured to centralize logs and monitoring."
                         }
                     ]
                 }
