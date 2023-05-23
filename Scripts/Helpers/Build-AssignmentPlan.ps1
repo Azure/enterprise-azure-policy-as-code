@@ -145,12 +145,14 @@ function Build-AssignmentPlan {
             $scope = $assignment.scope
             $notScopes = $assignment.notScopes
             $enforcementMode = $assignment.enforcementMode
-            if ($assignment.nonComplianceMessages.ContainsKey("Key")) {
-                $obj = @{
-                    message                     = $assignment.nonComplianceMessages.Value
-                    policyDefinitionReferenceId = $assignment.nonComplianceMessages.policyDefinitionReferenceId
+            if ($null -ne $assignment.nonComplianceMessages) {
+                if ($assignment.nonComplianceMessages.ContainsKey("Key")) {
+                    $obj = @{
+                        message                     = $assignment.nonComplianceMessages.Value
+                        policyDefinitionReferenceId = $assignment.nonComplianceMessages.policyDefinitionReferenceId
+                    }
+                    $assignment.nonComplianceMessages = @($obj)
                 }
-                $assignment.nonComplianceMessages = @($obj)
             }
             $nonComplianceMessages = $assignment.nonComplianceMessages
             $overrides = $assignment.overrides
