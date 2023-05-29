@@ -23,26 +23,29 @@ function Build-AssignmentIdentityChanges {
     $definedLocation = $null
     $requiredRoleDefinitions = @()
 
-    if ($hasExistingIdentity) {
-        $existingIdentityType = $existingIdentity.type
-        if ($existingIdentityType -eq "UserAssigned") {
-            $existingUserAssignedIdentity = $existingIdentity.userAssignedIdentities.Keys[0]
+    if ($hasExistingIdentity) { 
+        $existingIdentityType = $existingIdentity.type 
+        if ($existingIdentityType -eq "UserAssigned") { 
+            $existingUserAssignedIdentity = ($existingIdentity.userAssignedIdentities | get-member)[-1].Name 
+        } 
+        if ($existingIdentityType -eq "UserAssigned") { 
+            $existingPrincipalId = $existingIdentity.userAssignedIdentities.$existingUserAssignedIdentity.principalId 
         }
-        $existingPrincipalId = $existingIdentity.principalId
-        $existingLocation = $existing.location
-        if ($deployedRoleAssignmentsByPrincipalId.ContainsKey($existingPrincipalId)) {
-            $existingRoleAssignments = $deployedRoleAssignmentsByPrincipalId.$existingPrincipalId
-        }
-    }
-
-    if ($identityRequired ) {
-        $definedIdentity = $assignment.identity
-        $definedIdentityType = $definedIdentity.type
-        if ($definedIdentityType -eq "UserAssigned") {
-            $definedUserAssignedIdentity = $definedIdentity.userAssignedIdentities.Keys[0]
-        }
-        $definedLocation = $assignment.managedIdentityLocation
-        $requiredRoleDefinitions = $assignment.metadata.roles
+        else { 
+            $existingPrincipalId = $existingIdentity.principalId 
+        } $existingLocation = $existing.location 
+        if ($deployedRoleAssignmentsByPrincipalId.ContainsKey($existingPrincipalId)) { 
+            $existingRoleAssignments = $deployedRoleAssignmentsByPrincipalId.$existingPrincipalId 
+        } 
+    } 
+    if ($identityRequired ) { 
+        $definedIdentity = $assignment.identity 
+        $definedIdentityType = $definedIdentity.type 
+        if ($definedIdentityType -eq "UserAssigned") { 
+            $definedUserAssignedIdentity = $definedIdentity.userAssignedIdentities.GetEnumerator().Name
+        } 
+        $definedLocation = $assignment.managedIdentityLocation 
+        $requiredRoleDefinitions = $assignment.metadata.roles 
     }
 
     $replaced = $replacedAssignment
