@@ -39,7 +39,7 @@ function Merge-AssignmentParametersEx {
     #region parameters column = mutual exclusion handled
 
     $overridesByEffect = @{}
-    $nonComplianceMessages = [System.Collections.ArrayList]::new()
+    $nonComplianceMessages = $baseAssignment.nonComplianceMessages
     $hasErrors = $false
     foreach ($row in $csvParameterArray) {
         $flatPolicyEntryKey = $row.flatPolicyEntryKey
@@ -246,9 +246,6 @@ function Merge-AssignmentParametersEx {
     #endregion optimize overrides
 
     $baseAssignment.parameters = $parameters
-    if ($nonComplianceMessages.Count -gt 0) {
-        $baseAssignment.nonComplianceMessages = $nonComplianceMessages.ToArray()
-    }
 
     return $hasErrors
 }
