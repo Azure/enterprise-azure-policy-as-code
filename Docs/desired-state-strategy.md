@@ -9,7 +9,7 @@ This original (previously the only) use case assumes one team/repo manages all P
 * `inheritedDefinitionsScopes`
 * `desiredState`
 
-## Use Case 2: Shared Responsibility
+## Use Case 2: Multiple Teams with Shared Responsibility
 
 In a shared responsibility model multiple teams manage the same tenant(s) at the same scope. Additionally, a variant of this use case is well suited to what previously was called `brownfield` which needs to preserve Policy resources deployed prior to EPAC. The following diagram shows two EPAC solutions managing the same root (tenant). Other Policy as Code solutions can also participate if the solution sets `metadata.pacOwnerId`.
 
@@ -25,17 +25,7 @@ You may add the following JSON for clarity/documentation of the default behavior
 }
 ```
 
-## Use Case 3: Brownfield Transition
-
-While transitioning to EPAC, existing Policy resources may need to be kept. **Breaking change:** Previously this was accomplished with the `brownfield` variable in the pipeline used to set the `SuppressDeletes` flag on the planning script. Unfortunately, the previous approach was to course- grained, preventing an EPAC solution to remove its own deprecated Policy resources. Setting `desiredState` to `ownedOnly` allows EPAC to remove its own resources while preserving brownfield instances.
-
-```json
-"desiredState": {
-    "strategy": "ownedOnly",
-}
-```
-
-## Use Case 4: Hierarchical Organization
+## Use Case 3:  Multiple Teams in a Hierarchical Organization
 
 The hierarchical model allows a central team to manage the commonality while giving parts of the organization a capability to further restrict resources with Policies. This is a common scenario in multi-national corporations with additional jurisdictional requirements (e.g., data sovereignty, local regulations, ...).
 
@@ -51,6 +41,20 @@ Repo A is managed the same as in use cases 1, 2 and 2a. Repo C sets sets the sam
     "strategy": "full",
 }
 ```
+
+## Use Case 4: Transitioning to EPAC
+
+While transitioning to EPAC, existing Policy resources may need to be kept. Setting `desiredState` to `ownedOnly` allows EPAC to remove its own resources while preserving instances requiring (temporary) preservation.
+
+
+```json
+"desiredState": {
+    "strategy": "ownedOnly",
+}
+```
+
+!!! warning
+    **Breaking change:** Previously this was accomplished with the `brownfield` variable in the pipeline used to set the `SuppressDeletes` flag on the planning script. Unfortunately, the previous approach was to course-grained, preventing an EPAC solution to remove its own deprecated Policy resources. The above is the new approach to the problem
 
 ## Use Case 5: Exclude some Scopes and Policy Resources
 

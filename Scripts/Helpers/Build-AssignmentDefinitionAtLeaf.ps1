@@ -178,78 +178,29 @@ function Build-AssignmentDefinitionAtLeaf {
 
         #endregion assignment name, displayName, description, metadata, enforcementMode
 
-        #region nonComplianceMessages in two variants plus in CSV
+        #region nonComplianceMessages in two variants
 
         $nonComplianceMessagesList = [System.Collections.ArrayList]::new()
-        if ($null -ne $definitionEntry.nonComplianceMessages) {
-            if ($definitionEntry.nonComplianceMessages.Count -gt 0) {
-                $nonComplianceMessages = $definitionEntry.nonComplianceMessages
-                $nonComplianceMessagesList.AddRange($nonComplianceMessages)
-            }
+        if ($null -ne $definitionEntry.nonComplianceMessages -and $definitionEntry.nonComplianceMessages.Count -gt 0) {
+            $nonComplianceMessages = $definitionEntry.nonComplianceMessages
+            $null = $nonComplianceMessagesList.AddRange($nonComplianceMessages)
         }
-        elseif ($assignmentDefinition.nonComplianceMessages.Count -gt 0) {
-            $nonComplianceMessagesRaw = $assignmentDefinition.nonComplianceMessages
+        if ($null -ne $assignmentDefinition.nonComplianceMessages -and $assignmentDefinition.nonComplianceMessages.Count -gt 0) {
             if ($multipleDefinitionEntries) {
-                foreach ($nonComplianceMessageRaw in $nonComplianceMessagesRaw) {
-                    if ($isPolicySet) {
-                        $policySetName = $nonComplianceMessageRaw.policySetName
-                        $policySetId = $nonComplianceMessageRaw.policySetId
-                        if ($null -ne $policySetNamePolicySetName) {
-                            if ($name -eq $policySetName) {
-                                $null = $nonComplianceMessagesList.AddRange($nonComplianceMessageRaw.message)
-                            }
-                        }
-                        elseif ($null -ne $policySetId) {
-                            if ($policyDefinitionId -eq $policySetId) {
-                                $null = $nonComplianceMessagesList.AddRange($nonComplianceMessageRaw.message)
-                            }
-                        }
-                        else {
-                            Write-Error "    Leaf Node $($nodeName): nonComplianceMessage must specify which Policy Set in the definitionEntryList they belong to by either using policySetName or policySetId: $($nonComplianceMessageRaw | ConvertTo-Json -Depth 3 -Compress)"
-                            $hasErrors = $true
-                            continue
-                        }
-                    }
-                    else {
-                        $policyName = $nonComplianceMessageRaw.policyName
-                        $policyId = $nonComplianceMessageRaw.policyId
-                        if ($null -ne $policyName) {
-                            if ($name -eq $policyName) {
-                                $null = $nonComplianceMessagesList.AddRange($nonComplianceMessageRaw.message)
-                            }
-                        }
-                        elseif ($null -ne $policyId) {
-                            if ($policyDefinitionId -eq $policyId) {
-                                $null = $nonComplianceMessagesList.AddRange($nonComplianceMessageRaw.message)
-                            }
-                        }
-                        else {
-                            Write-Error "    Leaf Node $($nodeName): nonComplianceMessage must specify which Policy in the definitionEntryList they belong to by either using policyName or policyId: $($nonComplianceMessageRaw | ConvertTo-Json -Depth 3 -Compress)"
-                            $hasErrors = $true
-                            continue
-                        }
-                    }
-                }
+                Write-Error "    Leaf Node $($nodeName): nonComplianceMessage for an assignment file with a definitionEntryList must be contained in each definitionEntry or specified in a CSV file"
+                $hasErrors = $true
             }
-            else {
-                $firstNonComplianceMessagesRaw = $nonComplianceMessagesRaw[0]
-                if ($assignmentDefinition.nonComplianceMessages.Count -eq 1 -and $null -ne $firstNonComplianceMessagesRaw.message) {
-                    foreach ($nonComplianceMessageRaw in $nonComplianceMessagesRaw) {
-                        $null = $nonComplianceMessagesList.AddRange($nonComplianceMessageRaw)
-                    }
-                }
-                elseif ($null -eq $firstNonComplianceMessagesRaw.message) {
-                    $null = $nonComplianceMessagesList.AddRange($nonComplianceMessagesRaw)
-                }
-                else {
-                    Write-Error "    Leaf Node $($nodeName): nonComplianceMessage is not valid: $($nonComplianceMessagesRaw | ConvertTo-Json -Depth 3 -Compress)"
-                    $hasErrors = $true
-                    continue
-                }
+            $nonComplianceMessages = $assignmentDefinition.nonComplianceMessages
+            $null = $nonComplianceMessagesList.AddRange($nonComplianceMessages)
+        }
+        foreach ($nonComplianceMessageRaw in $nonComplianceMessagesList) {
+            if ($null -eq $nonComplianceMessageRaw.message -or $nonComplianceMessageRaw.message -eq "") {
+                Write-Error "    Leaf Node $($nodeName): each nonComplianceMessage must conatin a message string: $($nonComplianceMessageRaw | ConvertTo-Json -Depth 3 -Compress)"
+                $hasErrors = $true
             }
         }
 
-        #endregion nonComplianceMessages in two variants plus in CSV
+        #endregion nonComplianceMessages in two variants
 
         #region resourceSelectors
 
@@ -574,9 +525,7 @@ function Build-AssignmentDefinitionAtLeaf {
         if ($overridesList.Count -gt 0) {
             $baseAssignment.overrides = $overridesList.ToArray()
         }
-        if ($nonComplianceMessagesList.Count -gt 0) {
-            $baseAssignment.nonComplianceMessages = $nonComplianceMessagesList.ToArray()
-        }
+        $baseAssignment.nonComplianceMessages = $nonComplianceMessagesList
 
         #endregion baseAssignment
 
@@ -621,8 +570,11 @@ function Build-AssignmentDefinitionAtLeaf {
         if ($baseAssignment.resourceSelectors.Count -eq 0) {
             $baseAssignment.Remove("resourceSelectors")
         }
-        if ($baseAssignment.nonComplianceMessages.Count -eq 0) {
+        if ($nonComplianceMessagesList.Count -eq 0) {
             $baseAssignment.Remove("nonComplianceMessages")
+        }
+        else {
+            $baseAssignment.nonComplianceMessages = $nonComplianceMessagesList.ToArray()
         }
 
         #endregion Reconcile and deduplicate: CSV, parameters, nonComplianceMessages, and overrides

@@ -88,6 +88,9 @@ function Confirm-ObjectValueEqualityDeep {
             }
             return $object1 -eq $object2
         }
+        elseif ($object1 -is [System.ValueType] -or $object2 -is [System.ValueType]) {
+            return $false
+        }
         elseif (($typeName1 -in @( "Hashtable", "OrderedDictionary", "OrderedHashtable" ) -or $object1 -is [PSCustomObject]) `
                 -and ($typeName2 -in @( "null", "Hashtable", "OrderedDictionary", "OrderedHashtable" ) -or $object2 -is [PSCustomObject])) {
 
