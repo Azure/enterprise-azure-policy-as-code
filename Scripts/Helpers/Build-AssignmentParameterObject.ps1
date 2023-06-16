@@ -12,15 +12,12 @@ function Build-AssignmentParameterObject {
                 $assignmentParameterValue = $assignmentParameters.$parameterName
                 $parameterDefinition = $parametersInPolicyDefinition.$parameterName
                 $defaultValue = $parameterDefinition.defaultValue
-                $isSameAsDefaultValue = Confirm-ObjectValueEqualityDeep $defaultValue $assignmentParameterValue
-                if (!$isSameAsDefaultValue) {
+                if ($null -eq $defaultValue -or (-not (Confirm-ObjectValueEqualityDeep $defaultValue $assignmentParameterValue))) {
+                    # The parameter definition does not define a defaultValue or the assignment parameter value is not equal to the defined defaultValue
                     $parameterObject[$parameterName] = $assignmentParameterValue
-                }
-                else {
-                    $null = $defaultValue
                 }
             }
         }
     }
-    $parameterObject
+    return $parameterObject
 }
