@@ -232,31 +232,34 @@ function Build-ExemptionsPlan {
                     }
                     else {
                         # One or more properties have changed
-                        $splatTransformStrings = @( "id/Id" )
-                        if (!$displayNameMatches) {
+                        $splatTransformStrings = @( "id/Id" ) 
+                        if (!$displayNameMatches) { 
                             $changesStrings += "displayName"
-                            $splatTransformStrings += "displayName/DisplayName"
-                        }
-                        if (!$descriptionMatches) {
-                            $changesStrings += "description"
-                            $splatTransformStrings += "description/Description"
-                        }
+                            $splatTransformStrings += "displayName/DisplayName" 
+                        } 
+                        if (!$descriptionMatches) { 
+                            $changesStrings += "description" 
+                            $splatTransformStrings += "description/Description" 
+                        } 
+                        if (!$policyDefinitionReferenceIdsMatches) {
+                            $changesStrings += "referenceIds" 
+                            $splatTransformStrings += "policyDefinitionReferenceIds/PolicyDefinitionReferenceId" 
+                        } 
                         if (!$metadataMatches) {
-                            $changesStrings += "metadata"
+                            $changesStrings += "metadata" 
                             $splatTransformStrings += "metadata/Metadata"
-                        }
+                        } 
                         if (!$exemptionCategoryMatches) {
-                            $changesStrings += "exemptionCategory"
-                            $splatTransformStrings += "exemptionCategory/ExemptionCategory"
-                        }
-                        if ($clearExpiration) {
+                            $changesStrings += "exemptionCategory" 
+                            $splatTransformStrings += "exemptionCategory/ExemptionCategory" 
+                        } 
+                        if ($clearExpiration) { 
                             $changesStrings += "clearExpiration"
-                            $splatTransformStrings += "clearExpiration/ClearExpiration"
-                        }
+                            $splatTransformStrings += "clearExpiration/ClearExpiration" 
+                        } 
                         elseif (!$expiresOnMatches) {
                             $changesStrings += "expiresOn"
-                            $splatTransformStrings += "expiresOn/ExpiresOn"
-
+                            $splatTransformStrings += "expiresOn/ExpiresOn" 
                         }
                         $changesString = $changesStrings -join ","
                         $splatTransformString = $splatTransformStrings -join " "
