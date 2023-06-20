@@ -275,6 +275,23 @@
                     ]
                 },
                 {
+                    "nodeName": "SQLTDE",
+                    "assignment": {
+                        "name": "Deploy-SQL-TDE",
+                        "displayName": "Deploy TDE on SQL servers",
+                        "description": "This policy ensures that Transparent Data Encryption is enabled on SQL Servers."
+                    },
+                    "definitionEntry": {
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/86a912f6-9a06-4e26-b447-11b16ba8659f",
+                        "friendlyNameToDocumentIfGuid": "Deploy SQL TDE"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "TDE must be deployed on SQL servers."
+                        }
+                    ]
+                },
+                {
                     "nodeName": "ACSB",
                     "assignment": {
                         "name": "Enforce-ACSB",
