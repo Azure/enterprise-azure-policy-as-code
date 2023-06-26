@@ -81,6 +81,15 @@ function Build-ExemptionsPlan {
                             Write-Error "  Invalid metadata format, must be empty or legal JSON: '$step2'"
                         }
                     }
+                    $assignmentScopeValidation = "Default"
+                    if ($null -ne $row.assignmentScopeValidation) {
+                        if ($row.assignmentScopeValidation -in ("Default", "DoNotValidate")) {
+                            $assignmentScopeValidation = $row.assignmentScopeValidation
+                        }
+                        else {
+                            Write-Error "  Invalid assignmentScopeValidation value, must be 'Default' or 'DoNotValidate': '$($row.assignmentScopeValidation)'"
+                        }
+                    }
                     $exemption = @{
                         name                         = $row.name
                         displayName                  = $row.displayName
@@ -91,6 +100,10 @@ function Build-ExemptionsPlan {
                         policyAssignmentId           = $row.policyAssignmentId
                         policyDefinitionReferenceIds = $policyDefinitionReferenceIds
                         metadata                     = $metadata
+                        assignmentScopeValidation    = $assignmentScopeValidation
+                    }
+                    if ($null -ne $row.resourceSelectors) {
+                        $exemption.resourceSelectors = $row.resourceSelectors
                     }
                     $null = $exemptionArrayList.Add($exemption)
                 }
@@ -108,6 +121,11 @@ function Build-ExemptionsPlan {
             $policyAssignmentId = $exemptionRaw.policyAssignmentId
             $policyDefinitionReferenceIds = $exemptionRaw.policyDefinitionReferenceIds
             $metadata = $exemptionRaw.metadata
+            $assignmentScopeValidation = $exemptionRaw.assignmentScopeValidation
+            if ($null -eq $assignmentScopeValidation) {
+                $assignmentScopeValidation = "Default"
+            }
+            $resourceSelectors = $exemptionRaw.resourceSelectors
             if (($null -eq $name -or $name -eq '') -or ($null -eq $exemptionCategory -or $exemptionCategory -eq '') -or ($null -eq $scope -or $scope -eq '') -or ($null -eq $policyAssignmentId -or $policyAssignmentId -eq '')) {
                 if (-not (($null -eq $name -or $name -eq '') -and ($null -eq $exemptionCategory -or $exemptionCategory -eq '') `
                             -and ($null -eq $scope -or $scope -eq '') -and ($null -eq $policyAssignmentId -or $policyAssignmentId -eq '') `
@@ -124,23 +142,21 @@ function Build-ExemptionsPlan {
             }
 
             $exemption = @{
-                id                 = $id
-                name               = $name
-                scope              = $scope
-                policyAssignmentId = $policyAssignmentId
-                exemptionCategory  = $exemptionCategory
+                id                        = $id
+                name                      = $name
+                scope                     = $scope
+                policyAssignmentId        = $policyAssignmentId
+                exemptionCategory         = $exemptionCategory
+                assignmentScopeValidation = $assignmentScopeValidation
             }
             if ($displayName -and $displayName -ne "") {
                 $null = $exemption.Add("displayName", $displayName)
             }
-            else {
-                $displayName = $null
-            }
             if ($description -and $description -ne "") {
                 $null = $exemption.Add("description", $description)
             }
-            else {
-                $description = $null
+            if ($resourceSelectors) {
+                $null = $exemption.Add("resourceSelectors", $resourceSelectors)
             }
 
             $expiresOn = $null
@@ -226,44 +242,45 @@ function Build-ExemptionsPlan {
                     $metadataMatches = Confirm-MetadataMatches `
                         -existingMetadataObj $deployedManagedExemption.metadata `
                         -definedMetadataObj $metadata
+                    $assignmentScopeValidationMatches = ($deployedManagedExemption.assignmentScopeValidation -eq $assignmentScopeValidation) `
+                        -or ($null -eq $deployedManagedExemption.assignmentScopeValidation -and ($assignmentScopeValidation -eq "Default" -or $null -eq $assignmentScopeValidation))
+                    $resourceSelectorsMatches = Confirm-ObjectValueEqualityDeep $deployedManagedExemption.resourceSelectors $resourceSelectors
                     # Update Exemption in Azure if necessary
-                    if ($displayNameMatches -and $descriptionMatches -and $exemptionCategoryMatches -and $expiresOnMatches -and $policyDefinitionReferenceIdsMatches -and $metadataMatches -and (-not $clearExpiration)) {
+                    if ($displayNameMatches -and $descriptionMatches -and $exemptionCategoryMatches -and $expiresOnMatches `
+                            -and $policyDefinitionReferenceIdsMatches -and $metadataMatches -and (-not $clearExpiration) `
+                            -and $assignmentScopeValidationMatches -and $resourceSelectorsMatches) {
                         $exemptions.numberUnchanged += 1
                     }
                     else {
                         # One or more properties have changed
-                        $splatTransformStrings = @( "id/Id" ) 
                         if (!$displayNameMatches) { 
                             $changesStrings += "displayName"
-                            $splatTransformStrings += "displayName/DisplayName" 
                         } 
                         if (!$descriptionMatches) { 
                             $changesStrings += "description" 
-                            $splatTransformStrings += "description/Description" 
                         } 
                         if (!$policyDefinitionReferenceIdsMatches) {
                             $changesStrings += "referenceIds" 
-                            $splatTransformStrings += "policyDefinitionReferenceIds/PolicyDefinitionReferenceId" 
                         } 
                         if (!$metadataMatches) {
                             $changesStrings += "metadata" 
-                            $splatTransformStrings += "metadata/Metadata"
                         } 
                         if (!$exemptionCategoryMatches) {
                             $changesStrings += "exemptionCategory" 
-                            $splatTransformStrings += "exemptionCategory/ExemptionCategory" 
                         } 
                         if ($clearExpiration) { 
                             $changesStrings += "clearExpiration"
-                            $splatTransformStrings += "clearExpiration/ClearExpiration" 
                         } 
                         elseif (!$expiresOnMatches) {
                             $changesStrings += "expiresOn"
-                            $splatTransformStrings += "expiresOn/ExpiresOn" 
+                        }
+                        if (!$assignmentScopeValidationMatches) {
+                            $changesStrings += "assignmentScopeValidation"
+                        }
+                        if (!$resourceSelectorsMatches) {
+                            $changesStrings += "resourceSelectors"
                         }
                         $changesString = $changesStrings -join ","
-                        $splatTransformString = $splatTransformStrings -join " "
-                        $exemption.splatTransform = $splatTransformString
                         $exemptions.numberOfChanges++
                         $null = $exemptions.update.Add($id, $exemption)
                         Write-Information "Update($changesString) '$($name)', '$($scope)'"

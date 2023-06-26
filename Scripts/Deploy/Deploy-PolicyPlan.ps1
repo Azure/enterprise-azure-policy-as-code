@@ -312,24 +312,9 @@ else {
         Write-Information "==================================================================================================="
         Write-Information "Create new Exemptions ($($exemptions.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
-        $splatTransform = "name/Name scope/Scope displayName/DisplayName description/Description metadata/Metadata exemptionCategory/ExemptionCategory expiresOn/ExpiresOn policyDefinitionReferenceIds/PolicyDefinitionReferenceId"
-        $assignmentsCache = @{}
         foreach ($exemptionId in $exemptions.Keys) {
             $exemption = $exemptions.$exemptionId
-            $policyAssignmentId = $exemption.policyAssignmentId
-            $filteredExemption = $exemption | Get-FilteredHashTable -splatTransform $splatTransform
-            Write-Information $exemption.displayName
-            # Need assignment
-            $assignment = $null
-            if ($assignmentsCache.ContainsKey($policyAssignmentId)) {
-                $assignment = $assignmentsCache.$policyAssignmentId
-            }
-            else {
-                # Retrieve Policy Assignment
-                $assignment = Get-AzPolicyAssignment -Id $policyAssignmentId
-                $null = $assignmentsCache.Add($policyAssignmentId, $assignment)
-            }
-            $null = New-AzPolicyExemption @filteredExemption -PolicyAssignment $assignment
+            $null = Set-AzPolicyExemptionRestMethod -exemptionObj $exemption
         }
     }
 
@@ -339,24 +324,9 @@ else {
         Write-Information "==================================================================================================="
         Write-Information "Create replaced Exemptions ($($exemptions.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
-        $splatTransform = "name/Name scope/Scope displayName/DisplayName description/Description metadata/Metadata exemptionCategory/ExemptionCategory expiresOn/ExpiresOn policyDefinitionReferenceIds/PolicyDefinitionReferenceId"
-        $assignmentsCache = @{}
         foreach ($exemptionId in $exemptions.Keys) {
             $exemption = $exemptions.$exemptionId
-            $policyAssignmentId = $exemption.policyAssignmentId
-            $filteredExemption = $exemption | Get-FilteredHashTable -splatTransform $splatTransform
-            Write-Information $exemption.displayName
-            # Need assignment
-            $assignment = $null
-            if ($assignmentsCache.ContainsKey($policyAssignmentId)) {
-                $assignment = $assignmentsCache.$policyAssignmentId
-            }
-            else {
-                # Retrieve Policy Assignment
-                $assignment = Get-AzPolicyAssignment -Id $policyAssignmentId
-                $null = $assignmentsCache.Add($policyAssignmentId, $assignment)
-            }
-            $null = New-AzPolicyExemption @filteredExemption -PolicyAssignment $assignment
+            $null = Set-AzPolicyExemptionRestMethod -exemptionObj $exemption
         }
     }
 
@@ -367,11 +337,8 @@ else {
         Write-Information "Update Exemptions ($($exemptions.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($exemptionId in $exemptions.Keys) {
-            $exemption = $exemptions[$exemptionId]
-            $splatTransform = $exemption.splatTransform
-            $filteredExemption = $exemption | Get-FilteredHashTable -splatTransform $splatTransform
-            Write-Information $exemption.displayName
-            $null = Set-AzPolicyExemption @filteredExemption
+            $exemption = $exemptions.$exemptionId
+            $null = Set-AzPolicyExemptionRestMethod -exemptionObj $exemption
         }
     }
 

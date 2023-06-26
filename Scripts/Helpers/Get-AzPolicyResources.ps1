@@ -487,9 +487,9 @@ function Get-AzPolicyResources {
             $scopeInformation = $scopeTable.$scopeId
             if ($scopeInformation.type -eq "microsoft.resources/subscriptions") {
                 Write-Information "    $scopeId"
-                Get-AzPolicyExemption -Scope $scopeId -IncludeDescendent | Sort-Object Properties.PolicyAssignmentId, ResourceId |  ForEach-Object {
+                Get-AzPolicyExemptionsAtScopeRestMethod -Scope $scopeId | Sort-Object Properties.PolicyAssignmentId, ResourceId |  ForEach-Object {
                     $exemption = Get-DeepClone $_
-                    $id = $exemption.ResourceId
+                    $id = $exemption.id
                     if (!$exemptionsProcessed.ContainsKey($id)) {
                         # Filter out duplicates in parent Management Groups
 

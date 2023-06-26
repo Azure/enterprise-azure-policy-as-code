@@ -38,6 +38,7 @@
 . "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
 
 . "$PSScriptRoot/../Helpers/Get-AssignmentsDetails.ps1"
+. "$PSScriptRoot/../Helpers/Get-AzPolicyExemptionsAtScopeRestMethod.ps1"
 . "$PSScriptRoot/../Helpers/Get-AzPolicyResources.ps1"
 . "$PSScriptRoot/../Helpers/Get-AzScopeTree.ps1"
 . "$PSScriptRoot/../Helpers/Get-CustomMetadata.ps1"
@@ -78,6 +79,7 @@
 . "$PSScriptRoot/../Helpers/Set-AzPolicyAssignmentRestMethod.ps1"
 . "$PSScriptRoot/../Helpers/Set-AzPolicyDefinitionRestMethod.ps1"
 . "$PSScriptRoot/../Helpers/Set-AzPolicySetDefinitionRestMethod.ps1"
+. "$PSScriptRoot/../Helpers/Set-AzPolicyExemptionRestMethod.ps1"
 
 . "$PSScriptRoot/../Helpers/Set-AssignmentNode.ps1"
 . "$PSScriptRoot/../Helpers/Set-ExportNode.ps1"
