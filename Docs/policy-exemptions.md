@@ -29,6 +29,9 @@ We recommend that you use spreadsheets (`.csv`). The columns must have the follo
 * `assignmentId` - fully qualified assignment id.
 * `policyDefinitionReferenceIds` use comma separated list within each cell.
 * `metadata` - valid JSON (see JSON format below)
+* Optional
+  * `assignmentScopeValidation` - `Default` or `DoNotValidate`
+  * `resourceSelectors` - valid JSON (see JSON format below)
 
 ## JSON Format
 
@@ -49,7 +52,11 @@ We recommend that you use spreadsheets (`.csv`). The columns must have the follo
             ],
             "metadata": {
                 "custom": "value"
-            }
+            },
+            "assignmentScopeValidation": "Default",
+            "resourceSelectors": [
+              // see Microsoft documentation for details
+            ]
         }
     ]
 }
