@@ -1,0 +1,500 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+        "nodeName": {
+            "type": "string"
+        },
+        "metadata": {
+            "type": "object"
+        },
+        "definitionEntry": {
+            "type": "object",
+            "properties": {
+                "policyId": {
+                    "type": "string"
+                },
+                "policyName": {
+                    "type": "string"
+                },
+                "policySetId": {
+                    "type": "string"
+                },
+                "policySetName": {
+                    "type": "string"
+                },
+                "displayName": {
+                    "type": "string"
+                },
+                "nonComplianceMessages": {
+                    "$ref": "#/$defs/nonComplianceMessages"
+                }
+            },
+            "oneOf": [
+                {
+                    "required": [
+                        "policyId"
+                    ]
+                },
+                {
+                    "required": [
+                        "policyName"
+                    ]
+                },
+                {
+                    "required": [
+                        "policySetId"
+                    ]
+                },
+                {
+                    "required": [
+                        "policySetName"
+                    ]
+                }
+            ]
+        },
+        "definitionEntryList": {
+            "type": "array",
+            "items": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "policyId": {
+                            "type": "string"
+                        },
+                        "policyName": {
+                            "type": "string"
+                        },
+                        "policySetId": {
+                            "type": "string"
+                        },
+                        "policySetName": {
+                            "type": "string"
+                        },
+                        "displayName": {
+                            "type": "string"
+                        },
+                        "assignment": {
+                            "type": "object",
+                            "properties": {
+                                "append": {
+                                    "type": "boolean"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "displayName": {
+                                    "type": "string"
+                                },
+                                "description": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "name",
+                                "displayName"
+                            ]
+                        },
+                        "nonComplianceMessages": {
+                            "$ref": "#/$defs/nonComplianceMessages"
+                        }
+                    },
+                    "oneOf": [
+                        {
+                            "required": [
+                                "policyId"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "policyName"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "policySetId"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "policySetName"
+                            ]
+                        }
+                    ],
+                    "required": [
+                        "assignment"
+                    ],
+                    "additionalProperties": false
+                }
+            ]
+        },
+        "assignment": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "displayName": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "name",
+                "displayName"
+            ]
+        },
+        "parameters": {
+            "type": "object"
+        },
+        "overrides": {
+            "type": "array",
+            "items": [
+                {
+                    "anyOf": [
+                        {
+                            "type": "object",
+                            "properties": {
+                                "policyId": {
+                                    "type": "string"
+                                },
+                                "policyName": {
+                                    "type": "string"
+                                },
+                                "effect": {
+                                    "enum": [
+                                        "Disabled",
+                                        "Audit",
+                                        "Deny",
+                                        "Modify",
+                                        "Append",
+                                        "AuditIfNotExists",
+                                        "DeployIfNotExists",
+                                        "DenyAction",
+                                        "Manual"
+                                    ]
+                                }
+                            },
+                            "oneOf": [
+                                {
+                                    "required": [
+                                        "policyId"
+                                    ]
+                                },
+                                {
+                                    "required": [
+                                        "policyName"
+                                    ]
+                                }
+                            ],
+                            "required": [
+                                "effect"
+                            ]
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "policySetId": {
+                                    "type": "string"
+                                },
+                                "policySetName": {
+                                    "type": "string"
+                                },
+                                "effect": {
+                                    "enum": [
+                                        "Disabled",
+                                        "Audit",
+                                        "Deny",
+                                        "Modify",
+                                        "Append",
+                                        "AuditIfNotExists",
+                                        "DeployIfNotExists",
+                                        "DenyAction",
+                                        "Manual"
+                                    ]
+                                },
+                                "policyDefinitionReferences": {
+                                    "type": "array",
+                                    "items": [
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            },
+                            "oneOf": [
+                                {
+                                    "required": [
+                                        "policySetId"
+                                    ]
+                                },
+                                {
+                                    "required": [
+                                        "policySetName"
+                                    ]
+                                }
+                            ],
+                            "required": [
+                                "effect",
+                                "policyDefinitionReferences"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        "parameterFile": {
+            "type": "string"
+        },
+        "parameterSelector": {
+            "type": "string"
+        },
+        "nonComplianceMessageColumn": {
+            "type": "string"
+        },
+        "scope": {
+            "type": "object",
+            "patternProperties": {
+                "^*$": {
+                    "type": "array",
+                    "items": [
+                        {
+                            "type": "string"
+                        }
+                    ]
+                }
+            }
+        },
+        "notScope": {
+            "type": "object",
+            "properties": {
+                "patternProperties": {
+                    "^*$": {
+                        "type": "array",
+                        "items": [
+                            {
+                                "type": "string"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        "managedIdentityLocations": {
+            "type": "object",
+            "patternProperties": {
+                "^*$": {
+                    "type": "string"
+                }
+            }
+        },
+        "additionalRoleAssignments": {
+            "type": "object",
+            "patternProperties": {
+                "^*$": {
+                    "type": "array",
+                    "items": [
+                        {
+                            "type": "object",
+                            "properties": {
+                                "roleDefinitionId": {
+                                    "type": "string"
+                                },
+                                "scope": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "roleDefinitionId",
+                                "scope"
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "userAssignedIdentity": {
+            "type": "object",
+            "patternProperties": {
+                "^*$": {
+                    "oneOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "array",
+                            "items": [
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "policyName": {
+                                            "type": "string"
+                                        },
+                                        "policyId": {
+                                            "type": "string"
+                                        },
+                                        "policySetName": {
+                                            "type": "string"
+                                        },
+                                        "policySetId": {
+                                            "type": "string"
+                                        },
+                                        "identity": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "oneOf": [
+                                        {
+                                            "required": [
+                                                "policyId"
+                                            ]
+                                        },
+                                        {
+                                            "required": [
+                                                "policyName"
+                                            ]
+                                        },
+                                        {
+                                            "required": [
+                                                "policySetId"
+                                            ]
+                                        },
+                                        {
+                                            "required": [
+                                                "policySetName"
+                                            ]
+                                        }
+                                    ],
+                                    "required": [
+                                        "identity"
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "nonComplianceMessages": {
+            "$ref": "#/$defs/nonComplianceMessages"
+        },
+        "resourceSelectors": {
+            "type": "array",
+            "items": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "selectors": {
+                            "type": "array",
+                            "items": [
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "kind": {
+                                            "enum": [
+                                                "resourceLocation",
+                                                "resourceWithoutLocation",
+                                                "resourceType"
+                                            ]
+                                        },
+                                        "in": {
+                                            "type": "array",
+                                            "items": [
+                                                {
+                                                    "type": "string"
+                                                }
+                                            ]
+                                        },
+                                        "notIn": {
+                                            "type": "array",
+                                            "items": [
+                                                {
+                                                    "type": "string"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "oneOf": [
+                                        {
+                                            "required": [
+                                                "kind",
+                                                "in"
+                                            ]
+                                        },
+                                        {
+                                            "required": [
+                                                "kind",
+                                                "notIn"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "selectors"
+                    ]
+                }
+            ]
+        },
+        "enforcementMode": {
+            "enum": [
+                "DoNotEnforce",
+                "Default"
+            ]
+        },
+        "children": {
+            "type": "array",
+            "items": {
+                "$ref": "#"
+            }
+        }
+    },
+    "required": [
+        "nodeName"
+    ],
+    "$defs": {
+        "nonComplianceMessages": {
+            "type": "array",
+            "items": [
+                {
+                    "anyOf": [
+                        {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "message"
+                            ]
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string"
+                                },
+                                "policyDefinitionReferenceId": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "message",
+                                "policyDefinitionReferenceId"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

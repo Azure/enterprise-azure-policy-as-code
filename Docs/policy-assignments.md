@@ -7,8 +7,6 @@ This chapter describes how **Policy Assignments** are handled by EPAC. To learn 
 
 Assignment JSON is hierarchical for efficient definitions, avoiding duplication (copy/paste) of JSON. Each branch of the tree is cumulative. Each tree node must include a `nodeName` - an arbitrary string exclusively used by EPAC to display an error location. EPAC concatenates a leading `/` and the nodeName entries encountered in the tree to create a "breadcrumbs" trail; therefore, we recommend that you use `/` to help separate the concatenated `nodeName`. The following (partial and invalid) assignment tree would create this error message.
 
-> `Node "//Security/Prod/": only one definitionEntry or definitionEntryList can appear in any branch.`
-
 ```json
 {
   "nodeName": "/Security/",
@@ -25,6 +23,14 @@ Assignment JSON is hierarchical for efficient definitions, avoiding duplication 
   ]
 }
 ```
+
+### JSON Schema
+
+The GitHub repo contains a [JSON schema](https://github.com/Azure/enterprise-azure-policy-as-code/Docs/policy-assignment-schema.json) which can be used in tools such as [VS Code](https://code.visualstudio.com/Docs/languages/json#_json-schemas-and-settings) to provide code completion.
+
+This schema is new in v7.4.0 and may not be complete. Please let us know if we missed anything.
+
+While we do not recommend third-party web sites, multiple online schema validators exist. The JSON schema standardization org is located here: https://json-schema.org/. They provide lists of tools.
 
 ### Key Points
 
@@ -813,7 +819,7 @@ An example of a policy assignment for a single policy definition with a default 
     },
     "assignment": {
         "displayName": "Audit virtual machines without disaster recovery configured",
-        "description": null,
+        "description": "Some description",
         "name": "46332f3a51cb4bf2b4de78a7"
     },
     "definitionEntry": {
@@ -842,7 +848,7 @@ An example of a policy assignment for a policy set definition with a default non
     },
     "assignment": {
         "displayName": "Configure Azure Defender for SQL agents on virtual machines",
-        "description": null,
+        "description": "Some other description",
         "name": "39a366e6"
     },
     "definitionEntry": {
