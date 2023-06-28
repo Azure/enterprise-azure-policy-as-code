@@ -26,7 +26,7 @@ Assignment JSON is hierarchical for efficient definitions, avoiding duplication 
 
 ### JSON Schema
 
-The GitHub repo contains a [JSON schema](https://github.com/Azure/enterprise-azure-policy-as-code/Docs/policy-assignment-schema.json) which can be used in tools such as [VS Code](https://code.visualstudio.com/Docs/languages/json#_json-schemas-and-settings) to provide code completion.
+The GitHub repo contains a [JSON schema at https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Docs/policy-assignment-schema.json](https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Docs/policy-assignment-schema.json) which can be used in tools such as [VS Code](https://code.visualstudio.com/Docs/languages/json#_json-schemas-and-settings) to provide code completion.
 
 This schema is new in v7.4.0 and may not be complete. Please let us know if we missed anything.
 
