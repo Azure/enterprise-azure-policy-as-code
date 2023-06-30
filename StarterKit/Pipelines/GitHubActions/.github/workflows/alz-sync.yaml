@@ -17,7 +17,7 @@ jobs:
           name: Install Required Modules
           run: |
             Install-Module EnterprisePolicyAsCode -Force
-            Sync-CAFPolicies -DefinitionsRootFolder $env:DefinitionsRootFolder
+            Sync-ALZPolicies -DefinitionsRootFolder $env:DefinitionsRootFolder
             $branchName = "caf-sync-$(Get-Date -Format yyyy-MM-dd-HH-mm)"
             git config user.name "GitHub Actions Bot"
             git config user.email "<>"

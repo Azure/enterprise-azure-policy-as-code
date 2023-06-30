@@ -9,6 +9,20 @@ Policy definition files are managed within the the folder `policyDefintions` und
 
 The names of the definition JSON files don't matter, the Policy and Policy Set definitions are registered based on the `name` attribute. The solution also allows the use of JSON with comments by using `.jsonc` instead of `.json` for the file extension.
 
+### JSON Schema
+
+The GitHub repo contains a JSON schema which can be used in tools such as [VS Code](https://code.visualstudio.com/Docs/languages/json#_json-schemas-and-settings) to provide code completion.
+
+To utilize the schema add a ```$schema``` tag to the JSON file.
+
+```
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json"
+}
+```
+
+This schema is new in v7.4.x and may not be complete. Please let us know if we missed anything.
+
 ## Recommendations
 
 * `"name"` is required and should be unique. It can be a GUID or a unique short name.

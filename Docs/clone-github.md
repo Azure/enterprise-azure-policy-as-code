@@ -77,5 +77,5 @@ The repo contains a script to synchronize directories in both directions: `Sync-
 * Commit changes to `enterprise-policy-as-code` branch created above
 * validate the changes for conflicts
 * PR `enterprise-policy-as-code` branch created above to the main branch
-* Create a [release in GitHub `enterprise-policy-as-code` repo](module-release.md)
+* Create a [release in GitHub `enterprise-policy-as-code` repo](module-release-process.md)
 * Delete the branch in `enterprise-policy-as-code` repo

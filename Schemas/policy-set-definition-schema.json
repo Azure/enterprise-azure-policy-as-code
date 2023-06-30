@@ -1,0 +1,125 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "type": {
+            "const": "Microsoft.Authorization/policySetDefinitions"
+        },
+        "properties": {
+            "type": "object",
+            "properties": {
+                "displayName": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "object",
+                    "properties": {
+                        "version": {
+                            "type": "string"
+                        },
+                        "category": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "version",
+                        "category"
+                    ]
+                },
+                "importPolicyDefinitionGroups": {
+                    "type": "array",
+                    "items": [
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "policyDefinitionGroups": {
+                    "type": "array",
+                    "items": [
+                        {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "additionalMetadataId": {
+                                    "type": "string"
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "name"
+                            ]
+                        }
+                    ]
+                },
+                "parameters": {
+                    "type": "object"
+                },
+                "policyDefinitions": {
+                    "type": "array",
+                    "items": [
+                        {
+                            "type": "object",
+                            "properties": {
+                                "policyDefinitionId": {
+                                    "type": "string"
+                                },
+                                "policyDefinitionName": {
+                                    "type": "string"
+                                },
+                                "policyDefinitionReferenceId": {
+                                    "type": "string"
+                                },
+                                "parameters": {
+                                    "type": "object"
+                                },
+                                "groupNames": {
+                                    "type": "array",
+                                    "items": [
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            },
+                            "additionalProperties": false,
+                            "oneOf": [
+                                {
+                                    "required": [
+                                        "policyDefinitionId"
+                                    ]
+                                },
+                                {
+                                    "required": [
+                                        "policyDefinitionName"
+                                    ]
+                                }
+                            ],
+                            "required": [
+                                "policyDefinitionReferenceId"
+                            ]
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false,
+            "required": [
+                "displayName",
+                "metadata",
+                "policyDefinitions"
+            ]
+        }
+    },
+    "required": [
+        "properties",
+        "name"
+    ]
+}

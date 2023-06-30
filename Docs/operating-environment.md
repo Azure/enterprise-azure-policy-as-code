@@ -4,14 +4,11 @@
 
 Your operating environment will include two repos, a runner, and at least one developer machine. The following software is required on the runners and any developer workstation.
 
-* PowerShell 7.3.1 or later, 7.3.3 (latest) recommended
+* PowerShell 7.3.1 or later, 7.3.4 (latest) recommended
 * PowerShell Modules
   * Az required 9.3.0 or later - **9.2.x has a bug which causes EPAC to fail**
   * ImportExcel (required only if using Excel functionality)
 * Git latest version
-
-!!! note
-    AzCli Module, Azure CLI, and Python are no longer required as of our v6.0 (January 2023) release.
 
 ### Pipeline Runner or Agent
 

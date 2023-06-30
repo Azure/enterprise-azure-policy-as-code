@@ -1,10 +1,11 @@
 {
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-documentation-schema.json",
     "documentAssignments": {
         "environmentCategories": [
             {
                 "pacEnvironment": "tenant",
-                "environmentCategory": "PROD",
-                "scopes": [ // Used in Markdown output only
+                "environmentCategory": "prod",
+                "scopes": [
                     "Management Group: Contoso-Prod"
                 ],
                 "representativeAssignments": [
@@ -13,15 +14,15 @@
                         "id": "/providers/Microsoft.Management/managementGroups/Contoso-Prod/providers/Microsoft.Authorization/policyAssignments/pr-asb"
                     },
                     {
-                        "shortName": "NIST 800-53",
+                        "shortName": "NIST-800-53",
                         "id": "/providers/Microsoft.Management/managementGroups/Contoso-Prod/providers/Microsoft.Authorization/policyAssignments/pr-nist-800-53-r5"
                     }
                 ]
             },
             {
                 "pacEnvironment": "tenant",
-                "environmentCategory": "NONPROD",
-                "scopes": [ // Used in Markdown output only
+                "environmentCategory": "nonprod",
+                "scopes": [
                     "Management Group: Contoso-NonProd"
                 ],
                 "representativeAssignments": [
@@ -30,7 +31,7 @@
                         "id": "/providers/Microsoft.Management/managementGroups/Contoso-NonProd/providers/Microsoft.Authorization/policyAssignments/np-asb"
                     },
                     {
-                        "shortName": "NIST 800-53",
+                        "shortName": "NIST-800-53",
                         "id": "/providers/Microsoft.Management/managementGroups/Contoso-NonProd/providers/Microsoft.Authorization/policyAssignments/np-nist-800-53-r5"
                     }
                 ]
@@ -40,27 +41,31 @@
             {
                 "fileNameStem": "contoso-policy-effects",
                 "environmentCategories": [
-                    "PROD",
-                    "NONPROD"
+                    "prod",
+                    "nonprod"
                 ],
                 "title": "Contoso Policy effects"
             }
         ]
     },
-    "documentInitiatives": [
+    "documentPolicySets": [
         {
             "pacEnvironment": "tenant",
             "fileNameStem": "contoso-compliance-initiatives",
             "title": "Document Initiatives",
-            "initiatives": [
+            "policySets": [
                 {
                     "shortName": "ASB",
-                    "id": "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8" // Azure Security Benchmark v3
+                    "id": "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8"
                 },
                 {
-                    "shortName": "NIST 800-53",
-                    "id": "/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f" // NIST SP 800-53 Rev. 5
+                    "shortName": "NIST-800-53",
+                    "id": "/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f"
                 }
+            ],
+            "environmentColumnsInCsv": [
+                "prod",
+                "nonprod"
             ]
         }
     ]

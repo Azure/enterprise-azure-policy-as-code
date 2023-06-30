@@ -33,6 +33,20 @@ We recommend that you use spreadsheets (`.csv`). The columns must have the follo
   * `assignmentScopeValidation` - `Default` or `DoNotValidate`
   * `resourceSelectors` - valid JSON (see JSON format below)
 
+### JSON Schema
+
+The GitHub repo contains a JSON schema which can be used in tools such as [VS Code](https://code.visualstudio.com/Docs/languages/json#_json-schemas-and-settings) to provide code completion.
+
+To utilize the schema add a ```$schema``` tag to the JSON file.
+
+```
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-exemption-schema.json"
+}
+```
+
+This schema is new in v7.4.x and may not be complete. Please let us know if we missed anything.
+
 ## JSON Format
 
 `name`, `displayName`, `exemptionCategory`, `scope` and `assignmentId` are required fields. The others are optional.

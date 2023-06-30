@@ -1,14 +1,26 @@
 # Enterprise Azure Policy as Code (EPAC)
-
-!!! warning
-**Az PowerShell Module 9.2.x has a known issue (bug).** This bug causes multiple failures of EPAC and any other Policy as Code solution depending on Az Module. **Az PowerShell Module 9.3.0 fixed this issue.**
-
 ## Overview
 
 Enterprise Azure Policy as Code or EPAC for short comprises a number of scripts which can be used in CI/CD based system or a semi-automated use to deploy Policies, Policy Sets, Assignments, Policy Exemptions and Role Assignments.
 
-!!! warning
-Substantial feature enhancements required [breaking changes in v6.0 and to a lesser extend in v7.0](Docs/breaking-changes.md).
+Main features include:
+
+- Multi-tenant/environment policy deployment
+- Easy CI/CD Integration
+- Extract existing policy objects from an environment
+- Support JSON and CSV inputs for large complex policies
+- PowerShell Module
+- Integration with Azure Landing Zone recommended policies
+- Starter Kit with examples
+- Schema to provide Intellisense for VS Code development (Preview)
+
+## Who Should use EPAC?
+
+EPAC is designed for organizations with a large number of Policies, Policy Sets and Assignments. It is also designed for organizations with multiple tenants and/or environments. You can also combine ALZ and EPAC through the provided ["Integration of EPAC with Azure Landing Zones"](integrating-with-alz.md).
+
+EPAC can be used by small organizations with a small number of Policies, Policy Sets and Assignments. Depending on their DevSecOps maturity, [Azure Landing Zones direct implementation of Policies](https://aka.ms/alz/aac) might be a better choice.
+
+For extremely small Azure customers with one or two subscriptions Microsoft Defender for Cloud automated Policy Assignments for built-in Policies is sufficient.
 
 ## Project Links
 
@@ -45,7 +57,7 @@ Three deployment scripts plan a deployment, deploy Policy resources, and Role As
 
 ## CI/CD Tool Compatibility
 
-Since EPAC is based on PowerShell scripts, any CI/CD tool with the ability to execute scripts can be used. The starter kits currently include pipeline definitions for Azure DevOps. Additional starter kits are being implemented and will be added in future releases.
+Since EPAC is based on PowerShell scripts, any CI/CD tool with the ability to execute scripts can be used. The starter kits currently include pipeline definitions for Azure DevOps and GitHub Actions. Additional starter kits are being implemented and will be added in future releases.
 
 ## Multi-Tenant Support
 

@@ -17,6 +17,12 @@ if (!(Test-Path $DefinitionsRootFolder)) {
     "policyAssignments", "policySetDefinitions", "policyDefinitions", "policyDocumentations" | ForEach-Object {
         New-Item -ItemType Directory -Path $DefinitionsRootFolder\$_
     }
-    "{}" | Set-Content -Path $DefinitionsRootFolder\global-settings.jsonc
+
+    $ct = @'
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/global-settings-schema.json"
+}
+'@
+    $ct | Set-Content -Path $DefinitionsRootFolder\global-settings.jsonc
 }
 
