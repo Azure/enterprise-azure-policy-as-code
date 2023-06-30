@@ -1,0 +1,59 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+        "exemptions": {
+            "type": "array",
+            "items": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "displayName": {
+                            "type": "string"
+                        },
+                        "description": {
+                            "type": "string"
+                        },
+                        "exemptionCategory": {
+                            "type": "string"
+                        },
+                        "expiresOn": {
+                            "type": "string"
+                        },
+                        "scope": {
+                            "type": "string"
+                        },
+                        "policyAssignmentId": {
+                            "type": "string"
+                        },
+                        "metadata": {
+                            "type": "object",
+                            "properties": {
+                                "stuff": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "stuff"
+                            ]
+                        }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                        "name",
+                        "displayName",
+                        "exemptionCategory",
+                        "scope",
+                        "policyAssignmentId"
+                    ]
+                }
+            ]
+        }
+    },
+    "required": [
+        "exemptions"
+    ]
+}

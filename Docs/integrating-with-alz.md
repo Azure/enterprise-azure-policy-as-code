@@ -108,7 +108,7 @@ To deploy the ALZ policies using EPAC follow the steps below.
 4. Synchronize the policies from the upstream repository. You should ensure that you are running the latest version of the EPAC module before running this script each time.
 
     ```ps1
-    Sync-CAFPolicies -DefinitionsRootFolder .\Definitions -CloudEnvironment AzureCloud
+    Sync-ALZPolicies -DefinitionsRootFolder .\Definitions -CloudEnvironment AzureCloud
     # Also accepts AzureUSGovernment or AzureChinaCloud
     ```
 
@@ -162,21 +162,21 @@ To deploy the ALZ policies using EPAC follow the steps below.
 
 ## Keeping up to date with changes manually
 
-The Azure Landing Zone deployment contains a number of policies which help provide guardrails to an environment, and the team which works on these policies is always providing updates to the original content to keep in line with Microsoft best practice and roadmap. The EPAC solution contains a function to help synchronize changes from the upstream project
+The Azure Landing Zone deployment contains a number of policies which help provide guardrails to an environment, and the team which works on these policies is always providing updates to the original content to keep in line with Microsoft best practice and road map. The EPAC solution contains a function to help synchronize changes from the upstream project
 
 To pull the latest changes from the upstream repository - use the code below.
 
 ```ps1
-Sync-CAFPolicies -DefinitionsRootFolder .\Definitions -CloudEnvironment AzureCloud # Also accepts AzureUSGovernment or AzureChinaCloud
+Sync-ALZPolicies -DefinitionsRootFolder .\Definitions -CloudEnvironment AzureCloud # Also accepts AzureUSGovernment or AzureChinaCloud
 ```
 
 Carefully review the proposed changes before deploying them. It is best to make sure you're project is stored in source control so you can easily see which files have changed before deployment.
 
 !!! warning
-    If you have follow Scenario 1 above, the first time you run the `Sync-CAFPolicies` there will be many changes recorded due to formatting. Review the files completely before deploying.
+    If you have follow Scenario 1 above, the first time you run the `Sync-ALZPolicies` there will be many changes recorded due to formatting. Review the files completely before deploying.
 
 !!! note
-    Assignments deployed via the ALZ accelerators are kept in sync with the EnterprisePolicyAsCode module so ensure you have the latest PowerShell module installed before running `Sync-CAFPolicies`
+    Assignments deployed via the ALZ accelerators are kept in sync with the EnterprisePolicyAsCode module so ensure you have the latest PowerShell module installed before running `Sync-ALZPolicies`
 
 !!! tip
     Rename or copy the default CAF assignment files - when you do a sync it makes it easier to compare changes. 

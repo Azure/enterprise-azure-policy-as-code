@@ -1,0 +1,168 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+        "documentAssignments": {
+            "type": "object",
+            "properties": {
+                "environmentCategories": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": [
+                        {
+                            "type": "object",
+                            "properties": {
+                                "pacEnvironment": {
+                                    "type": "string"
+                                },
+                                "environmentCategory": {
+                                    "type": "string"
+                                },
+                                "scopes": {
+                                    "type": "array",
+                                    "minItems": 1,
+                                    "items": [
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "representativeAssignments": {
+                                    "type": "array",
+                                    "minItems": 1,
+                                    "items": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "shortName": {
+                                                    "type": "string"
+                                                },
+                                                "id": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "shortName",
+                                                "id"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "pacEnvironment",
+                                "environmentCategory",
+                                "scopes",
+                                "representativeAssignments"
+                            ]
+                        }
+                    ]
+                },
+                "documentationSpecifications": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": [
+                        {
+                            "type": "object",
+                            "properties": {
+                                "fileNameStem": {
+                                    "type": "string"
+                                },
+                                "environmentCategories": {
+                                    "type": "array",
+                                    "minItems": 1,
+                                    "items": [
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "title": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "fileNameStem",
+                                "environmentCategories",
+                                "title"
+                            ]
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "environmentCategories",
+                "documentationSpecifications"
+            ]
+        },
+        "documentPolicySets": {
+            "type": "array",
+            "minItems": 1,
+            "items": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "pacEnvironment": {
+                            "type": "string"
+                        },
+                        "fileNameStem": {
+                            "type": "string"
+                        },
+                        "title": {
+                            "type": "string"
+                        },
+                        "policySets": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": [
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "shortName": {
+                                            "type": "string"
+                                        },
+                                        "id": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "shortName",
+                                        "id"
+                                    ]
+                                }
+                            ]
+                        },
+                        "environmentColumnsInCsv": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": [
+                                {
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "pacEnvironment",
+                        "fileNameStem",
+                        "title",
+                        "policySets",
+                        "environmentColumnsInCsv"
+                    ]
+                }
+            ]
+        }
+    },
+    "anyOf": [
+        {
+            "required": [
+                "documentAssignments"
+            ]
+        },
+        {
+            "required": [
+                "documentPolicySets"
+            ]
+        }
+    ]
+}

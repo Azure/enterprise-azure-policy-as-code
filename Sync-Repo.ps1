@@ -1,39 +1,49 @@
 <#
 .SYNOPSIS
     Syncs a Repo of EPAC from/to the origin
+
 .DESCRIPTION
     Syncs the sourceDirectory to the destinationDirectory
     * Folders
         * Docs
+        * Module
+        * Schemas
         * Scripts
         * StarterKit
-    * Files
-        * Files (recursive) in Definitions, Pipeline folder
-            * README.md
-        * Files in root folder ($sourceDirectory)
-            * CODE_OF_CONDUCT.md
-            * LICENSE
-            * README.md
-            * SECURITY.md
-            * SUPPORT.md
-            * Sync-Repo.ps1
+    * Files in root folder ($sourceDirectory)
+        * CODE_OF_CONDUCT.md
+        * LICENSE
+        * README.md
+        * SECURITY.md
+        * SUPPORT.md
+        * Sync-Repo.ps1
+
+.PARAMETER sourceDirectory
+    Directory with the source (cloned or forked/cloned repo)
+
+.PARAMETER destinationDirectory
+    Directory with the destination (cloned or forked/cloned repo)
+
+.PARAMETER suppressDeleteFiles
+    Switch parameter to suppress deleting files in $destinationDirectory tree
+
+.EXAMPLE
+    Sync-Repo.ps1 -sourceDirectory "C:\Users\johndoe\Documents\GitHub\EPAC" -destinationDirectory "C:\Users\johndoe\Documents\GitHub\EPAC-Test"
+
 #>
 [CmdletBinding()]
 param (
     # Directory with the source (cloned or forked/cloned repo)
     [Parameter(Mandatory = $true, Position = 0)]
-    [string]
-    $sourceDirectory,
+    [string] $sourceDirectory,
 
     # Directory with the destination (cloned or forked/cloned repo)
     [Parameter(Mandatory = $true, Position = 1)]
-    [string]
-    $destinationDirectory,
+    [string] $destinationDirectory,
 
     # Switch parameter to suppress deleting files in $destinationDirectory tree
     [Parameter()]
-    [switch]
-    $suppressDeleteFiles
+    [switch] $suppressDeleteFiles
 )
 
 $InformationPreference = "Continue"
@@ -66,6 +76,10 @@ if (Test-Path $sourceDirectory -PathType Container) {
             Write-Information "Deleting '$destinationDirectory/Module'"
             Remove-Item "$destinationDirectory/Module" -Recurse
         }
+        if (Test-Path "$destinationDirectory/Schemas") {
+            Write-Information "Deleting '$destinationDirectory/Schemas'"
+            Remove-Item "$destinationDirectory/Schemas" -Recurse
+        }
         if (Test-Path "$destinationDirectory/Scripts") {
             Write-Information "Deleting '$destinationDirectory/Scripts'"
             Remove-Item "$destinationDirectory/Scripts" -Recurse
@@ -80,6 +94,8 @@ if (Test-Path $sourceDirectory -PathType Container) {
     Copy-Item "$sourceDirectory/Docs" "$destinationDirectory/Docs" -Recurse -Force
     Write-Information "Copying '$sourceDirectory/Module' to '$destinationDirectory/Module'"
     Copy-Item "$sourceDirectory/Module" "$destinationDirectory/Module" -Recurse -Force
+    Write-Information "Copying '$sourceDirectory/Schemas' to '$destinationDirectory/Schemas'"
+    Copy-Item "$sourceDirectory/Schemas" "$destinationDirectory/Schemas" -Recurse -Force
     Write-Information "Copying '$sourceDirectory/Scripts' to '$destinationDirectory/Scripts'"
     Copy-Item "$sourceDirectory/Scripts" "$destinationDirectory/Scripts" -Recurse -Force
     Write-Information "Copying '$sourceDirectory/StarterKit' to '$destinationDirectory/StarterKit'"

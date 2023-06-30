@@ -7,6 +7,22 @@ The Documentation feature provides reports on Policy Assignments deployed within
 * Read and process Policy Assignments which are representative of an environment category, such as prod, test, dev, and sandbox. It generates Markdown (`.md`), and Excel (`.csv`) files.
 * Read and process Policy Sets to compare them for Policy and effect overlap. It generates Markdown (`.md`), Excel (`.csv`) files, and JSON file (`.jsonc`).
 
+## JSON Schema
+
+The GitHub repo contains a JSON schema which can be used in tools such as [VS Code](https://code.visualstudio.com/Docs/languages/json#_json-schemas-and-settings) to provide code completion.
+
+To utilize the schema add a ```$schema``` tag to the JSON file.
+
+```
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-documentation-schema.json"
+}
+```
+
+This schema is new in v7.4.x and may not be complete. Please let us know if we missed anything.
+
+
+
 ## Example Documentation Specification File
 
 Each file must contain one or both documentation topics. This example file in the StarterKit has both topics. Element `pacEnvironment` references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the custom Policies and Policy Sets are deployed.

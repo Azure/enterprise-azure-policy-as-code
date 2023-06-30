@@ -1,0 +1,123 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+        "pacOwnerId": {
+            "type": "string"
+        },
+        "pacEnvironments": {
+            "type": "array",
+            "items": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "pacSelector": {
+                            "type": "string"
+                        },
+                        "cloud": {
+                            "type": "string"
+                        },
+                        "tenantId": {
+                            "type": "string"
+                        },
+                        "deploymentRootScope": {
+                            "type": "string"
+                        },
+                        "inheritedDefinitionsScopes": {
+                            "type": "array",
+                            "items": [
+                                {
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "desiredState": {
+                            "type": "object",
+                            "properties": {
+                                "strategy": {
+                                    "type": "string",
+                                    "enum": [
+                                        "full",
+                                        "ownedOnly"
+                                    ]
+                                },
+                                "includeResourceGroups": {
+                                    "type": "boolean"
+                                },
+                                "excludedScopes": {
+                                    "type": "array",
+                                    "items": [
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "excludedPolicyDefinitions": {
+                                    "type": "array",
+                                    "items": [
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "excludedPolicySetDefinitions": {
+                                    "type": "array",
+                                    "items": [
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                },
+                                "excludedPolicyAssignments": {
+                                    "type": "array",
+                                    "items": [
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "strategy"
+                            ]
+                        }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                        "pacSelector",
+                        "cloud",
+                        "tenantId",
+                        "deploymentRootScope"
+                    ]
+                }
+            ]
+        },
+        "managedIdentityLocations": {
+            "type": "object",
+            "patternProperties": {
+                "^*$": {
+                    "type": "string"
+                }
+            }
+        },
+        "globalNotScopes": {
+            "type": "object",
+            "patternProperties": {
+                "^*$": {
+                    "type": "array",
+                    "items": [
+                        {
+                            "type": "string"
+                        }
+                    ]
+                }
+            }
+        }
+    },
+    "additionalProperties": false,
+    "required": [
+        "pacOwnerId",
+        "pacEnvironments"
+    ]
+}

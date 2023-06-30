@@ -1,4 +1,5 @@
 {
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json",
     "name": "resources-required-tag-dynamic-notscope",
     "properties": {
         "displayName": "Resources Require Tag on resources with with Exclusions",

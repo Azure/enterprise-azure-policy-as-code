@@ -1,5 +1,6 @@
 {
-  "name": "Enable Azure Defender for Resource Type",
+"$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json",
+"name": "Enable Azure Defender for Resource Type",
   "properties": {
     "displayName": "Enable Azure Defender for Resource Type at Subscription",
     "mode": "All",

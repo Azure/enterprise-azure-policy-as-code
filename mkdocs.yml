@@ -24,7 +24,6 @@ theme:
     - content.code.copy
 nav:
   - Home: index.md
-  - Breaking Changes: breaking-changes.md
   - Getting Started:
       - Overview: quick-start.md
       - Operating Environment: operating-environment.md
@@ -35,6 +34,7 @@ nav:
       - Global Settings and Definitions: definitions-and-global-settings.md
       - Extracting Existing Policy Resources: extract-existing-policy-resources.md
       - Tips: tips.md
+  - Breaking Changes: breaking-changes.md
   - CI/CD Integration:
       - CI/CD Pipeline: ci-cd-pipeline.md
       - GitHub Actions: github-actions.md
