@@ -9,7 +9,7 @@ Policy definition files are managed within the the folder `policyDefintions` und
 
 The names of the definition JSON files don't matter, the Policy and Policy Set definitions are registered based on the `name` attribute. The solution also allows the use of JSON with comments by using `.jsonc` instead of `.json` for the file extension.
 
-### JSON Schema
+## JSON Schema
 
 The GitHub repo contains a JSON schema which can be used in tools such as [VS Code](https://code.visualstudio.com/Docs/languages/json#_json-schemas-and-settings) to provide code completion.
 

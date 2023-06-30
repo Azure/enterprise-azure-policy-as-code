@@ -24,7 +24,7 @@ Assignment JSON is hierarchical for efficient definitions, avoiding duplication 
 }
 ```
 
-### JSON Schema
+## JSON Schema
 
 The GitHub repo contains a JSON schema which can be used in tools such as [VS Code](https://code.visualstudio.com/Docs/languages/json#_json-schemas-and-settings) to provide code completion.
 
