@@ -84,10 +84,7 @@ function Get-GlobalSettings {
 
         # globalNotScopes
         [array] $globalNotScopeList = @()
-        if ($null -eq $settings.globalNotScopes) {
-            Write-Warning "No global Not Scope defined in global-settings.jsonc, default is an empty list."
-        }
-        else {
+        if ($null -ne $settings.globalNotScopes) {
             $globalNotScopes = $settings.globalNotScopes
             if ($globalNotScopes.ContainsKey($pacSelector)) {
                 $globalNotScopeList += $globalNotScopes[$pacSelector]
@@ -197,34 +194,10 @@ function Get-GlobalSettings {
     Write-Information ""
 
     $policyDocumentationsFolder = "$definitionsRootFolder/policyDocumentations"
-    if (!(Test-Path $policyDocumentationsFolder -PathType Container)) {
-        Write-Warning "Policy documentation specification folder 'policyDocumentations not found.  This instance of EPAC cannot export Policy resources or generate documentation."
-        $policyDocumentationsFolder = $null
-    }
-
     $policyDefinitionsFolder = "$definitionsRootFolder/policyDefinitions"
-    if (!(Test-Path $policyDefinitionsFolder -PathType Container)) {
-        Write-Warning "Policy definitions 'policyDefinitions' folder not found. Policy definitions not managed by this instance of EPAC." -ErrorAction Stop
-        $policyDocumentationsFolder = $null
-    }
-
     $policySetDefinitionsFolder = "$definitionsRootFolder/policySetDefinitions"
-    if (!(Test-Path $policySetDefinitionsFolder -PathType Container)) {
-        Write-Warning "Policy Sets folder 'policySetDefinitions' not found. Policy Set definitions not managed by this instance of EPAC." -ErrorAction Stop
-        $policySetDefinitionsFolder = $null
-    }
-
     $policyAssignmentsFolder = "$definitionsRootFolder/policyAssignments"
-    if (!(Test-Path $policyAssignmentsFolder -PathType Container)) {
-        Write-Warning "Policy Assignments folder 'policyAssignments' not found. Assignments not managed by this instance of EPAC." -ErrorAction Stop
-        $policyAssignmentsFolder = $null
-    }
-
     $policyExemptionsFolder = "$definitionsRootFolder/policyExemptions"
-    if (!(Test-Path $policyExemptionsFolder -PathType Container)) {
-        Write-Warning "Policy Exemptions folder 'policyExemptions' not found. Exemptions not managed by this instance of EPAC."
-        $policyExemptionsFolder = $null
-    }
 
     [hashtable] $globalSettings = @{
         definitionsRootFolder      = $definitionsRootFolder

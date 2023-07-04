@@ -76,9 +76,13 @@ $pacEnvironment = $null
 #endregion Initialize
 
 Write-Information ""
+Write-Information "==================================================================================================="s
+Write-Information "Processing documentation definitions in folder '$definitionsFolder'"
 Write-Information "==================================================================================================="
-Write-Information "Reading documentation definitions in folder '$definitionsFolder'"
-Write-Information "==================================================================================================="
+if (!(Test-Path $definitionsFolder -PathType Container)) {
+    Write-Error "Policy documentation specification folder 'policyDocumentations not found.  This EPAC instance cannot generate documentation." -ErrorAction Stop
+}
+
 $filesRaw = @()
 $filesRaw += Get-ChildItem -Path $definitionsFolder -Recurse -File -Filter "*.jsonc"
 $filesRaw += Get-ChildItem -Path $definitionsFolder -Recurse -File -Filter "*.json"
@@ -88,15 +92,11 @@ if ($files.Length -gt 0) {
     Write-Information "Number of documentation definition files = $($files.Length)"
 }
 else {
-    Write-Information "There aren't any documentation definition files in the folder provided!"
+    Write-Error "No documentation definition files found!" -ErrorAction Stop
 }
 
 $processAllFiles = -not $interactive -or $suppressConfirmation -or $files.Length -eq 1
 foreach ($file in $files) {
-    Write-Information ""
-    Write-Information "==================================================================================================="
-    Write-Information "Reading and Processing '$($file.Name)'"
-    Write-Information "==================================================================================================="
 
     $processThisFile = $processAllFiles
     if (-not $processAllFiles) {
@@ -117,13 +117,7 @@ foreach ($file in $files) {
             }
             1 {
                 $processThisFile = $false
-                Write-Information "***************************************************************************************************"
-                Write-Information "***************************************************************************************************"
-                Write-Information "** Skipping file '$($file.Name)'"
-                Write-Information "***************************************************************************************************"
-                Write-Information "***************************************************************************************************"
-                Write-Information ""
-                Write-Information ""
+                Write-Information "Skipping file '$($file.Name)'"
             }
             2 {
                 $processThisFile = $true
@@ -133,6 +127,7 @@ foreach ($file in $files) {
     }
 
     if ($processThisFile) {
+        Write-Information "Reading and Processing '$($file.Name)'"
         $json = Get-Content -Path $file.FullName -Raw -ErrorAction Stop
         if (-not (Test-Json $json)) {
             Write-Error "The JSON file '$($file.Name)' is not valid." -ErrorAction Stop

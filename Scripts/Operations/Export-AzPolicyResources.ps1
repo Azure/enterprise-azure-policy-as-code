@@ -236,7 +236,7 @@ else {
         Write-Information "Number of raw files = $($rawFiles.Length)"
     }
     else {
-        Write-Error "There aren't any raw files to process!" -ErrorAction Stop
+        Write-Error "No raw files found!" -ErrorAction Stop
     }
 
     foreach ($file in $rawFiles) {
