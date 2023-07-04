@@ -69,16 +69,16 @@ $pacEnvironment = Select-PacEnvironment $pacEnvironmentSelector -definitionsRoot
 Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -interactive $pacEnvironment.interactive
 
 # Getting existing Policy resources
-$exemptionsAreManaged = $null -ne $pacEnvironment.policyExemptionsFolder
-if ($exemptionsAreManaged) {
-    $exemptionsFolderForPacEnvironment = "$($pacEnvironment.policyExemptionsFolder)/$($pacEnvironment.pacSelector)"
-    $exemptionsAreManaged = Test-Path $exemptionsFolderForPacEnvironment
-    if (!$exemptionsAreManaged) {
-        Write-Warning "Policy Exemptions folder $($exemptionsFolderForPacEnvironment) not found"
-        Write-Warning "Policy Exemptions are not managed by EPAC this PaC environment $($pacEnvironment.pacSelector)!"
-    }
+$exemptionsAreNotManagedMessage = ""
+$policyExemptionsFolder = $pacEnvironment.policyExemptionsFolder
+$exemptionsFolderForPacEnvironment = "$($policyExemptionsFolder)/$($pacEnvironment.pacSelector)"
+if (!(Test-Path $policyExemptionsFolder -PathType Container)) {
+    $exemptionsAreNotManagedMessage = "Policy Exemptions folder 'policyExemptions' not found. Exemptions not managed by this EPAC instance."
 }
-$exemptionsAreNotManaged = !$exemptionsAreManaged
+elseif (!(Test-Path $exemptionsFolderForPacEnvironment -PathType Container)) {
+    $exemptionsAreNotManagedMessage = "Policy Exemptions are not managed by this EPAC instance's PaC environment $($pacEnvironment.pacSelector)!"
+}
+$exemptionsAreNotManaged = $exemptionsAreNotManagedMessage -eq ""
 
 $scopeTable = Get-AzScopeTree -pacEnvironment $pacEnvironment
 $deployedPolicyResources = Get-AzPolicyResources -pacEnvironment $pacEnvironment -scopeTable $scopeTable -skipExemptions:$exemptionsAreNotManaged
@@ -99,16 +99,14 @@ $allDefinitions = @{
 }
 $replaceDefinitions = @{}
 
-if ($null -ne $pacEnvironment.policyDefinitionsFolder) {
-    Build-PolicyPlan `
-        -definitionsRootFolder $pacEnvironment.policyDefinitionsFolder `
-        -pacEnvironment $pacEnvironment `
-        -deployedDefinitions $deployedPolicyResources.policydefinitions `
-        -definitions $policyDefinitions `
-        -allDefinitions $allDefinitions `
-        -replaceDefinitions $replaceDefinitions `
-        -policyRoleIds $policyRoleIds
-}
+Build-PolicyPlan `
+    -definitionsRootFolder $pacEnvironment.policyDefinitionsFolder `
+    -pacEnvironment $pacEnvironment `
+    -deployedDefinitions $deployedPolicyResources.policydefinitions `
+    -definitions $policyDefinitions `
+    -allDefinitions $allDefinitions `
+    -replaceDefinitions $replaceDefinitions `
+    -policyRoleIds $policyRoleIds
 
 # Process Policy Sets
 $policySetDefinitions = @{
@@ -120,16 +118,14 @@ $policySetDefinitions = @{
     numberUnchanged = 0
 }
 
-if ($null -ne $pacEnvironment.policySetDefinitionsFolder) {
-    Build-PolicySetPlan `
-        -definitionsRootFolder $pacEnvironment.policySetDefinitionsFolder `
-        -pacEnvironment $pacEnvironment `
-        -deployedDefinitions $deployedPolicyResources.policysetdefinitions `
-        -definitions $policySetDefinitions `
-        -allDefinitions $allDefinitions `
-        -replaceDefinitions $replaceDefinitions `
-        -policyRoleIds $policyRoleIds
-}
+Build-PolicySetPlan `
+    -definitionsRootFolder $pacEnvironment.policySetDefinitionsFolder `
+    -pacEnvironment $pacEnvironment `
+    -deployedDefinitions $deployedPolicyResources.policysetdefinitions `
+    -definitions $policySetDefinitions `
+    -allDefinitions $allDefinitions `
+    -replaceDefinitions $replaceDefinitions `
+    -policyRoleIds $policyRoleIds
 
 # Process Assignment JSON files
 $assignments = @{
@@ -147,19 +143,17 @@ $roleAssignments = @{
 }
 $allAssignments = @{}
 
-if ($null -ne $pacEnvironment.policyAssignmentsFolder) {
-    Build-AssignmentPlan `
-        -assignmentsRootFolder $pacEnvironment.policyAssignmentsFolder `
-        -pacEnvironment $pacEnvironment `
-        -scopeTable $scopeTable `
-        -deployedPolicyResources $deployedPolicyResources `
-        -assignments $assignments `
-        -roleAssignments $roleAssignments `
-        -allDefinitions $allDefinitions `
-        -allAssignments $allAssignments `
-        -replaceDefinitions $replaceDefinitions `
-        -policyRoleIds $policyRoleIds
-}
+Build-AssignmentPlan `
+    -assignmentsRootFolder $pacEnvironment.policyAssignmentsFolder `
+    -pacEnvironment $pacEnvironment `
+    -scopeTable $scopeTable `
+    -deployedPolicyResources $deployedPolicyResources `
+    -assignments $assignments `
+    -roleAssignments $roleAssignments `
+    -allDefinitions $allDefinitions `
+    -allAssignments $allAssignments `
+    -replaceDefinitions $replaceDefinitions `
+    -policyRoleIds $policyRoleIds
 
 $exemptions = @{
     new             = @{}
@@ -172,15 +166,16 @@ $exemptions = @{
 }
 
 # Process exemption JSON files
-if ($exemptionsAreManaged) {
-    Build-ExemptionsPlan `
-        -exemptionsRootFolder $exemptionsFolderForPacEnvironment `
-        -pacEnvironment $pacEnvironment `
-        -allAssignments $allAssignments `
-        -assignments $assignments `
-        -deployedExemptions $deployedPolicyResources.policyExemptions `
-        -exemptions $exemptions
-}
+Build-ExemptionsPlan `
+    -exemptionsRootFolder $exemptionsFolderForPacEnvironment `
+    -exemptionsAreNotManagedMessage $exemptionsAreNotManagedMessage `
+    -pacEnvironment $pacEnvironment `
+    -allAssignments $allAssignments `
+    -assignments $assignments `
+    -deployedExemptions $deployedPolicyResources.policyExemptions `
+    -exemptions $exemptions
+
+# Output Plan
 $pacOwnerId = $pacEnvironment.pacOwnerId
 $timestamp = Get-Date -AsUTC -Format "u"
 $policyPlan = @{

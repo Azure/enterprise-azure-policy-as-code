@@ -106,3 +106,5 @@ EPAC only manages items with a directory in the `Definitions` folder. Therefore,
 
 * Repo1: `Definitions` contains `policyDefinitions`, `policySetDefinitions` and `policyAssignments` folders.
 * Repo2: `Definitions` contains `policyExemptions` folder.
+
+Policy resource that would be defined in the folderIt is important to remove the folders. If you have an empty folder, EPAC will delete any item which the folder could define from your environment.
