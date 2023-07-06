@@ -1,0 +1,27 @@
+parameters:
+  - name: serviceConnection
+    type: string
+  - name: pacEnvironment
+    type: string
+  - name: definitionsRootFolder
+    type: string
+    default: Definitions
+
+steps:
+  - checkout: self
+  - pwsh: |
+      Install-Module EnterprisePolicyAsCode -Force
+      Install-Module Az.ResourceGraph -Force
+  - task: AzurePowerShell@5
+    name: Plan
+    displayName: Run Build
+    inputs:
+      azureSubscription: ${{ parameters.serviceConnection }}
+      ScriptType: InlineScript
+      azurePowerShellVersion: LatestVersion
+      pwsh: true
+      Inline: |
+        Build-DeploymentPlans -PacEnvironmentSelector ${{ parameters.pacEnvironment }} -DefinitionsRootFolder ${{ parameters.definitionsRootFolder }} -devOpsType ado -outputFolder $env:PAC_OUTPUT_FOLDER
+  - publish: "$(PAC_OUTPUT_FOLDER)"
+    artifact: "policy-plan-${{ parameters.pacEnvironment }}"
+    condition: and(succeeded(), or(eq(variables['Plan.deployPolicyChanges'], 'yes'), eq(variables['Plan.deployRoleChanges'], 'yes')))

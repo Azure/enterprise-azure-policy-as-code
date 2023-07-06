@@ -1,0 +1,26 @@
+parameters:
+  - name: serviceConnection
+    type: string
+  - name: pacEnvironment
+    type: string
+  - name: definitionsRootFolder
+    type: string
+    default: Definitions
+
+steps:
+  - checkout: self
+  - download: current
+    artifact: "policy-plan-${{ parameters.pacEnvironment }}"
+  - pwsh: |
+      Install-Module EnterprisePolicyAsCode -Force
+      Install-Module Az.ResourceGraph -Force
+  - task: AzurePowerShell@5
+    name: RBAC
+    displayName: Deploy Roles
+    inputs:
+      azureSubscription: ${{ parameters.serviceConnection }}
+      ScriptType: InlineScript
+      azurePowerShellVersion: LatestVersion
+      pwsh: true
+      Inline: |
+        Deploy-RolesPlan -PacEnvironmentSelector ${{ parameters.pacEnvironment }} -DefinitionsRootFolder ${{ parameters.definitionsRootFolder }} -inputFolder $env:PIPELINE_WORKSPACE/policy-plan-${{ parameters.pacEnvironment }}

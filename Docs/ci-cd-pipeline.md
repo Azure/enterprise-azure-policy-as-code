@@ -4,7 +4,9 @@ This page covers the general CI/CD documentation, as well as, Azure DevOps CI/CD
 
 This repository contains starter pipelines
 
-* Azure DevOps
+* Azure DevOps (Single Tenant)
+* Azure DevOps (Multi Tenant)
+* Azure DevOps (Simplified)
 * [GitHub Actions](./github-actions.md). 
 
 
@@ -114,6 +116,13 @@ Read the following Microsoft instructions to [learn more about MS Graph Applicat
 1. [Register your app](https://learn.microsoft.com/en-us/graph/auth-v2-service#1-register-your-app)
 2. [Configure permissions for Microsoft Graph](<https://learn.microsoft.com/en-us/graph/auth-v2-service#2-configure-permissions-for-microsoft-graph>)
 3. [Get administrator consent](https://learn.microsoft.com/en-us/graph/auth-v2-service#3-get-administrator-consent)
+
+## Azure DevOps (Simplified Pipeline)
+
+If you have less complex requirements for a pipeline deployment using Azure DevOps you can utilize the ```simplified-pipeline.yaml``` file and the ```templates``` folder in the ```StarterKit``` folder to quickly get started in Azure Pipelines.
+
+
+This template requires the creation of two environments in Azure Pipelines and can easily have approvals added for deployment control. It is best suited to a single environment deployment but can be easily customized. 
 
 ### Custom EPAC Resource Policy Reader Role
 
