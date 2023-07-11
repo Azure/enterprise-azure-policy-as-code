@@ -4,19 +4,19 @@
 .SYNOPSIS
     Builds the deployment plans for the Policy as Code (PAC) environment.
 
-.PARAMETER pacEnvironmentSelector
+.PARAMETER PacEnvironmentSelector
     Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.
 
-.PARAMETER definitionsRootFolder
+.PARAMETER DefinitionsRootFolder
     Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
 
-.PARAMETER outputFolder
+.PARAMETER OutputFolder
     Output folder path for plan files. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER or './Output'.
 
-.PARAMETER interactive
+.PARAMETER Interactive
     Script is used interactively. Script can prompt the interactive user for input.
 
-.PARAMETER devOpsType
+.PARAMETER DevOpsType
     If set, outputs variables consumable by conditions in a DevOps pipeline. Valid values are '', 'ado' and 'gitlab'.
 
 .EXAMPLE

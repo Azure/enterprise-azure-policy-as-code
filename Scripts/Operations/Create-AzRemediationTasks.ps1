@@ -8,10 +8,10 @@ Defines which Policy as Code (PAC) environment we are using, if omitted, the scr
 .PARAMETER DefinitionsRootFolder
 Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
 
-.PARAMETER interactive
+.PARAMETER Interactive
 Set to false if used non-Interactive
 
-.PARAMETER onlyCheckManagedAssignments
+.PARAMETER OnlyCheckManagedAssignments
 Create remediation task only for Policy assignments owned by this Policy as Code repo
 
 .EXAMPLE

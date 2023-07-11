@@ -12,7 +12,7 @@
 .PARAMETER OutputFileName
     Output file name. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Storage/StorageNetwork.csv or './Outputs/Storage/StorageNetwork.csv'.
 
-.PARAMETER interactive
+.PARAMETER Interactive
     Set to false if used non-Interactive
 
 .EXAMPLE

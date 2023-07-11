@@ -11,7 +11,7 @@
 .PARAMETER OutputFileName
     Output file name. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Tags/missing-tags-results.csv or './Outputs/Tags/missing-tags-results.csv'.
 
-.PARAMETER interactive
+.PARAMETER Interactive
     Set to false if used non-Interactive
 
 .EXAMPLE

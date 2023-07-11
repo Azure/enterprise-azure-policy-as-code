@@ -8,7 +8,7 @@
 .PARAMETER DefinitionsRootFolder
     Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
 
-.PARAMETER interactive
+.PARAMETER Interactive
     Set to false if used non-Interactive
 
 .EXAMPLE

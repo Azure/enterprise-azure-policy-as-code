@@ -3,16 +3,16 @@
 .SYNOPSIS 
     Deploys Role assignments from a plan file.  
 
-.PARAMETER pacEnvironmentSelector
+.PARAMETER PacEnvironmentSelector
     Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.
 
-.PARAMETER definitionsRootFolder
+.PARAMETER DefinitionsRootFolder
     Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
 
-.PARAMETER inputFolder
+.PARAMETER InputFolder
     Input folder path for plan files. Defaults to environment variable `$env:PAC_INPUT_FOLDER, `$env:PAC_OUTPUT_FOLDER or './Output'.
 
-.PARAMETER interactive
+.PARAMETER Interactive
     Use switch to indicate interactive use
 
 .EXAMPLE

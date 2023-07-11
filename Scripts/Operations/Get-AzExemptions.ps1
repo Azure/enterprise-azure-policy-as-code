@@ -2,19 +2,19 @@
 .SYNOPSIS
     Retrieves Policy Exemptions from an EPAC environment and saves them to files.
 
-.PARAMETER pacEnvironmentSelector
+.PARAMETER PacEnvironmentSelector
     Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.    
 
-.PARAMETER definitionsRootFolder    
+.PARAMETER DefinitionsRootFolder    
     Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
 
-.PARAMETER outputFolder
+.PARAMETER OutputFolder
     Output Folder. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER or './Outputs'.
 
-.PARAMETER interactive
+.PARAMETER Interactive
     Set to false if used non-Interactive
 
-.PARAMETER fileExtension
+.PARAMETER FileExtension
     File extension type for the output files. Valid values are json and jsonc. Defaults to json.
 
 .EXAMPLE

@@ -2,19 +2,19 @@
 .SYNOPSIS 
     Builds documentation from instructions in policyDocumentations folder reading the delployed Policy Resources from the EPAC envioronment.   
 
-.PARAMETER definitionsRootFolder
+.PARAMETER DefinitionsRootFolder
     Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
 
-.PARAMETER outputFolder
+.PARAMETER OutputFolder
     Output Folder. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER or './Outputs'.
 
-.PARAMETER windowsNewLineCells
+.PARAMETER WindowsNewLineCells
     Formats CSV multi-Object cells to use new lines and saves it as UTF-8 with BOM - works only fro Excel in Windows. Default uses commas to separate array elements within a cell
 
-.PARAMETER interactive
+.PARAMETER Interactive
     Set to false if used non-Interactive
 
-.PARAMETER suppressConfirmation
+.PARAMETER SuppressConfirmation
     Suppresses prompt for confirmation to delete existing file in interactive mode
 
 .EXAMPLE

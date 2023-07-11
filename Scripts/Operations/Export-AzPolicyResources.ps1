@@ -7,42 +7,42 @@ Exports Azure Policy resources in EPAC format or raw format. It has 4 operating 
 It also generates documentaion for the exported resources (can be suppressed with -SuppressDocumentation).
 To just generate EPAC formatted Definitions without generating documentaion files, use -supressEpacOutput.
 
-.PARAMETER definitionsRootFolder
+.PARAMETER DefinitionsRootFolder
 Definitions folder path. Defaults to environment variable $env:PAC_DEFINITIONS_FOLDER or './Definitions'.
 
-.PARAMETER outputFolder
+.PARAMETER OutputFolder
 Output Folder. Defaults to environment variable $env:PAC_OUTPUT_FOLDER or './Outputs'.
 
-.PARAMETER interactive
+.PARAMETER Interactive
 Set to false if used non-Interactive. Defaults to $true.
 
-.PARAMETER includeChildScopes
+.PARAMETER IncludeChildScopes
 Switch parameter to include Policies and Policy Sets definitions in child scopes
 
-.PARAMETER includeAutoAssigned
+.PARAMETER IncludeAutoAssigned
 Switch parameter to include Assignments auto-assigned by Defender for Cloud
 
-.PARAMETER exemptionFiles
+.PARAMETER ExemptionFiles
 Create Exemption files (none=suppress, csv=as a csv file, json=as a json or jsonc file). Defaults to 'csv'.
 
-.PARAMETER fileExtension
+.PARAMETER FileExtension
 File extension type for the output files. Defaults to '.jsonc'.
 
-.PARAMETER mode
+.PARAMETER Mode
 Operating mode:
     a) 'export' exports EPAC environments in EPAC format, should be used with -Interactive $true in a multi-tenant scenario, or use with an inputPacSelector to limit the scope to one EPAC environment.
     b) 'collectRawFile' exports the raw data only; Often used with 'inputPacSelector' when running non-Interactive in a multi-tenant scenario to collect the raw data once per tenant into a file named after the EPAC environment
     c) 'exportFromRawFiles' reads the files generated with one or more runs of b) and outputs the files the same as normal 'export'.
     d) 'exportRawToPipeline' exports EPAC environments in EPAC format, should be used with -Interactive $true in a multi-tenant scenario, or use with an inputPacSelector to limit the scope to one EPAC environment.
 
-.PARAMETER inputPacSelector
+.PARAMETER InputPacSelector
 Limits the collection to one EPAC environment, useful for non-Interactive use in a multi-tenant scenario, especially with -Mode 'collectRawFile'.
 The default is '*' which will execute all EPAC-Environments.
 
-.PARAMETER suppressDocumentation
+.PARAMETER SuppressDocumentation
 Suppress documentation generation.
 
-.PARAMETER suppressEpacOutput
+.PARAMETER SuppressEpacOutput
 Suppress output generation in EPAC format.
 
 .EXAMPLE
