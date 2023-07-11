@@ -4,9 +4,9 @@
 #>
 
 # Remove hidden files, like thumbs.db
-$removeHiddenFiles = $true
+$RemoveHiddenFiles = $true
 # Get hidden files or not. Depending on removeHiddenFiles setting
-$getHiddelFiles = !$removeHiddenFiles
+$getHiddelFiles = !$RemoveHiddenFiles
 # Remove empty directories locally
 
 Function Remove-EmptyFolder($path) {
@@ -20,7 +20,7 @@ Function Remove-EmptyFolder($path) {
     # If there are no items, then we can delete the folder
     # Exluce folder: If (($subItems -eq $null) -and (-Not($path.contains("DfsrPrivate")))) 
     If ($null -eq $subItems) {
-        Remove-Item -Force -Recurse:$removeHiddenFiles -LiteralPath $Path -Verbose
+        Remove-Item -Force -Recurse:$RemoveHiddenFiles -LiteralPath $Path -Verbose
     }
 }
 

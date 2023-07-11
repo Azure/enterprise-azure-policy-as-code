@@ -37,7 +37,7 @@ if ($PolicyAssignment) {
             $baseTemplate.parameters.Add($_.Name, $_.Value.Value)
         }
         if ($OutputFolder) {
-            $baseTemplate | ConvertTo-Json -Depth 50 | Out-File "$OutputFolder\$($policyAssignment.Name).json"
+            $baseTemplate | ConvertTo-Json -Depth 50 | Out-File "$OutputFolder\$($PolicyAssignment.Name).json"
         }
         else {
             $baseTemplate | ConvertTo-Json -Depth 50
@@ -59,7 +59,7 @@ if ($PolicyAssignment) {
             $baseTemplate.parameters.Add($_.Name, $_.Value.Value)
         }
         if ($OutputFolder) {
-            $baseTemplate | ConvertTo-Json -Depth 50 | Out-File "$OutputFolder\$($policyAssignment.Name).json"
+            $baseTemplate | ConvertTo-Json -Depth 50 | Out-File "$OutputFolder\$($PolicyAssignment.Name).json"
         }
         else {
             $baseTemplate | ConvertTo-Json -Depth 50

@@ -1,31 +1,31 @@
 function Set-AzPolicyDefinitionRestMethod {
     [CmdletBinding()]
     param (
-        [PSCustomObject] $definitionObj
+        [PSCustomObject] $DefinitionObj
     )
 
     # Write log info
-    $displayName = $definitionObj.displayName
-    Write-Information $displayName
+    $DisplayName = $DefinitionObj.displayName
+    Write-Information $DisplayName
 
     # Build the REST API body
     $properties = @{
-        displayName = $definitionObj.displayName
-        description = $definitionObj.description
-        metadata    = $definitionObj.metadata
-        # version     = $definitionObj.version
-        mode        = $definitionObj.mode
-        parameters  = $definitionObj.parameters
-        policyRule  = $definitionObj.policyRule
+        displayName = $DefinitionObj.displayName
+        description = $DefinitionObj.description
+        metadata    = $DefinitionObj.metadata
+        # version     = $DefinitionObj.version
+        mode        = $DefinitionObj.mode
+        parameters  = $DefinitionObj.parameters
+        policyRule  = $DefinitionObj.policyRule
     }
     Remove-NullFields $properties
-    $definition = @{
+    $Definition = @{
         properties = $properties
     }
 
     # Invoke the REST API
-    $definitionJson = ConvertTo-Json $definition -Depth 100 -Compress
-    $response = Invoke-AzRestMethod -Path "$($definitionObj.id)?api-version=2021-06-01" -Method PUT -Payload $definitionJson
+    $DefinitionJson = ConvertTo-Json $Definition -Depth 100 -Compress
+    $response = Invoke-AzRestMethod -Path "$($DefinitionObj.id)?api-version=2021-06-01" -Method PUT -Payload $DefinitionJson
 
     # Process response
     $statusCode = $response.StatusCode
@@ -34,5 +34,5 @@ function Set-AzPolicyDefinitionRestMethod {
         Write-Error "Policy definition error $($statusCode) -- $($content)" -ErrorAction Stop
     }
 
-    return $displayName
+    return $DisplayName
 }

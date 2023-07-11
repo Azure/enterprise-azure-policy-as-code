@@ -1,17 +1,17 @@
 function Out-PolicySetsDocumentationToFile {
     [CmdletBinding()]
     param (
-        [string] $outputPath,
-        [string] $fileNameStem,
-        [switch] $windowsNewLineCells,
-        [string] $title,
-        [array] $itemList,
-        [array] $environmentColumnsInCsv,
-        [hashtable] $policySetDetails,
-        [hashtable] $flatPolicyList
+        [string] $OutputPath,
+        [string] $FileNameStem,
+        [switch] $WindowsNewLineCells,
+        [string] $Title,
+        [array] $ItemList,
+        [array] $EnvironmentColumnsInCsv,
+        [hashtable] $PolicySetDetails,
+        [hashtable] $FlatPolicyList
     )
 
-    Write-Information "Generating Policy Set documentation for '$title', files '$fileNameStem'."
+    Write-Information "Generating Policy Set documentation for '$Title', files '$FileNameStem'."
 
     #region Markdown
 
@@ -19,7 +19,7 @@ function Out-PolicySetsDocumentationToFile {
     [System.Collections.Generic.List[string]] $headerAndToc = [System.Collections.Generic.List[string]]::new()
     [System.Collections.Generic.List[string]] $body = [System.Collections.Generic.List[string]]::new()
 
-    $null = $headerAndToc.Add("# $title`n")
+    $null = $headerAndToc.Add("# $Title`n")
     $null = $headerAndToc.Add("Auto-generated Policy effect documentation for PolicySets grouped by Effect and sorted by Policy category and Policy display name.`n")
     $null = $headerAndToc.Add("## Table of contents`n")
 
@@ -27,15 +27,15 @@ function Out-PolicySetsDocumentationToFile {
     $null = $body.Add("`n## <a id=`"policySets`"></a>PolicySets`n")
     $addedTableHeader = ""
     $addedTableDivider = ""
-    foreach ($item in $itemList) {
+    foreach ($item in $ItemList) {
         $shortName = $item.shortName
-        $policySetId = $item.policySetId
-        $policySetDetail = $policySetDetails.$policySetId
+        $PolicySetId = $item.policySetId
+        $PolicySetDetail = $PolicySetDetails.$PolicySetId
         $null = $body.Add("### $($shortName)`n")
-        $null = $body.Add("- Display name: $($policySetDetail.displayName)")
-        $null = $body.Add("- Type: $($policySetDetail.policyType)")
-        $null = $body.Add("- Category: $($policySetDetail.category)`n")
-        $null = $body.Add("$($policySetDetail.description)`n")
+        $null = $body.Add("- Display name: $($PolicySetDetail.displayName)")
+        $null = $body.Add("- Type: $($PolicySetDetail.policyType)")
+        $null = $body.Add("- Category: $($PolicySetDetail.category)`n")
+        $null = $body.Add("$($PolicySetDetail.description)`n")
 
         $addedTableHeader += " $shortName |"
         $addedTableDivider += " :-------- |"
@@ -45,27 +45,27 @@ function Out-PolicySetsDocumentationToFile {
     $null = $body.Add("| Category | Policy |$addedTableHeader")
     $null = $body.Add("| :------- | :----- |$addedTableDivider")
 
-    $flatPolicyList.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
-        $policySetList = $_.policySetList
+    $FlatPolicyList.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
+        $PolicySetList = $_.policySetList
         $addedEffectColumns = ""
         $addedRows = ""
-        foreach ($item in $itemList) {
+        foreach ($item in $ItemList) {
             $shortName = $item.shortName
-            if ($policySetList.ContainsKey($shortName)) {
-                $perPolicySet = $policySetList.$shortName
-                $effectValue = $perPolicySet.effectValue
-                $effectAllowedValues = $perPolicySet.effectAllowedValues
+            if ($PolicySetList.ContainsKey($shortName)) {
+                $perPolicySet = $PolicySetList.$shortName
+                $EffectValue = $perPolicySet.effectValue
+                $EffectAllowedValues = $perPolicySet.effectAllowedValues
                 $text = Convert-EffectToString `
-                    -effect $effectValue `
-                    -allowedValues $effectAllowedValues `
+                    -Effect $EffectValue `
+                    -AllowedValues $EffectAllowedValues `
                     -Markdown
                 $addedEffectColumns += " $text |"
 
                 [array] $groupNames = $perPolicySet.groupNames
-                $parameters = $perPolicySet.parameters
-                if ($parameters.psbase.Count -gt 0 -or $groupNames.Count -gt 0) {
+                $Parameters = $perPolicySet.parameters
+                if ($Parameters.psbase.Count -gt 0 -or $groupNames.Count -gt 0) {
                     $addedRows += "<br/>*$($perPolicySet.displayName):*"
-                    $text = Convert-ParametersToString -parameters $parameters -outputType "markdown"
+                    $text = Convert-ParametersToString -Parameters $Parameters -OutputType "markdown"
                     $addedRows += $text
                     foreach ($groupName in $groupNames) {
                         $addedRows += "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$groupName"
@@ -87,16 +87,16 @@ function Out-PolicySetsDocumentationToFile {
     $null = $allLines.AddRange($body)
 
     # Output file
-    $outputFilePath = "$($outputPath -replace '[/\\]$','')/$fileNameStem.md"
+    $outputFilePath = "$($OutputPath -replace '[/\\]$','')/$FileNameStem.md"
     $allLines | Out-File $outputFilePath -Force
 
     #endregion Markdown
 
     #region CSV
 
-    $outputEnvironmentColumns = $null -ne $environmentColumnsInCsv -and $environmentColumnsInCsv.Length -gt 0
+    $outputEnvironmentColumns = $null -ne $EnvironmentColumnsInCsv -and $EnvironmentColumnsInCsv.Length -gt 0
     if (!$outputEnvironmentColumns) {
-        $environmentColumnsInCsv = @( "default" )
+        $EnvironmentColumnsInCsv = @( "default" )
     }
 
     [System.Collections.ArrayList] $allRows = [System.Collections.ArrayList]::new()
@@ -104,23 +104,23 @@ function Out-PolicySetsDocumentationToFile {
 
     # Create header rows for CSV
     $null = $columnHeaders.AddRange(@("name", "referencePath", "policyType", "category", "displayName", "description", "groupNames", "policySets", "allowedEffects" ))
-    foreach ($environmentCategory in $environmentColumnsInCsv) {
+    foreach ($environmentCategory in $EnvironmentColumnsInCsv) {
         $null = $columnHeaders.Add("$($environmentCategory)Effect")
     }
-    foreach ($environmentCategory in $environmentColumnsInCsv) {
+    foreach ($environmentCategory in $EnvironmentColumnsInCsv) {
         $null = $columnHeaders.Add("$($environmentCategory)Parameters")
     }
 
     # deal with multi value cells
     $inCellSeparator = ","
-    if ($windowsNewLineCells) {
+    if ($WindowsNewLineCells) {
         $inCellSeparator = ",`n"
     }
 
     $allRows.Clear()
 
     # Content rows
-    $flatPolicyList.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
+    $FlatPolicyList.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
         # Initialize row - with empty strings
         $rowObj = [ordered]@{}
         foreach ($key in $columnHeaders) {
@@ -128,12 +128,12 @@ function Out-PolicySetsDocumentationToFile {
         }
 
         # Cache loop values
-        $effectAllowedValues = $_.effectAllowedValues
+        $EffectAllowedValues = $_.effectAllowedValues
         $isEffectParameterized = $_.isEffectParameterized
-        $effectAllowedOverrides = $_.effectAllowedOverrides
+        $EffectAllowedOverrides = $_.effectAllowedOverrides
         $groupNamesList = $_.groupNamesList
-        $effectDefault = $_.effectDefault
-        $policySetEffectStrings = $_.policySetEffectStrings
+        $EffectDefault = $_.effectDefault
+        $PolicySetEffectStrings = $_.policySetEffectStrings
 
         # Build common columns
         $rowObj.name = $_.name
@@ -145,22 +145,22 @@ function Out-PolicySetsDocumentationToFile {
         if ($groupNamesList.Count -gt 0) {
             $rowObj.groupNames = $groupNamesList -join $inCellSeparator
         }
-        if ($policySetEffectStrings.Count -gt 0) {
-            $rowObj.policySets = $policySetEffectStrings -join $inCellSeparator
+        if ($PolicySetEffectStrings.Count -gt 0) {
+            $rowObj.policySets = $PolicySetEffectStrings -join $inCellSeparator
         }
-        if ($isEffectParameterized -and $effectAllowedValues.Count -gt 1) {
-            $rowObj.allowedEffects = $effectAllowedValues.Keys -join $inCellSeparator
+        if ($isEffectParameterized -and $EffectAllowedValues.Count -gt 1) {
+            $rowObj.allowedEffects = $EffectAllowedValues.Keys -join $inCellSeparator
         }
-        elseif ($effectAllowedOverrides.Count -gt 0) {
-            $rowObj.allowedEffects = $effectAllowedOverrides -join $inCellSeparator
+        elseif ($EffectAllowedOverrides.Count -gt 0) {
+            $rowObj.allowedEffects = $EffectAllowedOverrides -join $inCellSeparator
         }
 
         # Per environment columns
-        $parameters = $_.parameters
-        $parametersValueString = Convert-ParametersToString -parameters $parameters -outputType "csvValues"
-        foreach ($environmentCategory in $environmentColumnsInCsv) {
-            $rowObj["$($environmentCategory)Effect"] = $effectDefault
-            $rowObj["$($environmentCategory)Parameters"] = $parametersValueString
+        $Parameters = $_.parameters
+        $ParametersValueString = Convert-ParametersToString -Parameters $Parameters -OutputType "csvValues"
+        foreach ($environmentCategory in $EnvironmentColumnsInCsv) {
+            $rowObj["$($environmentCategory)Effect"] = $EffectDefault
+            $rowObj["$($environmentCategory)Parameters"] = $ParametersValueString
         }
 
         # Add row to spreadsheet
@@ -168,8 +168,8 @@ function Out-PolicySetsDocumentationToFile {
     }
 
     # Output file
-    $outputFilePath = "$($outputPath -replace '[/\\]$','')/$($fileNameStem).csv"
-    if ($windowsNewLineCells) {
+    $outputFilePath = "$($OutputPath -replace '[/\\]$','')/$($FileNameStem).csv"
+    if ($WindowsNewLineCells) {
         $allRows | ConvertTo-Csv | Out-File $outputFilePath -Force -Encoding utf8BOM
     }
     else {
@@ -184,35 +184,35 @@ function Out-PolicySetsDocumentationToFile {
     $sb = [System.Text.StringBuilder]::new()
     $null = $sb.Append("{")
     $null = $sb.Append("`n  `"parameters`": {")
-    $flatPolicyList.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
+    $FlatPolicyList.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
         if ($_.isEffectParameterized) {
 
-            $policySetList = $_.policySetList
+            $PolicySetList = $_.policySetList
             $referencePath = $_.referencePath
-            $displayName = $_.displayName
+            $DisplayName = $_.displayName
             $category = $_.category
 
             $null = $sb.Append("`n    // ")
             $null = $sb.Append("`n    // -----------------------------------------------------------------------------------------------------------------------------")
-            $null = $sb.Append("`n    // $($category) -- $($displayName)")
+            $null = $sb.Append("`n    // $($category) -- $($DisplayName)")
             if ($referencePath -ne "") {
                 $null = $sb.Append("`n    //     referencePath: $($referencePath)")
             }
-            foreach ($item in $itemList) {
+            foreach ($item in $ItemList) {
                 $shortName = $item.shortName
-                if ($policySetList.ContainsKey($shortName)) {
-                    $perPolicySet = $policySetList.$shortName
-                    $policySetDisplayName = $perPolicySet.displayName
+                if ($PolicySetList.ContainsKey($shortName)) {
+                    $perPolicySet = $PolicySetList.$shortName
+                    $PolicySetDisplayName = $perPolicySet.displayName
                     if ($perPolicySet.isEffectParameterized) {
-                        $null = $sb.Append("`n    //   $($policySetDisplayName): $($perPolicySet.effectDefault) ($($perPolicySet.effectParameterName))")
+                        $null = $sb.Append("`n    //   $($PolicySetDisplayName): $($perPolicySet.effectDefault) ($($perPolicySet.effectParameterName))")
                     }
                     else {
-                        $null = $sb.Append("`n    //   $($policySetDisplayName): $($perPolicySet.effectDefault) ($($perPolicySet.effectReason))")
+                        $null = $sb.Append("`n    //   $($PolicySetDisplayName): $($perPolicySet.effectDefault) ($($perPolicySet.effectReason))")
                     }
                 }
             }
             $null = $sb.Append("`n    // -----------------------------------------------------------------------------------------------------------------------------")
-            $parameterText = Convert-ParametersToString -parameters $_.parameters -outputType "jsonc"
+            $parameterText = Convert-ParametersToString -Parameters $_.parameters -OutputType "jsonc"
             $null = $sb.Append($parameterText)
         }
     }
@@ -220,7 +220,7 @@ function Out-PolicySetsDocumentationToFile {
     $null = $sb.Append("`n}")
 
     # Output file
-    $outputFilePath = "$($outputPath -replace '[/\\]$', '')/$fileNameStem.jsonc"
+    $outputFilePath = "$($OutputPath -replace '[/\\]$', '')/$FileNameStem.jsonc"
     $sb.ToString() | Out-File $outputFilePath -Force
 
     #endregion

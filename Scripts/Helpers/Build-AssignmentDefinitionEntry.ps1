@@ -1,100 +1,100 @@
 function Build-AssignmentDefinitionEntry {
     [CmdletBinding()]
     param(
-        $nodeName,
-        $policyDefinitionsScopes,
-        [hashtable] $definitionEntry,
-        [hashtable] $combinedPolicyDetails,
-        [switch] $mustDefineAssignment
+        $NodeName,
+        $PolicyDefinitionsScopes,
+        [hashtable] $DefinitionEntry,
+        [hashtable] $CombinedPolicyDetails,
+        [switch] $MustDefineAssignment
     )
 
-    $policyName = $definitionEntry.policyName
-    $policyId = $definitionEntry.policyId
-    $policySetName = $definitionEntry.policySetName
-    $policySetId = $definitionEntry.policySetId
-    $initiativeName = $definitionEntry.initiativeName
-    $initiativeId = $definitionEntry.initiativeId
-    $assignment = $definitionEntry.assignment
-    $definitionVersion = $definitionEntry.definitionVersion
+    $PolicyName = $DefinitionEntry.policyName
+    $PolicyId = $DefinitionEntry.policyId
+    $PolicySetName = $DefinitionEntry.policySetName
+    $PolicySetId = $DefinitionEntry.policySetId
+    $initiativeName = $DefinitionEntry.initiativeName
+    $initiativeId = $DefinitionEntry.initiativeId
+    $Assignment = $DefinitionEntry.assignment
+    $DefinitionVersion = $DefinitionEntry.definitionVersion
 
     $isValid = $true
     $normalizedEntry = $null
-    $count = ($null -ne $policyName ? 1 : 0) + ($null -ne $policyId ? 1 : 0) + ($null -ne $policySetName ? 1 : 0) + ($null -ne $policySetId ? 1 : 0) + ($null -ne $initiativeName ? 1 : 0) + ($null -ne $initiativeId ? 1 : 0)
+    $count = ($null -ne $PolicyName ? 1 : 0) + ($null -ne $PolicyId ? 1 : 0) + ($null -ne $PolicySetName ? 1 : 0) + ($null -ne $PolicySetId ? 1 : 0) + ($null -ne $initiativeName ? 1 : 0) + ($null -ne $initiativeId ? 1 : 0)
     if ($count -ne 1) {
-        Write-Error "   Node $($nodeName): each definitionEntry must contain exactly one field defined from set [policyName, policyId, policySetName, policySetId, initiativeName, initiativeId]."
+        Write-Error "   Node $($NodeName): each definitionEntry must contain exactly one field defined from set [policyName, policyId, policySetName, policySetId, initiativeName, initiativeId]."
         $isValid = $false
     }
     else {
-        if ($null -ne $policyName -or $null -ne $policyId) {
-            $policyId = Confirm-PolicyDefinitionUsedExists `
-                -id $policyId `
-                -name $policyName `
-                -policyDefinitionsScopes $policyDefinitionsScopes `
-                -allDefinitions $combinedPolicyDetails.policies
-            if ($null -eq $policyId) {
+        if ($null -ne $PolicyName -or $null -ne $PolicyId) {
+            $PolicyId = Confirm-PolicyDefinitionUsedExists `
+                -Id $PolicyId `
+                -Name $PolicyName `
+                -PolicyDefinitionsScopes $PolicyDefinitionsScopes `
+                -AllDefinitions $CombinedPolicyDetails.policies
+            if ($null -eq $PolicyId) {
                 $isValid = $false
             }
             else {
                 $normalizedEntry = @{
-                    policyDefinitionId = $policyId
+                    policyDefinitionId = $PolicyId
                     isPolicySet        = $false
                 }
             }
         }
-        elseif ($null -ne $policySetName -or $null -ne $policySetId) {
-            $policySetId = Confirm-PolicySetDefinitionUsedExists `
-                -id $policySetId `
-                -name $policySetName `
-                -policyDefinitionsScopes $policyDefinitionsScopes `
-                -allPolicySetDefinitions $combinedPolicyDetails.policySets
-            if ($null -eq $policySetId) {
+        elseif ($null -ne $PolicySetName -or $null -ne $PolicySetId) {
+            $PolicySetId = Confirm-PolicySetDefinitionUsedExists `
+                -Id $PolicySetId `
+                -Name $PolicySetName `
+                -PolicyDefinitionsScopes $PolicyDefinitionsScopes `
+                -AllPolicySetDefinitions $CombinedPolicyDetails.policySets
+            if ($null -eq $PolicySetId) {
                 $isValid = $false
             }
             else {
                 $normalizedEntry = @{
-                    policyDefinitionId = $policySetId
+                    policyDefinitionId = $PolicySetId
                     isPolicySet        = $true
                 }
             }
         }
         elseif ($null -ne $initiativeName -or $null -ne $initiativeId) {
-            $policySetId = Confirm-PolicySetDefinitionUsedExists `
-                -id $initiativeId `
-                -name $initiativeName `
-                -policyDefinitionsScopes $policyDefinitionsScopes `
-                -allPolicySetDefinitions $combinedPolicyDetails.policySets
-            if ($null -eq $policySetId) {
+            $PolicySetId = Confirm-PolicySetDefinitionUsedExists `
+                -Id $initiativeId `
+                -Name $initiativeName `
+                -PolicyDefinitionsScopes $PolicyDefinitionsScopes `
+                -AllPolicySetDefinitions $CombinedPolicyDetails.policySets
+            if ($null -eq $PolicySetId) {
                 $isValid = $false
             }
             else {
                 $normalizedEntry = @{
-                    policyDefinitionId = $policySetId
+                    policyDefinitionId = $PolicySetId
                     isPolicySet        = $true
                 }
             }
         }
 
-        # if ($null -ne $definitionVersion) {
-        #     $normalizedEntry.definitionVersion = $definitionVersion
+        # if ($null -ne $DefinitionVersion) {
+        #     $normalizedEntry.definitionVersion = $DefinitionVersion
         # }
 
-        if ($null -ne $displayName) {
-            $normalizedEntry.displayName = $definitionEntry.displayName
+        if ($null -ne $DisplayName) {
+            $normalizedEntry.displayName = $DefinitionEntry.displayName
         }
-        elseif ($null -ne $definitionEntry.friendlyNameToDocumentIfGuid) {
-            $normalizedEntry.displayName = $definitionEntry.friendlyNameToDocumentIfGuid
+        elseif ($null -ne $DefinitionEntry.friendlyNameToDocumentIfGuid) {
+            $normalizedEntry.displayName = $DefinitionEntry.friendlyNameToDocumentIfGuid
         }
 
-        if ($null -ne $definitionEntry.nonComplianceMessages) {
-            $normalizedEntry.nonComplianceMessages = $definitionEntry.nonComplianceMessages
+        if ($null -ne $DefinitionEntry.nonComplianceMessages) {
+            $normalizedEntry.nonComplianceMessages = $DefinitionEntry.nonComplianceMessages
         }
 
         # if ($null -ne $shortName) {
         #     $normalizedEntry.displayName = $shortName
         # }
-        if ($null -ne $assignment) {
-            if ($null -ne $assignment.name -and ($assignment.name).Length -gt 0 -and $null -ne $assignment.displayName -and ($assignment.displayName).Length -gt 0) {
-                $normalizedAssignment = ConvertTo-HashTable $assignment
+        if ($null -ne $Assignment) {
+            if ($null -ne $Assignment.name -and ($Assignment.name).Length -gt 0 -and $null -ne $Assignment.displayName -and ($Assignment.displayName).Length -gt 0) {
+                $normalizedAssignment = ConvertTo-HashTable $Assignment
                 if (!$normalizedAssignment.ContainsKey("description")) {
                     $normalizedAssignment.description = ""
                 }
@@ -104,12 +104,12 @@ function Build-AssignmentDefinitionEntry {
                 $normalizedEntry.assignment = $normalizedAssignment
             }
             else {
-                Write-Error "   Node $($nodeName): each assignment in a definitionEntry must define an assignment name and displayName."
+                Write-Error "   Node $($NodeName): each assignment in a definitionEntry must define an assignment name and displayName."
                 $isValid = $false
             }
         }
-        elseif ($mustDefineAssignment) {
-            Write-Error "   Node $($nodeName): each definitionEntry in a definitionEntryList with more than one element must define an assignment field."
+        elseif ($MustDefineAssignment) {
+            Write-Error "   Node $($NodeName): each definitionEntry in a definitionEntryList with more than one element must define an assignment field."
             $isValid = $false
         }
         else {

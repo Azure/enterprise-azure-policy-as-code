@@ -1,28 +1,28 @@
 function Confirm-AssignmentParametersMatch {
     [CmdletBinding()]
     param(
-        $existingParametersObj,
-        $definedParametersObj,
-        [switch] $compareTwoExistingParametersObj
+        $ExistingParametersObj,
+        $DefinedParametersObj,
+        [switch] $CompareTwoExistingParametersObj
     )
 
-    $existingParameters = ConvertTo-HashTable $existingParametersObj
-    $definedParameters = ConvertTo-HashTable $definedParametersObj
-    $addedParameters = Get-HashtableShallowClone $definedParameters
-    foreach ($existingParameterName in $existingParameters.Keys) {
+    $ExistingParameters = ConvertTo-HashTable $ExistingParametersObj
+    $DefinedParameters = ConvertTo-HashTable $DefinedParametersObj
+    $addedParameters = Get-HashtableShallowClone $DefinedParameters
+    foreach ($ExistingParameterName in $ExistingParameters.Keys) {
         $found = $false
-        foreach ($definedParameterName in $definedParameters.Keys) {
-            if ($definedParameterName -eq $existingParameterName) {
+        foreach ($definedParameterName in $DefinedParameters.Keys) {
+            if ($definedParameterName -eq $ExistingParameterName) {
                 # remove key from $addedParameters
                 $addedParameters.Remove($definedParameterName)
 
                 # analyze parameter
-                $existing = $existingParameters.$existingParameterName.value
-                $defined = $definedParameters.$definedParameterName
-                if ($compareTwoExistingParametersObj) {
-                    $defined = $definedParameters.$definedParameterName.value
+                $Existing = $ExistingParameters.$ExistingParameterName.value
+                $defined = $DefinedParameters.$definedParameterName
+                if ($CompareTwoExistingParametersObj) {
+                    $defined = $DefinedParameters.$definedParameterName.value
                 }
-                $match = Confirm-ObjectValueEqualityDeep $existing $defined
+                $match = Confirm-ObjectValueEqualityDeep $Existing $defined
                 if (!$match) {
                     return $false
                 }

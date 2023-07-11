@@ -1,23 +1,23 @@
 function Out-PolicyAssignmentDocumentationToFile {
     [CmdletBinding()]
     param (
-        [string] $outputPath,
-        [switch] $windowsNewLineCells,
-        $documentationSpecification,
-        [hashtable] $assignmentsByEnvironment
+        [string] $OutputPath,
+        [switch] $WindowsNewLineCells,
+        $DocumentationSpecification,
+        [hashtable] $AssignmentsByEnvironment
     )
 
-    [string] $fileNameStem = $documentationSpecification.fileNameStem
-    [string[]] $environmentCategories = $documentationSpecification.environmentCategories
-    [string] $title = $documentationSpecification.title
+    [string] $FileNameStem = $DocumentationSpecification.fileNameStem
+    [string[]] $environmentCategories = $DocumentationSpecification.environmentCategories
+    [string] $Title = $DocumentationSpecification.title
 
-    Write-Information "Generating Policy Assignment documentation for '$title', files '$fileNameStem'."
+    Write-Information "Generating Policy Assignment documentation for '$Title', files '$FileNameStem'."
 
     # Checking parameters
-    if ($null -eq $fileNameStem -or $fileNameStem -eq "") {
+    if ($null -eq $FileNameStem -or $FileNameStem -eq "") {
         Write-Error "fileNameStem not specified" -ErrorAction Stop
     }
-    if ($null -eq $title -or $title -eq "") {
+    if ($null -eq $Title -or $Title -eq "") {
         Write-Error "title not specified" -ErrorAction Stop
     }
     $environmentCategoriesAreValid = $null -ne $environmentCategories -and $environmentCategories.Length -gt 0
@@ -25,31 +25,31 @@ function Out-PolicyAssignmentDocumentationToFile {
         Write-Error "No environmentCategories '$environmentCategories' specified." -ErrorAction Stop
     }
 
-    #region Combine per environment flat lists into a single flat list ($flatPolicyListAcrossEnvironments)
+    #region Combine per environment flat lists into a single flat list ($FlatPolicyListAcrossEnvironments)
 
-    $flatPolicyListAcrossEnvironments = @{}
+    $FlatPolicyListAcrossEnvironments = @{}
     foreach ($environmentCategory in $environmentCategories) {
-        if (-not $assignmentsByEnvironment.ContainsKey($environmentCategory)) {
+        if (-not $AssignmentsByEnvironment.ContainsKey($environmentCategory)) {
             # Should never happen (programing bug)
             Write-Error "Unknown environmentCategory '$environmentCategory' encountered - bug in EPAC PowerShell code" -ErrorAction Stop
         }
 
         # Collate Policies
-        $perEnvironment = $assignmentsByEnvironment.$environmentCategory
-        $flatPolicyList = $perEnvironment.flatPolicyList
-        foreach ($policyTableId in $flatPolicyList.Keys) {
-            $flatPolicyEntry = $flatPolicyList.$policyTableId
+        $perEnvironment = $AssignmentsByEnvironment.$environmentCategory
+        $FlatPolicyList = $perEnvironment.flatPolicyList
+        foreach ($PolicyTableId in $FlatPolicyList.Keys) {
+            $flatPolicyEntry = $FlatPolicyList.$PolicyTableId
 
             $flatPolicyEntryAcrossEnvironments = @{}
-            if ($flatPolicyListAcrossEnvironments.ContainsKey($policyTableId)) {
-                $flatPolicyEntryAcrossEnvironments = $flatPolicyListAcrossEnvironments.$policyTableId
+            if ($FlatPolicyListAcrossEnvironments.ContainsKey($PolicyTableId)) {
+                $flatPolicyEntryAcrossEnvironments = $FlatPolicyListAcrossEnvironments.$PolicyTableId
                 if ($isEffectParameterized) {
                     $flatPolicyEntry.isEffectParameterized = $true
                 }
             }
             else {
                 $flatPolicyEntryAcrossEnvironments = @{
-                    policyTableId          = $policyTableId
+                    policyTableId          = $PolicyTableId
                     name                   = $flatPolicyEntry.name
                     referencePath          = $flatPolicyEntry.ReferencePath
                     displayName            = $flatPolicyEntry.displayName
@@ -64,7 +64,7 @@ function Out-PolicyAssignmentDocumentationToFile {
                     policySetList          = @{}
                     policySetEffectStrings = $flatPolicyEntry.policySetEffectStrings
                 }
-                $null = $flatPolicyListAcrossEnvironments.Add($policyTableId, $flatPolicyEntryAcrossEnvironments)
+                $null = $FlatPolicyListAcrossEnvironments.Add($PolicyTableId, $flatPolicyEntryAcrossEnvironments)
             }
 
             # Find out lowest ordinal for grouping (optional)
@@ -73,18 +73,18 @@ function Out-PolicyAssignmentDocumentationToFile {
             }
 
             # Collect union of all effect parameter allowed values
-            $effectAllowedValues = $flatPolicyEntryAcrossEnvironments.effectAllowedValues
+            $EffectAllowedValues = $flatPolicyEntryAcrossEnvironments.effectAllowedValues
             foreach ($allowedValue in $flatPolicyEntry.effectAllowedValues.Keys) {
-                if (-not $effectAllowedValues.ContainsKey($allowedValue)) {
-                    $null = $effectAllowedValues.Add($allowedValue, $allowedValue)
+                if (-not $EffectAllowedValues.ContainsKey($allowedValue)) {
+                    $null = $EffectAllowedValues.Add($allowedValue, $allowedValue)
                 }
             }
 
             # Collect union of all group names
             $groupNames = $flatPolicyEntry.groupNames
             if ($null -ne $groupNames -and $groupNames.Count -gt 0) {
-                $existingGroupNames = $flatPolicyEntryAcrossEnvironments.groupNames
-                $existingGroupNames.AddRange($groupNames.Keys)
+                $ExistingGroupNames = $flatPolicyEntryAcrossEnvironments.groupNames
+                $ExistingGroupNames.AddRange($groupNames.Keys)
             }
 
             # Collect environment category specific items
@@ -92,16 +92,16 @@ function Out-PolicyAssignmentDocumentationToFile {
             if ($environmentList.ContainsKey($environmentCategory)) {
                 Write-Error "Duplicate environmentCategory '$environmentCategory' encountered - bug in EPAC PowerShell code" -ErrorAction Stop
             }
-            $effectValue = "Unknown"
+            $EffectValue = "Unknown"
             if ($null -ne $flatPolicyEntry.effectValue) {
-                $effectValue = $flatPolicyEntry.effectValue
+                $EffectValue = $flatPolicyEntry.effectValue
             }
             else {
-                $effectValue = $flatPolicyEntry.effectDefault
+                $EffectValue = $flatPolicyEntry.effectDefault
             }
             $environmentCategoryInfo = @{
                 environmentCategory = $environmentCategory
-                effectValue         = $effectValue
+                effectValue         = $EffectValue
                 parameters          = $flatPolicyEntry.parameters
 
                 policySetList       = $flatPolicyEntry.policySetList
@@ -109,32 +109,32 @@ function Out-PolicyAssignmentDocumentationToFile {
             $null = $environmentList.Add($environmentCategory, $environmentCategoryInfo)
 
             # Collect policySet specific items
-            $policySetList = $flatPolicyEntryAcrossEnvironments.policySetList
+            $PolicySetList = $flatPolicyEntryAcrossEnvironments.policySetList
             $flatPolicyEntryPolicySetList = $flatPolicyEntry.policySetList
             foreach ($shortName in $flatPolicyEntryPolicySetList.Keys) {
-                $policySetInfo = $flatPolicyEntryPolicySetList.$shortName
-                if (-not $policySetList.ContainsKey($shortName)) {
-                    $policySetEntry = @{
+                $PolicySetInfo = $flatPolicyEntryPolicySetList.$shortName
+                if (-not $PolicySetList.ContainsKey($shortName)) {
+                    $PolicySetEntry = @{
                         shortName             = $shortName
-                        id                    = $policySetInfo.id
-                        name                  = $policySetInfo.name
-                        displayName           = $policySetInfo.displayName
-                        description           = $policySetInfo.description
-                        policyType            = $policySetInfo.policyType
-                        effectParameterName   = $policySetInfo.effectParameterName
-                        effectDefault         = $policySetInfo.effectDefault
-                        effectAllowedValues   = $policySetInfo.effectAllowedValues
-                        effectReason          = $policySetInfo.effectReason
-                        isEffectParameterized = $policySetInfo.isEffectParameterized
-                        parameters            = $policySetInfo.parameters
+                        id                    = $PolicySetInfo.id
+                        name                  = $PolicySetInfo.name
+                        displayName           = $PolicySetInfo.displayName
+                        description           = $PolicySetInfo.description
+                        policyType            = $PolicySetInfo.policyType
+                        effectParameterName   = $PolicySetInfo.effectParameterName
+                        effectDefault         = $PolicySetInfo.effectDefault
+                        effectAllowedValues   = $PolicySetInfo.effectAllowedValues
+                        effectReason          = $PolicySetInfo.effectReason
+                        isEffectParameterized = $PolicySetInfo.isEffectParameterized
+                        parameters            = $PolicySetInfo.parameters
                     }
-                    $null = $policySetList.Add($shortName, $policySetEntry)
+                    $null = $PolicySetList.Add($shortName, $PolicySetEntry)
                 }
             }
         }
     }
 
-    #endregion Combine per environment flat lists into a single flat list ($flatPolicyListAcrossEnvironments)
+    #endregion Combine per environment flat lists into a single flat list ($FlatPolicyListAcrossEnvironments)
 
     #region Markdown
 
@@ -147,7 +147,7 @@ function Out-PolicyAssignmentDocumentationToFile {
     $body.Clear()
 
     #region Overview
-    $null = $headerAndToc.Add("# $title $markdownOutputType`n")
+    $null = $headerAndToc.Add("# $Title $MarkdownOutputType`n")
     $null = $headerAndToc.Add("Auto-generated Policy effect documentation across environments '$($environmentCategories -join "', '")' sorted by Policy category and Policy display name.`n")
     $null = $headerAndToc.Add("## Table of contents`n")
 
@@ -156,27 +156,27 @@ function Out-PolicyAssignmentDocumentationToFile {
     $addedTableHeader = ""
     $addedTableDivider = ""
     foreach ($environmentCategory in $environmentCategories) {
-        $perEnvironment = $assignmentsByEnvironment.$environmentCategory
-        $itemList = $perEnvironment.itemList
-        $assignmentsDetails = $perEnvironment.assignmentsDetails
-        $scopes = $perEnvironment.scopes
+        $perEnvironment = $AssignmentsByEnvironment.$environmentCategory
+        $ItemList = $perEnvironment.itemList
+        $AssignmentsDetails = $perEnvironment.assignmentsDetails
+        $Scopes = $perEnvironment.scopes
         $null = $body.Add("`n### **$environmentCategory environment**")
 
         $null = $body.Add("`nScopes`n")
-        foreach ($scope in $scopes) {
-            $null = $body.Add("- $scope")
+        foreach ($Scope in $Scopes) {
+            $null = $body.Add("- $Scope")
         }
 
-        foreach ($item in $itemList) {
-            $assignmentId = $item.assignmentId
-            if ($assignmentsDetails.ContainsKey($assignmentId)) {
+        foreach ($item in $ItemList) {
+            $AssignmentId = $item.assignmentId
+            if ($AssignmentsDetails.ContainsKey($AssignmentId)) {
                 # should always be true
-                $assignmentsDetails = $assignmentsDetails.$assignmentId
-                $null = $body.Add("`nAssignment $($assignmentsDetails.assignment.displayName)`n")
-                $null = $body.Add("- PolicySet: $($assignmentsDetails.displayName)")
-                $null = $body.Add("- Type: $($assignmentsDetails.policyType)")
-                $null = $body.Add("- Category: $($assignmentsDetails.category)")
-                $null = $body.Add("- Description: $($assignmentsDetails.description)")
+                $AssignmentsDetails = $AssignmentsDetails.$AssignmentId
+                $null = $body.Add("`nAssignment $($AssignmentsDetails.assignment.displayName)`n")
+                $null = $body.Add("- PolicySet: $($AssignmentsDetails.displayName)")
+                $null = $body.Add("- Type: $($AssignmentsDetails.policyType)")
+                $null = $body.Add("- Category: $($AssignmentsDetails.category)")
+                $null = $body.Add("- Description: $($AssignmentsDetails.description)")
             }
         }
 
@@ -187,12 +187,12 @@ function Out-PolicyAssignmentDocumentationToFile {
 
     #endregion Overview
 
-    $null = $headerAndToc.Add("- [Policy effects across environments](#policy-effects-across-environment)")
-    $null = $body.Add("`n<br/>`n`n## <a id='policy-effects-across-environment'></a>Policy effects across environment`n`n<br/>`n")
+    $null = $headerAndToc.Add("- [Policy effects across environments](#policy-Effects-across-environment)")
+    $null = $body.Add("`n<br/>`n`n## <a id='policy-Effects-across-environment'></a>Policy effects across environment`n`n<br/>`n")
     $null = $body.Add("| Category | Policy |$addedTableHeader")
     $null = $body.Add("| :------- | :----- |$addedTableDivider")
 
-    $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
+    $FlatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
         # Build additional columns
         $addedEffectColumns = ""
         $environmentList = $_.environmentList
@@ -200,19 +200,19 @@ function Out-PolicyAssignmentDocumentationToFile {
         foreach ($environmentCategory in $environmentCategories) {
             if ($environmentList.ContainsKey($environmentCategory)) {
                 $environmentCategoryValues = $environmentList.$environmentCategory
-                $effectValue = $environmentCategoryValues.effectValue
-                $effectAllowedValues = $_.effectAllowedValues
+                $EffectValue = $environmentCategoryValues.effectValue
+                $EffectAllowedValues = $_.effectAllowedValues
                 $text = Convert-EffectToString `
-                    -effect $effectValue `
-                    -allowedValues $effectAllowedValues.Keys `
+                    -Effect $EffectValue `
+                    -AllowedValues $EffectAllowedValues.Keys `
                     -Markdown
                 $addedEffectColumns += " $text |"
 
-                # $parameters = $environmentCategoryValues.parameters
+                # $Parameters = $environmentCategoryValues.parameters
                 # $hasParameters = $false
-                # if ($null -ne $parameters -and $parameters.psbase.Count -gt 0) {
-                #     foreach ($parameterName in $parameters.Keys) {
-                #         $parameter = $parameters.$parameterName
+                # if ($null -ne $Parameters -and $Parameters.psbase.Count -gt 0) {
+                #     foreach ($parameterName in $Parameters.Keys) {
+                #         $parameter = $Parameters.$parameterName
                 #         if (-not $parameter.isEffect) {
                 #             $hasParameters = $true
                 #             break
@@ -221,16 +221,16 @@ function Out-PolicyAssignmentDocumentationToFile {
                 # }
 
                 # $additionalInfoFragment += "<br/>***$($environmentCategory)*** *environment:*"
-                # $policySetList = $environmentCategoryValues.policySetList
-                # foreach ($shortName in $policySetList.Keys) {
-                #     $perPolicySet = $policySetList.$shortName
-                #     # $policySetDisplayName = $perPolicySet.displayName
-                #     $effectString = $perPolicySet.effectString
-                #     $additionalInfoFragment += "<br/>&nbsp;&nbsp;&nbsp;&nbsp;$($shortName): ``$($effectString)``"
+                # $PolicySetList = $environmentCategoryValues.policySetList
+                # foreach ($shortName in $PolicySetList.Keys) {
+                #     $perPolicySet = $PolicySetList.$shortName
+                #     # $PolicySetDisplayName = $perPolicySet.displayName
+                #     $EffectString = $perPolicySet.effectString
+                #     $additionalInfoFragment += "<br/>&nbsp;&nbsp;&nbsp;&nbsp;$($shortName): ``$($EffectString)``"
                 # }
 
                 # if ($hasParameters) {
-                #     $text = Convert-ParametersToString -parameters $parameters -outputType "markdownAssignment"
+                #     $text = Convert-ParametersToString -Parameters $Parameters -OutputType "markdownAssignment"
                 #     $additionalInfoFragment += $text
                 # }
             }
@@ -252,7 +252,7 @@ function Out-PolicyAssignmentDocumentationToFile {
     $null = $allLines.AddRange($body)
 
     # Output file
-    $outputFilePath = "$($outputPath -replace '[/\\]$', '')/$($fileNameStem).md"
+    $outputFilePath = "$($OutputPath -replace '[/\\]$', '')/$($FileNameStem).md"
     $allLines | Out-File $outputFilePath -Force
 
     #endregion Markdown
@@ -273,14 +273,14 @@ function Out-PolicyAssignmentDocumentationToFile {
 
     # deal with multi value cells
     $inCellSeparator = ","
-    if ($windowsNewLineCells) {
+    if ($WindowsNewLineCells) {
         $inCellSeparator = ",`n"
     }
 
     $allRows.Clear()
 
     # Process the table
-    $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
+    $FlatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
         # Initialize row - with empty strings
         $rowObj = [ordered]@{}
         foreach ($key in $columnHeaders) {
@@ -288,9 +288,9 @@ function Out-PolicyAssignmentDocumentationToFile {
         }
 
         # Cache loop values
-        $effectAllowedValues = $_.effectAllowedValues
+        $EffectAllowedValues = $_.effectAllowedValues
         $groupNames = $_.groupNames
-        $policySetEffectStrings = $_.policySetEffectStrings
+        $PolicySetEffectStrings = $_.policySetEffectStrings
 
         # Build common columns
         $rowObj.name = $_.name
@@ -304,11 +304,11 @@ function Out-PolicyAssignmentDocumentationToFile {
             $sortedGroupNameList = $groupNames | Sort-Object -Unique
             $rowObj.groupNames = $sortedGroupNameList -join $inCellSeparator
         }
-        if ($policySetEffectStrings.Count -gt 0) {
-            $rowObj.policySets = $policySetEffectStrings -join $inCellSeparator
+        if ($PolicySetEffectStrings.Count -gt 0) {
+            $rowObj.policySets = $PolicySetEffectStrings -join $inCellSeparator
         }
-        if ($effectAllowedValues.Count -gt 0) {
-            $rowObj.allowedEffects = $effectAllowedValues.Keys -join $inCellSeparator
+        if ($EffectAllowedValues.Count -gt 0) {
+            $rowObj.allowedEffects = $EffectAllowedValues.Keys -join $inCellSeparator
         }
 
         $environmentList = $_.environmentList
@@ -323,7 +323,7 @@ function Out-PolicyAssignmentDocumentationToFile {
                     $rowObj["$($environmentCategory)Effect"] = $_.effectDefault
                 }
 
-                $text = Convert-ParametersToString -parameters $perEnvironment.parameters -outputType "csvValues"
+                $text = Convert-ParametersToString -Parameters $perEnvironment.parameters -OutputType "csvValues"
                 $rowObj["$($environmentCategory)Parameters"] = $text
             }
         }
@@ -333,8 +333,8 @@ function Out-PolicyAssignmentDocumentationToFile {
     }
 
     # Output file
-    $outputFilePath = "$($outputPath -replace '[/\\]$','')/$($fileNameStem).csv"
-    if ($windowsNewLineCells) {
+    $outputFilePath = "$($OutputPath -replace '[/\\]$','')/$($FileNameStem).csv"
+    if ($WindowsNewLineCells) {
         $allRows | ConvertTo-Csv | Out-File $outputFilePath -Force -Encoding utf8BOM
     }
     else {

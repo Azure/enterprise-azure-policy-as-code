@@ -1,34 +1,34 @@
 function Select-PacEnvironment {
     [CmdletBinding()]
     param (
-        [parameter(Mandatory = $false, Position = 0)] [string] $pacEnvironmentSelector,
-        [Parameter(Mandatory = $false)] [string] $definitionsRootFolder,
-        [Parameter(Mandatory = $false)] [string] $outputFolder,
-        [Parameter(Mandatory = $false)] [string] $inputFolder,
-        [Parameter(Mandatory = $false)] [bool] $interactive = $false
+        [parameter(Mandatory = $false, Position = 0)] [string] $PacEnvironmentSelector,
+        [Parameter(Mandatory = $false)] [string] $DefinitionsRootFolder,
+        [Parameter(Mandatory = $false)] [string] $OutputFolder,
+        [Parameter(Mandatory = $false)] [string] $InputFolder,
+        [Parameter(Mandatory = $false)] [bool] $Interactive = $false
     )
 
-    $globalSettings = Get-GlobalSettings -definitionsRootFolder $definitionsRootFolder -outputFolder $outputFolder -inputFolder $inputFolder
+    $globalSettings = Get-GlobalSettings -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -InputFolder $InputFolder
 
-    $pacEnvironment = $null
-    $pacEnvironments = $globalSettings.pacEnvironments
-    if ($pacEnvironmentSelector -eq "") {
+    $PacEnvironment = $null
+    $PacEnvironments = $globalSettings.pacEnvironments
+    if ($PacEnvironmentSelector -eq "") {
         # Interactive
         $InformationPreference = "Continue"
-        $interactive = $true
-        if ($pacEnvironments.Count -eq 1) {
-            $pacEnvironment = @{} # Build hashtable for single PAC environment
-            $pacEnvironments.Values.Keys | Foreach-Object {
-                $pacEnvironment.Add($_, $pacEnvironments.Values.$_)
+        $Interactive = $true
+        if ($PacEnvironments.Count -eq 1) {
+            $PacEnvironment = @{} # Build hashtable for single PAC environment
+            $PacEnvironments.Values.Keys | Foreach-Object {
+                $PacEnvironment.Add($_, $PacEnvironments.Values.$_)
             }
         }
         else {
             $prompt = $globalSettings.pacEnvironmentPrompt
-            while ($null -eq $pacEnvironment) {
-                $pacEnvironmentSelector = Read-Host "Select Policy as Code environment [$prompt]"
-                if ($pacEnvironments.ContainsKey($pacEnvironmentSelector)) {
+            while ($null -eq $PacEnvironment) {
+                $PacEnvironmentSelector = Read-Host "Select Policy as Code environment [$prompt]"
+                if ($PacEnvironments.ContainsKey($PacEnvironmentSelector)) {
                     # valid input
-                    $pacEnvironment = $pacEnvironments[$pacEnvironmentSelector]
+                    $PacEnvironment = $PacEnvironments[$PacEnvironmentSelector]
                 }
                 else {
                     Write-Information "Invalid selection entered."
@@ -37,30 +37,30 @@ function Select-PacEnvironment {
         }
     }
     else {
-        if ($pacEnvironments.ContainsKey($pacEnvironmentSelector)) {
+        if ($PacEnvironments.ContainsKey($PacEnvironmentSelector)) {
             # valid input
-            $pacEnvironment = $pacEnvironments[$pacEnvironmentSelector]
+            $PacEnvironment = $PacEnvironments[$PacEnvironmentSelector]
         }
         else {
-            Write-Error "Policy as Code environment selector $pacEnvironmentSelector is not valid" -ErrorAction Stop
+            Write-Error "Policy as Code environment selector $PacEnvironmentSelector is not valid" -ErrorAction Stop
         }
     }
-    Write-Information "Environment Selected: $pacEnvironmentSelector"
-    Write-Information "    cloud      = $($pacEnvironment.cloud)"
-    Write-Information "    tenant     = $($pacEnvironment.tenantId)"
-    Write-Information "    root scope = $($pacEnvironment.deploymentRootScope)"
+    Write-Information "Environment Selected: $PacEnvironmentSelector"
+    Write-Information "    cloud      = $($PacEnvironment.cloud)"
+    Write-Information "    tenant     = $($PacEnvironment.tenantId)"
+    Write-Information "    root scope = $($PacEnvironment.deploymentRootScope)"
     Write-Information ""
 
 
-    $outputFolder = $globalSettings.outputFolder
-    $inputFolder = $globalSettings.inputFolder
-    $pacEnvironmentDefinition = $pacEnvironment + $globalSettings + @{
-        interactive          = $interactive
-        policyPlanOutputFile = "$($outputFolder)/plans-$pacEnvironmentSelector/policy-plan.json"
-        rolesPlanOutputFile  = "$($outputFolder)/plans-$pacEnvironmentSelector/roles-plan.json"
-        policyPlanInputFile  = "$($inputFolder)/plans-$pacEnvironmentSelector/policy-plan.json"
-        rolesPlanInputFile   = "$($inputFolder)/plans-$pacEnvironmentSelector/roles-plan.json"
+    $OutputFolder = $globalSettings.outputFolder
+    $InputFolder = $globalSettings.inputFolder
+    $PacEnvironmentDefinition = $PacEnvironment + $globalSettings + @{
+        interactive          = $Interactive
+        policyPlanOutputFile = "$($OutputFolder)/plans-$PacEnvironmentSelector/policy-plan.json"
+        rolesPlanOutputFile  = "$($OutputFolder)/plans-$PacEnvironmentSelector/roles-plan.json"
+        policyPlanInputFile  = "$($InputFolder)/plans-$PacEnvironmentSelector/policy-plan.json"
+        rolesPlanInputFile   = "$($InputFolder)/plans-$PacEnvironmentSelector/roles-plan.json"
 
     }
-    return $pacEnvironmentDefinition
+    return $PacEnvironmentDefinition
 }

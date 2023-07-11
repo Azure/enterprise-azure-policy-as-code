@@ -1,21 +1,21 @@
 function Build-AssignmentIdentityChanges {
     [CmdletBinding()]
     param (
-        $existing,
-        $assignment,
-        $replacedAssignment,
-        $deployedRoleAssignmentsByPrincipalId
+        $Existing,
+        $Assignment,
+        $ReplacedAssignment,
+        $DeployedRoleAssignmentsByPrincipalId
     )
 
-    $existingIdentity = $existing.identity
-    $hasExistingIdentity = $null -ne $existing -and $null -ne $existingIdentity -and $existingIdentity.type -ne "None"
-    $identityRequired = $null -ne $assignment -and $assignment.identityRequired
+    $ExistingIdentity = $Existing.identity
+    $hasExistingIdentity = $null -ne $Existing -and $null -ne $ExistingIdentity -and $ExistingIdentity.type -ne "None"
+    $IdentityRequired = $null -ne $Assignment -and $Assignment.identityRequired
 
-    $existingIdentityType = "None"
-    $existingPrincipalId = $null
-    $existingUserAssignedIdentity = $null
-    $existingLocation = $null
-    $existingRoleAssignments = @()
+    $ExistingIdentityType = "None"
+    $ExistingPrincipalId = $null
+    $ExistingUserAssignedIdentity = $null
+    $ExistingLocation = $null
+    $ExistingRoleAssignments = @()
 
     $definedIdentity = $null
     $definedIdentityType = "None"
@@ -24,41 +24,41 @@ function Build-AssignmentIdentityChanges {
     $requiredRoleDefinitions = @()
 
     if ($hasExistingIdentity) { 
-        $existingIdentityType = $existingIdentity.type 
-        if ($existingIdentityType -eq "UserAssigned") { 
-            $existingUserAssignedIdentity = ($existingIdentity.userAssignedIdentities | get-member)[-1].Name 
+        $ExistingIdentityType = $ExistingIdentity.type 
+        if ($ExistingIdentityType -eq "UserAssigned") { 
+            $ExistingUserAssignedIdentity = ($ExistingIdentity.userAssignedIdentities | get-member)[-1].Name 
         } 
-        if ($existingIdentityType -eq "UserAssigned") { 
-            $existingPrincipalId = $existingIdentity.userAssignedIdentities.$existingUserAssignedIdentity.principalId 
+        if ($ExistingIdentityType -eq "UserAssigned") { 
+            $ExistingPrincipalId = $ExistingIdentity.userAssignedIdentities.$ExistingUserAssignedIdentity.principalId 
         }
         else { 
-            $existingPrincipalId = $existingIdentity.principalId 
-        } $existingLocation = $existing.location 
-        if ($deployedRoleAssignmentsByPrincipalId.ContainsKey($existingPrincipalId)) { 
-            $existingRoleAssignments = $deployedRoleAssignmentsByPrincipalId.$existingPrincipalId 
+            $ExistingPrincipalId = $ExistingIdentity.principalId 
+        } $ExistingLocation = $Existing.location 
+        if ($DeployedRoleAssignmentsByPrincipalId.ContainsKey($ExistingPrincipalId)) { 
+            $ExistingRoleAssignments = $DeployedRoleAssignmentsByPrincipalId.$ExistingPrincipalId 
         } 
     } 
-    if ($identityRequired ) { 
-        $definedIdentity = $assignment.identity 
+    if ($IdentityRequired ) { 
+        $definedIdentity = $Assignment.identity 
         $definedIdentityType = $definedIdentity.type 
         if ($definedIdentityType -eq "UserAssigned") { 
             $definedUserAssignedIdentity = $definedIdentity.userAssignedIdentities.GetEnumerator().Name
         } 
-        $definedLocation = $assignment.managedIdentityLocation 
-        $requiredRoleDefinitions = $assignment.metadata.roles 
+        $definedLocation = $Assignment.managedIdentityLocation 
+        $requiredRoleDefinitions = $Assignment.metadata.roles 
     }
 
-    $replaced = $replacedAssignment
+    $replaced = $ReplacedAssignment
     $isNewOrDeleted = $false
     $isUserAssigned = $false
     $changedIdentityStrings = @()
     $addedList = [System.Collections.ArrayList]::new()
-    $removedList = [System.Collections.ArrayList]::new()
-    if ($hasExistingIdentity -or $identityRequired) {
+    $RemovedList = [System.Collections.ArrayList]::new()
+    if ($hasExistingIdentity -or $IdentityRequired) {
         # need to check if either an existing identity or a newly added identity or existing and required identity
-        if ($null -ne $existing -and $null -ne $assignment) {
+        if ($null -ne $Existing -and $null -ne $Assignment) {
             # this is an update, not a delete or new Assignment
-            if ($hasExistingIdentity -xor $identityRequired) {
+            if ($hasExistingIdentity -xor $IdentityRequired) {
                 # change (xor) in need for an identity, determine which one
                 if ($hasExistingIdentity) {
                     $changedIdentityStrings += "removedIdentity"
@@ -70,15 +70,15 @@ function Build-AssignmentIdentityChanges {
             }
             else {
                 # existing identity and still requires an entity
-                if ($existingLocation -ne $definedLocation) {
-                    $changedIdentityStrings += "identityLocation $existingLocation->$definedLocation"
+                if ($ExistingLocation -ne $definedLocation) {
+                    $changedIdentityStrings += "identityLocation $ExistingLocation->$definedLocation"
                     $replaced = $true
                 }
-                if ($existingIdentityType -ne $definedIdentityType) {
-                    $changedIdentityStrings += "identityType $existingIdentityType->$definedIdentityType"
+                if ($ExistingIdentityType -ne $definedIdentityType) {
+                    $changedIdentityStrings += "identityType $ExistingIdentityType->$definedIdentityType"
                     $replaced = $true
                 }
-                elseif ($existingIdentityType -eq "UserAssigned" -and $existingUserAssignedIdentity -ne $definedUserAssignedIdentity) {
+                elseif ($ExistingIdentityType -eq "UserAssigned" -and $ExistingUserAssignedIdentity -ne $definedUserAssignedIdentity) {
                     $changedIdentityStrings += "changed userAssignedIdentity"
                     $replaced = $true
                 }
@@ -91,10 +91,10 @@ function Build-AssignmentIdentityChanges {
 
         if ($replaced -or $isNewOrDeleted) {
             # replaced, new or deleted Assignment
-            if ($hasExistingIdentity -and $existingRoleAssignments.Count -gt 0) {
-                if ($existingIdentityType -ne "UserAssigned") {
-                    foreach ($deployedRoleAssignment in $existingRoleAssignments) {
-                        $null = $removedList.Add($deployedRoleAssignment)
+            if ($hasExistingIdentity -and $ExistingRoleAssignments.Count -gt 0) {
+                if ($ExistingIdentityType -ne "UserAssigned") {
+                    foreach ($deployedRoleAssignment in $ExistingRoleAssignments) {
+                        $null = $RemovedList.Add($deployedRoleAssignment)
                     }
                 }
                 else {
@@ -102,13 +102,13 @@ function Build-AssignmentIdentityChanges {
                     $isUserAssigned = $true
                 }
             }
-            if ($identityRequired) {
+            if ($IdentityRequired) {
                 if ($definedIdentityType -ne "UserAssigned") {
                     foreach ($requiredRoleDefinition in $requiredRoleDefinitions) {
                         $requiredRoleDefinitionId = $requiredRoleDefinition.roleDefinitionId.Split('/')[-1]
                         $addedEntry = @{
-                            assignmentId     = $assignment.id
-                            displayName      = $assignment.DisplayName
+                            assignmentId     = $Assignment.id
+                            displayName      = $Assignment.DisplayName
                             scope            = $requiredRoleDefinition.scope
                             principalId      = $null
                             objectType       = "ServicePrincipal"
@@ -126,13 +126,13 @@ function Build-AssignmentIdentityChanges {
         }
         else {
             # Updating existing assignment
-            if ($existingIdentityType -ne "UserAssigned") {
+            if ($ExistingIdentityType -ne "UserAssigned") {
 
                 # calculate addedList role assignments (rare)
                 foreach ($requiredRoleDefinition in $requiredRoleDefinitions) {
                     $requiredRoleDefinitionId = $requiredRoleDefinition.roleDefinitionId.Split('/')[-1]
                     $matchFound = $false
-                    foreach ($deployedRoleAssignment in $existingRoleAssignments) {
+                    foreach ($deployedRoleAssignment in $ExistingRoleAssignments) {
                         $deployedScope = $deployedRoleAssignment.scope
                         $deployedRoleDefinitionId = $deployedRoleAssignment.roleDefinitionId
                         if (($deployedScope -eq $requiredRoleDefinition.scope) -and ($deployedRoleDefinitionId -eq $requiredRoleDefinitionId)) {
@@ -144,8 +144,8 @@ function Build-AssignmentIdentityChanges {
                     if (!$matchFound) {
                         # add role
                         $addedEntry = @{
-                            assignmentId     = $assignment.id
-                            displayName      = $assignment.DisplayName
+                            assignmentId     = $Assignment.id
+                            displayName      = $Assignment.DisplayName
                             principalId      = $principalIdForAddedRoles
                             objectType       = "ServicePrincipal"
                             scope            = $requiredRoleDefinition.scope
@@ -157,7 +157,7 @@ function Build-AssignmentIdentityChanges {
                 }
 
                 # calculate obsolete role assignments to be removed (rare event)
-                foreach ($deployedRoleAssignment in $existingRoleAssignments) {
+                foreach ($deployedRoleAssignment in $ExistingRoleAssignments) {
                     $deployedScope = $deployedRoleAssignment.scope
                     $deployedRoleDefinitionId = $deployedRoleAssignment.roleDefinitionId
                     $matchFound = $false
@@ -171,7 +171,7 @@ function Build-AssignmentIdentityChanges {
                     }
                     if (!$matchFound) {
                         # Obsolete role assignment
-                        $null = $removedList.Add($deployedRoleAssignment)
+                        $null = $RemovedList.Add($deployedRoleAssignment)
                     }
                 }
             }
@@ -182,7 +182,7 @@ function Build-AssignmentIdentityChanges {
         }
     }
 
-    $numberOfChanges = $addedList.Count + $removedList.Count
+    $numberOfChanges = $addedList.Count + $RemovedList.Count
     return @{
         replaced               = $replaced
         requiresRoleChanges    = $numberOfChanges -gt 0
@@ -190,6 +190,6 @@ function Build-AssignmentIdentityChanges {
         changedIdentityStrings = $changedIdentityStrings
         isUserAssigned         = $isUserAssigned
         added                  = $addedList.ToArray()
-        removed                = $removedList.ToArray()
+        removed                = $RemovedList.ToArray()
     }
 }

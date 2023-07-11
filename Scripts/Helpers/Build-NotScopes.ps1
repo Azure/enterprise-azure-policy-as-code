@@ -1,48 +1,48 @@
 #Requires -PSEdition Core
 function Build-NotScopes {
     param(
-        [parameter(Mandatory = $True)] [hashtable] $scopeTable,
-        [parameter(Mandatory = $True)] [string[]]  $scopeList,
-        [parameter(Mandatory = $False)] [string[]]  $notScopeIn = @()
+        [parameter(Mandatory = $True)] [hashtable] $ScopeTable,
+        [parameter(Mandatory = $True)] [string[]]  $ScopeList,
+        [parameter(Mandatory = $False)] [string[]]  $NotScopeIn = @()
     )
 
-    $scopeCollection = @()
-    foreach ($scope in $scopeList) {
-        if ($scopeTable.ContainsKey($scope)) {
-            if ($scope.Contains("/resourceGroups/")) {
-                $scopeCollection += @{
-                    scope    = "$scope"
+    $ScopeCollection = @()
+    foreach ($Scope in $ScopeList) {
+        if ($ScopeTable.ContainsKey($Scope)) {
+            if ($Scope.Contains("/resourceGroups/")) {
+                $ScopeCollection += @{
+                    scope    = "$Scope"
                     notScope = @()
                 }
             }
             else {
-                $notScopes = [System.Collections.ArrayList]::new()
-                $scopeEntry = $scopeTable.$scope
-                $scopeChildren = $scopeEntry.childrenList
-                $scopeResourceGroups = $scopeEntry.resourceGroups
-                foreach ($notScope in $notScopeIn) {
+                $NotScopes = [System.Collections.ArrayList]::new()
+                $ScopeEntry = $ScopeTable.$Scope
+                $ScopeChildren = $ScopeEntry.childrenList
+                $ScopeResourceGroups = $ScopeEntry.resourceGroups
+                foreach ($notScope in $NotScopeIn) {
                     if ($notScope.StartsWith("/resourceGroupPatterns/")) {
                         $pattern = $notScope -replace "/resourceGroupPatterns/", "/subscriptions/*/resourceGroups/"
-                        foreach ($id in $scopeResourceGroups.Keys) {
-                            if ($id -like $pattern) {
-                                $null = $notScopes.Add($id)
+                        foreach ($Id in $ScopeResourceGroups.Keys) {
+                            if ($Id -like $pattern) {
+                                $null = $NotScopes.Add($Id)
                             }
                         }
                     }
-                    elseif ($scopeChildren.ContainsKey($notScope)) {
-                        $null = $notScopes.Add($notScope)
+                    elseif ($ScopeChildren.ContainsKey($notScope)) {
+                        $null = $NotScopes.Add($notScope)
                     }
                 }
-                $scopeCollection += @{
-                    scope    = "$scope"
-                    notScope = $notScopes.ToArray()
+                $ScopeCollection += @{
+                    scope    = "$Scope"
+                    notScope = $NotScopes.ToArray()
                 }
             }
         }
         else {
-            Write-Error "Scope '$scope' not found in environment" -ErrorAction Stop
+            Write-Error "Scope '$Scope' not found in environment" -ErrorAction Stop
         }
     }
 
-    Write-Output $scopeCollection -NoEnumerate
+    Write-Output $ScopeCollection -NoEnumerate
 }

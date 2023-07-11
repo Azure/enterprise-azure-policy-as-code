@@ -14,7 +14,7 @@ function Get-AzPolicyExemptionsAtScopeRestMethod {
     }
 
     $content = $response.Content
-    $exemptions = $content | ConvertFrom-Json
-    return $exemptions.value
+    $Exemptions = $content | ConvertFrom-Json
+    return $Exemptions.value
 
 }

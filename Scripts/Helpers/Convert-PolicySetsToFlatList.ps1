@@ -1,37 +1,37 @@
 function Convert-PolicySetsToFlatList {
     [CmdletBinding()]
     param (
-        [array] $itemList,
-        $details
+        [array] $ItemList,
+        $Details
     )
 
     #region Find Policies which are listed more than once in at least one of the PolicySets
 
     $policiesWithMultipleReferenceIds = @{}
-    foreach ($item in $itemList) {
+    foreach ($item in $ItemList) {
         $shortName = $item.shortName
         $itemId = $item.itemId
-        $assignmentId = $item.assignmentId
+        $AssignmentId = $item.assignmentId
         $itemKind = "PolicySet"
-        if ($null -ne $assignmentId) {
+        if ($null -ne $AssignmentId) {
             $itemKind = "Assignment"
         }
         if (-not $shortName) {
-            Write-Error "'$title' $($itemKind)s array entry does not specify an $($itemKind) shortName." -ErrorAction Stop
+            Write-Error "'$Title' $($itemKind)s array entry does not specify an $($itemKind) shortName." -ErrorAction Stop
         }
         if (-not $itemId) {
-            Write-Error "'$title' $($itemKind)s array entry does not specify an $($itemKind) id." -ErrorAction Stop
+            Write-Error "'$Title' $($itemKind)s array entry does not specify an $($itemKind) id." -ErrorAction Stop
         }
-        if (-not $details.ContainsKey($itemId)) {
-            Write-Error "'$title' $($itemKind) does not exist: $itemId." -ErrorAction Stop
+        if (-not $Details.ContainsKey($itemId)) {
+            Write-Error "'$Title' $($itemKind) does not exist: $itemId." -ErrorAction Stop
         }
 
-        $detail = $details.$itemId
+        $detail = $Details.$itemId
         $policiesWithMultipleReferenceIdsInThisPolicySet = $detail.policiesWithMultipleReferenceIds
         if ($policiesWithMultipleReferenceIdsInThisPolicySet.psbase.Count -gt 0) {
-            foreach ($policyId in $policiesWithMultipleReferenceIdsInThisPolicySet.Keys) {
-                if (-not $policiesWithMultipleReferenceIds.ContainsKey($policyId)) {
-                    $null = $policiesWithMultipleReferenceIds.Add($policyId, $policyId)
+            foreach ($PolicyId in $policiesWithMultipleReferenceIdsInThisPolicySet.Keys) {
+                if (-not $policiesWithMultipleReferenceIds.ContainsKey($PolicyId)) {
+                    $null = $policiesWithMultipleReferenceIds.Add($PolicyId, $PolicyId)
                 }
             }
         }
@@ -41,107 +41,107 @@ function Convert-PolicySetsToFlatList {
 
     #region Collate and pivot to flat list
 
-    $flatPolicyList = @{}
-    $parametersAlreadyCovered = @{}
-    foreach ($item in $itemList) {
+    $FlatPolicyList = @{}
+    $ParametersAlreadyCovered = @{}
+    foreach ($item in $ItemList) {
         $shortName = $item.shortName
         $itemId = $item.itemId
-        $policySetId = $item.policySetId
-        $assignmentId = $item.assignmentId
+        $PolicySetId = $item.policySetId
+        $AssignmentId = $item.assignmentId
 
         # Collate
-        $detail = $details.$itemId
-        $assignmentParameters = @{}
-        $assignmentOverrides = @()
+        $detail = $Details.$itemId
+        $AssignmentParameters = @{}
+        $AssignmentOverrides = @()
         if ($null -ne $detail.assignmentId) {
-            $assignment = $detail.assignment
-            $properties = Get-PolicyResourceProperties -policyResource $assignment
-            $assignmentOverrides = $properties.overrides
-            $assignmentParameters = Get-DeepClone $properties.parameters -AsHashTable
+            $Assignment = $detail.assignment
+            $properties = Get-PolicyResourceProperties -PolicyResource $Assignment
+            $AssignmentOverrides = $properties.overrides
+            $AssignmentParameters = Get-DeepClone $properties.parameters -AsHashtable
         }
 
-        foreach ($policyInPolicySetInfo in $detail.policyDefinitions) {
-            $policyId = $policyInPolicySetInfo.id
-            $policyDefinitionReferenceId = $policyInPolicySetInfo.policyDefinitionReferenceId
-            $effectParameterName = $policyInPolicySetInfo.effectParameterName
-            $effectReason = $policyInPolicySetInfo.effectReason
-            $effectAllowedValues = $policyInPolicySetInfo.effectAllowedValues
-            $effectAllowedOverrides = $policyInPolicySetInfo.effectAllowedOverrides
-            $effectValue = $policyInPolicySetInfo.effectValue
-            $effectDefault = $policyInPolicySetInfo.effectDefault
-            $parameters = $policyInPolicySetInfo.parameters
-            $isEffectParameterized = $effectReason -eq "PolicySet Default" -or $effectReason -eq "PolicySet No Default" -or $effectReason -eq "Assignment"
-            $flatPolicyEntryKey = $policyId
+        foreach ($PolicyInPolicySetInfo in $detail.policyDefinitions) {
+            $PolicyId = $PolicyInPolicySetInfo.id
+            $PolicyDefinitionReferenceId = $PolicyInPolicySetInfo.policyDefinitionReferenceId
+            $EffectParameterName = $PolicyInPolicySetInfo.effectParameterName
+            $EffectReason = $PolicyInPolicySetInfo.effectReason
+            $EffectAllowedValues = $PolicyInPolicySetInfo.effectAllowedValues
+            $EffectAllowedOverrides = $PolicyInPolicySetInfo.effectAllowedOverrides
+            $EffectValue = $PolicyInPolicySetInfo.effectValue
+            $EffectDefault = $PolicyInPolicySetInfo.effectDefault
+            $Parameters = $PolicyInPolicySetInfo.parameters
+            $isEffectParameterized = $EffectReason -eq "PolicySet Default" -or $EffectReason -eq "PolicySet No Default" -or $EffectReason -eq "Assignment"
+            $flatPolicyEntryKey = $PolicyId
             $flatPolicyReferencePath = ""
-            if ($policiesWithMultipleReferenceIds.ContainsKey($policyId)) {
-                $flatPolicyReferencePath = "$($detail.name)\\$($policyDefinitionReferenceId)"
-                $flatPolicyEntryKey = "$policyId\\$flatPolicyReferencePath"
+            if ($policiesWithMultipleReferenceIds.ContainsKey($PolicyId)) {
+                $flatPolicyReferencePath = "$($detail.name)\\$($PolicyDefinitionReferenceId)"
+                $flatPolicyEntryKey = "$PolicyId\\$flatPolicyReferencePath"
             }
 
             $flatPolicyEntry = @{}
-            if ($flatPolicyList.ContainsKey($flatPolicyEntryKey)) {
-                $flatPolicyEntry = $flatPolicyList.$flatPolicyEntryKey
+            if ($FlatPolicyList.ContainsKey($flatPolicyEntryKey)) {
+                $flatPolicyEntry = $FlatPolicyList.$flatPolicyEntryKey
                 if ($isEffectParameterized) {
                     $flatPolicyEntry.isEffectParameterized = $true
                 }
             }
             else {
                 $flatPolicyEntry = @{
-                    id                     = $policyId
-                    name                   = $policyInPolicySetInfo.name
+                    id                     = $PolicyId
+                    name                   = $PolicyInPolicySetInfo.name
                     referencePath          = $flatPolicyReferencePath
-                    displayName            = $policyInPolicySetInfo.displayName
-                    description            = $policyInPolicySetInfo.description
-                    policyType             = $policyInPolicySetInfo.policyType
-                    category               = $policyInPolicySetInfo.category
-                    effectDefault          = $effectDefault
-                    effectValue            = $effectValue
+                    displayName            = $PolicyInPolicySetInfo.displayName
+                    description            = $PolicyInPolicySetInfo.description
+                    policyType             = $PolicyInPolicySetInfo.policyType
+                    category               = $PolicyInPolicySetInfo.category
+                    effectDefault          = $EffectDefault
+                    effectValue            = $EffectValue
                     ordinal                = 99
                     isEffectParameterized  = $isEffectParameterized
                     effectAllowedValues    = @{}
-                    effectAllowedOverrides = $effectAllowedOverrides
+                    effectAllowedOverrides = $EffectAllowedOverrides
                     parameters             = @{}
                     policySetList          = @{}
                     groupNames             = @{}
                     groupNamesList         = @()
                     policySetEffectStrings = @()
                 }
-                $null = $flatPolicyList.Add($flatPolicyEntryKey, $flatPolicyEntry)
+                $null = $FlatPolicyList.Add($flatPolicyEntryKey, $flatPolicyEntry)
             }
 
             $perPolicySet = @{
-                id                          = $policySetId
+                id                          = $PolicySetId
                 name                        = $detail.name
                 shortName                   = $shortName
                 displayName                 = $detail.displayName
                 description                 = $detail.description
                 policyType                  = $detail.policyType
-                effectParameterName         = $effectParameterName
-                effectValue                 = $policyInPolicySetInfo.effectValue
-                effectDefault               = $effectDefault
-                effectAllowedValues         = $effectAllowedValues
-                effectAllowedOverrides      = $effectAllowedOverrides
-                effectReason                = $effectReason
+                effectParameterName         = $EffectParameterName
+                effectValue                 = $PolicyInPolicySetInfo.effectValue
+                effectDefault               = $EffectDefault
+                effectAllowedValues         = $EffectAllowedValues
+                effectAllowedOverrides      = $EffectAllowedOverrides
+                effectReason                = $EffectReason
                 isEffectParameterized       = $isEffectParameterized
                 effectString                = ""
-                parameters                  = $parameters
-                policyDefinitionReferenceId = $policyDefinitionReferenceId
-                groupNames                  = $policyInPolicySetInfo.groupNames
-                assignmentId                = $assignmentId
+                parameters                  = $Parameters
+                policyDefinitionReferenceId = $PolicyDefinitionReferenceId
+                groupNames                  = $PolicyInPolicySetInfo.groupNames
+                assignmentId                = $AssignmentId
                 assignment                  = $detail.assignment
             }
 
-            $groupNames = $policyInPolicySetInfo.groupNames
-            $existingGroupNames = $flatPolicyEntry.groupNames
-            $existingGroupNamesList = $flatPolicyEntry.groupNamesList
+            $groupNames = $PolicyInPolicySetInfo.groupNames
+            $ExistingGroupNames = $flatPolicyEntry.groupNames
+            $ExistingGroupNamesList = $flatPolicyEntry.groupNamesList
             if ($null -ne $groupNames -and $groupNames.Count -gt 0) {
                 $modifiedGroupNamesList = @()
-                foreach ($groupName in $existingGroupNamesList) {
+                foreach ($groupName in $ExistingGroupNamesList) {
                     $modifiedGroupNamesList += $groupName
                 }
                 foreach ($groupName in $groupNames) {
-                    if (!$existingGroupNames.ContainsKey($groupName)) {
-                        $null = $existingGroupNames.Add($groupName, $groupName)
+                    if (!$ExistingGroupNames.ContainsKey($groupName)) {
+                        $null = $ExistingGroupNames.Add($groupName, $groupName)
                         $modifiedGroupNamesList += $groupName
                     }
                 }
@@ -150,27 +150,27 @@ function Convert-PolicySetsToFlatList {
 
 
             # Allowed Effects
-            $existingEffectAllowedValues = $flatPolicyEntry.effectAllowedValues
-            foreach ($effect in $effectAllowedValues) {
-                if (-not $existingEffectAllowedValues.ContainsKey($effect)) {
-                    $null = $existingEffectAllowedValues.Add($effect, $effect)
+            $ExistingEffectAllowedValues = $flatPolicyEntry.effectAllowedValues
+            foreach ($Effect in $EffectAllowedValues) {
+                if (-not $ExistingEffectAllowedValues.ContainsKey($Effect)) {
+                    $null = $ExistingEffectAllowedValues.Add($Effect, $Effect)
                 }
             }
 
-            $effectString = ""
+            $EffectString = ""
             if ($null -ne $detail.assignmentId) {
                 $isOverridden = $false
-                if ($null -ne $assignmentOverrides -and $assignmentOverrides.Count -gt 0) {
+                if ($null -ne $AssignmentOverrides -and $AssignmentOverrides.Count -gt 0) {
                     # Check if we have an override
-                    foreach ($override in $assignmentOverrides) {
+                    foreach ($override in $AssignmentOverrides) {
                         if ($override.kind -eq "policyEffect") {
                             $tempEffect = $override.value
                             foreach ($selector in $override.selectors) {
                                 if ($selector.kind -eq "policyDefinitionReferenceId") {
-                                    if ($selector.in -contains $policyDefinitionReferenceId) {
-                                        $effectValue = $tempEffect
+                                    if ($selector.in -contains $PolicyDefinitionReferenceId) {
+                                        $EffectValue = $tempEffect
                                         $perPolicySet.effectReason = "Override"
-                                        $effectString = "$($effectValue) (override))"
+                                        $EffectString = "$($EffectValue) (override))"
                                         $isOverridden = $true
                                     }
                                 }
@@ -180,90 +180,90 @@ function Convert-PolicySetsToFlatList {
                 }
                 if (!$isOverridden) {
                     if ($isEffectParameterized) {
-                        $existingOrdinal = $flatPolicyEntry.ordinal
-                        $effectString = "$($effectDefault) (default: $($effectParameterName))"
+                        $ExistingOrdinal = $flatPolicyEntry.ordinal
+                        $EffectString = "$($EffectDefault) (default: $($EffectParameterName))"
                         # Best actual value if processing an Assignment
-                        $effectValue = $effectDefault
-                        if ($null -ne $assignmentParameters) {
+                        $EffectValue = $EffectDefault
+                        if ($null -ne $AssignmentParameters) {
                             # Assignment has parameters
-                            if ($assignmentParameters.Keys -contains $effectParameterName) {
+                            if ($AssignmentParameters.Keys -contains $EffectParameterName) {
                                 # Effect default is replaced by assignment parameter
-                                $assignmentLevelEffectParameter = $assignmentParameters.$effectParameterName
-                                $effectValue = $assignmentLevelEffectParameter.value
+                                $AssignmentLevelEffectParameter = $AssignmentParameters.$EffectParameterName
+                                $EffectValue = $AssignmentLevelEffectParameter.value
                                 $perPolicySet.effectReason = "Assignment"
-                                $effectString = "$($effectValue) (assignment: $($effectParameterName))"
+                                $EffectString = "$($EffectValue) (assignment: $($EffectParameterName))"
                             }
                         }
                     }
                     else {
-                        $effectString = "$($effectDefault) ($($effectReason))"
+                        $EffectString = "$($EffectDefault) ($($EffectReason))"
                     }
                 }
-                $ordinal = Convert-EffectToOrdinal -effect $effectValue
-                if ($ordinal -lt $existingOrdinal) {
-                    $flatPolicyEntry.ordinal = $ordinal
-                    $flatPolicyEntry.effectValue = $effectValue
-                    $flatPolicyEntry.effectDefault = $effectDefault
+                $Ordinal = Convert-EffectToOrdinal -Effect $EffectValue
+                if ($Ordinal -lt $ExistingOrdinal) {
+                    $flatPolicyEntry.ordinal = $Ordinal
+                    $flatPolicyEntry.effectValue = $EffectValue
+                    $flatPolicyEntry.effectDefault = $EffectDefault
                 }
             }
             else {
                 # Best default to fill effect columns for an PolicySet
-                $ordinal = Convert-EffectToOrdinal -effect $effectDefault
-                if ($ordinal -lt $existingOrdinal) {
-                    $flatPolicyEntry.ordinal = $ordinal
-                    $flatPolicyEntry.effectValue = $effectDefault
-                    $flatPolicyEntry.effectDefault = $effectDefault
+                $Ordinal = Convert-EffectToOrdinal -Effect $EffectDefault
+                if ($Ordinal -lt $ExistingOrdinal) {
+                    $flatPolicyEntry.ordinal = $Ordinal
+                    $flatPolicyEntry.effectValue = $EffectDefault
+                    $flatPolicyEntry.effectDefault = $EffectDefault
                 }
-                $effectString = "$($effectDefault) ($($effectReason))"
+                $EffectString = "$($EffectDefault) ($($EffectReason))"
             }
 
-            $perPolicySet.effectString = $effectString
-            $policySetEffectString = "$($shortName): $($effectString)"
+            $perPolicySet.effectString = $EffectString
+            $PolicySetEffectString = "$($shortName): $($EffectString)"
 
-            $policySetEffectStrings = $flatPolicyEntry.policySetEffectStrings + $policySetEffectString
-            $flatPolicyEntry.policySetEffectStrings = $policySetEffectStrings
+            $PolicySetEffectStrings = $flatPolicyEntry.policySetEffectStrings + $PolicySetEffectString
+            $flatPolicyEntry.policySetEffectStrings = $PolicySetEffectStrings
 
-            $policySetList = $flatPolicyEntry.policySetList
-            if ($policySetList.ContainsKey($shortName)) {
-                Write-Error "'$title' item array entry contains duplicate shortName ($shortName)." -ErrorAction Stop
+            $PolicySetList = $flatPolicyEntry.policySetList
+            if ($PolicySetList.ContainsKey($shortName)) {
+                Write-Error "'$Title' item array entry contains duplicate shortName ($shortName)." -ErrorAction Stop
             }
-            $null = $policySetList.Add($shortName, $perPolicySet)
+            $null = $PolicySetList.Add($shortName, $perPolicySet)
 
             # Collate union of parameters
-            $parametersForThisPolicy = $flatPolicyEntry.parameters
-            foreach ($parameterName in $parameters.Keys) {
-                $parameter = $parameters.$parameterName
-                if ($parametersForThisPolicy.ContainsKey($parameterName)) {
+            $ParametersForThisPolicy = $flatPolicyEntry.parameters
+            foreach ($parameterName in $Parameters.Keys) {
+                $parameter = $Parameters.$parameterName
+                if ($ParametersForThisPolicy.ContainsKey($parameterName)) {
                     $parameterPolicySets = $parameter.policySets
                     $parameterPolicySets += $detail.displayName
                     $parameter.policySets = $parameterPolicySets
                 }
                 else {
-                    if ($parametersAlreadyCovered.ContainsKey($parameterName)) {
+                    if ($ParametersAlreadyCovered.ContainsKey($parameterName)) {
                         $parameter.multiUse = $true
                     }
                     else {
-                        $null = $parametersAlreadyCovered.Add($parameterName, $true)
+                        $null = $ParametersAlreadyCovered.Add($parameterName, $true)
                         $parameter.multiUse = $false # Redo multi-use based on sorted liist of Policies
 
                         $parameterValue = $null
-                        if ($null -ne $assignmentId) {
+                        if ($null -ne $AssignmentId) {
                             if ($null -ne $parameter.defaultValue) {
                                 $parameterValue = $parameter.defaultValue
                             }
-                            $assignmentParameters = $assignmentParameters
-                            if ($null -ne $assignmentParameters) {
+                            $AssignmentParameters = $AssignmentParameters
+                            if ($null -ne $AssignmentParameters) {
                                 # Assignment has parameters
-                                if ($assignmentParameters.ContainsKey($parameterName)) {
+                                if ($AssignmentParameters.ContainsKey($parameterName)) {
                                     # Effect default is replaced by assignment parameter
-                                    $assignmentLevelEffectParameter = $assignmentParameters.$parameterName
-                                    $parameterValue = $assignmentLevelEffectParameter.value
+                                    $AssignmentLevelEffectParameter = $AssignmentParameters.$parameterName
+                                    $parameterValue = $AssignmentLevelEffectParameter.value
                                 }
                             }
                         }
                         $parameter.value = $parameterValue
                         $parameter.policySets = @( $detail.displayName )
-                        $null = $parametersForThisPolicy.Add($parameterName, $parameter)
+                        $null = $ParametersForThisPolicy.Add($parameterName, $parameter)
                     }
                 }
             }
@@ -273,5 +273,5 @@ function Convert-PolicySetsToFlatList {
 
     #endregion
 
-    return $flatPolicyList
+    return $FlatPolicyList
 }

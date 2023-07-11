@@ -1,40 +1,40 @@
 function Get-AzScopeTree {
 
     param(
-        [hashtable] $pacEnvironment
+        [hashtable] $PacEnvironment
     )
 
-    $deploymentRootScope = $pacEnvironment.deploymentRootScope
-    $tenantId = $pacEnvironment.tenantId
+    $deploymentRootScope = $PacEnvironment.deploymentRootScope
+    $TenantId = $PacEnvironment.tenantId
     Write-Information ""
     Write-Information "==================================================================================================="
-    Write-Information "Get scope tree for EPAC environment '$($pacEnvironment.pacSelector)' at root scope $($deploymentRootScope -replace '/providers/Microsoft.Management','')"
+    Write-Information "Get scope tree for EPAC environment '$($PacEnvironment.pacSelector)' at root scope $($deploymentRootScope -replace '/providers/Microsoft.Management','')"
     Write-Information "==================================================================================================="
     $prefBackup = $WarningPreference
     $WarningPreference = 'SilentlyContinue'
-    $scope = Split-ScopeId `
-        -scopeId $deploymentRootScope `
-        -parameterNameForManagementGroup "ManagementGroup" `
-        -parameterNameForSubscription "Subscription" `
-        -asSplat
+    $Scope = Split-ScopeId `
+        -ScopeId $deploymentRootScope `
+        -ParameterNameForManagementGroup "ManagementGroup" `
+        -ParameterNameForSubscription "Subscription" `
+        -AsSplat
     $resourceContainers = Search-AzGraphAllItems `
-        -query "ResourceContainers" `
-        -scope $scope `
-        -progressItemName "resource containers"
+        -Query "ResourceContainers" `
+        -Scope $Scope `
+        -ProgressItemName "resource containers"
     $WarningPreference = $prefBackup
     Write-Information ""
     Write-Information "Processing $($resourceContainers.Count) resource containers:"
 
     # Process subscriptions and management groups
-    $scopeTable = @{}
+    $ScopeTable = @{}
     $numberOfManagementGroups = 0
     $numberOfSubscriptions = 0
     foreach ($resourceContainer in $resourceContainers) {
         # resource groups require a second pass
         $type = $resourceContainer.type
-        if ($resourceContainer.tenantId -eq $tenantId -and $type -ne "microsoft.resources/subscriptions/resourcegroups") {
-            $id = $resourceContainer.id
-            $rootScopeReached = $id -eq $deploymentRootScope
+        if ($resourceContainer.tenantId -eq $TenantId -and $type -ne "microsoft.resources/subscriptions/resourcegroups") {
+            $Id = $resourceContainer.id
+            $rootScopeReached = $Id -eq $deploymentRootScope
             $managementGroupAncestorsChain = @()
             if ($type -eq "microsoft.management/managementgroups") {
                 $managementGroupAncestorsChain = $resourceContainer.properties.details.managementGroupAncestorsChain
@@ -45,7 +45,7 @@ function Get-AzScopeTree {
             $numberOfAncestors = $managementGroupAncestorsChain.Count
             $newNodeCandidates = [System.Collections.ArrayList]::new()
             $parentList = @{}
-            $childrenList = @{ $id = $type }
+            $childrenList = @{ $Id = $type }
             $i = 0
             while (!$rootScopeReached -and $i -lt $numberOfAncestors) {
                 $currentParent = $managementGroupAncestorsChain[$i]
@@ -54,15 +54,15 @@ function Get-AzScopeTree {
                     $rootScopeReached = $true
                 }
                 $null = $parentList.Add($currentId, "microsoft.management/managementgroups")
-                if ($scopeTable.ContainsKey($currentId)) {
-                    $currentScopeInformation = $scopeTable.$currentId
+                if ($ScopeTable.ContainsKey($currentId)) {
+                    $currentScopeInformation = $ScopeTable.$currentId
                     $currentChildrenList = $currentScopeInformation.childrenList
                     foreach ($child in $childrenList.Keys) {
                         $currentChildrenList[$child] = $childrenList.$child
                     }
                 }
                 else {
-                    $scopeInformation = @{
+                    $ScopeInformation = @{
                         id             = $currentId
                         type           = "microsoft.management/managementgroups"
                         name           = $currentParent.name
@@ -73,26 +73,26 @@ function Get-AzScopeTree {
                         state          = $null
                         location       = "global"
                     }
-                    $null = $newNodeCandidates.Add($scopeInformation)
+                    $null = $newNodeCandidates.Add($ScopeInformation)
                 }
                 $i++
             }
             if ($rootScopeReached) {
                 # candidates become actual nodes (not yet completed)
                 foreach ($newNodeCandidate in $newNodeCandidates) {
-                    $null = $scopeTable.Add($newNodeCandidate.id, $newNodeCandidate)
+                    $null = $ScopeTable.Add($newNodeCandidate.id, $newNodeCandidate)
                 }
-                if ($scopeTable.ContainsKey($id)) {
+                if ($ScopeTable.ContainsKey($Id)) {
                     # has any children already; needs parentList
-                    $scopeInformation = $scopeTable.$id
-                    $scopeInformation.parentList = $parentList
-                    $scopeInformation.state = $resourceContainer.properties.state
+                    $ScopeInformation = $ScopeTable.$Id
+                    $ScopeInformation.parentList = $parentList
+                    $ScopeInformation.state = $resourceContainer.properties.state
                 }
                 else {
-                    $scopeInformation = $null
+                    $ScopeInformation = $null
                     if ($resourceContainer.type -eq "microsoft.management/managementgroups") {
-                        $scopeInformation = @{
-                            id             = $id
+                        $ScopeInformation = @{
+                            id             = $Id
                             type           = $type
                             name           = $resourceContainer.name
                             displayName    = $resourceContainer.properties.displayName
@@ -104,8 +104,8 @@ function Get-AzScopeTree {
                         }
                     }
                     else {
-                        $scopeInformation = @{
-                            id             = $id
+                        $ScopeInformation = @{
+                            id             = $Id
                             type           = $type
                             name           = $resourceContainer.name
                             displayName    = $resourceContainer.name
@@ -116,7 +116,7 @@ function Get-AzScopeTree {
                             location       = "global"
                         }
                     }
-                    $null = $scopeTable.Add($id, $scopeInformation)
+                    $null = $ScopeTable.Add($Id, $ScopeInformation)
                 }
                 if ($resourceContainer.type -eq "microsoft.management/managementgroups") {
                     $numberOfManagementGroups++
@@ -139,34 +139,34 @@ function Get-AzScopeTree {
     foreach ($resourceContainer in $resourceContainers) {
         # resource groups require a second pass
         $type = $resourceContainer.type
-        if ($resourceContainer.tenantId -eq $tenantId -and $type -eq "microsoft.resources/subscriptions/resourcegroups") {
-            $id = $resourceContainer.id
-            $name = $resourceContainer.name
+        if ($resourceContainer.tenantId -eq $TenantId -and $type -eq "microsoft.resources/subscriptions/resourcegroups") {
+            $Id = $resourceContainer.id
+            $Name = $resourceContainer.name
             $subscriptionId = "/subscriptions/$($resourceContainer.subscriptionId)"
-            if ($scopeTable.ContainsKey($subscriptionId)) {
-                $subscriptionInformation = $scopeTable.$subscriptionId
+            if ($ScopeTable.ContainsKey($subscriptionId)) {
+                $subscriptionInformation = $ScopeTable.$subscriptionId
                 $subscriptionParentList = $subscriptionInformation.parentList
                 $parentList = Get-HashtableShallowClone $subscriptionParentList
                 $null = $parentList.Add($subscriptionId, $subscriptionInformation.type)
                 foreach ($parentId in $parentList.Keys) {
-                    $parentInformation = $scopeTable.$parentId
+                    $parentInformation = $ScopeTable.$parentId
                     $parentChildrenList = $parentInformation.childrenList
                     $parentResourceGroups = $parentInformation.resourceGroups
-                    $null = $parentChildrenList.Add($id, "microsoft.resources/subscriptions/resourcegroups")
-                    $null = $parentResourceGroups.Add($id, "microsoft.resources/subscriptions/resourcegroups")
+                    $null = $parentChildrenList.Add($Id, "microsoft.resources/subscriptions/resourcegroups")
+                    $null = $parentResourceGroups.Add($Id, "microsoft.resources/subscriptions/resourcegroups")
                 }
-                $scopeInformation = @{
-                    id             = $id
+                $ScopeInformation = @{
+                    id             = $Id
                     type           = $type
-                    name           = $name
-                    displayName    = $name
+                    name           = $Name
+                    displayName    = $Name
                     parentList     = $parentList
                     childrenList   = @{}
                     resourceGroups = @{}
                     state          = $null
                     location       = $resourceContainer.location
                 }
-                $null = $scopeTable.Add($id, $scopeInformation)
+                $null = $ScopeTable.Add($Id, $ScopeInformation)
                 $numberOfResourceGroups++
             }
             else {
@@ -176,5 +176,5 @@ function Get-AzScopeTree {
     }
     Write-Information "    Resource groups   = $($numberOfResourceGroups)"
 
-    return $scopeTable
+    return $ScopeTable
 }

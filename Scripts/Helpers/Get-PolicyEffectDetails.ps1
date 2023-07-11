@@ -1,17 +1,17 @@
 function Get-PolicyEffectDetails {
     [CmdletBinding()]
     param (
-        $policy
+        $Policy
     )
 
-    $effectValue = $policy.policyRule.then.effect
-    $found, $parameterName = Get-ParameterNameFromValueString -paramValue $effectValue
+    $EffectValue = $Policy.policyRule.then.effect
+    $found, $parameterName = Get-ParameterNameFromValueString -ParamValue $EffectValue
 
     $result = @{}
     if ($found) {
-        $parameters = $policy.parameters | ConvertTo-HashTable
-        if ($parameters.ContainsKey($parameterName)) {
-            $parameter = $parameters.$parameterName
+        $Parameters = $Policy.parameters | ConvertTo-HashTable
+        if ($Parameters.ContainsKey($parameterName)) {
+            $parameter = $Parameters.$parameterName
             $result = @{
                 paramValue    = $parameter.defaultValue
                 defaultValue  = $parameter.defaultValue
@@ -24,9 +24,9 @@ function Get-PolicyEffectDetails {
     else {
         # Fixed value
         $result = @{
-            fixedValue    = $effectValue
-            defaultValue  = $effectValue
-            allowedValues = @( $effectValue )
+            fixedValue    = $EffectValue
+            defaultValue  = $EffectValue
+            allowedValues = @( $EffectValue )
             type          = "FixedByPolicyDefinition"
         }
     }

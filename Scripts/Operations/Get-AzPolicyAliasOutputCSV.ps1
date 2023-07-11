@@ -7,11 +7,11 @@
 $aliasesByResourceType = Get-AzPolicyAlias | ConvertTo-Json -Depth 100 | ConvertFrom-Json -AsHashtable
 
 foreach ($resourceTypeEntry in $aliasesByResourceType) {
-    $namespace = $resourceTypeEntry.Namespace
+    $Namespace = $resourceTypeEntry.Namespace
     $resourcetype = $resourceTypeEntry.ResourceType
     foreach ($alias in $resourceTypeEntry.Aliases){
         $rowObj = [ordered]@{
-            namespace    = $namespace
+            namespace    = $Namespace
             resourcetype = $resourcetype
             propertyAlias      = $alias.Name
         }

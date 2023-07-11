@@ -20,37 +20,37 @@
     If set, outputs variables consumable by conditions in a DevOps pipeline. Valid values are '', 'ado' and 'gitlab'.
 
 .EXAMPLE
-    .\Build-DeploymentPlans.ps1 -pacEnvironmentSelector "dev"
+    .\Build-DeploymentPlans.ps1 -PacEnvironmentSelector "dev"
 
     Builds the deployment plans for the Policy as Code (PAC) environment 'dev'.
 
 .EXAMPLE
-    .\Build-DeploymentPlans.ps1 -pacEnvironmentSelector "dev" -devOpsType "ado"
+    .\Build-DeploymentPlans.ps1 -PacEnvironmentSelector "dev" -DevOpsType "ado"
 
     Builds the deployment plans for the Policy as Code (PAC) environment 'dev' and outputs variables consumable by conditions in an Azure DevOps pipeline.
 
 .LINK
-    https://azure.github.io/enterprise-azure-policy-as-code/#deployment-scripts
+    https://azure.github.io/enterprise-azure-Policy-as-code/#deployment-scripts
 
 #>
 
 [CmdletBinding()]
 param (
     [parameter(HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
-    [string] $pacEnvironmentSelector,
+    [string] $PacEnvironmentSelector,
 
     [Parameter(HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.")]
-    [string]$definitionsRootFolder,
+    [string]$DefinitionsRootFolder,
 
     [Parameter(HelpMessage = "Output folder path for plan files. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER or './Output'.")]
-    [string]$outputFolder,
+    [string]$OutputFolder,
 
     [Parameter(HelpMessage = "Script is used interactively. Script can prompt the interactive user for input.")]
-    [switch] $interactive,
+    [switch] $Interactive,
 
     [Parameter(HelpMessage = "If set, outputs variables consumable by conditions in a DevOps pipeline.")]
     [ValidateSet("ado", "gitlab", "")]
-    [string] $devOpsType = ""
+    [string] $DevOpsType = ""
 )
 
 $PSDefaultParameterValues = @{
@@ -65,26 +65,26 @@ Clear-Variable -Name epacInfoStream -Scope global -Force -ErrorAction SilentlyCo
 # Initialize
 $InformationPreference = "Continue"
 
-$pacEnvironment = Select-PacEnvironment $pacEnvironmentSelector -definitionsRootFolder $definitionsRootFolder -outputFolder $outputFolder -interactive $interactive
-Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -interactive $pacEnvironment.interactive
+$PacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -Interactive $Interactive
+Set-AzCloudTenantSubscription -Cloud $PacEnvironment.cloud -TenantId $PacEnvironment.tenantId -Interactive $PacEnvironment.interactive
 
 # Getting existing Policy resources
-$exemptionsAreNotManagedMessage = ""
-$policyExemptionsFolder = $pacEnvironment.policyExemptionsFolder
-$exemptionsFolderForPacEnvironment = "$($policyExemptionsFolder)/$($pacEnvironment.pacSelector)"
-if (!(Test-Path $policyExemptionsFolder -PathType Container)) {
-    $exemptionsAreNotManagedMessage = "Policy Exemptions folder 'policyExemptions' not found. Exemptions not managed by this EPAC instance."
+$ExemptionsAreNotManagedMessage = ""
+$PolicyExemptionsFolder = $PacEnvironment.policyExemptionsFolder
+$ExemptionsFolderForPacEnvironment = "$($PolicyExemptionsFolder)/$($PacEnvironment.pacSelector)"
+if (!(Test-Path $PolicyExemptionsFolder -PathType Container)) {
+    $ExemptionsAreNotManagedMessage = "Policy Exemptions folder 'policyExemptions' not found. Exemptions not managed by this EPAC instance."
 }
-elseif (!(Test-Path $exemptionsFolderForPacEnvironment -PathType Container)) {
-    $exemptionsAreNotManagedMessage = "Policy Exemptions are not managed by this EPAC instance's PaC environment $($pacEnvironment.pacSelector)!"
+elseif (!(Test-Path $ExemptionsFolderForPacEnvironment -PathType Container)) {
+    $ExemptionsAreNotManagedMessage = "Policy Exemptions are not managed by this EPAC instance's PaC environment $($PacEnvironment.pacSelector)!"
 }
-$exemptionsAreNotManaged = $exemptionsAreNotManagedMessage -eq ""
+$ExemptionsAreNotManaged = $ExemptionsAreNotManagedMessage -eq ""
 
-$scopeTable = Get-AzScopeTree -pacEnvironment $pacEnvironment
-$deployedPolicyResources = Get-AzPolicyResources -pacEnvironment $pacEnvironment -scopeTable $scopeTable -skipExemptions:$exemptionsAreNotManaged
+$ScopeTable = Get-AzScopeTree -PacEnvironment $PacEnvironment
+$DeployedPolicyResources = Get-AzPolicyResources -PacEnvironment $PacEnvironment -ScopeTable $ScopeTable -SkipExemptions:$ExemptionsAreNotManaged
 
 # Process Policies
-$policyDefinitions = @{
+$PolicyDefinitions = @{
     new             = @{}
     update          = @{}
     replace         = @{}
@@ -92,24 +92,24 @@ $policyDefinitions = @{
     numberOfChanges = 0
     numberUnchanged = 0
 }
-$policyRoleIds = @{}
-$allDefinitions = @{
+$PolicyRoleIds = @{}
+$AllDefinitions = @{
     policydefinitions    = @{}
     policysetdefinitions = @{}
 }
-$replaceDefinitions = @{}
+$ReplaceDefinitions = @{}
 
 Build-PolicyPlan `
-    -definitionsRootFolder $pacEnvironment.policyDefinitionsFolder `
-    -pacEnvironment $pacEnvironment `
-    -deployedDefinitions $deployedPolicyResources.policydefinitions `
-    -definitions $policyDefinitions `
-    -allDefinitions $allDefinitions `
-    -replaceDefinitions $replaceDefinitions `
-    -policyRoleIds $policyRoleIds
+    -DefinitionsRootFolder $PacEnvironment.policyDefinitionsFolder `
+    -PacEnvironment $PacEnvironment `
+    -DeployedDefinitions $DeployedPolicyResources.policydefinitions `
+    -Definitions $PolicyDefinitions `
+    -AllDefinitions $AllDefinitions `
+    -ReplaceDefinitions $ReplaceDefinitions `
+    -PolicyRoleIds $PolicyRoleIds
 
 # Process Policy Sets
-$policySetDefinitions = @{
+$PolicySetDefinitions = @{
     new             = @{}
     update          = @{}
     replace         = @{}
@@ -119,16 +119,16 @@ $policySetDefinitions = @{
 }
 
 Build-PolicySetPlan `
-    -definitionsRootFolder $pacEnvironment.policySetDefinitionsFolder `
-    -pacEnvironment $pacEnvironment `
-    -deployedDefinitions $deployedPolicyResources.policysetdefinitions `
-    -definitions $policySetDefinitions `
-    -allDefinitions $allDefinitions `
-    -replaceDefinitions $replaceDefinitions `
-    -policyRoleIds $policyRoleIds
+    -DefinitionsRootFolder $PacEnvironment.policySetDefinitionsFolder `
+    -PacEnvironment $PacEnvironment `
+    -DeployedDefinitions $DeployedPolicyResources.policysetdefinitions `
+    -Definitions $PolicySetDefinitions `
+    -AllDefinitions $AllDefinitions `
+    -ReplaceDefinitions $ReplaceDefinitions `
+    -PolicyRoleIds $PolicyRoleIds
 
 # Process Assignment JSON files
-$assignments = @{
+$Assignments = @{
     new             = @{}
     update          = @{}
     replace         = @{}
@@ -136,26 +136,26 @@ $assignments = @{
     numberOfChanges = 0
     numberUnchanged = 0
 }
-$roleAssignments = @{
+$RoleAssignments = @{
     numberOfChanges = 0
     added           = @()
     removed         = @()
 }
-$allAssignments = @{}
+$AllAssignments = @{}
 
 Build-AssignmentPlan `
-    -assignmentsRootFolder $pacEnvironment.policyAssignmentsFolder `
-    -pacEnvironment $pacEnvironment `
-    -scopeTable $scopeTable `
-    -deployedPolicyResources $deployedPolicyResources `
-    -assignments $assignments `
-    -roleAssignments $roleAssignments `
-    -allDefinitions $allDefinitions `
-    -allAssignments $allAssignments `
-    -replaceDefinitions $replaceDefinitions `
-    -policyRoleIds $policyRoleIds
+    -AssignmentsRootFolder $PacEnvironment.policyAssignmentsFolder `
+    -PacEnvironment $PacEnvironment `
+    -ScopeTable $ScopeTable `
+    -DeployedPolicyResources $DeployedPolicyResources `
+    -Assignments $Assignments `
+    -RoleAssignments $RoleAssignments `
+    -AllDefinitions $AllDefinitions `
+    -AllAssignments $AllAssignments `
+    -ReplaceDefinitions $ReplaceDefinitions `
+    -PolicyRoleIds $PolicyRoleIds
 
-$exemptions = @{
+$Exemptions = @{
     new             = @{}
     update          = @{}
     replace         = @{}
@@ -167,171 +167,171 @@ $exemptions = @{
 
 # Process exemption JSON files
 Build-ExemptionsPlan `
-    -exemptionsRootFolder $exemptionsFolderForPacEnvironment `
-    -exemptionsAreNotManagedMessage $exemptionsAreNotManagedMessage `
-    -pacEnvironment $pacEnvironment `
-    -allAssignments $allAssignments `
-    -assignments $assignments `
-    -deployedExemptions $deployedPolicyResources.policyExemptions `
-    -exemptions $exemptions
+    -ExemptionsRootFolder $ExemptionsFolderForPacEnvironment `
+    -ExemptionsAreNotManagedMessage $ExemptionsAreNotManagedMessage `
+    -PacEnvironment $PacEnvironment `
+    -AllAssignments $AllAssignments `
+    -Assignments $Assignments `
+    -DeployedExemptions $DeployedPolicyResources.policyExemptions `
+    -Exemptions $Exemptions
 
 # Output Plan
-$pacOwnerId = $pacEnvironment.pacOwnerId
+$PacOwnerId = $PacEnvironment.pacOwnerId
 $timestamp = Get-Date -AsUTC -Format "u"
-$policyPlan = @{
+$PolicyPlan = @{
     createdOn            = $timestamp
-    pacOwnerId           = $pacOwnerId
-    policyDefinitions    = $policyDefinitions
-    policySetDefinitions = $policySetDefinitions
-    assignments          = $assignments
-    exemptions           = $exemptions
+    pacOwnerId           = $PacOwnerId
+    policyDefinitions    = $PolicyDefinitions
+    policySetDefinitions = $PolicySetDefinitions
+    assignments          = $Assignments
+    exemptions           = $Exemptions
 }
 $rolesPlan = @{
     createdOn       = $timestamp
-    pacOwnerId      = $pacOwnerId
-    roleAssignments = $roleAssignments
+    pacOwnerId      = $PacOwnerId
+    roleAssignments = $RoleAssignments
 }
 
 Write-Information "==================================================================================================="
 Write-Information "Summary"
 Write-Information "==================================================================================================="
 
-if ($null -ne $pacEnvironment.policyDefinitionsFolder) {
+if ($null -ne $PacEnvironment.policyDefinitionsFolder) {
     Write-Information "Policy counts:"
-    Write-Information "    $($policyDefinitions.numberUnchanged) unchanged"
-    if ($policyDefinitions.numberOfChanges -eq 0) {
-        Write-Information "    $($policyDefinitions.numberOfChanges) changes"
+    Write-Information "    $($PolicyDefinitions.numberUnchanged) unchanged"
+    if ($PolicyDefinitions.numberOfChanges -eq 0) {
+        Write-Information "    $($PolicyDefinitions.numberOfChanges) changes"
     }
     else {
-        Write-Information "    $($policyDefinitions.numberOfChanges) changes:"
-        Write-Information "        new     = $($policyDefinitions.new.psbase.Count)"
-        Write-Information "        update  = $($policyDefinitions.update.psbase.Count)"
-        Write-Information "        replace = $($policyDefinitions.replace.psbase.Count)"
-        Write-Information "        delete  = $($policyDefinitions.delete.psbase.Count)"
+        Write-Information "    $($PolicyDefinitions.numberOfChanges) changes:"
+        Write-Information "        new     = $($PolicyDefinitions.new.psbase.Count)"
+        Write-Information "        update  = $($PolicyDefinitions.update.psbase.Count)"
+        Write-Information "        replace = $($PolicyDefinitions.replace.psbase.Count)"
+        Write-Information "        delete  = $($PolicyDefinitions.delete.psbase.Count)"
     }
 }
 else {
     Write-Information "Policy definitions not managed by EPAC."
 }
 
-if ($null -ne $pacEnvironment.policySetDefinitionsFolder) {
+if ($null -ne $PacEnvironment.policySetDefinitionsFolder) {
     Write-Information "Policy Set counts:"
-    Write-Information "    $($policySetDefinitions.numberUnchanged) unchanged"
-    if ($policySetDefinitions.numberOfChanges -eq 0) {
-        Write-Information "    $($policySetDefinitions.numberOfChanges) changes"
+    Write-Information "    $($PolicySetDefinitions.numberUnchanged) unchanged"
+    if ($PolicySetDefinitions.numberOfChanges -eq 0) {
+        Write-Information "    $($PolicySetDefinitions.numberOfChanges) changes"
     }
     else {
-        Write-Information "    $($policySetDefinitions.numberOfChanges) changes:"
-        Write-Information "        new     = $($policySetDefinitions.new.psbase.Count)"
-        Write-Information "        update  = $($policySetDefinitions.update.psbase.Count)"
-        Write-Information "        replace = $($policySetDefinitions.replace.psbase.Count)"
-        Write-Information "        delete  = $($policySetDefinitions.delete.psbase.Count)"
+        Write-Information "    $($PolicySetDefinitions.numberOfChanges) changes:"
+        Write-Information "        new     = $($PolicySetDefinitions.new.psbase.Count)"
+        Write-Information "        update  = $($PolicySetDefinitions.update.psbase.Count)"
+        Write-Information "        replace = $($PolicySetDefinitions.replace.psbase.Count)"
+        Write-Information "        delete  = $($PolicySetDefinitions.delete.psbase.Count)"
     }
 }
 else {
     Write-Information "Policy Set definitions not managed by EPAC."
 }
 
-if ($null -ne $pacEnvironment.policyAssignmentsFolder) {
+if ($null -ne $PacEnvironment.policyAssignmentsFolder) {
     Write-Information "Policy Assignment counts:"
-    Write-Information "    $($assignments.numberUnchanged) unchanged"
-    if ($assignments.numberOfChanges -eq 0) {
-        Write-Information "    $($assignments.numberOfChanges) changes"
+    Write-Information "    $($Assignments.numberUnchanged) unchanged"
+    if ($Assignments.numberOfChanges -eq 0) {
+        Write-Information "    $($Assignments.numberOfChanges) changes"
     }
     else {
-        Write-Information "    $($assignments.numberOfChanges) changes:"
-        Write-Information "        new     = $($assignments.new.psbase.Count)"
-        Write-Information "        update  = $($assignments.update.psbase.Count)"
-        Write-Information "        replace = $($assignments.replace.psbase.Count)"
-        Write-Information "        delete  = $($assignments.delete.psbase.Count)"
+        Write-Information "    $($Assignments.numberOfChanges) changes:"
+        Write-Information "        new     = $($Assignments.new.psbase.Count)"
+        Write-Information "        update  = $($Assignments.update.psbase.Count)"
+        Write-Information "        replace = $($Assignments.replace.psbase.Count)"
+        Write-Information "        delete  = $($Assignments.delete.psbase.Count)"
     }
 }
 else {
     Write-Information "Policy definitions not managed by EPAC."
 }
 
-if ($exemptionsAreManaged) {
+if ($ExemptionsAreManaged) {
     Write-Information "Policy Exemption counts:"
-    Write-Information "    $($exemptions.numberUnchanged) unchanged"
-    if ($exemptions.numberOfChanges -eq 0) {
-        Write-Information "    $($exemptions.numberOfChanges) changes"
+    Write-Information "    $($Exemptions.numberUnchanged) unchanged"
+    if ($Exemptions.numberOfChanges -eq 0) {
+        Write-Information "    $($Exemptions.numberOfChanges) changes"
     }
     else {
-        Write-Information "    $($exemptions.numberOfChanges) changes:"
-        Write-Information "        new     = $($exemptions.new.psbase.Count)"
-        Write-Information "        update  = $($exemptions.update.psbase.Count)"
-        Write-Information "        replace = $($exemptions.replace.psbase.Count)"
-        Write-Information "        delete  = $($exemptions.delete.psbase.Count)"
-        Write-Information "        orphans = $($exemptions.numberOfOrphans)"
+        Write-Information "    $($Exemptions.numberOfChanges) changes:"
+        Write-Information "        new     = $($Exemptions.new.psbase.Count)"
+        Write-Information "        update  = $($Exemptions.update.psbase.Count)"
+        Write-Information "        replace = $($Exemptions.replace.psbase.Count)"
+        Write-Information "        delete  = $($Exemptions.delete.psbase.Count)"
+        Write-Information "        orphans = $($Exemptions.numberOfOrphans)"
     }
 }
 else {
     Write-Information "Policy Exemptions not managed by EPAC."
 }
 
-if ($null -ne $pacEnvironment.policyAssignmentsFolder) {
+if ($null -ne $PacEnvironment.policyAssignmentsFolder) {
     Write-Information "Role Assignment counts:"
-    if ($roleAssignments.numberOfChanges -eq 0) {
-        Write-Information "    $($roleAssignments.numberOfChanges) changes"
+    if ($RoleAssignments.numberOfChanges -eq 0) {
+        Write-Information "    $($RoleAssignments.numberOfChanges) changes"
     }
     else {
-        Write-Information "    $($roleAssignments.numberOfChanges) changes:"
-        Write-Information "        add     = $($roleAssignments.added.psbase.Count)"
-        Write-Information "        remove  = $($roleAssignments.removed.psbase.Count)"
+        Write-Information "    $($RoleAssignments.numberOfChanges) changes:"
+        Write-Information "        add     = $($RoleAssignments.added.psbase.Count)"
+        Write-Information "        remove  = $($RoleAssignments.removed.psbase.Count)"
     }
 }
 
 Write-Information "---------------------------------------------------------------------------------------------------"
 Write-Information "Output plan(s)"
-$policyResourceChanges = $policyDefinitions.numberOfChanges
-$policyResourceChanges += $policySetDefinitions.numberOfChanges
-$policyResourceChanges += $assignments.numberOfChanges
-$policyResourceChanges += $exemptions.numberOfChanges
+$PolicyResourceChanges = $PolicyDefinitions.numberOfChanges
+$PolicyResourceChanges += $PolicySetDefinitions.numberOfChanges
+$PolicyResourceChanges += $Assignments.numberOfChanges
+$PolicyResourceChanges += $Exemptions.numberOfChanges
 
-$policyStage = "no"
-$planFile = $pacEnvironment.policyPlanOutputFile
-if ($policyResourceChanges -gt 0) {
-    Write-Information "    Policy resource deployment required; writing Policy plan file '$planFile'"
-    if (-not (Test-Path $planFile)) {
-        $null = (New-Item $planFile -Force)
+$PolicyStage = "no"
+$PlanFile = $PacEnvironment.policyPlanOutputFile
+if ($PolicyResourceChanges -gt 0) {
+    Write-Information "    Policy resource deployment required; writing Policy plan file '$PlanFile'"
+    if (-not (Test-Path $PlanFile)) {
+        $null = (New-Item $PlanFile -Force)
     }
-    $null = $policyPlan | ConvertTo-Json -Depth 100 | Out-File -FilePath $planFile -Force
-    $policyStage = "yes"
+    $null = $PolicyPlan | ConvertTo-Json -Depth 100 | Out-File -FilePath $PlanFile -Force
+    $PolicyStage = "yes"
 }
 else {
-    if (Test-Path $planFile) {
-        $null = (Remove-Item $planFile)
+    if (Test-Path $PlanFile) {
+        $null = (Remove-Item $PlanFile)
     }
     Write-Information "    Skipping Policy deployment stage/step - no changes"
 }
 
 $roleStage = "no"
-$planFile = $pacEnvironment.rolesPlanOutputFile
-if ($roleAssignments.numberOfChanges -gt 0) {
-    Write-Information "    Role assignment changes required; writing Policy plan file '$planFile'"
-    if (-not (Test-Path $planFile)) {
-        $null = (New-Item $planFile -Force)
+$PlanFile = $PacEnvironment.rolesPlanOutputFile
+if ($RoleAssignments.numberOfChanges -gt 0) {
+    Write-Information "    Role assignment changes required; writing Policy plan file '$PlanFile'"
+    if (-not (Test-Path $PlanFile)) {
+        $null = (New-Item $PlanFile -Force)
     }
-    $null = $rolesPlan | ConvertTo-Json -Depth 100 | Out-File -FilePath $planFile -Force
+    $null = $rolesPlan | ConvertTo-Json -Depth 100 | Out-File -FilePath $PlanFile -Force
     $roleStage = "yes"
 }
 else {
-    if (Test-Path $planFile) {
-        $null = (Remove-Item $planFile)
+    if (Test-Path $PlanFile) {
+        $null = (Remove-Item $PlanFile)
     }
     Write-Information "    Skipping Role Assignment stage/step - no changes"
 }
 Write-Information "---------------------------------------------------------------------------------------------------"
 Write-Information ""
 
-switch ($devOpsType) {
+switch ($DevOpsType) {
     ado {
-        Write-Host "##vso[task.setvariable variable=deployPolicyChanges;isOutput=true]$($policyStage)"
+        Write-Host "##vso[task.setvariable variable=deployPolicyChanges;isOutput=true]$($PolicyStage)"
         Write-Host "##vso[task.setvariable variable=deployRoleChanges;isOutput=true]$($roleStage)"
         break
     }
     gitlab {
-        Add-Content "build.env" "deployPolicyChanges=$($policyStage)"
+        Add-Content "build.env" "deployPolicyChanges=$($PolicyStage)"
         Add-Content "build.env" "deployRoleChanges=$($roleStage)"
     }
     default {

@@ -1,24 +1,24 @@
 function Confirm-ParametersMatch {
     [CmdletBinding()]
     param(
-        [PSCustomObject] $existingParametersObj,
-        [PSCustomObject] $definedParametersObj
+        [PSCustomObject] $ExistingParametersObj,
+        [PSCustomObject] $DefinedParametersObj
     )
     $match = $true
     $incompatible = $false
 
-    $existingParameters = ConvertTo-HashTable $existingParametersObj
-    $definedParameters = ConvertTo-HashTable $definedParametersObj
-    $addedParameters = Get-HashtableShallowClone $definedParameters
-    foreach ($existingParameterName in $existingParameters.Keys) {
-        if ($definedParameters.Keys -contains $existingParameterName) {
+    $ExistingParameters = ConvertTo-HashTable $ExistingParametersObj
+    $DefinedParameters = ConvertTo-HashTable $DefinedParametersObj
+    $addedParameters = Get-HashtableShallowClone $DefinedParameters
+    foreach ($ExistingParameterName in $ExistingParameters.Keys) {
+        if ($DefinedParameters.Keys -contains $ExistingParameterName) {
             # Remove key from $addedParameters
-            $addedParameters.Remove($existingParameterName)
-            $existing = $existingParameters.$existingParameterName
-            $defined = $definedParameters.$existingParameterName
+            $addedParameters.Remove($ExistingParameterName)
+            $Existing = $ExistingParameters.$ExistingParameterName
+            $defined = $DefinedParameters.$ExistingParameterName
 
             # Analyze parameter defaultValue
-            $thisMatch = Confirm-ObjectValueEqualityDeep $existing.defaultValue $defined.defaultValue
+            $thisMatch = Confirm-ObjectValueEqualityDeep $Existing.defaultValue $defined.defaultValue
             if (!$thisMatch) {
                 $match = $false
                 if ($null -eq $defined.defaultValue) {
@@ -28,7 +28,7 @@ function Confirm-ParametersMatch {
             }
 
             # Analyze parameter allowedValues
-            $thisMatch = Confirm-ObjectValueEqualityDeep $existing.allowedValues $defined.allowedValues
+            $thisMatch = Confirm-ObjectValueEqualityDeep $Existing.allowedValues $defined.allowedValues
             if (!$thisMatch) {
                 $match = $false
                 if ($null -eq $defined.defaultValue) {
@@ -38,18 +38,18 @@ function Confirm-ParametersMatch {
             }
 
             # Analyze type
-            if ($existing.type -ne $defined.type) {
+            if ($Existing.type -ne $defined.type) {
                 $match = $false
                 $incompatible = $true
                 break
             }
 
-            $existingMetadata = $existing.metadata
+            $ExistingMetadata = $Existing.metadata
             $definedMetadata = $defined.metadata
-            $thisMatch = Confirm-ObjectValueEqualityDeep $existingMetadata $definedMetadata
+            $thisMatch = Confirm-ObjectValueEqualityDeep $ExistingMetadata $definedMetadata
             if (!$thisMatch) {
                 $match = $false
-                if ($existingMetadata.strongType -ne $definedMetadata.strongType) {
+                if ($ExistingMetadata.strongType -ne $definedMetadata.strongType) {
                     $incompatible = $true
                     break
                 }

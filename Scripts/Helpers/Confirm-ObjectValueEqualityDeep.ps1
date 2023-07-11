@@ -2,58 +2,58 @@ function Confirm-ObjectValueEqualityDeep {
     [CmdletBinding()]
     param(
         [Parameter(Position = 0)]
-        $object1,
+        $Object1,
 
         [Parameter(Position = 1)]
-        $object2
+        $Object2
     )
 
 
-    if ($object1 -eq $object2) {
+    if ($Object1 -eq $Object2) {
         return $true
     }
     else {
-        if ($null -eq $object1) {
-            # $object2 is not $null (always true); swap object 1 and object2, so that $object1 is always not $null
-            $tempObject = $object2
-            $object2 = $object1
-            $object1 = $tempObject
+        if ($null -eq $Object1) {
+            # $Object2 is not $null (always true); swap object 1 and object2, so that $Object1 is always not $null
+            $tempObject = $Object2
+            $Object2 = $Object1
+            $Object1 = $tempObject
         }
-        $type1 = $object1.GetType()
+        $type1 = $Object1.GetType()
         $typeName1 = $type1.Name
         $type2 = $null
         $typeName2 = "null"
-        if ($null -ne $object2) {
-            $type2 = $object2.GetType()
+        if ($null -ne $Object2) {
+            $type2 = $Object2.GetType()
             $typeName2 = $type2.Name
         }
         if ($typeName1 -in @( "Object[]", "ArrayList") -or $typeName2 -in @( "Object[]", "ArrayList")) {
-            if ($null -eq $object2) {
-                return $object1.Count -eq 0
+            if ($null -eq $Object2) {
+                return $Object1.Count -eq 0
             }
             else {
                 if ($typeName1 -notin @( "Object[]", "ArrayList")) {
-                    # convert single element $object1 into an array
-                    $object1 = @( $object1 )
+                    # convert single element $Object1 into an array
+                    $Object1 = @( $Object1 )
                 }
                 if ($typeName2 -notin @( "Object[]", "ArrayList")) {
-                    # convert single element $object2 into an array
-                    $object2 = @( $object2 )
+                    # convert single element $Object2 into an array
+                    $Object2 = @( $Object2 )
                 }
                 # both objects are now of type array or ArrayList
-                if ($object1.Count -ne $object2.Count) {
+                if ($Object1.Count -ne $Object2.Count) {
                     return $false
                 }
                 else {
                     # iterate and recurse
-                    $object2List = [System.Collections.ArrayList]::new($object2)
-                    foreach ($item1 in $object1) {
+                    $Object2List = [System.Collections.ArrayList]::new($Object2)
+                    foreach ($item1 in $Object1) {
                         $foundMatch = $false
-                        for ($i = 0; $i -lt $object2List.Count; $i++) {
-                            $item2 = $object2List[$i]
+                        for ($i = 0; $i -lt $Object2List.Count; $i++) {
+                            $item2 = $Object2List[$i]
                             if ($item1 -eq $item2 -or (Confirm-ObjectValueEqualityDeep $item1 $item2)) {
                                 $foundMatch = $true
-                                $null = $object2List.RemoveAt($i)
+                                $null = $Object2List.RemoveAt($i)
                                 break
                             }
                         }
@@ -66,51 +66,51 @@ function Confirm-ObjectValueEqualityDeep {
             }
         }
         elseif ($typeName1 -eq "DateTime" -or $typeName1 -eq "DateTime") {
-            $dateString1 = $object1
+            $dateString1 = $Object1
             if ($typeName1 -eq "DateTime") {
-                $dateString1 = $object1.ToString("yyyy-MM-dd")
+                $dateString1 = $Object1.ToString("yyyy-MM-dd")
             }
-            $dateString2 = $object2
+            $dateString2 = $Object2
             if ($typeName2 -eq "DateTime") {
-                $dateString2 = $object2.ToString("yyyy-MM-dd")
+                $dateString2 = $Object2.ToString("yyyy-MM-dd")
             }
             return $dateString1 -eq $dateString2
         }
         elseif ($typeName1 -eq "String" -or $typeName2 -eq "String") {
             if ($typeName1 -ne "String") {
-                $object1 = $object1.ToString()
+                $Object1 = $Object1.ToString()
             }
-            if ($null -eq $object2) {
-                $object2 = ""
+            if ($null -eq $Object2) {
+                $Object2 = ""
             }
             elseif ($typeName2 -ne "String") {
-                $object2 = $object2.ToString()
+                $Object2 = $Object2.ToString()
             }
-            return $object1 -eq $object2
+            return $Object1 -eq $Object2
         }
-        elseif ($object1 -is [System.ValueType] -or $object2 -is [System.ValueType]) {
+        elseif ($Object1 -is [System.ValueType] -or $Object2 -is [System.ValueType]) {
             return $false
         }
-        elseif (($typeName1 -in @( "Hashtable", "OrderedDictionary", "OrderedHashtable" ) -or $object1 -is [PSCustomObject]) `
-                -and ($typeName2 -in @( "null", "Hashtable", "OrderedDictionary", "OrderedHashtable" ) -or $object2 -is [PSCustomObject])) {
+        elseif (($typeName1 -in @( "Hashtable", "OrderedDictionary", "OrderedHashtable" ) -or $Object1 -is [PSCustomObject]) `
+                -and ($typeName2 -in @( "null", "Hashtable", "OrderedDictionary", "OrderedHashtable" ) -or $Object2 -is [PSCustomObject])) {
 
-            if ($object1 -is [PSCustomObject]) {
-                $object1 = Get-DeepClone $object1 -AsHashTable
+            if ($Object1 -is [PSCustomObject]) {
+                $Object1 = Get-DeepClone $Object1 -AsHashtable
             }
 
-            if ($null -eq $object2) {
-                $object2 = @{}
+            if ($null -eq $Object2) {
+                $Object2 = @{}
             }
-            elseif ($object2 -is [PSCustomObject]) {
-                $object2 = Get-DeepClone $object2 -AsHashTable
+            elseif ($Object2 -is [PSCustomObject]) {
+                $Object2 = Get-DeepClone $Object2 -AsHashtable
             }
 
             # walk both sets of keys
-            $uniqueKeys = @(@($object1.Keys) + @($object2.Keys) | Sort-Object -Unique )
+            $uniqueKeys = @(@($Object1.Keys) + @($Object2.Keys) | Sort-Object -Unique )
             foreach ($key in $uniqueKeys) {
                 #recurse
-                $item1 = $object1.$key
-                $item2 = $object2.$key
+                $item1 = $Object1.$key
+                $item2 = $Object2.$key
                 if ($item1 -ne $item2 -and !(Confirm-ObjectValueEqualityDeep $item1 $item2)) {
                     return $false
                 }

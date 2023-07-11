@@ -1,86 +1,86 @@
 function Set-AssignmentNode {
     [CmdletBinding()]
     param (
-        $treeNode,
-        $assignmentNode,
-        [string[]] $propertyNames
+        $TreeNode,
+        $AssignmentNode,
+        [string[]] $PropertyNames
     )
 
     $remainingPropertyNames = [System.Collections.ArrayList]::new()
-    foreach ($propertyName in $propertyNames) {
-        if ($treeNode.ContainsKey($propertyName)) {
-            $propertyValue = $treeNode.$propertyName
-            switch ($propertyName) {
+    foreach ($PropertyName in $PropertyNames) {
+        if ($TreeNode.ContainsKey($PropertyName)) {
+            $PropertyValue = $TreeNode.$PropertyName
+            switch ($PropertyName) {
                 parameters {
-                    if ($null -ne $propertyValue -and $propertyValue.psbase.Count -gt 0) {
-                        $null = $assignmentNode.Add("parameters", $propertyValue)
+                    if ($null -ne $PropertyValue -and $PropertyValue.psbase.Count -gt 0) {
+                        $null = $AssignmentNode.Add("parameters", $PropertyValue)
                     }
                     break
                 }
                 overrides {
-                    if ($null -ne $propertyValue) {
-                        $null = $assignmentNode.Add("overrides", $propertyValue)
+                    if ($null -ne $PropertyValue) {
+                        $null = $AssignmentNode.Add("overrides", $PropertyValue)
                     }
                     break
                 }
                 resourceSelectors {
-                    if ($null -ne $propertyValue) {
-                        $null = $assignmentNode.Add("resourceSelectors", $propertyValue)
+                    if ($null -ne $PropertyValue) {
+                        $null = $AssignmentNode.Add("resourceSelectors", $PropertyValue)
                     }
                     break
                 }
                 enforcementMode {
-                    if ($null -ne $propertyValue -and $propertyValue -ne "Default") {
-                        $null = $assignmentNode.Add("enforcementMode", $propertyValue)
+                    if ($null -ne $PropertyValue -and $PropertyValue -ne "Default") {
+                        $null = $AssignmentNode.Add("enforcementMode", $PropertyValue)
                     }
                     break
                 }
                 nonComplianceMessages {
-                    if ($null -ne $propertyValue -and $propertyValue.Count -gt 0) {
-                        if ($assignmentNode.nodeName -eq "/root") {
+                    if ($null -ne $PropertyValue -and $PropertyValue.Count -gt 0) {
+                        if ($AssignmentNode.nodeName -eq "/root") {
                             # special case for nonComplianceMessages
-                            $assignmentDefinitionEntry = $assignmentNode.definitionEntry
-                            $null = $assignmentDefinitionEntry.Add("nonComplianceMessages", $propertyValue)
+                            $AssignmentDefinitionEntry = $AssignmentNode.definitionEntry
+                            $null = $AssignmentDefinitionEntry.Add("nonComplianceMessages", $PropertyValue)
                         }
                         else {
-                            $null = $assignmentNode.Add("nonComplianceMessages", $propertyValue)
+                            $null = $AssignmentNode.Add("nonComplianceMessages", $PropertyValue)
                         }
                     }
                     break
                 }
                 metadata {
-                    if ($null -ne $propertyValue -and $propertyValue.psbase.Count -gt 0) {
-                        $null = $assignmentNode.Add("metadata", $propertyValue)
+                    if ($null -ne $PropertyValue -and $PropertyValue.psbase.Count -gt 0) {
+                        $null = $AssignmentNode.Add("metadata", $PropertyValue)
                     }
                     break
                 }
                 assignmentNameEx {
-                    $null = $assignmentNode.Add("assignment", @{
-                            name        = $propertyValue.name
-                            displayName = $propertyValue.displayName
-                            description = $propertyValue.description
+                    $null = $AssignmentNode.Add("assignment", @{
+                            name        = $PropertyValue.name
+                            displayName = $PropertyValue.displayName
+                            description = $PropertyValue.description
                         }
                     )
                     break
                 }
                 additionalRoleAssignments {
                     $additionalRoleAssignmentsEntry = @{}
-                    foreach ($selector in $propertyValue.Keys) {
-                        $additionalRoleAssignments = $propertyValue.$selector
+                    foreach ($selector in $PropertyValue.Keys) {
+                        $additionalRoleAssignments = $PropertyValue.$selector
                         if ($null -ne $additionalRoleAssignments -and $additionalRoleAssignments.Count -gt 0) {
                             $additionalRoleAssignmentsEntry[$selector] = $additionalRoleAssignments
                         }
                     }
                     if ($additionalRoleAssignmentsEntry.Count -gt 0) {
-                        $null = $assignmentNode.Add("additionalRoleAssignments", $additionalRoleAssignmentsEntry)
+                        $null = $AssignmentNode.Add("additionalRoleAssignments", $additionalRoleAssignmentsEntry)
                     }
                     break
                 }
                 identityEntry {
                     $locationEntry = @{}
                     $userAssigned = @{}
-                    foreach ($selector in $propertyValue.Keys) {
-                        $value = $propertyValue.$selector
+                    foreach ($selector in $PropertyValue.Keys) {
+                        $value = $PropertyValue.$selector
                         if ($null -ne $value) {
                             $location = $value.location
                             if ($null -ne $location) {
@@ -93,57 +93,57 @@ function Set-AssignmentNode {
                         }
                     }
                     if ($locationEntry.Count -gt 0) {
-                        $null = $assignmentNode.Add("managedIdentityLocations", $locationEntry)
+                        $null = $AssignmentNode.Add("managedIdentityLocations", $locationEntry)
                     }
                     if ($userAssigned.Count -gt 0) {
-                        $null = $assignmentNode.Add("userAssignedIdentity", $userAssigned)
+                        $null = $AssignmentNode.Add("userAssignedIdentity", $userAssigned)
                     }
                     break
                 }
                 notScopes {
-                    $notScopesValue = @{}
-                    foreach ($selector in $propertyValue.Keys) {
-                        $notScopes = $propertyValue.$selector
-                        if ($null -ne $notScopes -and $notScopes.Count -gt 0) {
-                            $notScopesValue[$selector] = $notScopes
+                    $NotScopesValue = @{}
+                    foreach ($selector in $PropertyValue.Keys) {
+                        $NotScopes = $PropertyValue.$selector
+                        if ($null -ne $NotScopes -and $NotScopes.Count -gt 0) {
+                            $NotScopesValue[$selector] = $NotScopes
                         }
                     }
-                    if ($notScopesValue.Count -gt 0) {
-                        $null = $assignmentNode.Add("notScope", $notScopesValue)
+                    if ($NotScopesValue.Count -gt 0) {
+                        $null = $AssignmentNode.Add("notScope", $NotScopesValue)
                     }
                     break
                 }
                 scopes {
-                    $scopeValue = @{}
-                    foreach ($selector in $propertyValue.Keys) {
-                        $scopes = $propertyValue.$selector
-                        if ($null -ne $scopes -and $scopes.Count -gt 0) {
-                            $scopeValue[$selector] = $scopes
+                    $ScopeValue = @{}
+                    foreach ($selector in $PropertyValue.Keys) {
+                        $Scopes = $PropertyValue.$selector
+                        if ($null -ne $Scopes -and $Scopes.Count -gt 0) {
+                            $ScopeValue[$selector] = $Scopes
                         }
                     }
-                    if ($scopeValue.Count -gt 0) {
-                        $null = $assignmentNode.Add("scope", $scopeValue)
+                    if ($ScopeValue.Count -gt 0) {
+                        $null = $AssignmentNode.Add("scope", $ScopeValue)
                     }
                     break
                 }
             }
         }
         else {
-            $null = $remainingPropertyNames.Add($propertyName)
+            $null = $remainingPropertyNames.Add($PropertyName)
         }
     }
 
     if ($remainingPropertyNames.Count -gt 0) {
         $remainingPropertyNames = $remainingPropertyNames.ToArray()
-        $children = $treeNode.children
+        $children = $TreeNode.children
         $count = $children.Count
         if ($count -eq 1) {
             # an only child, collapse tree
             $child = $children[0]
             Set-AssignmentNode `
-                -treeNode $child `
-                -assignmentNode $assignmentNode `
-                -propertyNames $remainingPropertyNames
+                -TreeNode $child `
+                -AssignmentNode $AssignmentNode `
+                -PropertyNames $remainingPropertyNames
         }
         elseif ($count -gt 1) {
             # multiple siblings, create a children entry and iterate through the children
@@ -156,12 +156,12 @@ function Set-AssignmentNode {
                 $null = $newAssignmentNodeChildren.Add($newAssignmentNode)
 
                 Set-AssignmentNode `
-                    -treeNode $child `
-                    -assignmentNode $newAssignmentNode `
-                    -propertyNames $remainingPropertyNames
+                    -TreeNode $child `
+                    -AssignmentNode $newAssignmentNode `
+                    -PropertyNames $remainingPropertyNames
                 $i++
             }
-            $null = $assignmentNode.Add("children", $newAssignmentNodeChildren.ToArray())
+            $null = $AssignmentNode.Add("children", $newAssignmentNodeChildren.ToArray())
         }
     }
 }

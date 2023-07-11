@@ -3,7 +3,7 @@ function Get-FilteredHashTable {
     param
     (
         [parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true, HelpMessage = "Hashtable or custom object containing the values needed.")]
-        [PSCustomObject] $splat,
+        [PSCustomObject] $Splat,
 
         [Parameter(HelpMessage = "
         Format is a string with a space separated list of substrings. Each substring:
@@ -15,31 +15,31 @@ function Get-FilteredHashTable {
         - Id DisplayName Description Metadata ExemptionCategory ExpiresOn ClearExpiration PolicyDefinitionReferenceIds/PolicyDefinitionReferenceId
         - name/Name displayName/DisplayName description/Description parameter/Parameter:json Policy:json
         ")]
-        [string] $splatTransform = $null,
+        [string] $SplatTransform = $null,
 
         [Parameter(HelpMessage = "Output will be formatted for use in az cli (instead of PowerShell modules")]
-        [switch] $formatForAzCli
+        [switch] $FormatForAzCli
 
     )
 
     [hashtable] $filteredSplat = @{}
-    if ($null -ne $splat) {
+    if ($null -ne $Splat) {
         # ignore an empty splat
-        if (-not ($splat -is [hashtable])) {
-            $ht = ConvertTo-HashTable $splat
-            $splat = $ht
+        if (-not ($Splat -is [hashtable])) {
+            $ht = ConvertTo-HashTable $Splat
+            $Splat = $ht
         }
 
-        $transforms = $splat.Keys
-        if ($splatTransform) {
-            $transforms = $splatTransform.Split()
+        $transforms = $Splat.Keys
+        if ($SplatTransform) {
+            $transforms = $SplatTransform.Split()
         }
         foreach ($transform in $transforms) {
             $typeOverrideSplits = $transform.Split(":")
             $argNamesTransform = $typeOverrideSplits[0]
             $argNameSplits = $argNamesTransform.Split("/")
             if (!($argNameSplits.Count -in @( 1, 2 ) -and $typeOverrideSplits.Count -in @( 1, 2 ))) {
-                Write-Error "Get-FilteredHashTable: splatTransform `"$splatTransform`" contains an invalid element `"$transform`" - code bug" -ErrorAction Stop
+                Write-Error "Get-FilteredHashTable: splatTransform `"$SplatTransform`" contains an invalid element `"$transform`" - code bug" -ErrorAction Stop
             }
             $argName = $argNameSplits[0]
             $commandArgName = $argNameSplits[-1]
@@ -48,26 +48,26 @@ function Get-FilteredHashTable {
                 $type = $typeOverrideSplits[1]
             }
             if ($type -notin @("infer", "json", "hashtable", "array", "key", "value", "keyValue", "policyScope")) {
-                Write-Error "Get-FilteredHashTable: splatTransform `"$splatTransform`" contains an invalid type override in element `"$transform`" - code bug" -ErrorAction Stop
+                Write-Error "Get-FilteredHashTable: splatTransform `"$SplatTransform`" contains an invalid type override in element `"$transform`" - code bug" -ErrorAction Stop
             }
 
-            if ($splat.ContainsKey($argName)) {
+            if ($Splat.ContainsKey($argName)) {
 
-                $splatValue = $splat.$argName
-                if ($null -ne $splatValue) {
+                $SplatValue = $Splat.$argName
+                if ($null -ne $SplatValue) {
 
                     if ($type -eq "infer") {
                         # Infer format from data type
-                        if ($splatValue -is [array]) {
+                        if ($SplatValue -is [array]) {
                             $type = "array"
-                            foreach ($value in $splatValue) {
+                            foreach ($value in $SplatValue) {
                                 if (-not($value -is [string] -or $value -is [System.ValueType])) {
                                     $type = "json"
                                     break
                                 }
                             }
                         }
-                        elseif ($splatValue -is [string] -or $splatValue -is [System.ValueType]) {
+                        elseif ($SplatValue -is [string] -or $SplatValue -is [System.ValueType]) {
                             $type = "value"
                         }
                         else {
@@ -77,11 +77,11 @@ function Get-FilteredHashTable {
 
                     switch ($type) {
                         json {
-                            $argValue = ConvertTo-Json $splatValue -Depth 100 -Compress
+                            $argValue = ConvertTo-Json $SplatValue -Depth 100 -Compress
                             $null = $filteredSplat.Add($commandArgName, $argValue)
                         }
                         hashtable {
-                            $argValue = Get-DeepClone $splatValue -AsHashTable
+                            $argValue = Get-DeepClone $SplatValue -AsHashtable
                             $null = $filteredSplat.Add($commandArgName, $argValue)
                         }
                         key {
@@ -89,13 +89,13 @@ function Get-FilteredHashTable {
                             $null = $filteredSplat.Add($commandArgName, $true)
                         }
                         value {
-                            $null = $filteredSplat.Add($commandArgName, $splatValue)
+                            $null = $filteredSplat.Add($commandArgName, $SplatValue)
                         }
                         array {
-                            $null = $filteredSplat.Add($commandArgName, $splatValue)
+                            $null = $filteredSplat.Add($commandArgName, $SplatValue)
                         }
                         policyScope {
-                            $argName, $argValue = Split-ScopeId -scopeId $splatValue
+                            $argName, $argValue = Split-ScopeId -ScopeId $SplatValue
                             $filteredSplat.Add($argName, $argValue)
                         }
                     }

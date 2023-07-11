@@ -1,20 +1,20 @@
 function Remove-GlobalNotScopes {
     [CmdletBinding()]
     param (
-        $notScopes,
-        $globalNotScopes
+        $NotScopes,
+        $GlobalNotScopes
     )
-    if ($null -ne $notScopes -and $notScopes.Count -gt 0) {
-        if ($null -ne $globalNotScopes -and $globalNotScopes.Count -gt 0) {
+    if ($null -ne $NotScopes -and $NotScopes.Count -gt 0) {
+        if ($null -ne $GlobalNotScopes -and $GlobalNotScopes.Count -gt 0) {
             $modifiedNotScopes = [System.Collections.ArrayList]::new()
-            foreach ($notScope in $notScopes) {
+            foreach ($notScope in $NotScopes) {
                 $resourceGroup = $null
                 if ($notScope.StartsWith("/subscriptions/") -and $notScope.Contains("/resourceGroups/")) {
                     $resourceGroupSplits = $notScope -split "/"
                     $resourceGroup = $resourceGroupSplits[-1]
                 }
                 $found = $false
-                foreach ($globalNotScope in $globalNotScopes) {
+                foreach ($globalNotScope in $GlobalNotScopes) {
                     if ($notScope -eq $globalNotScope) {
                         $found = $true
                         break
@@ -33,7 +33,7 @@ function Remove-GlobalNotScopes {
             }
         }
         else {
-            return $notScopes
+            return $NotScopes
         }
     }
     else {

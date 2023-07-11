@@ -1,65 +1,65 @@
 function Build-PolicySetPolicyDefinitionIds {
     [CmdletBinding()]
     param(
-        $displayName,
-        $policyDefinitions,
-        $policyDefinitionsScopes,
+        $DisplayName,
+        $PolicyDefinitions,
+        $PolicyDefinitionsScopes,
 
-        [hashtable] $allDefinitions,
-        [hashtable] $policyRoleIds
+        [hashtable] $AllDefinitions,
+        [hashtable] $PolicyRoleIds
     )
 
     $validPolicyDefinitions = $true
-    $policyDefinitionsFinal = [System.Collections.ArrayList]::new()
-    $policyRoleIdsInSet = @{}
+    $PolicyDefinitionsFinal = [System.Collections.ArrayList]::new()
+    $PolicyRoleIdsInSet = @{}
     $usedPolicyGroupDefinitions = @{}
 
-    foreach ($policyDefinition in $policyDefinitions) {
+    foreach ($PolicyDefinition in $PolicyDefinitions) {
 
         # Validate required fields
-        $policyId = $policyDefinition.policyDefinitionId
-        $policyName = $policyDefinition.policyDefinitionName
-        $policyDefinitionReferenceId = $policyDefinition.policyDefinitionReferenceId
-        if ($null -eq $policyDefinitionReferenceId) {
+        $PolicyId = $PolicyDefinition.policyDefinitionId
+        $PolicyName = $PolicyDefinition.policyDefinitionName
+        $PolicyDefinitionReferenceId = $PolicyDefinition.policyDefinitionReferenceId
+        if ($null -eq $PolicyDefinitionReferenceId) {
             $validPolicyDefinitions = $false
-            $policyDefinitionReferenceId = "** not defined **"
-            [string] $policyDefinitionJsonString = $policyDefinition | ConvertTo-Json -Depth 100 -Compress
-            if ($policyDefinitionJsonString.Length -gt 120) {
-                $policyDefinitionJsonString = $policyDefinitionJsonString.Substring(0, 120)
+            $PolicyDefinitionReferenceId = "** not defined **"
+            [string] $PolicyDefinitionJsonString = $PolicyDefinition | ConvertTo-Json -Depth 100 -Compress
+            if ($PolicyDefinitionJsonString.Length -gt 120) {
+                $PolicyDefinitionJsonString = $PolicyDefinitionJsonString.Substring(0, 120)
             }
-            Write-Error "$($displayName): policyDefinitions entry is missing policyDefinitionReferenceId: $policyDefinitionJsonString"
+            Write-Error "$($DisplayName): policyDefinitions entry is missing policyDefinitionReferenceId: $PolicyDefinitionJsonString"
         }
-        if (!($null -eq $policyId -xor $null -eq $policyName)) {
+        if (!($null -eq $PolicyId -xor $null -eq $PolicyName)) {
             $validPolicyDefinitions = $false
-            if ("" -eq $policyId -and "" -eq $policyName) {
-                Write-Error "$($displayName): policyDefinitions entry ($policyDefinitionReferenceId) does not define a policyDefinitionName or a policyDefinitionId."
+            if ("" -eq $PolicyId -and "" -eq $PolicyName) {
+                Write-Error "$($DisplayName): policyDefinitions entry ($PolicyDefinitionReferenceId) does not define a policyDefinitionName or a policyDefinitionId."
             }
             else {
-                Write-Error "$($displayName): policyDefinitions entry ($policyDefinitionReferenceId) may only contain a policyDefinitionName '$($policyName)' or a policyDefinitionId '$($policyId)'."
+                Write-Error "$($DisplayName): policyDefinitions entry ($PolicyDefinitionReferenceId) may only contain a policyDefinitionName '$($PolicyName)' or a policyDefinitionId '$($PolicyId)'."
             }
         }
 
 
         # Check Policy exist
         if ($validPolicyDefinitions) {
-            $policyId = Confirm-PolicyDefinitionUsedExists `
-                -id $policyId `
-                -name $policyName `
-                -policyDefinitionsScopes $policyDefinitionsScopes `
-                -allDefinitions $allDefinitions
+            $PolicyId = Confirm-PolicyDefinitionUsedExists `
+                -Id $PolicyId `
+                -Name $PolicyName `
+                -PolicyDefinitionsScopes $PolicyDefinitionsScopes `
+                -AllDefinitions $AllDefinitions
 
-            if ($null -ne $policyId) {
+            if ($null -ne $PolicyId) {
                 # Calculate RoleDefinitionIds
-                if ($policyRoleIds.ContainsKey($policyId)) {
-                    $addRoleDefinitionIds = $policyRoleIds.$policyId
+                if ($PolicyRoleIds.ContainsKey($PolicyId)) {
+                    $addRoleDefinitionIds = $PolicyRoleIds.$PolicyId
                     foreach ($roleDefinitionId in $addRoleDefinitionIds) {
-                        $policyRoleIdsInSet[$roleDefinitionId] = "added"
+                        $PolicyRoleIdsInSet[$roleDefinitionId] = "added"
                     }
                 }
 
                 # calculate union of groupNames
-                if ($null -ne $policyDefinition.groupNames) {
-                    $groupNames = $policyDefinition.groupNames
+                if ($null -ne $PolicyDefinition.groupNames) {
+                    $groupNames = $PolicyDefinition.groupNames
                     foreach ($groupName in $groupNames) {
                         if (!$usedPolicyGroupDefinitions.ContainsKey($groupName)) {
                             $null = $usedPolicyGroupDefinitions.Add($groupName, $groupName)
@@ -69,17 +69,17 @@ function Build-PolicySetPolicyDefinitionIds {
 
                 # Create the modified groupDefinition
                 $modifiedPolicyDefinition = @{
-                    policyDefinitionReferenceId = $policyDefinitionReferenceId
-                    policyDefinitionId          = $policyId
-                    # definitionVersion           = $policyDefinition.definitionVersion
+                    policyDefinitionReferenceId = $PolicyDefinitionReferenceId
+                    policyDefinitionId          = $PolicyId
+                    # definitionVersion           = $PolicyDefinition.definitionVersion
                 }
-                if ($null -ne $policyDefinition.parameters) {
-                    $modifiedPolicyDefinition.Add("parameters", $policyDefinition.parameters)
+                if ($null -ne $PolicyDefinition.parameters) {
+                    $modifiedPolicyDefinition.Add("parameters", $PolicyDefinition.parameters)
                 }
-                if ($null -ne $policyDefinition.groupNames) {
-                    $modifiedPolicyDefinition.Add("groupNames", $policyDefinition.groupNames)
+                if ($null -ne $PolicyDefinition.groupNames) {
+                    $modifiedPolicyDefinition.Add("groupNames", $PolicyDefinition.groupNames)
                 }
-                $null = $policyDefinitionsFinal.Add($modifiedPolicyDefinition)
+                $null = $PolicyDefinitionsFinal.Add($modifiedPolicyDefinition)
             }
             else {
                 $validPolicyDefinitions = $false
@@ -87,5 +87,5 @@ function Build-PolicySetPolicyDefinitionIds {
         }
     }
 
-    return $validPolicyDefinitions, $policyDefinitionsFinal, $policyRoleIdsInSet, $usedPolicyGroupDefinitions
+    return $validPolicyDefinitions, $PolicyDefinitionsFinal, $PolicyRoleIdsInSet, $usedPolicyGroupDefinitions
 }

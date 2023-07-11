@@ -4,7 +4,7 @@
 .DESCRIPTION
     Creates a definitions folder with the correct folder structure and blank global settings file.
 .EXAMPLE
-    New-EPACDefinitionFolder -definitionsRootFolder = "Definitions"
+    New-EPACDefinitionFolder -DefinitionsRootFolder = "Definitions"
 
     Scaffold a definitions folder called "Definitions"
 #>
@@ -20,7 +20,7 @@ if (!(Test-Path $DefinitionsRootFolder)) {
 
     $ct = @'
 {
-    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/global-settings-schema.json"
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-Policy-as-code/main/Schemas/global-settings-schema.json"
 }
 '@
     $ct | Set-Content -Path $DefinitionsRootFolder\global-settings.jsonc

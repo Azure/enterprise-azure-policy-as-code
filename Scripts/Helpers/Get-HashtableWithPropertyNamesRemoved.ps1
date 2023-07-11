@@ -1,38 +1,38 @@
 function Get-HashtableWithPropertyNamesRemoved {
     [CmdletBinding()]
     param(
-        $object,
-        $propertyNames
+        $Object,
+        $PropertyNames
     )
 
-    $objectClone = $object
-    if ($object -is [System.Collections.IDictionary]) {
-        $objectClone1 = $object.Clone()
-        if ($propertyNames -is [System.Collections.IList]) {
-            foreach ($propertyName in $propertyNames) {
-                $objectClone1.Remove($propertyName)
+    $ObjectClone = $Object
+    if ($Object -is [System.Collections.IDictionary]) {
+        $ObjectClone1 = $Object.Clone()
+        if ($PropertyNames -is [System.Collections.IList]) {
+            foreach ($PropertyName in $PropertyNames) {
+                $ObjectClone1.Remove($PropertyName)
             }
         }
         else {
-            $objectClone1.Remove($propertyNames)
+            $ObjectClone1.Remove($PropertyNames)
         }
-        $objectClone = @{}
-        foreach ($key in $objectClone1.Keys) {
-            $value = $objectClone1.$key
-            $newValue = Get-HashtableWithPropertyNamesRemoved -object $value -property $propertyNames
-            $null = $objectClone.Add($key, $newValue)
+        $ObjectClone = @{}
+        foreach ($key in $ObjectClone1.Keys) {
+            $value = $ObjectClone1.$key
+            $newValue = Get-HashtableWithPropertyNamesRemoved -Object $value -property $PropertyNames
+            $null = $ObjectClone.Add($key, $newValue)
         }
-        return $objectClone
+        return $ObjectClone
     }
-    elseif ($object -is [System.Collections.IList]) {
-        $objectClone = [System.Collections.ArrayList]::new()
-        foreach ($item in $object) {
-            $newValue = Get-HashtableWithPropertyNamesRemoved -object $item -property $propertyNames
-            $null = $objectClone.Add($newValue)
+    elseif ($Object -is [System.Collections.IList]) {
+        $ObjectClone = [System.Collections.ArrayList]::new()
+        foreach ($item in $Object) {
+            $newValue = Get-HashtableWithPropertyNamesRemoved -Object $item -property $PropertyNames
+            $null = $ObjectClone.Add($newValue)
         }
-        Write-Output $objectClone -NoEnumerate
+        Write-Output $ObjectClone -NoEnumerate
     }
     else {
-        return $objectClone
+        return $ObjectClone
     }
 }

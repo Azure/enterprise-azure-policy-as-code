@@ -4,12 +4,12 @@ function Get-DeepClone {
         [parameter(Position = 0, ValueFromPipeline = $true)]
         $InputObject,
 
-        [switch] $AsHashTable
+        [switch] $AsHashtable
     )
 
     if ($null -ne $InputObject) {
         $json = ConvertTo-Json $InputObject -Depth 100 -Compress
-        $clone = ConvertFrom-Json $json -NoEnumerate -Depth 100 -AsHashtable:$AsHashTable
+        $clone = ConvertFrom-Json $json -NoEnumerate -Depth 100 -AsHashtable:$AsHashtable
         if ($InputObject -is [array]) {
             Write-Output -NoEnumerate $clone
         }
@@ -17,7 +17,7 @@ function Get-DeepClone {
             return $clone
         }
     }
-    elseif ($AsHashTable) {
+    elseif ($AsHashtable) {
         return @{}
     }
     else {

@@ -2,22 +2,22 @@ function Remove-NullFields {
     [CmdletBinding()]
     param (
         [Parameter(Position = 0, ValueFromPipeline = $true)]
-        $inputObject
+        $InputObject
     )
 
-    if ($null -ne $inputObject) {
-        $type = $inputObject.GetType()
+    if ($null -ne $InputObject) {
+        $type = $InputObject.GetType()
         $typeName = $type.Name
 
         if ($typeName -in @( "Hashtable", "OrderedDictionary", "OrderedHashtable" )) {
-            $keys = [System.Collections.ArrayList]::new($inputObject.Keys)
+            $keys = [System.Collections.ArrayList]::new($InputObject.Keys)
             foreach ($key in $keys) {
-                $value = $inputObject.$key
+                $value = $InputObject.$key
                 if ($null -eq $value) {
-                    $null = $inputObject.Remove($key)
+                    $null = $InputObject.Remove($key)
                 }
             }
-            foreach ($value in $inputObject.Values) {
+            foreach ($value in $InputObject.Values) {
                 $type = $value.GetType()
                 $typeName = $type.Name
                 if ($typeName -in @( "Object[]", "ArrayList", "Hashtable", "OrderedDictionary", "OrderedHashtable" ) -or $value -is [PSCustomObject]) {
@@ -26,7 +26,7 @@ function Remove-NullFields {
             }
         }
         elseif ($typeName -in @( "Object[]", "ArrayList" )) {
-            foreach ($value in $inputObject) {
+            foreach ($value in $InputObject) {
                 $type = $value.GetType()
                 $typeName = $type.Name
                 if ($typeName -in @( "Object[]", "ArrayList", "Hashtable", "OrderedDictionary", "OrderedHashtable") -or $value -is [PSCustomObject]) {
@@ -34,18 +34,18 @@ function Remove-NullFields {
                 }
             }
         }
-        elseif ($inputObject -is [PSCustomObject]) {
-            $properties = $inputObject.psobject.properties
-            $removeNames = [System.Collections.ArrayList]::new()
+        elseif ($InputObject -is [PSCustomObject]) {
+            $properties = $InputObject.psobject.properties
+            $RemoveNames = [System.Collections.ArrayList]::new()
             foreach ($property in $properties) {
                 $value = $property.Value
                 if ($null -eq $value) {
-                    $name = $property.Name
-                    $null = $removeNames.Add($name)
+                    $Name = $property.Name
+                    $null = $RemoveNames.Add($Name)
                 }
             }
-            foreach ($removeName in $removeNames) {
-                $null = $inputObject.psobject.properties.remove($removeName)
+            foreach ($RemoveName in $RemoveNames) {
+                $null = $InputObject.psobject.properties.remove($RemoveName)
             }
             foreach ($property in $properties) {
                 $value = $property.Value

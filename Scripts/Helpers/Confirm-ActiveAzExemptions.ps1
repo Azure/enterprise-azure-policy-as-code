@@ -1,8 +1,8 @@
 function Confirm-ActiveAzExemptions {
     [CmdletBinding()]
     param (
-        $exemptions,
-        $assignments
+        $Exemptions,
+        $Assignments
     )
 
     # Process Exemptions
@@ -13,10 +13,10 @@ function Confirm-ActiveAzExemptions {
     [hashtable] $orphanedExemptions = @{}
 
     $now = Get-Date
-    foreach ($exemptionId in $exemptions.Keys) {
-        $exemption = $exemptions.$exemptionId
-        $policyAssignmentId = $exemption.policyAssignmentId
-        $isValid = $assignments.ContainsKey($policyAssignmentId)
+    foreach ($exemptionId in $Exemptions.Keys) {
+        $exemption = $Exemptions.$exemptionId
+        $PolicyAssignmentId = $exemption.policyAssignmentId
+        $isValid = $Assignments.ContainsKey($PolicyAssignmentId)
         $expiresOnString = $exemption.expiresOn
         $expired = $false
         $expiresInDays = [Int32]::MaxValue
@@ -36,19 +36,19 @@ function Confirm-ActiveAzExemptions {
             }
         }
 
-        $name = $exemption.name
-        $displayName = $exemption.displayName
-        if ($null -eq $displayName) {
-            $displayName = $name
+        $Name = $exemption.name
+        $DisplayName = $exemption.displayName
+        if ($null -eq $DisplayName) {
+            $DisplayName = $Name
         }
 
-        $metadata = $exemption.metadata
-        if ($metadata -eq @{}) {
-            $metadata = $null
+        $Metadata = $exemption.metadata
+        if ($Metadata -eq @{}) {
+            $Metadata = $null
         }
 
-        $exemptionObj = [pscustomobject][ordered]@{
-            name                         = $name
+        $ExemptionObj = [pscustomobject][ordered]@{
+            name                         = $Name
             displayName                  = $exemption.displayName
             description                  = $exemption.description
             exemptionCategory            = $exemption.exemptionCategory
@@ -56,27 +56,27 @@ function Confirm-ActiveAzExemptions {
             status                       = $status
             expiresInDays                = $expiresInDays
             scope                        = $exemption.scope
-            policyAssignmentId           = $policyAssignmentId
+            policyAssignmentId           = $PolicyAssignmentId
             policyDefinitionReferenceIds = $exemption.policyDefinitionReferenceIds
-            metadata                     = $metadata
+            metadata                     = $Metadata
             id                           = $exemptionId
         }
 
-        $null = $allExemptions.Add($exemptionId, $exemptionObj)
+        $null = $allExemptions.Add($exemptionId, $ExemptionObj)
         switch ($status) {
             active {
-                $null = $activeExemptions.Add($exemptionId, $exemptionObj)
+                $null = $activeExemptions.Add($exemptionId, $ExemptionObj)
             }
             orphaned {
-                $null = $orphanedExemptions.Add($exemptionId, $exemptionObj)
+                $null = $orphanedExemptions.Add($exemptionId, $ExemptionObj)
             }
             expired {
-                $null = $expiredExemptions.Add($exemptionId, $exemptionObj)
+                $null = $expiredExemptions.Add($exemptionId, $ExemptionObj)
             }
         }
     }
 
-    $exemptionsResult = @{
+    $ExemptionsResult = @{
         all           = $allExemptions
         active        = $activeExemptions
         expiresInDays = $expiringExemptions # Subset of active
@@ -84,5 +84,5 @@ function Confirm-ActiveAzExemptions {
         expired       = $expiredExemptions
     }
 
-    return $exemptionsResult
+    return $ExemptionsResult
 }

@@ -1,28 +1,28 @@
 function Merge-ExportNodeAncestors {
     [CmdletBinding()]
     param (
-        [hashtable] $parentNode,
-        [string] $pacSelector,
-        [string] $propertyName,
-        $propertyValue
+        [hashtable] $ParentNode,
+        [string] $PacSelector,
+        [string] $PropertyName,
+        $PropertyValue
     )
 
-    $parentClusters = $parentNode.clusters
-    if (-not $parentClusters.ContainsKey($propertyName)) {
-        $null = $parentClusters.Add($propertyName, (ConvertTo-ArrayList $propertyValue))
-        $parentNode[$propertyName] = $propertyValue
+    $parentClusters = $ParentNode.clusters
+    if (-not $parentClusters.ContainsKey($PropertyName)) {
+        $null = $parentClusters.Add($PropertyName, (ConvertTo-ArrayList $PropertyValue))
+        $ParentNode[$PropertyName] = $PropertyValue
     }
     else {
-        $parentCluster = $parentClusters.$propertyName
+        $parentCluster = $parentClusters.$PropertyName
         foreach ($clusterItem in $parentCluster) {
-            $match = Confirm-ObjectValueEqualityDeep $clusterItem $propertyValue
+            $match = Confirm-ObjectValueEqualityDeep $clusterItem $PropertyValue
             if ($match) {
                 return $true
             }
         }
-        $null = $parentCluster.Add($propertyValue)
-        if ($parentNode.ContainsKey($propertyName)) {
-            $null = $parentNode.Remove($propertyName)
+        $null = $parentCluster.Add($PropertyValue)
+        if ($ParentNode.ContainsKey($PropertyName)) {
+            $null = $ParentNode.Remove($PropertyName)
         }
     }
     return $false

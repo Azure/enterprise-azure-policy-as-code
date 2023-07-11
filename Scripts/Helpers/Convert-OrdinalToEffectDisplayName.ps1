@@ -1,6 +1,6 @@
 function Convert-OrdinalToEffectDisplayName {
     param (
-        [string] $ordinal
+        [string] $Ordinal
     )
 
     $sortOrdinal2effect = @(
@@ -11,10 +11,10 @@ function Convert-OrdinalToEffectDisplayName {
         "Policy effects Disabled"
     )
 
-    $displayName = "Unknown"
-    if ($ordinal -ge 0 -and $ordinal -lt $sortOrdinal2effect.Count) {
-        $displayName = $sortOrdinal2effect[$ordinal]
-        $link = $displayName.ToLower() -replace "[ ]", "-" -replace "[\()\,]", "_"
+    $DisplayName = "Unknown"
+    if ($Ordinal -ge 0 -and $Ordinal -lt $sortOrdinal2effect.Count) {
+        $DisplayName = $sortOrdinal2effect[$Ordinal]
+        $link = $DisplayName.ToLower() -replace "[ ]", "-" -replace "[\()\,]", "_"
     }
-    return $displayName, $link
+    return $DisplayName, $link
 }

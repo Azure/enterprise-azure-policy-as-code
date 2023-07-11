@@ -1,33 +1,33 @@
 function Merge-AssignmentParametersEx {
     # Recursive Function
     param(
-        $nodeName,
-        $policySetId,
-        [hashtable] $baseAssignment,
-        [hashtable] $parameterInstructions,
-        [hashtable] $flatPolicyList,
-        [hashtable] $combinedPolicyDetails,
-        [hashtable] $effectProcessedForPolicy
+        $NodeName,
+        $PolicySetId,
+        [hashtable] $BaseAssignment,
+        [hashtable] $ParameterInstructions,
+        [hashtable] $FlatPolicyList,
+        [hashtable] $CombinedPolicyDetails,
+        [hashtable] $EffectProcessedForPolicy
     )
 
-    $csvParameterArray = $parameterInstructions.csvParameterArray
-    $effectColumn = $parameterInstructions.effectColumn
-    $parametersColumn = $parameterInstructions.parametersColumn
-    $nonComplianceMessageColumn = $parameterInstructions.nonComplianceMessageColumn
+    $csvParameterArray = $ParameterInstructions.csvParameterArray
+    $EffectColumn = $ParameterInstructions.effectColumn
+    $ParametersColumn = $ParameterInstructions.parametersColumn
+    $nonComplianceMessageColumn = $ParameterInstructions.nonComplianceMessageColumn
 
     #region parameters column
 
-    $parameters = Get-DeepClone $baseAssignment.parameters -AsHashTable
+    $Parameters = Get-DeepClone $BaseAssignment.parameters -AsHashtable
     foreach ($row in $csvParameterArray) {
         if ($row.flatPolicyEntryKey) {
-            $parametersColumnCell = $row[$parametersColumn]
-            if ($null -ne $parametersColumnCell -and $parametersColumnCell -ne "") {
-                $addedParameters = ConvertFrom-Json $parametersColumnCell -Depth 100 -AsHashtable
+            $ParametersColumnCell = $row[$ParametersColumn]
+            if ($null -ne $ParametersColumnCell -and $ParametersColumnCell -ne "") {
+                $addedParameters = ConvertFrom-Json $ParametersColumnCell -Depth 100 -AsHashtable
                 if ($null -ne $addedParameters -and $addedParameters.psbase.Count -gt 0) {
                     foreach ($parameterName in $addedParameters.Keys) {
                         $rawParameterValue = $addedParameters.$parameterName
-                        $parameterValue = Get-DeepClone $rawParameterValue -AsHashTable
-                        $parameters[$parameterName] = $parameterValue
+                        $parameterValue = Get-DeepClone $rawParameterValue -AsHashtable
+                        $Parameters[$parameterName] = $parameterValue
                     }
                 }
             }
@@ -39,34 +39,34 @@ function Merge-AssignmentParametersEx {
     #region parameters column = mutual exclusion handled
 
     $overridesByEffect = @{}
-    $nonComplianceMessages = $baseAssignment.nonComplianceMessages
+    $nonComplianceMessages = $BaseAssignment.nonComplianceMessages
     $hasErrors = $false
     foreach ($row in $csvParameterArray) {
         $flatPolicyEntryKey = $row.flatPolicyEntryKey
         if ($flatPolicyEntryKey) {
-            $name = $row.name
-            $flatPolicyEntry = $flatPolicyList.$flatPolicyEntryKey
-            if ($null -eq $name -or $name -eq "" -or $null -eq $flatPolicyEntry -or $null -eq $flatPolicyEntry.policySetList -or $null -eq $row.policyId) {
+            $Name = $row.name
+            $flatPolicyEntry = $FlatPolicyList.$flatPolicyEntryKey
+            if ($null -eq $Name -or $Name -eq "" -or $null -eq $flatPolicyEntry -or $null -eq $flatPolicyEntry.policySetList -or $null -eq $row.policyId) {
                 continue
             }
-            $policySetList = $flatPolicyEntry.policySetList
-            if ($policySetList.ContainsKey($policySetId)) {
+            $PolicySetList = $flatPolicyEntry.policySetList
+            if ($PolicySetList.ContainsKey($PolicySetId)) {
                 # Policy in this for loop iteration is referenced in the Policy Set currently being processed
 
                 #region effect parameters including overrides
-                $perPolicySet = $policySetList.$policySetId
-                $effectParameterName = $perPolicySet.effectParameterName
-                $effect = $row[$effectColumn]
+                $perPolicySet = $PolicySetList.$PolicySetId
+                $EffectParameterName = $perPolicySet.effectParameterName
+                $Effect = $row[$EffectColumn]
                 $setEffectAllowedValues = $perPolicySet.effectAllowedValues
-                $effectAllowedOverrides = $flatPolicyEntry.effectAllowedOverrides
-                $effectDefault = $perPolicySet.effectDefault
-                $desiredEffect = $effect.ToLower()
+                $EffectAllowedOverrides = $flatPolicyEntry.effectAllowedOverrides
+                $EffectDefault = $perPolicySet.effectDefault
+                $desiredEffect = $Effect.ToLower()
                 $useOverrides = $false
-                $policyDefinitionReferenceId = $perPolicySet.policyDefinitionReferenceId
+                $PolicyDefinitionReferenceId = $perPolicySet.policyDefinitionReferenceId
                 if ($perPolicySet.isEffectParameterized) {
                     if ($setEffectAllowedValues -notcontains $desiredEffect) {
-                        if ($effectAllowedOverrides -notcontains $desiredEffect) {
-                            Write-Error "    Node $($nodeName):  CSV parameterFile '$parameterFileName' row for Policy name '$name': the effect ($effect) must be an allowed parameter or override value [$($effectAllowedOverrides -join ',')]."
+                        if ($EffectAllowedOverrides -notcontains $desiredEffect) {
+                            Write-Error "    Node $($NodeName):  CSV parameterFile '$parameterFileName' row for Policy name '$Name': the effect ($Effect) must be an allowed parameter or override value [$($EffectAllowedOverrides -join ',')]."
                             $hasErrors = $true
                             continue
                         }
@@ -76,16 +76,16 @@ function Merge-AssignmentParametersEx {
                     }
                 }
                 else {
-                    if ($effectAllowedOverrides -notcontains $desiredEffect) {
-                        Write-Error "    Node $($nodeName):  CSV parameterFile '$parameterFileName' row for Policy name '$name': the effect ($effect) must be an allowed override value [$($effectAllowedOverrides -join ',')]."
+                    if ($EffectAllowedOverrides -notcontains $desiredEffect) {
+                        Write-Error "    Node $($NodeName):  CSV parameterFile '$parameterFileName' row for Policy name '$Name': the effect ($Effect) must be an allowed override value [$($EffectAllowedOverrides -join ',')]."
                         $hasErrors = $true
                         continue
                     }
                     $useOverrides = $true
                 }
-                $isProcessed = $effectProcessedForPolicy.ContainsKey($flatPolicyEntryKey)
+                $isProcessed = $EffectProcessedForPolicy.ContainsKey($flatPolicyEntryKey)
                 if ($isProcessed) {
-                    if ($desiredEffect -eq $effectProcessedForPolicy.$flatPolicyEntryKey) {
+                    if ($desiredEffect -eq $EffectProcessedForPolicy.$flatPolicyEntryKey) {
                         # Adjust desiredEffect
                         $modifiedEffect = switch ($desiredEffect) {
                             append {
@@ -110,7 +110,7 @@ function Merge-AssignmentParametersEx {
                         if ($setEffectAllowedValues -contains $modifiedEffect) {
                             $desiredEffect = $modifiedEffect
                         }
-                        elseif ($effectAllowedOverrides -contains $modifiedEffect) {
+                        elseif ($EffectAllowedOverrides -contains $modifiedEffect) {
                             $useOverrides = $true
                             $desiredEffect = $modifiedEffect
                         }
@@ -119,17 +119,17 @@ function Merge-AssignmentParametersEx {
                             if ($setEffectAllowedValues -contains "disabled") {
                                 $useOverrides = $false
                             }
-                            elseif ($effectAllowedOverrides -contains "disabled") {
+                            elseif ($EffectAllowedOverrides -contains "disabled") {
                                 $useOverrides = $true
                             }
                         }
                     }
                 }
                 else {
-                    $null = $effectProcessedForPolicy.Add($flatPolicyEntryKey, $desiredEffect)
+                    $null = $EffectProcessedForPolicy.Add($flatPolicyEntryKey, $desiredEffect)
                 }
 
-                $wrongCase = !($setEffectAllowedValues -ccontains $desiredEffect -or $effectAllowedOverrides -ccontains $desiredEffect)
+                $wrongCase = !($setEffectAllowedValues -ccontains $desiredEffect -or $EffectAllowedOverrides -ccontains $desiredEffect)
                 if ($wrongCase) {
                     $modifiedEffect = switch ($desiredEffect) {
                         append {
@@ -157,16 +157,16 @@ function Merge-AssignmentParametersEx {
                             "Modify"
                         }
                     }
-                    if ($setEffectAllowedValues -ccontains $modifiedEffect -or $effectAllowedOverrides -ccontains $modifiedEffect) {
+                    if ($setEffectAllowedValues -ccontains $modifiedEffect -or $EffectAllowedOverrides -ccontains $modifiedEffect) {
                         $desiredEffect = $modifiedEffect
                     }
                     else {
-                        Write-Error "    Node $($nodeName): CSV parameterFile '$parameterFileName' row for Policy name '$name': the effect ($desiredEffect) must be an allowed value [$($setEffectAllowedValues -join ',')]."
+                        Write-Error "    Node $($NodeName): CSV parameterFile '$parameterFileName' row for Policy name '$Name': the effect ($desiredEffect) must be an allowed value [$($setEffectAllowedValues -join ',')]."
                         $hasErrors = $true
                         continue
                     }
                 }
-                if ($desiredEffect -ne $effectDefault) {
+                if ($desiredEffect -ne $EffectDefault) {
                     if ($useOverrides) {
                         $byEffectList = $null
                         if ($overridesByEffect.ContainsKey($desiredEffect)) {
@@ -176,10 +176,10 @@ function Merge-AssignmentParametersEx {
                             $byEffectList = [System.Collections.ArrayList]::new()
                             $overridesByEffect[$desiredEffect] = $byEffectList
                         }
-                        $null = $byEffectList.Add($policyDefinitionReferenceId)
+                        $null = $byEffectList.Add($PolicyDefinitionReferenceId)
                     }
                     else {
-                        $parameters[$effectParameterName] = $desiredEffect
+                        $Parameters[$EffectParameterName] = $desiredEffect
                     }
                 }
                 #endregion effect parameters including overrides and nonComplianceMessages
@@ -191,7 +191,7 @@ function Merge-AssignmentParametersEx {
                         $null = $nonComplianceMessages.Add(
                             @{
                                 message                     = $nonComplianceMessage
-                                policyDefinitionReferenceId = $policyDefinitionReferenceId
+                                policyDefinitionReferenceId = $PolicyDefinitionReferenceId
                             }
                         )
                     }
@@ -205,30 +205,30 @@ function Merge-AssignmentParametersEx {
 
     #region optimize overrides
 
-    $effectsCount = $overridesByEffect.psbase.Count
-    if ($effectsCount -gt 0) {
+    $EffectsCount = $overridesByEffect.psbase.Count
+    if ($EffectsCount -gt 0) {
         $finalOverrides = [System.Collections.ArrayList]::new()
-        foreach ($effectValue in $overridesByEffect.Keys) {
-            [System.Collections.ArrayList] $policyDefinitionReferenceIds = $overridesByEffect[$effectValue]
-            $idsCount = $policyDefinitionReferenceIds.Count
-            while ($idsCount -gt 0) {
-                $ids = $null
-                if ($idsCount -gt 50) {
-                    $ids = $policyDefinitionReferenceIds.GetRange(0, 50)
-                    $policyDefinitionReferenceIds.RemoveRange(0, 50)
-                    $idsCount -= 50
+        foreach ($EffectValue in $overridesByEffect.Keys) {
+            [System.Collections.ArrayList] $PolicyDefinitionReferenceIds = $overridesByEffect[$EffectValue]
+            $IdsCount = $PolicyDefinitionReferenceIds.Count
+            while ($IdsCount -gt 0) {
+                $Ids = $null
+                if ($IdsCount -gt 50) {
+                    $Ids = $PolicyDefinitionReferenceIds.GetRange(0, 50)
+                    $PolicyDefinitionReferenceIds.RemoveRange(0, 50)
+                    $IdsCount -= 50
                 }
                 else {
-                    $ids = $policyDefinitionReferenceIds
-                    $idsCount = 0
+                    $Ids = $PolicyDefinitionReferenceIds
+                    $IdsCount = 0
                 }
                 $override = @{
                     kind      = "policyEffect"
-                    value     = $effectValue
+                    value     = $EffectValue
                     selectors = @(
                         @{
                             kind = "policyDefinitionReferenceId"
-                            in   = $ids.ToArray()
+                            in   = $Ids.ToArray()
                         }
                     )
                 }
@@ -236,16 +236,16 @@ function Merge-AssignmentParametersEx {
             }
         }
         if ($finalOverrides.Count -gt 10) {
-            Write-Error "    Node $($nodeName): CSV parameterFile '$parameterFileName' causes too many overrides ($($finalOverrides.Count)) for Policies without parameterized effect." -ErrorAction Continue
+            Write-Error "    Node $($NodeName): CSV parameterFile '$parameterFileName' causes too many overrides ($($finalOverrides.Count)) for Policies without parameterized effect." -ErrorAction Continue
             $hasErrors = $true
         }
         else {
-            $baseAssignment.overrides = $finalOverrides.ToArray()
+            $BaseAssignment.overrides = $finalOverrides.ToArray()
         }
     }
     #endregion optimize overrides
 
-    $baseAssignment.parameters = $parameters
+    $BaseAssignment.parameters = $Parameters
 
     return $hasErrors
 }

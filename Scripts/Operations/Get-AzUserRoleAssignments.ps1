@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Gets all user role assignments in all subscriptions in the target tenant.
 
@@ -12,14 +12,14 @@
     Output file name. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Users/RoleAssignments.csv or './Outputs/Users/RoleAssignments.csv'.
 
 .PARAMETER interactive
-    Set to false if used non-interactive
+    Set to false if used non-Interactive
 
 .EXAMPLE
-    .\Get-AzUserRoleAssignments.ps1 -pacEnvironmentSelector "dev" -definitionsRootFolder "C:\Src\Definitions" -outputFolder "C:\Src\Outputs" -interactive $true
+    .\Get-AzUserRoleAssignments.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\Src\Definitions" -OutputFolder "C:\Src\Outputs" -Interactive $true
     Gets all user role assignments in all subscriptions in the target tenant.
 
 .EXAMPLE
-    .\Get-AzUserRoleAssignments.ps1 -interactive $true
+    .\Get-AzUserRoleAssignments.ps1 -Interactive $true
     Gets all user role assignments in all subscriptions in the target tenant. The script prompts for the PAC environment and uses the default definitions and output folders.
 #>
 [CmdletBinding()]
@@ -33,8 +33,8 @@ param(
     [Parameter(Mandatory = $false, HelpMessage = "Output file name. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Users/RoleAssignments.csv or './Outputs/Users/RoleAssignments.csv'.")]
     [string] $OutputFileName,
 
-    [Parameter(Mandatory = $false, HelpMessage = "Set to false if used non-interactive")]
-    [bool] $interactive = $true
+    [Parameter(Mandatory = $false, HelpMessage = "Set to false if used non-Interactive")]
+    [bool] $Interactive = $true
 )
 
 # Dot Source Helper Scripts
@@ -42,8 +42,8 @@ param(
 
 $InformationPreference = "Continue"
 Invoke-AzCli config set extension.use_dynamic_install=yes_without_prompt -SuppressOutput
-$pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -outputFolder $OutputFolder -interactive $interactive
-Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -interactive $pacEnvironment.interactive
+$PacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -Interactive $Interactive
+Set-AzCloudTenantSubscription -Cloud $PacEnvironment.cloud -TenantId $PacEnvironment.tenantId -subscriptionId $PacEnvironment.defaultSubscriptionId -Interactive $PacEnvironment.interactive
 
 $targetTenant = $environment.targetTenant
 if ($OutputFileName -eq "") {
@@ -56,7 +56,7 @@ Write-Information "=============================================================
 
 $subs = Get-AzSubscription -TenantId $targetTenant | Where-Object { $_.state -EQ "Enabled" }
 
-$assignments = @()
+$Assignments = @()
 
 foreach ($sub in $subs) {
 
@@ -64,7 +64,7 @@ foreach ($sub in $subs) {
 
     Write-Output $sub.Name
 
-    $assignments += Get-AzRoleAssignment | Where-Object { $_.ObjectType -eq "User" -and $_.Scope -notlike "*managementGroups*" } | Select-Object displayname, signinname, RoleDefinitionName, scope, @{
+    $Assignments += Get-AzRoleAssignment | Where-Object { $_.ObjectType -eq "User" -and $_.Scope -notlike "*managementGroups*" } | Select-Object displayname, signinname, RoleDefinitionName, scope, @{
         Name       = 'Subscription'
         Expression = { $sub.Name }
     }
@@ -78,5 +78,5 @@ if ($OutputFileName) {
     Export-Csv -Path $OutputFileName -NoTypeInformation
 }
 else {
-    $assignments
+    $Assignments
 }

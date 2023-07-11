@@ -1,72 +1,72 @@
 function Out-PolicyAssignmentFile {
     [CmdletBinding()]
     param (
-        $perDefinition,
-        $propertyNames,
-        $policyAssignmentsFolder,
-        $invalidChars
+        $PerDefinition,
+        $PropertyNames,
+        $PolicyAssignmentsFolder,
+        $InvalidChars
     )
 
-    $definition = $perDefinition.definitionEntry
-    $definitionKind = $definition.kind
-    $definitionName = $definition.name
-    $definitionId = $definition.id
-    $definitionDisplayName = $definition.displayName
+    $Definition = $PerDefinition.definitionEntry
+    $DefinitionKind = $Definition.kind
+    $DefinitionName = $Definition.name
+    $DefinitionId = $Definition.id
+    $DefinitionDisplayName = $Definition.displayName
 
-    $kindString = $definitionKind -replace "Definitions", ""
+    $kindString = $DefinitionKind -replace "Definitions", ""
     $fullPath = Get-DefinitionsFullPath `
-        -folder $policyAssignmentsFolder `
-        -fileSuffix "-$kindString" `
-        -name $definition.name `
-        -displayName $definitionDisplayName `
-        -invalidChars $invalidChars `
-        -maxLengthSubFolder 30 `
-        -maxLengthFileName 100 `
-        -fileExtension $fileExtension
+        -Folder $PolicyAssignmentsFolder `
+        -FileSuffix "-$kindString" `
+        -Name $Definition.name `
+        -DisplayName $DefinitionDisplayName `
+        -InvalidChars $InvalidChars `
+        -MaxLengthSubFolder 30 `
+        -MaxLengthFileName 100 `
+        -FileExtension $FileExtension
 
     # Create definitionEntry
-    $definitionEntry = [ordered]@{}
-    if ($definition.isBuiltin) {
-        if ($definitionKind -eq "policySetDefinitions") {
-            $definitionEntry = [ordered]@{
-                policySetId = $definitionId
-                displayName = $definitionDisplayName
+    $DefinitionEntry = [ordered]@{}
+    if ($Definition.isBuiltin) {
+        if ($DefinitionKind -eq "policySetDefinitions") {
+            $DefinitionEntry = [ordered]@{
+                policySetId = $DefinitionId
+                displayName = $DefinitionDisplayName
             }
         }
         else {
-            $definitionEntry = [ordered]@{
-                policyId    = $definitionId
-                displayName = $definitionDisplayName
+            $DefinitionEntry = [ordered]@{
+                policyId    = $DefinitionId
+                displayName = $DefinitionDisplayName
             }
         }
     }
     else {
         # Custom
-        if ($definitionKind -eq "policySetDefinitions") {
-            $definitionEntry = [ordered]@{
-                policySetName = $definitionName
-                displayName   = $definitionDisplayName
+        if ($DefinitionKind -eq "policySetDefinitions") {
+            $DefinitionEntry = [ordered]@{
+                policySetName = $DefinitionName
+                displayName   = $DefinitionDisplayName
             }
         }
         else {
-            $definitionEntry = [ordered]@{
-                policyName  = $definitionName
-                displayName = $definitionDisplayName
+            $DefinitionEntry = [ordered]@{
+                policyName  = $DefinitionName
+                displayName = $DefinitionDisplayName
             }
         }
     }
 
-    $assignmentDefinition = @{
+    $AssignmentDefinition = @{
         nodeName        = "/root"
-        definitionEntry = $definitionEntry
+        definitionEntry = $DefinitionEntry
     }
     Set-AssignmentNode `
-        -treeNode $perDefinition `
-        -assignmentNode $assignmentDefinition `
-        -propertyNames $propertyNames
+        -TreeNode $PerDefinition `
+        -AssignmentNode $AssignmentDefinition `
+        -PropertyNames $PropertyNames
 
     # Write structure to file
-    Remove-NullFields $assignmentDefinition
-    $json = ConvertTo-Json $assignmentDefinition -Depth 100
+    Remove-NullFields $AssignmentDefinition
+    $json = ConvertTo-Json $AssignmentDefinition -Depth 100
     $null = New-Item $fullPath -Force -ItemType File -Value $json
 }

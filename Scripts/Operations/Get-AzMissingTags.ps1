@@ -12,14 +12,14 @@
     Output file name. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Tags/missing-tags-results.csv or './Outputs/Tags/missing-tags-results.csv'.
 
 .PARAMETER interactive
-    Set to false if used non-interactive
+    Set to false if used non-Interactive
 
 .EXAMPLE
-    .\Get-AzMissingTags.ps1 -pacEnvironmentSelector "dev" -definitionsRootFolder "C:\Src\Definitions" -outputFolder "C:\Src\Outputs" -interactive $true
+    .\Get-AzMissingTags.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\Src\Definitions" -OutputFolder "C:\Src\Outputs" -Interactive $true
     Gets all resources that are missing tags in the current subscription.
 
 .EXAMPLE
-    .\Get-AzMissingTags.ps1 -interactive $true
+    .\Get-AzMissingTags.ps1 -Interactive $true
     Gets all resources that are missing tags in the current subscription. The script prompts for the PAC environment and uses the default definitions and output folders.
 #>
 
@@ -34,20 +34,20 @@ param(
     [Parameter(Mandatory = $false, HelpMessage = "Output file name. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Tags/missing-tags-results.csv or './Outputs/Tags/missing-tags-results.csv'.")]
     [string] $OutputFileName,
 
-    [Parameter(Mandatory = $false, HelpMessage = "Set to false if used non-interactive")]
-    [bool] $interactive = $true
+    [Parameter(Mandatory = $false, HelpMessage = "Set to false if used non-Interactive")]
+    [bool] $Interactive = $true
 )
 
 # Dot Source Helper Scripts
 . "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
 
 $InformationPreference = "Continue"
-$pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -outputFolder $OutputFolder -interactive $interactive
-Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -interactive $pacEnvironment.interactive
+$PacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -Interactive $Interactive
+Set-AzCloudTenantSubscription -Cloud $PacEnvironment.cloud -TenantId $PacEnvironment.tenantId -subscriptionId $PacEnvironment.defaultSubscriptionId -Interactive $PacEnvironment.interactive
 
-$targetTenant = $pacEnvironment.targetTenant
+$targetTenant = $PacEnvironment.targetTenant
 if ($OutputFileName -eq "") {
-    $OutputFileName = "$($pacEnvironment.outputFolder)/Tags/missing-tags-results.csv"
+    $OutputFileName = "$($PacEnvironment.outputFolder)/Tags/missing-tags-results.csv"
 }
 
 Write-Information "==================================================================================================="

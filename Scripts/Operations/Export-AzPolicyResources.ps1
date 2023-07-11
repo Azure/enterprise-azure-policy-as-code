@@ -3,8 +3,8 @@
 Exports Azure Policy resources in EPAC format or raw format.
 
 .DESCRIPTION
-Exports Azure Policy resources in EPAC format or raw format. It has 4 operating modes - see -mode parameter for details.
-It also generates documentaion for the exported resources (can be suppressed with -suppressDocumentation).
+Exports Azure Policy resources in EPAC format or raw format. It has 4 operating modes - see -Mode parameter for details.
+It also generates documentaion for the exported resources (can be suppressed with -SuppressDocumentation).
 To just generate EPAC formatted Definitions without generating documentaion files, use -supressEpacOutput.
 
 .PARAMETER definitionsRootFolder
@@ -14,7 +14,7 @@ Definitions folder path. Defaults to environment variable $env:PAC_DEFINITIONS_F
 Output Folder. Defaults to environment variable $env:PAC_OUTPUT_FOLDER or './Outputs'.
 
 .PARAMETER interactive
-Set to false if used non-interactive. Defaults to $true.
+Set to false if used non-Interactive. Defaults to $true.
 
 .PARAMETER includeChildScopes
 Switch parameter to include Policies and Policy Sets definitions in child scopes
@@ -30,13 +30,13 @@ File extension type for the output files. Defaults to '.jsonc'.
 
 .PARAMETER mode
 Operating mode:
-    a) 'export' exports EPAC environments in EPAC format, should be used with -interactive $true in a multi-tenant scenario, or use with an inputPacSelector to limit the scope to one EPAC environment.
-    b) 'collectRawFile' exports the raw data only; Often used with 'inputPacSelector' when running non-interactive in a multi-tenant scenario to collect the raw data once per tenant into a file named after the EPAC environment
+    a) 'export' exports EPAC environments in EPAC format, should be used with -Interactive $true in a multi-tenant scenario, or use with an inputPacSelector to limit the scope to one EPAC environment.
+    b) 'collectRawFile' exports the raw data only; Often used with 'inputPacSelector' when running non-Interactive in a multi-tenant scenario to collect the raw data once per tenant into a file named after the EPAC environment
     c) 'exportFromRawFiles' reads the files generated with one or more runs of b) and outputs the files the same as normal 'export'.
-    d) 'exportRawToPipeline' exports EPAC environments in EPAC format, should be used with -interactive $true in a multi-tenant scenario, or use with an inputPacSelector to limit the scope to one EPAC environment.
+    d) 'exportRawToPipeline' exports EPAC environments in EPAC format, should be used with -Interactive $true in a multi-tenant scenario, or use with an inputPacSelector to limit the scope to one EPAC environment.
 
 .PARAMETER inputPacSelector
-Limits the collection to one EPAC environment, useful for non-interactive use in a multi-tenant scenario, especially with -mode 'collectRawFile'.
+Limits the collection to one EPAC environment, useful for non-Interactive use in a multi-tenant scenario, especially with -Mode 'collectRawFile'.
 The default is '*' which will execute all EPAC-Environments.
 
 .PARAMETER suppressDocumentation
@@ -46,63 +46,63 @@ Suppress documentation generation.
 Suppress output generation in EPAC format.
 
 .EXAMPLE
-Export-AzPolicyResources -definitionsRootFolder ./Definitions -outputFolder ./Outputs -interactive $true -includeChildScopes -includeAutoAssigned -exemptionFiles csv -fileExtension jsonc -mode export -inputPacSelector '*'
+Export-AzPolicyResources -DefinitionsRootFolder ./Definitions -OutputFolder ./Outputs -Interactive $true -IncludeChildScopes -IncludeAutoAssigned -ExemptionFiles csv -FileExtension jsonc -Mode export -InputPacSelector '*'
 
 .EXAMPLE
-Export-AzPolicyResources -definitionsRootFolder ./Definitions -outputFolder ./Outputs -interactive $true -includeChildScopes -includeAutoAssigned -exemptionFiles csv -fileExtension jsonc -mode export -inputPacSelector 'EPAC-Environment-1'
+Export-AzPolicyResources -DefinitionsRootFolder ./Definitions -OutputFolder ./Outputs -Interactive $true -IncludeChildScopes -IncludeAutoAssigned -ExemptionFiles csv -FileExtension jsonc -Mode export -InputPacSelector 'EPAC-Environment-1'
 
 .LINK
-https://azure.github.io/enterprise-azure-policy-as-code/extract-existing-policy-resources
+https://azure.github.io/enterprise-azure-Policy-as-code/extract-Existing-Policy-resources
 #>
 [CmdletBinding()]
 param (
     [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.")]
-    [string]$definitionsRootFolder,
+    [string]$DefinitionsRootFolder,
 
     [Parameter(Mandatory = $false, HelpMessage = "Output Folder. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER or './Outputs'.")]
-    [string] $outputFolder,
+    [string] $OutputFolder,
 
-    [Parameter(Mandatory = $false, HelpMessage = "Set to false if used non-interactive")]
-    [bool] $interactive = $true,
+    [Parameter(Mandatory = $false, HelpMessage = "Set to false if used non-Interactive")]
+    [bool] $Interactive = $true,
 
     [Parameter(Mandatory = $false, HelpMessage = "Switch to include Policies and Policy Sets definitions in child scopes")]
-    [switch] $includeChildScopes,
+    [switch] $IncludeChildScopes,
 
     [Parameter(Mandatory = $false, HelpMessage = "Switch parameter to include Assignments auto-assigned by Defender for Cloud")]
-    [switch] $includeAutoAssigned,
+    [switch] $IncludeAutoAssigned,
 
     [ValidateSet("none", "csv", "json")]
     [Parameter(Mandatory = $false, HelpMessage = "Create Exemption files (none=suppress, csv=as a csv file, json=as a json or jsonc file). Defaults to 'csv'.")]
-    [string] $exemptionFiles = "csv",
+    [string] $ExemptionFiles = "csv",
 
     [ValidateSet("json", "jsonc")]
     [Parameter(Mandatory = $false, HelpMessage = "File extension type for the output files. Defaults to '.jsonc'.")]
-    [string] $fileExtension = "jsonc",
+    [string] $FileExtension = "jsonc",
 
     [ValidateSet("export", "collectRawFile", 'exportFromRawFiles', "exportRawToPipeline")]
     [Parameter(Mandatory = $false, HelpMessage = "
         Operating mode:
-        a) 'export' exports EPAC environments in EPAC format, should be used with -interactive `$true in a multi-tenant scenario, or use with an inputPacSelector to limit the scope to one EPAC environment.
-        b) 'collectRawFile' exports the raw data only; Often used with 'inputPacSelector' when running non-interactive in a multi-tenant scenario to collect the raw data once per tenant into a file named after the EPAC environment
+        a) 'export' exports EPAC environments in EPAC format, should be used with -Interactive `$true in a multi-tenant scenario, or use with an inputPacSelector to limit the scope to one EPAC environment.
+        b) 'collectRawFile' exports the raw data only; Often used with 'inputPacSelector' when running non-Interactive in a multi-tenant scenario to collect the raw data once per tenant into a file named after the EPAC environment
         c) 'exportFromRawFiles' reads the files generated with one or more runs of b) and outputs the files the same as normal 'export'.
-        d) 'exportRawToPipeline' exports EPAC environments in EPAC format, should be used with -interactive `$true in a multi-tenant scenario, or use with an inputPacSelector to limit the scope to one EPAC environment.
+        d) 'exportRawToPipeline' exports EPAC environments in EPAC format, should be used with -Interactive `$true in a multi-tenant scenario, or use with an inputPacSelector to limit the scope to one EPAC environment.
     ")]
-    [string] $mode = 'export',
-    # [string] $mode = 'collectRawFile',
-    # [string] $mode = 'exportFromRawFiles',
-    # [string] $mode = 'exportRawToPipeline',
+    [string] $Mode = 'export',
+    # [string] $Mode = 'collectRawFile',
+    # [string] $Mode = 'exportFromRawFiles',
+    # [string] $Mode = 'exportRawToPipeline',
 
     [Parameter(Mandatory = $false, HelpMessage = "
-        Limits the collection to one EPAC environment, useful for non-interactive use in a multi-tenant scenario, especially with -mode 'collectRawFile'.
+        Limits the collection to one EPAC environment, useful for non-Interactive use in a multi-tenant scenario, especially with -Mode 'collectRawFile'.
         The default is '*' which will execute all EPAC-Environments.
     ")]
-    [string] $inputPacSelector = '*',
+    [string] $InputPacSelector = '*',
 
     [Parameter(Mandatory = $false, HelpMessage = "Suppress documentation generation")]
-    [switch] $suppressDocumentation,
+    [switch] $SuppressDocumentation,
 
     [Parameter(Mandatory = $false, HelpMessage = "Suppress output generation in EPAC format")]
-    [switch] $suppressEpacOutput
+    [switch] $SuppressEpacOutput
 )
 
 # Dot Source Helper Scripts
@@ -111,27 +111,27 @@ param (
 #region Initialize
 
 $InformationPreference = "Continue"
-$globalSettings = Get-GlobalSettings -definitionsRootFolder $definitionsRootFolder -outputFolder $outputFolder -inputFolder $inputFolder
-$pacEnvironments = $globalSettings.pacEnvironments
-$outputFolder = $globalSettings.outputFolder
-$rawFolder = "$($outputFolder)/RawDefinitions"
-$definitionsFolder = "$($outputFolder)/Definitions"
-$policyDefinitionsFolder = "$definitionsFolder/policyDefinitions"
-$policySetDefinitionsFolder = "$definitionsFolder/policySetDefinitions"
-$policyAssignmentsFolder = "$definitionsFolder/policyAssignments"
-$policyExemptionsFolder = "$definitionsFolder/policyExemptions"
-$invalidChars = [IO.Path]::GetInvalidFileNameChars()
-$invalidChars += ("[]()$".ToCharArray())
-Write-Information "Mode: $mode"
-if ($mode -eq 'export' -or $mode -eq 'exportFromRawFiles') {
-    if (Test-Path $definitionsFolder) {
-        if ($interactive) {
+$globalSettings = Get-GlobalSettings -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -InputFolder $InputFolder
+$PacEnvironments = $globalSettings.pacEnvironments
+$OutputFolder = $globalSettings.outputFolder
+$rawFolder = "$($OutputFolder)/RawDefinitions"
+$DefinitionsFolder = "$($OutputFolder)/Definitions"
+$PolicyDefinitionsFolder = "$DefinitionsFolder/policyDefinitions"
+$PolicySetDefinitionsFolder = "$DefinitionsFolder/policySetDefinitions"
+$PolicyAssignmentsFolder = "$DefinitionsFolder/policyAssignments"
+$PolicyExemptionsFolder = "$DefinitionsFolder/policyExemptions"
+$InvalidChars = [IO.Path]::GetInvalidFileNameChars()
+$InvalidChars += ("[]()$".ToCharArray())
+Write-Information "Mode: $Mode"
+if ($Mode -eq 'export' -or $Mode -eq 'exportFromRawFiles') {
+    if (Test-Path $DefinitionsFolder) {
+        if ($Interactive) {
             Write-Information ""
-            Remove-Item $definitionsFolder -Recurse -Confirm
+            Remove-Item $DefinitionsFolder -Recurse -Confirm
             Write-Information ""
         }
         else {
-            Remove-Item $definitionsFolder -Recurse
+            Remove-Item $DefinitionsFolder -Recurse
         }
     }
 
@@ -141,7 +141,7 @@ if ($mode -eq 'export' -or $mode -eq 'exportFromRawFiles') {
     Write-Information "==================================================================================================="
     Write-Information "WARNING! This script::"
     Write-Information "* Assumes Policies and Policy Sets with the same name define the same properties independent of scope and EPAC environment."
-    Write-Information "* Ignores (default) Assignments auto-assigned by Security Center unless -includeAutoAssigned is used."
+    Write-Information "* Ignores (default) Assignments auto-assigned by Security Center unless -IncludeAutoAssigned is used."
     Write-Information "==================================================================================================="
 }
 else {
@@ -151,12 +151,12 @@ else {
     Write-Information "==================================================================================================="
 }
 
-$policyPropertiesByName = @{}
-$policySetPropertiesByName = @{}
-$definitionPropertiesByDefinitionKey = @{}
-$assignmentsByPolicyDefinition = @{}
+$PolicyPropertiesByName = @{}
+$PolicySetPropertiesByName = @{}
+$DefinitionPropertiesByDefinitionKey = @{}
+$AssignmentsByPolicyDefinition = @{}
 
-$propertyNames = @(
+$PropertyNames = @(
     "parameters",
     "overrides",
     "resourceSelectors",
@@ -170,54 +170,54 @@ $propertyNames = @(
     "scopes"
 )
 
-$policyResourcesByPacSelector = @{}
+$PolicyResourcesByPacSelector = @{}
 
 #endregion Initialize
 
-if ($mode -ne 'exportFromRawFiles') {
+if ($Mode -ne 'exportFromRawFiles') {
 
     #region retrieve Policy resources
 
-    foreach ($pacEnvironment in $pacEnvironments.Values) {
+    foreach ($PacEnvironment in $PacEnvironments.Values) {
 
-        $pacSelector = $pacEnvironment.pacSelector
+        $PacSelector = $PacEnvironment.pacSelector
 
-        if ($inputPacSelector -eq $pacSelector -or $inputPacSelector -eq '*') {
-            Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -interactive $interactive
+        if ($InputPacSelector -eq $PacSelector -or $InputPacSelector -eq '*') {
+            Set-AzCloudTenantSubscription -Cloud $PacEnvironment.cloud -TenantId $PacEnvironment.tenantId -Interactive $Interactive
 
-            $scopeTable = Get-AzScopeTree -pacEnvironment $pacEnvironment
-            $skipExemptions = $exemptionFiles -eq "none"
-            $deployed = Get-AzPolicyResources -pacEnvironment $pacEnvironment -scopeTable $scopeTable -skipExemptions:$skipExemptions -collectAllPolicies:$includeChildScopes
+            $ScopeTable = Get-AzScopeTree -PacEnvironment $PacEnvironment
+            $SkipExemptions = $ExemptionFiles -eq "none"
+            $deployed = Get-AzPolicyResources -PacEnvironment $PacEnvironment -ScopeTable $ScopeTable -SkipExemptions:$SkipExemptions -CollectAllPolicies:$IncludeChildScopes
 
-            $policyDefinitions = $deployed.policydefinitions.custom
-            $policySetDefinitions = $deployed.policysetdefinitions.custom
-            $policyAssignments = $deployed.policyassignments.all
-            $policyExemptions = $deployed.policyExemptions.all
+            $PolicyDefinitions = $deployed.policydefinitions.custom
+            $PolicySetDefinitions = $deployed.policysetdefinitions.custom
+            $PolicyAssignments = $deployed.policyassignments.all
+            $PolicyExemptions = $deployed.policyExemptions.all
 
-            $policyResources = @{
-                policyDefinitions    = $policyDefinitions
-                policySetDefinitions = $policySetDefinitions
-                policyAssignments    = $policyAssignments
-                policyExemptions     = $policyExemptions
+            $PolicyResources = @{
+                policyDefinitions    = $PolicyDefinitions
+                policySetDefinitions = $PolicySetDefinitions
+                policyAssignments    = $PolicyAssignments
+                policyExemptions     = $PolicyExemptions
             }
-            $policyResourcesByPacSelector[$pacSelector] = $policyResources
+            $PolicyResourcesByPacSelector[$PacSelector] = $PolicyResources
 
-            if ($mode -eq 'collectRawFile') {
+            if ($Mode -eq 'collectRawFile') {
                 # write file
-                $fullPath = "$rawFolder/$pacSelector.json"
-                $json = ConvertTo-Json $policyResources -Depth 100
+                $fullPath = "$rawFolder/$PacSelector.json"
+                $json = ConvertTo-Json $PolicyResources -Depth 100
                 $null = New-Item $fullPath -Force -ItemType File -Value $json
             }
         }
     }
 
-    if ($mode -eq 'collectRawFile') {
+    if ($Mode -eq 'collectRawFile') {
         # exit; we-re done with this run
         return 0
     }
-    elseif ($mode -eq 'exportRawToPipeline') {
+    elseif ($Mode -eq 'exportRawToPipeline') {
         # write to pipeline
-        Write-Output $policyResourcesByPacSelector
+        Write-Output $PolicyResourcesByPacSelector
         return 0
     }
 
@@ -244,53 +244,53 @@ else {
         if (!(Test-Json $Json)) {
             Write-Error "Raw file '$($file.FullName)' is not valid." -ErrorAction Stop
         }
-        $policyResources = $Json | ConvertFrom-Json -Depth 100 -AsHashtable
+        $PolicyResources = $Json | ConvertFrom-Json -Depth 100 -AsHashtable
         $currentPacSelector = $file.BaseName
-        $policyResourcesByPacSelector[$currentPacSelector] = $policyResources
+        $PolicyResourcesByPacSelector[$currentPacSelector] = $PolicyResources
     }
 }
 
-foreach ($pacEnvironment in $pacEnvironments.Values) {
+foreach ($PacEnvironment in $PacEnvironments.Values) {
 
-    $pacSelector = $pacEnvironment.pacSelector
+    $PacSelector = $PacEnvironment.pacSelector
 
-    if (($inputPacSelector -eq $pacSelector -or $inputPacSelector -eq '*') -and $policyResourcesByPacSelector.ContainsKey($pacSelector)) {
+    if (($InputPacSelector -eq $PacSelector -or $InputPacSelector -eq '*') -and $PolicyResourcesByPacSelector.ContainsKey($PacSelector)) {
 
-        $policyResources = $policyResourcesByPacSelector.$pacSelector
-        $policyDefinitions = $policyResources.policyDefinitions
-        $policySetDefinitions = $policyResources.policySetDefinitions
-        $policyAssignments = $policyResources.policyAssignments
-        $policyExemptions = $policyResources.policyExemptions
+        $PolicyResources = $PolicyResourcesByPacSelector.$PacSelector
+        $PolicyDefinitions = $PolicyResources.policyDefinitions
+        $PolicySetDefinitions = $PolicyResources.policySetDefinitions
+        $PolicyAssignments = $PolicyResources.policyAssignments
+        $PolicyExemptions = $PolicyResources.policyExemptions
 
         #region Policy definitions
 
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Processing $($policyDefinitions.psbase.Count) Policies from EPAC environment '$pacSelector'"
+        Write-Information "Processing $($PolicyDefinitions.psbase.Count) Policies from EPAC environment '$PacSelector'"
         Write-Information "==================================================================================================="
 
-        foreach ($policyDefinition in $policyDefinitions.Values) {
-            $properties = Get-PolicyResourceProperties -policyResource $policyDefinition
-            $metadata = Get-CustomMetadata $properties.metadata -remove "pacOwnerId"
+        foreach ($PolicyDefinition in $PolicyDefinitions.Values) {
+            $properties = Get-PolicyResourceProperties -PolicyResource $PolicyDefinition
+            $Metadata = Get-CustomMetadata $properties.metadata -Remove "pacOwnerId"
             $version = $properties.version
-            $id = $policyDefinition.id
-            $name = $policyDefinition.name
+            $Id = $PolicyDefinition.id
+            $Name = $PolicyDefinition.name
             # if ($null -eq $version) {
-            #     if ($metadata.version) {
-            #         $version = $metadata.version
+            #     if ($Metadata.version) {
+            #         $version = $Metadata.version
             #     }
             #     else {
             #         $version = 1.0.0
             #     }
             # }
 
-            $definition = [PSCustomObject]@{
-                name       = $name
+            $Definition = [PSCustomObject]@{
+                name       = $Name
                 properties = [PSCustomObject]@{
                     displayName = $properties.displayName
                     description = $properties.description
                     mode        = $properties.mode
-                    metadata    = $metadata
+                    metadata    = $Metadata
                     version     = $version
                     parameters  = $properties.parameters
                     policyRule  = [PSCustomObject]@{
@@ -300,22 +300,22 @@ foreach ($pacEnvironment in $pacEnvironments.Values) {
                 }
             }
             Out-PolicyDefinition `
-                -definition $definition `
-                -folder $policyDefinitionsFolder `
-                -policyPropertiesByName $policyPropertiesByName `
-                -invalidChars $invalidChars `
-                -id $id `
-                -fileExtension $fileExtension
+                -Definition $Definition `
+                -Folder $PolicyDefinitionsFolder `
+                -PolicyPropertiesByName $PolicyPropertiesByName `
+                -InvalidChars $InvalidChars `
+                -Id $Id `
+                -FileExtension $FileExtension
         }
 
         # cache properties per definition key
-        $definitions = $deployed.policydefinitions.all
-        foreach ($id in $definitions.Keys) {
-            $parts = Split-AzPolicyResourceId -id $id
-            $policyDefinitionKey = $parts.definitionKey
-            $definition = $definitions.$id
-            if (!($definitionPropertiesByDefinitionKey.ContainsKey($policyDefinitionKey))) {
-                $definitionPropertiesByDefinitionKey[$policyDefinitionKey] = $definition.properties
+        $Definitions = $deployed.policydefinitions.all
+        foreach ($Id in $Definitions.Keys) {
+            $parts = Split-AzPolicyResourceId -Id $Id
+            $PolicyDefinitionKey = $parts.definitionKey
+            $Definition = $Definitions.$Id
+            if (!($DefinitionPropertiesByDefinitionKey.ContainsKey($PolicyDefinitionKey))) {
+                $DefinitionPropertiesByDefinitionKey[$PolicyDefinitionKey] = $Definition.properties
             }
         }
 
@@ -325,16 +325,16 @@ foreach ($pacEnvironment in $pacEnvironments.Values) {
 
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Processing $($policySetDefinitions.psbase.Count) Policy Sets from EPAC environment '$pacSelector'"
+        Write-Information "Processing $($PolicySetDefinitions.psbase.Count) Policy Sets from EPAC environment '$PacSelector'"
         Write-Information "==================================================================================================="
 
-        foreach ($policySetDefinition in $policySetDefinitions.Values) {
-            $properties = Get-PolicyResourceProperties -policyResource $policySetDefinition
-            $metadata = Get-CustomMetadata $properties.metadata -remove "pacOwnerId"
+        foreach ($PolicySetDefinition in $PolicySetDefinitions.Values) {
+            $properties = Get-PolicyResourceProperties -PolicyResource $PolicySetDefinition
+            $Metadata = Get-CustomMetadata $properties.metadata -Remove "pacOwnerId"
             $version = $properties.version
             # if ($null -eq $version) {
-            #     if ($metadata.version) {
-            #         $version = $metadata.version
+            #     if ($Metadata.version) {
+            #         $version = $Metadata.version
             #     }
             #     else {
             #         $version = 1.0.0
@@ -342,64 +342,64 @@ foreach ($pacEnvironment in $pacEnvironments.Values) {
             # }
 
             # Adjust policyDefinitions for EPAC
-            $policyDefinitionsIn = Get-DeepClone $properties.policyDefinitions -AsHashTable
-            $policyDefinitionsOut = [System.Collections.ArrayList]::new()
-            foreach ($policyDefinitionIn in $policyDefinitionsIn) {
-                $parts = Split-AzPolicyResourceId -id $policyDefinitionIn.policyDefinitionId
-                $policyDefinitionOut = $null
+            $PolicyDefinitionsIn = Get-DeepClone $properties.policyDefinitions -AsHashtable
+            $PolicyDefinitionsOut = [System.Collections.ArrayList]::new()
+            foreach ($PolicyDefinitionIn in $PolicyDefinitionsIn) {
+                $parts = Split-AzPolicyResourceId -Id $PolicyDefinitionIn.policyDefinitionId
+                $PolicyDefinitionOut = $null
                 if ($parts.scopeType -eq "builtin") {
-                    $policyDefinitionOut = [PSCustomObject]@{
-                        policyDefinitionReferenceId = $policyDefinitionIn.policyDefinitionReferenceId
-                        policyDefinitionId          = $policyDefinitionIn.policyDefinitionId
-                        parameters                  = $policyDefinitionIn.parameters
+                    $PolicyDefinitionOut = [PSCustomObject]@{
+                        policyDefinitionReferenceId = $PolicyDefinitionIn.policyDefinitionReferenceId
+                        policyDefinitionId          = $PolicyDefinitionIn.policyDefinitionId
+                        parameters                  = $PolicyDefinitionIn.parameters
                     }
                 }
                 else {
-                    $policyDefinitionOut = [PSCustomObject]@{
-                        policyDefinitionReferenceId = $policyDefinitionIn.policyDefinitionReferenceId
+                    $PolicyDefinitionOut = [PSCustomObject]@{
+                        policyDefinitionReferenceId = $PolicyDefinitionIn.policyDefinitionReferenceId
                         policyDefinitionName        = $parts.name
-                        parameters                  = $policyDefinitionIn.parameters
+                        parameters                  = $PolicyDefinitionIn.parameters
                     }
                 }
-                if ($policyDefinitionIn.definitionVersion) {
-                    Add-Member -InputObject $policyDefinitionOut -TypeName "NoteProperty" -NotePropertyName "definitionVersion" -NotePropertyValue $policyDefinitionIn.definitionVersion
+                if ($PolicyDefinitionIn.definitionVersion) {
+                    Add-Member -InputObject $PolicyDefinitionOut -TypeName "NoteProperty" -NotePropertyName "definitionVersion" -NotePropertyValue $PolicyDefinitionIn.definitionVersion
                 }
-                $groupNames = $policyDefinitionIn.groupNames
+                $groupNames = $PolicyDefinitionIn.groupNames
                 if ($null -ne $groupNames -and $groupNames.Count -gt 0) {
-                    Add-Member -InputObject $policyDefinitionOut -TypeName "NoteProperty" -NotePropertyName "groupNames" -NotePropertyValue $groupNames
+                    Add-Member -InputObject $PolicyDefinitionOut -TypeName "NoteProperty" -NotePropertyName "groupNames" -NotePropertyValue $groupNames
                 }
-                $null = $policyDefinitionsOut.Add($policyDefinitionOut)
+                $null = $PolicyDefinitionsOut.Add($PolicyDefinitionOut)
             }
 
-            $definition = [PSCustomObject]@{
-                name       = $policySetDefinition.name
+            $Definition = [PSCustomObject]@{
+                name       = $PolicySetDefinition.name
                 properties = [PSCustomObject]@{
                     displayName            = $properties.displayName
                     description            = $properties.description
-                    metadata               = $metadata
+                    metadata               = $Metadata
                     version                = $version
                     parameters             = $properties.parameters
-                    policyDefinitions      = $policyDefinitionsOut.ToArray()
+                    policyDefinitions      = $PolicyDefinitionsOut.ToArray()
                     policyDefinitionGroups = $properties.policyDefinitionGroups
                 }
             }
             Out-PolicyDefinition `
-                -definition $definition `
-                -folder $policySetDefinitionsFolder `
-                -policyPropertiesByName $policySetPropertiesByName `
-                -invalidChars $invalidChars `
-                -id $policySetDefinition.id `
-                -fileExtension $fileExtension
+                -Definition $Definition `
+                -Folder $PolicySetDefinitionsFolder `
+                -PolicyPropertiesByName $PolicySetPropertiesByName `
+                -InvalidChars $InvalidChars `
+                -Id $PolicySetDefinition.id `
+                -FileExtension $FileExtension
         }
 
         # cache properties per definition key
-        $definitions = $deployed.policysetdefinitions.all
-        foreach ($id in $definitions.Keys) {
-            $parts = Split-AzPolicyResourceId -id $id
-            $policyDefinitionKey = $parts.definitionKey
-            $definition = $definitions.$id
-            if (!($definitionPropertiesByDefinitionKey.ContainsKey($policyDefinitionKey))) {
-                $definitionPropertiesByDefinitionKey[$policyDefinitionKey] = $definition.properties
+        $Definitions = $deployed.policysetdefinitions.all
+        foreach ($Id in $Definitions.Keys) {
+            $parts = Split-AzPolicyResourceId -Id $Id
+            $PolicyDefinitionKey = $parts.definitionKey
+            $Definition = $Definitions.$Id
+            if (!($DefinitionPropertiesByDefinitionKey.ContainsKey($PolicyDefinitionKey))) {
+                $DefinitionPropertiesByDefinitionKey[$PolicyDefinitionKey] = $Definition.properties
             }
         }
 
@@ -407,16 +407,16 @@ foreach ($pacEnvironment in $pacEnvironments.Values) {
 
         #region process Exemptions
 
-        if (-not $skipExemptions) {
+        if (-not $SkipExemptions) {
             Out-PolicyExemptions `
-                -exemptions $policyExemptions `
-                -assignments $policyAssignments `
-                -pacEnvironment $pacEnvironment `
-                -policyExemptionsFolder $policyExemptionsFolder `
-                -outputJson:($exemptionFiles -eq "json") `
-                -outputCsv:($exemptionFiles -eq "csv") `
-                -exemptionOutputType "active" `
-                -fileExtension $fileExtension
+                -Exemptions $PolicyExemptions `
+                -Assignments $PolicyAssignments `
+                -PacEnvironment $PacEnvironment `
+                -PolicyExemptionsFolder $PolicyExemptionsFolder `
+                -OutputJson:($ExemptionFiles -eq "json") `
+                -OutputCsv:($ExemptionFiles -eq "csv") `
+                -ExemptionOutputType "active" `
+                -FileExtension $FileExtension
         }
 
         #endregion process Exemptions
@@ -425,62 +425,62 @@ foreach ($pacEnvironment in $pacEnvironments.Values) {
 
         Write-Information ""
         Write-Information "==================================================================================================="
-        Write-Information "Collating $($policyAssignments.psbase.Count) Policy Assignments from EPAC environment '$pacSelector'"
+        Write-Information "Collating $($PolicyAssignments.psbase.Count) Policy Assignments from EPAC environment '$PacSelector'"
         Write-Information "==================================================================================================="
 
-        foreach ($policyAssignment in $policyAssignments.Values) {
-            $id = $policyAssignment.id
-            if (!$includeAutoAssigned -and `
+        foreach ($PolicyAssignment in $PolicyAssignments.Values) {
+            $Id = $PolicyAssignment.id
+            if (!$IncludeAutoAssigned -and `
                 (
-                    $id -like "/subscriptions/*/providers/Microsoft.Authorization/policyAssignments/ASC-*" `
-                        -or $id -like "/subscriptions/*/providers/Microsoft.Authorization/policyAssignments/SecurityCenterBuiltIn"
+                    $Id -like "/subscriptions/*/providers/Microsoft.Authorization/policyAssignments/ASC-*" `
+                        -or $Id -like "/subscriptions/*/providers/Microsoft.Authorization/policyAssignments/SecurityCenterBuiltIn"
                 )
             ) {
-                Write-Warning "Do not process Security Center: $id"
+                Write-Warning "Do not process Security Center: $Id"
             }
             else {
-                $properties = Get-PolicyResourceProperties -policyResource $policyAssignment
+                $properties = Get-PolicyResourceProperties -PolicyResource $PolicyAssignment
                 $rawMetadata = $properties.metadata
                 $roles = @()
                 if ($rawMetadata.roles) {
                     $roles = $rawMetadata.roles
                 }
-                $metadata = Get-CustomMetadata $properties.metadata -remove "pacOwnerId, roles"
+                $Metadata = Get-CustomMetadata $properties.metadata -Remove "pacOwnerId, roles"
 
-                $name = $policyAssignment.name
-                $policyDefinitionId = $properties.policyDefinitionId
-                $parts = Split-AzPolicyResourceId -id $policyDefinitionId
-                $policyDefinitionKey = $parts.definitionKey
+                $Name = $PolicyAssignment.name
+                $PolicyDefinitionId = $properties.policyDefinitionId
+                $parts = Split-AzPolicyResourceId -Id $PolicyDefinitionId
+                $PolicyDefinitionKey = $parts.definitionKey
                 $enforcementMode = $properties.enforcementMode
-                $displayName = $policyAssignment.name
+                $DisplayName = $PolicyAssignment.name
                 if ($null -ne $properties.displayName -and $properties.displayName -ne "") {
-                    $displayName = $properties.displayName
+                    $DisplayName = $properties.displayName
                 }
-                $displayName = $properties.name
+                $DisplayName = $properties.name
                 if ($null -ne $properties.displayName -and $properties.displayName -ne "") {
-                    $displayName = $properties.displayName
+                    $DisplayName = $properties.displayName
                 }
                 $description = ""
                 if ($null -ne $properties.description) {
                     $description = $properties.description
                 }
-                $assignmentNameEx = @{
-                    name        = $name
-                    displayName = $displayName
+                $AssignmentNameEx = @{
+                    name        = $Name
+                    displayName = $DisplayName
                     description = $description
                 }
 
-                $scope = $policyAssignment.resourceIdParts.scope
-                $notScopes = Remove-GlobalNotScopes `
-                    -notScopes $policyAssignment.notScopes `
-                    -globalNotScopes $pacEnvironment.globalNotScopes
-                if ($notScopes.Count -eq 0) {
-                    $notScopes = $null
+                $Scope = $PolicyAssignment.resourceIdParts.scope
+                $NotScopes = Remove-GlobalNotScopes `
+                    -NotScopes $PolicyAssignment.notScopes `
+                    -GlobalNotScopes $PacEnvironment.globalNotScopes
+                if ($NotScopes.Count -eq 0) {
+                    $NotScopes = $null
                 }
 
                 $additionalRoleAssignments = [System.Collections.ArrayList]::new()
                 foreach ($role in $roles) {
-                    if ($scope -ne $role.scope) {
+                    if ($Scope -ne $role.scope) {
                         $roleAssignment = @{
                             roleDefinitionId = $role.roleDefinitionId
                             scope            = $role.scope
@@ -489,34 +489,34 @@ foreach ($pacEnvironment in $pacEnvironments.Values) {
                     }
                 }
 
-                $identityEntry = $null
-                $identityType = $policyAssignment.identity.type
-                $location = $policyAssignment.location
-                if ($location -eq $pacEnvironment.managedIdentityLocation) {
+                $IdentityEntry = $null
+                $IdentityType = $PolicyAssignment.identity.type
+                $location = $PolicyAssignment.location
+                if ($location -eq $PacEnvironment.managedIdentityLocation) {
                     $location = ""
                 }
-                if ($identityType -eq "UserAssigned") {
-                    $userAssignedIdentities = $policyAssignment.identity.userAssignedIdentities
-                    $identityProperty = $userAssignedIdentities.psobject.Properties
-                    $identity = $identityProperty.Name
-                    $identityEntry = @{
-                        userAssigned = $identity
+                if ($IdentityType -eq "UserAssigned") {
+                    $userAssignedIdentities = $PolicyAssignment.identity.userAssignedIdentities
+                    $IdentityProperty = $userAssignedIdentities.psobject.Properties
+                    $Identity = $IdentityProperty.Name
+                    $IdentityEntry = @{
+                        userAssigned = $Identity
                         location     = $location
                     }
                 }
-                elseif ($identityType -eq "SystemAssigned") {
-                    $identityEntry = @{
+                elseif ($IdentityType -eq "SystemAssigned") {
+                    $IdentityEntry = @{
                         userAssigned = $null
                         location     = $location
                     }
                 }
 
-                $parameters = @{}
+                $Parameters = @{}
                 if ($null -ne $properties.parameters -and $properties.parameters.psbase.Count -gt 0) {
-                    $parametersClone = Get-DeepClone $properties.parameters -AsHashTable
-                    foreach ($parameterName in $parametersClone.Keys) {
-                        $parameterValue = $parametersClone.$parameterName
-                        $parameters[$parameterName] = $parameterValue.value
+                    $ParametersClone = Get-DeepClone $properties.parameters -AsHashtable
+                    foreach ($parameterName in $ParametersClone.Keys) {
+                        $parameterValue = $ParametersClone.$parameterName
+                        $Parameters[$parameterName] = $parameterValue.value
                     }
                 }
                 $overrides = $properties.overrides
@@ -527,46 +527,46 @@ foreach ($pacEnvironment in $pacEnvironments.Values) {
                     $nonComplianceMessages = $properties.nonComplianceMessages
                 }
 
-                $perDefinition = $null
+                $PerDefinition = $null
 
-                $propertiesList = @{
-                    parameters                = $parameters
+                $PropertiesList = @{
+                    parameters                = $Parameters
                     overrides                 = $overrides
                     resourceSelectors         = $resourceSelectors
                     enforcementMode           = $enforcementMode
                     nonComplianceMessages     = $nonComplianceMessages
                     additionalRoleAssignments = $additionalRoleAssignments
-                    assignmentNameEx          = $assignmentNameEx
-                    metadata                  = $metadata
-                    identityEntry             = $identityEntry
-                    scopes                    = $scope
-                    notScopes                 = $notScopes
+                    assignmentNameEx          = $AssignmentNameEx
+                    metadata                  = $Metadata
+                    identityEntry             = $IdentityEntry
+                    scopes                    = $Scope
+                    notScopes                 = $NotScopes
                 }
 
-                $perDefinition = $null
-                if (-not $assignmentsByPolicyDefinition.ContainsKey($policyDefinitionKey)) {
-                    $definitionProperties = $definitionPropertiesByDefinitionKey.$policyDefinitionKey
-                    $perDefinition = @{
+                $PerDefinition = $null
+                if (-not $AssignmentsByPolicyDefinition.ContainsKey($PolicyDefinitionKey)) {
+                    $DefinitionProperties = $DefinitionPropertiesByDefinitionKey.$PolicyDefinitionKey
+                    $PerDefinition = @{
                         parent          = $null
                         clusters        = @{}
                         children        = [System.Collections.ArrayList]::new()
                         definitionEntry = @{
-                            definitionKey = $policyDefinitionKey
+                            definitionKey = $PolicyDefinitionKey
                             id            = $parts.id
                             name          = $parts.name
-                            displayName   = $definitionProperties.displayName
+                            displayName   = $DefinitionProperties.displayName
                             scope         = $parts.scope
                             scopeType     = $parts.scopeType
                             kind          = $parts.kind
                             isBuiltin     = $parts.scopeType -eq "builtin"
                         }
                     }
-                    $null = $assignmentsByPolicyDefinition.Add($policyDefinitionKey, $perDefinition)
+                    $null = $AssignmentsByPolicyDefinition.Add($PolicyDefinitionKey, $PerDefinition)
                 }
                 else {
-                    $perDefinition = $assignmentsByPolicyDefinition.$policyDefinitionKey
+                    $PerDefinition = $AssignmentsByPolicyDefinition.$PolicyDefinitionKey
                 }
-                Set-ExportNode -parentNode $perDefinition -pacSelector $pacSelector -propertyNames $propertyNames -propertiesList $propertiesList -currentIndex 0
+                Set-ExportNode -ParentNode $PerDefinition -PacSelector $PacSelector -PropertyNames $PropertyNames -PropertiesList $PropertiesList -CurrentIndex 0
 
             }
         }
@@ -579,29 +579,29 @@ foreach ($pacEnvironment in $pacEnvironments.Values) {
 
 Write-Information ""
 Write-Information "==================================================================================================="
-Write-Information "Optimizing $($assignmentsByPolicyDefinition.psbase.Count) Policy Assignment trees"
+Write-Information "Optimizing $($AssignmentsByPolicyDefinition.psbase.Count) Policy Assignment trees"
 Write-Information "==================================================================================================="
 
-# $fullPath = "$policyAssignmentsFolder/tree-raw.$fileExtension"
-# $object = Get-HashtableWithPropertyNamesRemoved -object $assignmentsByPolicyDefinition -propertyNames "parent", "clusters"
-# $json = ConvertTo-Json $object -Depth 100
+# $fullPath = "$PolicyAssignmentsFolder/tree-raw.$FileExtension"
+# $Object = Get-HashtableWithPropertyNamesRemoved -Object $AssignmentsByPolicyDefinition -PropertyNames "parent", "clusters"
+# $json = ConvertTo-Json $Object -Depth 100
 # $null = New-Item $fullPath -Force -ItemType File -Value $json
 
-foreach ($policyDefinitionKey in $assignmentsByPolicyDefinition.Keys) {
-    $perDefinition = $assignmentsByPolicyDefinition.$policyDefinitionKey
-    foreach ($child in $perDefinition.children) {
+foreach ($PolicyDefinitionKey in $AssignmentsByPolicyDefinition.Keys) {
+    $PerDefinition = $AssignmentsByPolicyDefinition.$PolicyDefinitionKey
+    foreach ($child in $PerDefinition.children) {
         Set-ExportNodeAncestors `
-            -currentNode $child `
-            -propertyNames $propertyNames `
-            -currentIndex 0
+            -CurrentNode $child `
+            -PropertyNames $PropertyNames `
+            -CurrentIndex 0
     }
 }
 
-# $fullPath = "$policyAssignmentsFolder/tree-optimized.$fileExtension"
-# $object = Get-HashtableWithPropertyNamesRemoved -object $assignmentsByPolicyDefinition -propertyNames "parent", "clusters"
-# $json = ConvertTo-Json $object -Depth 100
+# $fullPath = "$PolicyAssignmentsFolder/tree-optimized.$FileExtension"
+# $Object = Get-HashtableWithPropertyNamesRemoved -Object $AssignmentsByPolicyDefinition -PropertyNames "parent", "clusters"
+# $json = ConvertTo-Json $Object -Depth 100
 # $null = New-Item $fullPath -Force -ItemType File -Value $json
-# $assignmentsByPolicyDefinition = $object
+# $AssignmentsByPolicyDefinition = $Object
 
 #endregion prep tree for collapsing nodes
 
@@ -609,16 +609,16 @@ foreach ($policyDefinitionKey in $assignmentsByPolicyDefinition.Keys) {
 
 Write-Information ""
 Write-Information "==================================================================================================="
-Write-Information "Creating $($assignmentsByPolicyDefinition.psbase.Count) Policy Assignment files"
+Write-Information "Creating $($AssignmentsByPolicyDefinition.psbase.Count) Policy Assignment files"
 Write-Information "==================================================================================================="
 
-foreach ($policyDefinitionKey in $assignmentsByPolicyDefinition.Keys) {
-    $perDefinition = $assignmentsByPolicyDefinition.$policyDefinitionKey
+foreach ($PolicyDefinitionKey in $AssignmentsByPolicyDefinition.Keys) {
+    $PerDefinition = $AssignmentsByPolicyDefinition.$PolicyDefinitionKey
     Out-PolicyAssignmentFile `
-        -perDefinition $perDefinition `
-        -propertyNames $propertyNames `
-        -policyAssignmentsFolder $policyAssignmentsFolder `
-        -invalidChars $invalidChars
+        -PerDefinition $PerDefinition `
+        -PropertyNames $PropertyNames `
+        -PolicyAssignmentsFolder $PolicyAssignmentsFolder `
+        -InvalidChars $InvalidChars
 }
 
 #endregion create assignment files (one per definition id), use clusters to collapse tree

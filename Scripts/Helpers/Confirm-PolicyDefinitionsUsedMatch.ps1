@@ -1,16 +1,16 @@
 function Confirm-PolicyDefinitionsUsedMatch {
     [CmdletBinding()]
     param (
-        [array] $matchingPolicyDefinitions,
-        [array] $definedPolicyDefinitions
+        [array] $MatchingPolicyDefinitions,
+        [array] $DefinedPolicyDefinitions
     )
 
     $matchingHt = @{}
-    foreach ($pd in $matchingPolicyDefinitions) {
-        $parameters = "{}"
+    foreach ($pd in $MatchingPolicyDefinitions) {
+        $Parameters = "{}"
         $groupNames = "[]"
         if ($null -ne $pd.parameters) {
-            $parameters = $pd.parameters | ConvertTo-Json -Depth 100
+            $Parameters = $pd.parameters | ConvertTo-Json -Depth 100
         }
         if ($null -ne $pd.groupNames) {
             $groupNames = $pd.groupNames | ConvertTo-Json -Depth 100
@@ -19,27 +19,27 @@ function Confirm-PolicyDefinitionsUsedMatch {
         # Write-Host "policyDefinitionReferenceId = $($pd.policyDefinitionReferenceId)"
         $matchingHt[$pd.policyDefinitionReferenceId] = @{
             policyDefinitionId = $pd.policyDefinitionId
-            parameters         = $parameters
+            parameters         = $Parameters
             groupNames         = $groupNames
         }
     }
 
     $matching = $true
-    foreach ($pd in $definedPolicyDefinitions) {
+    foreach ($pd in $DefinedPolicyDefinitions) {
         $pdRef = $pd.policyDefinitionReferenceId
         if ($matchingHt.ContainsKey($pdRef)) {
             $mpd = $matchingHt.$pdRef
             $matchingHt.Remove($pdRef)
-            $parameters = "{}"
+            $Parameters = "{}"
             $groupNames = "[]"
             if ($null -ne $pd.parameters) {
-                $parameters = $pd.parameters | ConvertTo-Json -Depth 100
+                $Parameters = $pd.parameters | ConvertTo-Json -Depth 100
             }
             if ($null -ne $pd.groupNames) {
                 $groupNames = $pd.groupNames | ConvertTo-Json -Depth 100
             }
             $matchingItem = ($mpd.policyDefinitionId -eq $pd.policyDefinitionId) `
-                -and ($mpd.parameters -eq $parameters) `
+                -and ($mpd.parameters -eq $Parameters) `
                 -and ($mpd.groupNames -eq $groupNames)
             if (-not $matchingItem) {
                 # policyDefinitionReferenceId matches, but rest of Policy Definition doesn't

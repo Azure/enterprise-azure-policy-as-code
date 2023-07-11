@@ -1,35 +1,35 @@
 function Out-PolicyExemptions {
     [CmdletBinding()]
     param (
-        $exemptions,
-        $assignments,
-        $pacEnvironment,
-        $policyExemptionsFolder,
-        [switch] $outputJson,
-        [switch] $outputCsv,
-        $exemptionOutputType = "*",
-        [string] $fileExtension = "json"
+        $Exemptions,
+        $Assignments,
+        $PacEnvironment,
+        $PolicyExemptionsFolder,
+        [switch] $OutputJson,
+        [switch] $OutputCsv,
+        $ExemptionOutputType = "*",
+        [string] $FileExtension = "json"
     )
 
-    $numberOfExemptions = $exemptions.Count
+    $numberOfExemptions = $Exemptions.Count
     Write-Information "==================================================================================================="
     Write-Information "Output Exemption list ($numberOfExemptions)"
     Write-Information "==================================================================================================="
 
-    $pacSelector = $pacEnvironment.pacSelector
-    $outputPath = "$policyExemptionsFolder/$pacSelector"
-    if (-not (Test-Path $outputPath)) {
-        New-Item $outputPath -Force -ItemType directory
+    $PacSelector = $PacEnvironment.pacSelector
+    $OutputPath = "$PolicyExemptionsFolder/$PacSelector"
+    if (-not (Test-Path $OutputPath)) {
+        New-Item $OutputPath -Force -ItemType directory
     }
 
-    $exemptionsResult = Confirm-ActiveAzExemptions -exemptions $exemptions -assignments $assignments
-    $policyDefinitionReferenceIdsTransform = @{
+    $ExemptionsResult = Confirm-ActiveAzExemptions -Exemptions $Exemptions -Assignments $Assignments
+    $PolicyDefinitionReferenceIdsTransform = @{
         label      = "policyDefinitionReferenceIds"
         expression = {
             ($_.policyDefinitionReferenceIds -join ",").ToString()
         }
     }
-    $metadataTransform = @{
+    $MetadataTransform = @{
         label      = "metadata"
         expression = {
             if ($_.metadata) {
@@ -52,18 +52,18 @@ function Out-PolicyExemptions {
         }
     }
 
-    foreach ($key in $exemptionsResult.Keys) {
-        if ($exemptionOutputType -eq "*" -or $exemptionOutputType -eq $key) {
-            [hashtable] $exemptions = $exemptionsResult.$key
-            Write-Information "Output $key Exemption list ($($exemptions.Count)) for epac environment '$pacSelector'"
+    foreach ($key in $ExemptionsResult.Keys) {
+        if ($ExemptionOutputType -eq "*" -or $ExemptionOutputType -eq $key) {
+            [hashtable] $Exemptions = $ExemptionsResult.$key
+            Write-Information "Output $key Exemption list ($($Exemptions.Count)) for epac environment '$PacSelector'"
 
-            $valueArray = @() + $exemptions.Values
+            $valueArray = @() + $Exemptions.Values
 
             if ($valueArray.Count -gt 0) {
 
-                $stem = "$outputPath/$($key)-exemptions"
+                $stem = "$OutputPath/$($key)-Exemptions"
 
-                if ($outputJson) {
+                if ($OutputJson) {
                     # JSON Output
                     $jsonArray = @() + $valueArray | Select-Object -Property name, `
                         displayName, `
@@ -76,17 +76,17 @@ function Out-PolicyExemptions {
                         policyAssignmentId, `
                         policyDefinitionReferenceIds, `
                         metadata
-                    $jsonFile = "$stem.$fileExtension"
+                    $jsonFile = "$stem.$FileExtension"
                     if (Test-Path $jsonFile) {
                         Remove-Item $jsonFile
                     }
-                    $outputJsonObj = @{
+                    $OutputJsonObj = @{
                         exemptions = @($jsonArray)
                     }
-                    ConvertTo-Json $outputJsonObj -Depth 100 | Out-File $jsonFile -Force
+                    ConvertTo-Json $OutputJsonObj -Depth 100 | Out-File $jsonFile -Force
                 }
 
-                if ($outputCsv) {
+                if ($OutputCsv) {
                     # Spreadsheet outputs (CSV)
                     $excelArray = @() + $valueArray | Select-Object -Property name, `
                         displayName, `
@@ -97,8 +97,8 @@ function Out-PolicyExemptions {
                         $expiresInDaysTransform, `
                         scope, `
                         policyAssignmentId, `
-                        $policyDefinitionReferenceIdsTransform, `
-                        $metadataTransform
+                        $PolicyDefinitionReferenceIdsTransform, `
+                        $MetadataTransform
 
                     $csvFile = "$stem.csv"
                     if (Test-Path $csvFile) {

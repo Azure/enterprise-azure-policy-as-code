@@ -1,25 +1,25 @@
 function Out-PolicyDefinition {
     [CmdletBinding()]
     param (
-        $definition,
-        $folder,
-        [hashtable] $policyPropertiesByName,
-        $invalidChars,
-        $id,
-        $fileExtension
+        $Definition,
+        $Folder,
+        [hashtable] $PolicyPropertiesByName,
+        $InvalidChars,
+        $Id,
+        $FileExtension
     )
 
     # Fields to calculate file name
-    $name = $definition.name
-    $properties = $definition.properties
-    $displayName = $properties.displayName
-    if ($null -eq $displayName -or $displayName -eq "") {
-        $displayName = $name
+    $Name = $Definition.name
+    $properties = $Definition.properties
+    $DisplayName = $properties.displayName
+    if ($null -eq $DisplayName -or $DisplayName -eq "") {
+        $DisplayName = $Name
     }
-    $metadata = $properties.metadata
+    $Metadata = $properties.metadata
     $subFolder = "Unknown Category"
-    if ($null -ne $metadata) {
-        $category = $metadata.category
+    if ($null -ne $Metadata) {
+        $category = $Metadata.category
         if ($null -ne $category -and $category -ne "") {
             $subFolder = $category
         }
@@ -27,42 +27,42 @@ function Out-PolicyDefinition {
 
     # Build folder and path
     $fullPath = Get-DefinitionsFullPath `
-        -folder $folder `
-        -rawSubFolder $subFolder `
-        -name $name `
-        -displayName $displayName `
-        -invalidChars $invalidChars `
-        -maxLengthSubFolder 30 `
-        -maxLengthFileName 100 `
-        -fileExtension $fileExtension
+        -Folder $Folder `
+        -RawSubFolder $subFolder `
+        -Name $Name `
+        -DisplayName $DisplayName `
+        -InvalidChars $InvalidChars `
+        -MaxLengthSubFolder 30 `
+        -MaxLengthFileName 100 `
+        -FileExtension $FileExtension
 
     # Detect duplicates
 
-    if ($policyPropertiesByName.ContainsKey($name)) {
-        $duplicateProperties = $policyPropertiesByName.$name
+    if ($PolicyPropertiesByName.ContainsKey($Name)) {
+        $duplicateProperties = $PolicyPropertiesByName.$Name
         # quietly ignore
         #
         # $exactDuplicate = Confirm-ObjectValueEqualityDeep $duplicateProperties $properties
         # if ($exactDuplicate) {
-        #     # Write-Warning "'$displayName' - '$id' is an exact duplicate" -WarningAction Continue
+        #     # Write-Warning "'$DisplayName' - '$Id' is an exact duplicate" -WarningAction Continue
         #     # Quietly ignore
         #     $null = $properties
         # }
         # else {
         #     $guid = (New-Guid)
-        #     $fullPath = "$folder/Duplicates/$($guid.Guid).$fileExtension"
-        #     Write-Warning "'$displayName' - '$id' is a duplicate with different properties; writing to file $fullPath" -WarningAction Continue
-        #     $definition | Add-Member -MemberType NoteProperty -Name 'id' -Value $id
+        #     $fullPath = "$Folder/Duplicates/$($guid.Guid).$FileExtension"
+        #     Write-Warning "'$DisplayName' - '$Id' is a duplicate with different properties; writing to file $fullPath" -WarningAction Continue
+        #     $Definition | Add-Member -MemberType NoteProperty -Name 'id' -Value $Id
         # }
     }
     else {
         # Unique name
-        Write-Debug "'$displayName' - '$id'"
-        $null = $policyPropertiesByName.Add($name, $properties)
+        Write-Debug "'$DisplayName' - '$Id'"
+        $null = $PolicyPropertiesByName.Add($Name, $properties)
     }
 
     # Write the content
-    Remove-NullFields $definition
-    $json = ConvertTo-Json $definition -Depth 100
+    Remove-NullFields $Definition
+    $json = ConvertTo-Json $Definition -Depth 100
     $null = New-Item $fullPath -Force -ItemType File -Value $json
 }

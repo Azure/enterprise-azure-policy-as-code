@@ -4,14 +4,14 @@ function Get-SelectedPacValue {
         [parameter(Position = 0, ValueFromPipeline = $true)]
         $InputObject,
 
-        [string] $pacSelector,
-        [switch] $deepClone
+        [string] $PacSelector,
+        [switch] $DeepClone
     )
 
     [hashtable] $selectableHashtable = @{}
     $value = $null
-    if ($deepClone) {
-        $selectableHashtable = Get-DeepClone $InputObject -AsHashTable
+    if ($DeepClone) {
+        $selectableHashtable = Get-DeepClone $InputObject -AsHashtable
     }
     else {
         $selectableHashtable = Get-HashtableShallowClone $InputObject
@@ -20,9 +20,9 @@ function Get-SelectedPacValue {
         # default
         $value = $selectableHashtable["*"]
     }
-    if ($selectableHashtable.ContainsKey($pacSelector)) {
+    if ($selectableHashtable.ContainsKey($PacSelector)) {
         # specific, overrides default
-        $value = $selectableHashtable[$pacSelector]
+        $value = $selectableHashtable[$PacSelector]
     }
 
     if ($value -is [array] -and $value.Count -le 1) {

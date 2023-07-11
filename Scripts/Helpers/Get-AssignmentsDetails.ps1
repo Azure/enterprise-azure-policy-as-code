@@ -1,65 +1,65 @@
 function Get-AssignmentsDetails {
     [CmdletBinding()]
     param (
-        [array] $assignmentArray,
-        [string] $pacEnvironmentSelector,
-        [hashtable] $policyResourceDetails,
-        [hashtable] $cachedAssignmentsDetails
+        [array] $AssignmentArray,
+        [string] $PacEnvironmentSelector,
+        [hashtable] $PolicyResourceDetails,
+        [hashtable] $CachedAssignmentsDetails
     )
 
-    $assignmentsDetailsHt = @{}
-    if ($cachedAssignmentsDetails.ContainsKey($pacEnvironmentSelector)) {
-        $assignmentsDetailsHt = $cachedAssignmentsDetails.$pacEnvironmentSelector
+    $AssignmentsDetailsHt = @{}
+    if ($CachedAssignmentsDetails.ContainsKey($PacEnvironmentSelector)) {
+        $AssignmentsDetailsHt = $CachedAssignmentsDetails.$PacEnvironmentSelector
     }
     else {
-        $null = $cachedAssignmentsDetails.Add($pacEnvironmentSelector, $assignmentsDetailsHt)
+        $null = $CachedAssignmentsDetails.Add($PacEnvironmentSelector, $AssignmentsDetailsHt)
     }
 
-    [System.Collections.ArrayList] $assignmentPolicySetArray = [System.Collections.ArrayList]::new()
-    foreach ($assignmentEntry in $assignmentArray) {
-        $assignmentId = $assignmentEntry.id
-        $policySetId = ""
-        $shortName = $assignmentEntry.shortName
-        # Write-Information "$($assignmentEntry.shortName) - $($assignmentId)"
-        if ($assignmentsDetailsHt.ContainsKey($assignmentId)) {
-            $combinedDetail = $assignmentsDetailsHt.$assignmentId
-            $policySetId = $combinedDetail.id
+    [System.Collections.ArrayList] $AssignmentPolicySetArray = [System.Collections.ArrayList]::new()
+    foreach ($AssignmentEntry in $AssignmentArray) {
+        $AssignmentId = $AssignmentEntry.id
+        $PolicySetId = ""
+        $shortName = $AssignmentEntry.shortName
+        # Write-Information "$($AssignmentEntry.shortName) - $($AssignmentId)"
+        if ($AssignmentsDetailsHt.ContainsKey($AssignmentId)) {
+            $combinedDetail = $AssignmentsDetailsHt.$AssignmentId
+            $PolicySetId = $combinedDetail.id
         }
         else {
-            $allAssignments = $policyResourceDetails.policyassignments
-            $policySetsDetails = $policyResourceDetails.policySets
-            if (!$allAssignments.ContainsKey($assignmentId)) {
-                Write-Error "Assignment '$assignmentId' does not exist or is not managed by EPAC." -ErrorAction Stop
+            $AllAssignments = $PolicyResourceDetails.policyassignments
+            $PolicySetsDetails = $PolicyResourceDetails.policySets
+            if (!$AllAssignments.ContainsKey($AssignmentId)) {
+                Write-Error "Assignment '$AssignmentId' does not exist or is not managed by EPAC." -ErrorAction Stop
             }
-            $assignment = $allAssignments.$assignmentId
-            $policySetId = $assignment.properties.policyDefinitionId
-            if ($policySetId.Contains("policySetDefinition")) {
+            $Assignment = $AllAssignments.$AssignmentId
+            $PolicySetId = $Assignment.properties.policyDefinitionId
+            if ($PolicySetId.Contains("policySetDefinition")) {
                 # PolicySet
-                if ($policySetsDetails.ContainsKey($policySetId)) {
-                    $combinedDetail = Get-DeepClone $policySetsDetails.$policySetId -AsHashTable
-                    $combinedDetail.assignmentId = $assignmentId
-                    $combinedDetail.assignment = $assignment
-                    $combinedDetail.policySetId = $policySetId
-                    $null = $assignmentsDetailsHt.Add($assignmentId, $combinedDetail)
+                if ($PolicySetsDetails.ContainsKey($PolicySetId)) {
+                    $combinedDetail = Get-DeepClone $PolicySetsDetails.$PolicySetId -AsHashtable
+                    $combinedDetail.assignmentId = $AssignmentId
+                    $combinedDetail.assignment = $Assignment
+                    $combinedDetail.policySetId = $PolicySetId
+                    $null = $AssignmentsDetailsHt.Add($AssignmentId, $combinedDetail)
                 }
                 else {
-                    Write-Error "Assignment '$assignmentId' uses an unknown Policy Set '$($policySetId)'. This should not be possible!" -ErrorAction Stop
+                    Write-Error "Assignment '$AssignmentId' uses an unknown Policy Set '$($PolicySetId)'. This should not be possible!" -ErrorAction Stop
                 }
             }
             else {
-                Write-Error "Assignment '$assignmentId' must be an Policy Set assignment (not a Policy assignment)." -ErrorAction Stop
+                Write-Error "Assignment '$AssignmentId' must be an Policy Set assignment (not a Policy assignment)." -ErrorAction Stop
             }
         }
         $entry = @{
             shortName    = $shortName
-            itemId       = $assignmentId
-            assignmentId = $assignmentId
-            policySetId  = $policySetId
+            itemId       = $AssignmentId
+            assignmentId = $AssignmentId
+            policySetId  = $PolicySetId
         }
-        $null = $assignmentPolicySetArray.Add($entry)
+        $null = $AssignmentPolicySetArray.Add($entry)
 
 
     }
 
-    return $assignmentPolicySetArray.ToArray(), $assignmentsDetailsHt
+    return $AssignmentPolicySetArray.ToArray(), $AssignmentsDetailsHt
 }

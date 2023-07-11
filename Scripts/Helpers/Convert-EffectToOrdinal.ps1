@@ -1,9 +1,9 @@
 function Convert-EffectToOrdinal {
     param (
-        [string] $effect
+        [string] $Effect
     )
 
-    $effect2sortOrdinal = @{
+    $Effect2sortOrdinal = @{
         Modify            = 0
         Append            = 0
         DeployIfNotExists = 0
@@ -15,9 +15,9 @@ function Convert-EffectToOrdinal {
     }
 
 
-    $ordinal = -1 # should not be possible
-    if ($effect2sortOrdinal.ContainsKey($effect)) {
-        $ordinal = $effect2sortOrdinal.$effect
+    $Ordinal = -1 # should not be possible
+    if ($Effect2sortOrdinal.ContainsKey($Effect)) {
+        $Ordinal = $Effect2sortOrdinal.$Effect
     }
-    return $ordinal
+    return $Ordinal
 }

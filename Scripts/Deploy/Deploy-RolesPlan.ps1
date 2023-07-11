@@ -16,15 +16,15 @@
     Use switch to indicate interactive use
 
 .EXAMPLE
-    Deploy-RolesPlan.ps1 -pacEnvironmentSelector "dev" -definitionsRootFolder "C:\PAC\Definitions" -inputFolder "C:\PAC\Output" -interactive
+    Deploy-RolesPlan.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\PAC\Definitions" -InputFolder "C:\PAC\Output" -Interactive
     Deploys Role assignments from a plan file.
 
 .EXAMPLE
-    Deploy-RolesPlan.ps1 -interactive
+    Deploy-RolesPlan.ps1 -Interactive
     Deploys Role assignments from a plan file. The script prompts for the PAC environment and uses the default definitions and input folders.
 
 .LINK
-    https://azure.github.io/enterprise-azure-policy-as-code/#deployment-scripts
+    https://azure.github.io/enterprise-azure-Policy-as-code/#deployment-scripts
 
 #>
 
@@ -33,16 +33,16 @@ param (
     [parameter(HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.",
         Position = 0
     )]
-    [string] $pacEnvironmentSelector,
+    [string] $PacEnvironmentSelector,
 
     [Parameter(HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.")]
-    [string]$definitionsRootFolder,
+    [string]$DefinitionsRootFolder,
 
     [Parameter(HelpMessage = "Input folder path for plan files. Defaults to environment variable `$env:PAC_INPUT_FOLDER, `$env:PAC_OUTPUT_FOLDER or './Output'.")]
-    [string]$inputFolder,
+    [string]$InputFolder,
 
     [Parameter(HelpMessage = "Use switch to indicate interactive use")]
-    [switch] $interactive
+    [switch] $Interactive
 )
 
 $PSDefaultParameterValues = @{
@@ -55,11 +55,11 @@ Clear-Variable -Name epacInfoStream -Scope global -Force -ErrorAction SilentlyCo
 . "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
 
 $InformationPreference = "Continue"
-$pacEnvironment = Select-PacEnvironment $pacEnvironmentSelector -definitionsRootFolder $definitionsRootFolder -inputFolder $inputFolder  -interactive $interactive
-Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -interactive $pacEnvironment.interactive
+$PacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -InputFolder $InputFolder  -Interactive $Interactive
+Set-AzCloudTenantSubscription -Cloud $PacEnvironment.cloud -TenantId $PacEnvironment.tenantId -Interactive $PacEnvironment.interactive
 
-$planFile = $pacEnvironment.rolesPlanInputFile
-$plan = Get-DeploymentPlan -planFile $planFile -asHashTable
+$PlanFile = $PacEnvironment.rolesPlanInputFile
+$plan = Get-DeploymentPlan -PlanFile $PlanFile -AsHashtable
 
 if ($null -eq $plan) {
     Write-Warning "***************************************************************************************************"
@@ -70,20 +70,20 @@ if ($null -eq $plan) {
 else {
 
     Write-Information "***************************************************************************************************"
-    Write-Information "Deploy Role assignments from plan in file '$planFile'"
+    Write-Information "Deploy Role assignments from plan in file '$PlanFile'"
     Write-Information "Plan created on $($plan.createdOn)."
     Write-Information "***************************************************************************************************"
 
-    $removedRoleAssignments = $plan.roleAssignments.removed
+    $RemovedRoleAssignments = $plan.roleAssignments.removed
     $addedRoleAssignments = $plan.roleAssignments.added
-    if ($removedRoleAssignments.psbase.Count -gt 0) {
+    if ($RemovedRoleAssignments.psbase.Count -gt 0) {
         Write-Information "==================================================================================================="
-        Write-Information "Remove ($($removedRoleAssignments.psbase.Count)) obsolete Role assignments"
+        Write-Information "Remove ($($RemovedRoleAssignments.psbase.Count)) obsolete Role assignments"
         Write-Information "---------------------------------------------------------------------------------------------------"
-        $splatTransform = "principalId/ObjectId scope/Scope roleDefinitionId/RoleDefinitionId"
-        foreach ($roleAssignment in $removedRoleAssignments) {
+        $SplatTransform = "principalId/ObjectId scope/Scope roleDefinitionId/RoleDefinitionId"
+        foreach ($roleAssignment in $RemovedRoleAssignments) {
             Write-Information "$($roleAssignment.displayName): $($roleAssignment.roleDisplayName)($($roleAssignment.roleDefinitionId)) at $($roleAssignment.scope)"
-            $splat = Get-FilteredHashTable $roleAssignment -splatTransform $splatTransform
+            $Splat = Get-FilteredHashTable $roleAssignment -SplatTransform $SplatTransform
             $null = Remove-AzRoleAssignment @splat -WarningAction SilentlyContinue
         }
         Write-Information ""
@@ -94,27 +94,27 @@ else {
         Write-Information "Add ($($addedRoleAssignments.psbase.Count)) new Role assignments"
         Write-Information "---------------------------------------------------------------------------------------------------"
         $retriesLimit = 4
-        $splatTransform = "principalId/ObjectId objectType/ObjectType scope/Scope roleDefinitionId/RoleDefinitionId"
-        $identitiesByAssignmentId = @{}
+        $SplatTransform = "principalId/ObjectId objectType/ObjectType scope/Scope roleDefinitionId/RoleDefinitionId"
+        $IdentitiesByAssignmentId = @{}
         foreach ($roleAssignment in $addedRoleAssignments) {
             $principalId = $roleAssignment.principalId
             if ($null -eq $principalId) {
-                $policyAssignmentId = $roleAssignment.assignmentId
-                $identity = $null
-                if ($identitiesByAssignmentId.ContainsKey($policyAssignmentId)) {
-                    $identity = $identitiesByAssignmentId.$policyAssignmentId
+                $PolicyAssignmentId = $roleAssignment.assignmentId
+                $Identity = $null
+                if ($IdentitiesByAssignmentId.ContainsKey($PolicyAssignmentId)) {
+                    $Identity = $IdentitiesByAssignmentId.$PolicyAssignmentId
                 }
                 else {
-                    $policyAssignment = Get-AzPolicyAssignment -Id $roleAssignment.assignmentId -WarningAction SilentlyContinue
-                    $identity = $policyAssignment.Identity
-                    $null = $identitiesByAssignmentId.Add($policyAssignmentId, $identity)
+                    $PolicyAssignment = Get-AzPolicyAssignment -Id $roleAssignment.assignmentId -WarningAction SilentlyContinue
+                    $Identity = $PolicyAssignment.Identity
+                    $null = $IdentitiesByAssignmentId.Add($PolicyAssignmentId, $Identity)
                 }
-                $principalId = $identity.PrincipalId
+                $principalId = $Identity.PrincipalId
                 $roleAssignment.principalId = $principalId
             }
-            Write-Information "$($policyAssignment.Properties.displayName): $($roleAssignment.roleDisplayName)($($roleAssignment.roleDefinitionId)) at $($roleAssignment.scope)"
-            $splat = Get-FilteredHashTable $roleAssignment -splatTransform $splatTransform
-            if (Get-AzRoleAssignment -Scope $splat.Scope -ObjectId $splat.ObjectId -RoleDefinitionId $splat.RoleDefinitionId) {
+            Write-Information "$($PolicyAssignment.Properties.displayName): $($roleAssignment.roleDisplayName)($($roleAssignment.roleDefinitionId)) at $($roleAssignment.scope)"
+            $Splat = Get-FilteredHashTable $roleAssignment -SplatTransform $SplatTransform
+            if (Get-AzRoleAssignment -Scope $Splat.Scope -ObjectId $Splat.ObjectId -RoleDefinitionId $Splat.RoleDefinitionId) {
                 Write-Information "Role assignment already exists"
             }
             else {

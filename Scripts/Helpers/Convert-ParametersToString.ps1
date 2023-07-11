@@ -1,21 +1,21 @@
 
 function Convert-ParametersToString {
     param (
-        [hashtable] $parameters,
-        [string] $outputType
+        [hashtable] $Parameters,
+        [string] $OutputType
     )
 
     [string] $text = ""
     [hashtable] $csvParametersHt = @{}
-    if ($parameters.psbase.Count -gt 0) {
-        foreach ($parameterName in $parameters.Keys) {
-            $parameter = $parameters.$parameterName
+    if ($Parameters.psbase.Count -gt 0) {
+        foreach ($parameterName in $Parameters.Keys) {
+            $parameter = $Parameters.$parameterName
             $multiUse = $parameter.multiUse
             $isEffect = $parameter.isEffect
             $value = $parameter.value
             $defaultValue = $parameter.defaultValue
-            $definition = $parameter.definition
-            $policySetDisplayNames = $parameter.policySets
+            $Definition = $parameter.definition
+            $PolicySetDisplayNames = $parameter.policySets
             if ($null -eq $value -and $null -eq $defaultValue) {
                 $noDefault = $true
                 $value = "++ no default ++"
@@ -23,7 +23,7 @@ function Convert-ParametersToString {
             elseif ($null -eq $value) {
                 $value = $defaultValue
             }
-            switch ($outputType) {
+            switch ($OutputType) {
                 markdown {
                     if ($value -is [string]) {
                         $text += "<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*$parameterName = ``$value``*"
@@ -59,27 +59,27 @@ function Convert-ParametersToString {
                 }
                 csvDefinitions {
                     if (-not $multiUse) {
-                        $null = $csvParametersHt.Add($parameterName, $definition)
+                        $null = $csvParametersHt.Add($parameterName, $Definition)
                     }
                 }
                 jsonc {
-                    $parameterString = "`"$($parameterName)`": $(ConvertTo-Json $value -Depth 100 -Compress), // '$($policySetDisplayNames -Join "', '")'"
+                    $Parameterstring = "`"$($parameterName)`": $(ConvertTo-Json $value -Depth 100 -Compress), // '$($PolicySetDisplayNames -Join "', '")'"
                     if ($multiUse) {
-                        $text += "`n    // Multi-use: ($parameterString)"
+                        $text += "`n    // Multi-use: ($Parameterstring)"
                     }
                     elseif ($noDefault) {
-                        $text += "`n    // No-default: ($parameterString)"
+                        $text += "`n    // No-default: ($Parameterstring)"
                     }
                     else {
-                        $text += "`n    $($parameterString),"
+                        $text += "`n    $($Parameterstring),"
                     }
                 }
                 Default {
-                    Write-Error "Convert-ParametersToString: unknown outputType '$outputType'" -ErrorAction Stop
+                    Write-Error "Convert-ParametersToString: unknown outputType '$OutputType'" -ErrorAction Stop
                 }
             }
         }
-        if (($outputType -eq "csvValues" -or $outputType -eq "csvDefinitions") -and $csvParametersHt.psbase.Count -gt 0) {
+        if (($OutputType -eq "csvValues" -or $OutputType -eq "csvDefinitions") -and $csvParametersHt.psbase.Count -gt 0) {
             $text = ConvertTo-Json $csvParametersHt -Depth 100 -Compress
         }
     }
