@@ -9,7 +9,7 @@ Introducing a new approach using PowerShell Module. This not (actually) breaking
 The move from synchronizing your repo with the GitHub repo to a PowerShell module necessitated the reworking of the default values for `Definitions`, `Output`, and `Input` folders. Many scripts use parameters for definitions, input and output folders. They default to the current directory, which should be the root of the repo. make sure that the current directory is the root of your repo. We recommend that you do one of the following approaches instead of accepting the default:
 
 - Set the environment variables `PAC_DEFINITIONS_FOLDER`, `PAC_OUTPUT_FOLDER`, and `PAC_INPUT_FOLDER`.
-- Use the script parameters `-definitionsRootFolder`, `-outputFolder`, and `-inputFolder` (They vary by script).
+- Use the script parameters `-DefinitionsRootFolder`, `-OutputFolder`, and `-InputFolder` (They vary by script).
 
 ## Breaking changes in v6.0
 
@@ -26,7 +26,7 @@ To increase execution speed and pipeline uniformity:
 
 Change pipeline definition:
 
-- Change usage of task: `AzureCLI@2` to task: `AzurePowerShell@5`. Use `-devOpsType "ado"` for Azure DevOps or `-devOpsType "gitlab"` for Gitlab pipelines.
+- Change usage of task: `AzureCLI@2` to task: `AzurePowerShell@5`. Use `-DevOpsType "ado"` for Azure DevOps or `-DevOpsType "gitlab"` for Gitlab pipelines.
 
 ```yaml
     - task: AzurePowerShell@5
@@ -38,8 +38,8 @@ Change pipeline definition:
         azurePowerShellVersion: LatestVersion
         ScriptPath: "Scripts/Deploy/Build-DeploymentPlans.ps1"
         ScriptArguments:
-          -pacEnvironmentSelector $(pacEnvironmentSelector) `
-          -devOpsType "ado" `
+          -PacEnvironmentSelector $(pacEnvironmentSelector) `
+          -DevOpsType "ado" `
           -InformationAction Continue
 ```
 

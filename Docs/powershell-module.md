@@ -12,4 +12,4 @@ Import-Module EnterprisePolicyAsCode
 Many scripts use parameters for input and output folders. They default to the current directory. We recommend that you do one of the following approaches instead of accepting the default to prevent your files being created in the wrong location:
 
 - Set the environment variables `PAC_DEFINITIONS_FOLDER`, `PAC_OUTPUT_FOLDER`, and `PAC_INPUT_FOLDER`.
-- Use the script parameters `-definitionsRootFolder`, `-outputFolder`, and `-inputFolder`.
+- Use the script parameters `-DefinitionsRootFolder`, `-OutputFolder`, and `-InputFolder`.

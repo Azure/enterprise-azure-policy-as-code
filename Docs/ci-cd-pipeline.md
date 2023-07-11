@@ -182,9 +182,9 @@ While this script intended to be used, they can be run manually to create a semi
 
 |Parameter | Explanation |
 |----------|-------------|
-| `pacEnvironmentSelector` | Selects the EPAC environment for this plan. If omitted, interactively prompts for the value. |
-| `definitionsRootFolder` | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It must contain file `global-settings.jsonc`. |
-| `interactive` | Defaults to `$false`. |
+| `PacEnvironmentSelector` | Selects the EPAC environment for this plan. If omitted, interactively prompts for the value. |
+| `DefinitionsRootFolder` | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It must contain file `global-settings.jsonc`. |
+| `Interactive` | Defaults to `$false`. |
 
 ### Build-DeploymentPlans.ps1
 
@@ -194,8 +194,8 @@ In addition to the [common parameters](#common-script-parameters), these paramet
 
 |Parameter | Explanation |
 |----------|-------------|
-| `outputFolder` | Output folder path for plan files. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER` or `./Output`. |
-| `devOpsType` | If set, outputs variables consumable by conditions in a DevOps pipeline. Default: not set. |
+| `OutputFolder` | Output folder path for plan files. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER` or `./Output`. |
+| `DevOpsType` | If set, outputs variables consumable by conditions in a DevOps pipeline. Default: not set. |
 
 ### Deploy-PolicyPlan.ps1
 
@@ -203,7 +203,7 @@ Deploys Policies, Policy Sets, Policy Assignments, and Policy Exemptions at thei
 
 |Parameter | Explanation |
 |----------|-------------|
-| `inputFolder` | Input folder path for plan files. Defaults to environment variable `$env:PAC_INPUT_FOLDER`, `$env:PAC_OUTPUT_FOLDER` or `./Output`. |
+| `InputFolder` | Input folder path for plan files. Defaults to environment variable `$env:PAC_INPUT_FOLDER`, `$env:PAC_OUTPUT_FOLDER` or `./Output`. |
 
 ### Deploy-RolesPlan.ps1
 
@@ -211,7 +211,7 @@ Creates the role assignments for the Managed Identities required for `DeployIfNo
 
 |Parameter | Explanation |
 |----------|-------------|
-| `inputFolder` | Input folder path for plan files. Defaults to environment variable `$env:PAC_INPUT_FOLDER`, `$env:PAC_OUTPUT_FOLDER` or `./Output`. |
+| `InputFolder` | Input folder path for plan files. Defaults to environment variable `$env:PAC_INPUT_FOLDER`, `$env:PAC_OUTPUT_FOLDER` or `./Output`. |
 
 ## Consuming Excel Files
 
