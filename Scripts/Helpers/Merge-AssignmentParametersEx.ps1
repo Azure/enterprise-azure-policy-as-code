@@ -1,28 +1,28 @@
 function Merge-AssignmentParametersEx {
     # Recursive Function
     param(
-        $nodeName,
-        $policySetId,
-        [hashtable] $baseAssignment,
-        [hashtable] $parameterInstructions,
-        [hashtable] $flatPolicyList,
-        [hashtable] $combinedPolicyDetails,
-        [hashtable] $effectProcessedForPolicy
+        $NodeName,
+        $PolicySetId,
+        [hashtable] $BaseAssignment,
+        [hashtable] $ParameterInstructions,
+        [hashtable] $FlatPolicyList,
+        [hashtable] $CombinedPolicyDetails,
+        [hashtable] $EffectProcessedForPolicy
     )
 
-    $csvParameterArray = $parameterInstructions.csvParameterArray
-    $effectColumn = $parameterInstructions.effectColumn
-    $parametersColumn = $parameterInstructions.parametersColumn
-    $nonComplianceMessageColumn = $parameterInstructions.nonComplianceMessageColumn
+    $csvParameterArray = $ParameterInstructions.csvParameterArray
+    $effectColumn = $ParameterInstructions.effectColumn
+    $parametersColumn = $ParameterInstructions.parametersColumn
+    $nonComplianceMessageColumn = $ParameterInstructions.nonComplianceMessageColumn
 
     #region parameters column
 
-    $parameters = Get-DeepClone $baseAssignment.parameters -AsHashTable
+    $parameters = Get-DeepClone $BaseAssignment.parameters -AsHashTable
     foreach ($row in $csvParameterArray) {
         if ($row.flatPolicyEntryKey) {
             $parametersColumnCell = $row[$parametersColumn]
             if ($null -ne $parametersColumnCell -and $parametersColumnCell -ne "") {
-                $addedParameters = ConvertFrom-Json $parametersColumnCell -Depth 100 -AsHashtable
+                $addedParameters = ConvertFrom-Json $parametersColumnCell -Depth 100 -AsHashTable
                 if ($null -ne $addedParameters -and $addedParameters.psbase.Count -gt 0) {
                     foreach ($parameterName in $addedParameters.Keys) {
                         $rawParameterValue = $addedParameters.$parameterName
@@ -39,22 +39,22 @@ function Merge-AssignmentParametersEx {
     #region parameters column = mutual exclusion handled
 
     $overridesByEffect = @{}
-    $nonComplianceMessages = $baseAssignment.nonComplianceMessages
+    $nonComplianceMessages = $BaseAssignment.nonComplianceMessages
     $hasErrors = $false
     foreach ($row in $csvParameterArray) {
         $flatPolicyEntryKey = $row.flatPolicyEntryKey
         if ($flatPolicyEntryKey) {
             $name = $row.name
-            $flatPolicyEntry = $flatPolicyList.$flatPolicyEntryKey
+            $flatPolicyEntry = $FlatPolicyList.$flatPolicyEntryKey
             if ($null -eq $name -or $name -eq "" -or $null -eq $flatPolicyEntry -or $null -eq $flatPolicyEntry.policySetList -or $null -eq $row.policyId) {
                 continue
             }
             $policySetList = $flatPolicyEntry.policySetList
-            if ($policySetList.ContainsKey($policySetId)) {
+            if ($policySetList.ContainsKey($PolicySetId)) {
                 # Policy in this for loop iteration is referenced in the Policy Set currently being processed
 
                 #region effect parameters including overrides
-                $perPolicySet = $policySetList.$policySetId
+                $perPolicySet = $policySetList.$PolicySetId
                 $effectParameterName = $perPolicySet.effectParameterName
                 $effect = $row[$effectColumn]
                 $setEffectAllowedValues = $perPolicySet.effectAllowedValues
@@ -66,7 +66,7 @@ function Merge-AssignmentParametersEx {
                 if ($perPolicySet.isEffectParameterized) {
                     if ($setEffectAllowedValues -notcontains $desiredEffect) {
                         if ($effectAllowedOverrides -notcontains $desiredEffect) {
-                            Write-Error "    Node $($nodeName):  CSV parameterFile '$parameterFileName' row for Policy name '$name': the effect ($effect) must be an allowed parameter or override value [$($effectAllowedOverrides -join ',')]."
+                            Write-Error "    Node $($NodeName):  CSV parameterFile '$parameterFileName' row for Policy name '$name': the effect ($effect) must be an allowed parameter or override value [$($effectAllowedOverrides -join ',')]."
                             $hasErrors = $true
                             continue
                         }
@@ -77,15 +77,15 @@ function Merge-AssignmentParametersEx {
                 }
                 else {
                     if ($effectAllowedOverrides -notcontains $desiredEffect) {
-                        Write-Error "    Node $($nodeName):  CSV parameterFile '$parameterFileName' row for Policy name '$name': the effect ($effect) must be an allowed override value [$($effectAllowedOverrides -join ',')]."
+                        Write-Error "    Node $($NodeName):  CSV parameterFile '$parameterFileName' row for Policy name '$name': the effect ($effect) must be an allowed override value [$($effectAllowedOverrides -join ',')]."
                         $hasErrors = $true
                         continue
                     }
                     $useOverrides = $true
                 }
-                $isProcessed = $effectProcessedForPolicy.ContainsKey($flatPolicyEntryKey)
+                $isProcessed = $EffectProcessedForPolicy.ContainsKey($flatPolicyEntryKey)
                 if ($isProcessed) {
-                    if ($desiredEffect -eq $effectProcessedForPolicy.$flatPolicyEntryKey) {
+                    if ($desiredEffect -eq $EffectProcessedForPolicy.$flatPolicyEntryKey) {
                         # Adjust desiredEffect
                         $modifiedEffect = switch ($desiredEffect) {
                             append {
@@ -126,7 +126,7 @@ function Merge-AssignmentParametersEx {
                     }
                 }
                 else {
-                    $null = $effectProcessedForPolicy.Add($flatPolicyEntryKey, $desiredEffect)
+                    $null = $EffectProcessedForPolicy.Add($flatPolicyEntryKey, $desiredEffect)
                 }
 
                 $wrongCase = !($setEffectAllowedValues -ccontains $desiredEffect -or $effectAllowedOverrides -ccontains $desiredEffect)
@@ -161,7 +161,7 @@ function Merge-AssignmentParametersEx {
                         $desiredEffect = $modifiedEffect
                     }
                     else {
-                        Write-Error "    Node $($nodeName): CSV parameterFile '$parameterFileName' row for Policy name '$name': the effect ($desiredEffect) must be an allowed value [$($setEffectAllowedValues -join ',')]."
+                        Write-Error "    Node $($NodeName): CSV parameterFile '$parameterFileName' row for Policy name '$name': the effect ($desiredEffect) must be an allowed value [$($setEffectAllowedValues -join ',')]."
                         $hasErrors = $true
                         continue
                     }
@@ -236,16 +236,16 @@ function Merge-AssignmentParametersEx {
             }
         }
         if ($finalOverrides.Count -gt 10) {
-            Write-Error "    Node $($nodeName): CSV parameterFile '$parameterFileName' causes too many overrides ($($finalOverrides.Count)) for Policies without parameterized effect." -ErrorAction Continue
+            Write-Error "    Node $($NodeName): CSV parameterFile '$parameterFileName' causes too many overrides ($($finalOverrides.Count)) for Policies without parameterized effect." -ErrorAction Continue
             $hasErrors = $true
         }
         else {
-            $baseAssignment.overrides = $finalOverrides.ToArray()
+            $BaseAssignment.overrides = $finalOverrides.ToArray()
         }
     }
     #endregion optimize overrides
 
-    $baseAssignment.parameters = $parameters
+    $BaseAssignment.parameters = $parameters
 
     return $hasErrors
 }

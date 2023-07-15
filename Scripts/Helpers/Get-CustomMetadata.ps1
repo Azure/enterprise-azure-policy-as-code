@@ -1,12 +1,12 @@
 function Get-CustomMetadata {
     [CmdletBinding()]
     param (
-        $metadata,
-        $remove = $null
+        $Metadata,
+        $Remove = $null
     )
 
     # remove system generated metadata
-    $metadataTemp = ConvertTo-HashTable $metadata
+    $metadataTemp = ConvertTo-HashTable $Metadata
     if ($metadataTemp.ContainsKey("createdBy")) {
         $metadataTemp.Remove("createdBy")
     }
@@ -19,8 +19,8 @@ function Get-CustomMetadata {
     if ($metadataTemp.ContainsKey("updatedOn")) {
         $metadataTemp.Remove("updatedOn")
     }
-    if ($null -ne $remove) {
-        $splits = $remove -split ","
+    if ($null -ne $Remove) {
+        $splits = $Remove -split ","
         foreach ($item in  $splits) {
             $metadataTemp.Remove($item)
         }

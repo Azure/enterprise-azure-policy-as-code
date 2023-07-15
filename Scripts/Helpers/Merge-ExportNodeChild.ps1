@@ -1,72 +1,72 @@
 function Merge-ExportNodeChild {
     [CmdletBinding()]
     param (
-        [hashtable] $parentNode,
-        [string] $pacSelector,
-        [string] $propertyName,
-        $propertyValue
+        [hashtable] $ParentNode,
+        [string] $PacSelector,
+        [string] $PropertyName,
+        $PropertyValue
     )
 
-    $parentChildren = $parentNode.children
+    $parentChildren = $ParentNode.children
     $match = $false
     foreach ($child in $parentChildren) {
-        $childPropertyValue = $child.$propertyName
-        switch ($propertyName) {
+        $childPropertyValue = $child.$PropertyName
+        switch ($PropertyName) {
             parameters {
                 # temp for debugging, default will handle later
-                $match = Confirm-ObjectValueEqualityDeep $childPropertyValue $propertyValue
+                $match = Confirm-ObjectValueEqualityDeep $childPropertyValue $PropertyValue
                 # if (!$match) {
-                #     $test = Confirm-ObjectValueEqualityDeep $childPropertyValue $propertyValue
+                #     $test = Confirm-ObjectValueEqualityDeep $childPropertyValue $PropertyValue
                 # }
             }
             additionalRoleAssignments {
-                if ($childPropertyValue.ContainsKey($pacSelector)) {
-                    $match = Confirm-ObjectValueEqualityDeep $childPropertyValue.$pacSelector $propertyValue
+                if ($childPropertyValue.ContainsKey($PacSelector)) {
+                    $match = Confirm-ObjectValueEqualityDeep $childPropertyValue.$PacSelector $PropertyValue
                 }
                 else {
                     $match = $true
-                    $null = $childPropertyValue.Add($pacSelector, $propertyValue)
+                    $null = $childPropertyValue.Add($PacSelector, $PropertyValue)
                 }
                 break
             }
             identityEntry {
-                if ($childPropertyValue.ContainsKey($pacSelector)) {
-                    $match = Confirm-ObjectValueEqualityDeep $childPropertyValue.$pacSelector $propertyValue
+                if ($childPropertyValue.ContainsKey($PacSelector)) {
+                    $match = Confirm-ObjectValueEqualityDeep $childPropertyValue.$PacSelector $PropertyValue
                 }
                 else {
                     $match = $true
-                    $null = $childPropertyValue.Add($pacSelector, $propertyValue)
+                    $null = $childPropertyValue.Add($PacSelector, $PropertyValue)
                 }
                 break
             }
             notScopes {
-                if ($childPropertyValue.ContainsKey($pacSelector)) {
-                    $notScopes = $childPropertyValue.$pacSelector
-                    $match = Confirm-ObjectValueEqualityDeep $notScopes $propertyValue
+                if ($childPropertyValue.ContainsKey($PacSelector)) {
+                    $notScopes = $childPropertyValue.$PacSelector
+                    $match = Confirm-ObjectValueEqualityDeep $notScopes $PropertyValue
                 }
                 else {
                     $match = $true
-                    $notScopes = $propertyValue
-                    $null = $childPropertyValue.Add($pacSelector, $notScopes)
+                    $notScopes = $PropertyValue
+                    $null = $childPropertyValue.Add($PacSelector, $notScopes)
                 }
                 break
             }
             scopes {
                 $match = $true
-                if ($childPropertyValue.ContainsKey($pacSelector)) {
-                    $scopes = $childPropertyValue.$pacSelector
-                    if ($scopes -notcontains $propertyValue) {
-                        $null = $scopes.Add($propertyValue)
+                if ($childPropertyValue.ContainsKey($PacSelector)) {
+                    $scopes = $childPropertyValue.$PacSelector
+                    if ($scopes -notcontains $PropertyValue) {
+                        $null = $scopes.Add($PropertyValue)
                     }
                 }
                 else {
-                    $scopes = ConvertTo-ArrayList $propertyValue
-                    $null = $childPropertyValue.Add($pacSelector, $scopes)
+                    $scopes = ConvertTo-ArrayList $PropertyValue
+                    $null = $childPropertyValue.Add($PacSelector, $scopes)
                 }
                 break
             }
             default {
-                $match = Confirm-ObjectValueEqualityDeep $childPropertyValue $propertyValue
+                $match = Confirm-ObjectValueEqualityDeep $childPropertyValue $PropertyValue
                 break
             }
         }
@@ -77,10 +77,10 @@ function Merge-ExportNodeChild {
     }
 
     $child = New-ExportNode `
-        -parentNode $parentNode `
-        -pacSelector $pacSelector `
-        -propertyName $propertyName `
-        -propertyValue $propertyValue
+        -ParentNode $ParentNode `
+        -PacSelector $PacSelector `
+        -PropertyName $PropertyName `
+        -PropertyValue $PropertyValue
     $null = $parentChildren.Add($child)
 
     return $child

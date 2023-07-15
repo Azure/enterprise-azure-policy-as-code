@@ -15,10 +15,10 @@ This `Definitions` folder and subfolders contains all your definitions. The `Syn
 
 `global-settings.jsonc` has following sections explained below:
 
-- `pacOwnerId` uniquely identifies deployments from a specific repo. We recommend using a GUID.
-- `pacEnvironments` defines the EPAC environments.
+- `PacOwnerId` uniquely identifies deployments from a specific repo. We recommend using a GUID.
+- `PacEnvironments` defines the EPAC environments.
 - `managedIdentityLocations` is used in Policy Assignments as the location of the created Managed Identities.
-- `globalNotScopes` defines scopes not subject to the Policy Assignments.
+- `GlobalNotScopes` defines scopes not subject to the Policy Assignments.
 
 ### JSON Schema
 

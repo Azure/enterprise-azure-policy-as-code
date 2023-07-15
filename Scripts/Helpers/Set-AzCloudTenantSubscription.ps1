@@ -2,9 +2,9 @@
 function Set-AzCloudTenantSubscription {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $true)] [string] $cloud,
-        [Parameter(Mandatory = $true)] [string] $tenantId,
-        [Parameter(Mandatory = $true)] [bool] $interactive
+        [Parameter(Mandatory = $true)] [string] $Cloud,
+        [Parameter(Mandatory = $true)] [string] $TenantId,
+        [Parameter(Mandatory = $true)] [bool] $Interactive
     )
 
     if (!(Get-Module Az.ResourceGraph -ListAvailable)) {
@@ -13,14 +13,14 @@ function Set-AzCloudTenantSubscription {
     }
 
     $account = Get-AzContext
-    if ($null -eq $account -or $account.Environment.Name -ne $cloud -or $account.Tenant.TenantId -ne $tenantId) {
+    if ($null -eq $account -or $account.Environment.Name -ne $Cloud -or $account.Tenant.TenantId -ne $TenantId) {
         # Wrong tenant - login to tenant
-        if ($interactive) {
-            $null = Connect-AzAccount -Environment $cloud -Tenant $tenantId
+        if ($Interactive) {
+            $null = Connect-AzAccount -Environment $Cloud -Tenant $TenantId
         }
         else {
             # Cannot interactively login - error
-            Write-Error "Wrong cloud or tenant logged in by SPN:`n`tRequired cloud = $($cloud), tenantId = $($tenantId)`n`tIf you are running this script interactive, specify script parameter -interactive `$true." -ErrorAction Stop
+            Write-Error "Wrong cloud or tenant logged in by SPN:`n`tRequired cloud = $($Cloud), tenantId = $($TenantId)`n`tIf you are running this script interactive, specify script parameter -Interactive `$true." -ErrorAction Stop
         }
     }
 }

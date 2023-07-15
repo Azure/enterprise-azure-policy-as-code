@@ -1,15 +1,15 @@
 function Get-PolicyEffectDetails {
     [CmdletBinding()]
     param (
-        $policy
+        $Policy
     )
 
-    $effectValue = $policy.policyRule.then.effect
-    $found, $parameterName = Get-ParameterNameFromValueString -paramValue $effectValue
+    $effectValue = $Policy.policyRule.then.effect
+    $found, $parameterName = Get-ParameterNameFromValueString -ParamValue $effectValue
 
     $result = @{}
     if ($found) {
-        $parameters = $policy.parameters | ConvertTo-HashTable
+        $parameters = $Policy.parameters | ConvertTo-HashTable
         if ($parameters.ContainsKey($parameterName)) {
             $parameter = $parameters.$parameterName
             $result = @{

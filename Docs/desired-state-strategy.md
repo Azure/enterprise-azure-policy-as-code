@@ -60,7 +60,7 @@ While transitioning to EPAC, existing Policy resources may need to be kept. Sett
 
 In rare cases you may need to exclude individual child scopes, or Policy resources from management by an EPAC solution.
 
-By default, Policy Assignments at resource groups are not managed by EPAC. Prior to v6.0, managing resource groups was to expensive. If you used the `-includeResourceGroup` switch in prior versions, set `includeResourceGroups` to `true` to achieve the same effect.
+By default, Policy Assignments at resource groups are not managed by EPAC. Prior to v6.0, managing resource groups was to expensive. If you used the `-IncludeResourceGroup` switch in prior versions, set `includeResourceGroups` to `true` to achieve the same effect.
 
 ![image.png](Images/shared-excluded.png)
 
@@ -89,7 +89,7 @@ You can exclude any combination of scopes, Policies, Policy Sets and Policy Assi
 
 ## Use case 6: Include Resource Groups
 
-By default, Policy Assignments at resource groups are not managed by EPAC. Prior to v6.0, managing resource groups was to expensive. **Breaking change:** If you used the `-includeResourceGroup` switch in prior versions, set `includeResourceGroups` to `true` to achieve the same effect.
+By default, Policy Assignments at resource groups are not managed by EPAC. Prior to v6.0, managing resource groups was to expensive. **Breaking change:** If you used the `-IncludeResourceGroup` switch in prior versions, set `includeResourceGroups` to `true` to achieve the same effect.
 
 ```json
 "desiredState": {

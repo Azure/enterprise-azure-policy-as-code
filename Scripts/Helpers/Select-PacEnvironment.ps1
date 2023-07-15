@@ -1,21 +1,21 @@
 function Select-PacEnvironment {
     [CmdletBinding()]
     param (
-        [parameter(Mandatory = $false, Position = 0)] [string] $pacEnvironmentSelector,
-        [Parameter(Mandatory = $false)] [string] $definitionsRootFolder,
-        [Parameter(Mandatory = $false)] [string] $outputFolder,
-        [Parameter(Mandatory = $false)] [string] $inputFolder,
-        [Parameter(Mandatory = $false)] [bool] $interactive = $false
+        [parameter(Mandatory = $false, Position = 0)] [string] $PacEnvironmentSelector,
+        [Parameter(Mandatory = $false)] [string] $DefinitionsRootFolder,
+        [Parameter(Mandatory = $false)] [string] $OutputFolder,
+        [Parameter(Mandatory = $false)] [string] $InputFolder,
+        [Parameter(Mandatory = $false)] [bool] $Interactive = $false
     )
 
-    $globalSettings = Get-GlobalSettings -definitionsRootFolder $definitionsRootFolder -outputFolder $outputFolder -inputFolder $inputFolder
+    $globalSettings = Get-GlobalSettings -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -InputFolder $InputFolder
 
     $pacEnvironment = $null
     $pacEnvironments = $globalSettings.pacEnvironments
-    if ($pacEnvironmentSelector -eq "") {
+    if ($PacEnvironmentSelector -eq "") {
         # Interactive
         $InformationPreference = "Continue"
-        $interactive = $true
+        $Interactive = $true
         if ($pacEnvironments.Count -eq 1) {
             $pacEnvironment = @{} # Build hashtable for single PAC environment
             $pacEnvironments.Values.Keys | Foreach-Object {
@@ -25,10 +25,10 @@ function Select-PacEnvironment {
         else {
             $prompt = $globalSettings.pacEnvironmentPrompt
             while ($null -eq $pacEnvironment) {
-                $pacEnvironmentSelector = Read-Host "Select Policy as Code environment [$prompt]"
-                if ($pacEnvironments.ContainsKey($pacEnvironmentSelector)) {
+                $PacEnvironmentSelector = Read-Host "Select Policy as Code environment [$prompt]"
+                if ($pacEnvironments.ContainsKey($PacEnvironmentSelector)) {
                     # valid input
-                    $pacEnvironment = $pacEnvironments[$pacEnvironmentSelector]
+                    $pacEnvironment = $pacEnvironments[$PacEnvironmentSelector]
                 }
                 else {
                     Write-Information "Invalid selection entered."
@@ -37,29 +37,29 @@ function Select-PacEnvironment {
         }
     }
     else {
-        if ($pacEnvironments.ContainsKey($pacEnvironmentSelector)) {
+        if ($pacEnvironments.ContainsKey($PacEnvironmentSelector)) {
             # valid input
-            $pacEnvironment = $pacEnvironments[$pacEnvironmentSelector]
+            $pacEnvironment = $pacEnvironments[$PacEnvironmentSelector]
         }
         else {
-            Write-Error "Policy as Code environment selector $pacEnvironmentSelector is not valid" -ErrorAction Stop
+            Write-Error "Policy as Code environment selector $PacEnvironmentSelector is not valid" -ErrorAction Stop
         }
     }
-    Write-Information "Environment Selected: $pacEnvironmentSelector"
+    Write-Information "Environment Selected: $PacEnvironmentSelector"
     Write-Information "    cloud      = $($pacEnvironment.cloud)"
     Write-Information "    tenant     = $($pacEnvironment.tenantId)"
     Write-Information "    root scope = $($pacEnvironment.deploymentRootScope)"
     Write-Information ""
 
 
-    $outputFolder = $globalSettings.outputFolder
-    $inputFolder = $globalSettings.inputFolder
+    $OutputFolder = $globalSettings.outputFolder
+    $InputFolder = $globalSettings.inputFolder
     $pacEnvironmentDefinition = $pacEnvironment + $globalSettings + @{
-        interactive          = $interactive
-        policyPlanOutputFile = "$($outputFolder)/plans-$pacEnvironmentSelector/policy-plan.json"
-        rolesPlanOutputFile  = "$($outputFolder)/plans-$pacEnvironmentSelector/roles-plan.json"
-        policyPlanInputFile  = "$($inputFolder)/plans-$pacEnvironmentSelector/policy-plan.json"
-        rolesPlanInputFile   = "$($inputFolder)/plans-$pacEnvironmentSelector/roles-plan.json"
+        interactive          = $Interactive
+        policyPlanOutputFile = "$($OutputFolder)/plans-$PacEnvironmentSelector/policy-plan.json"
+        rolesPlanOutputFile  = "$($OutputFolder)/plans-$PacEnvironmentSelector/roles-plan.json"
+        policyPlanInputFile  = "$($InputFolder)/plans-$PacEnvironmentSelector/policy-plan.json"
+        rolesPlanInputFile   = "$($InputFolder)/plans-$PacEnvironmentSelector/roles-plan.json"
 
     }
     return $pacEnvironmentDefinition

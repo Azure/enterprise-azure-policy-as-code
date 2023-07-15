@@ -1,45 +1,45 @@
 function Get-DefinitionsFullPath {
     [CmdletBinding()]
     param (
-        $folder,
-        $rawSubFolder = $null,
-        $fileSuffix = "",
-        $name,
-        $displayName,
-        $invalidChars,
-        $maxLengthSubFolder,
-        $maxLengthFileName,
-        $fileExtension
+        $Folder,
+        $RawSubFolder = $null,
+        $FileSuffix = "",
+        $Name,
+        $DisplayName,
+        $InvalidChars,
+        $MaxLengthSubFolder,
+        $MaxLengthFileName,
+        $FileExtension
     )
 
     $subFolder = "Unknown"
-    if ($null -ne $rawSubFolder) {
-        $sub = Get-ScrubbedString -string $rawSubFolder -invalidChars $invalidChars -maxLength $maxLengthSubFolder -trimEnds -singleReplace
+    if ($null -ne $RawSubFolder) {
+        $sub = Get-ScrubbedString -String $RawSubFolder -InvalidChars $InvalidChars -MaxLength $MaxLengthSubFolder -TrimEnds -SingleReplace
         if ($sub.Length -gt 0) {
             $subFolder = $sub
         }
     }
 
     $ObjectGuid = [System.Guid]::empty
-    $isGuid = [System.Guid]::TryParse($name, [System.Management.Automation.PSReference]$ObjectGuid)
-    $fileName = $name
+    $isGuid = [System.Guid]::TryParse($Name, [System.Management.Automation.PSReference]$ObjectGuid)
+    $fileName = $Name
     if ($isGuid) {
         # try to avoid GUID file names
-        $fileNameTemp = $displayName
-        $fileNameTemp = Get-ScrubbedString -string $fileNameTemp -invalidChars $invalidChars -replaceWith "" -replaceSpaces -replaceSpacesWith "-" -maxLength $maxLengthFileName -trimEnds -toLower -singleReplace
+        $fileNameTemp = $DisplayName
+        $fileNameTemp = Get-ScrubbedString -String $fileNameTemp -InvalidChars $InvalidChars -ReplaceWith "" -ReplaceSpaces -ReplaceSpacesWith "-" -MaxLength $MaxLengthFileName -TrimEnds -ToLower -SingleReplace
         if ($fileNameTemp.Length -gt 0) {
             $fileName = $fileNameTemp
         }
     }
     else {
-        $fileName = Get-ScrubbedString -string $name -invalidChars $invalidChars -replaceWith "" -replaceSpaces -replaceSpacesWith "-" -maxLength $maxLengthFileName -trimEnds -toLower -singleReplace
+        $fileName = Get-ScrubbedString -String $Name -InvalidChars $InvalidChars -ReplaceWith "" -ReplaceSpaces -ReplaceSpacesWith "-" -MaxLength $MaxLengthFileName -TrimEnds -ToLower -SingleReplace
     }
 
-    $fullPath = if ($null -ne $rawSubFolder) {
-        "$folder/$subFolder/$($fileName)$($fileSuffix).$fileExtension"
+    $fullPath = if ($null -ne $RawSubFolder) {
+        "$Folder/$subFolder/$($fileName)$($FileSuffix).$FileExtension"
     }
     else {
-        "$folder/$($fileName)$($fileSuffix).$fileExtension"
+        "$Folder/$($fileName)$($FileSuffix).$FileExtension"
     }
 
     return $fullPath

@@ -1,12 +1,12 @@
 function Build-PolicySetPolicyDefinitionIds {
     [CmdletBinding()]
     param(
-        $displayName,
-        $policyDefinitions,
-        $policyDefinitionsScopes,
+        $DisplayName,
+        $PolicyDefinitions,
+        $PolicyDefinitionsScopes,
 
-        [hashtable] $allDefinitions,
-        [hashtable] $policyRoleIds
+        [hashtable] $AllDefinitions,
+        [hashtable] $PolicyRoleIds
     )
 
     $validPolicyDefinitions = $true
@@ -14,7 +14,7 @@ function Build-PolicySetPolicyDefinitionIds {
     $policyRoleIdsInSet = @{}
     $usedPolicyGroupDefinitions = @{}
 
-    foreach ($policyDefinition in $policyDefinitions) {
+    foreach ($policyDefinition in $PolicyDefinitions) {
 
         # Validate required fields
         $policyId = $policyDefinition.policyDefinitionId
@@ -27,15 +27,15 @@ function Build-PolicySetPolicyDefinitionIds {
             if ($policyDefinitionJsonString.Length -gt 120) {
                 $policyDefinitionJsonString = $policyDefinitionJsonString.Substring(0, 120)
             }
-            Write-Error "$($displayName): policyDefinitions entry is missing policyDefinitionReferenceId: $policyDefinitionJsonString"
+            Write-Error "$($DisplayName): policyDefinitions entry is missing policyDefinitionReferenceId: $policyDefinitionJsonString"
         }
         if (!($null -eq $policyId -xor $null -eq $policyName)) {
             $validPolicyDefinitions = $false
             if ("" -eq $policyId -and "" -eq $policyName) {
-                Write-Error "$($displayName): policyDefinitions entry ($policyDefinitionReferenceId) does not define a policyDefinitionName or a policyDefinitionId."
+                Write-Error "$($DisplayName): policyDefinitions entry ($policyDefinitionReferenceId) does not define a policyDefinitionName or a policyDefinitionId."
             }
             else {
-                Write-Error "$($displayName): policyDefinitions entry ($policyDefinitionReferenceId) may only contain a policyDefinitionName '$($policyName)' or a policyDefinitionId '$($policyId)'."
+                Write-Error "$($DisplayName): policyDefinitions entry ($policyDefinitionReferenceId) may only contain a policyDefinitionName '$($policyName)' or a policyDefinitionId '$($policyId)'."
             }
         }
 
@@ -43,15 +43,15 @@ function Build-PolicySetPolicyDefinitionIds {
         # Check Policy exist
         if ($validPolicyDefinitions) {
             $policyId = Confirm-PolicyDefinitionUsedExists `
-                -id $policyId `
-                -name $policyName `
-                -policyDefinitionsScopes $policyDefinitionsScopes `
-                -allDefinitions $allDefinitions
+                -Id $policyId `
+                -Name $policyName `
+                -PolicyDefinitionsScopes $PolicyDefinitionsScopes `
+                -AllDefinitions $AllDefinitions
 
             if ($null -ne $policyId) {
                 # Calculate RoleDefinitionIds
-                if ($policyRoleIds.ContainsKey($policyId)) {
-                    $addRoleDefinitionIds = $policyRoleIds.$policyId
+                if ($PolicyRoleIds.ContainsKey($policyId)) {
+                    $addRoleDefinitionIds = $PolicyRoleIds.$policyId
                     foreach ($roleDefinitionId in $addRoleDefinitionIds) {
                         $policyRoleIdsInSet[$roleDefinitionId] = "added"
                     }

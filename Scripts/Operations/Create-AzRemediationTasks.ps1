@@ -8,10 +8,10 @@ Defines which Policy as Code (PAC) environment we are using, if omitted, the scr
 .PARAMETER DefinitionsRootFolder
 Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
 
-.PARAMETER interactive
+.PARAMETER Interactive
 Set to false if used non-interactive
 
-.PARAMETER onlyCheckManagedAssignments
+.PARAMETER OnlyCheckManagedAssignments
 Create remediation task only for Policy assignments owned by this Policy as Code repo
 
 .EXAMPLE
@@ -21,7 +21,7 @@ Create-AzRemediationTasks.ps1 -PacEnvironmentSelector "dev"
 Create-AzRemediationTasks.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\git\policy-as-code\Definitions"
 
 .EXAMPLE
-Create-AzRemediationTasks.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\git\policy-as-code\Definitions" -interactive $false
+Create-AzRemediationTasks.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\git\policy-as-code\Definitions" -Interactive $false
 
 .LINK
 https://learn.microsoft.com/en-us/azure/governance/policy/concepts/remediation-structure
@@ -38,33 +38,33 @@ param(
     [string]$DefinitionsRootFolder,
 
     [Parameter(Mandatory = $false, HelpMessage = "Set to false if used non-interactive")]
-    [bool] $interactive = $true,
+    [bool] $Interactive = $true,
 
     [Parameter(Mandatory = $false, HelpMessage = "Create remediation task only for Policy assignments owned by this Policy as Code repo")]
-    [switch] $onlyCheckManagedAssignments
+    [switch] $OnlyCheckManagedAssignments
 )
 
 # Dot Source Helper Scripts
 . "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
 
 $InformationPreference = "Continue"
-$pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -outputFolder $OutputFolder -interactive $interactive
-Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -interactive $pacEnvironment.interactive
+$pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -Interactive $Interactive
+Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -Interactive $pacEnvironment.interactive
 
 $query = 'policyresources | where type == "microsoft.policyinsights/policystates" | where properties.complianceState == "NonCompliant" and properties.policyDefinitionAction in ( "modify", "deployifnotexists" ) | summarize count() by tostring(properties.policyAssignmentId), tostring(properties.policyDefinitionReferenceId)  | order by properties_policyAssignmentId asc'
-$result = @() + (Search-AzGraphAllItems -query $query -scope @{ UseTenantScope = $true } -progressItemName "Policy remediation records")
+$result = @() + (Search-AzGraphAllItems -Query $query -Scope @{ UseTenantScope = $true } -ProgressItemName "Policy remediation records")
 Write-Information ""
 
 $remediationsList = [System.Collections.ArrayList]::new()
 # Only create remediation task owned by this Policy as Code repo
-$scopeTable = Get-AzScopeTree -pacEnvironment $pacEnvironment
-$deployedPolicyResources = Get-AzPolicyResources -pacEnvironment $pacEnvironment -scopeTable $scopeTable -skipExemptions -skipRoleAssignments
+$scopeTable = Get-AzScopeTree -PacEnvironment $pacEnvironment
+$deployedPolicyResources = Get-AzPolicyResources -PacEnvironment $pacEnvironment -ScopeTable $scopeTable -SkipExemptions -SkipRoleAssignments
 $managedAssignments = $deployedPolicyResources.policyassignments.managed
 $allAssignments = $deployedPolicyResources.policyassignments.all
 $strategy = $pacEnvironment.desiredState.strategy
 foreach ($entry in $result) {
     $policyAssignmentId = $entry.properties_policyAssignmentId
-    if ($onlyCheckManagedAssignments) {
+    if ($OnlyCheckManagedAssignments) {
         if ($managedAssignments.ContainsKey($policyAssignmentId)) {
             $managedAssignment = $managedAssignments.$policyAssignmentId
             $assignmentPacOwner = $managedAssignment.pacOwner
@@ -95,7 +95,7 @@ else {
         $policyAssignmentId = $entry.properties_policyAssignmentId
         $policyDefinitionReferenceId = $entry.properties_policyDefinitionReferenceId
         $count = $entry.count
-        $resourceIdParts = Split-AzPolicyResourceId -id $policyAssignmentId
+        $resourceIdParts = Split-AzPolicyResourceId -Id $policyAssignmentId
         $scope = $resourceIdParts.scope
         $assignmentName = $resourceIdParts.name
         $taskName = "$assignmentName--$(New-Guid)"

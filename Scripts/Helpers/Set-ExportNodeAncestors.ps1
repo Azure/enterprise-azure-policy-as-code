@@ -1,21 +1,21 @@
 function Set-ExportNodeAncestors {
     [CmdletBinding()]
     param (
-        [hashtable] $currentNode,
-        [string[]] $propertyNames,
-        [int] $currentIndex
+        [hashtable] $CurrentNode,
+        [string[]] $PropertyNames,
+        [int] $CurrentIndex
     )
 
-    $propertyName = $propertyNames[$currentIndex]
-    $propertyValue = $currentNode.$propertyName
+    $propertyName = $PropertyNames[$CurrentIndex]
+    $propertyValue = $CurrentNode.$propertyName
 
     # update all ancestors
-    $currentParent = $currentNode.parent
+    $currentParent = $CurrentNode.parent
     while ($null -ne $currentParent) {
         $found = Merge-ExportNodeAncestors `
-            -parentNode $currentParent `
-            -propertyName $propertyName `
-            -propertyValue $propertyValue
+            -ParentNode $currentParent `
+            -PropertyName $propertyName `
+            -PropertyValue $propertyValue
         if ($found) {
             break
         }
@@ -23,11 +23,11 @@ function Set-ExportNodeAncestors {
     }
 
     # recursively call Set-ExportNodeAncestors to process remaining descendants
-    $currentIndex++
-    foreach ($child in $currentNode.children) {
+    $CurrentIndex++
+    foreach ($child in $CurrentNode.children) {
         Set-ExportNodeAncestors `
-            -currentNode $child `
-            -propertyNames $propertyNames `
-            -currentIndex $currentIndex
+            -CurrentNode $child `
+            -PropertyNames $PropertyNames `
+            -CurrentIndex $CurrentIndex
     }
 }

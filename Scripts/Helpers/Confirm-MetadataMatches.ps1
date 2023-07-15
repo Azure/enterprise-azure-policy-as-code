@@ -1,19 +1,19 @@
 function Confirm-MetadataMatches {
     [CmdletBinding()]
     param(
-        $existingMetadataObj,
-        $definedMetadataObj
+        $ExistingMetadataObj,
+        $DefinedMetadataObj
     )
 
     $match = $false
     $changePacOwnerId = $false
     $existingMetadata = @{}
-    if ($null -ne $existingMetadataObj) {
-        $existingMetadata = Get-DeepClone $existingMetadataObj -AsHashTable
+    if ($null -ne $ExistingMetadataObj) {
+        $existingMetadata = Get-DeepClone $ExistingMetadataObj -AsHashTable
     }
     $definedMetadata = @{}
-    if ($null -ne $definedMetadataObj) {
-        $definedMetadata = Get-DeepClone $definedMetadataObj -AsHashTable
+    if ($null -ne $DefinedMetadataObj) {
+        $definedMetadata = Get-DeepClone $DefinedMetadataObj -AsHashTable
     }
 
     # remove system generated metadata from consideration

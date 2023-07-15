@@ -4,7 +4,7 @@
 #>
 
 [System.Collections.ArrayList] $allRows = [System.Collections.ArrayList]::new()
-$aliasesByResourceType = Get-AzPolicyAlias | ConvertTo-Json -Depth 100 | ConvertFrom-Json -AsHashtable
+$aliasesByResourceType = Get-AzPolicyAlias | ConvertTo-Json -Depth 100 | ConvertFrom-Json -AsHashTable
 
 foreach ($resourceTypeEntry in $aliasesByResourceType) {
     $namespace = $resourceTypeEntry.Namespace

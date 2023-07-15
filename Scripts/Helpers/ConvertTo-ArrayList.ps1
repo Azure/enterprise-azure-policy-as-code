@@ -4,11 +4,11 @@ function ConvertTo-ArrayList {
         [Parameter(ValueFromPipeline, Position = 0)]
         $InputObject = $null,
 
-        [switch] $skipNull
+        [switch] $SkipNull
     )
 
     $list = [System.Collections.ArrayList]::new()
-    if ($null -ne $InputObject -or !$skipNull) {
+    if ($null -ne $InputObject -or !$SkipNull) {
         $null = $list.Add($InputObject)
     }
     Write-Output $list -NoEnumerate

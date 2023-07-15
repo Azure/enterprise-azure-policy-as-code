@@ -6,21 +6,21 @@ Param(
     [string] $CloudEnvironment = 'AzureCloud'
 )
 
-if ($definitionsRootFolder -eq "") {
+if ($DefinitionsRootFolder -eq "") {
     if ($null -eq $env:PAC_DEFINITIONS_FOLDER) {
-        $definitionsRootFolder = "$PSScriptRoot/../../Definitions"
+        $DefinitionsRootFolder = "$PSScriptRoot/../../Definitions"
     }
     else {
-        $definitionsRootFolder = $env:PAC_DEFINITIONS_FOLDER
+        $DefinitionsRootFolder = $env:PAC_DEFINITIONS_FOLDER
     }
 }
 
-New-Item -Path "$definitionsRootFolder\policyDefinitions" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$definitionsRootFolder\policyDefinitions\ALZ" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$definitionsRootFolder\policySetDefinitions" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$definitionsRootFolder\policySetDefinitions\ALZ" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$definitionsRootFolder\policyAssignments" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$definitionsRootFolder\policyAssignments\ALZ" -ItemType Directory -Force -ErrorAction SilentlyContinue
+New-Item -Path "$DefinitionsRootFolder\policyDefinitions" -ItemType Directory -Force -ErrorAction SilentlyContinue
+New-Item -Path "$DefinitionsRootFolder\policyDefinitions\ALZ" -ItemType Directory -Force -ErrorAction SilentlyContinue
+New-Item -Path "$DefinitionsRootFolder\policySetDefinitions" -ItemType Directory -Force -ErrorAction SilentlyContinue
+New-Item -Path "$DefinitionsRootFolder\policySetDefinitions\ALZ" -ItemType Directory -Force -ErrorAction SilentlyContinue
+New-Item -Path "$DefinitionsRootFolder\policyAssignments" -ItemType Directory -Force -ErrorAction SilentlyContinue
+New-Item -Path "$DefinitionsRootFolder\policyAssignments\ALZ" -ItemType Directory -Force -ErrorAction SilentlyContinue
 
 . .\Scripts\Helpers\ConvertTo-HashTable.ps1
 
@@ -43,11 +43,11 @@ foreach ($policyUri in $defaultPolicyURIs) {
                         properties = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Properties
                     }
                     $category = $baseTemplate.properties.Metadata.category
-                    if (!(Test-Path $definitionsRootFolder\policyDefinitions\ALZ\$category)) {
-                        New-Item -Path $definitionsRootFolder\policyDefinitions\ALZ\$category -ItemType Directory -Force -ErrorAction SilentlyContinue
+                    if (!(Test-Path $DefinitionsRootFolder\policyDefinitions\ALZ\$category)) {
+                        New-Item -Path $DefinitionsRootFolder\policyDefinitions\ALZ\$category -ItemType Directory -Force -ErrorAction SilentlyContinue
                     }
-                    $baseTemplate | ConvertTo-Json -Depth 50 | Out-File -FilePath $definitionsRootFolder\policyDefinitions\ALZ\$category\$name.json -Force
-                    (Get-Content $definitionsRootFolder\policyDefinitions\ALZ\$category\$name.json) -replace "\[\[", "[" | Set-Content $definitionsRootFolder\policyDefinitions\ALZ\$category\$name.json
+                    $baseTemplate | ConvertTo-Json -Depth 50 | Out-File -FilePath $DefinitionsRootFolder\policyDefinitions\ALZ\$category\$name.json -Force
+                    (Get-Content $DefinitionsRootFolder\policyDefinitions\ALZ\$category\$name.json) -replace "\[\[", "[" | Set-Content $DefinitionsRootFolder\policyDefinitions\ALZ\$category\$name.json
                 }
                 
             }
@@ -70,14 +70,14 @@ foreach ($policyUri in $defaultPolicyURIs) {
                         properties = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Properties
                     }
                     $category = $baseTemplate.properties.Metadata.category
-                    if (!(Test-Path $definitionsRootFolder\policySetDefinitions\ALZ\$category)) {
-                        New-Item -Path $definitionsRootFolder\policySetDefinitions\ALZ\$category -ItemType Directory -Force -ErrorAction SilentlyContinue
+                    if (!(Test-Path $DefinitionsRootFolder\policySetDefinitions\ALZ\$category)) {
+                        New-Item -Path $DefinitionsRootFolder\policySetDefinitions\ALZ\$category -ItemType Directory -Force -ErrorAction SilentlyContinue
                     }
-                    $baseTemplate | ConvertTo-Json -Depth 50 | Out-File -FilePath $definitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json -Force
-                    (Get-Content $definitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json) -replace "\[\[", "[" | Set-Content $definitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json
-                    (Get-Content $definitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json) -replace "variables\('scope'\)", "'/providers/Microsoft.Management/managementGroups/$managementGroupId'" | Set-Content $definitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json
-                    (Get-Content $definitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json) -replace "', '", "" | Set-Content $definitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json
-                    (Get-Content $definitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json) -replace "\[concat\(('(.+)')\)\]", "`$2" | Set-Content $definitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json
+                    $baseTemplate | ConvertTo-Json -Depth 50 | Out-File -FilePath $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json -Force
+                    (Get-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json) -replace "\[\[", "[" | Set-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json
+                    (Get-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json) -replace "variables\('scope'\)", "'/providers/Microsoft.Management/managementGroups/$managementGroupId'" | Set-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json
+                    (Get-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json) -replace "', '", "" | Set-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json
+                    (Get-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json) -replace "\[concat\(('(.+)')\)\]", "`$2" | Set-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json
                 }
                 
             }
@@ -85,7 +85,7 @@ foreach ($policyUri in $defaultPolicyURIs) {
     }
 }
 
-foreach ($policySetFile in Get-ChildItem "$definitionsRootFolder\policySetDefinitions\ALZ" -Recurse -Filter *.json) {
+foreach ($policySetFile in Get-ChildItem "$DefinitionsRootFolder\policySetDefinitions\ALZ" -Recurse -Filter *.json) {
     $rawContent = Get-Content $policySetFile | ConvertFrom-Json -Depth 20
     $jsonContent = ConvertTo-HashTable $rawContent
     $jsonContent.properties.policyDefinitions | Foreach-Object {
@@ -98,8 +98,8 @@ foreach ($policySetFile in Get-ChildItem "$definitionsRootFolder\policySetDefini
 }
 
 if ($ModuleRoot) {
-    Copy-Item -Path $ModuleRoot\policyAssignments\*.* -Destination "$definitionsRootFolder\policyAssignments\ALZ\" -Force
+    Copy-Item -Path $ModuleRoot\policyAssignments\*.* -Destination "$DefinitionsRootFolder\policyAssignments\ALZ\" -Force
 }
 else {
-    Copy-Item -Path .\Scripts\CloudAdoptionFramework\policyAssignments\*.* -Destination "$definitionsRootFolder\policyAssignments\ALZ\" -Force
+    Copy-Item -Path .\Scripts\CloudAdoptionFramework\policyAssignments\*.* -Destination "$DefinitionsRootFolder\policyAssignments\ALZ\" -Force
 }

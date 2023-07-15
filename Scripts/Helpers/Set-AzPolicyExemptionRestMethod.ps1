@@ -1,36 +1,36 @@
 function Set-AzPolicyExemptionRestMethod {
     [CmdletBinding()]
     param (
-        [PSCustomObject] $exemptionObj
+        [PSCustomObject] $ExemptionObj
     )
 
     # Write log info
-    $displayName = $exemptionObj.displayName
+    $displayName = $ExemptionObj.displayName
     Write-Information $displayName
 
     # Build the REST API body
     $properties = @{
-        policyAssignmentId        = $exemptionObj.policyAssignmentId
-        exemptionCategory         = $exemptionObj.exemptionCategory
-        assignmentScopeValidation = $exemptionObj.assignmentScopeValidation
+        policyAssignmentId        = $ExemptionObj.policyAssignmentId
+        exemptionCategory         = $ExemptionObj.exemptionCategory
+        assignmentScopeValidation = $ExemptionObj.assignmentScopeValidation
     }
-    if ($exemptionObj.displayName -and $exemptionObj.displayName.Length -gt 0) {
-        $properties.displayName = $exemptionObj.displayName
+    if ($ExemptionObj.displayName -and $ExemptionObj.displayName.Length -gt 0) {
+        $properties.displayName = $ExemptionObj.displayName
     }
-    if ($exemptionObj.description -and $exemptionObj.description.Length -gt 0) {
-        $properties.description = $exemptionObj.description
+    if ($ExemptionObj.description -and $ExemptionObj.description.Length -gt 0) {
+        $properties.description = $ExemptionObj.description
     }
-    if ($exemptionObj.expiresOn) {
-        $properties.expiresOn = $exemptionObj.expiresOn
+    if ($ExemptionObj.expiresOn) {
+        $properties.expiresOn = $ExemptionObj.expiresOn
     }
-    if ($exemptionObj.metadata -and $exemptionObj.metadata.base.Count -gt 0) {
-        $properties.metadata = $exemptionObj.metadata
+    if ($ExemptionObj.metadata -and $ExemptionObj.metadata.base.Count -gt 0) {
+        $properties.metadata = $ExemptionObj.metadata
     }
-    if ($exemptionObj.policyDefinitionReferenceIds) {
-        $properties.policyDefinitionReferenceIds = $exemptionObj.policyDefinitionReferenceIds
+    if ($ExemptionObj.policyDefinitionReferenceIds) {
+        $properties.policyDefinitionReferenceIds = $ExemptionObj.policyDefinitionReferenceIds
     }
-    if ($exemptionObj.resourceSelectors) {
-        $properties.resourceSelectors = $exemptionObj.resourceSelectors
+    if ($ExemptionObj.resourceSelectors) {
+        $properties.resourceSelectors = $ExemptionObj.resourceSelectors
     }
     Remove-NullFields $properties
     $exemption = @{
@@ -39,7 +39,7 @@ function Set-AzPolicyExemptionRestMethod {
 
     # Invoke the REST API
     $exemptionJson = ConvertTo-Json $exemption -Depth 100 -Compress
-    $response = Invoke-AzRestMethod -Path "$($exemptionObj.id)?api-version=2022-07-01-preview" -Method PUT -Payload $exemptionJson
+    $response = Invoke-AzRestMethod -Path "$($ExemptionObj.id)?api-version=2022-07-01-preview" -Method PUT -Payload $exemptionJson
 
     # Process response
     $statusCode = $response.StatusCode

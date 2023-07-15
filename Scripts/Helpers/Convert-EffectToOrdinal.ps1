@@ -1,6 +1,6 @@
 function Convert-EffectToOrdinal {
     param (
-        [string] $effect
+        [string] $Effect
     )
 
     $effect2sortOrdinal = @{
@@ -16,8 +16,8 @@ function Convert-EffectToOrdinal {
 
 
     $ordinal = -1 # should not be possible
-    if ($effect2sortOrdinal.ContainsKey($effect)) {
-        $ordinal = $effect2sortOrdinal.$effect
+    if ($effect2sortOrdinal.ContainsKey($Effect)) {
+        $ordinal = $effect2sortOrdinal.$Effect
     }
     return $ordinal
 }

@@ -4,24 +4,24 @@
 .SYNOPSIS
     Deploys Policy resources from a plan file.
 
-.PARAMETER pacEnvironmentSelector
+.PARAMETER PacEnvironmentSelector
     Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.
 
-.PARAMETER definitionsRootFolder
+.PARAMETER DefinitionsRootFolder
     Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
 
-.PARAMETER inputFolder
+.PARAMETER InputFolder
     Input folder path for plan files. Defaults to environment variable `$env:PAC_INPUT_FOLDER, `$env:PAC_OUTPUT_FOLDER or './Output'.
 
-.PARAMETER interactive
+.PARAMETER Interactive
     Use switch to indicate interactive use
 
 .EXAMPLE
-    Deploy-PolicyPlan.ps1 -pacEnvironmentSelector "dev" -definitionsRootFolder "C:\git\policy-as-code\Definitions" -inputFolder "C:\git\policy-as-code\Output" -interactive
+    Deploy-PolicyPlan.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\git\policy-as-code\Definitions" -InputFolder "C:\git\policy-as-code\Output" -Interactive
     Deploys Policy resources from a plan file.
 
 .EXAMPLE
-    Deploy-PolicyPlan.ps1 -pacEnvironmentSelector "dev" -interactive
+    Deploy-PolicyPlan.ps1 -PacEnvironmentSelector "dev" -Interactive
     Deploys Policy resources from a plan file.  
 
 .LINK
@@ -35,16 +35,16 @@ param (
         HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.",
         Position = 0
     )]
-    [string] $pacEnvironmentSelector,
+    [string] $PacEnvironmentSelector,
 
     [Parameter(HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.")]
-    [string]$definitionsRootFolder,
+    [string]$DefinitionsRootFolder,
 
     [Parameter(HelpMessage = "Input folder path for plan files. Defaults to environment variable `$env:PAC_INPUT_FOLDER, `$env:PAC_OUTPUT_FOLDER or './Output'.")]
-    [string] $inputFolder,
+    [string] $InputFolder,
 
     [Parameter(HelpMessage = "Use switch to indicate interactive use")]
-    [switch] $interactive
+    [switch] $Interactive
 )
 
 $PSDefaultParameterValues = @{
@@ -57,11 +57,11 @@ Clear-Variable -Name epacInfoStream -Scope global -Force -ErrorAction SilentlyCo
 . "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
 
 $InformationPreference = "Continue"
-$pacEnvironment = Select-PacEnvironment $pacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -inputFolder $inputFolder -interactive $interactive
-Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -interactive $pacEnvironment.interactive
+$pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -InputFolder $InputFolder -Interactive $Interactive
+Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -Interactive $pacEnvironment.interactive
 
 $planFile = $pacEnvironment.policyPlanInputFile
-$plan = Get-DeploymentPlan -planFile $planFile
+$plan = Get-DeploymentPlan -PlanFile $planFile
 if ($null -eq $plan) {
     Write-Warning "***************************************************************************************************"
     Write-Warning "Plan does not exist, skipping Policy resource deployment."
@@ -184,7 +184,7 @@ else {
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policyDefinitions.Keys) {
             $definitionObj = $policyDefinitions[$id]
-            $null = Set-AzPolicyDefinitionRestMethod -definition $definitionObj
+            $null = Set-AzPolicyDefinitionRestMethod -Definition $definitionObj
         }
     }
 
@@ -196,7 +196,7 @@ else {
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policyDefinitions.Keys) {
             $definitionObj = $policyDefinitions[$id]
-            $null = Set-AzPolicyDefinitionRestMethod -definition $definitionObj
+            $null = Set-AzPolicyDefinitionRestMethod -Definition $definitionObj
         }
     }
 
@@ -208,7 +208,7 @@ else {
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policyDefinitions.Keys) {
             $definitionObj = $policyDefinitions[$id]
-            $null = Set-AzPolicyDefinitionRestMethod -definition $definitionObj
+            $null = Set-AzPolicyDefinitionRestMethod -Definition $definitionObj
         }
     }
 
@@ -220,7 +220,7 @@ else {
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policySetDefinitions.Keys) {
             $definitionObj = $policySetDefinitions[$id]
-            $null = Set-AzPolicySetDefinitionRestMethod -definition $definitionObj
+            $null = Set-AzPolicySetDefinitionRestMethod -Definition $definitionObj
         }
     }
 
@@ -232,7 +232,7 @@ else {
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policySetDefinitions.Keys) {
             $definitionObj = $policySetDefinitions[$id]
-            $null = Set-AzPolicySetDefinitionRestMethod -definition $definitionObj
+            $null = Set-AzPolicySetDefinitionRestMethod -Definition $definitionObj
         }
     }
 
@@ -244,7 +244,7 @@ else {
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policySetDefinitions.Keys) {
             $definitionObj = $policySetDefinitions[$id]
-            $null = Set-AzPolicySetDefinitionRestMethod -definition $definitionObj
+            $null = Set-AzPolicySetDefinitionRestMethod -Definition $definitionObj
         }
     }
 
@@ -276,7 +276,7 @@ else {
         Write-Information "---------------------------------------------------------------------------------------------------"
         $currentDisplayName = "-"
         $newAssignments.Values | Sort-Object -Property { $_.displayName } | ForEach-Object -Process {
-            $currentDisplayName = Set-AzPolicyAssignmentRestMethod -assignment $_ -currentDisplayName $currentDisplayName
+            $currentDisplayName = Set-AzPolicyAssignmentRestMethod -Assignment $_ -CurrentDisplayName $currentDisplayName
         }
     }
 
@@ -287,7 +287,7 @@ else {
         Write-Information "---------------------------------------------------------------------------------------------------"
         $currentDisplayName = "-"
         $replaceAssignments.Values | Sort-Object -Property { $_.displayName } | ForEach-Object -Process {
-            $currentDisplayName = Set-AzPolicyAssignmentRestMethod -assignment $_ -currentDisplayName $currentDisplayName
+            $currentDisplayName = Set-AzPolicyAssignmentRestMethod -Assignment $_ -CurrentDisplayName $currentDisplayName
         }
     }
 
@@ -298,7 +298,7 @@ else {
         Write-Information "---------------------------------------------------------------------------------------------------"
         $currentDisplayName = "-"
         $updateAssignments.Values | Sort-Object -Property { $_.displayName } | ForEach-Object -Process {
-            $currentDisplayName = Set-AzPolicyAssignmentRestMethod -assignment $_ -currentDisplayName $currentDisplayName
+            $currentDisplayName = Set-AzPolicyAssignmentRestMethod -Assignment $_ -CurrentDisplayName $currentDisplayName
         }
     }
 
@@ -314,7 +314,7 @@ else {
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($exemptionId in $exemptions.Keys) {
             $exemption = $exemptions.$exemptionId
-            $null = Set-AzPolicyExemptionRestMethod -exemptionObj $exemption
+            $null = Set-AzPolicyExemptionRestMethod -ExemptionObj $exemption
         }
     }
 
@@ -326,7 +326,7 @@ else {
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($exemptionId in $exemptions.Keys) {
             $exemption = $exemptions.$exemptionId
-            $null = Set-AzPolicyExemptionRestMethod -exemptionObj $exemption
+            $null = Set-AzPolicyExemptionRestMethod -ExemptionObj $exemption
         }
     }
 
@@ -338,7 +338,7 @@ else {
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($exemptionId in $exemptions.Keys) {
             $exemption = $exemptions.$exemptionId
-            $null = Set-AzPolicyExemptionRestMethod -exemptionObj $exemption
+            $null = Set-AzPolicyExemptionRestMethod -ExemptionObj $exemption
         }
     }
 

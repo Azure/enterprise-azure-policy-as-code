@@ -1,22 +1,22 @@
 function Get-AssignmentsDetails {
     [CmdletBinding()]
     param (
-        [array] $assignmentArray,
-        [string] $pacEnvironmentSelector,
-        [hashtable] $policyResourceDetails,
-        [hashtable] $cachedAssignmentsDetails
+        [array] $AssignmentArray,
+        [string] $PacEnvironmentSelector,
+        [hashtable] $PolicyResourceDetails,
+        [hashtable] $CachedAssignmentsDetails
     )
 
     $assignmentsDetailsHt = @{}
-    if ($cachedAssignmentsDetails.ContainsKey($pacEnvironmentSelector)) {
-        $assignmentsDetailsHt = $cachedAssignmentsDetails.$pacEnvironmentSelector
+    if ($CachedAssignmentsDetails.ContainsKey($PacEnvironmentSelector)) {
+        $assignmentsDetailsHt = $CachedAssignmentsDetails.$PacEnvironmentSelector
     }
     else {
-        $null = $cachedAssignmentsDetails.Add($pacEnvironmentSelector, $assignmentsDetailsHt)
+        $null = $CachedAssignmentsDetails.Add($PacEnvironmentSelector, $assignmentsDetailsHt)
     }
 
     [System.Collections.ArrayList] $assignmentPolicySetArray = [System.Collections.ArrayList]::new()
-    foreach ($assignmentEntry in $assignmentArray) {
+    foreach ($assignmentEntry in $AssignmentArray) {
         $assignmentId = $assignmentEntry.id
         $policySetId = ""
         $shortName = $assignmentEntry.shortName
@@ -26,8 +26,8 @@ function Get-AssignmentsDetails {
             $policySetId = $combinedDetail.id
         }
         else {
-            $allAssignments = $policyResourceDetails.policyassignments
-            $policySetsDetails = $policyResourceDetails.policySets
+            $allAssignments = $PolicyResourceDetails.policyassignments
+            $policySetsDetails = $PolicyResourceDetails.policySets
             if (!$allAssignments.ContainsKey($assignmentId)) {
                 Write-Error "Assignment '$assignmentId' does not exist or is not managed by EPAC." -ErrorAction Stop
             }

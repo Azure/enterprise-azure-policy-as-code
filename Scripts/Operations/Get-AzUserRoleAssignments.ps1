@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Gets all user role assignments in all subscriptions in the target tenant.
 
@@ -11,15 +11,15 @@
 .PARAMETER OutputFileName
     Output file name. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Users/RoleAssignments.csv or './Outputs/Users/RoleAssignments.csv'.
 
-.PARAMETER interactive
+.PARAMETER Interactive
     Set to false if used non-interactive
 
 .EXAMPLE
-    .\Get-AzUserRoleAssignments.ps1 -pacEnvironmentSelector "dev" -definitionsRootFolder "C:\Src\Definitions" -outputFolder "C:\Src\Outputs" -interactive $true
+    .\Get-AzUserRoleAssignments.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\Src\Definitions" -OutputFolder "C:\Src\Outputs" -Interactive $true
     Gets all user role assignments in all subscriptions in the target tenant.
 
 .EXAMPLE
-    .\Get-AzUserRoleAssignments.ps1 -interactive $true
+    .\Get-AzUserRoleAssignments.ps1 -Interactive $true
     Gets all user role assignments in all subscriptions in the target tenant. The script prompts for the PAC environment and uses the default definitions and output folders.
 #>
 [CmdletBinding()]
@@ -34,7 +34,7 @@ param(
     [string] $OutputFileName,
 
     [Parameter(Mandatory = $false, HelpMessage = "Set to false if used non-interactive")]
-    [bool] $interactive = $true
+    [bool] $Interactive = $true
 )
 
 # Dot Source Helper Scripts
@@ -42,8 +42,8 @@ param(
 
 $InformationPreference = "Continue"
 Invoke-AzCli config set extension.use_dynamic_install=yes_without_prompt -SuppressOutput
-$pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -outputFolder $OutputFolder -interactive $interactive
-Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -interactive $pacEnvironment.interactive
+$pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -Interactive $Interactive
+Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -Interactive $pacEnvironment.interactive
 
 $targetTenant = $environment.targetTenant
 if ($OutputFileName -eq "") {

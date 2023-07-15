@@ -2,31 +2,31 @@
 .SYNOPSIS 
     Builds documentation from instructions in policyDocumentations folder reading the delployed Policy Resources from the EPAC envioronment.   
 
-.PARAMETER definitionsRootFolder
+.PARAMETER DefinitionsRootFolder
     Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
 
-.PARAMETER outputFolder
+.PARAMETER OutputFolder
     Output Folder. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER or './Outputs'.
 
-.PARAMETER windowsNewLineCells
+.PARAMETER WindowsNewLineCells
     Formats CSV multi-object cells to use new lines and saves it as UTF-8 with BOM - works only fro Excel in Windows. Default uses commas to separate array elements within a cell
 
-.PARAMETER interactive
+.PARAMETER Interactive
     Set to false if used non-interactive
 
-.PARAMETER suppressConfirmation
+.PARAMETER SuppressConfirmation
     Suppresses prompt for confirmation to delete existing file in interactive mode
 
 .EXAMPLE
-    Build-PolicyDocumentation.ps1 -definitionsRootFolder "C:\PAC\Definitions" -outputFolder "C:\PAC\Output" -interactive
+    Build-PolicyDocumentation.ps1 -DefinitionsRootFolder "C:\PAC\Definitions" -OutputFolder "C:\PAC\Output" -Interactive
     Builds documentation from instructions in policyDocumentations folder reading the delployed Policy Resources from the EPAC envioronment.
 
 .EXAMPLE
-    Build-PolicyDocumentation.ps1 -interactive
+    Build-PolicyDocumentation.ps1 -Interactive
     Builds documentation from instructions in policyDocumentations folder reading the delployed Policy Resources from the EPAC envioronment. The script prompts for the PAC environment and uses the default definitions and output folders.
 
 .EXAMPLE
-    Build-PolicyDocumentation.ps1 -definitionsRootFolder "C:\PAC\Definitions" -outputFolder "C:\PAC\Output" -interactive -suppressConfirmation
+    Build-PolicyDocumentation.ps1 -DefinitionsRootFolder "C:\PAC\Definitions" -OutputFolder "C:\PAC\Output" -Interactive -SuppressConfirmation
     Builds documentation from instructions in policyDocumentations folder reading the delployed Policy Resources from the EPAC envioronment. The script prompts for the PAC environment and uses the default definitions and output folders. It suppresses prompt for confirmation to delete existing file in interactive mode.
 
 .LINK
@@ -37,19 +37,19 @@
 [CmdletBinding()]
 param (
     [Parameter(Mandatory = $false, HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.")]
-    [string]$definitionsRootFolder,
+    [string]$DefinitionsRootFolder,
 
     [Parameter(Mandatory = $false, HelpMessage = "Output Folder. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER or './Outputs'.")]
-    [string] $outputFolder,
+    [string] $OutputFolder,
 
     [Parameter(Mandatory = $false, HelpMessage = "Formats CSV multi-object cells to use new lines and saves it as UTF-8 with BOM - works only fro Excel in Windows. Default uses commas to separate array elements within a cell")]
-    [switch] $windowsNewLineCells,
+    [switch] $WindowsNewLineCells,
 
     [Parameter(Mandatory = $false, HelpMessage = "Set to false if used non-interactive")]
-    [bool] $interactive = $true,
+    [bool] $Interactive = $true,
 
     [Parameter(Mandatory = $false, HelpMessage = "Suppresses prompt for confirmation of each file in interactive mode")]
-    [switch] $suppressConfirmation
+    [switch] $SuppressConfirmation
 )
 
 # Dot Source Helper Scripts
@@ -58,7 +58,7 @@ param (
 #region Initialize
 
 $InformationPreference = 'Continue'
-$globalSettings = Get-GlobalSettings -definitionsRootFolder $definitionsRootFolder -outputFolder $outputFolder
+$globalSettings = Get-GlobalSettings -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder
 $definitionsFolder = $globalSettings.policyDocumentationsFolder
 $pacEnvironments = $globalSettings.pacEnvironments
 $outputPath = "$($globalSettings.outputFolder)/PolicyDocumentation"
@@ -95,7 +95,7 @@ else {
     Write-Error "No documentation definition files found!" -ErrorAction Stop
 }
 
-$processAllFiles = -not $interactive -or $suppressConfirmation -or $files.Length -eq 1
+$processAllFiles = -not $Interactive -or $SuppressConfirmation -or $files.Length -eq 1
 foreach ($file in $files) {
 
     $processThisFile = $processAllFiles
@@ -188,34 +188,34 @@ foreach ($file in $files) {
                     if ($currentPacEnvironmentSelector -ne $pacEnvironmentSelector) {
                         $currentPacEnvironmentSelector = $pacEnvironmentSelector
                         $pacEnvironment = Switch-PacEnvironment `
-                            -pacEnvironmentSelector $currentPacEnvironmentSelector `
-                            -pacEnvironments $pacEnvironments `
-                            -interactive $interactive
+                            -PacEnvironmentSelector $currentPacEnvironmentSelector `
+                            -PacEnvironments $pacEnvironments `
+                            -Interactive $Interactive
 
                     }
                 }
 
                 # Retrieve Policies and PolicySets for current pacEnvironment from cache or from Azure
                 $policyResourceDetails = Get-PolicyResourceDetails `
-                    -pacEnvironmentSelector $pacEnvironmentSelector `
-                    -pacEnvironment $pacEnvironment `
-                    -cachedPolicyResourceDetails $cachedPolicyResourceDetails
+                    -PacEnvironmentSelector $pacEnvironmentSelector `
+                    -PacEnvironment $pacEnvironment `
+                    -CachedPolicyResourceDetails $cachedPolicyResourceDetails
                 $policySetDetails = $policyResourceDetails.policySets
 
                 $flatPolicyList = Convert-PolicySetsToFlatList `
-                    -itemList $itemList `
-                    -details $policySetDetails
+                    -ItemList $itemList `
+                    -Details $policySetDetails
 
                 # Print documentation
                 Out-PolicySetsDocumentationToFile `
-                    -outputPath $outputPath `
-                    -fileNameStem $fileNameStem `
-                    -windowsNewLineCells:$windowsNewLineCells `
-                    -title $title `
-                    -itemList $itemList `
-                    -environmentColumnsInCsv $environmentColumnsInCsv `
-                    -policySetDetails $policySetDetails `
-                    -flatPolicyList $flatPolicyList
+                    -OutputPath $outputPath `
+                    -FileNameStem $fileNameStem `
+                    -WindowsNewLineCells:$WindowsNewLineCells `
+                    -Title $title `
+                    -ItemList $itemList `
+                    -EnvironmentColumnsInCsv $environmentColumnsInCsv `
+                    -PolicySetDetails $policySetDetails `
+                    -FlatPolicyList $flatPolicyList
             }
         }
 
@@ -235,30 +235,30 @@ foreach ($file in $files) {
                 if ($currentPacEnvironmentSelector -ne $pacEnvironmentSelector) {
                     $currentPacEnvironmentSelector = $pacEnvironmentSelector
                     $pacEnvironment = Switch-PacEnvironment `
-                        -pacEnvironmentSelector $currentPacEnvironmentSelector `
-                        -pacEnvironments $pacEnvironments `
-                        -interactive $interactive
+                        -PacEnvironmentSelector $currentPacEnvironmentSelector `
+                        -PacEnvironments $pacEnvironments `
+                        -Interactive $Interactive
                 }
 
                 # Retrieve Policies and PolicySets for current pacEnvironment from cache or from Azure
                 $policyResourceDetails = Get-PolicyResourceDetails `
-                    -pacEnvironmentSelector $currentPacEnvironmentSelector `
-                    -pacEnvironment $pacEnvironment `
-                    -cachedPolicyResourceDetails $cachedPolicyResourceDetails
+                    -PacEnvironmentSelector $currentPacEnvironmentSelector `
+                    -PacEnvironment $pacEnvironment `
+                    -CachedPolicyResourceDetails $cachedPolicyResourceDetails
 
                 # Retrieve assignments and process information or retrieve from cache is assignment previously processed
                 $assignmentArray = $environmentCategoryEntry.representativeAssignments
 
                 $itemList, $assignmentsDetails = Get-AssignmentsDetails `
-                    -pacEnvironmentSelector $currentPacEnvironmentSelector `
-                    -assignmentArray $assignmentArray `
-                    -policyResourceDetails $policyResourceDetails `
-                    -cachedAssignmentsDetails $cachedAssignmentsDetails
+                    -PacEnvironmentSelector $currentPacEnvironmentSelector `
+                    -AssignmentArray $assignmentArray `
+                    -PolicyResourceDetails $policyResourceDetails `
+                    -CachedAssignmentsDetails $cachedAssignmentsDetails
 
                 # Flatten Policy lists in Assignments and reconcile the most restrictive effect for each Policy
                 $flatPolicyList = Convert-PolicySetsToFlatList `
-                    -itemList $itemList `
-                    -details $assignmentsDetails
+                    -ItemList $itemList `
+                    -Details $assignmentsDetails
 
                 # Store results of processing and flattening for use in document generation
                 $null = $assignmentsByEnvironment.Add($environmentCategoryEntry.environmentCategory, @{
@@ -279,10 +279,10 @@ foreach ($file in $files) {
                     Write-Information "Field documentationType ($($documentationType)) is deprecated"
                 }
                 Out-PolicyAssignmentDocumentationToFile `
-                    -outputPath $outputPath `
-                    -windowsNewLineCells:$windowsNewLineCells `
-                    -documentationSpecification $documentationSpecification `
-                    -assignmentsByEnvironment $assignmentsByEnvironment
+                    -OutputPath $outputPath `
+                    -WindowsNewLineCells:$WindowsNewLineCells `
+                    -DocumentationSpecification $documentationSpecification `
+                    -AssignmentsByEnvironment $assignmentsByEnvironment
             }
         }
 

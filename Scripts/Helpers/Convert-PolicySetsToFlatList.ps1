@@ -1,14 +1,14 @@
 function Convert-PolicySetsToFlatList {
     [CmdletBinding()]
     param (
-        [array] $itemList,
-        $details
+        [array] $ItemList,
+        $Details
     )
 
     #region Find Policies which are listed more than once in at least one of the PolicySets
 
     $policiesWithMultipleReferenceIds = @{}
-    foreach ($item in $itemList) {
+    foreach ($item in $ItemList) {
         $shortName = $item.shortName
         $itemId = $item.itemId
         $assignmentId = $item.assignmentId
@@ -22,11 +22,11 @@ function Convert-PolicySetsToFlatList {
         if (-not $itemId) {
             Write-Error "'$title' $($itemKind)s array entry does not specify an $($itemKind) id." -ErrorAction Stop
         }
-        if (-not $details.ContainsKey($itemId)) {
+        if (-not $Details.ContainsKey($itemId)) {
             Write-Error "'$title' $($itemKind) does not exist: $itemId." -ErrorAction Stop
         }
 
-        $detail = $details.$itemId
+        $detail = $Details.$itemId
         $policiesWithMultipleReferenceIdsInThisPolicySet = $detail.policiesWithMultipleReferenceIds
         if ($policiesWithMultipleReferenceIdsInThisPolicySet.psbase.Count -gt 0) {
             foreach ($policyId in $policiesWithMultipleReferenceIdsInThisPolicySet.Keys) {
@@ -43,19 +43,19 @@ function Convert-PolicySetsToFlatList {
 
     $flatPolicyList = @{}
     $parametersAlreadyCovered = @{}
-    foreach ($item in $itemList) {
+    foreach ($item in $ItemList) {
         $shortName = $item.shortName
         $itemId = $item.itemId
         $policySetId = $item.policySetId
         $assignmentId = $item.assignmentId
 
         # Collate
-        $detail = $details.$itemId
+        $detail = $Details.$itemId
         $assignmentParameters = @{}
         $assignmentOverrides = @()
         if ($null -ne $detail.assignmentId) {
             $assignment = $detail.assignment
-            $properties = Get-PolicyResourceProperties -policyResource $assignment
+            $properties = Get-PolicyResourceProperties -PolicyResource $assignment
             $assignmentOverrides = $properties.overrides
             $assignmentParameters = Get-DeepClone $properties.parameters -AsHashTable
         }
@@ -199,7 +199,7 @@ function Convert-PolicySetsToFlatList {
                         $effectString = "$($effectDefault) ($($effectReason))"
                     }
                 }
-                $ordinal = Convert-EffectToOrdinal -effect $effectValue
+                $ordinal = Convert-EffectToOrdinal -Effect $effectValue
                 if ($ordinal -lt $existingOrdinal) {
                     $flatPolicyEntry.ordinal = $ordinal
                     $flatPolicyEntry.effectValue = $effectValue
@@ -208,7 +208,7 @@ function Convert-PolicySetsToFlatList {
             }
             else {
                 # Best default to fill effect columns for an PolicySet
-                $ordinal = Convert-EffectToOrdinal -effect $effectDefault
+                $ordinal = Convert-EffectToOrdinal -Effect $effectDefault
                 if ($ordinal -lt $existingOrdinal) {
                     $flatPolicyEntry.ordinal = $ordinal
                     $flatPolicyEntry.effectValue = $effectDefault

@@ -1,14 +1,14 @@
 #Requires -PSEdition Core
 function Build-NotScopes {
     param(
-        [parameter(Mandatory = $True)] [hashtable] $scopeTable,
-        [parameter(Mandatory = $True)] [string[]]  $scopeList,
-        [parameter(Mandatory = $False)] [string[]]  $notScopeIn = @()
+        [parameter(Mandatory = $True)] [hashtable] $ScopeTable,
+        [parameter(Mandatory = $True)] [string[]]  $ScopeList,
+        [parameter(Mandatory = $False)] [string[]]  $NotScopeIn = @()
     )
 
     $scopeCollection = @()
-    foreach ($scope in $scopeList) {
-        if ($scopeTable.ContainsKey($scope)) {
+    foreach ($scope in $ScopeList) {
+        if ($ScopeTable.ContainsKey($scope)) {
             if ($scope.Contains("/resourceGroups/")) {
                 $scopeCollection += @{
                     scope    = "$scope"
@@ -17,10 +17,10 @@ function Build-NotScopes {
             }
             else {
                 $notScopes = [System.Collections.ArrayList]::new()
-                $scopeEntry = $scopeTable.$scope
+                $scopeEntry = $ScopeTable.$scope
                 $scopeChildren = $scopeEntry.childrenList
                 $scopeResourceGroups = $scopeEntry.resourceGroups
-                foreach ($notScope in $notScopeIn) {
+                foreach ($notScope in $NotScopeIn) {
                     if ($notScope.StartsWith("/resourceGroupPatterns/")) {
                         $pattern = $notScope -replace "/resourceGroupPatterns/", "/subscriptions/*/resourceGroups/"
                         foreach ($id in $scopeResourceGroups.Keys) {

@@ -10,7 +10,7 @@
         * Schemas
         * Scripts
         * StarterKit
-    * Files in root folder ($sourceDirectory)
+    * Files in root folder ($SourceDirectory)
         * CODE_OF_CONDUCT.md
         * LICENSE
         * README.md
@@ -18,95 +18,95 @@
         * SUPPORT.md
         * Sync-Repo.ps1
 
-.PARAMETER sourceDirectory
+.PARAMETER SourceDirectory
     Directory with the source (cloned or forked/cloned repo)
 
-.PARAMETER destinationDirectory
+.PARAMETER DestinationDirectory
     Directory with the destination (cloned or forked/cloned repo)
 
-.PARAMETER suppressDeleteFiles
-    Switch parameter to suppress deleting files in $destinationDirectory tree
+.PARAMETER SuppressDeleteFiles
+    Switch parameter to suppress deleting files in $DestinationDirectory tree
 
 .EXAMPLE
-    Sync-Repo.ps1 -sourceDirectory "C:\Users\johndoe\Documents\GitHub\EPAC" -destinationDirectory "C:\Users\johndoe\Documents\GitHub\EPAC-Test"
+    Sync-Repo.ps1 -SourceDirectory "C:\Users\johndoe\Documents\GitHub\EPAC" -DestinationDirectory "C:\Users\johndoe\Documents\GitHub\EPAC-Test"
 
 #>
 [CmdletBinding()]
 param (
     # Directory with the source (cloned or forked/cloned repo)
     [Parameter(Mandatory = $true, Position = 0)]
-    [string] $sourceDirectory,
+    [string] $SourceDirectory,
 
     # Directory with the destination (cloned or forked/cloned repo)
     [Parameter(Mandatory = $true, Position = 1)]
-    [string] $destinationDirectory,
+    [string] $DestinationDirectory,
 
-    # Switch parameter to suppress deleting files in $destinationDirectory tree
+    # Switch parameter to suppress deleting files in $DestinationDirectory tree
     [Parameter()]
-    [switch] $suppressDeleteFiles
+    [switch] $SuppressDeleteFiles
 )
 
 $InformationPreference = "Continue"
 
 Write-Information "==================================================================================================="
-Write-Information "Sync from '$sourceDirectory' to '$destinationDirectory'"
+Write-Information "Sync from '$SourceDirectory' to '$DestinationDirectory'"
 Write-Information "==================================================================================================="
 
 # Check if directories exist
-if (Test-Path $sourceDirectory -PathType Container) {
-    if (!(Test-Path $destinationDirectory -PathType Container)) {
+if (Test-Path $SourceDirectory -PathType Container) {
+    if (!(Test-Path $DestinationDirectory -PathType Container)) {
         $answer = $null
         while ($answer -ne "y" -and $answer -ne 'n') {
-            $answer = Read-Host "Destination directory '$destinationDirectory' does not exist. Create it (y/n)?"
+            $answer = Read-Host "Destination directory '$DestinationDirectory' does not exist. Create it (y/n)?"
         }
         if ($answer -eq "y") {
-            New-Item "$destinationDirectory" -ItemType Directory
+            New-Item "$DestinationDirectory" -ItemType Directory
         }
         else {
-            Write-Error "Destination directory '$destinationDirectory' does not exist - Exiting" -ErrorAction Stop
+            Write-Error "Destination directory '$DestinationDirectory' does not exist - Exiting" -ErrorAction Stop
         }
     }
 
-    if (!($suppressDeleteFiles)) {
-        if (Test-Path "$destinationDirectory/Docs") {
-            Write-Information "Deleting '$destinationDirectory/Docs'"
-            Remove-Item "$destinationDirectory/Docs" -Recurse
+    if (!($SuppressDeleteFiles)) {
+        if (Test-Path "$DestinationDirectory/Docs") {
+            Write-Information "Deleting '$DestinationDirectory/Docs'"
+            Remove-Item "$DestinationDirectory/Docs" -Recurse
         }
-        if (Test-Path "$destinationDirectory/Module") {
-            Write-Information "Deleting '$destinationDirectory/Module'"
-            Remove-Item "$destinationDirectory/Module" -Recurse
+        if (Test-Path "$DestinationDirectory/Module") {
+            Write-Information "Deleting '$DestinationDirectory/Module'"
+            Remove-Item "$DestinationDirectory/Module" -Recurse
         }
-        if (Test-Path "$destinationDirectory/Schemas") {
-            Write-Information "Deleting '$destinationDirectory/Schemas'"
-            Remove-Item "$destinationDirectory/Schemas" -Recurse
+        if (Test-Path "$DestinationDirectory/Schemas") {
+            Write-Information "Deleting '$DestinationDirectory/Schemas'"
+            Remove-Item "$DestinationDirectory/Schemas" -Recurse
         }
-        if (Test-Path "$destinationDirectory/Scripts") {
-            Write-Information "Deleting '$destinationDirectory/Scripts'"
-            Remove-Item "$destinationDirectory/Scripts" -Recurse
+        if (Test-Path "$DestinationDirectory/Scripts") {
+            Write-Information "Deleting '$DestinationDirectory/Scripts'"
+            Remove-Item "$DestinationDirectory/Scripts" -Recurse
         }
-        if (Test-Path "$destinationDirectory/StarterKit") {
-            Write-Information "Deleting '$destinationDirectory/StarterKit'"
-            Remove-Item "$destinationDirectory/StarterKit" -Recurse
+        if (Test-Path "$DestinationDirectory/StarterKit") {
+            Write-Information "Deleting '$DestinationDirectory/StarterKit'"
+            Remove-Item "$DestinationDirectory/StarterKit" -Recurse
         }
     }
 
-    Write-Information "Copying '$sourceDirectory/Docs' to '$destinationDirectory/Docs'"
-    Copy-Item "$sourceDirectory/Docs" "$destinationDirectory/Docs" -Recurse -Force
-    Write-Information "Copying '$sourceDirectory/Module' to '$destinationDirectory/Module'"
-    Copy-Item "$sourceDirectory/Module" "$destinationDirectory/Module" -Recurse -Force
-    Write-Information "Copying '$sourceDirectory/Schemas' to '$destinationDirectory/Schemas'"
-    Copy-Item "$sourceDirectory/Schemas" "$destinationDirectory/Schemas" -Recurse -Force
-    Write-Information "Copying '$sourceDirectory/Scripts' to '$destinationDirectory/Scripts'"
-    Copy-Item "$sourceDirectory/Scripts" "$destinationDirectory/Scripts" -Recurse -Force
-    Write-Information "Copying '$sourceDirectory/StarterKit' to '$destinationDirectory/StarterKit'"
-    Copy-Item "$sourceDirectory/StarterKit" "$destinationDirectory/StarterKit" -Recurse -Force
+    Write-Information "Copying '$SourceDirectory/Docs' to '$DestinationDirectory/Docs'"
+    Copy-Item "$SourceDirectory/Docs" "$DestinationDirectory/Docs" -Recurse -Force
+    Write-Information "Copying '$SourceDirectory/Module' to '$DestinationDirectory/Module'"
+    Copy-Item "$SourceDirectory/Module" "$DestinationDirectory/Module" -Recurse -Force
+    Write-Information "Copying '$SourceDirectory/Schemas' to '$DestinationDirectory/Schemas'"
+    Copy-Item "$SourceDirectory/Schemas" "$DestinationDirectory/Schemas" -Recurse -Force
+    Write-Information "Copying '$SourceDirectory/Scripts' to '$DestinationDirectory/Scripts'"
+    Copy-Item "$SourceDirectory/Scripts" "$DestinationDirectory/Scripts" -Recurse -Force
+    Write-Information "Copying '$SourceDirectory/StarterKit' to '$DestinationDirectory/StarterKit'"
+    Copy-Item "$SourceDirectory/StarterKit" "$DestinationDirectory/StarterKit" -Recurse -Force
 
-    Write-Information "Copying files from root directory '$sourceDirectory' to '$destinationDirectory'"
-    Copy-Item "$sourceDirectory/*.md" "$destinationDirectory"
-    Copy-Item "$sourceDirectory/*.ps1" "$destinationDirectory"
-    Copy-Item "$sourceDirectory/*.yml" "$destinationDirectory"
-    Copy-Item "$sourceDirectory/LICENSE" "$destinationDirectory"
+    Write-Information "Copying files from root directory '$SourceDirectory' to '$DestinationDirectory'"
+    Copy-Item "$SourceDirectory/*.md" "$DestinationDirectory"
+    Copy-Item "$SourceDirectory/*.ps1" "$DestinationDirectory"
+    Copy-Item "$SourceDirectory/*.yml" "$DestinationDirectory"
+    Copy-Item "$SourceDirectory/LICENSE" "$DestinationDirectory"
 }
 else {
-    Write-Error "The source directory '$sourceDirectory' must exist" -ErrorAction Stop
+    Write-Error "The source directory '$SourceDirectory' must exist" -ErrorAction Stop
 }

@@ -1,41 +1,41 @@
 function New-ExportNode {
     [CmdletBinding()]
     param (
-        [hashtable] $parentNode,
-        [string] $pacSelector,
-        [string] $propertyName,
-        $propertyValue
+        [hashtable] $ParentNode,
+        [string] $PacSelector,
+        [string] $PropertyName,
+        $PropertyValue
     )
 
-    $propertyValueModified = $propertyValue
-    switch ($propertyName) {
+    $propertyValueModified = $PropertyValue
+    switch ($PropertyName) {
         additionalRoleAssignments {
-            $roleAssignments = $propertyValue.ToArray()
+            $roleAssignments = $PropertyValue.ToArray()
             $propertyValueModified = @{
-                $pacSelector = $roleAssignments
+                $PacSelector = $roleAssignments
             }
         }
         identityEntry {
             $propertyValueModified = @{
-                $pacSelector = $propertyValue
+                $PacSelector = $PropertyValue
             }
         }
         scopes {
-            $scopes = ConvertTo-ArrayList $propertyValue
+            $scopes = ConvertTo-ArrayList $PropertyValue
             $propertyValueModified = @{
-                $pacSelector = $scopes
+                $PacSelector = $scopes
             }
         }
         notScopes {
             $propertyValueModified = @{
-                $pacSelector = $propertyValue
+                $PacSelector = $PropertyValue
             }
         }
     }
 
     $node = @{
-        $propertyName = $propertyValueModified
-        parent        = $parentNode
+        $PropertyName = $propertyValueModified
+        parent        = $ParentNode
         children      = [System.Collections.ArrayList]::new()
         clusters      = @{}
     }

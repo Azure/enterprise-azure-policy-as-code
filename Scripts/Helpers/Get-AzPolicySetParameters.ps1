@@ -1,16 +1,16 @@
 function Get-AzPolicySetParameters {
     [CmdletBinding()]
     param (
-        [hashtable] $parametersIn = @{}, # empty hashtable means processing a Policy Set instead of Assignment(s)
-        [hashtable] $definedParameters
+        [hashtable] $ParametersIn = @{}, # empty hashtable means processing a Policy Set instead of Assignment(s)
+        [hashtable] $DefinedParameters
     )
 
     [hashtable] $parametersOut = @{}
-    foreach ($name in $definedParameters.Keys) {
-        $definedParameter = $definedParameters.$name
-        if ($parametersIn.ContainsKey($name)) {
+    foreach ($name in $DefinedParameters.Keys) {
+        $definedParameter = $DefinedParameters.$name
+        if ($ParametersIn.ContainsKey($name)) {
             $null = $parametersOut.Add($name, @{
-                    paramValue   = $parametersIn[$name].value
+                    paramValue   = $ParametersIn[$name].value
                     type         = "SetInAssignment"
                     defaultValue = $definedParameter.defaultValue
                 })

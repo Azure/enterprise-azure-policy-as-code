@@ -1,12 +1,12 @@
 function Confirm-PolicyDefinitionsUsedMatch {
     [CmdletBinding()]
     param (
-        [array] $matchingPolicyDefinitions,
-        [array] $definedPolicyDefinitions
+        [array] $MatchingPolicyDefinitions,
+        [array] $DefinedPolicyDefinitions
     )
 
     $matchingHt = @{}
-    foreach ($pd in $matchingPolicyDefinitions) {
+    foreach ($pd in $MatchingPolicyDefinitions) {
         $parameters = "{}"
         $groupNames = "[]"
         if ($null -ne $pd.parameters) {
@@ -25,7 +25,7 @@ function Confirm-PolicyDefinitionsUsedMatch {
     }
 
     $matching = $true
-    foreach ($pd in $definedPolicyDefinitions) {
+    foreach ($pd in $DefinedPolicyDefinitions) {
         $pdRef = $pd.policyDefinitionReferenceId
         if ($matchingHt.ContainsKey($pdRef)) {
             $mpd = $matchingHt.$pdRef

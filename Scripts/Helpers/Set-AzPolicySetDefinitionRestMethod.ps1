@@ -1,22 +1,22 @@
 function Set-AzPolicySetDefinitionRestMethod {
     [CmdletBinding()]
     param (
-        [PSCustomObject] $definitionObj
+        [PSCustomObject] $DefinitionObj
     )
 
     # Write log info
-    $displayName = $definitionObj.displayName
+    $displayName = $DefinitionObj.displayName
     Write-Information $displayName
 
     # Build the REST API body
     $properties = @{
-        displayName            = $definitionObj.displayName
-        description            = $definitionObj.description
-        metadata               = $definitionObj.metadata
-        # version                = $definitionObj.version
-        parameters             = $definitionObj.parameters
-        policyDefinitions      = $definitionObj.policyDefinitions
-        policyDefinitionGroups = $definitionObj.policyDefinitionGroups
+        displayName            = $DefinitionObj.displayName
+        description            = $DefinitionObj.description
+        metadata               = $DefinitionObj.metadata
+        # version                = $DefinitionObj.version
+        parameters             = $DefinitionObj.parameters
+        policyDefinitions      = $DefinitionObj.policyDefinitions
+        policyDefinitionGroups = $DefinitionObj.policyDefinitionGroups
     }
     Remove-NullFields $properties
     $definition = @{
@@ -25,7 +25,7 @@ function Set-AzPolicySetDefinitionRestMethod {
 
     # Invoke the REST API
     $definitionJson = ConvertTo-Json $definition -Depth 100 -Compress
-    $response = Invoke-AzRestMethod -Path "$($definitionObj.id)?api-version=2021-06-01" -Method PUT -Payload $definitionJson
+    $response = Invoke-AzRestMethod -Path "$($DefinitionObj.id)?api-version=2021-06-01" -Method PUT -Payload $definitionJson
 
     # Process response
     $statusCode = $response.StatusCode

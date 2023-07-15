@@ -1,10 +1,10 @@
 function Build-AssignmentDefinitionAtLeaf {
     # Recursive Function
     param(
-        $pacEnvironment,
-        [hashtable] $assignmentDefinition,
-        [hashtable] $combinedPolicyDetails,
-        [hashtable] $policyRoleIds
+        $PacEnvironment,
+        [hashtable] $AssignmentDefinition,
+        [hashtable] $CombinedPolicyDetails,
+        [hashtable] $PolicyRoleIds
 
         # Returns a list of completed assignment definitions (each a hashtable)
     )
@@ -12,9 +12,9 @@ function Build-AssignmentDefinitionAtLeaf {
     #region Validate required fields
 
     # Must contain a definitionEntry or definitionEntryList
-    $definitionEntryList = $assignmentDefinition.definitionEntryList
+    $definitionEntryList = $AssignmentDefinition.definitionEntryList
     $hasErrors = $false
-    $nodeName = $assignmentDefinition.nodeName
+    $nodeName = $AssignmentDefinition.nodeName
     if ($definitionEntryList.Count -eq 0) {
         Write-Error "    Leaf Node $($nodeName): each tree branch must define either a definitionEntry or a non-empty definitionEntryList." -ErrorAction Continue
         $hasErrors = $true
@@ -22,7 +22,7 @@ function Build-AssignmentDefinitionAtLeaf {
     $multipleDefinitionEntries = $definitionEntryList.Count -gt 1
 
     # Must contain a scopeCollection
-    $scopeCollection = $assignmentDefinition.scopeCollection
+    $scopeCollection = $AssignmentDefinition.scopeCollection
     if ($null -eq $scopeCollection) {
         Write-Error "    Leaf Node $($nodeName): each tree branch requires exactly one scope definition resulting in a scope collection after notScope calculations." -ErrorAction Continue
         $hasErrors = $true
@@ -32,23 +32,23 @@ function Build-AssignmentDefinitionAtLeaf {
 
     #region cache frequently used fields
 
-    $assignmentInDefinition = $assignmentDefinition.assignment
-    $parameterFileName = $assignmentDefinition.parameterFileName
-    $parameterSelector = $assignmentDefinition.parameterSelector
+    $assignmentInDefinition = $AssignmentDefinition.assignment
+    $parameterFileName = $AssignmentDefinition.parameterFileName
+    $parameterSelector = $AssignmentDefinition.parameterSelector
     $parameterInstructions = @{
-        csvParameterArray          = $assignmentDefinition.csvParameterArray
-        effectColumn               = $assignmentDefinition.effectColumn
-        parametersColumn           = $assignmentDefinition.parametersColumn
-        nonComplianceMessageColumn = $assignmentDefinition.nonComplianceMessageColumn
+        csvParameterArray          = $AssignmentDefinition.csvParameterArray
+        effectColumn               = $AssignmentDefinition.effectColumn
+        parametersColumn           = $AssignmentDefinition.parametersColumn
+        nonComplianceMessageColumn = $AssignmentDefinition.nonComplianceMessageColumn
     }
 
-    $overrides = $assignmentDefinition.overrides
-    $nonComplianceMessageColumn = $assignmentDefinition.nonComplianceMessageColumn
-    $nonComplianceMessages = $assignmentDefinition.nonComplianceMessages
-    $hasPolicySets = $assignmentDefinition.hasPolicySets
-    $perEntryNonComplianceMessages = $assignmentDefinition.perEntryNonComplianceMessages
+    $overrides = $AssignmentDefinition.overrides
+    $nonComplianceMessageColumn = $AssignmentDefinition.nonComplianceMessageColumn
+    $nonComplianceMessages = $AssignmentDefinition.nonComplianceMessages
+    $hasPolicySets = $AssignmentDefinition.hasPolicySets
+    $perEntryNonComplianceMessages = $AssignmentDefinition.perEntryNonComplianceMessages
 
-    $thisPacOwnerId = $pacEnvironment.pacOwnerId
+    $thisPacOwnerId = $PacEnvironment.pacOwnerId
 
     #endregion cache frequently used fields
 
@@ -96,9 +96,9 @@ function Build-AssignmentDefinitionAtLeaf {
 
     #region Validate CSV columns data
 
-    $csvParameterArray = $assignmentDefinition.csvParameterArray
-    $effectColumn = $assignmentDefinition.effectColumn
-    $parametersColumn = $assignmentDefinition.parametersColumn
+    $csvParameterArray = $AssignmentDefinition.csvParameterArray
+    $effectColumn = $AssignmentDefinition.effectColumn
+    $parametersColumn = $AssignmentDefinition.parametersColumn
     if ($useCsv) {
         # Validate column names
         $row = $csvParameterArray[0]
@@ -115,8 +115,8 @@ function Build-AssignmentDefinitionAtLeaf {
     #endregion Validate CSV data
 
     $assignmentsList = @()
-    $policiesDetails = $combinedPolicyDetails.policies
-    $policySetsDetails = $combinedPolicyDetails.policySets
+    $policiesDetails = $CombinedPolicyDetails.policies
+    $policySetsDetails = $CombinedPolicyDetails.policySets
     $effectProcessedForPolicy = @{}
     foreach ($definitionEntry in $definitionEntryList) {
 
@@ -157,8 +157,8 @@ function Build-AssignmentDefinitionAtLeaf {
             $hasErrors = $true
             continue
         }
-        $enforcementMode = $assignmentDefinition.enforcementMode
-        $metadata = $assignmentDefinition.metadata
+        $enforcementMode = $AssignmentDefinition.enforcementMode
+        $metadata = $AssignmentDefinition.metadata
         if ($metadata) {
             if ($metadata.ContainsKey("pacOwnerId")) {
                 Write-Error "    Leaf Node $($nodeName): metadata.pacOwnerId ($($metadata.pacOwnerId)) may not be set explicitly; it is reserved for EPAC usage."
@@ -185,12 +185,12 @@ function Build-AssignmentDefinitionAtLeaf {
             $nonComplianceMessages = $definitionEntry.nonComplianceMessages
             $null = $nonComplianceMessagesList.AddRange($nonComplianceMessages)
         }
-        if ($null -ne $assignmentDefinition.nonComplianceMessages -and $assignmentDefinition.nonComplianceMessages.Count -gt 0) {
+        if ($null -ne $AssignmentDefinition.nonComplianceMessages -and $AssignmentDefinition.nonComplianceMessages.Count -gt 0) {
             if ($multipleDefinitionEntries) {
                 Write-Error "    Leaf Node $($nodeName): nonComplianceMessage for an assignment file with a definitionEntryList must be contained in each definitionEntry or specified in a CSV file"
                 $hasErrors = $true
             }
-            $nonComplianceMessages = $assignmentDefinition.nonComplianceMessages
+            $nonComplianceMessages = $AssignmentDefinition.nonComplianceMessages
             $null = $nonComplianceMessagesList.AddRange($nonComplianceMessages)
         }
         foreach ($nonComplianceMessageRaw in $nonComplianceMessagesList) {
@@ -210,8 +210,8 @@ function Build-AssignmentDefinitionAtLeaf {
         if ($definitionEntry.resourceSelectors) {
             $resourceSelectors += $definitionEntry.resourceSelectors
         }
-        if ($assignmentDefinition.resourceSelectors) {
-            $resourceSelectors += $assignmentDefinition.resourceSelectors
+        if ($AssignmentDefinition.resourceSelectors) {
+            $resourceSelectors += $AssignmentDefinition.resourceSelectors
         }
 
         $resourceSelectorsList = [System.Collections.ArrayList]::new()
@@ -394,12 +394,12 @@ function Build-AssignmentDefinitionAtLeaf {
         $identityRequired = $false
         $managedIdentityLocation = $null
         $identitySpec = $null
-        if ($policyRoleIds.ContainsKey($policyDefinitionId)) {
+        if ($PolicyRoleIds.ContainsKey($policyDefinitionId)) {
 
             # calculate identity
             $identity = $null
-            if ($assignmentDefinition.userAssignedIdentity) {
-                $userAssignedIdentityRaw = $assignmentDefinition.userAssignedIdentity
+            if ($AssignmentDefinition.userAssignedIdentity) {
+                $userAssignedIdentityRaw = $AssignmentDefinition.userAssignedIdentity
                 if ($userAssignedIdentityRaw -is [string]) {
                     $identity = $userAssignedIdentityRaw
                 }
@@ -450,8 +450,8 @@ function Build-AssignmentDefinitionAtLeaf {
                 }
             }
             $identityRequired = $true
-            if ($null -ne $assignmentDefinition.managedIdentityLocation) {
-                $managedIdentityLocation = $assignmentDefinition.managedIdentityLocation
+            if ($null -ne $AssignmentDefinition.managedIdentityLocation) {
+                $managedIdentityLocation = $AssignmentDefinition.managedIdentityLocation
             }
             else {
                 Write-Error "    Leaf Node $($nodeName): Assignment requires an identity and the definition does not define a managedIdentityLocation" -ErrorAction Stop
@@ -471,7 +471,7 @@ function Build-AssignmentDefinitionAtLeaf {
                 }
             }
 
-            $additionalRoleAssignments = $assignmentDefinition.additionalRoleAssignments
+            $additionalRoleAssignments = $AssignmentDefinition.additionalRoleAssignments
             if ($additionalRoleAssignments -and $additionalRoleAssignments.Length -gt 0) {
                 foreach ($additionalRoleAssignment in $additionalRoleAssignments) {
                     $roleDefinitionId = $additionalRoleAssignment.roleDefinitionId
@@ -507,7 +507,7 @@ function Build-AssignmentDefinitionAtLeaf {
             displayName        = $displayName
             enforcementMode    = $enforcementMode
             metadata           = $metadata
-            parameters         = $assignmentDefinition.parameters
+            parameters         = $AssignmentDefinition.parameters
         }
 
         if ($identityRequired) {
@@ -537,13 +537,13 @@ function Build-AssignmentDefinitionAtLeaf {
             $parametersInPolicyDefinition = $policySetDetails.parameters
             if ($useCsv) {
                 $localHasErrors = Merge-AssignmentParametersEx `
-                    -nodeName $nodeName `
-                    -policySetId $policyDefinitionId `
-                    -baseAssignment $baseAssignment `
-                    -parameterInstructions $parameterInstructions `
-                    -flatPolicyList $flatPolicyList `
-                    -combinedPolicyDetails $combinedPolicyDetails `
-                    -effectProcessedForPolicy $effectProcessedForPolicy
+                    -NodeName $nodeName `
+                    -PolicySetId $policyDefinitionId `
+                    -BaseAssignment $baseAssignment `
+                    -ParameterInstructions $parameterInstructions `
+                    -FlatPolicyList $flatPolicyList `
+                    -CombinedPolicyDetails $CombinedPolicyDetails `
+                    -EffectProcessedForPolicy $effectProcessedForPolicy
                 if ($localHasErrors) {
                     $hasErrors = $true
                     continue
@@ -555,8 +555,8 @@ function Build-AssignmentDefinitionAtLeaf {
         }
 
         $parameterObject = Build-AssignmentParameterObject `
-            -assignmentParameters $baseAssignment.parameters `
-            -parametersInPolicyDefinition $parametersInPolicyDefinition
+            -AssignmentParameters $baseAssignment.parameters `
+            -ParametersInPolicyDefinition $parametersInPolicyDefinition
 
         if ($parameterObject.psbase.Count -gt 0) {
             $baseAssignment.parameters = $parameterObject
@@ -591,7 +591,7 @@ function Build-AssignmentDefinitionAtLeaf {
 
                 $roleAssignmentSpecs = @()
                 $roleAssignmentSpecs += $baseRoleAssignmentSpecs
-                $roleDefinitionIds = $policyRoleIds.$policyDefinitionId
+                $roleDefinitionIds = $PolicyRoleIds.$policyDefinitionId
                 foreach ($roleDefinitionId in $roleDefinitionIds) {
                     $roleDisplayName = "Unknown"
                     $roleDefinitionName = ($roleDefinitionId.Split("/"))[-1]
