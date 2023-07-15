@@ -1,19 +1,19 @@
 function Set-AzPolicyAssignmentRestMethod {
     [CmdletBinding()]
     param (
-        [PSCustomObject] $assignmentObj,
-        [string] $currentDisplayName
+        [PSCustomObject] $AssignmentObj,
+        [string] $CurrentDisplayName
     )
 
     # Write log info
-    $displayName = $assignmentObj.displayName
-    if ($displayName -ne $currentDisplayName) {
+    $displayName = $AssignmentObj.displayName
+    if ($displayName -ne $CurrentDisplayName) {
         Write-Information $displayName
     }
-    Write-Information "    $($assignmentObj.id)"
+    Write-Information "    $($AssignmentObj.id)"
 
     # Fix parameters to the weird way assignments uses JSON
-    $parametersTemp = Get-DeepClone $assignmentObj.parameters -AsHashTable
+    $parametersTemp = Get-DeepClone $AssignmentObj.parameters -AsHashTable
     $parameters = @{}
     foreach ($parameterName in $parametersTemp.Keys) {
         $value = $parametersTemp.$parameterName
@@ -24,35 +24,35 @@ function Set-AzPolicyAssignmentRestMethod {
 
     # Build the REST API body
     $assignment = @{
-        identity   = $assignmentObj.identity
+        identity   = $AssignmentObj.identity
         properties = @{
-            policyDefinitionId = $assignmentObj.policyDefinitionId
-            displayName        = $assignmentObj.displayName
-            description        = $assignmentObj.description
-            metadata           = $assignmentObj.metadata
-            enforcementMode    = $assignmentObj.enforcementMode
-            notScopes          = $assignmentObj.notScopes
+            policyDefinitionId = $AssignmentObj.policyDefinitionId
+            displayName        = $AssignmentObj.displayName
+            description        = $AssignmentObj.description
+            metadata           = $AssignmentObj.metadata
+            enforcementMode    = $AssignmentObj.enforcementMode
+            notScopes          = $AssignmentObj.notScopes
         }
     }
-    if ($assignmentObj.identityRequired) {
-        $assignment.location = $assignmentObj.managedIdentityLocation
+    if ($AssignmentObj.identityRequired) {
+        $assignment.location = $AssignmentObj.managedIdentityLocation
     }
     if ($parameters.psbase.Count -gt 0) {
         $assignment.properties.parameters = $parameters
     }
-    if ($assignmentObj.nonComplianceMessages) {
-        $assignment.properties.nonComplianceMessages = $assignmentObj.nonComplianceMessages
+    if ($AssignmentObj.nonComplianceMessages) {
+        $assignment.properties.nonComplianceMessages = $AssignmentObj.nonComplianceMessages
     }
-    if ($assignmentObj.overrides) {
-        $assignment.properties.overrides = $assignmentObj.overrides
+    if ($AssignmentObj.overrides) {
+        $assignment.properties.overrides = $AssignmentObj.overrides
     }
-    if ($assignmentObj.resourceSelectors) {
-        $assignment.properties.resourceSelectors = $assignmentObj.resourceSelectors
+    if ($AssignmentObj.resourceSelectors) {
+        $assignment.properties.resourceSelectors = $AssignmentObj.resourceSelectors
     }
 
     # Invoke the REST API
     $assignmentJson = ConvertTo-Json $assignment -Depth 100 -Compress
-    $response = Invoke-AzRestMethod -Path "$($assignmentObj.id)?api-version=2022-06-01" -Method PUT -Payload $assignmentJson
+    $response = Invoke-AzRestMethod -Path "$($AssignmentObj.id)?api-version=2022-06-01" -Method PUT -Payload $assignmentJson
 
     # Process response
     $statusCode = $response.StatusCode

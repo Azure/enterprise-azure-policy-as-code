@@ -12,7 +12,7 @@ The script works for two principal use cases indicated by three modes:
 
 ## Use case 1: Interactive or non-interactive single tenant
 
-`-mode 'export'` is used to collect the Policy resources and generate the definitions file. This works for `-interactive $true` (the default) to extract Policy resources in single tenant or multi-tenant scenario, prompting the user to logon to each new tenant in turn.
+`-Mode 'export'` is used to collect the Policy resources and generate the definitions file. This works for `-Interactive $true` (the default) to extract Policy resources in single tenant or multi-tenant scenario, prompting the user to logon to each new tenant in turn.
 
 It also works for a single tenant scenario for an automated collection, assuming that the Service Principal has read permissions for every EPAC Environment in `global-settings.jsonc`.
 
@@ -20,7 +20,7 @@ It also works for a single tenant scenario for an automated collection, assuming
 Export-AzPolicyResources
 ```
 
-The parameter `-inputPacSelector` can be used to only extract Policy resources for one of the EPAC environments.
+The parameter `-InputPacSelector` can be used to only extract Policy resources for one of the EPAC environments.
 
 !!! warning
     The script deletes the `$outputFolders/Definitions` folder before creating a new set of files. In interactive mode it will ask for confirmation before deleting the directory.
@@ -35,19 +35,19 @@ Collect the raw information for very EPAC environment after logging into each EP
 
 ```ps1
 Connect-AzAccount -Environment $cloud -Tenant $tenantIdForDev
-Export-AzPolicyResources -interactive $false -mode collectRawFile -inputPacSelector 'epac-dev'
+Export-AzPolicyResources -Interactive $false -Mode collectRawFile -InputPacSelector 'epac-dev'
 
 Connect-AzAccount -Environment $cloud -Tenant $tenantId1
-Export-AzPolicyResources -interactive $false -mode collectRawFile -inputPacSelector 'tenant1'
+Export-AzPolicyResources -Interactive $false -Mode collectRawFile -InputPacSelector 'tenant1'
 
 Connect-AzAccount -Environment $cloud -Tenant $tenantId2
-Export-AzPolicyResources -interactive $false -mode collectRawFile -inputPacSelector 'tenant2'
+Export-AzPolicyResources -Interactive $false -Mode collectRawFile -InputPacSelector 'tenant2'
 ```
 
 Next, the collected raw files are used to generate the same output:
 
 ```ps1
-Export-AzPolicyResources -interactive $false -mode exportFromRawFiles
+Export-AzPolicyResources -Interactive $false -Mode exportFromRawFiles
 ```
 
 !!! warning
@@ -58,18 +58,18 @@ Export-AzPolicyResources -interactive $false -mode exportFromRawFiles
 The extractions are subject to the following assumptions and caveats:
 
 * Assumes Policies and Policy Sets with the same name define the same properties independent of scope and EPAC environment.
-* Ignores Assignments auto-assigned by Defender for Cloud. This behavior can be overridden with the switch parameter `-includeAutoAssigned`.
+* Ignores Assignments auto-assigned by Defender for Cloud. This behavior can be overridden with the switch parameter `-IncludeAutoAssigned`.
 
 ## Script parameters
 
 |Parameter | Explanation |
 |----------|-------------|
-| `definitionsRootFolder` | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It contains `global-settings.jsonc`.
-| `outputFolder` | Output Folder. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER` or `./Outputs`.
-| `interactive` | Script is being run interactively and can request az login. It will also prompt for each file to process or skip. Defaults to $true. |
-| `includeChildScopes` | Switch parameter to include Policies and Policy Sets in child scopes; child scopes are normally ignored for definitions. This does not impact Policy Assignments. |
-| `includeAutoAssigned` | Switch parameter to include Assignments auto-assigned by Defender for Cloud. |
-| `exemptionFiles` | Create Exemption files (none=suppress, csv=as a csv file, json=as a json or jsonc file). Defaults to 'csv'. |
-| `fileExtension` | Controls the output files extension. Default is `jsonc` but `json` is also accepted |
-| `mode` | a) `export` exports EPAC environments, must be used with -interactive in a multi-tenant scenario<br/> b) `collectRawFile` exports the raw data only; used with `inputPacSelector` when running non-interactive in a multi-tenant scenario to collect the raw data once per tenant <br/> c) `exportFromRawFiles` reads the files generated with one or more runs of b) and outputs the files like the normal 'export' without re-reading the environment. |
-| `inputPacSelector` | Limits the collection to one EPAC environment, useful for non-interactive use in a multi-tenant scenario, especially with -mode 'collectRawFile'. Default is `'*'` which will execute all EPAC environments. This can be used in other scenarios.|
+| `DefinitionsRootFolder` | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It contains `global-settings.jsonc`.
+| `OutputFolder` | Output Folder. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER` or `./Outputs`.
+| `Interactive` | Script is being run interactively and can request az login. It will also prompt for each file to process or skip. Defaults to $true. |
+| `IncludeChildScopes` | Switch parameter to include Policies and Policy Sets in child scopes; child scopes are normally ignored for definitions. This does not impact Policy Assignments. |
+| `IncludeAutoAssigned` | Switch parameter to include Assignments auto-assigned by Defender for Cloud. |
+| `ExemptionFiles` | Create Exemption files (none=suppress, csv=as a csv file, json=as a json or jsonc file). Defaults to 'csv'. |
+| `FileExtension` | Controls the output files extension. Default is `jsonc` but `json` is also accepted |
+| `Mode` | a) `export` exports EPAC environments, must be used with -Interactive in a multi-tenant scenario<br/> b) `collectRawFile` exports the raw data only; used with `InputPacSelector` when running non-Interactive in a multi-tenant scenario to collect the raw data once per tenant <br/> c) `exportFromRawFiles` reads the files generated with one or more runs of b) and outputs the files like the normal 'export' without re-reading the environment. |
+| `InputPacSelector` | Limits the collection to one EPAC environment, useful for non-Interactive use in a multi-tenant scenario, especially with -Mode 'collectRawFile'. Default is `'*'` which will execute all EPAC environments. This can be used in other scenarios.|

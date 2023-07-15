@@ -1,60 +1,60 @@
 function Build-PolicySetPlan {
     [CmdletBinding()]
     param (
-        [string] $definitionsRootFolder,
-        [hashtable] $pacEnvironment,
-        [hashtable] $deployedDefinitions,
-        [hashtable] $definitions,
-        [hashtable] $allDefinitions,
-        [hashtable] $replaceDefinitions,
-        [hashtable] $policyRoleIds
+        [string] $DefinitionsRootFolder,
+        [hashtable] $PacEnvironment,
+        [hashtable] $DeployedDefinitions,
+        [hashtable] $Definitions,
+        [hashtable] $AllDefinitions,
+        [hashtable] $ReplaceDefinitions,
+        [hashtable] $PolicyRoleIds
     )
 
     Write-Information "==================================================================================================="
-    Write-Information "Processing Policy Set JSON files in folder '$definitionsRootFolder'"
+    Write-Information "Processing Policy Set JSON files in folder '$DefinitionsRootFolder'"
     Write-Information "==================================================================================================="
 
     # Calculate roleDefinitionIds for built-in and inherited PolicySets
-    $readOnlyPolicySetDefinitions = $deployedDefinitions.readOnly
+    $readOnlyPolicySetDefinitions = $DeployedDefinitions.readOnly
     foreach ($id in $readOnlyPolicySetDefinitions.Keys) {
-        $policySetProperties = Get-PolicyResourceProperties -policyResource $readOnlyPolicySetDefinitions.$id
+        $policySetProperties = Get-PolicyResourceProperties -PolicyResource $readOnlyPolicySetDefinitions.$id
         $roleIds = @{}
         foreach ($policyDefinition in $policySetProperties.policyDefinitions) {
             $policyId = $policyDefinition.policyDefinitionId
-            if ($policyRoleIds.ContainsKey($policyId)) {
-                $addRoleDefinitionIds = $policyRoleIds.$policyId
+            if ($PolicyRoleIds.ContainsKey($policyId)) {
+                $addRoleDefinitionIds = $PolicyRoleIds.$policyId
                 foreach ($roleDefinitionId in $addRoleDefinitionIds) {
                     $roleIds[$roleDefinitionId] = "added"
                 }
             }
         }
         if ($roleIds.psbase.Count -gt 0) {
-            $null = $policyRoleIds.Add($id, $roleIds.Keys)
+            $null = $PolicyRoleIds.Add($id, $roleIds.Keys)
         }
     }
 
 
     # Populate allDefinitions with deployed definitions
-    $managedDefinitions = $deployedDefinitions.managed
-    $deleteCandidates = Get-HashtableShallowClone $deployedDefinitions.managed
-    $allDeployedDefinitions = $deployedDefinitions.all
+    $managedDefinitions = $DeployedDefinitions.managed
+    $deleteCandidates = Get-HashtableShallowClone $DeployedDefinitions.managed
+    $allDeployedDefinitions = $DeployedDefinitions.all
     foreach ($id in $allDeployedDefinitions.Keys) {
-        $allDefinitions.policysetdefinitions[$id] = $allDeployedDefinitions.$id
+        $AllDefinitions.policysetdefinitions[$id] = $allDeployedDefinitions.$id
     }
-    $deploymentRootScope = $pacEnvironment.deploymentRootScope
-    $policyDefinitionsScopes = $pacEnvironment.policyDefinitionsScopes
+    $deploymentRootScope = $PacEnvironment.deploymentRootScope
+    $policyDefinitionsScopes = $PacEnvironment.policyDefinitionsScopes
     $duplicateDefinitionTracking = @{}
-    $thisPacOwnerId = $pacEnvironment.pacOwnerId
+    $thisPacOwnerId = $PacEnvironment.pacOwnerId
 
     # Process Policy Set JSON files if any
-    if (!(Test-Path $definitionsRootFolder -PathType Container)) {
+    if (!(Test-Path $DefinitionsRootFolder -PathType Container)) {
         Write-Warning "Policy Set definitions 'policySetDefinitions' folder not found. Policy Set definitions not managed by this EPAC instance."
     }
     else {
 
         $definitionFiles = @()
-        $definitionFiles += Get-ChildItem -Path $definitionsRootFolder -Recurse -File -Filter "*.json"
-        $definitionFiles += Get-ChildItem -Path $definitionsRootFolder -Recurse -File -Filter "*.jsonc"
+        $definitionFiles += Get-ChildItem -Path $DefinitionsRootFolder -Recurse -File -Filter "*.json"
+        $definitionFiles += Get-ChildItem -Path $DefinitionsRootFolder -Recurse -File -Filter "*.jsonc"
         if ($definitionFiles.Length -gt 0) {
             Write-Information "Number of Policy Set files = $($definitionFiles.Length)"
         }
@@ -70,7 +70,7 @@ function Build-PolicySetPlan {
             }
             $definitionObject = $Json | ConvertFrom-Json -Depth 100
 
-            $definitionProperties = Get-PolicyResourceProperties -policyResource $definitionObject
+            $definitionProperties = Get-PolicyResourceProperties -PolicyResource $definitionObject
             $name = $definitionObject.name
             $id = "$deploymentRootScope/providers/Microsoft.Authorization/policySetDefinitions/$name"
             $displayName = $definitionProperties.displayName
@@ -107,14 +107,14 @@ function Build-PolicySetPlan {
 
             # Calculate included policyDefinitions
             $validPolicyDefinitions, $policyDefinitionsFinal, $policyRoleIdsInSet, $usedPolicyGroupDefinitions = Build-PolicySetPolicyDefinitionIds `
-                -displayName $displayName `
-                -policyDefinitions $policyDefinitions `
-                -policyDefinitionsScopes $policyDefinitionsScopes `
-                -allDefinitions $allDefinitions.policydefinitions `
-                -policyRoleIds $policyRoleIds
+                -DisplayName $displayName `
+                -PolicyDefinitions $policyDefinitions `
+                -PolicyDefinitionsScopes $policyDefinitionsScopes `
+                -AllDefinitions $AllDefinitions.policydefinitions `
+                -PolicyRoleIds $PolicyRoleIds
             $policyDefinitions = $policyDefinitionsFinal.ToArray()
             if ($policyRoleIdsInSet.psbase.Count -gt 0) {
-                $null = $policyRoleIds.Add($id, $policyRoleIdsInSet.Keys)
+                $null = $PolicyRoleIds.Add($id, $policyRoleIdsInSet.Keys)
             }
 
 
@@ -148,10 +148,10 @@ function Build-PolicySetPlan {
                     if (!($importPolicyDefinitionGroup.StartsWith("/providers/Microsoft.Authorization/policySetDefinitions/", [System.StringComparison]::OrdinalIgnoreCase))) {
                         $importPolicySetId = "/providers/Microsoft.Authorization/policySetDefinitions/$importPolicyDefinitionGroup"
                     }
-                    if (!($deployedDefinitions.readOnly.ContainsKey($importPolicySetId))) {
+                    if (!($DeployedDefinitions.readOnly.ContainsKey($importPolicySetId))) {
                         Write-Error "$($displayName): Policy Set '$importPolicySetId' for group name import not found." -ErrorAction Stop
                     }
-                    $importedPolicySetDefinition = $deployedDefinitions.readOnly[$importPolicySetId]
+                    $importedPolicySetDefinition = $DeployedDefinitions.readOnly[$importPolicySetId]
                     $importedPolicyDefinitionGroups = $importedPolicySetDefinition.properties.policyDefinitionGroups
                     if ($null -ne $importedPolicyDefinitionGroups -and $importedPolicyDefinitionGroups.Count -gt 0) {
                         # Write-Information "$($displayName): Importing PolicyDefinitionGroups from '$($importedPolicySetDefinition.displayName)'"
@@ -199,12 +199,12 @@ function Build-PolicySetPlan {
                 policyDefinitionGroups = $policyDefinitionGroupsFinal
             }
             # Remove-NullFields $definition
-            $allDefinitions.policysetdefinitions[$id] = $definition
+            $AllDefinitions.policysetdefinitions[$id] = $definition
 
             if ($managedDefinitions.ContainsKey($id)) {
                 # Update or replace scenarios
                 $deployedDefinition = $managedDefinitions[$id]
-                $deployedDefinition = Get-PolicyResourceProperties -policyResource $deployedDefinition
+                $deployedDefinition = Get-PolicyResourceProperties -PolicyResource $deployedDefinition
 
                 # Remove defined Policy Set entry from deleted hashtable (the hashtable originally contains all custom Policy Sets in the scope)
                 $null = $deleteCandidates.Remove($id)
@@ -213,13 +213,13 @@ function Build-PolicySetPlan {
                 $displayNameMatches = $deployedDefinition.displayName -eq $displayName
                 $descriptionMatches = $deployedDefinition.description -eq $description
                 $metadataMatches, $changePacOwnerId = Confirm-MetadataMatches `
-                    -existingMetadataObj $deployedDefinition.metadata `
-                    -definedMetadataObj $metadata
+                    -ExistingMetadataObj $deployedDefinition.metadata `
+                    -DefinedMetadataObj $metadata
                 # $versionMatches = $version -eq $deployedDefinition.version
                 $versionMatches = $true
                 $parametersMatch, $incompatible = Confirm-ParametersMatch `
-                    -existingParametersObj $deployedDefinition.parameters `
-                    -definedParametersObj $parameters
+                    -ExistingParametersObj $deployedDefinition.parameters `
+                    -DefinedParametersObj $parameters
                 $policyDefinitionsMatch = Confirm-PolicyDefinitionsMatch `
                     $deployedDefinition.policyDefinitions `
                     $policyDefinitionsFinal
@@ -232,17 +232,17 @@ function Build-PolicySetPlan {
                 $containsReplacedPolicy = $false
                 foreach ($policyDefinitionEntry in $policyDefinitionsFinal) {
                     $policyId = $policyDefinitionEntry.policyDefinitionId
-                    if ($replaceDefinitions.ContainsKey($policyId)) {
+                    if ($ReplaceDefinitions.ContainsKey($policyId)) {
                         $containsReplacedPolicy = $true
                         break
                     }
                 }
                 if (!$containsReplacedPolicy -and $displayNameMatches -and $descriptionMatches -and $metadataMatches -and $versionMatches -and !$changePacOwnerId -and $parametersMatch -and $policyDefinitionsMatch -and $policyDefinitionGroupsMatch) {
                     # Write-Information "Unchanged '$($displayName)'"
-                    $definitions.numberUnchanged++
+                    $Definitions.numberUnchanged++
                 }
                 else {
-                    $definitions.numberOfChanges++
+                    $Definitions.numberOfChanges++
                     $changesStrings = @()
                     if ($incompatible) {
                         $changesStrings += "paramIncompat"
@@ -284,30 +284,30 @@ function Build-PolicySetPlan {
                     if ($incompatible -or $containsReplacedPolicy) {
                         # Check if parameters are compatible with an update or id the set includes at least one Policy which is being replaced.
                         Write-Information "Replace ($changesString) '$($displayName)'"
-                        $null = $definitions.replace.Add($id, $definition)
-                        $null = $replaceDefinitions.Add($id, $definition)
+                        $null = $Definitions.replace.Add($id, $definition)
+                        $null = $ReplaceDefinitions.Add($id, $definition)
                     }
                     else {
                         Write-Information "Update ($changesString) '$($displayName)'"
-                        $null = $definitions.update.Add($id, $definition)
+                        $null = $Definitions.update.Add($id, $definition)
                     }
                 }
             }
             else {
                 Write-Information "New '$($displayName)'"
-                $null = $definitions.new.Add($id, $definition)
-                $definitions.numberOfChanges++
+                $null = $Definitions.new.Add($id, $definition)
+                $Definitions.numberOfChanges++
 
             }
         }
 
-        $strategy = $pacEnvironment.desiredState.strategy
+        $strategy = $PacEnvironment.desiredState.strategy
         foreach ($id in $deleteCandidates.Keys) {
             $deleteCandidate = $deleteCandidates.$id
             $deleteCandidateProperties = Get-PolicyResourceProperties $deleteCandidate
             $displayName = $deleteCandidateProperties.displayName
             $pacOwner = $deleteCandidate.pacOwner
-            $shallDelete = Confirm-DeleteForStrategy -pacOwner $pacOwner -strategy $strategy
+            $shallDelete = Confirm-DeleteForStrategy -PacOwner $pacOwner -Strategy $strategy
             if ($shallDelete) {
                 # always delete if owned by this Policy as Code solution
                 # never delete if owned by another Policy as Code solution
@@ -319,11 +319,11 @@ function Build-PolicySetPlan {
                     scopeId     = $deploymentRootScope
                     displayName = $displayName
                 }
-                $null = $definitions.delete.Add($id, $splat)
-                $definitions.numberOfChanges++
-                if ($allDefinitions.policydefinitions.ContainsKey($id)) {
+                $null = $Definitions.delete.Add($id, $splat)
+                $Definitions.numberOfChanges++
+                if ($AllDefinitions.policydefinitions.ContainsKey($id)) {
                     # should always be true
-                    $null = $allDefinitions.policydefinitions.Remove($id)
+                    $null = $AllDefinitions.policydefinitions.Remove($id)
                 }
             }
             else {
@@ -331,7 +331,7 @@ function Build-PolicySetPlan {
             }
         }
 
-        Write-Information "Number of unchanged Policy SetPolicy Sets definition = $($definitions.numberUnchanged)"
+        Write-Information "Number of unchanged Policy SetPolicy Sets definition = $($Definitions.numberUnchanged)"
     }
     Write-Information ""
 }

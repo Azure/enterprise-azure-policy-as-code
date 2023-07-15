@@ -1,45 +1,45 @@
 function Get-PacFolders {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $false)] [string] $definitionsRootFolder,
-        [Parameter(Mandatory = $false)] [string] $outputFolder,
-        [Parameter(Mandatory = $false)] [string] $inputFolder
+        [Parameter(Mandatory = $false)] [string] $DefinitionsRootFolder,
+        [Parameter(Mandatory = $false)] [string] $OutputFolder,
+        [Parameter(Mandatory = $false)] [string] $InputFolder
     )
 
     # Calculate folders
-    if ($definitionsRootFolder -eq "") {
+    if ($DefinitionsRootFolder -eq "") {
         if ($null -eq $env:PAC_DEFINITIONS_FOLDER) {
-            $definitionsRootFolder = "Definitions"
+            $DefinitionsRootFolder = "Definitions"
         }
         else {
-            $definitionsRootFolder = $env:PAC_DEFINITIONS_FOLDER
+            $DefinitionsRootFolder = $env:PAC_DEFINITIONS_FOLDER
         }
     }
-    $globalSettingsFile = "$definitionsRootFolder/global-settings.jsonc"
+    $globalSettingsFile = "$DefinitionsRootFolder/global-settings.jsonc"
 
-    if ($outputFolder -eq "") {
+    if ($OutputFolder -eq "") {
         if ($null -eq $env:PAC_OUTPUT_FOLDER) {
-            $outputFolder = "Output"
+            $OutputFolder = "Output"
         }
         else {
-            $outputFolder = $env:PAC_OUTPUT_FOLDER
+            $OutputFolder = $env:PAC_OUTPUT_FOLDER
         }
     }
 
-    if ($inputFolder -eq "") {
+    if ($InputFolder -eq "") {
         if ($null -eq $env:PAC_INPUT_FOLDER) {
-            $inputFolder = $outputFolder
+            $InputFolder = $OutputFolder
         }
         else {
-            $inputFolder = $env:PAC_INPUT_FOLDER
+            $InputFolder = $env:PAC_INPUT_FOLDER
         }
     }
 
     $folders = @{
-        definitionsRootFolder = $definitionsRootFolder
+        definitionsRootFolder = $DefinitionsRootFolder
         globalSettingsFile    = $globalSettingsFile
-        outputFolder          = $outputFolder
-        inputFolder           = $inputFolder
+        outputFolder          = $OutputFolder
+        inputFolder           = $InputFolder
     }
 
     return $folders

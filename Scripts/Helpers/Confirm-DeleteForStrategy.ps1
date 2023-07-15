@@ -1,11 +1,11 @@
 function Confirm-DeleteForStrategy {
     [CmdletBinding()]
     param (
-        [string] $pacOwner,
-        [string] $strategy
+        [string] $PacOwner,
+        [string] $Strategy
     )
 
-    $shallDelete = switch ($pacOwner) {
+    $shallDelete = switch ($PacOwner) {
         "thisPaC" {
             $true
             break
@@ -15,7 +15,7 @@ function Confirm-DeleteForStrategy {
             break
         }
         "unknownOwner" {
-            $strategy -eq "full"
+            $Strategy -eq "full"
             break
         }
     }

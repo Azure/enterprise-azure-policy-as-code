@@ -1,14 +1,14 @@
 function Confirm-ParametersMatch {
     [CmdletBinding()]
     param(
-        [PSCustomObject] $existingParametersObj,
-        [PSCustomObject] $definedParametersObj
+        [PSCustomObject] $ExistingParametersObj,
+        [PSCustomObject] $DefinedParametersObj
     )
     $match = $true
     $incompatible = $false
 
-    $existingParameters = ConvertTo-HashTable $existingParametersObj
-    $definedParameters = ConvertTo-HashTable $definedParametersObj
+    $existingParameters = ConvertTo-HashTable $ExistingParametersObj
+    $definedParameters = ConvertTo-HashTable $DefinedParametersObj
     $addedParameters = Get-HashtableShallowClone $definedParameters
     foreach ($existingParameterName in $existingParameters.Keys) {
         if ($definedParameters.Keys -contains $existingParameterName) {

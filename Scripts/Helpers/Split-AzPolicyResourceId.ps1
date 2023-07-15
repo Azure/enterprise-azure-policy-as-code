@@ -1,10 +1,10 @@
 function Split-AzPolicyResourceId {
     [CmdletBinding()]
     param (
-        [string] $id
+        [string] $Id
     )
 
-    $splits = $id -split "/"
+    $splits = $Id -split "/"
     $name = $splits[-1]
     $segments = $splits.Length
     $end = $splits.Count - 5
@@ -14,12 +14,12 @@ function Split-AzPolicyResourceId {
         9 { $splits[3] }
         Default { "unknown" }
     }
-    $definitionKey = $id
+    $definitionKey = $Id
     if ($scopeType -ne "builtin") {
         $definitionKey = $splits[-2..-1] -join "/"
     }
     $result = @{
-        id            = $id
+        id            = $Id
         name          = $name
         segments      = $segments
         splits        = $splits

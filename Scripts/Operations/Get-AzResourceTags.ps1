@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Get all tags from all resources in all resource groups in all subscriptions in a tenant.
 
@@ -11,15 +11,15 @@
 .PARAMETER OutputFileName
     Output file name. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Tags/all-tags.csv or './Outputs/Tags/all-tags.csv'.
 
-.PARAMETER interactive
+.PARAMETER Interactive
     Set to false if used non-interactive
 
 .EXAMPLE
-    .\Get-AzResourceTags.ps1 -pacEnvironmentSelector "dev" -definitionsRootFolder "C:\Src\Definitions" -outputFolder "C:\Src\Outputs" -interactive $true
+    .\Get-AzResourceTags.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\Src\Definitions" -OutputFolder "C:\Src\Outputs" -Interactive $true
     Get all tags from all resources in all resource groups in all subscriptions in a tenant.
 
 .EXAMPLE
-    .\Get-AzResourceTags.ps1 -interactive $true
+    .\Get-AzResourceTags.ps1 -Interactive $true
     Get all tags from all resources in all resource groups in all subscriptions in a tenant. The script prompts for the PAC environment and uses the default definitions and output folders.
 #>
 
@@ -35,15 +35,15 @@ param(
     [string] $OutputFileName,
 
     [Parameter(Mandatory = $false, HelpMessage = "Set to false if used non-interactive")]
-    [bool] $interactive = $true
+    [bool] $Interactive = $true
 )
 
 # Dot Source Helper Scripts
 . "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
 
 $InformationPreference = "Continue"
-$pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -outputFolder $OutputFolder -interactive $interactive
-Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -interactive $pacEnvironment.interactive
+$pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -Interactive $Interactive
+Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -Interactive $pacEnvironment.interactive
 
 $targetTenant = $pacEnvironment.targetTenant
 if ($OutputFileName -eq "") {
@@ -72,11 +72,11 @@ foreach ($subscription in $subscriptionList) {
         $tags = Get-AzTag -ResourceId $ResourceGroup.ResourceId
         foreach ($key in $tags.Properties.TagsProperty.Keys) {
             $csvObject = New-Object PSObject
-            Add-Member -inputObject $csvObject -memberType NoteProperty -name "ResourceID" -value $ResourceGroup.ResourceID
-            Add-Member -inputObject $csvObject -memberType NoteProperty -name "ResourceGroup" -value $ResourceGroup.ResourceGroupName
-            Add-Member -inputObject $csvObject -memberType NoteProperty -name "ResourceName" -value ''
-            Add-Member -inputObject $csvObject -memberType NoteProperty -name "TagKey" -value $key
-            Add-Member -inputObject $csvObject -memberType NoteProperty -name "Value" -value $tags.Properties.TagsProperty.Item($($key))
+            Add-Member -InputObject $csvObject -memberType NoteProperty -Name "ResourceID" -value $ResourceGroup.ResourceID
+            Add-Member -InputObject $csvObject -memberType NoteProperty -Name "ResourceGroup" -value $ResourceGroup.ResourceGroupName
+            Add-Member -InputObject $csvObject -memberType NoteProperty -Name "ResourceName" -value ''
+            Add-Member -InputObject $csvObject -memberType NoteProperty -Name "TagKey" -value $key
+            Add-Member -InputObject $csvObject -memberType NoteProperty -Name "Value" -value $tags.Properties.TagsProperty.Item($($key))
             $null = $Output.Add($csvObject)
 
             #$Output += "`t ResourceGroup = $($ResourceGroup.ResourceGroupName) `t TagKey= $($key) `t Value = $($tags.Properties.TagsProperty.Item($($key)))"
@@ -87,11 +87,11 @@ foreach ($subscription in $subscriptionList) {
             $tags = Get-AzTag -ResourceId $res.ResourceId
             foreach ($key in $tags.Properties.TagsProperty.Keys) {
                 $csvObject = New-Object PSObject
-                Add-Member -inputObject $csvObject -memberType NoteProperty -name "ResourceID" -value $ResourceGroup.ResourceID
-                Add-Member -inputObject $csvObject -memberType NoteProperty -name "ResourceGroup" -value $ResourceGroup.ResourceGroupName
-                Add-Member -inputObject $csvObject -memberType NoteProperty -name "ResourceName" -value $res.Name
-                Add-Member -inputObject $csvObject -memberType NoteProperty -name "TagKey" -value $key
-                Add-Member -inputObject $csvObject -memberType NoteProperty -name "Value" -value $tags.Properties.TagsProperty.Item($($key))
+                Add-Member -InputObject $csvObject -memberType NoteProperty -Name "ResourceID" -value $ResourceGroup.ResourceID
+                Add-Member -InputObject $csvObject -memberType NoteProperty -Name "ResourceGroup" -value $ResourceGroup.ResourceGroupName
+                Add-Member -InputObject $csvObject -memberType NoteProperty -Name "ResourceName" -value $res.Name
+                Add-Member -InputObject $csvObject -memberType NoteProperty -Name "TagKey" -value $key
+                Add-Member -InputObject $csvObject -memberType NoteProperty -Name "Value" -value $tags.Properties.TagsProperty.Item($($key))
                 $null = $Output.Add($csvObject)
 
                 #$Output += "`t ResourceGroup = $($ResourceGroup.ResourceGroupName) `t TagKey= $($key) `t Value = $($tags.Properties.TagsProperty.Item($($key)))"

@@ -1,13 +1,13 @@
 function Get-PolicyResourceProperties {
     [CmdletBinding()]
     param (
-        $policyResource
+        $PolicyResource
     )
 
-    if ($policyResource.properties) {
-        return $policyResource.properties
+    if ($PolicyResource.properties) {
+        return $PolicyResource.properties
     }
     else {
-        return $policyResource
+        return $PolicyResource
     }
 }

@@ -1,4 +1,4 @@
-﻿$script:ModuleRoot = $PSScriptRoot
+$script:ModuleRoot = $PSScriptRoot
 
 #region Helper function
 function Import-ModuleFile {

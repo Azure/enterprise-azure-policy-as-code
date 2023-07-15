@@ -1,27 +1,27 @@
 function Get-PolicyResourceDetails {
     [CmdletBinding()]
     param (
-        [string] $pacEnvironmentSelector,
-        [hashtable] $pacEnvironment,
-        [hashtable] $cachedPolicyResourceDetails
+        [string] $PacEnvironmentSelector,
+        [hashtable] $PacEnvironment,
+        [hashtable] $CachedPolicyResourceDetails
     )
 
     $policyResourceDetails = $null
-    if ($cachedPolicyResourceDetails.ContainsKey($pacEnvironmentSelector)) {
-        $policyResourceDetails = $cachedPolicyResourceDetails.$pacEnvironmentSelector
+    if ($CachedPolicyResourceDetails.ContainsKey($PacEnvironmentSelector)) {
+        $policyResourceDetails = $CachedPolicyResourceDetails.$PacEnvironmentSelector
     }
     else {
         # New root scope found
-        $scopeTable = Get-AzScopeTree -pacEnvironment $pacEnvironment
+        $scopeTable = Get-AzScopeTree -PacEnvironment $PacEnvironment
         $deployed = Get-AzPolicyResources `
-            -pacEnvironment $pacEnvironment `
-            -scopeTable $scopeTable `
-            -skipRoleAssignments `
-            -skipExemptions
+            -PacEnvironment $PacEnvironment `
+            -ScopeTable $scopeTable `
+            -SkipRoleAssignments `
+            -SkipExemptions
 
-        $policyResourceDetails = Convert-PolicySetsToDetails -allPolicyDefinitions $deployed.policydefinitions.all -allPolicySetDefinitions $deployed.policysetdefinitions.all
+        $policyResourceDetails = Convert-PolicySetsToDetails -AllPolicyDefinitions $deployed.policydefinitions.all -AllPolicySetDefinitions $deployed.policysetdefinitions.all
         $null = $policyResourceDetails.policyAssignments = $deployed.policyassignments.managed
-        $null = $cachedPolicyResourceDetails.Add($pacEnvironmentSelector, $policyResourceDetails)
+        $null = $CachedPolicyResourceDetails.Add($PacEnvironmentSelector, $policyResourceDetails)
     }
 
     return $policyResourceDetails

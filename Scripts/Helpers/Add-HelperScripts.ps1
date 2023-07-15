@@ -25,6 +25,7 @@
 . "$PSScriptRoot/../Helpers/Confirm-PolicyDefinitionUsedExists.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-PolicyDefinitionsMatch.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-PolicyDefinitionsUsedMatch.ps1"
+. "$PSScriptRoot/../Helpers/Confirm-PolicyResourceExclusions.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-PolicySetDefinitionUsedExists.ps1"
 
 . "$PSScriptRoot/../Helpers/Convert-EffectToOrdinal.ps1"
@@ -85,7 +86,11 @@
 . "$PSScriptRoot/../Helpers/Set-ExportNode.ps1"
 . "$PSScriptRoot/../Helpers/Set-ExportNodeAncestors.ps1"
 
+. "$PSScriptRoot/../Helpers/Set-UniqueRoleAssignmentScopes.ps1"
+
 . "$PSScriptRoot/../Helpers/Split-AzPolicyResourceId.ps1"
 . "$PSScriptRoot/../Helpers/Split-ScopeId.ps1"
 
 . "$PSScriptRoot/../Helpers/Switch-PacEnvironment.ps1"
+
+. "$PSScriptRoot/../Helpers/Write-AssignmentDetails.ps1"

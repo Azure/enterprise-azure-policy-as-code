@@ -12,15 +12,15 @@
 .PARAMETER OutputFileName
     Output file name. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER/Storage/StorageNetwork.csv or './Outputs/Storage/StorageNetwork.csv'.
 
-.PARAMETER interactive
+.PARAMETER Interactive
     Set to false if used non-interactive
 
 .EXAMPLE
-    .\Get-AzStorageNetworkConfig.ps1 -pacEnvironmentSelector "dev" -definitionsRootFolder "C:\Src\Definitions" -outputFolder "C:\Src\Outputs" -interactive $true
+    .\Get-AzStorageNetworkConfig.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\Src\Definitions" -OutputFolder "C:\Src\Outputs" -Interactive $true
     Gets all aliases and outputs them to a CSV file.
 
 .EXAMPLE
-    .\Get-AzStorageNetworkConfig.ps1 -interactive $true
+    .\Get-AzStorageNetworkConfig.ps1 -Interactive $true
     Gets all aliases and outputs them to a CSV file. The script prompts for the PAC environment and uses the default definitions and output folders.
 #>
 
@@ -36,15 +36,15 @@ param(
     [string] $OutputFileName,
 
     [Parameter(Mandatory = $false, HelpMessage = "Set to false if used non-interactive")]
-    [bool] $interactive = $true
+    [bool] $Interactive = $true
 )
 
 # Dot Source Helper Scripts
 . "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
 
 $InformationPreference = "Continue"
-$pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -outputFolder $OutputFolder -interactive $interactive
-Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -interactive $pacEnvironment.interactive
+$pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -Interactive $Interactive
+Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -Interactive $pacEnvironment.interactive
 
 $targetTenant = $pacEnvironment.targetTenant
 if ($OutputFileName -eq "") {

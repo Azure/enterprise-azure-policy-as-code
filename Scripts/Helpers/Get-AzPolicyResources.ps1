@@ -1,113 +1,27 @@
-function Set-UniqueRoleAssignmentScopes {
-    [CmdletBinding()]
-    param (
-        [string] $scopeId,
-        [hashtable] $uniqueRoleAssignmentScopes
-    )
-
-    $splits = $scopeId -split "/"
-    $segments = $splits.Length
-
-    $scopeType = switch ($segments) {
-        3 {
-            "subscriptions"
-            break
-        }
-        5 {
-            $splits[3]
-            break
-        }
-        { $_ -gt 5 } {
-            "resources"
-            break
-        }
-        Default {
-            "unknown"
-        }
-    }
-    $table = $uniqueRoleAssignmentScopes.$scopeType
-    $table[$scopeId] = $scopeType
-}
-
-function Confirm-PolicyResourceExclusions {
-    [CmdletBinding()]
-    param (
-        $testId,
-        $resourceId,
-        $policyResource,
-        $scopeTable,
-        $includeResourceGroups,
-        $excludedScopes,
-        $excludedIds,
-        $policyResourceTable
-    )
-
-    $resourceIdParts = Split-AzPolicyResourceId -id $testId
-    $scope = $resourceIdParts.scope
-    $scopeType = $resourceIdParts.scopeType
-
-    if ($scopeType -eq "builtin") {
-        return $true, $resourceIdParts
-    }
-    if (!$scopeTable.ContainsKey($scope)) {
-        $policyResourceTable.counters.unMangedScope += 1
-        $null = $policyResourceTable.excluded.Add($resourceId, $policyResource)
-        return $false, $resourceIdParts
-    }
-    $scopeEntry = $scopeTable.$scope
-    $parentList = $scopeEntry.parentList
-    if ($null -eq $parentList) {
-        Write-Error "Code bug parentList is $null $($scopeEntry | ConvertTo-Json -Depth 100 -Compress)"
-    }
-    if (!$includeResourceGroups -and $scopeType -eq "resourceGroups") {
-        # Write-Information "    Exclude(resourceGroup) $($resourceId)"
-        $policyResourceTable.counters.excludedScopes += 1
-        $null = $policyResourceTable.excluded.Add($resourceId, $policyResource)
-        return $false, $resourceIdParts
-    }
-    foreach ($testScope in $excludedScopes) {
-        if ($scope -eq $testScope -or $parentList.ContainsKey($testScope)) {
-            # Write-Information "Exclude(scope,$testScope) $($resourceId)"
-            $policyResourceTable.counters.excludedScopes += 1
-            $null = $policyResourceTable.excluded.Add($resourceId, $policyResource)
-            return $false, $resourceIdParts
-        }
-    }
-    foreach ($testExcludedId in $excludedIds) {
-        if ($testId -like $testExcludedId) {
-            # Write-Information "Exclude(id,$testExcludedId) $($resourceId)"
-            $policyResourceTable.counters.excluded += 1
-            $null = $policyResourceTable.excluded.Add($resourceId, $policyResource)
-            return $false, $resourceIdParts
-        }
-    }
-    return $true, $resourceIdParts
-}
-
 function Get-AzPolicyResources {
     [CmdletBinding()]
     param (
-        [hashtable] $pacEnvironment,
-        [hashtable] $scopeTable,
+        [hashtable] $PacEnvironment,
+        [hashtable] $ScopeTable,
 
-        [switch] $skipRoleAssignments,
-        [switch] $skipExemptions,
-        [switch] $collectRemediations,
-        [switch] $collectAllPolicies
+        [switch] $SkipRoleAssignments,
+        [switch] $SkipExemptions,
+        [switch] $CollectRemediations,
+        [switch] $CollectAllPolicies
     )
 
-    $deploymentRootScope = $pacEnvironment.deploymentRootScope
-    $tenantId = $pacEnvironment.tenantId
+    $deploymentRootScope = $PacEnvironment.deploymentRootScope
+    $tenantId = $PacEnvironment.tenantId
     Write-Information ""
     Write-Information "==================================================================================================="
-    Write-Information "Get Policy Resources for EPAC environment '$($pacEnvironment.pacSelector)' at root scope $($deploymentRootScope -replace '/providers/Microsoft.Management','')"
+    Write-Information "Get Policy Resources for EPAC environment '$($PacEnvironment.pacSelector)' at root scope $($deploymentRootScope -replace '/providers/Microsoft.Management','')"
     Write-Information "==================================================================================================="
     $prefBackup = $WarningPreference
     $WarningPreference = 'SilentlyContinue'
     $policyResources = Search-AzGraphAllItems `
-        -query 'PolicyResources | where (type == "microsoft.authorization/policyassignments") or (type == "microsoft.authorization/policysetdefinitions") or (type == "microsoft.authorization/policydefinitions")' `
-        -scope @{ UseTenantScope = $true } `
-        -progressItemName "Policy resources"
+        -Query 'PolicyResources | where (type == "microsoft.authorization/policyassignments") or (type == "microsoft.authorization/policysetdefinitions") or (type == "microsoft.authorization/policydefinitions")' `
+        -Scope @{ UseTenantScope = $true } `
+        -ProgressItemName "Policy resources"
     $WarningPreference = $prefBackup
 
     Write-Information ""
@@ -183,15 +97,15 @@ function Get-AzPolicyResources {
         remediationTasks             = @{}
     }
 
-    $desiredState = $pacEnvironment.desiredState
+    $desiredState = $PacEnvironment.desiredState
     $includeResourceGroups = $desiredState.includeResourceGroups
     $excludedPolicyAssignments = $desiredState.excludedPolicyAssignments
 
-    $policyDefinitionsScopes = $pacEnvironment.policyDefinitionsScopes
+    $policyDefinitionsScopes = $PacEnvironment.policyDefinitionsScopes
     $scopesLength = $policyDefinitionsScopes.Length
     $scopesLast = $scopesLength - 1
     $customPolicyDefinitionScopes = $policyDefinitionsScopes[0..($scopesLast - 1)]
-    $globalNotScopes = $pacEnvironment.globalNotScopes
+    $globalNotScopes = $PacEnvironment.globalNotScopes
     $excludedScopesRaw = @()
     $excludedScopesRaw += $globalNotScopes
     $excludedScopesRaw += $desiredState.excludedScopes
@@ -199,7 +113,7 @@ function Get-AzPolicyResources {
         $excludedScopesRaw = @() + (Select-Object -InputObject $excludedScopesRaw -Unique)
     }
 
-    $scopeCollection = Build-NotScopes -scopeTable $scopeTable -scopeList $customPolicyDefinitionScopes -notScopeIn $excludedScopesRaw
+    $scopeCollection = Build-NotScopes -ScopeTable $ScopeTable -ScopeList $customPolicyDefinitionScopes -NotScopeIn $excludedScopesRaw
     $excludedScopesHashtable = @{}
     foreach ($scope in $scopeCollection) {
         foreach ($notScope in $scope.notScope) {
@@ -207,11 +121,11 @@ function Get-AzPolicyResources {
         }
     }
     $excludedScopes = $excludedScopesHashtable.Keys
-    $policyDefinitionsScopes = $pacEnvironment.policyDefinitionsScopes
+    $policyDefinitionsScopes = $PacEnvironment.policyDefinitionsScopes
     $scopesLength = $policyDefinitionsScopes.Length
     $scopesLast = $scopesLength - 1
     $policyAssignmentsTable = $deployed.policyassignments
-    $thisPacOwnerId = $pacEnvironment.pacOwnerId
+    $thisPacOwnerId = $PacEnvironment.pacOwnerId
     $uniqueRoleAssignmentScopes = @{
         resources        = @{}
         resourceGroups   = @{}
@@ -232,18 +146,18 @@ function Get-AzPolicyResources {
             # Remove-NullFields $policyResource
             if ($kind -eq "policyassignments") {
                 $included, $resourceIdParts = Confirm-PolicyResourceExclusions `
-                    -testId $id `
-                    -resourceId $id `
-                    -policyResource $policyResource `
-                    -scopeTable $scopeTable `
-                    -includeResourceGroups $includeResourceGroups `
-                    -excludedScopes $excludedScopes `
-                    -excludedIds $excludedPolicyAssignments `
-                    -policyResourceTable $policyAssignmentsTable
+                    -TestId $id `
+                    -ResourceId $id `
+                    -PolicyResource $policyResource `
+                    -ScopeTable $ScopeTable `
+                    -IncludeResourceGroups $includeResourceGroups `
+                    -ExcludedScopes $excludedScopes `
+                    -ExcludedIds $excludedPolicyAssignments `
+                    -PolicyResourceTable $policyAssignmentsTable
                 if ($included) {
                     $scope = $resourceIdParts.scope
                     $policyResource.resourceIdParts = $resourceIdParts
-                    $policyResource.pacOwner = Confirm-PacOwner -thisPacOwnerId $thisPacOwnerId -metadata $policyResource.properties.metadata -managedByCounters $policyAssignmentsTable.counters.managedBy
+                    $policyResource.pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -Metadata $policyResource.properties.metadata -ManagedByCounters $policyAssignmentsTable.counters.managedBy
                     $null = $policyAssignmentsTable.all.Add($id, $policyResource)
                     $null = $policyAssignmentsTable.managed.Add($id, $policyResource)
                     if ($policyResource.identity -and $policyResource.identity.type -ne "None") {
@@ -256,15 +170,15 @@ function Get-AzPolicyResources {
                             $principalId = $policyResource.identity.userAssignedIdentities.$userAssignedIdentityId.principalId
                         }
                         Set-UniqueRoleAssignmentScopes `
-                            -scopeId $scope `
-                            -uniqueRoleAssignmentScopes $uniqueRoleAssignmentScopes
+                            -ScopeId $scope `
+                            -UniqueRoleAssignmentScopes $uniqueRoleAssignmentScopes
                         $uniquePrincipalIds[$principalId] = $true
                         if ($policyResource.properties.metadata.roles) {
                             $roles = $policyResource.properties.metadata.roles
                             foreach ($role in $roles) {
                                 Set-UniqueRoleAssignmentScopes `
-                                    -scopeId $role.scope `
-                                    -uniqueRoleAssignmentScopes $uniqueRoleAssignmentScopes
+                                    -ScopeId $role.scope `
+                                    -UniqueRoleAssignmentScopes $uniqueRoleAssignmentScopes
                             }
                         }
                         $null = $assignmentsWithIdentity.Add($id, $policyResource)
@@ -282,14 +196,14 @@ function Get-AzPolicyResources {
                     $excludedList = $desiredState.excludedPolicySetDefinitions
                 }
                 $included, $resourceIdParts = Confirm-PolicyResourceExclusions `
-                    -testId $id `
-                    -resourceId $id `
-                    -policyResource $policyResource `
-                    -scopeTable $scopeTable `
-                    -includeResourceGroups $false `
-                    -excludedScopes $excludedScopes `
-                    -excludedIds $excludedList `
-                    -policyResourceTable $deployedPolicyTable
+                    -TestId $id `
+                    -ResourceId $id `
+                    -PolicyResource $policyResource `
+                    -ScopeTable $ScopeTable `
+                    -IncludeResourceGroups $false `
+                    -ExcludedScopes $excludedScopes `
+                    -ExcludedIds $excludedList `
+                    -PolicyResourceTable $deployedPolicyTable
                 if ($included) {
                     $policyResource.resourceIdParts = $resourceIdParts
                     $found = $false
@@ -302,7 +216,7 @@ function Get-AzPolicyResources {
                                     $null = $deployedPolicyTable.all.Add($id, $policyResource)
                                     $null = $deployedPolicyTable.managed.Add($id, $policyResource)
                                     $null = $deployedPolicyTable.custom.Add($id, $policyResource)
-                                    $policyResource.pacOwner = Confirm-PacOwner -thisPacOwnerId $thisPacOwnerId -metadata $policyResource.properties.metadata -managedByCounters $deployedPolicyTable.counters.managedBy
+                                    $policyResource.pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -Metadata $policyResource.properties.metadata -ManagedByCounters $deployedPolicyTable.counters.managedBy
                                     $found = $true
                                 }
                                 $scopesLast {
@@ -325,7 +239,7 @@ function Get-AzPolicyResources {
                     }
                     if (!$found) {
                         $deployedPolicyTable.counters.unMangedScope += 1
-                        if ($collectAllPolicies -and $policyResource.properties.policyType -eq "Custom") {
+                        if ($CollectAllPolicies -and $policyResource.properties.policyType -eq "Custom") {
                             $null = $deployedPolicyTable.all.Add($id, $policyResource)
                             $null = $deployedPolicyTable.custom.Add($id, $policyResource)
                         }
@@ -342,7 +256,7 @@ function Get-AzPolicyResources {
         Write-Information "Processed $numberPolicyResourcesProcessed Policy resources"
     }
 
-    if (!$skipRoleAssignments) {
+    if (!$SkipRoleAssignments) {
         # Get-AzRoleAssignment from the lowest scopes up. This will reduce the number of calls to Azure
         $roleAssignmentsById = @{}
         $scopesCovered = @{}
@@ -461,7 +375,7 @@ function Get-AzPolicyResources {
     }
 
     # Collect Exemptions
-    if (!$skipExemptions) {
+    if (!$SkipExemptions) {
         $exemptionsProcessed = @{}
         $exemptionsTable = $deployed.policyExemptions
         $managedByCounters = $exemptionsTable.counters.managedBy
@@ -483,8 +397,8 @@ function Get-AzPolicyResources {
 
         Write-Information ""
         Write-Information "Collecting Policy Exemptions (this may take a while):"
-        foreach ($scopeId in $scopeTable.Keys) {
-            $scopeInformation = $scopeTable.$scopeId
+        foreach ($scopeId in $ScopeTable.Keys) {
+            $scopeInformation = $ScopeTable.$scopeId
             if ($scopeInformation.type -eq "microsoft.resources/subscriptions") {
                 Write-Information "    $scopeId"
                 Get-AzPolicyExemptionsAtScopeRestMethod -Scope $scopeId | Sort-Object Properties.PolicyAssignmentId, ResourceId |  ForEach-Object {
@@ -509,7 +423,7 @@ function Get-AzPolicyResources {
                         $resourceGroup = $exemption.ResourceGroupName
 
                         # Find scope
-                        $resourceIdParts = Split-AzPolicyResourceId -id $id
+                        $resourceIdParts = Split-AzPolicyResourceId -Id $id
                         $scope = $resourceIdParts.scope
 
                         $exemption = @{
@@ -558,7 +472,7 @@ function Get-AzPolicyResources {
                         }
                         elseif ($excludedPolicyAssignmentsTable.ContainsKey($policyAssignmentId)) {
                             $policyAssignment = $excludedPolicyAssignmentsTable.$policyAssignmentId
-                            if ($collectAllPolicies) {
+                            if ($CollectAllPolicies) {
                                 $pacOwner = $policyAssignment.pacOwner
                                 $exemption.pacOwner = $pacOwner
                                 if ($pacOwner -eq "thisPaC") {
@@ -575,14 +489,14 @@ function Get-AzPolicyResources {
                         }
                         else {
                             $included, $resourceIdParts = Confirm-PolicyResourceExclusions `
-                                -testId $policyAssignmentId `
-                                -resourceId $id `
-                                -policyResource $exemption `
-                                -scopeTable $scopeTable `
-                                -includeResourceGroups $includeResourceGroups `
-                                -excludedScopes $excludedScopes `
-                                -excludedIds $excludedPolicyAssignments `
-                                -policyResourceTable $orphanedResourceTable
+                                -TestId $policyAssignmentId `
+                                -ResourceId $id `
+                                -PolicyResource $exemption `
+                                -ScopeTable $ScopeTable `
+                                -IncludeResourceGroups $includeResourceGroups `
+                                -ExcludedScopes $excludedScopes `
+                                -ExcludedIds $excludedPolicyAssignments `
+                                -PolicyResourceTable $orphanedResourceTable
 
                             # orphaned, do not differentiate
                             if ($included) {
@@ -597,7 +511,7 @@ function Get-AzPolicyResources {
 
     Write-Information ""
     Write-Information "==================================================================================================="
-    Write-Information "Policy Resources found for EPAC environment '$($pacEnvironment.pacSelector)' at root scope $($deploymentRootScope -replace '/providers/Microsoft.Management','')"
+    Write-Information "Policy Resources found for EPAC environment '$($PacEnvironment.pacSelector)' at root scope $($deploymentRootScope -replace '/providers/Microsoft.Management','')"
     Write-Information "==================================================================================================="
 
     foreach ($kind in @("policydefinitions", "policysetdefinitions")) {
@@ -612,7 +526,7 @@ function Get-AzPolicyResources {
         else {
             Write-Information "Policy Set counts:"
         }
-        if ($collectAllPolicies) {
+        if ($CollectAllPolicies) {
             Write-Information "    Custom (all)   = $($deployedPolicyTable.all.psbase.Count)"
             Write-Information "    Managed ($($managedByAny)) by:"
             Write-Information "        This PaC   = $($managedBy.thisPaC)"
@@ -645,7 +559,7 @@ function Get-AzPolicyResources {
     Write-Information "    Excluded        = $($counters.excluded)"
     Write-Information "    Not our scopes  = $($counters.unMangedScope)"
 
-    if (!$skipRoleAssignments) {
+    if (!$SkipRoleAssignments) {
         Write-Information ""
         if ($scopesCovered.Count -gt 0 -and $deployedRoleAssignmentsByPrincipalId.Count -eq 0) {
             Write-Warning "Role assignment retrieval failed to receive any assignments in $($scopesCovered.Count) scopes. This likely due to a missing permission for the SPN running the pipeline. Please read the pipeline documentation in EPAC. In rare cases, this can happen when a previous role assignment failed." -WarningAction Continue
@@ -657,7 +571,7 @@ function Get-AzPolicyResources {
         Write-Information "    Total Scopes           = $($scopesCovered.Count)"
     }
 
-    if (!$skipExemptions) {
+    if (!$SkipExemptions) {
         $counters = $exemptionsTable.counters
         $managedBy = $counters.managedBy
         $managedByAny = $managedBy.thisPaC + $managedBy.otherPaC + $managedBy.unknown

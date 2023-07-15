@@ -1,26 +1,26 @@
 function Get-AzScopeTree {
 
     param(
-        [hashtable] $pacEnvironment
+        [hashtable] $PacEnvironment
     )
 
-    $deploymentRootScope = $pacEnvironment.deploymentRootScope
-    $tenantId = $pacEnvironment.tenantId
+    $deploymentRootScope = $PacEnvironment.deploymentRootScope
+    $tenantId = $PacEnvironment.tenantId
     Write-Information ""
     Write-Information "==================================================================================================="
-    Write-Information "Get scope tree for EPAC environment '$($pacEnvironment.pacSelector)' at root scope $($deploymentRootScope -replace '/providers/Microsoft.Management','')"
+    Write-Information "Get scope tree for EPAC environment '$($PacEnvironment.pacSelector)' at root scope $($deploymentRootScope -replace '/providers/Microsoft.Management','')"
     Write-Information "==================================================================================================="
     $prefBackup = $WarningPreference
     $WarningPreference = 'SilentlyContinue'
     $scope = Split-ScopeId `
-        -scopeId $deploymentRootScope `
-        -parameterNameForManagementGroup "ManagementGroup" `
-        -parameterNameForSubscription "Subscription" `
-        -asSplat
+        -ScopeId $deploymentRootScope `
+        -ParameterNameForManagementGroup "ManagementGroup" `
+        -ParameterNameForSubscription "Subscription" `
+        -AsSplat
     $resourceContainers = Search-AzGraphAllItems `
-        -query "ResourceContainers" `
-        -scope $scope `
-        -progressItemName "resource containers"
+        -Query "ResourceContainers" `
+        -Scope $scope `
+        -ProgressItemName "resource containers"
     $WarningPreference = $prefBackup
     Write-Information ""
     Write-Information "Processing $($resourceContainers.Count) resource containers:"

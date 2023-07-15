@@ -1,26 +1,26 @@
 function Split-ScopeId {
     [CmdletBinding()]
     param (
-        [string] $scopeId,
-        [switch] $asSplat,
-        [string] $parameterNameForManagementGroup = "ManagementGroupName",
-        [string] $parameterNameForSubscription = "SubscriptionId"
+        [string] $ScopeId,
+        [switch] $AsSplat,
+        [string] $ParameterNameForManagementGroup = "ManagementGroupName",
+        [string] $ParameterNameForSubscription = "SubscriptionId"
     )
 
     $argName = ""
     $argValue = $null
-    if ($scopeId.StartsWith("/providers/Microsoft.Management/managementGroups/")) {
-        $argName = $parameterNameForManagementGroup
-        $argValue = $scopeId -replace "/providers/Microsoft.Management/managementGroups/"
+    if ($ScopeId.StartsWith("/providers/Microsoft.Management/managementGroups/")) {
+        $argName = $ParameterNameForManagementGroup
+        $argValue = $ScopeId -replace "/providers/Microsoft.Management/managementGroups/"
     }
-    elseif ($scopeId.StartsWith("/subscriptions/")) {
-        $argName = $parameterNameForSubscription
-        $argValue = $scopeId -replace "/subscriptions/"
+    elseif ($ScopeId.StartsWith("/subscriptions/")) {
+        $argName = $ParameterNameForSubscription
+        $argValue = $ScopeId -replace "/subscriptions/"
     }
     else {
-        Write-Error "'$scopeId' is not a valid scope." -ErrorAction Stop
+        Write-Error "'$ScopeId' is not a valid scope." -ErrorAction Stop
     }
-    if ($asSplat) {
+    if ($AsSplat) {
         return @{
             $argName = $argValue
         }

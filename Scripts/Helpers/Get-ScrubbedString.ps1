@@ -1,48 +1,48 @@
 function Get-ScrubbedString {
     [CmdletBinding()]
     param (
-        [string] $string,
-        [char[]] $invalidChars = @(),
-        [string] $replaceWith = "",
-        [switch] $replaceSpaces,
-        [string] $replaceSpacesWith = "",
-        [int] $maxLength = 0,
-        [switch] $trimEnds,
-        [switch] $toLower,
-        [switch] $singleReplace
+        [string] $String,
+        [char[]] $InvalidChars = @(),
+        [string] $ReplaceWith = "",
+        [switch] $ReplaceSpaces,
+        [string] $ReplaceSpacesWith = "",
+        [int] $MaxLength = 0,
+        [switch] $TrimEnds,
+        [switch] $ToLower,
+        [switch] $SingleReplace
     )
 
-    [string] $result = $string
-    if ($trimEnds) {
+    [string] $result = $String
+    if ($TrimEnds) {
         $result = $result.Trim()
     }
-    if ($toLower) {
+    if ($ToLower) {
         $result = $result.ToLower()
     }
-    if ($invalidChars.Count -gt 0) {
-        $result = $result.Split($invalidChars) -join $replaceWith
-        if ($singleReplace -and $replaceWith.Length -gt 0) {
+    if ($InvalidChars.Count -gt 0) {
+        $result = $result.Split($InvalidChars) -join $ReplaceWith
+        if ($SingleReplace -and $ReplaceWith.Length -gt 0) {
             $previousResult = ""
             while ($previousResult -ne $result) {
                 $previousResult = $result
-                $result = $result -replace "$($replaceWith)$($replaceWith)", $replaceWith
+                $result = $result -replace "$($ReplaceWith)$($ReplaceWith)", $ReplaceWith
             }
         }
     }
-    if ($replaceSpaces) {
-        if ($singleReplace) {
+    if ($ReplaceSpaces) {
+        if ($SingleReplace) {
             $result = $result -replace "  ", " "
         }
-        $result = $result.Replace(" ", $replaceSpacesWith)
-        if ($singleReplace -and $replaceSpacesWith.Length -gt 0) {
+        $result = $result.Replace(" ", $ReplaceSpacesWith)
+        if ($SingleReplace -and $ReplaceSpacesWith.Length -gt 0) {
             while ($previousResult -ne $result) {
                 $previousResult = $result
-                $result = $result -replace "$($replaceSpacesWith)$($replaceSpacesWith)", $replaceSpacesWith
+                $result = $result -replace "$($ReplaceSpacesWith)$($ReplaceSpacesWith)", $ReplaceSpacesWith
             }
         }
     }
-    if ($maxLength -gt 0 -and $result.Length -gt $maxLength) {
-        $result = $result.Substring(0, $maxLength)
+    if ($MaxLength -gt 0 -and $result.Length -gt $MaxLength) {
+        $result = $result.Substring(0, $MaxLength)
     }
     return $result
 }

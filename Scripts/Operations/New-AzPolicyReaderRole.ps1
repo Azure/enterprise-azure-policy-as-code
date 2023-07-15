@@ -8,15 +8,15 @@
 .PARAMETER DefinitionsRootFolder
     Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
 
-.PARAMETER interactive
+.PARAMETER Interactive
     Set to false if used non-interactive
 
 .EXAMPLE
-    .\New-AzPolicyReaderRole.ps1 -pacEnvironmentSelector "dev" -definitionsRootFolder "C:\Src\Definitions" -interactive $true
+    .\New-AzPolicyReaderRole.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\Src\Definitions" -Interactive $true
     Creates a custom role 'Policy Reader' that provides read access to all Policy resources for the purpose of planning the EPAC deployments.
 
 .EXAMPLE
-    .\New-AzPolicyReaderRole.ps1 -interactive $true
+    .\New-AzPolicyReaderRole.ps1 -Interactive $true
     Creates a custom role 'Policy Reader' that provides read access to all Policy resources for the purpose of planning the EPAC deployments. The script prompts for the PAC environment and uses the default definitions and output folders.
 #>
 
@@ -29,15 +29,15 @@ param(
     [string]$DefinitionsRootFolder,
 
     [Parameter(Mandatory = $false, HelpMessage = "Set to false if used non-interactive")]
-    [bool] $interactive = $true
+    [bool] $Interactive = $true
 )
 
 # Dot Source Helper Scripts
 . "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
 
 $InformationPreference = "Continue"
-$pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -outputFolder $OutputFolder -interactive $interactive
-Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -interactive $pacEnvironment.interactive
+$pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -Interactive $Interactive
+Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -Interactive $pacEnvironment.interactive
 
 $policyDefinitionsScopes = $pacEnvironment.policyDefinitionsScopes
 $deploymentRootScope = $policyDefinitionsScopes[0]

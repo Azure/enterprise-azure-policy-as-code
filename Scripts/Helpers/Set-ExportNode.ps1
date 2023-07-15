@@ -1,31 +1,31 @@
 function Set-ExportNode {
     [CmdletBinding()]
     param (
-        [hashtable] $parentNode,
-        [string] $pacSelector,
-        [string[]] $propertyNames,
-        [hashtable] $propertiesList,
-        [int] $currentIndex
+        [hashtable] $ParentNode,
+        [string] $PacSelector,
+        [string[]] $PropertyNames,
+        [hashtable] $PropertiesList,
+        [int] $CurrentIndex
     )
 
-    $propertyName = $propertyNames[$currentIndex]
-    $propertyValue = $propertiesList.$propertyName
+    $propertyName = $PropertyNames[$CurrentIndex]
+    $propertyValue = $PropertiesList.$propertyName
 
     # process this list entry
     $thisNode = Merge-ExportNodeChild `
-        -parentNode $parentNode `
-        -pacSelector $pacSelector `
-        -propertyName $propertyName `
-        -propertyValue $propertyValue
+        -ParentNode $ParentNode `
+        -PacSelector $PacSelector `
+        -PropertyName $propertyName `
+        -PropertyValue $propertyValue
 
     # recursively call Set-ClusterNode to create remaining descendants
-    $currentIndex++
-    if ($currentIndex -lt $propertyNames.Count) {
+    $CurrentIndex++
+    if ($CurrentIndex -lt $PropertyNames.Count) {
         Set-ExportNode `
-            -parentNode $thisNode `
-            -pacSelector $pacSelector `
-            -propertyNames $propertyNames `
-            -propertiesList $propertiesList `
-            -currentIndex $currentIndex
+            -ParentNode $thisNode `
+            -PacSelector $PacSelector `
+            -PropertyNames $PropertyNames `
+            -PropertiesList $PropertiesList `
+            -CurrentIndex $CurrentIndex
     }
 }

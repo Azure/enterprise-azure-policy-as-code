@@ -1,11 +1,11 @@
 function Convert-ListToToCsvRow {
     param (
-        [System.Collections.IEnumerable] $list
+        [System.Collections.IEnumerable] $List
     )
 
     [System.Text.StringBuilder] $rowText = [System.Text.StringBuilder]::new()
     $comma = ""
-    foreach ($item in $list) {
+    foreach ($item in $List) {
         if ($item -is [hashtable] -or $parameter -is [PSCustomObject]) {
             $item = "object"
         }

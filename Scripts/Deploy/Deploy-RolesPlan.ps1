@@ -3,24 +3,24 @@
 .SYNOPSIS 
     Deploys Role assignments from a plan file.  
 
-.PARAMETER pacEnvironmentSelector
+.PARAMETER PacEnvironmentSelector
     Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.
 
-.PARAMETER definitionsRootFolder
+.PARAMETER DefinitionsRootFolder
     Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
 
-.PARAMETER inputFolder
+.PARAMETER InputFolder
     Input folder path for plan files. Defaults to environment variable `$env:PAC_INPUT_FOLDER, `$env:PAC_OUTPUT_FOLDER or './Output'.
 
-.PARAMETER interactive
+.PARAMETER Interactive
     Use switch to indicate interactive use
 
 .EXAMPLE
-    Deploy-RolesPlan.ps1 -pacEnvironmentSelector "dev" -definitionsRootFolder "C:\PAC\Definitions" -inputFolder "C:\PAC\Output" -interactive
+    Deploy-RolesPlan.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\PAC\Definitions" -InputFolder "C:\PAC\Output" -Interactive
     Deploys Role assignments from a plan file.
 
 .EXAMPLE
-    Deploy-RolesPlan.ps1 -interactive
+    Deploy-RolesPlan.ps1 -Interactive
     Deploys Role assignments from a plan file. The script prompts for the PAC environment and uses the default definitions and input folders.
 
 .LINK
@@ -33,16 +33,16 @@ param (
     [parameter(HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.",
         Position = 0
     )]
-    [string] $pacEnvironmentSelector,
+    [string] $PacEnvironmentSelector,
 
     [Parameter(HelpMessage = "Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.")]
-    [string]$definitionsRootFolder,
+    [string]$DefinitionsRootFolder,
 
     [Parameter(HelpMessage = "Input folder path for plan files. Defaults to environment variable `$env:PAC_INPUT_FOLDER, `$env:PAC_OUTPUT_FOLDER or './Output'.")]
-    [string]$inputFolder,
+    [string]$InputFolder,
 
     [Parameter(HelpMessage = "Use switch to indicate interactive use")]
-    [switch] $interactive
+    [switch] $Interactive
 )
 
 $PSDefaultParameterValues = @{
@@ -55,11 +55,11 @@ Clear-Variable -Name epacInfoStream -Scope global -Force -ErrorAction SilentlyCo
 . "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
 
 $InformationPreference = "Continue"
-$pacEnvironment = Select-PacEnvironment $pacEnvironmentSelector -definitionsRootFolder $definitionsRootFolder -inputFolder $inputFolder  -interactive $interactive
-Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -interactive $pacEnvironment.interactive
+$pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -InputFolder $InputFolder  -Interactive $Interactive
+Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -Interactive $pacEnvironment.interactive
 
 $planFile = $pacEnvironment.rolesPlanInputFile
-$plan = Get-DeploymentPlan -planFile $planFile -asHashTable
+$plan = Get-DeploymentPlan -PlanFile $planFile -AsHashTable
 
 if ($null -eq $plan) {
     Write-Warning "***************************************************************************************************"
@@ -83,7 +83,7 @@ else {
         $splatTransform = "principalId/ObjectId scope/Scope roleDefinitionId/RoleDefinitionId"
         foreach ($roleAssignment in $removedRoleAssignments) {
             Write-Information "$($roleAssignment.displayName): $($roleAssignment.roleDisplayName)($($roleAssignment.roleDefinitionId)) at $($roleAssignment.scope)"
-            $splat = Get-FilteredHashTable $roleAssignment -splatTransform $splatTransform
+            $splat = Get-FilteredHashTable $roleAssignment -SplatTransform $splatTransform
             $null = Remove-AzRoleAssignment @splat -WarningAction SilentlyContinue
         }
         Write-Information ""
@@ -113,7 +113,7 @@ else {
                 $roleAssignment.principalId = $principalId
             }
             Write-Information "$($policyAssignment.Properties.displayName): $($roleAssignment.roleDisplayName)($($roleAssignment.roleDefinitionId)) at $($roleAssignment.scope)"
-            $splat = Get-FilteredHashTable $roleAssignment -splatTransform $splatTransform
+            $splat = Get-FilteredHashTable $roleAssignment -SplatTransform $splatTransform
             if (Get-AzRoleAssignment -Scope $splat.Scope -ObjectId $splat.ObjectId -RoleDefinitionId $splat.RoleDefinitionId) {
                 Write-Information "Role assignment already exists"
             }

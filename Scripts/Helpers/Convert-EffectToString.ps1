@@ -1,29 +1,29 @@
 function Convert-EffectToString {
     param (
-        [string] $effect,
-        [array] $allowedValues,
+        [string] $Effect,
+        [array] $AllowedValues,
         [switch] $Markdown
     )
 
     [string] $text = ""
-    if ($null -ne $effect) {
+    if ($null -ne $Effect) {
         if ($Markdown) {
-            if ($allowedValues.Count -eq 1) {
-                $text = "***$effect***"
+            if ($AllowedValues.Count -eq 1) {
+                $text = "***$Effect***"
             }
             else {
-                $text = "**$effect**"
+                $text = "**$Effect**"
             }
-            foreach ($allowed in $allowedValues) {
-                if ($allowed -cne $effect) {
+            foreach ($allowed in $AllowedValues) {
+                if ($allowed -cne $Effect) {
                     $text += "<br/>*$allowed*"
                 }
             }
         }
         else {
-            $text += $effect
-            foreach ($allowed in $allowedValues) {
-                if ($allowed -cne $effect) {
+            $text += $Effect
+            foreach ($allowed in $AllowedValues) {
+                if ($allowed -cne $Effect) {
                     $text += ", $allowed"
                 }
             }

@@ -1,20 +1,20 @@
 function Get-GlobalSettings {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $false)] [string] $definitionsRootFolder,
-        [Parameter(Mandatory = $false)] [string] $outputFolder,
-        [Parameter(Mandatory = $false)] [string] $inputFolder
+        [Parameter(Mandatory = $false)] [string] $DefinitionsRootFolder,
+        [Parameter(Mandatory = $false)] [string] $OutputFolder,
+        [Parameter(Mandatory = $false)] [string] $InputFolder
     )
 
     # Calculate folders
     $folders = Get-PacFolders `
-        -definitionsRootFolder $definitionsRootFolder `
-        -outputFolder $outputFolder `
-        -inputFolder $inputFolder
+        -DefinitionsRootFolder $DefinitionsRootFolder `
+        -OutputFolder $OutputFolder `
+        -InputFolder $InputFolder
 
-    $definitionsRootFolder = $folders.definitionsRootFolder
-    $outputFolder = $folders.outputFolder
-    $inputFolder = $folders.inputFolder
+    $DefinitionsRootFolder = $folders.definitionsRootFolder
+    $OutputFolder = $folders.outputFolder
+    $InputFolder = $folders.inputFolder
     $globalSettingsFile = $folders.globalSettingsFile
 
     Write-Information ""
@@ -27,7 +27,7 @@ function Get-GlobalSettings {
     if (!(Test-Json $Json)) {
         Write-Error "JSON file ""$($globalSettingsFile)"" is not valid = $Json" -ErrorAction Stop
     }
-    [hashtable] $settings = $Json | ConvertFrom-Json -AsHashtable
+    [hashtable] $settings = $Json | ConvertFrom-Json -AsHashTable
     [array] $pacEnvironments = $settings.pacEnvironments
     [hashtable] $pacEnvironmentDefinitions = @{}
     [string[]] $pacEnvironmentSelectors = @()
@@ -188,22 +188,22 @@ function Get-GlobalSettings {
     $prompt = $pacEnvironmentSelectors | Join-String -Separator ', '
 
     Write-Information "PAC Environments: $($prompt)"
-    Write-Information "Definitions root folder: $definitionsRootFolder"
-    Write-Information "Input folder: $inputFolder"
-    Write-Information "Output folder: $outputFolder"
+    Write-Information "Definitions root folder: $DefinitionsRootFolder"
+    Write-Information "Input folder: $InputFolder"
+    Write-Information "Output folder: $OutputFolder"
     Write-Information ""
 
-    $policyDocumentationsFolder = "$definitionsRootFolder/policyDocumentations"
-    $policyDefinitionsFolder = "$definitionsRootFolder/policyDefinitions"
-    $policySetDefinitionsFolder = "$definitionsRootFolder/policySetDefinitions"
-    $policyAssignmentsFolder = "$definitionsRootFolder/policyAssignments"
-    $policyExemptionsFolder = "$definitionsRootFolder/policyExemptions"
+    $policyDocumentationsFolder = "$DefinitionsRootFolder/policyDocumentations"
+    $policyDefinitionsFolder = "$DefinitionsRootFolder/policyDefinitions"
+    $policySetDefinitionsFolder = "$DefinitionsRootFolder/policySetDefinitions"
+    $policyAssignmentsFolder = "$DefinitionsRootFolder/policyAssignments"
+    $policyExemptionsFolder = "$DefinitionsRootFolder/policyExemptions"
 
     [hashtable] $globalSettings = @{
-        definitionsRootFolder      = $definitionsRootFolder
+        definitionsRootFolder      = $DefinitionsRootFolder
         globalSettingsFile         = $globalSettingsFile
-        outputFolder               = $outputFolder
-        inputFolder                = $inputFolder
+        outputFolder               = $OutputFolder
+        inputFolder                = $InputFolder
         policyDocumentationsFolder = $policyDocumentationsFolder
         policyDefinitionsFolder    = $policyDefinitionsFolder
         policySetDefinitionsFolder = $policySetDefinitionsFolder

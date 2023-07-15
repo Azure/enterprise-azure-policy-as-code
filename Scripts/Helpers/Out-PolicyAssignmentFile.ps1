@@ -1,13 +1,13 @@
 function Out-PolicyAssignmentFile {
     [CmdletBinding()]
     param (
-        $perDefinition,
-        $propertyNames,
-        $policyAssignmentsFolder,
-        $invalidChars
+        $PerDefinition,
+        $PropertyNames,
+        $PolicyAssignmentsFolder,
+        $InvalidChars
     )
 
-    $definition = $perDefinition.definitionEntry
+    $definition = $PerDefinition.definitionEntry
     $definitionKind = $definition.kind
     $definitionName = $definition.name
     $definitionId = $definition.id
@@ -15,14 +15,14 @@ function Out-PolicyAssignmentFile {
 
     $kindString = $definitionKind -replace "Definitions", ""
     $fullPath = Get-DefinitionsFullPath `
-        -folder $policyAssignmentsFolder `
-        -fileSuffix "-$kindString" `
-        -name $definition.name `
-        -displayName $definitionDisplayName `
-        -invalidChars $invalidChars `
-        -maxLengthSubFolder 30 `
-        -maxLengthFileName 100 `
-        -fileExtension $fileExtension
+        -Folder $PolicyAssignmentsFolder `
+        -FileSuffix "-$kindString" `
+        -Name $definition.name `
+        -DisplayName $definitionDisplayName `
+        -InvalidChars $InvalidChars `
+        -MaxLengthSubFolder 30 `
+        -MaxLengthFileName 100 `
+        -FileExtension $fileExtension
 
     # Create definitionEntry
     $definitionEntry = [ordered]@{}
@@ -61,9 +61,9 @@ function Out-PolicyAssignmentFile {
         definitionEntry = $definitionEntry
     }
     Set-AssignmentNode `
-        -treeNode $perDefinition `
-        -assignmentNode $assignmentDefinition `
-        -propertyNames $propertyNames
+        -TreeNode $PerDefinition `
+        -AssignmentNode $assignmentDefinition `
+        -PropertyNames $PropertyNames
 
     # Write structure to file
     Remove-NullFields $assignmentDefinition

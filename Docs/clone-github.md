@@ -44,9 +44,9 @@ The repo contains a script to synchronize directories in both directions: `Sync-
 
 |Parameter | Required | Explanation |
 |----------|----------|-------------|
-| `sourceDirectory` | Required | Directory with the source (forked repo) |
-| `destinationDirectory` | Required | Directory with the destination (your private repo) |
-| `suppressDeleteFiles` | Optional | Switch parameter to suppress deleting files in `$destinationDirectory` tree |
+| `SourceDirectory` | Required | Directory with the source (forked repo) |
+| `DestinationDirectory` | Required | Directory with the destination (your private repo) |
+| `SuppressDeleteFiles` | Optional | Switch parameter to suppress deleting files in `$destinationDirectory` tree |
 
 ## Process for Development (Maintainers Only)
 

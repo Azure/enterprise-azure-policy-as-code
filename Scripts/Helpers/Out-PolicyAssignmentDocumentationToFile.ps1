@@ -1,15 +1,15 @@
 function Out-PolicyAssignmentDocumentationToFile {
     [CmdletBinding()]
     param (
-        [string] $outputPath,
-        [switch] $windowsNewLineCells,
-        $documentationSpecification,
-        [hashtable] $assignmentsByEnvironment
+        [string] $OutputPath,
+        [switch] $WindowsNewLineCells,
+        $DocumentationSpecification,
+        [hashtable] $AssignmentsByEnvironment
     )
 
-    [string] $fileNameStem = $documentationSpecification.fileNameStem
-    [string[]] $environmentCategories = $documentationSpecification.environmentCategories
-    [string] $title = $documentationSpecification.title
+    [string] $fileNameStem = $DocumentationSpecification.fileNameStem
+    [string[]] $environmentCategories = $DocumentationSpecification.environmentCategories
+    [string] $title = $DocumentationSpecification.title
 
     Write-Information "Generating Policy Assignment documentation for '$title', files '$fileNameStem'."
 
@@ -29,13 +29,13 @@ function Out-PolicyAssignmentDocumentationToFile {
 
     $flatPolicyListAcrossEnvironments = @{}
     foreach ($environmentCategory in $environmentCategories) {
-        if (-not $assignmentsByEnvironment.ContainsKey($environmentCategory)) {
+        if (-not $AssignmentsByEnvironment.ContainsKey($environmentCategory)) {
             # Should never happen (programing bug)
             Write-Error "Unknown environmentCategory '$environmentCategory' encountered - bug in EPAC PowerShell code" -ErrorAction Stop
         }
 
         # Collate Policies
-        $perEnvironment = $assignmentsByEnvironment.$environmentCategory
+        $perEnvironment = $AssignmentsByEnvironment.$environmentCategory
         $flatPolicyList = $perEnvironment.flatPolicyList
         foreach ($policyTableId in $flatPolicyList.Keys) {
             $flatPolicyEntry = $flatPolicyList.$policyTableId
@@ -156,7 +156,7 @@ function Out-PolicyAssignmentDocumentationToFile {
     $addedTableHeader = ""
     $addedTableDivider = ""
     foreach ($environmentCategory in $environmentCategories) {
-        $perEnvironment = $assignmentsByEnvironment.$environmentCategory
+        $perEnvironment = $AssignmentsByEnvironment.$environmentCategory
         $itemList = $perEnvironment.itemList
         $assignmentsDetails = $perEnvironment.assignmentsDetails
         $scopes = $perEnvironment.scopes
@@ -203,8 +203,8 @@ function Out-PolicyAssignmentDocumentationToFile {
                 $effectValue = $environmentCategoryValues.effectValue
                 $effectAllowedValues = $_.effectAllowedValues
                 $text = Convert-EffectToString `
-                    -effect $effectValue `
-                    -allowedValues $effectAllowedValues.Keys `
+                    -Effect $effectValue `
+                    -AllowedValues $effectAllowedValues.Keys `
                     -Markdown
                 $addedEffectColumns += " $text |"
 
@@ -230,7 +230,7 @@ function Out-PolicyAssignmentDocumentationToFile {
                 # }
 
                 # if ($hasParameters) {
-                #     $text = Convert-ParametersToString -parameters $parameters -outputType "markdownAssignment"
+                #     $text = Convert-ParametersToString -Parameters $parameters -OutputType "markdownAssignment"
                 #     $additionalInfoFragment += $text
                 # }
             }
@@ -252,7 +252,7 @@ function Out-PolicyAssignmentDocumentationToFile {
     $null = $allLines.AddRange($body)
 
     # Output file
-    $outputFilePath = "$($outputPath -replace '[/\\]$', '')/$($fileNameStem).md"
+    $outputFilePath = "$($OutputPath -replace '[/\\]$', '')/$($fileNameStem).md"
     $allLines | Out-File $outputFilePath -Force
 
     #endregion Markdown
@@ -273,7 +273,7 @@ function Out-PolicyAssignmentDocumentationToFile {
 
     # deal with multi value cells
     $inCellSeparator = ","
-    if ($windowsNewLineCells) {
+    if ($WindowsNewLineCells) {
         $inCellSeparator = ",`n"
     }
 
@@ -323,7 +323,7 @@ function Out-PolicyAssignmentDocumentationToFile {
                     $rowObj["$($environmentCategory)Effect"] = $_.effectDefault
                 }
 
-                $text = Convert-ParametersToString -parameters $perEnvironment.parameters -outputType "csvValues"
+                $text = Convert-ParametersToString -Parameters $perEnvironment.parameters -OutputType "csvValues"
                 $rowObj["$($environmentCategory)Parameters"] = $text
             }
         }
@@ -333,8 +333,8 @@ function Out-PolicyAssignmentDocumentationToFile {
     }
 
     # Output file
-    $outputFilePath = "$($outputPath -replace '[/\\]$','')/$($fileNameStem).csv"
-    if ($windowsNewLineCells) {
+    $outputFilePath = "$($OutputPath -replace '[/\\]$','')/$($fileNameStem).csv"
+    if ($WindowsNewLineCells) {
         $allRows | ConvertTo-Csv | Out-File $outputFilePath -Force -Encoding utf8BOM
     }
     else {

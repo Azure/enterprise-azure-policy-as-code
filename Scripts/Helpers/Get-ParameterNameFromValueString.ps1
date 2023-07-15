@@ -1,11 +1,11 @@
 function Get-ParameterNameFromValueString {
     [CmdletBinding()]
     param (
-        [string] $paramValue
+        [string] $ParamValue
     )
 
-    if ($paramValue.StartsWith(("[parameters('")) -and $paramValue.EndsWith("')]")) {
-        $value1 = $paramValue.Replace("[parameters('", "")
+    if ($ParamValue.StartsWith(("[parameters('")) -and $ParamValue.EndsWith("')]")) {
+        $value1 = $ParamValue.Replace("[parameters('", "")
         $parameterName = $value1.Replace("')]", "")
         return $true, $parameterName
     }

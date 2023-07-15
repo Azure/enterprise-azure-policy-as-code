@@ -1,34 +1,31 @@
 function Build-ExemptionsPlan {
     [CmdletBinding()]
     param (
-        [string] $exemptionsRootFolder,
-        [string] $exemptionsAreNotManagedMessage,
-        [hashtable] $pacEnvironment,
-        [hashtable] $allAssignments,
-        [hashtable] $assignments,
-        [hashtable] $deployedExemptions,
-        [hashtable] $exemptions
+        [string] $ExemptionsRootFolder,
+        [string] $ExemptionsAreNotManagedMessage,
+        [hashtable] $PacEnvironment,
+        [hashtable] $AllAssignments,
+        [hashtable] $Assignments,
+        [hashtable] $DeployedExemptions,
+        [hashtable] $Exemptions
     )
 
     Write-Information "==================================================================================================="
-    Write-Information "Processing Policy Exemption files in folder '$exemptionsRootFolder'"
+    Write-Information "Processing Policy Exemption files in folder '$ExemptionsRootFolder'"
     Write-Information "==================================================================================================="
 
-    if ($exemptionsAreNotManagedMessage -ne "") {
-        Write-Warning $exemptionsAreNotManagedMessage
-    }
-    else {
+    if ($ExemptionsAreNotManagedMessage -eq "") {
 
         [array] $exemptionFiles = @()
         # Do not manage exemptions if directory does not exist
-        $exemptionFiles += Get-ChildItem -Path $exemptionsRootFolder -Recurse -File -Filter "*.json"
-        $exemptionFiles += Get-ChildItem -Path $exemptionsRootFolder -Recurse -File -Filter "*.jsonc"
-        $exemptionFiles += Get-ChildItem -Path $exemptionsRootFolder -Recurse -File -Filter "*.csv"
+        $exemptionFiles += Get-ChildItem -Path $ExemptionsRootFolder -Recurse -File -Filter "*.json"
+        $exemptionFiles += Get-ChildItem -Path $ExemptionsRootFolder -Recurse -File -Filter "*.jsonc"
+        $exemptionFiles += Get-ChildItem -Path $ExemptionsRootFolder -Recurse -File -Filter "*.csv"
 
         $allExemptions = @{}
-        $deployedManagedExemptions = $deployedExemptions.managed
+        $deployedManagedExemptions = $DeployedExemptions.managed
         $deleteCandidates = Get-HashtableShallowClone $deployedManagedExemptions
-        $replacedAssignments = $assignments.replace
+        $replacedAssignments = $Assignments.replace
         if ($exemptionFiles.Length -eq 0) {
             Write-Warning "No Policy Exemption files found."
             Write-Warning "All exemptions will be deleted!"
@@ -48,7 +45,7 @@ function Build-ExemptionsPlan {
                     if (!(Test-Json $content)) {
                         Write-Error "Invalid JSON in file $($assignmentFile.FullName)'" -ErrorAction Stop
                     }
-                    $jsonObj = ConvertFrom-Json $content -AsHashtable -Depth 100
+                    $jsonObj = ConvertFrom-Json $content -AsHashTable -Depth 100
                     Write-Information ""
                     if ($null -ne $jsonObj) {
                         $jsonExemptions = $jsonObj.exemptions
@@ -79,7 +76,7 @@ function Build-ExemptionsPlan {
                         if ($null -ne $step1 -and $step1 -ne "") {
                             $step2 = $step1.Trim()
                             if ($step2.StartsWith("{") -and (Test-Json $step2)) {
-                                $step3 = ConvertFrom-Json $step2 -AsHashtable -Depth 100
+                                $step3 = ConvertFrom-Json $step2 -AsHashTable -Depth 100
                                 if ($step3 -ne @{}) {
                                     $metadata = $step3
                                 }
@@ -210,7 +207,7 @@ function Build-ExemptionsPlan {
                     Write-Warning "Expired exemption (name=$name, scope=$scope) in definitions"
                     continue
                 }
-                if (!$allAssignments.ContainsKey($policyAssignmentId)) {
+                if (!$AllAssignments.ContainsKey($policyAssignmentId)) {
                     Write-Warning "Orphaned exemption (name=$name, scope=$scope) in definitions"
                     continue
                 }
@@ -223,14 +220,14 @@ function Build-ExemptionsPlan {
                     if ($deployedManagedExemption.policyAssignmentId -ne $policyAssignmentId) {
                         # Replaced Assignment
                         Write-Information "Replace(assignment) '$($name)', '$($scope)'"
-                        $null = $exemptions.replace.Add($id, $exemption)
-                        $exemptions.numberOfChanges++
+                        $null = $Exemptions.replace.Add($id, $exemption)
+                        $Exemptions.numberOfChanges++
                     }
                     elseif ($replacedAssignments.ContainsKey($policyAssignmentId)) {
                         # Replaced Assignment
                         Write-Information "Replace(reference) '$($name)', '$($scope)'"
-                        $null = $exemptions.replace.Add($id, $exemption)
-                        $exemptions.numberOfChanges++
+                        $null = $Exemptions.replace.Add($id, $exemption)
+                        $Exemptions.numberOfChanges++
                     }
                     else {
                         # Maybe update existing Exemption
@@ -247,8 +244,8 @@ function Build-ExemptionsPlan {
                         }
                         $policyDefinitionReferenceIdsMatches = Confirm-ObjectValueEqualityDeep $deployedManagedExemption.policyDefinitionReferenceIds $policyDefinitionReferenceIds
                         $metadataMatches = Confirm-MetadataMatches `
-                            -existingMetadataObj $deployedManagedExemption.metadata `
-                            -definedMetadataObj $metadata
+                            -ExistingMetadataObj $deployedManagedExemption.metadata `
+                            -DefinedMetadataObj $metadata
                         $assignmentScopeValidationMatches = ($deployedManagedExemption.assignmentScopeValidation -eq $assignmentScopeValidation) `
                             -or ($null -eq $deployedManagedExemption.assignmentScopeValidation -and ($assignmentScopeValidation -eq "Default" -or $null -eq $assignmentScopeValidation))
                         $resourceSelectorsMatches = Confirm-ObjectValueEqualityDeep $deployedManagedExemption.resourceSelectors $resourceSelectors
@@ -256,7 +253,7 @@ function Build-ExemptionsPlan {
                         if ($displayNameMatches -and $descriptionMatches -and $exemptionCategoryMatches -and $expiresOnMatches `
                                 -and $policyDefinitionReferenceIdsMatches -and $metadataMatches -and (-not $clearExpiration) `
                                 -and $assignmentScopeValidationMatches -and $resourceSelectorsMatches) {
-                            $exemptions.numberUnchanged += 1
+                            $Exemptions.numberUnchanged += 1
                         }
                         else {
                             # One or more properties have changed
@@ -288,8 +285,8 @@ function Build-ExemptionsPlan {
                                 $changesStrings += "resourceSelectors"
                             }
                             $changesString = $changesStrings -join ","
-                            $exemptions.numberOfChanges++
-                            $null = $exemptions.update.Add($id, $exemption)
+                            $Exemptions.numberOfChanges++
+                            $null = $Exemptions.update.Add($id, $exemption)
                             Write-Information "Update($changesString) '$($name)', '$($scope)'"
                         }
                     }
@@ -297,29 +294,29 @@ function Build-ExemptionsPlan {
                 else {
                     # Create Exemption
                     Write-Information "New '$($name)', '$($scope)'"
-                    $null = $exemptions.new.Add($id, $exemption)
-                    $exemptions.numberOfChanges++
+                    $null = $Exemptions.new.Add($id, $exemption)
+                    $Exemptions.numberOfChanges++
                 }
             }
         }
 
-        $exemptions.numberOfOrphans = $deployedExemptions.orphaned.psbase.Count
-        foreach ($exemption in $deployedExemptions.orphaned.Values) {
+        $Exemptions.numberOfOrphans = $DeployedExemptions.orphaned.psbase.Count
+        foreach ($exemption in $DeployedExemptions.orphaned.Values) {
             # delete all orphaned exemptions
             Write-Warning "Delete(orphaned) '$($exemption.name)', '$($exemption.scope)'"
-            $null = $exemptions.delete[$exemption.id] = $exemption
-            $exemptions.numberOfChanges++
+            $null = $Exemptions.delete[$exemption.id] = $exemption
+            $Exemptions.numberOfChanges++
         }
-        $strategy = $pacEnvironment.desiredState.strategy
+        $strategy = $PacEnvironment.desiredState.strategy
         foreach ($id in $deleteCandidates.Keys) {
-            $exemption = $deployedExemptions.managed[$id]
+            $exemption = $DeployedExemptions.managed[$id]
             $pacOwner = $exemption.pacOwner
-            $shallDelete = Confirm-DeleteForStrategy -pacOwner $pacOwner -strategy $strategy
+            $shallDelete = Confirm-DeleteForStrategy -PacOwner $pacOwner -Strategy $strategy
 
             if ($shallDelete) {
                 Write-Information "Delete '$($exemption.name)', '$($exemption.scope)'"
-                $null = $exemptions.delete[$exemption.id] = $exemption
-                $exemptions.numberOfChanges++
+                $null = $Exemptions.delete[$exemption.id] = $exemption
+                $Exemptions.numberOfChanges++
             }
             else {
                 # Write-Information "No delete($pacOwner,$strategy) '$($exemption.name)', '$($exemption.scope)'"
@@ -327,11 +324,11 @@ function Build-ExemptionsPlan {
         }
 
         Write-Information ""
-        if ($exemptions.numberUnchanged -gt 0) {
-            Write-Information "$($exemptions.numberUnchanged) unchanged Exemptions"
+        if ($Exemptions.numberUnchanged -gt 0) {
+            Write-Information "$($Exemptions.numberUnchanged) unchanged Exemptions"
         }
-        if ($exemptions.numberOfOrphans -gt 0) {
-            Write-Information "$($exemptions.numberOfOrphans) orphaned Exemptions"
+        if ($Exemptions.numberOfOrphans -gt 0) {
+            Write-Information "$($Exemptions.numberOfOrphans) orphaned Exemptions"
         }
     }
     Write-Information ""

@@ -1,8 +1,8 @@
 function Confirm-ActiveAzExemptions {
     [CmdletBinding()]
     param (
-        $exemptions,
-        $assignments
+        $Exemptions,
+        $Assignments
     )
 
     # Process Exemptions
@@ -13,10 +13,10 @@ function Confirm-ActiveAzExemptions {
     [hashtable] $orphanedExemptions = @{}
 
     $now = Get-Date
-    foreach ($exemptionId in $exemptions.Keys) {
-        $exemption = $exemptions.$exemptionId
+    foreach ($exemptionId in $Exemptions.Keys) {
+        $exemption = $Exemptions.$exemptionId
         $policyAssignmentId = $exemption.policyAssignmentId
-        $isValid = $assignments.ContainsKey($policyAssignmentId)
+        $isValid = $Assignments.ContainsKey($policyAssignmentId)
         $expiresOnString = $exemption.expiresOn
         $expired = $false
         $expiresInDays = [Int32]::MaxValue
