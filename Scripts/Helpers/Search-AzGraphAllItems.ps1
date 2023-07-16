@@ -11,10 +11,16 @@ function Search-AzGraphAllItems {
     $null = $data.AddRange($result.Data)
     while ($null -ne $result.SkipToken) {
         # More data available, SkipToken will allow the next query in this loop to continue where the last invocation ended
-        Write-Information "Retrieved $($data.Count) $ProgressItemName"
+        $count = $data.Count
+        if ($count % 2000 -eq 0) {
+            Write-Information "Retrieved $count $ProgressItemName"
+        }
         $result = Search-AzGraph $Query -First 1000 -SkipToken $result.SkipToken  @scope
         $null = $data.AddRange($result.Data)
     }
-    Write-Information "Retrieved $($data.Count) $ProgressItemName"
+    $count = $data.Count
+    if ($count % 2000 -ne 0) {
+        Write-Information "Retrieved $($count) $ProgressItemName"
+    }
     return $data
 }
