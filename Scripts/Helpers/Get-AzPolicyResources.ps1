@@ -248,11 +248,11 @@ function Get-AzPolicyResources {
             }
         }
         $numberPolicyResourcesProcessed++
-        if ($numberPolicyResourcesProcessed % 500 -eq 0) {
+        if ($numberPolicyResourcesProcessed % 1000 -eq 0) {
             Write-Information "Processed $numberPolicyResourcesProcessed Policy resources"
         }
     }
-    if ($numberPolicyResourcesProcessed % 500 -ne 0) {
+    if ($numberPolicyResourcesProcessed % 1000 -ne 0) {
         Write-Information "Processed $numberPolicyResourcesProcessed Policy resources"
     }
 

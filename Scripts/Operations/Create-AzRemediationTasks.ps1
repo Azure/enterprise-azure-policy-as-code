@@ -56,26 +56,28 @@ $result = @() + (Search-AzGraphAllItems -Query $query -Scope @{ UseTenantScope =
 Write-Information ""
 
 $remediationsList = [System.Collections.ArrayList]::new()
-# Only create remediation task owned by this Policy as Code repo
-$scopeTable = Get-AzScopeTree -PacEnvironment $pacEnvironment
-$deployedPolicyResources = Get-AzPolicyResources -PacEnvironment $pacEnvironment -ScopeTable $scopeTable -SkipExemptions -SkipRoleAssignments
-$managedAssignments = $deployedPolicyResources.policyassignments.managed
-$allAssignments = $deployedPolicyResources.policyassignments.all
-$strategy = $pacEnvironment.desiredState.strategy
-foreach ($entry in $result) {
-    $policyAssignmentId = $entry.properties_policyAssignmentId
-    if ($OnlyCheckManagedAssignments) {
-        if ($managedAssignments.ContainsKey($policyAssignmentId)) {
-            $managedAssignment = $managedAssignments.$policyAssignmentId
-            $assignmentPacOwner = $managedAssignment.pacOwner
-            if ($assignmentPacOwner -eq "thisPaC" -or ($assignmentPacOwner -eq "unknownOwner" -and $strategy -eq "full")) {
-                $null = $remediationsList.Add($entry)
+if ($result.Count -gt 0) {
+    # Only create remediation task owned by this Policy as Code repo
+    $scopeTable = Get-AzScopeTree -PacEnvironment $pacEnvironment
+    $deployedPolicyResources = Get-AzPolicyResources -PacEnvironment $pacEnvironment -ScopeTable $scopeTable -SkipExemptions -SkipRoleAssignments
+    $managedAssignments = $deployedPolicyResources.policyassignments.managed
+    $allAssignments = $deployedPolicyResources.policyassignments.all
+    $strategy = $pacEnvironment.desiredState.strategy
+    foreach ($entry in $result) {
+        $policyAssignmentId = $entry.properties_policyAssignmentId
+        if ($OnlyCheckManagedAssignments) {
+            if ($managedAssignments.ContainsKey($policyAssignmentId)) {
+                $managedAssignment = $managedAssignments.$policyAssignmentId
+                $assignmentPacOwner = $managedAssignment.pacOwner
+                if ($assignmentPacOwner -eq "thisPaC" -or ($assignmentPacOwner -eq "unknownOwner" -and $strategy -eq "full")) {
+                    $null = $remediationsList.Add($entry)
+                }
             }
         }
-    }
-    else {
-        if ($allAssignments.ContainsKey($policyAssignmentId)) {
-            $null = $remediationsList.Add($entry)
+        else {
+            if ($allAssignments.ContainsKey($policyAssignmentId)) {
+                $null = $remediationsList.Add($entry)
+            }
         }
     }
 }
