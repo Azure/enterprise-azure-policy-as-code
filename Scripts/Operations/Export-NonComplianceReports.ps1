@@ -18,7 +18,7 @@ Formats CSV multi-object cells to use new lines and saves it as UTF-8 with BOM -
 Set to false if used non-interactive
 
 .PARAMETER OnlyCheckManagedAssignments
-Create remediation task only for Policy assignments owned by this Policy as Code repo
+Include non-compliance data only for Policy assignments owned by this Policy as Code repo
 
 .PARAMETER PolicySetDefinitionFilter
 Filter by Policy Set definition names (array) or ids (array). Can only be used when PolicyAssignmentFilter is not used.

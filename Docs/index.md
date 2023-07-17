@@ -35,6 +35,17 @@ For extremely small Azure customers with one or two subscriptions Microsoft Defe
 
 This `enterprise-policy-as-code` **(EPAC)** repo has been developed in partnership with the Security & Compliance for Cloud Infrastructure (S&C4CI) offering available from Microsoft's Industry Solutions (Consulting Services). Microsoft Industry Solutions can assist you with securing your cloud. S&C4CI improves your new or existing security posture in Azure by securing platforms, services, and workloads at scale.
 
+## Breaking changes in v7.0
+
+Script `Export-AzPolicyResources` replaces `Build-PolicyDefinitionFolder` with a [substantial increase in capability](extract-existing-policy-resources.md). It has a round-trip capability supporting the extract to be used in the build `Definitions`.
+
+Introducing a new approach using PowerShell Module. This not (actually) breaking existing implementation since you can continue as is; however, for a simplified usage of EPAC, the PowerShell module is the best approach.
+
+The move from synchronizing your repo with the GitHub repo to a PowerShell module necessitated the reworking of the default values for `Definitions`, `Output`, and `Input` folders. Many scripts use parameters for definitions, input and output folders. They default to the current directory, which should be the root of the repo. make sure that the current directory is the root of your repo. We recommend that you do one of the following approaches instead of accepting the default:
+
+- Set the environment variables `PAC_DEFINITIONS_FOLDER`, `PAC_OUTPUT_FOLDER`, and `PAC_INPUT_FOLDER`.
+- Use the script parameters `-DefinitionsRootFolder`, `-OutputFolder`, and `-InputFolder` (They vary by script).
+
 ## Terminology
 
 | Full name                                                                 | Simplified use in this documentation |
