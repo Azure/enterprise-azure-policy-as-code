@@ -158,7 +158,7 @@ Enterprise Policy-as-Code (EPAC), AzAdvertizer and Azure Governance Visualizer (
 
 - [Enterprise Policy-as-Code (aka EPAC)](https://github.com/Azure/enterprise-azure-policy-as-code) - EPAC is an open source community project that provides a CI/CD automation solution for the development, deployment, management and reporting of Azure policy at scale. EPAC can maintain a policy "desired state" to provide a high level of assurance in highly controlled and sensitive environments, and a means of managing policy exemptions. While it uses standard JSON file structure for its repositories, operation and maintenance of policy and policy sets can actually be done via CSV files, reducing the skill expertise needed to operate the solution once implemented.
 
-### Functional Comparison
+
 
 The table below provides a summary functions/features comparison between the three solutions/tools.
 
