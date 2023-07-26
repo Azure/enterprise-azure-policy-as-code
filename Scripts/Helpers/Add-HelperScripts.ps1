@@ -38,6 +38,8 @@
 . "$PSScriptRoot/../Helpers/ConvertTo-ArrayList.ps1"
 . "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
 
+. "$PSScriptRoot/../Helpers/Find-AzNonCompliantResources.ps1"
+
 . "$PSScriptRoot/../Helpers/Get-AssignmentsDetails.ps1"
 . "$PSScriptRoot/../Helpers/Get-AzPolicyExemptionsAtScopeRestMethod.ps1"
 . "$PSScriptRoot/../Helpers/Get-AzPolicyResources.ps1"
