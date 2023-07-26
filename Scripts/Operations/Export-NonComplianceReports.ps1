@@ -20,11 +20,14 @@ Set to false if used non-interactive
 .PARAMETER OnlyCheckManagedAssignments
 Include non-compliance data only for Policy assignments owned by this Policy as Code repo
 
+.PARAMETER PolicyDefinitionFilter
+Filter by Policy definition names (array) or ids (array).
+
 .PARAMETER PolicySetDefinitionFilter
-Filter by Policy Set definition names (array) or ids (array). Can only be used when PolicyAssignmentFilter is not used.
+Filter by Policy Set definition names (array) or ids (array).
 
 .PARAMETER PolicyAssignmentFilter
-Filter by Policy Assignment names (array) or ids (array). Can only be used when PolicySetDefinitionFilter is not used.
+Filter by Policy Assignment names (array) or ids (array).
 
 .EXAMPLE
 Export-NonComplianceReports -PacEnvironmentSelector "dev"
@@ -66,11 +69,17 @@ param(
     [Parameter(Mandatory = $false, HelpMessage = "Create reports only for Policy assignments owned by this Policy as Code repo")]
     [switch] $OnlyCheckManagedAssignments,
 
+    [Parameter(Mandatory = $false, HelpMessage = "Filter by Policy definition names or ids")]
+    [string[]] $PolicyDefinitionFilter = $null,
+
     [Parameter(Mandatory = $false, HelpMessage = "Filter by Policy Set definition names or ids")]
     [string[]] $PolicySetDefinitionFilter = $null,
 
     [Parameter(Mandatory = $false, HelpMessage = "Filter by Policy Assignment names or ids")]
-    [string[]] $PolicyAssignmentFilter = $null
+    [string[]] $PolicyAssignmentFilter = $null,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Filter by Policy Effect")]
+    [string[]] $PolicyEffectFilter = $null
 )
 
 # Dot Source Helper Scripts
@@ -81,73 +90,26 @@ $windowsNewLineCells = $WindowsNewLineCells.IsPresent
 $onlyCheckManagedAssignments = $OnlyCheckManagedAssignments.IsPresent
 $policySetDefinitionFilter = $PolicySetDefinitionFilter
 $policyAssignmentFilter = $PolicyAssignmentFilter
+$policyEffectFilter = $PolicyEffectFilter
 
 # Setting the local copies of parameters to simplify debugging
 # $windowsNewLineCells = $true
 # $onlyCheckManagedAssignments = $true
 # $policySetDefinitionFilter = @( "org-sec-initiative", "/providers/Microsoft.Authorization/policySetDefinitions/11111111-1111-1111-1111-111111111111" )
 # $policyAssignmentFilter = @( "/providers/microsoft.management/managementgroups/11111111-1111-1111-1111-111111111111/providers/microsoft.authorization/policyassignments/taginh-env", "prod-asb" )
-
-# Verify that at most one of the parameters PolicySetDefinitionFilter and PolicyAssignmentFilter is supplied
-if ($policySetDefinitionFilter -and $policyAssignmentFilter) {
-    throw "At most one of the filtering parameters PolicySetDefinitionFilter and PolicyAssignmentFilter is allowed"
-}
+# $policyEffectFilter = @( "deny" )
 
 $InformationPreference = "Continue"
 $pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -Interactive $Interactive
 Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -Interactive $pacEnvironment.interactive
 
-Write-Information "==================================================================================================="
-Write-Information "Retrieve Policy Commpliance List"
-Write-Information "==================================================================================================="
-$query = 'policyresources | where type == "microsoft.policyinsights/policystates" and properties.complianceState <> "Compliant"'
-$result = @() + (Search-AzGraphAllItems -Query $query -Scope @{ UseTenantScope = $true } -ProgressItemName "Policy compliance records")
-Write-Information ""
-
-$rawNonCompliantList = [System.Collections.ArrayList]::new()
-if ($result.Count -ne 0) {
-    # Get all Policy Assignments, Policy Definitions and Policy Set Definitions
-    $scopeTable = Get-AzScopeTree -pacEnvironment $pacEnvironment
-    $deployedPolicyResources = Get-AzPolicyResources -pacEnvironment $pacEnvironment -scopeTable $scopeTable -skipExemptions -skipRoleAssignments
-    $allAssignments = $deployedPolicyResources.policyassignments.all
-    $strategy = $pacEnvironment.desiredState.strategy
-    # Filter result
-    if (-not $onlyCheckManagedAssignments -and -not $policySetDefinitionFilter -and -not $policySetDefinitionFilter) {
-        $null = $rawNonCompliantList.AddRange($result)
-    }
-    else {
-        foreach ($entry in $result) {
-            $entryProperties = $entry.properties
-            $policyAssignmentId = $entryProperties.policyAssignmentId
-            if ($allAssignments.ContainsKey($policyAssignmentId)) {
-                $assignment = $allAssignments.$policyAssignmentId
-                $assignmentPacOwner = $assignment.pacOwner
-                if (-not $onlyCheckManagedAssignments -or ($assignmentPacOwner -eq "thisPaC" -or ($assignmentPacOwner -eq "unknownOwner" -and $strategy -eq "full"))) {
-                    if ($policySetDefinitionFilter) {
-                        foreach ($filterValue in $policySetDefinitionFilter) {
-                            if ($entryProperties.policySetDefinitionName -eq $filterValue -or $entryProperties.policySetDefinitionId -eq $filterValue) {
-                                $null = $rawNonCompliantList.Add($entry)
-                                break
-                            }
-                        }
-                    }
-                    elseif ($policyAssignmentFilter) {
-                        foreach ($filterValue in $policyAssignmentFilter) {
-                            if ($entryProperties.policyAssignmentName -eq $filterValue -or $entryProperties.policyAssignmentId -eq $filterValue) {
-                                $null = $rawNonCompliantList.Add($entry)
-                                break
-                            }
-                        }
-                    }
-                    else {
-                        $null = $rawNonCompliantList.Add($entry)
-                    }
-                }
-            }
-        }
-    }
-}
-Write-Information ""
+$rawNonCompliantList, $deployedPolicyResources, $scopeTable = Find-AzNonCompliantResources `
+    -PacEnvironment $pacEnvironment `
+    -OnlyCheckManagedAssignments:$onlyCheckManagedAssignments `
+    -PolicyDefinitionFilter:$policyDefinitionFilter `
+    -PolicySetDefinitionFilter:$policySetDefinitionFilter `
+    -PolicyAssignmentFilter:$policyAssignmentFilter `
+    -PolicyEffectFilter $policyEffectFilter
 
 Write-Information "==================================================================================================="
 Write-Information "Collating non-compliant resources into simplified lists"
@@ -202,15 +164,17 @@ else {
         }
         else {
             $summary = [ordered]@{
-                "Category"      = $category
-                "Policy"        = $policyDefinitionName
-                "Policy Id"     = $policyDefinitionId
-                "Non-Compliant" = 0
-                "Unknown"       = 0
-                "Exempt"        = 0
-                "Conflicting"   = 0
-                "Not-Started"   = 0
-                "Error"         = 0
+                category     = $category
+                policyName   = $policyDefinitionName
+                policyId     = $policyDefinitionId
+                nonCompliant = 0
+                unknown      = 0
+                notStarted   = 0
+                exempt       = 0
+                conflicting  = 0
+                error        = 0
+                assignments  = @{}
+                groupNames   = @{}
             }
             $null = $collatedByPolicyId.Add($policyDefinitionId, @{
                     summary             = $summary
@@ -221,11 +185,15 @@ else {
         }
         if ($detailsByResourceId.ContainsKey($resourceId)) {
             $details = $detailsByResourceId.$resourceId
-            # Union the policy assignment ids and policy definition group names
+
+            # Union the policy assignment ids and policy definition group names for details AND summary
+            $summary.assignments[$policyAssignmentId] = $true
+            $summaryGroupNames = $summary.groupNames
             $details.assignments[$policyAssignmentId] = $true
-            $groupNames = $details.groupNames
+            $detailsGroupNames = $details.groupNames
             foreach ($policyDefinitionGroupName in $policyDefinitionGroupNames) {
-                $groupNames[$policyDefinitionGroupName] = $true
+                $summaryGroupNames[$policyDefinitionGroupName] = $true
+                $detailsGroupNames[$policyDefinitionGroupName] = $true
             }
 
             # Update the compliance state if it is more severe than the current state (NonCompliant > Unknown > Exempt > Conflicting > NotStarted  > Error)
@@ -234,42 +202,42 @@ else {
                 if ($complianceState -ne "Exempt" -and $complianceState -ne "NotStarted") {
                     switch ($currentDetailsState) {
                         NonCompliant {
-                            $summary."Non-Compliant"--
+                            $summary.nonCompliant--
                         }
                         Unknown {
-                            $summary.Unknown--
-                        }
-                        Exempt {
-                            $summary.Exempt--
-                        }
-                        Conflicting {
-                            $summary.Conflicting--
+                            $summary.unknown--
                         }
                         NotStarted {
-                            $summary."Not-Started"--
+                            $summary.notStarted--
+                        }
+                        Exempt {
+                            $summary.exempt--
+                        }
+                        Conflicting {
+                            $summary.conflicting--
                         }
                         Error {
-                            $summary.Error--
+                            $summary.error--
                         }
                     }
                     switch ($complianceState) {
                         NonCompliant {
-                            $summary."Non-Compliant"++
+                            $summary.nonCompliant++
                         }
                         Unknown {
-                            $summary.Unknown++
-                        }
-                        Exempt {
-                            $summary.Exempt++
-                        }
-                        Conflicting {
-                            $summary.Conflicting++
+                            $summary.unknown++
                         }
                         NotStarted {
-                            $summary."Not-Started"++
+                            $summary.notStarted++
+                        }
+                        Exempt {
+                            $summary.exempt++
+                        }
+                        Conflicting {
+                            $summary.conflicting++
                         }
                         Error {
-                            $summary.Error++
+                            $summary.error++
                         }
                     }
                     $details.State = $complianceState
@@ -280,43 +248,59 @@ else {
             # Increment statistics in summary
             switch ($complianceState) {
                 NonCompliant {
-                    $summary."Non-Compliant"++
+                    $summary.nonCompliant++
                 }
                 Unknown {
-                    $summary.Unknown++
-                }
-                Exempt {
-                    $summary.Exempt++
-                }
-                Conflicting {
-                    $summary.Conflicting++
+                    $summary.unknown++
                 }
                 NotStarted {
-                    $summary."Not-Started"++
+                    $summary.notStarted++
+                }
+                Exempt {
+                    $summary.exempt++
+                }
+                Conflicting {
+                    $summary.conflicting++
                 }
                 Error {
-                    $summary.Error++
+                    $summary.error++
                 }
             }
 
             # Create a new details entry
+            $subscriptionId = $entryProperties.subscriptionId
+            $subscriptionScope = "/subscriptions/$($subscriptionId)"
+            $subscriptionName = $subscriptionId
+            if ($scopeTable.ContainsKey($subscriptionScope)) {
+                $subscriptionName = $scopeTable.$subscriptionScope.name
+            }
             $details = [ordered]@{
-                category    = $category
-                policy      = $policyDefinitionName
-                effect      = $policyDefinitionAction
-                state       = $complianceState
-                resourceId  = $resourceId
-                policyId    = $policyDefinitionId
-                groupNames  = @{}
-                assignments = @{ $policyAssignmentId = $true }
+                category         = $category
+                policyName       = $policyDefinitionName
+                policyId         = $policyDefinitionId
+                effect           = $policyDefinitionAction
+                state            = $complianceState
+                resourceId       = $resourceId
+                subscriptionId   = $subscriptionId
+                subscriptionName = $subscriptionName
+                groupNames       = @{}
+                assignments      = @{}
             }
-            $groupNames = $details.groupNames
-            $assignments = $details.assignments
-            foreach ($groupName in $policyDefinitionGroupNames) {
-                $null = $groupNames.Add($groupName, $true)
+
+            # Union the policy assignment ids and policy definition group names for details AND summary
+            $summary.assignments[$policyAssignmentId] = $true
+            $summaryGroupNames = $summary.groupNames
+            $details.assignments[$policyAssignmentId] = $true
+            $detailsGroupNames = $details.groupNames
+            foreach ($policyDefinitionGroupName in $policyDefinitionGroupNames) {
+                $summaryGroupNames[$policyDefinitionGroupName] = $true
+                $detailsGroupNames[$policyDefinitionGroupName] = $true
             }
+
+            # Add the details entry to the details list and the detailsByResourceId hashtable
             $null = $detailsList.Add($details)
             $null = $detailsByResourceId.Add($resourceId, $details)
+
         }
         $counter++
         if ($counter % 5000 -eq 0) {
@@ -340,34 +324,68 @@ else {
         $encoding = "utf8BOM"
     }
 
-    # Summary CSV
+    #region Summary CSV
+
     $summaryCsvPath = Join-Path $pacEnvironment.outputFolder "non-compliance-report" "summary.csv"
-    $null = New-Item -Path $summaryCsvPath -ItemType File -Force | Out-Null
     Write-Information "Writing summary to $summaryCsvPath"
-    $sortedSummaryList = $summaryList | Sort-Object { $_["Category"] }, { $_["Policy"] }
+
+    # Sort by Category, Policy and compress the group names and assignments into a single column
+    $sortedSummaryList = $summaryList | Sort-Object { $_.category }, { $_.policyName } | ForEach-Object {
+        $groupNamesHashtable = $_.groupNames
+        $summaryGroupNames = $groupNamesHashtable.Keys -join $seperator
+        $assignmentsHashtable = $_.assignments
+        $assignments = $assignmentsHashtable.Keys -join $seperator
+        $normalizedSummary = [ordered]@{
+            "Category"                         = $_.category
+            "Policy Name"                      = $_.policyName
+            "Policy Id"                        = $_.policyId
+            "Non Compliant"                    = $_.nonCompliant
+            "Unknown$($seperator)not attested" = $_.unknown
+            "Not Started"                      = $_.notStarted
+            "Exempt"                           = $_.exempt
+            "Conflicting"                      = $_.conflicting
+            "Error"                            = $_.error
+            "Assignment Ids"                   = $assignments
+            "Group Names"                      = $summaryGroupNames
+        }
+        $normalizedSummary
+    }
+
+    # Write the summary to a CSV file
+    $null = New-Item -Path $summaryCsvPath -ItemType File -Force | Out-Null
     $sortedSummaryList | Export-Csv -Path $summaryCsvPath -NoTypeInformation -Force -Encoding $encoding
 
-    # Details CSV
+    #endregion Summary CSV
+
+    #region Details CSV
+
     $detailsCsvPath = Join-Path $pacEnvironment.outputFolder "non-compliance-report" "details.csv"
+    Write-Information "Writing details to $detailsCsvPath"
+
     # Sort by Category, Policy, Resource Id and compress the group names and assignments into a single column
-    $normalizedDetailsList = $detailsList | Sort-Object { $_.category }, { $_.policy }, { $_.resourceId } | ForEach-Object {
+    $sortedDetailsList = $detailsList | Sort-Object { $_.category }, { $_.policyName }, { $_.resourceId } | ForEach-Object {
         $groupNamesHashtable = $_.groupNames
-        $groupNames = $groupNamesHashtable.Keys -join $seperator
+        $detailsGroupNames = $groupNamesHashtable.Keys -join $seperator
         $assignmentsHashtable = $_.assignments
         $assignments = $assignmentsHashtable.Keys -join $seperator
         $normalizedDetails = [ordered]@{
-            "Category"    = $_.category
-            "Policy"      = $_.policy
-            "Effect"      = $_.effect
-            "State"       = $_.state
-            "Resource Id" = $_.resourceId
-            "Policy Id"   = $_.policyId
-            "Group Names" = $groupNames
-            "Assignments" = $assignments
+            "Category"          = $_.category
+            "Policy Name"       = $_.policyName
+            "Policy Id"         = $_.policyId
+            "Effect"            = $_.effect
+            "Compliance State"  = $_.state
+            "Resource Id"       = $_.resourceId
+            "Subscription Id"   = $_.subscriptionId
+            "Subscription Name" = $_.subscriptionName
+            "Assignment Ids"    = $assignments
+            "Group Names"       = $detailsGroupNames
         }
         $normalizedDetails
     }
+
+    # Write the details to a CSV file
     $null = New-Item -Path $detailsCsvPath -ItemType File -Force
-    Write-Information "Writing details to $detailsCsvPath"
-    $normalizedDetailsList | Export-Csv -Path $detailsCsvPath -NoTypeInformation -Force -Encoding $encoding
+    $sortedDetailsList | Export-Csv -Path $detailsCsvPath -NoTypeInformation -Force -Encoding $encoding
+
+    #endregion Details CSV
 }

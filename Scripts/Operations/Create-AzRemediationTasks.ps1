@@ -12,7 +12,16 @@ Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_
 Set to false if used non-interactive
 
 .PARAMETER OnlyCheckManagedAssignments
-Create remediation task only for Policy assignments owned by this Policy as Code repo
+Include non-compliance data only for Policy assignments owned by this Policy as Code repo
+
+.PARAMETER PolicyDefinitionFilter
+Filter by Policy definition names (array) or ids (array).
+
+.PARAMETER PolicySetDefinitionFilter
+Filter by Policy Set definition names (array) or ids (array).
+
+.PARAMETER PolicyAssignmentFilter
+Filter by Policy Assignment names (array) or ids (array).
 
 .EXAMPLE
 Create-AzRemediationTasks.ps1 -PacEnvironmentSelector "dev"
@@ -22,6 +31,12 @@ Create-AzRemediationTasks.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFold
 
 .EXAMPLE
 Create-AzRemediationTasks.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\git\policy-as-code\Definitions" -Interactive $false
+
+.EXAMPLE
+Create-AzRemediationTasks.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\git\policy-as-code\Definitions" -OnlyCheckManagedAssignments
+
+.EXAMPLE
+Create-AzRemediationTasks.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\git\policy-as-code\Definitions" -PolicyDefinitionFilter "Require tag 'Owner' on resource groups" -PolicySetDefinitionFilter "Require tag 'Owner' on resource groups" -PolicyAssignmentFilter "Require tag 'Owner' on resource groups"
 
 .LINK
 https://learn.microsoft.com/en-us/azure/governance/policy/concepts/remediation-structure
@@ -41,78 +56,151 @@ param(
     [bool] $Interactive = $true,
 
     [Parameter(Mandatory = $false, HelpMessage = "Create remediation task only for Policy assignments owned by this Policy as Code repo")]
-    [switch] $OnlyCheckManagedAssignments
+    [switch] $OnlyCheckManagedAssignments,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Filter by Policy definition names or ids")]
+    [string[]] $PolicyDefinitionFilter = $null,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Filter by Policy Set definition names or ids")]
+    [string[]] $PolicySetDefinitionFilter = $null,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Filter by Policy Assignment names or ids")]
+    [string[]] $PolicyAssignmentFilter = $null,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Filter by Policy Effect")]
+    [string[]] $PolicyEffectFilter = $null
 )
 
 # Dot Source Helper Scripts
 . "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
 
+# Make a local of the parameters
+$onlyCheckManagedAssignments = $OnlyCheckManagedAssignments.IsPresent
+$policySetDefinitionFilter = $PolicySetDefinitionFilter
+$policyAssignmentFilter = $PolicyAssignmentFilter
+$policyEffectFilter = $PolicyEffectFilter
+
+# Setting the local copies of parameters to simplify debugging
+# $onlyCheckManagedAssignments = $true
+# $policySetDefinitionFilter = @( "org-sec-initiative", "/providers/Microsoft.Authorization/policySetDefinitions/11111111-1111-1111-1111-111111111111" )
+# $policyAssignmentFilter = @( "/providers/microsoft.management/managementgroups/11111111-1111-1111-1111-111111111111/providers/microsoft.authorization/policyassignments/taginh-env", "prod-asb" )
+# $policyEffectFilter = @( "deployifnotexists" )
+
 $InformationPreference = "Continue"
 $pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -Interactive $Interactive
 Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -Interactive $pacEnvironment.interactive
 
-$query = 'policyresources | where type == "microsoft.policyinsights/policystates" | where properties.complianceState == "NonCompliant" and properties.policyDefinitionAction in ( "modify", "deployifnotexists" ) | summarize count() by tostring(properties.policyAssignmentId), tostring(properties.policyDefinitionReferenceId)  | order by properties_policyAssignmentId asc'
-$result = @() + (Search-AzGraphAllItems -Query $query -Scope @{ UseTenantScope = $true } -ProgressItemName "Policy remediation records")
-Write-Information ""
+$rawNonCompliantList, $deployedPolicyResources, $scopeTable = Find-AzNonCompliantResources `
+    -RemmediationOnly `
+    -PacEnvironment $pacEnvironment `
+    -OnlyCheckManagedAssignments:$onlyCheckManagedAssignments `
+    -PolicyDefinitionFilter:$policyDefinitionFilter `
+    -PolicySetDefinitionFilter:$policySetDefinitionFilter `
+    -PolicyAssignmentFilter:$policyAssignmentFilter `
+    -PolicyEffectFilter $policyEffectFilter
 
-$remediationsList = [System.Collections.ArrayList]::new()
-if ($result.Count -gt 0) {
-    # Only create remediation task owned by this Policy as Code repo
-    $scopeTable = Get-AzScopeTree -PacEnvironment $pacEnvironment
-    $deployedPolicyResources = Get-AzPolicyResources -PacEnvironment $pacEnvironment -ScopeTable $scopeTable -SkipExemptions -SkipRoleAssignments
-    $managedAssignments = $deployedPolicyResources.policyassignments.managed
-    $allAssignments = $deployedPolicyResources.policyassignments.all
-    $strategy = $pacEnvironment.desiredState.strategy
-    foreach ($entry in $result) {
-        $policyAssignmentId = $entry.properties_policyAssignmentId
-        if ($OnlyCheckManagedAssignments) {
-            if ($managedAssignments.ContainsKey($policyAssignmentId)) {
-                $managedAssignment = $managedAssignments.$policyAssignmentId
-                $assignmentPacOwner = $managedAssignment.pacOwner
-                if ($assignmentPacOwner -eq "thisPaC" -or ($assignmentPacOwner -eq "unknownOwner" -and $strategy -eq "full")) {
-                    $null = $remediationsList.Add($entry)
+Write-Information "==================================================================================================="
+Write-Information "Collating non-compliant resources by Assignment Id and (if Policy Set) policyDefintionReferenceId"
+Write-Information "==================================================================================================="
+
+
+$total = $rawNonCompliantList.Count
+if ($total -eq 0) {
+    Write-Information "No non-compliant resources found - no remediation tasks created"
+}
+else {
+    Write-Information "Processing $total non-compliant resources"
+
+    $collatedByAssignmentId = @{}
+    $allPolicyDefinitions = $deployedPolicyResources.policydefinitions.all
+    foreach ($entry in $rawNonCompliantList) {
+        $entryProperties = $entry.properties
+        $policyAssignmentId = $entryProperties.policyAssignmentId
+        $policyAssignmentName = $entryProperties.policyAssignmentName
+        $policyAssignmentScope = $entryProperties.policyAssignmentScope
+        $policyDefinitionId = $entryProperties.policyDefinitionId
+        $policyDefinitionReferenceId = $entryProperties.policyDefinitionReferenceId
+        $policyDefinitionAction = $entryProperties.policyDefinitionAction
+        $policyDefinitionName = $entryProperties.policyDefinitionName
+        $policyDefinition = $null
+        $policyDefinitionProperties = @{}
+        $category = "|unknown|"
+        if ($allPolicyDefinitions.ContainsKey($policyDefinitionId)) {
+            $policyDefinition = $allPolicyDefinitions.$policyDefinitionId
+            $policyDefinitionProperties = Get-PolicyResourceProperties $policyDefinition
+            if ($policyDefinitionProperties.displayName) {
+                $policyDefinitionName = $policyDefinitionProperties.displayName
+            }
+            $metadata = $policyDefinitionProperties.metadata
+            if ($metadata) {
+                if ($metadata.category) {
+                    $category = $metadata.category
                 }
             }
         }
-        else {
-            if ($allAssignments.ContainsKey($policyAssignmentId)) {
-                $null = $remediationsList.Add($entry)
+        $taskName = "$policyAssignmentName-$(New-Guid)"
+        $shortScope = $policyAssignmentScope
+        $resourceIdParts = Split-AzPolicyResourceId -Id $policyAssignmentId
+        if ($resourceIdParts.scopeType -eq "managementGroups") {
+            $shortScope = "/mg/$($resourceIdParts.splits[4]))"
+        }
+
+        $parametersSplat = $null
+        if ($policyDefinitionReferenceId -and $policyDefinitionReferenceId -ne "") {
+            $parametersSplat = [ordered]@{
+                Name                        = $taskName
+                Scope                       = $policyAssignmentScope
+                PolicyAssignmentId          = $policyAssignmentId
+                PolicyDefinitionReferenceId = $policyDefinitionReferenceId
+                ResourceDiscoveryMode       = "ExistingNonCompliant"
+                ResourceCount               = 50000
+                ParallelDeploymentCount     = 30
             }
         }
-    }
-}
-
-$numberOfRemediations = $remediationsList.Count
-if ($numberOfRemediations -eq 0) {
-    Write-Information "==================================================================================================="
-    Write-Information "No Remediation Tasks - zero resources need remediation"
-    Write-Information "==================================================================================================="
-}
-else {
-    Write-Information "==================================================================================================="
-    Write-Information "Creating Remediation Tasks ($($numberOfRemediations))"
-    Write-Information "==================================================================================================="
-
-    foreach ($entry in $remediationsList) {
-        $policyAssignmentId = $entry.properties_policyAssignmentId
-        $policyDefinitionReferenceId = $entry.properties_policyDefinitionReferenceId
-        $count = $entry.count
-        $resourceIdParts = Split-AzPolicyResourceId -Id $policyAssignmentId
-        $scope = $resourceIdParts.scope
-        $assignmentName = $resourceIdParts.name
-        $taskName = "$assignmentName--$(New-Guid)"
-        $shortScope = $scope
-        if ($resourceIdParts.scopeType -eq "managementGroups") {
-            $shortScope = "/managementGroups/$($resourceIdParts.splits[4]))"
+        else {
+            $parametersSplat = [ordered]@{
+                Name                    = $taskName
+                Scope                   = $policyAssignmentScope
+                PolicyAssignmentId      = $policyAssignmentId
+                ResourceDiscoveryMode   = "ExistingNonCompliant"
+                ResourceCount           = 50000
+                ParallelDeploymentCount = 30
+            }
         }
-        if ($policyDefinitionReferenceId -ne "") {
-            Write-Information "Assignment='$($assignmentName)', scope=$($shortScope), reference=$($policyDefinitionReferenceId), nonCompliant=$($count)"
-            $null = Start-AzPolicyRemediation -Name $taskName -Scope $scope -PolicyAssignmentId $policyAssignmentId -PolicyDefinitionReferenceId $policyDefinitionReferenceId
+
+        $key = "$policyAssignmentId|$policyDefinitionReferenceId"
+        if (-not $collatedByAssignmentId.ContainsKey($key)) {
+            $remediationEntry = @{
+                policyAssignmentId          = $policyAssignmentId
+                policyAssignmentName        = $policyAssignmentName
+                shortScope                  = $shortScope
+                policyDefinitionReferenceId = $policyDefinitionReferenceId
+                category                    = $category
+                policyDefinitionName        = $policyDefinitionName
+                policyDefinitionAction      = $policyDefinitionAction
+                resourceCount               = 1
+                parametersSplat             = $parametersSplat
+            }
+            $null = $collatedByAssignmentId.Add($key, $remediationEntry)
         }
         else {
-            Write-Information "Assignment='$($assignmentName)', scope=$($shortScope), nonCompliant=$($count)"
-            $null = Start-AzPolicyRemediation -Name $taskName -Scope $scope -PolicyAssignmentId $policyAssignmentId
+            $collatedByAssignmentId.$key.resourceCount += 1
         }
+    }
+
+    Write-Information ""
+    Write-Information "--- Creating $($collatedByAssignmentId.Count) remediation tasks sorted by Assignment Id and (if Policy Set) Category and Policy Name ---"
+
+    $collatedByAssignmentId.Values | Sort-Object { $_.policyAssignmentId }, { $_.category }, { $_.policyName } | ForEach-Object {
+        if ($_.policyDefinitionReferenceId) {
+            Write-Information "'$($_.shortScope)/$($_.policyAssignmentName)|$($_.policyDefinitionReferenceId)': $($_.resourceCount) resources, '$($_.policyDefinitionName)', $($_.policyDefinitionAction)"
+        }
+        else {
+            Write-Information "'$($_.shortScope)/$($_.policyAssignmentName)': $($_.resourceCount) resources, '$($_.policyDefinitionName)', $($_.policyDefinitionAction)"
+        }
+        $parameters = $_.parametersSplat
+        Write-Verbose "Parameters: $($parameters | ConvertTo-Json -Depth 99)"
+        $null = Start-AzPolicyRemediation @parameters
     }
 }
 Write-Information ""
