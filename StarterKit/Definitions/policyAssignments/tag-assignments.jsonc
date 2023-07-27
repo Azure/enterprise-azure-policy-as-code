@@ -28,7 +28,8 @@
             },
             "definitionEntryList": [
                 {
-                    "policyName": "rg-required-tag-dynamic-notscope",
+                    "policyName": "7ce92201-8036-4d55-938e-0dce0a5bc475",
+                    "displayName": "Require Tag on Resource Group with dynamic notScope",
                     "assignment": {
                         "name": "rgtag-",
                         "displayName": "Require Tag on Resource Group - ",
@@ -36,7 +37,8 @@
                     }
                 },
                 {
-                    "policyName": "resources-inherit-rg-tag-dynamic-notscope",
+                    "policyName": "5cc2cbfc-e306-4ec6-a141-eea3c79bb2ae",
+                    "displayName": "Inherit Tag from Resource Group with dynamic notScope",
                     "assignment": {
                         "name": "taginh-",
                         "displayName": "Inherit Tag from Resource Group - ",
@@ -72,7 +74,8 @@
         {
             "nodeName": "Environment/",
             "definitionEntry": {
-                "policyName": "rg-addreplace-tag-dynamic-notscope"
+                "policyName": "2076e19d-45f9-4564-a459-bb5a0aeaff85",
+                "displayName": "Add/Replace Tag on Resource Group with dynamic notScope"
             },
             "parameters": {
                 "tagName": "Environment"

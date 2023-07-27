@@ -44,10 +44,14 @@ nav:
       - Policy Assignments: policy-assignments.md
       - Policy Exemptions: policy-exemptions.md
   - Exporting and Documenting:
-      - Documenting Policy Initiatives: documenting-assignments-and-policy-sets.md
+      - Documenting Policy Assignments and Initiatives: documenting-assignments-and-policy-sets.md
       - Exporting Policy Object in EPAC format: extract-existing-policy-resources.md
-      - Exporting Policy Non Compliance: export-non-compliance.md
-  - Operational Scripts: operational-scripts.md
+      - Exporting Policy Non Compliance Reports: export-non-compliance.md
+      - Exporting Policy Exemptions: export-policy-exemptions.md
+  - Operational Scripts:
+      - Create Policy Reader Role: create-policy-reader-role.md
+      - Batch Creation of Remediation Tasks: create-az-remediation-tasks.md
+      - Other Operational Scripts: operational-scripts.md
 
 markdown_extensions:
   - admonition

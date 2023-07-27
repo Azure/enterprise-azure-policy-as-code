@@ -1,8 +1,9 @@
 {
     "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json",
-    "name": "resources-inherit-rg-tag-dynamic-notscope",
+    "name": "5cc2cbfc-e306-4ec6-a141-eea3c79bb2ae",
+    "type": "Microsoft.Authorization/policyDefinitions",
     "properties": {
-        "displayName": "Resources Inherit Tags from Resource Group with Exclusions",
+        "displayName": "Inherit Tag from Resource Group with dynamic notScope",
         "policyType": "Custom",
         "description": "Resources inherit a tag from the resource group. It allows for resource groups and resource types to be excluded from this.",
         "mode": "Indexed",
@@ -11,6 +12,20 @@
             "category": "Tags"
         },
         "parameters": {
+            "effect": {
+                "type": "string",
+                "metadata": {
+                    "displayName": "Effect",
+                    "description": "Enable or disable the execution of the policy"
+                },
+                "allowedValues": [
+                    "Disabled",
+                    "Audit",
+                    "Deny",
+                    "Modify"
+                ],
+                "defaultValue": "Modify"
+            },
             "tagName": {
                 "type": "String",
                 "metadata": {
@@ -89,7 +104,7 @@
                 ]
             },
             "then": {
-                "effect": "Modify",
+                "effect": "[parameters('effect')]",
                 "details": {
                     "roleDefinitionIds": [
                         "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"

@@ -756,22 +756,24 @@ As mentioned above sometimes it is advantageous (to reduce the number of repetit
       ]
   },
   "definitionEntryList": [
-      {
-          "policyName": "rg-required-tag-dynamic-notscope",
-          "assignment": {
-              "name": "rgtag-",
-              "displayName": "Require Tag on Resource Group - ",
-              "description": "Require Tag for Resource Groups when any resource group (not listed in in excludedRg) is created or updated - "
-          }
-      },
-      {
-          "policyName": "resources-inherit-rg-tag-dynamic-notscope",
-          "assignment": {
-              "name": "taginh-",
-              "displayName": "Inherit Tag from Resource Group - ",
-              "description": "Modify Tag to comply with governance goal of enforcing Tags by inheriting Tags from RG - "
-          }
-      }
+                    {
+                    "policyName": "7ce92201-8036-4d55-938e-0dce0a5bc475",
+                    "displayName": "Require Tag on Resource Group with dynamic notScope",
+                    "assignment": {
+                        "name": "rgtag-",
+                        "displayName": "Require Tag on Resource Group - ",
+                        "description": "Require Tag for Resource Groups when any resource group (not listed in in excludedRg) is created or updated - "
+                    }
+                },
+                {
+                    "policyName": "5cc2cbfc-e306-4ec6-a141-eea3c79bb2ae",
+                    "displayName": "Inherit Tag from Resource Group with dynamic notScope",
+                    "assignment": {
+                        "name": "taginh-",
+                        "displayName": "Inherit Tag from Resource Group - ",
+                        "description": "Modify Tag to comply with governance goal of enforcing Tags by inheriting Tags from RG - "
+                    }
+                }
   ],
   "children": [
       {
