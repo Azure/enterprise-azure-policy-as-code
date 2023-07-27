@@ -23,6 +23,9 @@ Filter by Policy Set definition names (array) or ids (array).
 .PARAMETER PolicyAssignmentFilter
 Filter by Policy Assignment names (array) or ids (array).
 
+.PARAMETER PolicyEffectFilter
+Filter by Policy effect (array).
+
 .EXAMPLE
 Create-AzRemediationTasks.ps1 -PacEnvironmentSelector "dev"
 

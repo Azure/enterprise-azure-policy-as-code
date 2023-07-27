@@ -1,51 +1,8 @@
 # Operational Scripts
 
-## New-AzPolicyReaderRole.ps1
-
-Creates a custom role `Policy Reader` at the scope selected with `PacEnvironmentSelector`:
-
-* `Microsoft.Management/register/action`
-* `Microsoft.Authorization/policyassignments/read`
-* `Microsoft.Authorization/policydefinitions/read`
-* `Microsoft.Authorization/policyexemptions/read`
-* `Microsoft.Authorization/policysetdefinitions/read`
-* `Microsoft.PolicyInsights/*`
-* `Microsoft.Support/*`
-
-|Parameter | Explanation |
-|----------|-------------|
-| `PacEnvironmentSelector` | Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc`. |
-| `DefinitionsRootFolder` | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It contains `global-settings.jsonc`. |
-| `Interactive` | Script is being run interactively and can request az login. Defaults to $false if PacEnvironmentSelector parameter provided and $true otherwise. |
-
-## Create-AzRemediationTasks.ps1
-
-This script executes all remediation tasks in a Policy as Code environment specified with parameter `PacEnvironmentSelector`. The script will interactively prompt for the value if the parameter is not supplied. The script will recurse the Management Group structure and subscriptions from the defined starting point.
-
-* Find all Policy assignments with potential remediations
-* Query Policy Insights for non-complaint resources
-* Start remediation task for each Policy with non-compliant resources
-
-|Parameter | Explanation |
-|----------|-------------|
-| `PacEnvironmentSelector` | Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc`. |
-| `DefinitionsRootFolder` | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It contains `global-settings.jsonc`. |
-| `Interactive` | Script is being run interactively and can request az login. Defaults to $false if PacEnvironmentSelector parameter provided and $true otherwise. |
-
 ## Build-DefinitionsFolder.ps1
 
 This script has been replaced by `Export-AzPolicyResources.ps1`. See [Extract existing Policy Resources from an Environment](extract-existing-policy-resources.md).
-
-## Build-PolicyAssignmentDocumentation.ps1
-
-Generates documentation for Assignments and Policy Sets based on JSON files in `$definitionsFolder/Documentation`. [See Define Documentation for details](documenting-assignments-and-policy-sets.md).
-
-|Parameter | Explanation |
-|----------|-------------|
-| `DefinitionsRootFolder` | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It contains `global-settings.jsonc`.
-| `OutputFolder` | Output Folder. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER` or `./Outputs`.
-| `Interactive` | Script is being run interactively and can request az login. It will also prompt for each file to process or skip. Defaults to $true. |
-| `SuppressConfirmation` | Switch parameter to suppresses prompt for confirmation of each file in interactive mode. |
 
 ## Get-AzMissingTags.ps1
 

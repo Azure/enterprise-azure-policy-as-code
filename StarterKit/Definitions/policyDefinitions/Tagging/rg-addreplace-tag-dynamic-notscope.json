@@ -1,8 +1,9 @@
 {
     "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json",
-    "name": "rg-addreplace-tag-dynamic-notscope",
+    "name": "2076e19d-45f9-4564-a459-bb5a0aeaff85",
+    "type": "Microsoft.Authorization/policyDefinitions",
     "properties": {
-        "displayName": "Add replace tag on RG with dynamic notScope",
+        "displayName": "Add/Replace Tag on Resource Group with dynamic notScope",
         "policyType": "Custom",
         "mode": "All",
         "description": "Adds or replaces the specified tag and value when any resource group (not listed in in excludedRg) is created or updated. Existing resource groups can be remediated by triggering a remediation task. ",
@@ -11,6 +12,20 @@
             "category": "Tags"
         },
         "parameters": {
+            "effect": {
+                "type": "string",
+                "metadata": {
+                    "displayName": "Effect",
+                    "description": "Enable or disable the execution of the policy"
+                },
+                "allowedValues": [
+                    "Audit",
+                    "Deny",
+                    "Modify",
+                    "Disabled"
+                ],
+                "defaultValue": "Modify"
+            },
             "tagName": {
                 "type": "String",
                 "metadata": {
@@ -66,7 +81,7 @@
                 ]
             },
             "then": {
-                "effect": "Modify",
+                "effect": "[parameters('effect')]",
                 "details": {
                     "roleDefinitionIds": [
                         "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"

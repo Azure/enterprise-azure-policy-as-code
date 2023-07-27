@@ -1,6 +1,7 @@
 {
-"$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json",
-"name": "Enable Azure Defender for Resource Type",
+  "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json",
+  "name": "8159e671-92a8-475f-8786-1606994d123f",
+  "type": "Microsoft.Authorization/policyDefinitions",
   "properties": {
     "displayName": "Enable Azure Defender for Resource Type at Subscription",
     "mode": "All",
@@ -11,7 +12,7 @@
     },
     "parameters": {
       "effect": {
-        "type": "String",
+        "type": "string",
         "metadata": {
           "displayName": "Effect",
           "description": "Deploy the execution of the policy"

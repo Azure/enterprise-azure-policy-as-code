@@ -1,6 +1,7 @@
 {
     "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json",
-    "name": "rg-required-tag-dynamic-notscope",
+    "name": "7ce92201-8036-4d55-938e-0dce0a5bc475",
+    "type": "Microsoft.Authorization/policyDefinitions",
     "properties": {
         "displayName": "Require Tag on Resource Group with dynamic notScope",
         "policyType": "Custom",
@@ -34,7 +35,7 @@
                 ]
             },
             "effect": {
-                "type": "String",
+                "type": "string",
                 "metadata": {
                     "displayName": "Effect",
                     "description": "Enable or disable the execution of the policy"

@@ -1,4 +1,4 @@
-# Exporting non-compliance reports
+# Exporting Non-Compliance Reports
 
 The script `Export-AzPolicyNonCompliance` exports non-compliance reports for EPAC environments in the `global-settings.jsonc` file. It outputs the reports in the `$outputFolders/non-compliance-reports` folder in two files:
 
@@ -7,8 +7,8 @@ The script `Export-AzPolicyNonCompliance` exports non-compliance reports for EPA
 
 ## Script parameters
 
-|Parameter | Explanation |
-|----------|-------------|
+| Parameter | Explanation |
+| --- | --- |
 | `PacEnvironmentSelector` | Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc`. |
 | `DefinitionsRootFolder` | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. |
 | `OutputFolder` | Output Folder. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER` or `./Outputs`. |
@@ -17,30 +17,31 @@ The script `Export-AzPolicyNonCompliance` exports non-compliance reports for EPA
 | `OnlyCheckManagedAssignments` | Include non-compliance data only for Policy assignments owned by this Policy as Code repo |
 | `PolicySetDefinitionFilter` | Filter by Policy Set definition names (array) or ids (array). Can only be used when PolicyAssignmentFilter is not used. |
 | `PolicyAssignmentFilter` | Filter by Policy Assignment names (array) or ids (array). Can only be used when PolicySetDefinitionFilter is not used. |
+| `PolicyEffectFilter` | Filter by Policy effect (array). |
 
 ## Examples
 
-```powershell
+```ps1
 Export-NonComplianceReports -PacEnvironmentSelector "dev"
 ```
 
-```powershell
+```ps1
 Export-NonComplianceReports -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\MyPacRepo\Definitions" -OutputFolder "C:\MyPacRepo\Outputs"
 ```
 
-```powershell
+```ps1
 Export-NonComplianceReports -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\MyPacRepo\Definitions" -OutputFolder "C:\MyPacRepo\Outputs" -WindowsNewLineCells
 ```
 
-```powershell
+```ps1
 Export-NonComplianceReports -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\MyPacRepo\Definitions" -OutputFolder "C:\MyPacRepo\Outputs" -OnlyCheckManagedAssignments
 ```
 
-```powershell
+```ps1
 Export-NonComplianceReports -PolicySetDefinitionFilter "org-sec-initiative", "/providers/Microsoft.Authorization/policySetDefinitions/11111111-1111-1111-1111-111111111111"
 ```
 
-```powershell
+```ps1
 Export-NonComplianceReports -PolicyAssignmentFilter "/providers/microsoft.management/managementgroups/11111111-1111-1111-1111-111111111111/providers/microsoft.authorization/policyassignments/taginh-env", "prod-asb"
 ```
 
