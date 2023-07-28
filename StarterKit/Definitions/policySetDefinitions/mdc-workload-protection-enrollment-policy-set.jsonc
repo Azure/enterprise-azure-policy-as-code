@@ -1,0 +1,173 @@
+{
+    "name": "3fbd9091-1965-4a8f-babb-7c8e97c95d80",
+    "properties": {
+        "displayName": "MDC Workload Protection Enrollment Policy Set",
+        "description": " Policy Set enrolls subscriptions in every available Microsoft Defender for Cloud Workload Protection.",
+        "metadata": {
+            "version": "1.0.0",
+            "category": "Security Center"
+        },
+        "parameters": {
+            "effect": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Enable Azure Defender",
+                    "description": "Enable Azure Defender"
+                },
+                "allowedValues": [
+                    "DeployIfNotExists",
+                    "AuditIfNotExists",
+                    "Disabled"
+                ],
+                "defaultValue": "DeployIfNotExists"
+            }
+        },
+        "policyDefinitions": [
+            {
+                "policyDefinitionReferenceId": "AppServices",
+                "policyDefinitionName": "90c1d98c-7ad3-4ea3-89c4-6abd261e437",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('effect')]"
+                    },
+                    "workLoadProtection": {
+                        "value": "AppServices"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "Arm",
+                "policyDefinitionName": "90c1d98c-7ad3-4ea3-89c4-6abd261e437",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('effect')]"
+                    },
+                    "workLoadProtection": {
+                        "value": "Arm"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "ContainerRegistry",
+                "policyDefinitionName": "90c1d98c-7ad3-4ea3-89c4-6abd261e437",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('effect')]"
+                    },
+                    "workLoadProtection": {
+                        "value": "ContainerRegistry"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "Containers",
+                "policyDefinitionName": "90c1d98c-7ad3-4ea3-89c4-6abd261e437",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('effect')]"
+                    },
+                    "workLoadProtection": {
+                        "value": "Containers"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "CloudPosture",
+                "policyDefinitionName": "90c1d98c-7ad3-4ea3-89c4-6abd261e437",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('effect')]"
+                    },
+                    "workLoadProtection": {
+                        "value": "CloudPosture"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "Dns",
+                "policyDefinitionName": "90c1d98c-7ad3-4ea3-89c4-6abd261e437",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('effect')]"
+                    },
+                    "workLoadProtection": {
+                        "value": "Dns"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "KeyVaults",
+                "policyDefinitionName": "90c1d98c-7ad3-4ea3-89c4-6abd261e437",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('effect')]"
+                    },
+                    "workLoadProtection": {
+                        "value": "KeyVaults"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "KubernetesService",
+                "policyDefinitionName": "90c1d98c-7ad3-4ea3-89c4-6abd261e437",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('effect')]"
+                    },
+                    "workLoadProtection": {
+                        "value": "KubernetesService"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "OpenSourceRelationalDatabases",
+                "policyDefinitionName": "90c1d98c-7ad3-4ea3-89c4-6abd261e437",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('effect')]"
+                    },
+                    "workLoadProtection": {
+                        "value": "OpenSourceRelationalDatabases"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "VirtualMachines",
+                "policyDefinitionName": "90c1d98c-7ad3-4ea3-89c4-6abd261e437",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('effect')]"
+                    },
+                    "workLoadProtection": {
+                        "value": "VirtualMachines"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "StorageAccounts-Basic",
+                "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/17bc14a7-92e1-4551-8b8c-80f36953e166",
+                "parameters": {}
+            },
+            {
+                "policyDefinitionReferenceId": "deployDefenderOnSqlServers",
+                "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/b99b73e7-074b-4089-9395-b7236f094491",
+                "parameters": {}
+            },
+            {
+                "policyDefinitionReferenceId": "deployDefenderOnSqlMachines",
+                "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/50ea7265-7d8c-429e-9a7d-ca1f410191c3",
+                "parameters": {}
+            },
+            {
+                "policyDefinitionReferenceId": "deployDefenderOnOSSDatabases",
+                "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/44433aa3-7ec2-4002-93ea-65c65ff0310a",
+                "parameters": {}
+            },
+            {
+                "policyDefinitionReferenceId": "deployDefenderOnCosmosDB",
+                "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/82bf5b87-728b-4a74-ba4d-6123845cf542",
+                "parameters": {}
+            }
+        ]
+    }
+}

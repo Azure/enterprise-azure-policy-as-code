@@ -141,12 +141,13 @@ The list of roles, and their descriptions is available online [here](https://lea
         "permissions": [
             {
                 "actions": [
-                    "Microsoft.Authorization/policySetDefinitions/read",
-                    "Microsoft.Authorization/policyAssignments/read",
-                    "Microsoft.Authorization/policyDefinitions/read",
-                    "Microsoft.Authorization/policyExemptions/read",
+                    "Microsoft.Authorization/policyassignments/read",
+                    "Microsoft.Authorization/policydefinitions/read",
+                    "Microsoft.Authorization/policyexemptions/read",
+                    "Microsoft.Authorization/policysetdefinitions/read",
                     "Microsoft.PolicyInsights/*",
-                    "Microsoft.Management/register/action"
+                    "Microsoft.Management/register/action",
+                    "Microsoft.Management/managementGroups/read"
                 ],
                 "notActions": [],
                 "dataActions": [],

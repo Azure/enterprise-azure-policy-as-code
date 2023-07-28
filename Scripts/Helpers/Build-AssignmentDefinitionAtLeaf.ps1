@@ -4,7 +4,8 @@ function Build-AssignmentDefinitionAtLeaf {
         $PacEnvironment,
         [hashtable] $AssignmentDefinition,
         [hashtable] $CombinedPolicyDetails,
-        [hashtable] $PolicyRoleIds
+        [hashtable] $PolicyRoleIds,
+        [hashtable] $RoleDefinitions
 
         # Returns a list of completed assignment definitions (each a hashtable)
     )
@@ -477,8 +478,8 @@ function Build-AssignmentDefinitionAtLeaf {
                     $roleDefinitionId = $additionalRoleAssignment.roleDefinitionId
                     $roleDisplayName = "Unknown"
                     $roleDefinitionName = ($roleDefinitionId.Split("/"))[-1]
-                    if ($roleDefinitions.ContainsKey($roleDefinitionName)) {
-                        $roleDisplayName = $roleDefinitions.$roleDefinitionName
+                    if ($RoleDefinitions.ContainsKey($roleDefinitionName)) {
+                        $roleDisplayName = $RoleDefinitions.$roleDefinitionName
                     }
                     $baseRoleAssignmentSpecs += @{
                         scope            = $additionalRoleAssignment.scope
@@ -595,8 +596,8 @@ function Build-AssignmentDefinitionAtLeaf {
                 foreach ($roleDefinitionId in $roleDefinitionIds) {
                     $roleDisplayName = "Unknown"
                     $roleDefinitionName = ($roleDefinitionId.Split("/"))[-1]
-                    if ($roleDefinitions.ContainsKey($roleDefinitionName)) {
-                        $roleDisplayName = $roleDefinitions.$roleDefinitionName
+                    if ($RoleDefinitions.ContainsKey($roleDefinitionName)) {
+                        $roleDisplayName = $RoleDefinitions.$roleDefinitionName
                     }
                     $roleAssignmentSpecs += @{
                         scope            = $scopeEntry.scope
