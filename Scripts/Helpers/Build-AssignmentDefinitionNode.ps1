@@ -7,7 +7,8 @@ function Build-AssignmentDefinitionNode {
         [hashtable] $DefinitionNode, # Current node
         [hashtable] $AssignmentDefinition, # Collected values in tree branch
         [hashtable] $CombinedPolicyDetails,
-        [hashtable] $PolicyRoleIds
+        [hashtable] $PolicyRoleIds,
+        [hashtable] $RoleDefinitions
 
         # Returns a list os completed assignmentValues
     )
@@ -427,7 +428,8 @@ function Build-AssignmentDefinitionNode {
                 -DefinitionNode $child `
                 -AssignmentDefinition $definition `
                 -CombinedPolicyDetails $CombinedPolicyDetails `
-                -PolicyRoleIds $PolicyRoleIds
+                -PolicyRoleIds $PolicyRoleIds `
+                -RoleDefinitions $RoleDefinitions
 
             if ($hasErrorsLocal) {
                 $hasErrors = $true
@@ -448,7 +450,8 @@ function Build-AssignmentDefinitionNode {
                 -PacEnvironment $PacEnvironment `
                 -AssignmentDefinition $definition `
                 -CombinedPolicyDetails $CombinedPolicyDetails `
-                -PolicyRoleIds $PolicyRoleIds
+                -PolicyRoleIds $PolicyRoleIds `
+                -RoleDefinitions $RoleDefinitions
         }
     }
     #endregion children and the leaf node

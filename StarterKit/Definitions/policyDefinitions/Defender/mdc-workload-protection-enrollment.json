@@ -1,18 +1,16 @@
 {
-  "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json",
-  "name": "8159e671-92a8-475f-8786-1606994d123f",
-  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "90c1d98c-7ad3-4ea3-89c4-6abd261e437",
   "properties": {
-    "displayName": "Enable Azure Defender for Resource Type at Subscription",
+    "displayName": "MDC Workload Protection Enrollment",
     "mode": "All",
-    "description": "This policy enables Azure Defender in Azure Security Center. The resourceProvider parameter specifies the service. ",
+    "description": "Enroll subscriptions in a specific Microsoft Defender for Cloud Workload Protection.",
     "metadata": {
       "version": "1.0.2",
       "category": "Security Center"
     },
     "parameters": {
       "effect": {
-        "type": "string",
+        "type": "String",
         "metadata": {
           "displayName": "Effect",
           "description": "Deploy the execution of the policy"
@@ -24,11 +22,11 @@
         ],
         "defaultValue": "DeployIfNotExists"
       },
-      "resourceProvider": {
+      "workLoadProtection": {
         "type": "String",
         "metadata": {
-          "displayName": "Defender name for resource provider",
-          "description": "Valid choices (om 6/2/2021) are: Arm, DNS, KeyVaults, ContainerRegistry, KubernetesService, StorageAccounts, SqlServerVirtualMachines, SqlServers, AppServices, VirtualMachines"
+          "displayName": "Defender workload protection name",
+          "description": "Valid choices (om 7/27/2023) are: AppServices, Arm, ContainerRegistry, Containers, CloudPosture, Dns, KeyVaults, KubernetesService, OpenSourceRelationalDatabases, VirtualMachines. Do not use this Policy (use built-in Policies instead) for SQL and Storage"
         },
         "defaultValue": "Arm"
       }
@@ -44,7 +42,7 @@
           "type": "Microsoft.Security/pricings",
           "deploymentScope": "Subscription",
           "existenceScope": "Subscription",
-          "name": "[parameters('resourceProvider')]",
+          "name": "[parameters('workLoadProtection')]",
           "roleDefinitionIds": [
             "/providers/Microsoft.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
           ],
@@ -53,12 +51,12 @@
             "equals": "Standard"
           },
           "deployment": {
-            "location": "eastus",
+            "location": "eastus2",
             "properties": {
               "mode": "incremental",
               "parameters": {
-                "resourceProvider": {
-                  "value": "[parameters('resourceProvider')]"
+                "workLoadProtection": {
+                  "value": "[parameters('workLoadProtection')]"
                 }
               },
               "template": {
@@ -74,7 +72,7 @@
                   {
                     "type": "Microsoft.Security/pricings",
                     "apiVersion": "2018-06-01",
-                    "name": "[parameters('resourceProvider')]",
+                    "name": "[parameters('workLoadProtection')]",
                     "properties": {
                       "pricingTier": "Standard"
                     }

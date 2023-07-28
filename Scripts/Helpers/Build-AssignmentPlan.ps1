@@ -101,7 +101,8 @@ function Build-AssignmentPlan {
                 -DefinitionNode $assignmentObject `
                 -AssignmentDefinition $rootAssignmentDefinition `
                 -CombinedPolicyDetails $combinedPolicyDetails `
-                -PolicyRoleIds $PolicyRoleIds
+                -PolicyRoleIds $PolicyRoleIds `
+                -RoleDefinitions $roleDefinitions
 
             if ($hasErrors) {
                 Write-Error "Assignment definitions content errors" -ErrorAction Stop
