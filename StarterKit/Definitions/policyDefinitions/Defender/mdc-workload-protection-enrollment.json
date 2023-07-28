@@ -71,7 +71,7 @@
                 "resources": [
                   {
                     "type": "Microsoft.Security/pricings",
-                    "apiVersion": "2018-06-01",
+                    "apiVersion": "2023-01-01",
                     "name": "[parameters('workLoadProtection')]",
                     "properties": {
                       "pricingTier": "Standard"
