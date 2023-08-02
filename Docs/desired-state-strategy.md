@@ -4,7 +4,7 @@ Desired State strategy enables shared responsibility scenarios. the following do
 
 ## Use Case 1: Centralized Team
 
-This original (previously the only) use case assumes one team/repo manages all Policies in a tenant or multiple tenants. You should not have any of the following elements in `global-settings.jsonc`:
+This original (previously the only) use case assumes one team/repo manages all Policies in a tenant or multiple tenants. `global-settings.jsonc` must ***not*** contain the following entries:
 
 * `inheritedDefinitionsScopes`
 * `desiredState`
