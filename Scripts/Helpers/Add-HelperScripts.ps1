@@ -1,6 +1,8 @@
 #Requires -PSEdition Core
 
 # Load cmdlets
+. "$PSScriptRoot/../Helpers/Add-ErrorMessage.ps1"
+
 . "$PSScriptRoot/../Helpers/Build-AssignmentDefinitionAtLeaf.ps1"
 . "$PSScriptRoot/../Helpers/Build-AssignmentDefinitionEntry.ps1"
 . "$PSScriptRoot/../Helpers/Build-AssignmentDefinitionNode.ps1"
@@ -24,7 +26,6 @@
 . "$PSScriptRoot/../Helpers/Confirm-ParametersMatch.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-PolicyDefinitionUsedExists.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-PolicyDefinitionsMatch.ps1"
-. "$PSScriptRoot/../Helpers/Confirm-PolicyDefinitionsUsedMatch.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-PolicyResourceExclusions.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-PolicySetDefinitionUsedExists.ps1"
 
@@ -48,6 +49,7 @@
 . "$PSScriptRoot/../Helpers/Get-DeepClone.ps1"
 . "$PSScriptRoot/../Helpers/Get-DefinitionsFullPath.ps1"
 . "$PSScriptRoot/../Helpers/Get-DeploymentPlan.ps1"
+. "$PSScriptRoot/../Helpers/Get-ErrorTextFromInfo.ps1"
 . "$PSScriptRoot/../Helpers/Get-FilteredHashTable.ps1"
 . "$PSScriptRoot/../Helpers/Get-GlobalSettings.ps1"
 . "$PSScriptRoot/../Helpers/Get-HashtableShallowClone"
@@ -63,6 +65,7 @@
 . "$PSScriptRoot/../Helpers/Merge-ExportNodeAncestors.ps1"
 . "$PSScriptRoot/../Helpers/Merge-ExportNodeChild.ps1"
 
+. "$PSScriptRoot/../Helpers/New-ErrorInfo.ps1"
 . "$PSScriptRoot/../Helpers/New-ExportNode.ps1"
 
 . "$PSScriptRoot/../Helpers/Out-PolicyAssignmentFile.ps1"
