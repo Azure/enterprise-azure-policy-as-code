@@ -154,7 +154,7 @@ function Get-AzPolicyResources {
                     -ExcludedScopes $excludedScopes `
                     -ExcludedIds $excludedPolicyAssignments `
                     -PolicyResourceTable $policyAssignmentsTable
-                if ($included) {
+                if ($CollectAllPolicies -or $included) {
                     $scope = $resourceIdParts.scope
                     $policyResource.resourceIdParts = $resourceIdParts
                     $policyResource.pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -Metadata $policyResource.properties.metadata -ManagedByCounters $policyAssignmentsTable.counters.managedBy
@@ -204,7 +204,7 @@ function Get-AzPolicyResources {
                     -ExcludedScopes $excludedScopes `
                     -ExcludedIds $excludedList `
                     -PolicyResourceTable $deployedPolicyTable
-                if ($included) {
+                if ($CollectAllPolicies -or $included) {
                     $policyResource.resourceIdParts = $resourceIdParts
                     $found = $false
                     for ($i = 0; $i -lt $scopesLength -and !$found; $i++) {

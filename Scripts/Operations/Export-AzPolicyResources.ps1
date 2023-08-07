@@ -183,7 +183,7 @@ if ($Mode -ne 'exportFromRawFiles') {
         $pacSelector = $pacEnvironment.pacSelector
 
         if ($InputPacSelector -eq $pacSelector -or $InputPacSelector -eq '*') {
-            Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -Interactive $Interactive
+            $null = Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -Interactive $Interactive
 
             $scopeTable = Get-AzScopeTree -PacEnvironment $pacEnvironment
             $skipExemptions = $ExemptionFiles -eq "none"
