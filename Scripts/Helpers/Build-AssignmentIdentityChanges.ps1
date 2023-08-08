@@ -20,9 +20,10 @@ function Build-AssignmentIdentityChanges {
     $definedIdentity = $null
     $definedIdentityType = "None"
     $definedUserAssignedIdentity = $null
-    $definedLocation = $null
     $requiredRoleDefinitions = @()
 
+    $existingLocation = $Existing.location 
+    $definedLocation = "global"
     if ($hasExistingIdentity) { 
         $existingIdentityType = $existingIdentity.type 
         if ($existingIdentityType -eq "UserAssigned") { 
@@ -33,7 +34,7 @@ function Build-AssignmentIdentityChanges {
         }
         else { 
             $existingPrincipalId = $existingIdentity.principalId 
-        } $existingLocation = $Existing.location 
+        } 
         if ($DeployedRoleAssignmentsByPrincipalId.ContainsKey($existingPrincipalId)) { 
             $existingRoleAssignments = $DeployedRoleAssignmentsByPrincipalId.$existingPrincipalId 
         } 
@@ -44,7 +45,7 @@ function Build-AssignmentIdentityChanges {
         if ($definedIdentityType -eq "UserAssigned") { 
             $definedUserAssignedIdentity = $definedIdentity.userAssignedIdentities.GetEnumerator().Name
         } 
-        $definedLocation = $Assignment.managedIdentityLocation 
+        $definedLocation = $Assignment.managedIdentityLocation
         $requiredRoleDefinitions = $Assignment.metadata.roles 
     }
 
@@ -180,6 +181,14 @@ function Build-AssignmentIdentityChanges {
                 $isUserAssigned = $true
             }
         }
+    }
+    elseif ($existingLocation -ne $definedLocation) {
+        # location change
+        if ($null -eq $definedLocation) {
+            $definedLocation = "."
+        }
+        $changedIdentityStrings += "identityLocation $existingLocation->$definedLocation"
+        $replaced = $true
     }
 
     $numberOfChanges = $addedList.Count + $removedList.Count
