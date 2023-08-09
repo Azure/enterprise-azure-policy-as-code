@@ -26,6 +26,7 @@
 . "$PSScriptRoot/../Helpers/Confirm-ParametersMatch.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-PolicyDefinitionUsedExists.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-PolicyDefinitionsMatch.ps1"
+. "$PSScriptRoot/../Helpers/Confirm-PolicyDefinitionsParametersMatch.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-PolicyResourceExclusions.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-PolicySetDefinitionUsedExists.ps1"
 

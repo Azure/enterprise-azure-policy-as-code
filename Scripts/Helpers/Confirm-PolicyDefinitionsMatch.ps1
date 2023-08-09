@@ -51,7 +51,7 @@ function Confirm-PolicyDefinitionsMatch {
                         else {
                             $policyDefinitionReferenceIdMatches = $item1.policyDefinitionReferenceId -eq $item2.policyDefinitionReferenceId
                             $policyDefinitionIdMatches = $item1.policyDefinitionId -eq $item2.policyDefinitionId
-                            $parametersMatch = Confirm-ObjectValueEqualityDeep $item1.parameters $item2.parameters
+                            $parametersMatch = Confirm-PolicyDefinitionsParametersMatch $item1.parameters $item2.parameters
                             $groupNamesMatch = Confirm-ObjectValueEqualityDeep $item1.groupNames $item2.groupNames
                             $foundMatch = $policyDefinitionReferenceIdMatches -and $policyDefinitionIdMatches -and $parametersMatch -and $groupNamesMatch
                             if ($foundMatch) {
