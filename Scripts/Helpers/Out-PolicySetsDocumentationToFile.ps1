@@ -112,9 +112,13 @@ function Out-PolicySetsDocumentationToFile {
     }
 
     # deal with multi value cells
-    $inCellSeparator = ","
+    $inCellSeparator1 = ": "
+    $inCellSeparator2 = ","
+    $inCellSeparator3 = ","
     if ($WindowsNewLineCells) {
-        $inCellSeparator = ",`n"
+        $inCellSeparator1 = ":`n  "
+        $inCellSeparator2 = ",`n  "
+        $inCellSeparator3 = ",`n"
     }
 
     $allRows.Clear()
@@ -143,16 +147,16 @@ function Out-PolicySetsDocumentationToFile {
         $rowObj.displayName = $_.displayName
         $rowObj.description = $_.description
         if ($groupNamesList.Count -gt 0) {
-            $rowObj.groupNames = $groupNamesList -join $inCellSeparator
+            $rowObj.groupNames = $groupNamesList -join $inCellSeparator3
         }
         if ($policySetEffectStrings.Count -gt 0) {
-            $rowObj.policySets = $policySetEffectStrings -join $inCellSeparator
+            $rowObj.policySets = $policySetEffectStrings -join $inCellSeparator3
         }
         if ($isEffectParameterized -and $effectAllowedValues.Count -gt 1) {
-            $rowObj.allowedEffects = $effectAllowedValues.Keys -join $inCellSeparator
+            $rowObj.allowedEffects = "parameter$inCellSeparator1$($effectAllowedValues.Keys -join $inCellSeparator2)"
         }
         elseif ($effectAllowedOverrides.Count -gt 0) {
-            $rowObj.allowedEffects = $effectAllowedOverrides -join $inCellSeparator
+            $rowObj.allowedEffects = "override$inCellSeparator1$($effectAllowedOverrides -join $inCellSeparator2)"
         }
 
         # Per environment columns

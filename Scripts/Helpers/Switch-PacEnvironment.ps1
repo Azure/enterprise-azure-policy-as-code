@@ -16,7 +16,7 @@ function Switch-PacEnvironment {
     else {
         Write-Error "    pacEnvironment '$PacEnvironmentSelector' in definition on lines $DefinitionStartingLine - $DefinitionEndingLine does not exist" -ErrorAction Stop
     }
-    Set-AzCloudTenantSubscription `
+    $null = Set-AzCloudTenantSubscription `
         -Cloud $pacEnvironment.cloud `
         -TenantId $pacEnvironment.tenantId `
         -Interactive $Interactive

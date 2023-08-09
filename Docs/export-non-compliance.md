@@ -1,9 +1,13 @@
 # Exporting Non-Compliance Reports
 
-The script `Export-AzPolicyNonCompliance` exports non-compliance reports for EPAC environments in the `global-settings.jsonc` file. It outputs the reports in the `$outputFolders/non-compliance-reports` folder in two files:
+The script `Export-AzPolicyNonCompliance` exports non-compliance reports for EPAC environments in the `global-settings.jsonc` file. It outputs the reports in the `$outputFolders/non-compliance-reports` folder:
 
-- `summary.csv` contains the summary of the non-compliant resources including the non-compliant resource count
-- `details.csv` contains the details of the non-compliant resources including the non-compliant resource ids
+- `summary-by-policy.csv` contains the summary of the non-compliant resources by Policy definition. The columns contain the resource counts.
+- `summary-by-resource.csv` contains the summary of the non-compliant resources. The columns contain the number of Policies causing the non-compliance.
+- `details-by-policy.csv` contains the details of the non-compliant resources by Policy definition including the non-compliant resource ids. Assignments are combined by Policy definition.
+- `details-by-resource.csv` contains the details of the non-compliant resources sorted by Resource id. Assignments are combined by Resource id.
+- `full-details-by-assignment.csv` contains the details of the non-compliant resources sorted by Policy Assignment id.
+- `full-details-by-resource.csv` contains the details of the non-compliant resources sorted by Resource id including the Policy Assignment details.
 
 ## Script parameters
 
@@ -15,9 +19,11 @@ The script `Export-AzPolicyNonCompliance` exports non-compliance reports for EPA
 | `WindowsNewLineCells` | Formats CSV multi-object cells to use new lines and saves it as UTF-8 with BOM - works only fro Excel in Windows. Default uses commas to separate array elements within a cell |
 | `Interactive` | Set to false if used non-interactive |
 | `OnlyCheckManagedAssignments` | Include non-compliance data only for Policy assignments owned by this Policy as Code repo |
+| `PolicyDefinitionFilter` | Filter by Policy definition names (array) or ids (array). |
 | `PolicySetDefinitionFilter` | Filter by Policy Set definition names (array) or ids (array). Can only be used when PolicyAssignmentFilter is not used. |
 | `PolicyAssignmentFilter` | Filter by Policy Assignment names (array) or ids (array). Can only be used when PolicySetDefinitionFilter is not used. |
 | `PolicyEffectFilter` | Filter by Policy effect (array). |
+| `RemediationOnly` | Filter by Policy Effect "deployifnotexists" and "modify" and compliance status "NonCompliant"
 
 ## Examples
 
@@ -45,21 +51,22 @@ Export-NonComplianceReports -PolicySetDefinitionFilter "org-sec-initiative", "/p
 Export-NonComplianceReports -PolicyAssignmentFilter "/providers/microsoft.management/managementgroups/11111111-1111-1111-1111-111111111111/providers/microsoft.authorization/policyassignments/taginh-env", "prod-asb"
 ```
 
-## Example output
+## Sample Output
 
-### `summary.csv`
+### `summary-by-policy.csv`
 
-|Category|Policy|Policy Id|Non-Compliant|Unknown|Exempt|Conflicting|Not-Started|Error|
-|-|-|-|-|-|-|-|-|-|
-API Management|API Management APIs should use only encrypted protocols|/providers/microsoft.authorization/policydefinitions/ee7495e7-3ba7-40b6-bfee-c29e22cc75d4|1|0|0|0|0|0
-API Management|API Management services should use a virtual network|/providers/microsoft.authorization/policydefinitions/ef619a2c-cc4d-4d03-b2ba-8c94a834d85b|1|0|0|0|0|0
-App Configuration|App Configuration should use private link|/providers/microsoft.authorization/policydefinitions/ca610c1d-041c-4332-9d88-7ed3094967c7|1|0|0|0|0|0
-App Service|App Service apps should have resource logs enabled|/providers/microsoft.authorization/policydefinitions/91a78b24-f231-4a8a-8da9-02c35b2b6510|1|0|0|0|0|0
-App Service|App Service apps should only be accessible over HTTPS|/providers/microsoft.authorization/policydefinitions/a4af4a39-4135-47fb-b175-47fbdf85311d|4|0|0|0|0|0
+| Category | Policy Name | Policy Id | Non Compliant | Unknown | Not Started | Exempt | Conflicting | Error | Assignment Ids | Group Names |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| General | Audit usage of custom RBAC roles | /providers/microsoft.authorization/policydefinitions/a451c1ef-c6ca-483d-87ed-f49761e3ffb5 | 9 | 0 | 0 | 0 | 0 | 0 | /providers/microsoft.management/managementgroups/pac-heinrich-dev-dev/providers/microsoft.authorization/policyassignments/dev-nist-800-53-r5,/providers/microsoft.management/managementgroups/pac-heinrich-dev-dev/providers/microsoft.authorization/policyassignments/dev-asb | azure_security_benchmark_v3.0_pa-7,nist_sp_800-53_r5_ac-6(7),nist_sp_800-53_r5_ac-2(7),nist_sp_800-53_r5_ac-6,nist_sp_800-53_r5_ac-2 |
+| Regulatory Compliance | Control use of portable storage devices | /providers/microsoft.authorization/policydefinitions/0a8a1a7d-16d3-4d8e-9f2c-6b8d9e1c7c1d | 0 | 0 | 0 | 0 | 0 | 0 | /providers/microsoft.management/managementgroups/pac-heinrich-dev-dev/providers/microsoft.authorization/policyassignments/dev-nist-800-53-r5,/providers/microsoft.management/managementgroups/pac-heinrich-dev-dev/providers/microsoft.authorization/policyassignments/dev-asb | azure_security_benchmark_v3.0_pa-7,nist_sp_800-53_r5_ac-6(7),nist_sp_800-53_r5_ac-2(7),nist_sp_800-53_r5_ac-6,nist_sp_800-53_r5_ac-2 |
+| Regulatory Compliance | Deploy Azure Policy to audit Windows VMs that do not use managed disks | /providers/microsoft.authorization/policydefinitions/0b2b84f2-eb8a-4f0a-8a1c-0c0d6e4cdeea | 0 | 0 | 0 | 0 | 0 | 0 | /providers/microsoft.management/managementgroups/pac-heinrich-dev-dev/providers/microsoft.authorization/policyassignments/dev-nist-800-53-r5,/providers/microsoft.management/managementgroups/pac-heinrich-dev-dev/providers/microsoft.authorization/policyassignments/dev-asb | azure_security_benchmark_v3.0_pa-7,nist_sp_800-53_r5_ac-6(7),nist_sp_800-53_r5_ac-2(7),nist_sp_800-53_r5_ac-6,nist_sp_800-53_r5_ac-2 |
+| Regulatory Compliance | Deploy Azure Policy to audit Windows VMs that do not use managed disks | /providers/microsoft.authorization/policydefinitions/0b2b84f2-eb8a-4f0a-8a1c-0c0d6e4cdeea | 0 | 0 | 0 | 0 | 0 | 0 | /providers/microsoft.management/managementgroups/pac-heinrich-dev-dev/providers/microsoft.authorization/policyassignments/dev-nist-800-53-r5,/providers/microsoft.management/managementgroups/pac-heinrich-dev-dev/providers/microsoft.authorization/policyassignments/dev-asb | azure_security_benchmark_v3.0_pa-7,nist_sp_800-53_r5_ac-6(7),nist_sp_800-53_r5_ac-2(7),nist_sp_800-53_r5_ac-6,nist_sp_800-53_r5_ac-2 |
 
-### `details.csv`
+### `summary-by-resource.csv`
 
-|Category|Policy|Effect|State|Resource Id|Policy Id|Group Names|Assignments|
-|-|-|-|-|-|-|-|-|
-|API Management|API Management APIs should use only encrypted protocols|audit|NonCompliant|/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/rg001/providers/microsoft.apimanagement/service/*****|/providers/microsoft.authorization/policydefinitions/ee7495e7-3ba7-40b6-bfee-c29e22cc75d4|azure_security_benchmark_v3.0_dp-3|/providers/microsoft.management/managementgroups/mg-1/providers/microsoft.authorization/policyassignments/prod-asb|
-|API Management|API Management calls to API backends should be authenticated|audit|NonCompliant|/subscriptions/11111111-1111-1111-1111-111111111111/resourcegroups/rg001/providers/microsoft.apimanagement/service/*****|/providers/microsoft.authorization/policydefinitions/c15dcc82-b93c-4dcb-9332-fbf121685b54|azure_security_benchmark_v3.0_im-4|/providers/microsoft.management/managementgroups/mg-1/providers/microsoft.authorization/policyassignments/prod-asb|
+| Resource Id | Subscription Id | Subscription Name | Resource Group | Resource Type | Resource Name | Resource Qualifier | Non Compliant | Unknown | Not Started | Exempt | Conflicting | Error |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| /subscriptions/******************************** | ******************************** | PAC-DEV-001 |  | subscriptions |  |  | 25 | 481 | 0 | 0 | 0 | 0 |
+| /subscriptions/********************************/providers/microsoft.authorization/roledefinitions/0b00bc79-2207-410c-b9d5-d5d182ad514f | ******************************** | PAC-DEV-001 |  | microsoft.authorization/roledefinitions | 0b00bc79-2207-410c-b9d5-d5d182ad514f |  | 0 | 0 | 0 | 0 | 0 | 0 |
+| /subscriptions/********************************/providers/microsoft.authorization/roledefinitions/0b00bc79-2207-410c-b9d5-d5d182ad514f | ******************************** | PAC-DEV-001 |  | microsoft.authorization/roledefinitions | 0b00bc79-2207-410c-b9d5-d5d182ad514f |  | 0 | 0 | 0 | 0 | 0 | 0 |
+| /subscriptions/********************************/providers/microsoft.authorization/roledefinitions/0b00bc79-2207-410c-b9d5-d5d182ad514f | ******************************** | PAC-DEV-001 |  | microsoft.authorization/roledefinitions | 0b00bc79-2207-410c-b9d5-d5d182ad514f |  | 0 | 0 | 0 | 0 | 0 | 0 |

@@ -33,9 +33,9 @@ Filter by Policy Assignment names (array) or ids (array).
 Filter by Policy Effect (array).
 
 .PARAMETER ExcludeManualPolicyEffect
-Switch parmeter to filter out Policy Effect Manual
+Switch parameter to filter out Policy Effect Manual
 
-.PARAMETER RemmediationOnly
+.PARAMETER RemediationOnly
 Filter by Policy Effect "deployifnotexists" and "modify" and compliance status "NonCompliant"
 
 .EXAMPLE
@@ -103,7 +103,7 @@ param(
     [switch] $ExcludeManualPolicyEffect,
 
     [Parameter(Mandatory = $false, HelpMessage = "Filter by Policy Effect `"deployifnotexists`" and `"modify`" and compliance status `"NonCompliant`"")]
-    [switch] $RemmediationOnly
+    [switch] $RemediationOnly
 )
 
 # Dot Source Helper Scripts
@@ -116,7 +116,7 @@ $policySetDefinitionFilter = $PolicySetDefinitionFilter
 $policyAssignmentFilter = $PolicyAssignmentFilter
 $policyEffectFilter = $PolicyEffectFilter
 $excludeManualPolicyEffect = $ExcludeManualPolicyEffect.IsPresent
-$remmediationOnly = $RemmediationOnly.IsPresent
+$remediationOnly = $RemediationOnly.IsPresent
 
 # Setting the local copies of parameters to simplify debugging
 # $windowsNewLineCells = $true
@@ -125,7 +125,7 @@ $remmediationOnly = $RemmediationOnly.IsPresent
 # $policyAssignmentFilter = @( "/providers/microsoft.management/managementgroups/11111111-1111-1111-1111-111111111111/providers/microsoft.authorization/policyassignments/taginh-env", "prod-asb" )
 # $policyEffectFilter = @( "auditifnotexists", "deny" )
 # $excludeManualPolicyEffect = $true
-# $remmediationOnly = $true
+# $remediationOnly = $true
 
 $InformationPreference = "Continue"
 $pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -Interactive $Interactive
@@ -142,7 +142,7 @@ $rawNonCompliantList, $deployedPolicyResources, $scopeTable = Find-AzNonComplian
     -PolicyAssignmentFilter:$policyAssignmentFilter `
     -PolicyEffectFilter $policyEffectFilter `
     -ExcludeManualPolicyEffect:$excludeManualPolicyEffect `
-    -RemmediationOnly:$remmediationOnly
+    -RemediationOnly:$remediationOnly
 
 Write-Information "==================================================================================================="
 Write-Information "Collating non-compliant resources into simplified lists"
@@ -670,7 +670,7 @@ else {
     #endregion simplified details by Policy CSV
 
     #region simplified details by Resource Id CSV
-    $detailsCsvPath = Join-Path $pacEnvironment.outputFolder "non-compliance-report" "details-by-resource-id.csv"
+    $detailsCsvPath = Join-Path $pacEnvironment.outputFolder "non-compliance-report" "details-by-resource.csv"
     Write-Information "Writing simplfied details by Resource Id to $detailsCsvPath"
     $sortedDetailsList = $detailsListByResource | Sort-Object { $_.resourceId }, { $_.category }, { $_.policyName } | ForEach-Object {
         $normalizedDetails = [ordered]@{

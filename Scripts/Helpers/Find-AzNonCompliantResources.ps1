@@ -1,7 +1,7 @@
 function Find-AzNonCompliantResources {
     [CmdletBinding()]
     param (
-        [switch] $RemmediationOnly,
+        [switch] $RemediationOnly,
         $PacEnvironment,
         [switch] $OnlyCheckManagedAssignments,
         [string[]] $PolicyDefinitionFilter,
@@ -19,8 +19,8 @@ function Find-AzNonCompliantResources {
     if ($PolicyEffectFilter -and $ExcludeManualPolicyEffect) {
         Write-Error "Parameter PolicyEffectFilter cannot be used with parameter ExcludeManualPolicyEffect" -ErrorAction Stop
     }
-    elseif ($ExcludeManualPolicyEffect -and $RemmediationOnly) {
-        Write-Error "Parameter ExcludeManualPolicyEffect cannot be used with parameter RemmediationOnly" -ErrorAction Stop
+    elseif ($ExcludeManualPolicyEffect -and $RemediationOnly) {
+        Write-Error "Parameter ExcludeManualPolicyEffect cannot be used with parameter RemediationOnly" -ErrorAction Stop
     }
     elseif ($ExcludeManualPolicyEffect) {
         $effectFilter = " and properties.policyDefinitionAction <> `"manual`""
@@ -29,7 +29,7 @@ function Find-AzNonCompliantResources {
         if ($PolicyEffectFilter -and $PolicyEffectFilter.Count -ne 0) {
             $effectFilter = " and ("
             foreach ($filterValue in $PolicyEffectFilter) {
-                if ($RemmediationOnly) {
+                if ($RemediationOnly) {
                     if ($filterValue -in @("deployifnotexists", "modify")) {
                         $effectFilter += "properties.policyDefinitionAction == `"$filterValue`" or "
                     }
@@ -48,12 +48,12 @@ function Find-AzNonCompliantResources {
             }
             $effectFilter = $effectFilter.Substring(0, $effectFilter.Length - 4) + ")"
         }
-        elseif ($RemmediationOnly) {
+        elseif ($RemediationOnly) {
             $effectFilter = " and (properties.policyDefinitionAction == `"deployifnotexists`" or properties.policyDefinitionAction == `"modify`")"
         }
     }
     $query = ""
-    if ($RemmediationOnly) {
+    if ($RemediationOnly) {
         $query = "policyresources | where type == `"microsoft.policyinsights/policystates`" and properties.complianceState == `"NonCompliant`"$($effectFilter)"
     }
     else {

@@ -48,14 +48,14 @@
             ],
             "children": [
                 {
-                    "nodeName": "AppName",
+                    "nodeName": "Project",
                     "assignment": {
-                        "name": "AppName",
-                        "displayName": "AppName",
-                        "description": "AppName"
+                        "name": "Project",
+                        "displayName": "Project",
+                        "description": "Project"
                     },
                     "parameters": {
-                        "tagName": "AppName"
+                        "tagName": "Project"
                     }
                 },
                 {
