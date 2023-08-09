@@ -9,10 +9,10 @@ function Write-AssignmentDetails {
 
     $shortScope = $Scope -replace "/providers/Microsoft.Management", ""
     if ($Prefix -ne "") {
-        Write-Information "  $($Prefix) '$($DisplayName)' at $($shortScope)"
+        Write-Information "$($Prefix) '$($DisplayName)' at $($shortScope)"
     }
     else {
-        Write-Information "  '$($DisplayName)' at $($shortScope)"
+        Write-Information "'$($DisplayName)' at $($shortScope)"
     }
     if ($IdentityStatus.requiresRoleChanges) {
         foreach ($role in $IdentityStatus.added) {

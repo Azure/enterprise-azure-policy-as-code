@@ -214,7 +214,21 @@ function Convert-PolicySetsToFlatList {
                     $flatPolicyEntry.effectValue = $effectDefault
                     $flatPolicyEntry.effectDefault = $effectDefault
                 }
-                $effectString = "$($effectDefault) ($($effectReason))"
+                $effectString = switch ($effectReason) {
+                    "PolicySet Default" {
+                        "$($effectDefault) (default: $($effectParameterName))"
+                        break
+                    }
+                    "PolicySet No Default" {
+                        # Very unnusul to have a policy set effect parameter with no default
+                        "$($effectReason) ($($effectParameterName))"
+                        break
+                    }
+                    default {
+                        "$($effectDefault) ($($effectReason))"
+                        break
+                    }
+                }
             }
 
             $perPolicySet.effectString = $effectString

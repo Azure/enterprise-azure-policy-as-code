@@ -61,9 +61,9 @@ function Build-AssignmentPlan {
         # Process each assignment file
         foreach ($assignmentFile in $assignmentFiles) {
             $Json = Get-Content -Path $assignmentFile.FullName -Raw -ErrorAction Stop
-            Write-Information ""
+            # Write-Information ""
             if ((Test-Json $Json)) {
-                Write-Information "Processing file '$($assignmentFile.FullName)'"
+                # Write-Information "Processing file '$($assignmentFile.FullName)'"
             }
             else {
                 Write-Error "Assignment JSON file '$($assignmentFile.FullName)' is not valid." -ErrorAction Stop
@@ -182,7 +182,7 @@ function Build-AssignmentPlan {
                             Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "Update($($IdentityStatus.changedIdentityStrings))" -IdentityStatus $IdentityStatus
                         }
                         else {
-                            Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "Unchanged" -IdentityStatus $IdentityStatus
+                            # Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "Unchanged" -IdentityStatus $IdentityStatus
                         }
                     }
                     else {
@@ -265,7 +265,6 @@ function Build-AssignmentPlan {
 
         $strategy = $PacEnvironment.desiredState.strategy
         if ($deleteCandidates.psbase.Count -gt 0) {
-            Write-Information "Cleanup removed Policy Assignments (delete)"
             foreach ($id in $deleteCandidates.Keys) {
                 $deleteCandidate = $deleteCandidates.$id
                 $deleteCandidateProperties = Get-PolicyResourceProperties $deleteCandidate
@@ -290,7 +289,7 @@ function Build-AssignmentPlan {
                     if ($IdentityStatus.isUserAssigned) {
                         $isUserAssignedAny = $true
                     }
-                    Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "" -IdentityStatus $IdentityStatus
+                    Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "Delete" -IdentityStatus $IdentityStatus
                     $splat = @{
                         id          = $id
                         name        = $name
@@ -309,7 +308,6 @@ function Build-AssignmentPlan {
             }
         }
 
-        Write-Information ""
         if ($isUserAssignedAny) {
             Write-Warning "EPAC does not manage role assignments for Policy Assignments with user-assigned Managed Identities."
         }

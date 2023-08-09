@@ -94,7 +94,7 @@ $pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRoot
 $null = Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -Interactive $pacEnvironment.interactive
 
 $rawNonCompliantList, $deployedPolicyResources, $scopeTable = Find-AzNonCompliantResources `
-    -RemmediationOnly `
+    -RemediationOnly `
     -PacEnvironment $pacEnvironment `
     -OnlyCheckManagedAssignments:$onlyCheckManagedAssignments `
     -PolicyDefinitionFilter:$policyDefinitionFilter `
