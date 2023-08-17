@@ -16,7 +16,7 @@
             },
             "definitionEntry": {
                 "policyId": "/providers/Microsoft.Authorization/policyDefinitions/94de2ad3-e0c1-4caf-ad78-5d47bbc83d3d",
-                "friendlyNameToDocumentIfGuid": "Enable DDOS"
+                "displayName": "Enable DDOS"
             },
             "parameters": {
                 "effect": "Modify",

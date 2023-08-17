@@ -26,7 +26,7 @@
                     },
                     "definitionEntry": {
                         "policySetName": "1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
-                        "friendlyNameToDocumentIfGuid": "Microsoft Cloud Security Benchmark"
+                        "displayName": "Microsoft Cloud Security Benchmark"
                     },
                     "parameters": {},
                     "nonComplianceMessages": [
@@ -44,7 +44,7 @@
                     },
                     "definitionEntry": {
                         "policySetName": "Deploy-MDFC-Config",
-                        "friendlyNameToDocumentIfGuid": "Microsoft Defender For Cloud"
+                        "displayName": "Microsoft Defender For Cloud"
                     },
                     "parameters": {
                         "enableAscForServers": "Disabled",
@@ -77,7 +77,7 @@
                     },
                     "definitionEntry": {
                         "policySetName": "e20d08c5-6d64-656d-6465-ce9e37fd0ebc",
-                        "friendlyNameToDocumentIfGuid": "Microsoft Defender for Endpoint agent"
+                        "displayName": "Microsoft Defender for Endpoint agent"
                     },
                     "parameters": {
                         "microsoftDefenderForEndpointWindowsVmAgentDeployEffect": "DeployIfNotExists",
@@ -100,7 +100,7 @@
                     },
                     "definitionEntry": {
                         "policySetName": "e77fc0b3-f7e9-4c58-bc13-cb753ed8e46e",
-                        "friendlyNameToDocumentIfGuid": "Microsoft Defender for Endpoint open-source relational databases"
+                        "displayName": "Microsoft Defender for Endpoint open-source relational databases"
                     },
                     "nonComplianceMessages": [
                         {
@@ -117,7 +117,7 @@
                     },
                     "definitionEntry": {
                         "policySetName": "9cb3cc7a-b39b-4b82-bc89-e5a5d9ff7b97",
-                        "friendlyNameToDocumentIfGuid": "Microsoft Defender for SQL Servers and SQL Managed Instances"
+                        "displayName": "Microsoft Defender for SQL Servers and SQL Managed Instances"
                     },
                     "nonComplianceMessages": [
                         {
@@ -134,7 +134,7 @@
                     },
                     "definitionEntry": {
                         "policySetName": "Enforce-ACSB",
-                        "friendlyNameToDocumentIfGuid": "Azure Compute Security Baseline"
+                        "displayName": "Azure Compute Security Baseline"
                     },
                     "nonComplianceMessages": [
                         {
@@ -156,7 +156,7 @@
                     },
                     "definitionEntry": {
                         "policyName": "2465583e-4e78-4c15-b6be-a36cbc7c8b0f",
-                        "friendlyNameToDocumentIfGuid": "Activity Logs"
+                        "displayName": "Activity Logs"
                     },
                     "parameters": {},
                     "nonComplianceMessages": [
@@ -174,7 +174,7 @@
                     },
                     "definitionEntry": {
                         "policySetName": "Deploy-Diagnostics-LogAnalytics",
-                        "friendlyNameToDocumentIfGuid": "Resource Diagnostics"
+                        "displayName": "Resource Diagnostics"
                     },
                     "parameters": {},
                     "nonComplianceMessages": [
@@ -197,7 +197,7 @@
                     },
                     "definitionEntry": {
                         "policySetName": "55f3eceb-5573-4f18-9695-226972c6d74a",
-                        "friendlyNameToDocumentIfGuid": "VM Monitoring"
+                        "displayName": "VM Monitoring"
                     },
                     "nonComplianceMessages": [
                         {
@@ -214,7 +214,7 @@
                     },
                     "definitionEntry": {
                         "policySetName": "75714362-cae7-409e-9b99-a8e5075b7fad",
-                        "friendlyNameToDocumentIfGuid": "VMSS Monitoring"
+                        "displayName": "VMSS Monitoring"
                     },
                     "nonComplianceMessages": [
                         {
@@ -231,7 +231,7 @@
                     },
                     "definitionEntry": {
                         "policyName": "06a78e20-9358-41c9-923c-fb736d382a4d",
-                        "friendlyNameToDocumentIfGuid": "Unmanaged Disks"
+                        "displayName": "Unmanaged Disks"
                     },
                     "nonComplianceMessages": [
                         {
@@ -259,7 +259,7 @@
                     },
                     "definitionEntry": {
                         "policyName": "6c112d4e-5bc7-47ae-a041-ea2d9dccd749",
-                        "friendlyNameToDocumentIfGuid": "Deny Classic Resources"
+                        "displayName": "Deny Classic Resources"
                     },
                     "parameters": {
                         "listOfResourceTypesNotAllowed": [
@@ -337,7 +337,7 @@
                     },
                     "definitionEntry": {
                         "policySetName": "Audit-UnusedResourcesCostOptimization",
-                        "friendlyNameToDocumentIfGuid": "Unused Resources"
+                        "displayName": "Unused Resources"
                     },
                     "nonComplianceMessages": [
                         {

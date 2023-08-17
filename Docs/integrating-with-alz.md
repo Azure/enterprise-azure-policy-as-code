@@ -17,9 +17,6 @@ There are two scenarios for integrating EPAC with ALZ.
 
 ## Scenario 1 - Existing Deployment
 
-!!! warning
-    This feature is currently unsupported while an update to the extraction process is made. ETA is April 2023. This warning will be removed when the feature is available again.
-
 With an existing Azure Landing Zone deployment you can use EPAC's extract scripts to extract the existing policies and assignments.
 
 1. Install the EnterprisePolicyAsCode module from the PowerShell gallery and import it.
