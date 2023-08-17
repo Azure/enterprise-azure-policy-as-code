@@ -8,7 +8,12 @@ Param(
 
 if ($DefinitionsRootFolder -eq "") {
     if ($null -eq $env:PAC_DEFINITIONS_FOLDER) {
-        $DefinitionsRootFolder = "$PSScriptRoot/../../Definitions"
+        if ($ModuleRoot) {
+            $DefinitionsRootFolder = "./Definitions"
+        }
+        else {
+            $DefinitionsRootFolder = "$PSScriptRoot/../../Definitions"
+        }
     }
     else {
         $DefinitionsRootFolder = $env:PAC_DEFINITIONS_FOLDER
@@ -22,7 +27,7 @@ New-Item -Path "$DefinitionsRootFolder\policySetDefinitions\ALZ" -ItemType Direc
 New-Item -Path "$DefinitionsRootFolder\policyAssignments" -ItemType Directory -Force -ErrorAction SilentlyContinue
 New-Item -Path "$DefinitionsRootFolder\policyAssignments\ALZ" -ItemType Directory -Force -ErrorAction SilentlyContinue
 
-. .\Scripts\Helpers\ConvertTo-HashTable.ps1
+. "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
 
 $defaultPolicyURIs = @(
     'https://raw.githubusercontent.com/Azure/Enterprise-Scale/main/eslzArm/managementGroupTemplates/policyDefinitions/policies.json'
@@ -98,8 +103,8 @@ foreach ($policySetFile in Get-ChildItem "$DefinitionsRootFolder\policySetDefini
 }
 
 if ($ModuleRoot) {
-    Copy-Item -Path $ModuleRoot\policyAssignments\*.* -Destination "$DefinitionsRootFolder\policyAssignments\ALZ\" -Force
+    Copy-Item -Path "$ModuleRoot/policyAssignments/*.*" -Destination "$DefinitionsRootFolder\policyAssignments\ALZ\" -Force
 }
 else {
-    Copy-Item -Path .\Scripts\CloudAdoptionFramework\policyAssignments\*.* -Destination "$DefinitionsRootFolder\policyAssignments\ALZ\" -Force
+    Copy-Item -Path "$PSScriptRoot/policyAssignments/*.*" -Destination "$DefinitionsRootFolder\policyAssignments\ALZ\" -Force
 }

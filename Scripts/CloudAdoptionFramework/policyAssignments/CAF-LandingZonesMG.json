@@ -22,7 +22,7 @@
                     },
                     "definitionEntry": {
                         "policyId": "/providers/Microsoft.Authorization/policyDefinitions/1c6e92c9-99f0-4e55-9cf2-0c234dc48f99",
-                        "friendlyNameToDocumentIfGuid": "AKS Privilege Escalation"
+                        "displayName": "AKS Privilege Escalation"
                     },
                     "parameters": {
                         "effect": "Deny"
@@ -37,7 +37,7 @@
                     },
                     "definitionEntry": {
                         "policyId": "/providers/Microsoft.Authorization/policyDefinitions/95edb821-ddaf-4404-9732-666045e056b4",
-                        "friendlyNameToDocumentIfGuid": "AKS Privilege Containers"
+                        "displayName": "AKS Privilege Containers"
                     }
                 },
                 {
@@ -49,7 +49,7 @@
                     },
                     "definitionEntry": {
                         "policyId": "/providers/Microsoft.Authorization/policyDefinitions/1a5b4dca-0b6f-4cf5-907c-56316bc1bf3d",
-                        "friendlyNameToDocumentIfGuid": "AKS HTTPS Access"
+                        "displayName": "AKS HTTPS Access"
                     }
                 },
                 {
@@ -61,7 +61,7 @@
                     },
                     "definitionEntry": {
                         "policyId": "/providers/Microsoft.Authorization/policyDefinitions/a8eff44f-8c92-45c3-a3fb-9880802d67a7",
-                        "friendlyNameToDocumentIfGuid": "Deploy AKS Policy"
+                        "displayName": "Deploy AKS Policy"
                     }
                 }
             ]
@@ -78,7 +78,7 @@
                     },
                     "definitionEntry": {
                         "policyId": "/providers/Microsoft.Authorization/policyDefinitions/88c0b9da-ce96-4b03-9635-f29a937e2900",
-                        "friendlyNameToDocumentIfGuid": "Deny IP Forwarding"
+                        "displayName": "Deny IP Forwarding"
                     },
                     "nonComplianceMessages": [
                         {
@@ -95,7 +95,7 @@
                     },
                     "definitionEntry": {
                         "policyName": "Deny-Subnet-Without-Nsg",
-                        "friendlyNameToDocumentIfGuid": "Deny Subnet without NSG"
+                        "displayName": "Deny Subnet without NSG"
                     },
                     "nonComplianceMessages": [
                         {
@@ -112,7 +112,7 @@
                     },
                     "definitionEntry": {
                         "policyId": "/providers/Microsoft.Authorization/policyDefinitions/94de2ad3-e0c1-4caf-ad78-5d47bbc83d3d",
-                        "friendlyNameToDocumentIfGuid": "Audit DDOS Landing Zones"
+                        "displayName": "Audit DDOS Landing Zones"
                     },
                     "parameters": {
                         "effect": "Modify",
@@ -133,7 +133,7 @@
                     },
                     "definitionEntry": {
                         "policyId": "/providers/Microsoft.Authorization/policyDefinitions/564feb30-bf6a-4854-b4bb-0d2d2d1e6c66",
-                        "friendlyNameToDocumentIfGuid": "Application Gateway with WAF"
+                        "displayName": "Application Gateway with WAF"
                     },
                     "nonComplianceMessages": [
                         {
@@ -155,7 +155,7 @@
                     },
                     "definitionEntry": {
                         "policyId": "/providers/Microsoft.Authorization/policyDefinitions/404c3081-a854-4457-ae30-26a93ef643f9",
-                        "friendlyNameToDocumentIfGuid": "Deny Storage HTTP"
+                        "displayName": "Deny Storage HTTP"
                     },
                     "parameters": {
                         "effect": "Deny"
@@ -180,7 +180,7 @@
                     },
                     "definitionEntry": {
                         "policyId": "/providers/Microsoft.Authorization/policyDefinitions/25da7dfb-0666-4a15-a8f5-402127efd8bb",
-                        "friendlyNameToDocumentIfGuid": "Deploy SQL DB Auditing"
+                        "displayName": "Deploy SQL DB Auditing"
                     },
                     "nonComplianceMessages": [
                         {
@@ -202,7 +202,7 @@
                     },
                     "definitionEntry": {
                         "policyId": "/providers/Microsoft.Authorization/policyDefinitions/98d0b9f8-fd90-49c9-88e2-d3baf3b0dd86",
-                        "friendlyNameToDocumentIfGuid": "Deploy VM Backup"
+                        "displayName": "Deploy VM Backup"
                     },
                     "parameters": {
                         "exclusionTagName": "",
@@ -228,7 +228,7 @@
                     },
                     "definitionEntry": {
                         "policySetName": "Enforce-Guardrails-KeyVault",
-                        "friendlyNameToDocumentIfGuid": "Key Vault Guardrails"
+                        "displayName": "Key Vault Guardrails"
                     },
                     "nonComplianceMessages": [
                         {
@@ -250,7 +250,7 @@
                     },
                     "definitionEntry": {
                         "policySetName": "Enforce-EncryptTransit",
-                        "friendlyNameToDocumentIfGuid": "Enforce Encrypt Transit"
+                        "displayName": "Enforce Encrypt Transit"
                     },
                     "nonComplianceMessages": [
                         {
@@ -267,7 +267,7 @@
                     },
                     "definitionEntry": {
                         "policyId": "/providers/Microsoft.Authorization/policyDefinitions/36d49e87-48c4-4f2e-beed-ba4ed02b71f5",
-                        "friendlyNameToDocumentIfGuid": "Deploy SQL Threat Detection"
+                        "displayName": "Deploy SQL Threat Detection"
                     },
                     "nonComplianceMessages": [
                         {
@@ -284,7 +284,7 @@
                     },
                     "definitionEntry": {
                         "policyId": "/providers/Microsoft.Authorization/policyDefinitions/86a912f6-9a06-4e26-b447-11b16ba8659f",
-                        "friendlyNameToDocumentIfGuid": "Deploy SQL TDE"
+                        "displayName": "Deploy SQL TDE"
                     },
                     "nonComplianceMessages": [
                         {
@@ -317,7 +317,7 @@
                     },
                     "definitionEntry": {
                         "policyName": "Deny-MgmtPorts-From-Internet",
-                        "friendlyNameToDocumentIfGuid": "Deny Management Ports"
+                        "displayName": "Deny Management Ports"
                     },
                     "nonComplianceMessages": [
                         {

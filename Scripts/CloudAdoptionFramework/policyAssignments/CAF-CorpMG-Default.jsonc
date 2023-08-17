@@ -19,7 +19,7 @@
                     },
                     "definitionEntry": {
                         "policySetName": "Deny-PublicPaaSEndpoints",
-                        "friendlyNameToDocumentIfGuid": "Deny Public PaaS Endpoints"
+                        "displayName": "Deny Public PaaS Endpoints"
                     },
                     "nonComplianceMessages": [
                         {
@@ -36,7 +36,7 @@
                     },
                     "definitionEntry": {
                         "policySetName": "Deploy-Private-DNS-Zones",
-                        "friendlyNameToDocumentIfGuid": "Deploy Private DNS Zones"
+                        "displayName": "Deploy Private DNS Zones"
                     },
                     "parameters": {
                         // Replace --DNSZonePrefix-- with a value similar to 
