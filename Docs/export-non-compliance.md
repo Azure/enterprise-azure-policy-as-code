@@ -16,7 +16,7 @@ The script `Export-AzPolicyNonCompliance` exports non-compliance reports for EPA
 | `PacEnvironmentSelector` | Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc`. |
 | `DefinitionsRootFolder` | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. |
 | `OutputFolder` | Output Folder. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER` or `./Outputs`. |
-| `WindowsNewLineCells` | Formats CSV multi-object cells to use new lines and saves it as UTF-8 with BOM - works only fro Excel in Windows. Default uses commas to separate array elements within a cell |
+| `WindowsNewLineCells` | Formats CSV multi-object cells to use new lines and saves it as UTF-8 with BOM - works only for Excel in Windows. Default uses commas to separate array elements within a cell |
 | `Interactive` | Set to false if used non-interactive |
 | `OnlyCheckManagedAssignments` | Include non-compliance data only for Policy assignments owned by this Policy as Code repo |
 | `PolicyDefinitionFilter` | Filter by Policy definition names (array) or ids (array). |
