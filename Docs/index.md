@@ -12,7 +12,7 @@ Main features include:
 - PowerShell Module
 - Integration with Azure Landing Zone recommended policies
 - Starter Kit with examples
-- Schema to provide Intellisense for VS Code development (Preview)
+- Schema to provide Intellisense for VS Code development
 
 ## Who Should use EPAC?
 
@@ -90,7 +90,7 @@ EPAC has a concept of an environment identified by a string (unique per reposito
 
 - `cloud` - to select commercial or sovereign cloud environments.
 - `tenantId` - enables multi-tenant scenarios.
-- `rootDefinitionScope` - scope for Policy and Policy Set definitions.
+- `rootDefinitionScope` - scope for custom Policy and Policy Set definition deployment.
 - Optional: define `desiredState`
 
 !!! note

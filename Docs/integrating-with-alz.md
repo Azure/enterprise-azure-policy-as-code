@@ -83,6 +83,13 @@ With an existing Azure Landing Zone deployment you can use EPAC's extract script
     Deploy-PolicyPlan
     ```
 
+If you have deployed the Azure Landing Zone accelerator using Bicep or Terraform - they support incremental updates as new features are released. If you are going to use EPAC to manage policies in the environment then follow the steps below depending on which toll you have used to do the landing zone deployment.
+
+### Bicep
+- Do not deploy the policy modules when upgrading the Azure Landing Zones. Use the process [below](integrating-with-alz.md#keeping-up-to-date-with-changes-manually) to keep in sync with changes to ALZ policies.
+
+### Terraform
+- You must override the built-in management group archetypes to tell the Terraform module not to deploy policies. Sample files to replace the built-in archetypes are available in a repository [here](https://github.com/anwather/epac-removetf)
 ## Scenario 2 - ALZ Policy Deployment with EPAC
 
 To deploy the ALZ policies using EPAC follow the steps below.
