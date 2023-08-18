@@ -313,7 +313,7 @@ function Get-AzPolicyResources {
                 $scopesCovered[$scope] = $true
                 $results = @()
                 Write-Information "    $scope"
-                $results += Get-AzRoleAssignment -Scope $scope -WarningAction SilentlyContinue
+                $results += Get-AzRoleAssignment | Where-Object {$_.scope -eq $scope}
                 $scopesCollectedCount++
                 $localScopesCovered = @{}
                 foreach ($result in $results) {
