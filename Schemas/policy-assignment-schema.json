@@ -8,6 +8,9 @@
         "metadata": {
             "type": "object"
         },
+        "epacCloudEnvironments": {
+            "type": "object"
+        },
         "definitionEntry": {
             "type": "object",
             "properties": {

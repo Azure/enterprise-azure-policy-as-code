@@ -74,6 +74,20 @@ Since EPAC is based on PowerShell scripts, any CI/CD tool with the ability to ex
 
 EPAC supports single and multi-tenant deployments from a single source. In most cases you should have a fully or partially isolated area for Policy development and testing, such as a Management Group. An entire tenant can be used; however, it is not necessary since EPAC has sophisticated partitioning capabilities.
 
+In some multi-tenant implementations, not all policies, policy sets, and/or assignments will function in all tenants, usually due to either built-in policies that don't exist in some tenant types or unavailable resource providers.  In order to facilitate multi-tenant deployments in these scenarios, utilize the "   epacCloudEnvironments" property to specify which cloud type a specific file should be considered in.  For example in order to have a policy definition deployed only to epacEnvironments that are China cloud tenants, add a metadata property like this to that definition (or definitionSet) file:
+
+    "metadata": {
+      "epacCloudEnvironments": [
+        "AzureChinaCloud"
+      ]
+    },
+
+For assignment files, this is a top level property on the assignment's root node:
+
+    "nodeName": "/root",
+    "epacCloudEnvironments": [
+        "AzureChinaCloud"
+    ],
 ## Operational Scripts
 
 Scripts to simplify [operational task](operational-scripts.md) are provided. Examples are:
