@@ -1,6 +1,6 @@
 # Exporting Non-Compliance Reports
 
-The script `Export-AzPolicyNonCompliance` exports non-compliance reports for EPAC environments in the `global-settings.jsonc` file. It outputs the reports in the `$outputFolders/non-compliance-reports` folder:
+The script `Export-NonComplianceReports` exports non-compliance reports for EPAC environments in the `global-settings.jsonc` file. It outputs the reports in the `$outputFolders/non-compliance-reports` folder:
 
 - `summary-by-policy.csv` contains the summary of the non-compliant resources by Policy definition. The columns contain the resource counts.
 - `summary-by-resource.csv` contains the summary of the non-compliant resources. The columns contain the number of Policies causing the non-compliance.
