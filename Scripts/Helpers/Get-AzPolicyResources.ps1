@@ -315,7 +315,7 @@ function Get-AzPolicyResources {
                 Write-Information "    $scope"
                 $subscriptionId = $scope.Replace("/subscriptions/", "")
                 $null = Set-AzContext -SubscriptionId $subscriptionId -ErrorAction SilentlyContinue
-                $results += Get-AzRoleAssignment -Verbose
+                $results += Get-AzRoleAssignment
                 $scopesCollectedCount++
                 $localScopesCovered = @{}
                 foreach ($result in $results) {
