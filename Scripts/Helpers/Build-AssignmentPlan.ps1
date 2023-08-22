@@ -61,6 +61,14 @@ function Build-AssignmentPlan {
         # Process each assignment file
         foreach ($assignmentFile in $assignmentFiles) {
             $Json = Get-Content -Path $assignmentFile.FullName -Raw -ErrorAction Stop
+
+            $includedCloudEnvironments = ($Json | ConvertFrom-Json).epacCloudEnvironments
+            if ($includedCloudEnvironments) {
+                if ($pacEnvironment.cloud -notIn $includedCloudEnvironments) {
+                    continue
+                }
+            }
+
             # Write-Information ""
             if ((Test-Json $Json)) {
                 # Write-Information "Processing file '$($assignmentFile.FullName)'"

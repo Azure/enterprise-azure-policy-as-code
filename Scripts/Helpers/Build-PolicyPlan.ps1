@@ -75,7 +75,11 @@ function Build-PolicyPlan {
             else {
                 $metadata = @{ pacOwnerId = $thisPacOwnerId }
             }
-
+            if ($metadata.epacCloudEnvironments) {
+                if ($pacEnvironment.cloud -notIn $metadata.epacCloudEnvironments) {
+                    continue
+                }
+            }
             # Core syntax error checking
             if ($null -eq $name) {
                 Write-Error "Policy from file '$($file.Name)' requires a name" -ErrorAction Stop
@@ -210,7 +214,7 @@ function Build-PolicyPlan {
                 # always delete if owned by this Policy as Code solution
                 # never delete if owned by another Policy as Code solution
                 # if strategy is "full", delete with unknown owner (missing pacOwnerId)
-                Write-Information "Delete '$($displayName)'"
+                Write-Information "Delete '$($deleteCandidateProperties.displayName)'"
                 $splat = @{
                     id          = $id
                     name        = $deleteCandidate.name
