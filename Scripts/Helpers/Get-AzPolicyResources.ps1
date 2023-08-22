@@ -313,7 +313,9 @@ function Get-AzPolicyResources {
                 $scopesCovered[$scope] = $true
                 $results = @()
                 Write-Information "    $scope"
-                $results += Get-AzRoleAssignment | Where-Object {$_.scope -eq $scope}
+                $subscriptionId = $scope.Replace("/subscriptions/", "")
+                $null = Set-AzContext -SubscriptionId $subscriptionId -ErrorAction SilentlyContinue
+                $results += Get-AzRoleAssignment -Verbose
                 $scopesCollectedCount++
                 $localScopesCovered = @{}
                 foreach ($result in $results) {
