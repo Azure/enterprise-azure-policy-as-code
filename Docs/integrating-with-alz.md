@@ -77,13 +77,19 @@ With an existing Azure Landing Zone deployment you can use EPAC's extract script
         0 changes
     ```
 
-7. Run the generated plan to update the objects
+7. Run the generated plan to deploy the policy objects
 
     ```ps1
-    Deploy-PolicyPlan
+    Deploy-PolicyPlan -DefinitionsRootFolder .\Definitions -InputFolder .\Output
     ```
 
-If you have deployed the Azure Landing Zone accelerator using Bicep or Terraform - they support incremental updates as new features are released. If you are going to use EPAC to manage policies in the environment then follow the steps below depending on which toll you have used to do the landing zone deployment.
+8. Run the generated plan to update the role assignment objects
+
+    ```ps1
+    Deploy-RolesPlan -DefinitionsRootFolder .\Definitions -InputFolder .\Output
+    ```
+
+If you have deployed the Azure Landing Zone accelerator using Bicep or Terraform - they support incremental updates as new features are released. If you are going to use EPAC to manage policies in the environment then follow the steps below depending on which tool you have used to do the landing zone deployment.
 
 ### Bicep
 - Do not deploy the policy modules when upgrading the Azure Landing Zones. Use the process [below](integrating-with-alz.md#keeping-up-to-date-with-changes-manually) to keep in sync with changes to ALZ policies.
