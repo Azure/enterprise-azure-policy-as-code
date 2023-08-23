@@ -12,11 +12,11 @@ For this example all you need is ```Reader``` permission in your Azure environme
 Install-Module Az -Scope CurrentUser
 Connect-AzAccount
 ```
-3. Install the Enterprise Policy as Code module
+3. Install the Enterprise Policy as Code module.
 ```ps1
 Install-Module EnterprisePolicyAsCode -Scope CurrentUser
 ```
-4. Create a new EPAC definitions folder to hold policy objects
+4. Create a new EPAC definitions folder to hold policy objects.
 ```ps1
 New-EPACDefinitionsFolder -DefinitionsRootFolder Definitions
 ```
@@ -24,6 +24,7 @@ New-EPACDefinitionsFolder -DefinitionsRootFolder Definitions
 6. Edit the ```global-settings.jsonc``` file by copying the sample below. Modify the commented sections as appropriate.
 ```json
 {
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/global-settings-schema.json",
     "pacOwnerId": "f2ce1aea-944e-4517-94fb-edada00633ae", # Generate a guid using New-Guid and place it here
     "managedIdentityLocations": {
         "*": "australiaeast" # Update the default location for managed identities
@@ -50,7 +51,7 @@ Export-AzPolicyResources -DefinitionsRootFolder .\Definitions -OutputFolder Outp
 
 In the ```Output``` folder you should now find all the custom policy definitions and assignments which have been deployed in your environment. From this point you can make some choices about how to best utilize EPAC to handle Azure Policy in your environment including:-
 
-- Copy the Output files into the appropriate files in your ```Definitions``` folder and use the ```Build-DeploymentPlans``` command to generate a plan for policy deployment. Once the plan is generated you can use the ```Deploy-PolicyPlan``` and ```Deploy-RolesPlan``` commands to start managing deployed policies with EPAC.
+- Copy the Output files into the appropriate folders in your ```Definitions``` folder and use the ```Build-DeploymentPlans``` command to generate a plan for policy deployment. Once the plan is generated you can use the ```Deploy-PolicyPlan``` and ```Deploy-RolesPlan``` commands to start managing deployed policies with EPAC.
 - Read up on [Desired State Strategy](desired-state-strategy.md) and plan a gradual rollout of policy using EPAC.
 - Use the artifacts in the [Starter Kit](https://github.com/Azure/enterprise-azure-policy-as-code/tree/main/StarterKit) for some in-depth examples and sample pipelines for CI/CD integration. 
 - Review the rest of this documentation to examine some of the more complex EPAC features.
@@ -59,7 +60,7 @@ If there are any issue please raise them in the (GitHub Repository)[https://gith
 
 ## Create your environment
 
-* [Setup DevOps Environment](operating-environment.md) for your developers (on their workstations) and your CI/CD pipeline runners/agents (on a VM or set of VMs) to facilitate correct implementations. <br/> **Operating Environment Prerequisites:** The EPAC Deployment process is designed for DevOps CI/CD. It requires the [installation of several tools] to facilitate effective development, testing, and deployment during the course of a successful implementation.
+* [Setup DevOps Environment](operating-environment.md) for your developers (on their workstations) and your CI/CD pipeline runners/agents (on a VM or set of VMs) to facilitate correct implementations. <br/> **Operating Environment Prerequisites:** The EPAC Deployment process is designed for DevOps CI/CD. It requires the installation of several tools to facilitate effective development, testing, and deployment during the course of a successful implementation.
 * Acquire the PowerShell scripts (options)
   * [Import Azure PowerShell Module](powershell-module.md)
   * [Create a source repository and import the source code](clone-github.md) from this repository.
