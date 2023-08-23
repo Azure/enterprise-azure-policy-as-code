@@ -3,7 +3,7 @@
     "nodeName": "/Loc/",
     "assignment": {
         "name": "allowed-locations",
-        "displayName": "Allowed Locations",
+        "displayName": "Allowed Locations.",
         "description": "Sets the allowed locations"
     },
     "definitionEntry": {
