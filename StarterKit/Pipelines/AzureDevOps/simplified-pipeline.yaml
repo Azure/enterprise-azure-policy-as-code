@@ -22,7 +22,7 @@ stages:
               pacEnvironment: $(environment)
   - stage: DeployPolicy
     displayName: Deploy Policy Changes
-    condition: eq(dependencies.Plan.outputs['Plan.Plan.deployPolicyChanges'], 'yes')
+    condition: and(succeeded(), eq(dependencies.Plan.outputs['Plan.Plan.deployPolicyChanges'], 'yes'))
     jobs:
       - deployment:
         environment: Deploy
@@ -36,7 +36,7 @@ stages:
                     pacEnvironment: $(environment)
   - stage: DeployRoles
     displayName: Deploy Role Changes
-    condition: eq(dependencies.Plan.outputs['Plan.Plan.deployRoleChanges'], 'yes')
+    condition: and(succeeded(), eq(dependencies.Plan.outputs['Plan.Plan.deployRoleChanges'], 'yes'))
     jobs:
       - deployment:
         environment: Deploy
