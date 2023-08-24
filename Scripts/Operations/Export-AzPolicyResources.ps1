@@ -79,7 +79,7 @@ param (
     [Parameter(Mandatory = $false, HelpMessage = "File extension type for the output files. Defaults to '.jsonc'.")]
     [string] $FileExtension = "jsonc",
 
-    [ValidateSet("export", "collectRawFile", 'exportFromRawFiles', "exportRawToPipeline")]
+    [ValidateSet("export", "collectRawFile", 'exportFromRawFiles', 'exportRawToPipeline', 'psrule')]
     [Parameter(Mandatory = $false, HelpMessage = "
         Operating mode:
         a) 'export' exports EPAC environments in EPAC format, should be used with -Interactive `$true in a multi-tenant scenario, or use with an inputPacSelector to limit the scope to one EPAC environment.
@@ -102,7 +102,10 @@ param (
     [switch] $SuppressDocumentation,
 
     [Parameter(Mandatory = $false, HelpMessage = "Suppress output generation in EPAC format")]
-    [switch] $SuppressEpacOutput
+    [switch] $SuppressEpacOutput,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Ignore full scope for PsRule Extraction")]
+    [switch] $PSRuleIgnoreFullScope
 )
 
 # Dot Source Helper Scripts
@@ -184,8 +187,32 @@ if ($Mode -ne 'exportFromRawFiles') {
 
         if ($InputPacSelector -eq $pacSelector -or $InputPacSelector -eq '*') {
             $null = Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -Interactive $Interactive
-
+            if ($Mode -eq 'psrule' -and $PSRuleIgnoreFullScope -eq $false) {
+                $pacEnvironmentOriginalScope = $pacEnvironment.deploymentRootScope
+                $pacEnvironment.deploymentRootScope = "/providers/Microsoft.Management/managementGroups/$($pacEnvironment.tenantId)"
+            }
+            elseif ($Mode -eq 'psrule' -and $PSRuleIgnoreFullScope -eq $true) {
+                $pacEnvironmentOriginalScope = $pacEnvironment.deploymentRootScope
+            }
             $scopeTable = Get-AzScopeTree -PacEnvironment $pacEnvironment
+            if ($Mode -eq 'psrule') {
+                $newScopeTable = @{}
+                foreach ($scope in $scopeTable.GetEnumerator()) {
+                    if ($scope.Value.childrenList.ContainsKey($pacEnvironmentOriginalScope)) {
+                        $newObj = $scope.Value | Select-Object -ExcludeProperty childrenList
+                        $children = @{}
+                        $scope.Value.childrenList.GetEnumerator() | Where-Object Key -eq $pacEnvironmentOriginalScope | ForEach-Object {
+                            $children.Add($_.Key, $_.Value)
+                        }
+                        Add-Member -InputObject $newObj -MemberType NoteProperty -Name childrenList -Value $children
+                        $newScopeTable.Add($newObj.id, $newObj)
+                    }
+                    elseif ($scope.Value.id -eq $pacEnvironmentOriginalScope) {
+                        $newScopeTable.Add($scope.Value.id, $scope.Value)
+                    }
+                }
+                $scopeTable = $newScopeTable
+            }
             $skipExemptions = $ExemptionFiles -eq "none"
             $deployed = Get-AzPolicyResources -PacEnvironment $pacEnvironment -ScopeTable $scopeTable -SkipExemptions:$skipExemptions -CollectAllPolicies:$IncludeChildScopes
 
@@ -222,6 +249,75 @@ if ($Mode -ne 'exportFromRawFiles') {
     }
 
     #endregion retrieve Policy resources
+
+    if ($Mode -eq 'psrule') {
+        # Export PsRule formatted output
+        $outputArray = @()
+        foreach ($policy in ($deployed.policyassignments.all).GetEnumerator()) {
+            $formattedObj = @{
+                Location           = $policy.Value.location
+                Name               = $policy.Value.Name
+                ResourceId         = $policy.Value.ResourceId
+                ResourceName       = $policy.Value.Name
+                ResourceGroupName  = $policy.Value.ResourceGroupName
+                ResourceType       = $policy.Value.ResourceType
+                SubscriptionId     = $policy.Value.SubscriptionId
+                Sku                = $policy.Value.Sku
+                PolicyAssignmentId = $policy.Value.ResourceId
+                Properties         = @{
+                    Scope                 = $policy.Value.Properties.Scope
+                    NotScope              = $policy.Value.Properties.NotScope
+                    DisplayName           = $policy.Value.Properties.DisplayName
+                    Description           = $policy.Value.Properties.Description
+                    Metadata              = $policy.Value.Properties.Metadata
+                    EnforcementMode       = switch ($policy.Value.Properties.EnforcementMode) {
+                        0 { "Default" }
+                        1 { "DoNotEnforce" }
+                    }
+                    PolicyDefinitionId    = $policy.Value.Properties.PolicyDefinitionId
+                    Parameters            = $policy.Value.Properties.Parameters
+                    NonComplianceMessages = $policy.Value.Properties.NonComplianceMessages
+                }
+            }
+    
+            if ($formattedObj.Properties.PolicyDefinitionId -match 'policyDefinitions') {
+                $def = $deployed.policydefinitions.all[$formattedObj.Properties.PolicyDefinitionId]
+                $pdObj = @{
+                    Name               = $def.Name
+                    ResourceId         = $def.ResourceId
+                    ResourceName       = $def.name
+                    ResourceType       = $def.type
+                    SubscriptionId     = $def.SubscriptionId
+                    Properties         = $def.properties
+                    PolicyDefinitionId = $def.ResourceId
+                }
+                $formattedObj.PolicyDefinitions = @($pdObj)
+            }
+            else {
+                $defList = ($deployed.policysetdefinitions.all[$formattedObj.Properties.PolicyDefinitionId].properties.policyDefinitions).policyDefinitionId
+                $defArray = @()
+                foreach ($def in $defList) {
+                    $defObject = $deployed.policydefinitions.all[$def]
+                    $pdObj = @{
+                        Name               = $defObject.Name
+                        ResourceId         = $defObject.ResourceId
+                        ResourceName       = $defObject.name
+                        ResourceType       = $defObject.type
+                        SubscriptionId     = $defObject.SubscriptionId
+                        Properties         = $defObject.properties
+                        PolicyDefinitionId = $defObject.ResourceId
+                    }
+                    $defArray += $pdObj
+                }
+                $formattedObj.PolicyDefinitions = $defArray
+            }
+    
+            $outputArray += $formattedObj
+        }
+
+        $outputArray | ConvertTo-Json -Depth 100 | Out-File -FilePath "$OutputFolder/psrule.assignment.json" -Force
+        exit 0
+    }
 
 }
 else {
