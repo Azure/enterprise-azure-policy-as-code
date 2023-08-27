@@ -34,6 +34,7 @@ Operating mode:
     b) 'collectRawFile' exports the raw data only; Often used with 'inputPacSelector' when running non-interactive in a multi-tenant scenario to collect the raw data once per tenant into a file named after the EPAC environment
     c) 'exportFromRawFiles' reads the files generated with one or more runs of b) and outputs the files the same as normal 'export'.
     d) 'exportRawToPipeline' exports EPAC environments in EPAC format, should be used with -Interactive $true in a multi-tenant scenario, or use with an inputPacSelector to limit the scope to one EPAC environment.
+    e) 'psrule' exports EPAC environment into a file which can be used to create policy rules for PSRule for Azure
 
 .PARAMETER InputPacSelector
 Limits the collection to one EPAC environment, useful for non-interactive use in a multi-tenant scenario, especially with -Mode 'collectRawFile'.
@@ -44,6 +45,9 @@ Suppress documentation generation.
 
 .PARAMETER SuppressEpacOutput
 Suppress output generation in EPAC format.
+
+.PARAMETER PSRuleIgnoreFullScope
+Ignore full scope for PsRule Extraction
 
 .EXAMPLE
 Export-AzPolicyResources -DefinitionsRootFolder ./Definitions -OutputFolder ./Outputs -Interactive $true -IncludeChildScopes -IncludeAutoAssigned -ExemptionFiles csv -FileExtension jsonc -Mode export -InputPacSelector '*'
@@ -86,6 +90,7 @@ param (
         b) 'collectRawFile' exports the raw data only; Often used with 'inputPacSelector' when running non-interactive in a multi-tenant scenario to collect the raw data once per tenant into a file named after the EPAC environment
         c) 'exportFromRawFiles' reads the files generated with one or more runs of b) and outputs the files the same as normal 'export'.
         d) 'exportRawToPipeline' exports EPAC environments in EPAC format, should be used with -Interactive `$true in a multi-tenant scenario, or use with an inputPacSelector to limit the scope to one EPAC environment.
+        e) 'psrule' exports EPAC environment into a file which can be used to create policy rules for PSRule for Azure
     ")]
     [string] $Mode = 'export',
     # [string] $Mode = 'collectRawFile',
@@ -316,7 +321,7 @@ if ($Mode -ne 'exportFromRawFiles') {
         }
 
         $outputArray | ConvertTo-Json -Depth 100 | Out-File -FilePath "$OutputFolder/psrule.assignment.json" -Force
-        exit 0
+        return 0
     }
 
 }

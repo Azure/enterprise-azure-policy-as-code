@@ -56,6 +56,9 @@ jobs:
           }
           if (Test-Path $env:planFolder) {
             echo "Deploy=true" >> $env:GITHUB_ENV
+            if (!(Get-ChildItem $env:planFolder -Recurse -Include policy-plan.json)){
+              echo "RolesOnly=true" >> $env:GITHUB_ENV
+            }
           }
       - shell: pwsh
         name: Create PR
@@ -71,4 +74,10 @@ jobs:
           git add .
           git commit -m "Deployment plan commit"
           git push --set-upstream origin $branchName
-          gh pr create -B main -H $branchName --title "Approval Required for Policy Deployment - $branchName" -F body.txt --reviewer $env:REVIEWER --label PolicyDeployment
+          if ($env:RolesOnly -eq "true") {
+            gh pr create -B main -H $branchName --title "Approval Required for Role Deployment - $branchName" -F body.txt --reviewer $env:REVIEWER --label RoleDeployment
+          }
+          else {
+            gh pr create -B main -H $branchName --title "Approval Required for Policy Deployment - $branchName" -F body.txt --reviewer $env:REVIEWER --label PolicyDeployment
+          }
+          
