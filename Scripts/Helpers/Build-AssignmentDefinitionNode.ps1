@@ -329,7 +329,7 @@ function Build-AssignmentDefinitionNode {
                 if ($selector -eq "*" -or $selector -eq $pacSelector) {
                     $notScopeList = $notScope.$selector
                     if ($definition.notScope) {
-                        $definition.notScope += $notScopeList
+                        $definition.notScope = @($definition.notScope) + $notScopeList
                     }
                     else {
                         $definition.notScope = @() + $notScopeList
