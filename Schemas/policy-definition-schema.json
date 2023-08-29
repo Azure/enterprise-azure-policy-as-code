@@ -136,7 +136,6 @@
         }
     },
     "required": [
-        "type",
         "name",
         "properties"
     ]

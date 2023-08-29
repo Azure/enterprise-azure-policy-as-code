@@ -5,6 +5,9 @@
         "pacOwnerId": {
             "type": "string"
         },
+        "telemetryOptOut": {
+            "type": "boolean"
+        },
         "pacEnvironments": {
             "type": "array",
             "items": [
