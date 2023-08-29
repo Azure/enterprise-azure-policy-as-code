@@ -22,6 +22,10 @@ EPAC can be used by small organizations with a small number of Policies, Policy 
 
 For extremely small Azure customers with one or two subscriptions Microsoft Defender for Cloud automated Policy Assignments for built-in Policies is sufficient.
 
+## Major Change in v8.0.0
+
+Starting with v8.0.0, Enterprise Policy as Code (EPAC) is tracking the usage using Customer Usage Attribution (PID). For details and how to **opt-out** see [Usage Tracking](usage-tracking.md).
+
 ## Project Links
 
 - [GitHub Repo](https://github.com/Azure/enterprise-azure-policy-as-code)

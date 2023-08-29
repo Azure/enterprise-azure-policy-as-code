@@ -26,6 +26,7 @@ nav:
   - Home: index.md
   - Getting Started:
       - Overview: quick-start.md
+      - Usage Tracking: usage-tracking.md
       - Operating Environment: operating-environment.md
       - Cloning the Project: clone-github.md
       - PowerShell Module: powershell-module.md

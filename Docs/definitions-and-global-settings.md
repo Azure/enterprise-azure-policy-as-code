@@ -15,10 +15,11 @@ This `Definitions` folder and subfolders contains all your definitions. The `Syn
 
 `global-settings.jsonc` has following sections explained below:
 
-- `PacOwnerId` uniquely identifies deployments from a specific repo. We recommend using a GUID.
-- `PacEnvironments` defines the EPAC environments.
+- `telemetryOptOut` if set to true disables the collection of usage date for the EPAC repo. The default is false. See [Usage Tracking](usage-tracking.md) for more information.
+- `pacOwnerId` uniquely identifies deployments from a specific repo. We recommend using a GUID.
+- `pacEnvironments` defines the EPAC environments.
 - `managedIdentityLocations` is used in Policy Assignments as the location of the created Managed Identities.
-- `GlobalNotScopes` defines scopes not subject to the Policy Assignments.
+- `globalNotScopes` defines scopes not subject to the Policy Assignments.
 
 ### JSON Schema
 
@@ -33,6 +34,14 @@ To utilize the schema add a ```$schema``` tag to the JSON file.
 ```
 
 This schema is new in v7.4.x and may not be complete. Please let us know if we missed anything.
+
+### Opt out of telemetry data collection `telemetryOptOut`
+
+Starting with v8.0.0, Enterprise Policy as Code (EPAC) is tracking the usage using Customer Usage Attribution (PID). See [Usage Tracking](usage-tracking.md) for more information on opt out. Default is false.
+
+```json
+"telemetryOptOut": true,
+```
 
 ### Uniquely identify deployments `pacOwnerId`
 

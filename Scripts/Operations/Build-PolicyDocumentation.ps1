@@ -164,26 +164,9 @@ foreach ($file in $files) {
                 if (-not $policySets -or $policySets.Count -eq 0) {
                     Write-Error "documentPolicySet entry does not specify required policySets array entry." -ErrorAction Stop
                 }
-
-                $itemArrayList = [System.Collections.ArrayList]::new()
-                if ($null -ne $policySets -and $policySets.Count -gt 0) {
-                    foreach ($policySet in $policySets) {
-                        $itemEntry = @{
-                            shortName    = $policySet.shortName
-                            itemId       = $policySet.id
-                            policySetId  = $policySet.id
-                            assignmentId = $null
-                        }
-                        $null = $itemArrayList.Add($itemEntry)
-                    }
-                }
-                else {
-                    Write-Error "documentPolicySet entry does not specify an policySets array or policySets array is empty" -ErrorAction Stop
-                }
-                $itemList = $itemArrayList.ToArray()
-
                 $environmentColumnsInCsv = $documentPolicySetEntry.environmentColumnsInCsv
 
+                # Load pacEnvironment if not already loaded
                 if (-not $cachedPolicyResourceDetails.ContainsKey($pacEnvironmentSelector)) {
                     if ($currentPacEnvironmentSelector -ne $pacEnvironmentSelector) {
                         $currentPacEnvironmentSelector = $pacEnvironmentSelector
@@ -202,6 +185,37 @@ foreach ($file in $files) {
                     -CachedPolicyResourceDetails $cachedPolicyResourceDetails
                 $policySetDetails = $policyResourceDetails.policySets
 
+                # Calculate itemList
+                $itemArrayList = [System.Collections.ArrayList]::new()
+                if ($null -ne $policySets -and $policySets.Count -gt 0) {
+                    foreach ($policySet in $policySets) {
+                        $id = $policySet.id
+                        $name = $policySet.name
+                        if ($null -eq $id -xor $null -eq $name) {
+                            $id = Confirm-PolicySetDefinitionUsedExists `
+                                -Id $id `
+                                -Name $name `
+                                -PolicyDefinitionsScopes $PacEnvironment.policyDefinitionsScopes `
+                                -AllPolicySetDefinitions $policySetDetails
+                        }
+                        else {
+                            Write-Error "documentPolicySet:policySet entry must contain a name or an id field and not both" -ErrorAction Stop
+                        }
+                        $itemEntry = @{
+                            shortName    = $policySet.shortName
+                            itemId       = $id
+                            policySetId  = $id
+                            assignmentId = $null
+                        }
+                        $null = $itemArrayList.Add($itemEntry)
+                    }
+                }
+                else {
+                    Write-Error "documentPolicySet entry does not specify a policySets array or policySets array is empty" -ErrorAction Stop
+                }
+                $itemList = $itemArrayList.ToArray()
+
+                # flatten structure and reconcile most restrictive effect for each policy
                 $flatPolicyList = Convert-PolicySetsToFlatList `
                     -ItemList $itemList `
                     -Details $policySetDetails

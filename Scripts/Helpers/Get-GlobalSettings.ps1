@@ -31,6 +31,13 @@ function Get-GlobalSettings {
     [array] $pacEnvironments = $settings.pacEnvironments
     [hashtable] $pacEnvironmentDefinitions = @{}
     [string[]] $pacEnvironmentSelectors = @()
+
+    $telemetryOptOut = $settings.telemetryOptOut
+    $telemetryEnabled = $true
+    if ($telemetryOptOut) {
+        $telemetryEnabled = $false
+    }
+
     $pacOwnerId = $settings.pacOwnerId
     if ($null -eq $pacOwnerId) {
         Write-Error "global-settings does not contain a pacOwnerId. Add a pacOwnerId field with a GUID or other unique id!" -ErrorAction Stop
@@ -173,6 +180,7 @@ function Get-GlobalSettings {
             }
         }
         $null = $pacEnvironmentDefinitions.Add($pacSelector, @{
+                telemetryEnabled        = $telemetryEnabled
                 pacSelector             = $pacSelector
                 pacOwnerId              = $pacOwnerId
                 cloud                   = $cloud
