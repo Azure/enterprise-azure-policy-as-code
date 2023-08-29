@@ -130,6 +130,18 @@ $policyAssignmentsFolder = "$definitionsFolder/policyAssignments"
 $policyExemptionsFolder = "$definitionsFolder/policyExemptions"
 $invalidChars = [IO.Path]::GetInvalidFileNameChars()
 $invalidChars += ("[]()$".ToCharArray())
+
+# Telemetry
+if ($globalSettings.telemetryEnabled) {
+    Write-Information "Telemetry is enabled"
+    [Microsoft.Azure.Common.Authentication.AzureSession]::ClientFactory.AddUserAgent("pid-dc5b73fd-e93c-40ca-8fef-976762d1d30") 
+}
+else {
+    Write-Information "Telemetry is disabled"
+}
+Write-Information ""
+
+# Check if we have a valid mode
 Write-Information "Mode: $Mode"
 if ($Mode -eq 'export' -or $Mode -eq 'exportFromRawFiles') {
     if (Test-Path $definitionsFolder) {

@@ -180,7 +180,6 @@ function Get-GlobalSettings {
             }
         }
         $null = $pacEnvironmentDefinitions.Add($pacSelector, @{
-                telemetryEnabled        = $telemetryEnabled
                 pacSelector             = $pacSelector
                 pacOwnerId              = $pacOwnerId
                 cloud                   = $cloud
@@ -208,6 +207,7 @@ function Get-GlobalSettings {
     $policyExemptionsFolder = "$DefinitionsRootFolder/policyExemptions"
 
     [hashtable] $globalSettings = @{
+        telemetryEnabled           = $telemetryEnabled
         definitionsRootFolder      = $DefinitionsRootFolder
         globalSettingsFile         = $globalSettingsFile
         outputFolder               = $OutputFolder

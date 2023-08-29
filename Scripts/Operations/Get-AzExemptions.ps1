@@ -55,6 +55,18 @@ $pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRoot
 $null = Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -Interactive $pacEnvironment.interactive
 $policyExemptionsFolder = "$($pacEnvironment.outputFolder)/policyExemptions"
 
+# Telemetry
+if ($pacEnvironment.telemetryEnabled) {
+    Write-Information "Telemetry is enabled"
+    [Microsoft.Azure.Common.Authentication.AzureSession]::ClientFactory.AddUserAgent("pid-3f02e7d5-1cf5-490a-a95c-3d49f0673093") 
+}
+else {
+    Write-Information "Telemetry is disabled"
+}
+Write-Information ""
+
+
+
 $scopeTable = Get-AzScopeTree -PacEnvironment $pacEnvironment
 $deployedPolicyResources = Get-AzPolicyResources -PacEnvironment $pacEnvironment -ScopeTable $scopeTable -SkipRoleAssignments
 $exemptions = $deployedPolicyResources.policyExemptions.managed

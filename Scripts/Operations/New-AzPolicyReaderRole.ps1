@@ -39,6 +39,17 @@ $InformationPreference = "Continue"
 $pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -Interactive $Interactive
 $null = Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -Interactive $pacEnvironment.interactive
 
+# Telemetry
+if ($pacEnvironment.telemetryEnabled) {
+    Write-Information "Telemetry is enabled"
+    [Microsoft.Azure.Common.Authentication.AzureSession]::ClientFactory.AddUserAgent("pid-f4b5b7ac-70b4-40fc-836f-585791aa83e7") 
+}
+else {
+    Write-Information "Telemetry is disabled"
+}
+Write-Information ""
+
+# Get the root scope for the Policy Definitions
 $policyDefinitionsScopes = $pacEnvironment.policyDefinitionsScopes
 $deploymentRootScope = $policyDefinitionsScopes[0]
 

@@ -66,6 +66,15 @@ if (-not (Test-Path $outputPath)) {
     New-Item $outputPath -Force -ItemType directory
 }
 
+# Telemetry
+if ($globalSettings.telemetryEnabled) {
+    Write-Information "Telemetry is enabled"
+    [Microsoft.Azure.Common.Authentication.AzureSession]::ClientFactory.AddUserAgent("pid-2dc29bae-2448-4d7f-b911-418421e83900") 
+}
+else {
+    Write-Information "Telemetry is disabled"
+}
+Write-Information ""
 
 # Caching information to optimize different outputs
 $cachedPolicyResourceDetails = @{}

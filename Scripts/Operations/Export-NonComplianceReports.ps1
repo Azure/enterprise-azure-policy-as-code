@@ -131,6 +131,18 @@ $InformationPreference = "Continue"
 $pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -Interactive $Interactive
 $tenantId = $pacEnvironment.tenantId
 $account = Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $tenantId -Interactive $pacEnvironment.interactive
+
+# Telemetry
+if ($pacEnvironment.telemetryEnabled) {
+    Write-Information "Telemetry is enabled"
+    [Microsoft.Azure.Common.Authentication.AzureSession]::ClientFactory.AddUserAgent("pid-f464b017-898b-4156-9da5-af932831fa2f") 
+}
+else {
+    Write-Information "Telemetry is disabled"
+}
+Write-Information ""
+
+# Set the management portal URL
 $managementPortalUrlBase = $account.Environment.ManagementPortalUrl
 $managementPortalUrlStem = "$($managementPortalUrlBase)#@$($tenantId)/resource"
 
