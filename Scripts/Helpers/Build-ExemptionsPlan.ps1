@@ -78,7 +78,7 @@ function Build-ExemptionsPlan {
                 }
                     
                 $entryNumber = $isXls ? 1 : 0
-                foreach ($row in $emptionsArray) {
+                foreach ($row in $exemptionsArray) {
                     $name = $row.name
                     $displayName = $row.displayName
                     $exemptionCategory = $row.exemptionCategory
