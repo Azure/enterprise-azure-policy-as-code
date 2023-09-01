@@ -118,7 +118,7 @@ function Confirm-ObjectValueEqualityDeep {
             return $true
         }
         else {
-            # equality of other types handled in the then clause of the outer else clause
+            # equality of other types handled in then clause of the outer else clause
             return $false
         }
     }

@@ -16,7 +16,6 @@
 . "$PSScriptRoot/../Helpers/Build-PolicySetPlan.ps1"
 . "$PSScriptRoot/../Helpers/Build-PolicySetPolicyDefinitionIds.ps1"
 
-. "$PSScriptRoot/../Helpers/Confirm-ActiveAzExemptions.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-AssignmentParametersMatch.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-MetadataMatches.ps1"
 . "$PSScriptRoot/../Helpers/Confirm-NullOrEmptyValue.ps1"

@@ -33,7 +33,6 @@ function Build-ExemptionsPlan {
         }
         else {
             Write-Information "Number of Policy Exemption files = $($exemptionFiles.Length)"
-            $now = Get-Date -AsUTC
             $numberOfFilesWithErrors = 0
             foreach ($file  in $exemptionFiles) {
 
@@ -62,6 +61,7 @@ function Build-ExemptionsPlan {
                     }
                 }
                 elseif ($extension -eq ".csv") {
+                    $isXls = $true
                     $content = Get-Content -Path $fullName -Raw -ErrorAction Stop
                     $xlsExemptions = ($content | ConvertFrom-Csv -ErrorAction Stop)
                     if ($xlsExemptions.Count -gt 0) {
@@ -71,14 +71,15 @@ function Build-ExemptionsPlan {
 
                 #endregion read each file
 
-                #region validate file contents
-
                 if ($errorInfo.hasErrors) {
-                    Confirm-PolicyDefinitionUsedExists
+                    continue
                 }
                     
                 $entryNumber = $isXls ? 1 : 0
                 foreach ($row in $exemptionsArray) {
+
+                    #region read and validate each row
+
                     $name = $row.name
                     $displayName = $row.displayName
                     $exemptionCategory = $row.exemptionCategory
@@ -139,59 +140,75 @@ function Build-ExemptionsPlan {
                         }
                     }
 
+                    #endregion read and validate each row
+
                     #region Convert complex fields from CSV
 
                     if ($isXls) {
                         # Convert referenceIds into array (if cell empty, set to empty array)
-                        $policyDefinitionReferenceIds = @()
-                        $step1 = $row.policyDefinitionReferenceIds
+                        $final = @()
+                        $step1 = $policyDefinitionReferenceIds
                         if (-not [string]::IsNullOrWhiteSpace($step1)) {
                             $step2 = $step1.Trim()
                             $step3 = $step2 -split ","
-
                             foreach ($item in $step3) {
                                 $step4 = $item.Trim()
                                 if ($step4.Length -gt 0) {
-                                    $policyDefinitionReferenceIds += $step4
+                                    $final += $step4
                                 }
                             }
                         }
+                        $policyDefinitionReferenceIds = $final
 
                         # Convert resourceSelectors into array (if cell empty, set to Snull)
-                        $resourceSelectors = $null
-                        $step1 = $row.resourceSelectors
+                        $step1 = $resourceSelectors
                         if (-not [string]::IsNullOrWhiteSpace($step1)) {
                             $step2 = $step1.Trim()
                             if ($step2.StartsWith("{") -and (Test-Json $step2)) {
-                                $step3 = ConvertFrom-Json $step2 -AsHashTable -Depth 100
-                                if ($step3 -ne @{}) {
+                                $step3 = ConvertFrom-Json $step2 -AsHashTable -Depth 100 -NoEnumerate
+                                if ($step3.Count -gt 0) {
                                     $resourceSelectors = $step3
+                                }
+                                else {
+                                    $resourceSelectors = $null
                                 }
                             }
                             else {
                                 Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "invalid resourceSelectors format, must be empty or legal JSON: '$step2'" -EntryNumber $entryNumber
                             }
                         }
+                        else {
+                            $resourceSelectors = $null
+                        }
 
                         # Convert metadata JSON to object
-                        $metadata = $null
-                        $step1 = $row.metadata
+                        $step1 = $metadata
                         if (-not [string]::IsNullOrWhiteSpace($step1)) {
                             $step2 = $step1.Trim()
                             if ($step2.StartsWith("{") -and (Test-Json $step2)) {
                                 $step3 = ConvertFrom-Json $step2 -AsHashTable -Depth 100
-                                if ($step3 -ne @{}) {
+                                if ($step3.Count -gt 0) {
                                     $metadata = $step3
+                                }
+                                else {
+                                    $metadata = $null
                                 }
                             }
                             else {
                                 Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "invalid metadata format, must be empty or legal JSON: '$step2'" -EntryNumber $entryNumber
                             }
                         }
+                        else {
+                            $metadata = $null
+                        }
                     }
 
+                    #endregion Convert complex fields from CSV
+
+                    #region calculate expiresOn
+
                     $expiresOn = $null
-                    $expiresOnRaw = $exemptionRaw.expiresOn
+                    $expiresOnRaw = $row.expiresOn
                     if (-not [string]::IsNullOrWhitespace($expiresOnRaw)) {
                         if ($expiresOnRaw -is [datetime]) {
                             $expiresOn = $expiresOnRaw
@@ -208,6 +225,10 @@ function Build-ExemptionsPlan {
                             Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "invalid expiresOn format, must be empty or a valid date/time: '$expiresOnRaw'" -EntryNumber $entryNumber
                         }
                     }
+
+                    #endregion calculate expiresOn
+
+                    #region create $exemption
 
                     $id = "$scope/providers/Microsoft.Authorization/policyExemptions/$name"
                     if ($allExemptions.ContainsKey($id)) {
@@ -230,46 +251,59 @@ function Build-ExemptionsPlan {
                         scope                        = $scope
                         policyAssignmentId           = $policyAssignmentId
                         assignmentScopeValidation    = $assignmentScopeValidation
-                        resourceSelectors            = $resourceSelectors
                         policyDefinitionReferenceIds = $policyDefinitionReferenceIds
+                        resourceSelectors            = $resourceSelectors
                         metadata                     = $metadata
                     }
 
+                    #endregion create $exemption
 
-                    #region expiresOn
+                    #region expired and orphaned in definitions
 
-                    $expired = $false
-                    $expiresOn = $exemptionRaw.expiresOn
-                    if ($null -ne $expiresOn) {
-                        $expired = $expiresOn -lt $now
-                        $null = $exemption.Add("expiresOn", $expiresOn)
-                    }
-
-                    #endregion expiresOn
-
-                    # Filter orphaned and expired Exemptions in definitions; deleteCandidates will delete it from environment if it is still deployed
-                    if ($expired) {
-                        Write-Warning "Expired exemption (name=$name, scope=$scope) in definitions"
-                        continue
-                    }
-                    if (!$AllAssignments.ContainsKey($policyAssignmentId)) {
-                        Write-Warning "Orphaned exemption (name=$name, scope=$scope) in definitions"
-                        continue
-                    }
-
-                    # Calculate desired state mandated changes
+                    $deployedManagedExemption = $null
                     if ($deployedManagedExemptions.ContainsKey($id)) {
-                        $deleteCandidates.Remove($id)
                         $deployedManagedExemption = $deployedManagedExemptions.$id
+                        # Filter orphaned and expired Exemptions in definitions; deleteCandidates will delete it from environment if it is still deployed
+                        if (!$AllAssignments.ContainsKey($policyAssignmentId)) {
+                            Write-Warning "Orphaned exemption (name=$name, scope=$scope) in definitions"
+                            $deployedManagedExemption.pacOwner = "orphaned"
+                            $deployedManagedExemptions.status = "orphaned"
+                            continue
+                        }
+                        if ($expired) {
+                            Write-Warning "Expired exemption (name=$name, scope=$scope) in definitions"
+                            if ($deployedManagedExemption.status -ne "orphaned") {
+                                $deployedManagedExemption.status = "expired"
+                            }
+                            continue
+                        }
+                    }
+                    else {
+                        if (!$AllAssignments.ContainsKey($policyAssignmentId)) {
+                            Write-Warning "Orphaned exemption (name=$name, scope=$scope) in definitions"
+                            continue
+                        }
+                        if ($expired) {
+                            Write-Warning "Expired exemption (name=$name, scope=$scope) in definitions"
+                            continue
+                        }
+                    }
+
+                    #endregion expired and orphaned in definitions
+
+                    #region calculate desired state mandated changes
+
+                    if ($deployedManagedExemption) {
+                        $deleteCandidates.Remove($id)
                         if ($deployedManagedExemption.policyAssignmentId -ne $policyAssignmentId) {
                             # Replaced Assignment
-                            Write-Information "Replace(assignment) '$($name)', '$($scope)'"
+                            Write-Information "Replace(assignmentId changed) '$($name)', '$($scope)'"
                             $null = $Exemptions.replace.Add($id, $exemption)
                             $Exemptions.numberOfChanges++
                         }
                         elseif ($replacedAssignments.ContainsKey($policyAssignmentId)) {
                             # Replaced Assignment
-                            Write-Information "Replace(reference) '$($name)', '$($scope)'"
+                            Write-Information "Replace(replaced assignment) '$($name)', '$($scope)'"
                             $null = $Exemptions.replace.Add($id, $exemption)
                             $Exemptions.numberOfChanges++
                         }
@@ -292,7 +326,7 @@ function Build-ExemptionsPlan {
                                 -ExistingMetadataObj $deployedManagedExemption.metadata `
                                 -DefinedMetadataObj $metadata
                             $assignmentScopeValidationMatches = ($deployedManagedExemption.assignmentScopeValidation -eq $assignmentScopeValidation) `
-                                -or ($null -eq $deployedManagedExemption.assignmentScopeValidation -and ($assignmentScopeValidation -eq "Default" -or $null -eq $assignmentScopeValidation))
+                                -or ($null -eq $deployedManagedExemption.assignmentScopeValidation -and ($assignmentScopeValidation -eq "Default"))
                             $resourceSelectorsMatches = Confirm-ObjectValueEqualityDeep $deployedManagedExemption.resourceSelectors $resourceSelectors
                             # Update Exemption in Azure if necessary
                             if ($displayNameMatches -and $descriptionMatches -and $exemptionCategoryMatches -and $expiresOnMatches `
@@ -310,7 +344,7 @@ function Build-ExemptionsPlan {
                                     $changesStrings += "description" 
                                 } 
                                 if (!$policyDefinitionReferenceIdsMatches) {
-                                    $changesStrings += "referenceIds" 
+                                    $changesStrings += "policyDefinitionReferenceIds" 
                                 } 
                                 if (!$metadataMatches) {
                                     $changesStrings += "metadata" 
@@ -343,6 +377,8 @@ function Build-ExemptionsPlan {
                         $null = $Exemptions.new.Add($id, $exemption)
                         $Exemptions.numberOfChanges++
                     }
+
+                    #endregion calculate desired state mandated changes
                 }
                 if ($errorInfo.hasErrors) {
                     $errorText = Get-ErrorTextFromInfo -ErrorInfo $errorInfo
@@ -356,35 +392,38 @@ function Build-ExemptionsPlan {
                 Write-Error "There were errors in $numberOfFilesWithErrors file(s)." -ErrorAction Stop
             }
 
-            $Exemptions.numberOfOrphans = $DeployedExemptions.orphaned.psbase.Count
-            foreach ($exemption in $DeployedExemptions.orphaned.Values) {
-                # delete all orphaned exemptions
-                Write-Warning "Delete(orphaned) '$($exemption.name)', '$($exemption.scope)'"
-                $null = $Exemptions.delete[$exemption.id] = $exemption
-                $Exemptions.numberOfChanges++
-            }
+            #region delete removed, orphaned and expired exemptions
+
             $strategy = $PacEnvironment.desiredState.strategy
             foreach ($id in $deleteCandidates.Keys) {
-                $exemption = $DeployedExemptions.managed[$id]
+                $exemption = $deleteCandidates.$id
                 $pacOwner = $exemption.pacOwner
+                $status = $exemption.status
                 $shallDelete = Confirm-DeleteForStrategy -PacOwner $pacOwner -Strategy $strategy
 
                 if ($shallDelete) {
+                    switch ($status) {
+                        orphaned { 
+                            $Exemptions.numberOfOrphans++
+                        }
+                        expired { 
+                            $Exemptions.numberOfExpired++
+                        }
+                    }
                     Write-Information "Delete '$($exemption.name)', '$($exemption.scope)'"
                     $null = $Exemptions.delete[$exemption.id] = $exemption
                     $Exemptions.numberOfChanges++
                 }
                 else {
-                    # Write-Information "No delete($pacOwner,$strategy) '$($exemption.name)', '$($exemption.scope)'"
+                    Write-Verbose "No delete($pacOwner,$strategy) '$($exemption.name)', '$($exemption.scope)'"
                 }
             }
+
+            #endregion delete removed, orphaned and expired exemptions
 
             Write-Information ""
             if ($Exemptions.numberUnchanged -gt 0) {
                 Write-Information "$($Exemptions.numberUnchanged) unchanged Exemptions"
-            }
-            if ($Exemptions.numberOfOrphans -gt 0) {
-                Write-Information "$($Exemptions.numberOfOrphans) orphaned Exemptions"
             }
         }
         Write-Information ""

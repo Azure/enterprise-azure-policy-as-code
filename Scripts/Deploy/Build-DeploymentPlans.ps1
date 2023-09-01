@@ -83,13 +83,15 @@ $exemptionsAreNotManagedMessage = ""
 $policyExemptionsFolder = $pacEnvironment.policyExemptionsFolder
 
 $exemptionsFolderForPacEnvironment = "$($policyExemptionsFolder)/$($pacEnvironment.pacSelector)"
+$exemptionsAreNotManaged = $false
 if (!(Test-Path $policyExemptionsFolder -PathType Container)) {
     $exemptionsAreNotManagedMessage = "Policy Exemptions folder 'policyExemptions' not found. Exemptions not managed by this EPAC instance."
+    $exemptionsAreNotManaged = $true
 }
 elseif (!(Test-Path $exemptionsFolderForPacEnvironment -PathType Container)) {
     $exemptionsAreNotManagedMessage = "Policy Exemptions are not managed by this EPAC instance's PaC environment $($pacEnvironment.pacSelector)!"
+    $exemptionsAreNotManaged = $true
 }
-$exemptionsAreNotManaged = $exemptionsAreNotManagedMessage -eq ""
 
 $scopeTable = Get-AzScopeTree -PacEnvironment $pacEnvironment
 $deployedPolicyResources = Get-AzPolicyResources -PacEnvironment $pacEnvironment -ScopeTable $scopeTable -SkipExemptions:$exemptionsAreNotManaged
@@ -172,6 +174,7 @@ $exemptions = @{
     replace         = @{}
     delete          = @{}
     numberOfOrphans = 0
+    numberOfExpired = 0
     numberOfChanges = 0
     numberUnchanged = 0
 }
@@ -267,6 +270,8 @@ if ($exemptionsAreNotManagedMessage -ne "") {
 else {
     Write-Information "Policy Exemption counts:"
     Write-Information "    $($exemptions.numberUnchanged) unchanged"
+    Write-Information "    $($exemptions.numberOfOrphans) orphaned"
+    Write-Information "    $($exemptions.numberOfExpired) expired"
     if ($exemptions.numberOfChanges -eq 0) {
         Write-Information "    $($exemptions.numberOfChanges) changes"
     }
@@ -276,7 +281,6 @@ else {
         Write-Information "        update  = $($exemptions.update.psbase.Count)"
         Write-Information "        replace = $($exemptions.replace.psbase.Count)"
         Write-Information "        delete  = $($exemptions.delete.psbase.Count)"
-        Write-Information "        orphans = $($exemptions.numberOfOrphans)"
     }
 }
 
