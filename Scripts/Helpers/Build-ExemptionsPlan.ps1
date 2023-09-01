@@ -208,6 +208,7 @@ function Build-ExemptionsPlan {
                     #region calculate expiresOn
 
                     $expiresOn = $null
+                    $expired = $false
                     $expiresOnRaw = $row.expiresOn
                     if (-not [string]::IsNullOrWhitespace($expiresOnRaw)) {
                         if ($expiresOnRaw -is [datetime]) {
@@ -223,6 +224,9 @@ function Build-ExemptionsPlan {
                         }
                         else {
                             Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "invalid expiresOn format, must be empty or a valid date/time: '$expiresOnRaw'" -EntryNumber $entryNumber
+                        }
+                        if ($expiresOn) {
+                            $expired = $expiresOn -lt (Get-Date)
                         }
                     }
 
@@ -242,7 +246,16 @@ function Build-ExemptionsPlan {
                         continue
                     }
                     
+                    if ($metadata) {
+                        $metadata.pacOwnerId = $PacEnvironment.pacOwnerId
+                    }
+                    else {
+                        $metadata = @{
+                            pacOwnerId = $PacEnvironment.pacOwnerId
+                        }
+                    }
                     $exemption = [PSCustomObject]@{
+                        id                           = $id
                         name                         = $name
                         displayName                  = $displayName
                         description                  = $description
@@ -266,13 +279,14 @@ function Build-ExemptionsPlan {
                         # Filter orphaned and expired Exemptions in definitions; deleteCandidates will delete it from environment if it is still deployed
                         if (!$AllAssignments.ContainsKey($policyAssignmentId)) {
                             Write-Warning "Orphaned exemption (name=$name, scope=$scope) in definitions"
-                            $deployedManagedExemption.pacOwner = "orphaned"
+                            $deployedManagedExemption.pacOwner = "thisPac"
                             $deployedManagedExemptions.status = "orphaned"
                             continue
                         }
                         if ($expired) {
                             Write-Warning "Expired exemption (name=$name, scope=$scope) in definitions"
                             if ($deployedManagedExemption.status -ne "orphaned") {
+                                $deployedManagedExemption.pacOwner = "thisPac"
                                 $deployedManagedExemption.status = "expired"
                             }
                             continue
@@ -322,7 +336,7 @@ function Build-ExemptionsPlan {
                                 }
                             }
                             $policyDefinitionReferenceIdsMatches = Confirm-ObjectValueEqualityDeep $deployedManagedExemption.policyDefinitionReferenceIds $policyDefinitionReferenceIds
-                            $metadataMatches = Confirm-MetadataMatches `
+                            $metadataMatches, $changePacOwnerId = Confirm-MetadataMatches `
                                 -ExistingMetadataObj $deployedManagedExemption.metadata `
                                 -DefinedMetadataObj $metadata
                             $assignmentScopeValidationMatches = ($deployedManagedExemption.assignmentScopeValidation -eq $assignmentScopeValidation) `
@@ -330,7 +344,7 @@ function Build-ExemptionsPlan {
                             $resourceSelectorsMatches = Confirm-ObjectValueEqualityDeep $deployedManagedExemption.resourceSelectors $resourceSelectors
                             # Update Exemption in Azure if necessary
                             if ($displayNameMatches -and $descriptionMatches -and $exemptionCategoryMatches -and $expiresOnMatches `
-                                    -and $policyDefinitionReferenceIdsMatches -and $metadataMatches -and (-not $clearExpiration) `
+                                    -and $policyDefinitionReferenceIdsMatches -and $metadataMatches -and !$changePacOwnerId -and !$clearExpiration `
                                     -and $assignmentScopeValidationMatches -and $resourceSelectorsMatches) {
                                 $Exemptions.numberUnchanged += 1
                             }
@@ -345,7 +359,10 @@ function Build-ExemptionsPlan {
                                 } 
                                 if (!$policyDefinitionReferenceIdsMatches) {
                                     $changesStrings += "policyDefinitionReferenceIds" 
-                                } 
+                                }
+                                if ($changePacOwnerId) {
+                                    $changesStrings += "owner"
+                                }
                                 if (!$metadataMatches) {
                                     $changesStrings += "metadata" 
                                 } 
@@ -399,6 +416,9 @@ function Build-ExemptionsPlan {
                 $exemption = $deleteCandidates.$id
                 $pacOwner = $exemption.pacOwner
                 $status = $exemption.status
+                if ($status -eq "orphaned" -and $pacOwner -eq "unknownOwner") {
+                    $pacOwner = "thisPac"
+                }
                 $shallDelete = Confirm-DeleteForStrategy -PacOwner $pacOwner -Strategy $strategy
 
                 if ($shallDelete) {

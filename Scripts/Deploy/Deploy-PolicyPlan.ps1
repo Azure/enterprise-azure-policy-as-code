@@ -194,7 +194,7 @@ else {
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policyDefinitions.Keys) {
             $definitionObj = $policyDefinitions[$id]
-            $null = Set-AzPolicyDefinitionRestMethod -Definition $definitionObj
+            Set-AzPolicyDefinitionRestMethod -Definition $definitionObj
         }
     }
 
@@ -206,7 +206,7 @@ else {
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policyDefinitions.Keys) {
             $definitionObj = $policyDefinitions[$id]
-            $null = Set-AzPolicyDefinitionRestMethod -Definition $definitionObj
+            Set-AzPolicyDefinitionRestMethod -Definition $definitionObj
         }
     }
 
@@ -218,7 +218,7 @@ else {
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policyDefinitions.Keys) {
             $definitionObj = $policyDefinitions[$id]
-            $null = Set-AzPolicyDefinitionRestMethod -Definition $definitionObj
+            Set-AzPolicyDefinitionRestMethod -Definition $definitionObj
         }
     }
 
@@ -230,7 +230,7 @@ else {
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policySetDefinitions.Keys) {
             $definitionObj = $policySetDefinitions[$id]
-            $null = Set-AzPolicySetDefinitionRestMethod -Definition $definitionObj
+            Set-AzPolicySetDefinitionRestMethod -Definition $definitionObj
         }
     }
 
@@ -242,7 +242,7 @@ else {
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policySetDefinitions.Keys) {
             $definitionObj = $policySetDefinitions[$id]
-            $null = Set-AzPolicySetDefinitionRestMethod -Definition $definitionObj
+            Set-AzPolicySetDefinitionRestMethod -Definition $definitionObj
         }
     }
 
@@ -254,7 +254,7 @@ else {
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($id in $policySetDefinitions.Keys) {
             $definitionObj = $policySetDefinitions[$id]
-            $null = Set-AzPolicySetDefinitionRestMethod -Definition $definitionObj
+            Set-AzPolicySetDefinitionRestMethod -Definition $definitionObj
         }
     }
 
@@ -324,7 +324,7 @@ else {
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($exemptionId in $exemptions.Keys) {
             $exemption = $exemptions.$exemptionId
-            $null = Set-AzPolicyExemptionRestMethod -ExemptionObj $exemption
+            Set-AzPolicyExemptionRestMethod -ExemptionObj $exemption
         }
     }
 
@@ -336,7 +336,7 @@ else {
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($exemptionId in $exemptions.Keys) {
             $exemption = $exemptions.$exemptionId
-            $null = Set-AzPolicyExemptionRestMethod -ExemptionObj $exemption
+            Set-AzPolicyExemptionRestMethod -ExemptionObj $exemption
         }
     }
 
@@ -348,7 +348,7 @@ else {
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($exemptionId in $exemptions.Keys) {
             $exemption = $exemptions.$exemptionId
-            $null = Set-AzPolicyExemptionRestMethod -ExemptionObj $exemption
+            Set-AzPolicyExemptionRestMethod -ExemptionObj $exemption
         }
     }
 

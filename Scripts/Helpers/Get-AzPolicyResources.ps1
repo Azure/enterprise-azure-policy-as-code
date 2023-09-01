@@ -309,12 +309,24 @@ function Get-AzPolicyResources {
                     -ExcludedIds $excludedPolicyAssignments `
                     -PolicyResourceTable $exemptionsTable
                 if ($included) {
-                    $pacOwner = "orphaned"
-                    $status = "orphaned"
+                    $status = "unknown"
+                    $pacOwner = "unknownOwner"
+                    $assignmentPacOwner = "unknownOwner"
+                    $exemptionPacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -Metadata $metadata
                     if ($managedPolicyAssignmentsTable.ContainsKey($policyAssignmentId)) {
                         $status = "active"
                         $policyAssignment = $managedPolicyAssignmentsTable.$policyAssignmentId
-                        $pacOwner = $policyAssignment.pacOwner
+                        $assignmentPacOwner = $policyAssignment.pacOwner
+                        if ($exemptionPacOwner -eq "unknownOwner") {
+                            $pacOwner = $assignmentPacOwner
+                        }
+                        else {
+                            $pacOwner = $exemptionPacOwner
+                        }
+                    }
+                    else {
+                        $status = "orphaned"
+                        $pacOwner = $exemptionPacOwner
                     }
                     $expiresInDays = [Int32]::MaxValue
                     if ($expiresOn) {
@@ -356,7 +368,7 @@ function Get-AzPolicyResources {
                     elseif ($pacOwner -eq "unknownOwner") {
                         $managedByCounters.unknown += 1
                     }
-                    else {
+                    if ($status -eq "orphaned") {
                         $managedByCounters.orphaned += 1
                     }
                     $null = $exemptionsTable.managed.Add($id, $exemption)
