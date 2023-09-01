@@ -71,7 +71,7 @@ function Find-AzNonCompliantResources {
         $scopeTable = Get-AzScopeTree -PacEnvironment $PacEnvironment
         $notOnlyCheckManagedAssignments = -not $OnlyCheckManagedAssignments
         $deployedPolicyResources = Get-AzPolicyResources -PacEnvironment $PacEnvironment -ScopeTable $scopeTable -SkipExemptions -SkipRoleAssignments -CollectAllPolicies:$notOnlyCheckManagedAssignments
-        $allAssignments = $deployedPolicyResources.policyassignments.all
+        $allAssignments = $deployedPolicyResources.policyassignments.managed
         $strategy = $pacEnvironment.desiredState.strategy
         # Filter result
         if (-not $OnlyCheckManagedAssignments -and -not $PolicyDefinitionFilter -and -not $PolicySetDefinitionFilter -and -not $PolicyAssignmentFilter) {

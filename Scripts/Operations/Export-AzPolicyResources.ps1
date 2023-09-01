@@ -233,10 +233,10 @@ if ($Mode -ne 'exportFromRawFiles') {
             $skipExemptions = $ExemptionFiles -eq "none"
             $deployed = Get-AzPolicyResources -PacEnvironment $pacEnvironment -ScopeTable $scopeTable -SkipExemptions:$skipExemptions -CollectAllPolicies:$IncludeChildScopes
 
-            $policyDefinitions = $deployed.policydefinitions.custom
-            $policySetDefinitions = $deployed.policysetdefinitions.custom
-            $policyAssignments = $deployed.policyassignments.all
-            $policyExemptions = $deployed.policyExemptions.all
+            $policyDefinitions = $deployed.policydefinitions.managed
+            $policySetDefinitions = $deployed.policysetdefinitions.managed
+            $policyAssignments = $deployed.policyassignments.managed
+            $policyExemptions = $deployed.policyExemptions.managed
 
             $policyResources = @{
                 policyDefinitions    = $policyDefinitions
@@ -521,15 +521,15 @@ foreach ($pacEnvironment in $pacEnvironments.Values) {
         #region process Exemptions
 
         if (-not $skipExemptions) {
+            Write-Information ""
             Out-PolicyExemptions `
                 -Exemptions $policyExemptions `
-                -Assignments $policyAssignments `
                 -PacEnvironment $pacEnvironment `
                 -PolicyExemptionsFolder $policyExemptionsFolder `
                 -OutputJson:($ExemptionFiles -eq "json") `
                 -OutputCsv:($ExemptionFiles -eq "csv") `
-                -ExemptionOutputType "active" `
-                -FileExtension $FileExtension
+                -FileExtension $FileExtension `
+                -ActiveExemptionsOnly
         }
 
         #endregion process Exemptions
@@ -548,7 +548,8 @@ foreach ($pacEnvironment in $pacEnvironments.Values) {
                     $id -like "/subscriptions/*/providers/Microsoft.Authorization/policyAssignments/ASC-*" `
                         -or $id -like "/subscriptions/*/providers/Microsoft.Authorization/policyAssignments/SecurityCenterBuiltIn"
                 )
-            ) {
+            )
+            {
                 Write-Warning "Do not process Security Center: $id"
             }
             else {
@@ -558,7 +559,7 @@ foreach ($pacEnvironment in $pacEnvironments.Values) {
                 if ($rawMetadata.roles) {
                     $roles = $rawMetadata.roles
                 }
-                $metadata = Get-CustomMetadata $properties.metadata -Remove "pacOwnerId, roles"
+                $metadata = Get-CustomMetadata $properties.metadata -Remove "pacOwnerId,roles"
 
                 $name = $policyAssignment.name
                 $policyDefinitionId = $properties.policyDefinitionId
@@ -606,7 +607,7 @@ foreach ($pacEnvironment in $pacEnvironments.Values) {
                 $identityType = $policyAssignment.identity.type
                 $location = $policyAssignment.location
                 if ($location -eq $pacEnvironment.managedIdentityLocation) {
-                    $location = ""
+                    $location = $null
                 }
                 if ($identityType -eq "UserAssigned") {
                     $userAssignedIdentities = $policyAssignment.identity.userAssignedIdentities

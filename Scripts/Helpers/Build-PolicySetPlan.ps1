@@ -36,7 +36,7 @@ function Build-PolicySetPlan {
 
     # Populate allDefinitions with deployed definitions
     $managedDefinitions = $DeployedDefinitions.managed
-    $deleteCandidates = Get-HashtableShallowClone $DeployedDefinitions.managed
+    $deleteCandidates = Get-HashtableShallowClone $managedDefinitions
     $allDeployedDefinitions = $DeployedDefinitions.all
     foreach ($id in $allDeployedDefinitions.Keys) {
         $AllDefinitions.policysetdefinitions[$id] = $allDeployedDefinitions.$id
