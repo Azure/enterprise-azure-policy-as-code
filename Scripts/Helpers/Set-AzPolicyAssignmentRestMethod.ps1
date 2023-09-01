@@ -51,16 +51,9 @@ function Set-AzPolicyAssignmentRestMethod {
     }
 
     # Invoke the REST API
-    $assignmentJson = ConvertTo-Json $assignment -Depth 100 -Compress
-    $response = Invoke-AzRestMethod -Path "$($AssignmentObj.id)?api-version=2022-06-01" -Method PUT -Payload $assignmentJson
-
-    # Process response
-    $statusCode = $response.StatusCode
-    if ($statusCode -ne 201) {
-        $content = $response.Content
-        Write-Information "assignment: $assignmentJson"
-        Write-Error "Assignment error $($statusCode) -- $($content)" -ErrorAction Stop
-    }
-
+    $objectName = "Policy Assignment"
+    $payload = ConvertTo-Json $assignment -Depth 100 -Compress
+    $path = "$($AssignmentObj.id)?api-version=2022-06-01"
+    $null = Invoke-AzRestMethodWrapper -ObjectName $objectName -Path $path -Method PUT -Payload $payload
     return $displayName
 }

@@ -27,11 +27,12 @@ function Out-PolicyExemptions {
             }
         }
     }
-    $metadataTransform = @{
+    $metadataTransformCsv = @{
         label      = "metadata"
         expression = {
             if ($_.metadata) {
-                $temp = (ConvertTo-Json $_.metadata -Depth 100 -Compress).ToString()
+                $step1 = Get-CustomMetadata -Metadata $_.metadata -Remove "pacOwnerId"
+                $temp = (ConvertTo-Json $step1 -Depth 100 -Compress).ToString()
                 if ($temp -eq "{}") {
                     ''
                 }
@@ -41,6 +42,18 @@ function Out-PolicyExemptions {
             }
             else {
                 ''
+            }
+        }
+    }
+    $metadataTransformJson = @{
+        label      = "metadata"
+        expression = {
+            if ($_.metadata) {
+                $temp = Get-CustomMetadata -Metadata $_.metadata -Remove "pacOwnerId"
+                $temp
+            }
+            else {
+                $null
             }
         }
     }
@@ -96,7 +109,7 @@ function Out-PolicyExemptions {
                 policyAssignmentId, `
                 policyDefinitionReferenceIds, `
                 resourceSelectors, `
-                metadata, `
+                $metadataTransformJson, `
                 assignmentScopeValidation
             $jsonArray = @()
             if ($selectedArray -and $selectedArray.Count -gt 0) {
@@ -121,7 +134,7 @@ function Out-PolicyExemptions {
                 policyAssignmentId, `
                 $policyDefinitionReferenceIdsTransform, `
                 $resourceSelectorsTransform, `
-                $metadataTransform, `
+                $metadataTransformCsv, `
                 $assignmentScopeValidationTransform
             $excelArray = @()
             if ($null -ne $selectedArray -and $selectedArray.Count -gt 0) {
@@ -158,7 +171,7 @@ function Out-PolicyExemptions {
                 policyAssignmentId, `
                 policyDefinitionReferenceIds, `
                 resourceSelectors, `
-                metadata, `
+                $metadataTransformJson, `
                 assignmentScopeValidation
             $jsonArray = @()
             if ($selectedArray -and $selectedArray.Count -gt 0) {
@@ -185,7 +198,7 @@ function Out-PolicyExemptions {
                 policyAssignmentId, `
                 $policyDefinitionReferenceIdsTransform, `
                 $resourceSelectorsTransform, `
-                $metadataTransform, `
+                $metadataTransformCsv, `
                 $assignmentScopeValidationTransform
             $excelArray = @()
             if ($null -ne $selectedArray -and $selectedArray.Count -gt 0) {
