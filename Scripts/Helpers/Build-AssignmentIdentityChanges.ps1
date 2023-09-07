@@ -138,7 +138,7 @@ function Build-AssignmentIdentityChanges {
                         $deployedRoleDefinitionId = $deployedRoleAssignment.roleDefinitionId
                         if (($deployedScope -eq $requiredRoleDefinition.scope) -and ($deployedRoleDefinitionId -eq $requiredRoleDefinitionId)) {
                             $matchFound = $true
-                            # nNothing to do
+                            # nothing to do
                             break
                         }
                     }
@@ -191,7 +191,7 @@ function Build-AssignmentIdentityChanges {
         $replaced = $true
     }
 
-    if ($addedList.Count -gt 0) {
+if ($addedList.Count -gt 0) {
         $changedIdentityStrings += "addedRoleAssignments"
     }
     if ($removedList.Count -gt 0) {

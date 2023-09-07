@@ -10,7 +10,7 @@ function Get-DeepClone {
     if ($null -ne $InputObject) {
         $json = ConvertTo-Json $InputObject -Depth 100 -Compress
         $clone = ConvertFrom-Json $json -NoEnumerate -Depth 100 -AsHashTable:$AsHashTable
-        if ($InputObject -is [array]) {
+        if ($InputObject -is [System.Collections.IList]) {
             Write-Output -NoEnumerate $clone
         }
         else {

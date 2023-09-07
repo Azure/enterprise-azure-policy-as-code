@@ -27,8 +27,13 @@ function Set-AzPolicyExemptionRestMethod {
     }
 
     # Invoke the REST API
-    $payload = ConvertTo-Json $exemption -Depth 100 -Compress
-    $path = "$($id)?api-version=2022-07-01-preview"
-    $objectName = "Policy Exemption"
-    $null = Invoke-AzRestMethodWrapper -ObjectName $objectName -Path $path -Method PUT -Payload $payload
+    $exemptionJson = ConvertTo-Json $exemption -Depth 100 -Compress
+    $response = Invoke-AzRestMethod -Path "$($ExemptionObj.id)?api-version=2022-07-01-preview" -Method PUT -Payload $exemptionJson
+
+    # Process response
+    $statusCode = $response.StatusCode
+    if ($statusCode -lt 200 -or $statusCode -ge 300) {
+        $content = $response.Content
+        Write-Error "Policy Exemption error $($statusCode) -- $($content)" -ErrorAction Stop
+    }
 }

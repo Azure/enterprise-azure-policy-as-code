@@ -76,7 +76,7 @@ function Build-PolicySetPlan {
             $displayName = $definitionProperties.displayName
             $description = $definitionProperties.description
             $metadata = Get-DeepClone $definitionProperties.metadata -AsHashTable
-            $version = $definitionProperties.version
+            # $version = $definitionProperties.version
             $parameters = $definitionProperties.parameters
             $policyDefinitions = $definitionProperties.policyDefinitions
             $policyDefinitionGroups = $definitionProperties.policyDefinitionGroups
@@ -222,10 +222,10 @@ function Build-PolicySetPlan {
                     -DefinedMetadataObj $metadata
                 # $versionMatches = $version -eq $deployedDefinition.version
                 $versionMatches = $true
-                $parametersMatch, $incompatible = Confirm-ParametersMatch `
+                $parametersMatch, $incompatible = Confirm-ParametersDefinitionMatch `
                     -ExistingParametersObj $deployedDefinition.parameters `
                     -DefinedParametersObj $parameters
-                $policyDefinitionsMatch = Confirm-PolicyDefinitionsMatch `
+                $policyDefinitionsMatch = Confirm-PolicyDefinitionsInPolicySetMatch `
                     $deployedDefinition.policyDefinitions `
                     $policyDefinitionsFinal
                 $policyDefinitionGroupsMatch = Confirm-ObjectValueEqualityDeep `

@@ -56,17 +56,16 @@ function Out-PolicyAssignmentFile {
         }
     }
 
-    $assignmentDefinition = @{
+    $assignmentDefinition = [ordered]@{
         nodeName        = "/root"
         definitionEntry = $definitionEntry
     }
-    Set-AssignmentNode `
+    Export-AssignmentNode `
         -TreeNode $PerDefinition `
         -AssignmentNode $assignmentDefinition `
         -PropertyNames $PropertyNames
 
     # Write structure to file
-    Remove-NullFields $assignmentDefinition
     $json = ConvertTo-Json $assignmentDefinition -Depth 100
     $null = New-Item $fullPath -Force -ItemType File -Value $json
 }

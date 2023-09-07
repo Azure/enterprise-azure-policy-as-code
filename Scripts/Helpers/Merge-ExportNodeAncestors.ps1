@@ -15,7 +15,13 @@ function Merge-ExportNodeAncestors {
     else {
         $parentCluster = $parentClusters.$PropertyName
         foreach ($clusterItem in $parentCluster) {
-            $match = Confirm-ObjectValueEqualityDeep $clusterItem $PropertyValue
+            $match = $false
+            if ($PropertyName -eq "parameters") {
+                $match = Confirm-ParametersUsageMatches $clusterItem $PropertyValue
+            }
+            else {
+                $match = Confirm-ObjectValueEqualityDeep $clusterItem $PropertyValue
+            }
             if ($match) {
                 return $true
             }

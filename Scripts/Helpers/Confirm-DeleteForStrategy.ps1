@@ -18,11 +18,6 @@ function Confirm-DeleteForStrategy {
             $Strategy -eq "full"
             break
         }
-        "orphaned" {
-            # Exemptions only
-            $true
-            break
-        }
     }
     return $shallDelete
 }

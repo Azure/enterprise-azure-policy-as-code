@@ -173,10 +173,22 @@ function Convert-PolicySetsToDetails {
                     # Effect is parameterized in Policy
                     if ($policyInPolicySetParameters.Keys -contains $effectParameterName) {
                         # Effect parameter is used by policySet
-                        $policySetLevelEffectParameter = $policyInPolicySetParameters.$effectParameterName
-                        $effectRawValue = $policySetLevelEffectParameter.value
+                        $policyInPolicySetParameter = $policyInPolicySetParameters.$effectParameterName
+                        if ($null -eq $policyInPolicySetParameter) {
+                            $key1 = $policyInPolicySetParameters.Keys | Where-Object { $_.ToLower() -eq $effectParameterName.ToLower() }
+                            Write-Debug "key '$effectParameterName' exists with a different case '$key1' in '$($policyInPolicySetParameters | ConvertTo-Json -Depth 100 -Compress)'"
+                            if ($null -ne $key1) {
+                                $policyInPolicySetParameter = $policyInPolicySetParameters.$key1
+                            }
+                            # else keep $policyInPolicySetParameter as $null
+                        }
+                        $policySetLevelEffectParameterFound = $false
+                        $policySetLevelEffectParameterName = $null
+                        if ($policyInPolicySetParameter) {
+                            $effectRawValue = $policyInPolicySetParameter.value
+                            $policySetLevelEffectParameterFound, $policySetLevelEffectParameterName = Get-ParameterNameFromValueString -ParamValue $effectRawValue
+                        }
 
-                        $policySetLevelEffectParameterFound, $policySetLevelEffectParameterName = Get-ParameterNameFromValueString -ParamValue $effectRawValue
                         if ($policySetLevelEffectParameterFound) {
                             # Effect parameter is surfaced by PolicySet
                             if ($policySetParameters.Keys -contains $policySetLevelEffectParameterName) {

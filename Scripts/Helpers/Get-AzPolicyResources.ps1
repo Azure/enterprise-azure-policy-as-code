@@ -101,7 +101,7 @@ function Get-AzPolicyResources {
     $excludedScopesRaw += $globalNotScopes
     $excludedScopesRaw += $desiredState.excludedScopes
     if ($excludedScopesRaw.Count -gt 1) {
-        $excludedScopesRaw = @() + (Select-Object -InputObject $excludedScopesRaw -Unique)
+        $excludedScopesRaw = @() + (Sort-Object -InputObject $excludedScopesRaw -Unique)
     }
 
     $scopeCollection = Build-NotScopes -ScopeTable $ScopeTable -ScopeList $customPolicyDefinitionScopes -NotScopeIn $excludedScopesRaw
@@ -312,7 +312,7 @@ function Get-AzPolicyResources {
                     $status = "unknown"
                     $pacOwner = "unknownOwner"
                     $assignmentPacOwner = "unknownOwner"
-                    $exemptionPacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -Metadata $metadata
+                    $exemptionPacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -Metadata $metadata -ManagedByCounters $managedByCounters
                     if ($managedPolicyAssignmentsTable.ContainsKey($policyAssignmentId)) {
                         $status = "active"
                         $policyAssignment = $managedPolicyAssignmentsTable.$policyAssignmentId

@@ -2,6 +2,7 @@ function Out-PolicyExemptions {
     [CmdletBinding()]
     param (
         $Exemptions,
+        $Assignments,
         $PacEnvironment,
         $PolicyExemptionsFolder,
         [switch] $OutputJson,
@@ -9,6 +10,11 @@ function Out-PolicyExemptions {
         [string] $FileExtension = "json",
         [switch] $ActiveExemptionsOnly
     )
+
+    $numberOfExemptions = $Exemptions.Count
+    Write-Information "==================================================================================================="
+    Write-Information "Output Exemption list ($numberOfExemptions)"
+    Write-Information "==================================================================================================="
 
     $pacSelector = $PacEnvironment.pacSelector
     $outputPath = "$PolicyExemptionsFolder/$pacSelector"
@@ -20,7 +26,7 @@ function Out-PolicyExemptions {
         label      = "policyDefinitionReferenceIds"
         expression = {
             if ($_.policyDefinitionReferenceIds) {
-                ($_.policyDefinitionReferenceIds -join ",").ToString()
+            ($_.policyDefinitionReferenceIds -join ",").ToString()
             }
             else {
                 ''
@@ -219,4 +225,3 @@ function Out-PolicyExemptions {
         }
     }
 }
-

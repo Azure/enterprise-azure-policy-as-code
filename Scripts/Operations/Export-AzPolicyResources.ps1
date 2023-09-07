@@ -177,17 +177,17 @@ $definitionPropertiesByDefinitionKey = @{}
 $assignmentsByPolicyDefinition = @{}
 
 $propertyNames = @(
+    "assignmentNameEx", # name, displayName, description
+    "metadata",
     "parameters",
     "overrides",
     "resourceSelectors",
     "enforcementMode",
-    "nonComplianceMessages",
-    "metadata",
-    "additionalRoleAssignments",
-    "assignmentNameEx", # name, displayName, description
-    "identityEntry", # $null, userAssigned, location
+    "scopes",
     "notScopes",
-    "scopes"
+    "nonComplianceMessages",
+    "additionalRoleAssignments",
+    "identityEntry"
 )
 
 $policyResourcesByPacSelector = @{}
@@ -198,9 +198,9 @@ if ($Mode -ne 'exportFromRawFiles') {
 
     #region retrieve Policy resources
 
-    foreach ($pacEnvironment in $pacEnvironments.Values) {
+    foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
 
-        $pacSelector = $pacEnvironment.pacSelector
+        $pacEnvironment = $pacEnvironments.$pacSelector
 
         if ($InputPacSelector -eq $pacSelector -or $InputPacSelector -eq '*') {
             $null = Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -Interactive $Interactive
@@ -363,9 +363,9 @@ else {
     }
 }
 
-foreach ($pacEnvironment in $pacEnvironments.Values) {
+foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
 
-    $pacSelector = $pacEnvironment.pacSelector
+    $pacEnvironment = $pacEnvironments.$pacSelector
 
     if (($InputPacSelector -eq $pacSelector -or $InputPacSelector -eq '*') -and $policyResourcesByPacSelector.ContainsKey($pacSelector)) {
 
@@ -548,8 +548,7 @@ foreach ($pacEnvironment in $pacEnvironments.Values) {
                     $id -like "/subscriptions/*/providers/Microsoft.Authorization/policyAssignments/ASC-*" `
                         -or $id -like "/subscriptions/*/providers/Microsoft.Authorization/policyAssignments/SecurityCenterBuiltIn"
                 )
-            )
-            {
+            ) {
                 Write-Warning "Do not process Security Center: $id"
             }
             else {
