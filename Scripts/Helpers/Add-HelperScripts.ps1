@@ -22,9 +22,10 @@
 . "$PSScriptRoot/Confirm-PacOwner.ps1"
 . "$PSScriptRoot/Confirm-DeleteForStrategy.ps1"
 . "$PSScriptRoot/Confirm-ObjectValueEqualityDeep.ps1"
-. "$PSScriptRoot/Confirm-ParametersMatch.ps1"
+. "$PSScriptRoot/Confirm-ParametersDefinitionMatch.ps1"
+. "$PSScriptRoot/Confirm-ParametersUsageMatches.ps1"
 . "$PSScriptRoot/Confirm-PolicyDefinitionUsedExists.ps1"
-. "$PSScriptRoot/Confirm-PolicyDefinitionsMatch.ps1"
+. "$PSScriptRoot/Confirm-PolicyDefinitionsInPolicySetMatch.ps1"
 . "$PSScriptRoot/Confirm-PolicyDefinitionsParametersMatch.ps1"
 . "$PSScriptRoot/Confirm-PolicyResourceExclusions.ps1"
 . "$PSScriptRoot/Confirm-PolicySetDefinitionUsedExists.ps1"
@@ -89,7 +90,7 @@
 . "$PSScriptRoot/Set-AzPolicySetDefinitionRestMethod.ps1"
 . "$PSScriptRoot/Set-AzPolicyExemptionRestMethod.ps1"
 
-. "$PSScriptRoot/Set-AssignmentNode.ps1"
+. "$PSScriptRoot/Export-AssignmentNode.ps1"
 . "$PSScriptRoot/Set-ExportNode.ps1"
 . "$PSScriptRoot/Set-ExportNodeAncestors.ps1"
 

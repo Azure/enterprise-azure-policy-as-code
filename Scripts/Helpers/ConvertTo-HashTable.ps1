@@ -1,4 +1,4 @@
-function ConvertTo-HashTable {
+function    ConvertTo-HashTable {
     [CmdletBinding()]
     param
     (
@@ -8,13 +8,13 @@ function ConvertTo-HashTable {
 
     [hashtable] $hashTable = @{}
     if ($null -ne $InputObject) {
-        if ($null -ne $InputObject.Keys -and $null -ne $InputObject.Values) {
-            foreach ($key in $InputObject.Keys) {
-                try {
-                    $null = $hashTable.Add($key, $InputObject[$key])
-                }
-                catch {
-                    Write-Information $key <#Do this if a terminating exception happens#>
+        if ($InputObject -is [System.Collections.IDictionary]) {
+            if ($InputObject -is [hashtable]) {
+                return $InputObject
+            }
+            else {
+                foreach ($key in $InputObject.Keys) {
+                    $null = $hashTable[$key] = $InputObject[$key]
                 }
             }
         }

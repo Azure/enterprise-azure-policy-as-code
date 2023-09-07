@@ -175,7 +175,7 @@ foreach ($file in $files) {
                 }
                 $environmentColumnsInCsv = $documentPolicySetEntry.environmentColumnsInCsv
 
-                # Load pacEnvironment if not already loaded
+# Load pacEnvironment if not already loaded
                 if (-not $cachedPolicyResourceDetails.ContainsKey($pacEnvironmentSelector)) {
                     if ($currentPacEnvironmentSelector -ne $pacEnvironmentSelector) {
                         $currentPacEnvironmentSelector = $pacEnvironmentSelector
@@ -194,7 +194,7 @@ foreach ($file in $files) {
                     -CachedPolicyResourceDetails $cachedPolicyResourceDetails
                 $policySetDetails = $policyResourceDetails.policySets
 
-                # Calculate itemList
+# Calculate itemList
                 $itemArrayList = [System.Collections.ArrayList]::new()
                 if ($null -ne $policySets -and $policySets.Count -gt 0) {
                     foreach ($policySet in $policySets) {

@@ -33,6 +33,7 @@ function Build-ExemptionsPlan {
         }
         else {
             Write-Information "Number of Policy Exemption files = $($exemptionFiles.Length)"
+            $now = Get-Date -AsUTC
             $numberOfFilesWithErrors = 0
             foreach ($file  in $exemptionFiles) {
 
@@ -70,6 +71,8 @@ function Build-ExemptionsPlan {
                 }
 
                 #endregion read each file
+
+                #region validate file contents
 
                 if ($errorInfo.hasErrors) {
                     continue
@@ -161,37 +164,30 @@ function Build-ExemptionsPlan {
                         $policyDefinitionReferenceIds = $final
 
                         # Convert resourceSelectors into array (if cell empty, set to Snull)
-                        $step1 = $resourceSelectors
+                        $resourceSelectors = $null
+                        $step1 = $row.resourceSelectors
                         if (-not [string]::IsNullOrWhiteSpace($step1)) {
                             $step2 = $step1.Trim()
                             if ($step2.StartsWith("{") -and (Test-Json $step2)) {
                                 $step3 = ConvertFrom-Json $step2 -AsHashTable -Depth 100 -NoEnumerate
-                                if ($step3.Count -gt 0) {
+                                if ($step3 -ne @{}) {
                                     $resourceSelectors = $step3
-                                }
-                                else {
-                                    $resourceSelectors = $null
                                 }
                             }
                             else {
                                 Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "invalid resourceSelectors format, must be empty or legal JSON: '$step2'" -EntryNumber $entryNumber
                             }
                         }
-                        else {
-                            $resourceSelectors = $null
-                        }
 
                         # Convert metadata JSON to object
-                        $step1 = $metadata
+                        $metadata = $null
+                        $step1 = $row.metadata
                         if (-not [string]::IsNullOrWhiteSpace($step1)) {
                             $step2 = $step1.Trim()
                             if ($step2.StartsWith("{") -and (Test-Json $step2)) {
                                 $step3 = ConvertFrom-Json $step2 -AsHashTable -Depth 100
-                                if ($step3.Count -gt 0) {
+                                if ($step3 -ne @{}) {
                                     $metadata = $step3
-                                }
-                                else {
-                                    $metadata = $null
                                 }
                             }
                             else {
@@ -226,7 +222,7 @@ function Build-ExemptionsPlan {
                             Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "invalid expiresOn format, must be empty or a valid date/time: '$expiresOnRaw'" -EntryNumber $entryNumber
                         }
                         if ($expiresOn) {
-                            $expired = $expiresOn -lt (Get-Date)
+                            $expired = $expiresOn -lt $now
                         }
                     }
 
@@ -362,7 +358,7 @@ function Build-ExemptionsPlan {
                                 }
                                 if ($changePacOwnerId) {
                                     $changesStrings += "owner"
-                                }
+                                } 
                                 if (!$metadataMatches) {
                                     $changesStrings += "metadata" 
                                 } 
@@ -410,7 +406,7 @@ function Build-ExemptionsPlan {
             }
 
             #region delete removed, orphaned and expired exemptions
-
+                
             $strategy = $PacEnvironment.desiredState.strategy
             foreach ($id in $deleteCandidates.Keys) {
                 $exemption = $deleteCandidates.$id

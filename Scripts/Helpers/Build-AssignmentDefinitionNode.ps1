@@ -96,7 +96,7 @@ function Build-AssignmentDefinitionNode {
 
             $normalizedDefinitionEntryList = @()
             $mustDefineAssignment = $definitionEntryList.Count -gt 1
-            $itemArrayList = [System.Collections.ArrayList]::new()
+            $itemList = @{}
             $perEntryNonComplianceMessages = $false
 
             foreach ($definitionEntry in $definitionEntryList) {
@@ -117,7 +117,13 @@ function Build-AssignmentDefinitionNode {
                             policySetId  = $policyDefinitionId
                             assignmentId = $null
                         }
-                        $null = $itemArrayList.Add($itemEntry)
+                        if ($itemList.ContainsKey($policyDefinitionId)) {
+                            Write-Error "    Node $($nodeName): policySet '$($policyDefinitionId)' is defined more than once in this definitionEntryList." -ErrorAction Stop
+                            $definition.hasErrors = $true
+                        }
+                        else {
+                            $null = $itemList.Add($policyDefinitionId, $itemEntry)
+                        }
                     }
                     if ($null -ne $normalizedEntry.nonComplianceMessages -and $normalizedEntry.nonComplianceMessages.Count -gt 0) {
                         $perEntryNonComplianceMessages = $true
@@ -133,10 +139,11 @@ function Build-AssignmentDefinitionNode {
             #region compile flat Policy List for all Policy Sets used in this branch
 
             $flatPolicyList = $null
-            $hasPolicySets = $itemArrayList.Count -gt 0
+            $hasPolicySets = $itemList.Count -gt 0
+
             if ($hasPolicySets) {
                 $flatPolicyList = Convert-PolicySetsToFlatList `
-                    -ItemList $itemArrayList.ToArray() `
+                    -ItemList $itemList.Values `
                     -Details $CombinedPolicyDetails.policySets
             }
 
@@ -329,7 +336,7 @@ function Build-AssignmentDefinitionNode {
                 if ($selector -eq "*" -or $selector -eq $pacSelector) {
                     $notScopeList = $notScope.$selector
                     if ($definition.notScope) {
-                        $definition.notScope = @($definition.notScope) + $notScopeList
+                        $definition.notScope += $notScopeList
                     }
                     else {
                         $definition.notScope = @() + $notScopeList

@@ -22,9 +22,7 @@ function Get-CustomMetadata {
     if ($null -ne $Remove) {
         $splits = $Remove -split ","
         foreach ($item in  $splits) {
-            if ($metadataTemp.ContainsKey($item)) {
-                $metadataTemp.Remove($item)
-            }
+            $metadataTemp.Remove($item)
         }
     }
 

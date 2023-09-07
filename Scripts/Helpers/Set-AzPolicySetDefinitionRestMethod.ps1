@@ -6,8 +6,7 @@ function Set-AzPolicySetDefinitionRestMethod {
 
     # Write log info
     $displayName = $DefinitionObj.displayName
-    $id = $DefinitionObj.id
-    Write-Information "$displayName($id)"
+    Write-Information $displayName
 
     # Build the REST API body
     $properties = @{
@@ -25,8 +24,13 @@ function Set-AzPolicySetDefinitionRestMethod {
     }
 
     # Invoke the REST API
-    $payload = ConvertTo-Json $definition -Depth 100 -Compress
-    $path = "$($DefinitionObj.id)?api-version=2021-06-01"
-    $objectName = "Policy Set (Initiative) Definition"
-    $null = Invoke-AzRestMethodWrapper -ObjectName $objectName -Path $path -Method PUT -Payload $payload
+    $definitionJson = ConvertTo-Json $definition -Depth 100 -Compress
+    $response = Invoke-AzRestMethod -Path "$($DefinitionObj.id)?api-version=2021-06-01" -Method PUT -Payload $definitionJson
+
+    # Process response
+    $statusCode = $response.StatusCode
+    if ($statusCode -lt 200 -or $statusCode -ge 300) {
+        $content = $response.Content
+        Write-Error "definition error $($statusCode) -- $($content)" -ErrorAction Stop
+    }
 }

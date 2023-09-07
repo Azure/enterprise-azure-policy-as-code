@@ -1,4 +1,4 @@
-function Set-AssignmentNode {
+function Export-AssignmentNode {
     [CmdletBinding()]
     param (
         $TreeNode,
@@ -55,7 +55,7 @@ function Set-AssignmentNode {
                     break
                 }
                 assignmentNameEx {
-                    $null = $AssignmentNode.Add("assignment", @{
+                    $null = $AssignmentNode.Add("assignment", [ordered]@{
                             name        = $propertyValue.name
                             displayName = $propertyValue.displayName
                             description = $propertyValue.description
@@ -64,7 +64,7 @@ function Set-AssignmentNode {
                     break
                 }
                 additionalRoleAssignments {
-                    $additionalRoleAssignmentsEntry = @{}
+                    $additionalRoleAssignmentsEntry = [ordered]@{}
                     foreach ($selector in $propertyValue.Keys) {
                         $additionalRoleAssignments = $propertyValue.$selector
                         if ($null -ne $additionalRoleAssignments -and $additionalRoleAssignments.Count -gt 0) {
@@ -77,8 +77,8 @@ function Set-AssignmentNode {
                     break
                 }
                 identityEntry {
-                    $locationEntry = @{}
-                    $userAssigned = @{}
+                    $locationEntry = [ordered]@{}
+                    $userAssigned = [ordered]@{}
                     foreach ($selector in $propertyValue.Keys) {
                         $value = $propertyValue.$selector
                         if ($null -ne $value) {
@@ -101,7 +101,7 @@ function Set-AssignmentNode {
                     break
                 }
                 notScopes {
-                    $notScopesValue = @{}
+                    $notScopesValue = [ordered]@{}
                     foreach ($selector in $propertyValue.Keys) {
                         $notScopes = $propertyValue.$selector
                         if ($null -ne $notScopes -and $notScopes.Count -gt 0) {
@@ -114,7 +114,7 @@ function Set-AssignmentNode {
                     break
                 }
                 scopes {
-                    $scopeValue = @{}
+                    $scopeValue = [ordered]@{}
                     foreach ($selector in $propertyValue.Keys) {
                         $scopes = $propertyValue.$selector
                         if ($null -ne $scopes -and $scopes.Count -gt 0) {
@@ -140,7 +140,7 @@ function Set-AssignmentNode {
         if ($count -eq 1) {
             # an only child, collapse tree
             $child = $children[0]
-            Set-AssignmentNode `
+            Export-AssignmentNode `
                 -TreeNode $child `
                 -AssignmentNode $AssignmentNode `
                 -PropertyNames $remainingPropertyNames
@@ -155,7 +155,7 @@ function Set-AssignmentNode {
                 }
                 $null = $newAssignmentNodeChildren.Add($newAssignmentNode)
 
-                Set-AssignmentNode `
+                Export-AssignmentNode `
                     -TreeNode $child `
                     -AssignmentNode $newAssignmentNode `
                     -PropertyNames $remainingPropertyNames

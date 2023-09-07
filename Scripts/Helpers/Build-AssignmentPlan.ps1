@@ -146,22 +146,26 @@ function Build-AssignmentPlan {
                     $notScopesMatch = Confirm-ObjectValueEqualityDeep `
                         $deployedPolicyAssignmentProperties.notScopes `
                         $notScopes
-                    $parametersMatch = Confirm-AssignmentParametersMatch `
+                    $parametersMatch = Confirm-ParametersUsageMatches `
                         -ExistingParametersObj $deployedPolicyAssignmentProperties.parameters `
-                        -DefinedParametersObj $parameters
+                        -DefinedParametersObj $parameters `
+                        -CompareValueEntryForExistingParametersObj
                     $metadataMatches, $changePacOwnerId = Confirm-MetadataMatches `
                         -ExistingMetadataObj $deployedPolicyAssignmentProperties.metadata `
                         -DefinedMetadataObj $metadata
                     $enforcementModeMatches = $enforcementMode -eq $deployedPolicyAssignmentProperties.EnforcementMode
                     $nonComplianceMessagesMatches = Confirm-ObjectValueEqualityDeep `
                         $deployedPolicyAssignmentProperties.nonComplianceMessages `
-                        $nonComplianceMessages
+                        $nonComplianceMessages `
+                        -HandleRandomOrderArray
                     $overridesMatch = Confirm-ObjectValueEqualityDeep `
                         $deployedPolicyAssignmentProperties.overrides `
-                        $overrides
+                        $overrides `
+                        -HandleRandomOrderArray
                     $resourceSelectorsMatch = Confirm-ObjectValueEqualityDeep `
                         $deployedPolicyAssignmentProperties.resourceSelectors `
-                        $resourceSelectors
+                        $resourceSelectors `
+                        -HandleRandomOrderArray
 
                     $IdentityStatus = Build-AssignmentIdentityChanges `
                         -Existing $deployedPolicyAssignment `

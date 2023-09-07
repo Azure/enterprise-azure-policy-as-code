@@ -1,18 +1,9 @@
 function Confirm-PacOwner {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $true)]
         $ThisPacOwnerId,
-
-        [Parameter(Mandatory = $true)]
         $Metadata,
-
-        [Parameter(Mandatory = $false)]
-        $ManagedByCounters = [pscustomobject]@{
-            thisPaC  = 0
-            otherPaC = 0
-            unknown  = 0
-        }
+        $ManagedByCounters
     )
 
     if ($null -eq $Metadata) {

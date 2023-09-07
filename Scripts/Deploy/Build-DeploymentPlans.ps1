@@ -4,7 +4,7 @@
 .SYNOPSIS
     Builds the deployment plans for the Policy as Code (PAC) environment.
 
-.PARAMETER PacEnvironmentSelector
+.PARAMETER PacEnvironmentSelectorepac
     Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.
 
 .PARAMETER DefinitionsRootFolder
@@ -259,12 +259,21 @@ if ($null -ne $pacEnvironment.policyAssignmentsFolder) {
         Write-Information "        replace = $($assignments.replace.psbase.Count)"
         Write-Information "        delete  = $($assignments.delete.psbase.Count)"
     }
+    Write-Information "Role Assignment counts:"
+    if ($roleAssignments.numberOfChanges -eq 0) {
+        Write-Information "    $($roleAssignments.numberOfChanges) changes"
+    }
+    else {
+        Write-Information "    $($roleAssignments.numberOfChanges) changes:"
+        Write-Information "        add     = $($roleAssignments.added.psbase.Count)"
+        Write-Information "        remove  = $($roleAssignments.removed.psbase.Count)"
+    }
 }
 else {
     Write-Information "Policy definitions not managed by EPAC."
 }
 
-if ($exemptionsAreNotManagedMessage -ne "") {
+if ($exemptionsAreNotManaged) {
     Write-Warning $exemptionsAreNotManagedMessage
 }
 else {
@@ -284,17 +293,6 @@ else {
     }
 }
 
-if ($null -ne $pacEnvironment.policyAssignmentsFolder) {
-    Write-Information "Role Assignment counts:"
-    if ($roleAssignments.numberOfChanges -eq 0) {
-        Write-Information "    $($roleAssignments.numberOfChanges) changes"
-    }
-    else {
-        Write-Information "    $($roleAssignments.numberOfChanges) changes:"
-        Write-Information "        add     = $($roleAssignments.added.psbase.Count)"
-        Write-Information "        remove  = $($roleAssignments.removed.psbase.Count)"
-    }
-}
 
 Write-Information "---------------------------------------------------------------------------------------------------"
 Write-Information "Output plan(s)"

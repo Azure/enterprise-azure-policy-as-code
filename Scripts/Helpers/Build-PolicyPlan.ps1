@@ -140,7 +140,7 @@ function Build-PolicyPlan {
                     -DefinedMetadataObj $metadata
                 # $versionMatches = $version -eq $deployedDefinition.version
                 $versionMatches = $true
-                $parametersMatch, $incompatible = Confirm-ParametersMatch `
+                $parametersMatch, $incompatible = Confirm-ParametersDefinitionMatch `
                     -ExistingParametersObj $deployedDefinition.parameters `
                     -DefinedParametersObj $parameters
                 $policyRuleMatches = Confirm-ObjectValueEqualityDeep `
