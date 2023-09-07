@@ -1,25 +1,32 @@
 function Confirm-PacOwner {
     [CmdletBinding()]
     param (
+        [Parameter(Mandatory = $true)]
         $ThisPacOwnerId,
-        $Metadata,
-        $ManagedByCounters
+
+        [Parameter(Mandatory = $false)]
+        $Metadata = $null,
+
+        [Parameter(Mandatory = $false)]
+        $ManagedByCounters = $null
     )
 
-    if ($null -eq $Metadata) {
-        $ManagedByCounters.unknown += 1
-        return "unknownOwner"
-    }
-    elseif ($null -eq $Metadata.pacOwnerId) {
-        $ManagedByCounters.unknown += 1
+    if ($null -eq $Metadata -or $null -eq $Metadata.pacOwnerId) {
+        if ($null -ne $ManagedByCounters) {
+            $ManagedByCounters.unknown += 1
+        }
         return "unknownOwner"
     }
     elseif ($ThisPacOwnerId -eq $Metadata.pacOwnerId) {
-        $ManagedByCounters.thisPaC += 1
+        if ($null -ne $ManagedByCounters) {
+            $ManagedByCounters.thisPaC += 1
+        }
         return "thisPaC"
     }
     else {
-        $ManagedByCounters.otherPaC += 1
+        if ($null -ne $ManagedByCounters) {
+            $ManagedByCounters.otherPaC += 1
+        }
         return "otherPaC"
     }
 }

@@ -1,7 +1,10 @@
 function Confirm-NullOrEmptyValue {
     [CmdletBinding()]
     param (
-        $InputObject,
+        [Parameter(Mandatory = $false)]
+        $InputObject = $null,
+
+        [Parameter(Mandatory = $false)]
         $NullOnly = $false
     )
 
@@ -20,7 +23,7 @@ function Confirm-NullOrEmptyValue {
         elseif ($typeName -in @( "Hashtable", "OrderedDictionary", "OrderedHashtable" )) {
             return $InputObject.Count -eq 0
         }
-        elseif ($typeName -ne "DateTimeS" -and $InputObject -is [PSCustomObject]) {
+        elseif ($typeName -ne "DateTime" -and $InputObject -is [PSCustomObject]) {
             $properties = $InputObject | Get-Member -MemberType Properties
             return $properties.Count -eq 0
         }
