@@ -1,7 +1,7 @@
 function Convert-PolicySetsToFlatList {
     [CmdletBinding()]
     param (
-        [array] $ItemList,
+        $ItemList,
         $Details
     )
 

@@ -146,22 +146,26 @@ function Build-AssignmentPlan {
                     $notScopesMatch = Confirm-ObjectValueEqualityDeep `
                         $deployedPolicyAssignmentProperties.notScopes `
                         $notScopes
-                    $parametersMatch = Confirm-AssignmentParametersMatch `
+                    $parametersMatch = Confirm-ParametersUsageMatches `
                         -ExistingParametersObj $deployedPolicyAssignmentProperties.parameters `
-                        -DefinedParametersObj $parameters
+                        -DefinedParametersObj $parameters `
+                        -CompareValueEntryForExistingParametersObj
                     $metadataMatches, $changePacOwnerId = Confirm-MetadataMatches `
                         -ExistingMetadataObj $deployedPolicyAssignmentProperties.metadata `
                         -DefinedMetadataObj $metadata
                     $enforcementModeMatches = $enforcementMode -eq $deployedPolicyAssignmentProperties.EnforcementMode
                     $nonComplianceMessagesMatches = Confirm-ObjectValueEqualityDeep `
                         $deployedPolicyAssignmentProperties.nonComplianceMessages `
-                        $nonComplianceMessages
+                        $nonComplianceMessages `
+                        -HandleRandomOrderArray
                     $overridesMatch = Confirm-ObjectValueEqualityDeep `
                         $deployedPolicyAssignmentProperties.overrides `
-                        $overrides
+                        $overrides `
+                        -HandleRandomOrderArray
                     $resourceSelectorsMatch = Confirm-ObjectValueEqualityDeep `
                         $deployedPolicyAssignmentProperties.resourceSelectors `
-                        $resourceSelectors
+                        $resourceSelectors `
+                        -HandleRandomOrderArray
 
                     $IdentityStatus = Build-AssignmentIdentityChanges `
                         -Existing $deployedPolicyAssignment `
@@ -187,7 +191,7 @@ function Build-AssignmentPlan {
                         $Assignments.numberUnchanged++
                         if ($IdentityStatus.requiresRoleChanges) {
                             # role assignments for Managed Identity changed - caused by a mangedIdentityLocation changed or a previously failed role assignment failure
-                            Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "Update($($IdentityStatus.changedIdentityStrings))" -IdentityStatus $IdentityStatus
+                            Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "Update($($IdentityStatus.changedIdentityStrings -join ','))" -IdentityStatus $IdentityStatus
                         }
                         else {
                             # Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "Unchanged" -IdentityStatus $IdentityStatus

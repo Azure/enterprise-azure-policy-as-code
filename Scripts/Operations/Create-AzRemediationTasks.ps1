@@ -1,6 +1,12 @@
 <#
 .SYNOPSIS
-Creates remediation tasks for all non-compliant resources in the current tenant.
+This PowerShell script creates remediation tasks for all non-compliant resources in the current
+Azure Active Directory (AAD) tenant.
+
+.DESCRIPTION
+The Create-AzRemediationTasks.ps1 PowerShell creates remediation tasks for all non-compliant resources
+in the current AAD tenant. If one or multiple remediation tasks fail, their respective objects are
+added to a PowerShell variable that is outputted for later use in the Azure DevOps Pipeline.
 
 .PARAMETER PacEnvironmentSelector
 Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.
@@ -40,6 +46,14 @@ Create-AzRemediationTasks.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFold
 
 .EXAMPLE
 Create-AzRemediationTasks.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\git\policy-as-code\Definitions" -PolicyDefinitionFilter "Require tag 'Owner' on resource groups" -PolicySetDefinitionFilter "Require tag 'Owner' on resource groups" -PolicyAssignmentFilter "Require tag 'Owner' on resource groups"
+
+.INPUTS
+None.
+
+.OUTPUTS
+The Create-AzRemediationTasks.ps1 PowerShell script outputs multiple string values for logging purposes, a JSON
+string containing all the failed Remediation Tasks and a boolean value, both of which are used in a later stage
+of the Azure DevOps Pipeline.
 
 .LINK
 https://learn.microsoft.com/en-us/azure/governance/policy/concepts/remediation-structure
@@ -204,6 +218,7 @@ else {
     Write-Information ""
     Write-Information "--- Creating $($collatedByAssignmentId.Count) remediation tasks sorted by Assignment Id and (if Policy Set) Category and Policy Name ---"
 
+    $failedPolicyRemediationTasks = @()
     $collatedByAssignmentId.Values | Sort-Object { $_.policyAssignmentId }, { $_.category }, { $_.policyName } | ForEach-Object {
         if ($_.policyDefinitionReferenceId) {
             Write-Information "'$($_.shortScope)/$($_.policyAssignmentName)|$($_.policyDefinitionReferenceId)': $($_.resourceCount) resources, '$($_.policyDefinitionName)', $($_.policyDefinitionAction)"
@@ -213,7 +228,55 @@ else {
         }
         $parameters = $_.parametersSplat
         Write-Verbose "Parameters: $($parameters | ConvertTo-Json -Depth 99)"
-        $null = Start-AzPolicyRemediation @parameters
+        $newPolicyRemediationTask = Start-AzPolicyRemediation @parameters
+        if ($newPolicyRemediationTask.ProvisioningState -eq 'Succeeded') {
+            Write-Information "`tThe provisioning state of the Remediation Task is set to Succeeded. Moving on to the next non-compliant Policy Definition"
+        }
+        elseif ($newPolicyRemediationTask.ProvisioningState -eq 'Failed') {
+            Write-Information "`tThe provisioning state of the Remediation Task is set to Failed. Adding it to the array of failed Remediation Tasks"
+            $failedPolicyRemediationTask = [PSCustomObject]@{
+                'Remediation Task Name' = $newPolicyRemediationTask.Name
+                'Remediation Task Id'   = $newPolicyRemediationTask.Id
+                'Policy Assignment Id'  = $newPolicyRemediationTask.PolicyAssignmentId
+                'Provisioning State'    = $newPolicyRemediationTask.ProvisioningState
+            }
+            $failedPolicyRemediationTasks += $failedPolicyRemediationTask
+        }
+        else {
+            Write-Information "`tThe Remediation Task has not succeeded or failed right away. Continuing to check the provisioning state until it changes to Succeeded or Failed"
+            do {
+                Start-Sleep -Seconds 30
+                $existingPolicyRemediationTask = Get-AzPolicyRemediation -ResourceId $newPolicyRemediationTask.Id
+                if ($existingPolicyRemediationTask.ProvisioningState -eq 'Succeeded') {
+                    Write-Information "`tThe provisioning state of the Remediation Task has changed to Succeeded. Moving on to the next non-compliant Policy Definition"
+                }
+                elseif ($existingPolicyRemediationTask.ProvisioningState -eq 'Failed') {
+                    Write-Information "`tThe provisioning state of the Remediation Task has changed to Failed. Adding it to the array of failed Remediation Tasks"
+                    $failedPolicyRemediationTask = [PSCustomObject]@{
+                        'Remediation Task Name' = $existingPolicyRemediationTask.Name
+                        'Remediation Task Id'   = $existingPolicyRemediationTask.Id
+                        'Policy Assignment Id'  = $existingPolicyRemediationTask.PolicyAssignmentId
+                        'Provisioning State'    = $existingPolicyRemediationTask.ProvisioningState
+                    }
+                    $failedPolicyRemediationTasks += $failedPolicyRemediationTask
+                    break
+                }
+                else {
+                    Write-Verbose "`tThe provisioning state of the Remediation Task has not changed to Failed or Succeeded. Continuing to check the provisioning state"
+                }
+            } until ($existingPolicyRemediationTask.ProvisioningState -eq 'Succeeded')
+        }
     }
+    if ($failedPolicyRemediationTasks.Count -ge 1) {
+        Write-Information "`nUnfortunately, '$($failedPolicyRemediationTasks.Count)' Remediation Task(s) has/have failed. Outputting the failedPolicyRemediationTasksJsonString variable as for later use in the Azure DevOps Pipeline"
+        $failedPolicyRemediationTasksJsonString = $failedPolicyRemediationTasks | ConvertTo-Json -Depth 10 -Compress
+        Write-Output "##vso[task.setvariable variable=failedPolicyRemediationTasksJsonString;isOutput=true]$($failedPolicyRemediationTasksJsonString)"
+        $createWorkItem = $true
+    }
+    else {
+        Write-Information "`nNo Remediation Tasks have failed. Ending the Azure DevOps Pipeline"
+        $createWorkItem = $false
+    }
+    Write-Output "##vso[task.setvariable variable=createWorkItem;isOutput=true]$($createWorkItem)"
 }
 Write-Information ""

@@ -60,10 +60,6 @@ While transitioning to EPAC, existing Policy resources may need to be kept. Sett
 
 In rare cases you may need to exclude individual child scopes, or Policy resources from management by an EPAC solution.
 
-### Including Resource Groups
-
-By default, Policy Assignments at resource groups are not managed by EPAC. Prior to v6.0, managing resource groups was to expensive. If you used the `-IncludeResourceGroup` switch in prior versions, set `includeResourceGroups` to `true` to achieve the same effect.
-
 ### Child Scope not Managed and Not Subject to these Policies
 
 Child scope is managed by some other means. The use of a EPAC development Management Group under the same root is such an example. Another example is a child scope managed by a different organization not subject to the root scope Policies.

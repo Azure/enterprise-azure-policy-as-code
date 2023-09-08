@@ -33,6 +33,4 @@ function Set-AzPolicySetDefinitionRestMethod {
         $content = $response.Content
         Write-Error "definition error $($statusCode) -- $($content)" -ErrorAction Stop
     }
-
-    return $displayName
 }

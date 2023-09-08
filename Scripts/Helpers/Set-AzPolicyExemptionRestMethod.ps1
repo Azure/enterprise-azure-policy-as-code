@@ -6,7 +6,8 @@ function Set-AzPolicyExemptionRestMethod {
 
     # Write log info
     $displayName = $ExemptionObj.displayName
-    Write-Information $displayName
+    $id = $ExemptionObj.id
+    Write-Information "$displayName($id)"
 
     # Build the REST API body
     $properties = @{
@@ -35,6 +36,4 @@ function Set-AzPolicyExemptionRestMethod {
         $content = $response.Content
         Write-Error "Policy Exemption error $($statusCode) -- $($content)" -ErrorAction Stop
     }
-
-    return $displayName
 }

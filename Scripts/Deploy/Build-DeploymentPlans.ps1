@@ -4,7 +4,7 @@
 .SYNOPSIS
     Builds the deployment plans for the Policy as Code (PAC) environment.
 
-.PARAMETER PacEnvironmentSelector
+.PARAMETER PacEnvironmentSelectorepac
     Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.
 
 .PARAMETER DefinitionsRootFolder
@@ -83,13 +83,15 @@ $exemptionsAreNotManagedMessage = ""
 $policyExemptionsFolder = $pacEnvironment.policyExemptionsFolder
 
 $exemptionsFolderForPacEnvironment = "$($policyExemptionsFolder)/$($pacEnvironment.pacSelector)"
+$exemptionsAreNotManaged = $false
 if (!(Test-Path $policyExemptionsFolder -PathType Container)) {
     $exemptionsAreNotManagedMessage = "Policy Exemptions folder 'policyExemptions' not found. Exemptions not managed by this EPAC instance."
+    $exemptionsAreNotManaged = $true
 }
 elseif (!(Test-Path $exemptionsFolderForPacEnvironment -PathType Container)) {
     $exemptionsAreNotManagedMessage = "Policy Exemptions are not managed by this EPAC instance's PaC environment $($pacEnvironment.pacSelector)!"
+    $exemptionsAreNotManaged = $true
 }
-$exemptionsAreNotManaged = $exemptionsAreNotManagedMessage -eq ""
 
 $scopeTable = Get-AzScopeTree -PacEnvironment $pacEnvironment
 $deployedPolicyResources = Get-AzPolicyResources -PacEnvironment $pacEnvironment -ScopeTable $scopeTable -SkipExemptions:$exemptionsAreNotManaged
@@ -172,6 +174,7 @@ $exemptions = @{
     replace         = @{}
     delete          = @{}
     numberOfOrphans = 0
+    numberOfExpired = 0
     numberOfChanges = 0
     numberUnchanged = 0
 }
@@ -256,31 +259,6 @@ if ($null -ne $pacEnvironment.policyAssignmentsFolder) {
         Write-Information "        replace = $($assignments.replace.psbase.Count)"
         Write-Information "        delete  = $($assignments.delete.psbase.Count)"
     }
-}
-else {
-    Write-Information "Policy definitions not managed by EPAC."
-}
-
-if ($exemptionsAreNotManagedMessage -ne "") {
-    Write-Warning $exemptionsAreNotManagedMessage
-}
-else {
-    Write-Information "Policy Exemption counts:"
-    Write-Information "    $($exemptions.numberUnchanged) unchanged"
-    if ($exemptions.numberOfChanges -eq 0) {
-        Write-Information "    $($exemptions.numberOfChanges) changes"
-    }
-    else {
-        Write-Information "    $($exemptions.numberOfChanges) changes:"
-        Write-Information "        new     = $($exemptions.new.psbase.Count)"
-        Write-Information "        update  = $($exemptions.update.psbase.Count)"
-        Write-Information "        replace = $($exemptions.replace.psbase.Count)"
-        Write-Information "        delete  = $($exemptions.delete.psbase.Count)"
-        Write-Information "        orphans = $($exemptions.numberOfOrphans)"
-    }
-}
-
-if ($null -ne $pacEnvironment.policyAssignmentsFolder) {
     Write-Information "Role Assignment counts:"
     if ($roleAssignments.numberOfChanges -eq 0) {
         Write-Information "    $($roleAssignments.numberOfChanges) changes"
@@ -291,6 +269,30 @@ if ($null -ne $pacEnvironment.policyAssignmentsFolder) {
         Write-Information "        remove  = $($roleAssignments.removed.psbase.Count)"
     }
 }
+else {
+    Write-Information "Policy definitions not managed by EPAC."
+}
+
+if ($exemptionsAreNotManaged) {
+    Write-Warning $exemptionsAreNotManagedMessage
+}
+else {
+    Write-Information "Policy Exemption counts:"
+    Write-Information "    $($exemptions.numberUnchanged) unchanged"
+    Write-Information "    $($exemptions.numberOfOrphans) orphaned"
+    Write-Information "    $($exemptions.numberOfExpired) expired"
+    if ($exemptions.numberOfChanges -eq 0) {
+        Write-Information "    $($exemptions.numberOfChanges) changes"
+    }
+    else {
+        Write-Information "    $($exemptions.numberOfChanges) changes:"
+        Write-Information "        new     = $($exemptions.new.psbase.Count)"
+        Write-Information "        update  = $($exemptions.update.psbase.Count)"
+        Write-Information "        replace = $($exemptions.replace.psbase.Count)"
+        Write-Information "        delete  = $($exemptions.delete.psbase.Count)"
+    }
+}
+
 
 Write-Information "---------------------------------------------------------------------------------------------------"
 Write-Information "Output plan(s)"

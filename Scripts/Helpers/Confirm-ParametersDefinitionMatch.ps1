@@ -1,4 +1,4 @@
-function Confirm-ParametersMatch {
+function Confirm-ParametersDefinitionMatch {
     [CmdletBinding()]
     param(
         [PSCustomObject] $ExistingParametersObj,
@@ -28,7 +28,7 @@ function Confirm-ParametersMatch {
             }
 
             # Analyze parameter allowedValues
-            $thisMatch = Confirm-ObjectValueEqualityDeep $existing.allowedValues $defined.allowedValues
+            $thisMatch = Confirm-ObjectValueEqualityDeep $existing.allowedValues $defined.allowedValues -HandleRandomOrderArray
             if (!$thisMatch) {
                 $match = $false
                 if ($null -eq $defined.defaultValue) {
@@ -46,7 +46,7 @@ function Confirm-ParametersMatch {
 
             $existingMetadata = $existing.metadata
             $definedMetadata = $defined.metadata
-            $thisMatch = Confirm-ObjectValueEqualityDeep $existingMetadata $definedMetadata
+            $thisMatch = Confirm-ObjectValueEqualityDeep $existingMetadata $definedMetadata -HandleRandomOrderArray
             if (!$thisMatch) {
                 $match = $false
                 if ($existingMetadata.strongType -ne $definedMetadata.strongType) {
