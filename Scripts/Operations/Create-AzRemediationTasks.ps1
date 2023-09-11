@@ -219,6 +219,7 @@ else {
     Write-Information "--- Creating $($collatedByAssignmentId.Count) remediation tasks sorted by Assignment Id and (if Policy Set) Category and Policy Name ---"
 
     $failedPolicyRemediationTasks = @()
+    $runningPolicyRemediationTasks = @()
     $collatedByAssignmentId.Values | Sort-Object { $_.policyAssignmentId }, { $_.category }, { $_.policyName } | ForEach-Object {
         if ($_.policyDefinitionReferenceId) {
             Write-Information "'$($_.shortScope)/$($_.policyAssignmentName)|$($_.policyDefinitionReferenceId)': $($_.resourceCount) resources, '$($_.policyDefinitionName)', $($_.policyDefinitionAction)"
@@ -230,10 +231,10 @@ else {
         Write-Verbose "Parameters: $($parameters | ConvertTo-Json -Depth 99)"
         $newPolicyRemediationTask = Start-AzPolicyRemediation @parameters
         if ($newPolicyRemediationTask.ProvisioningState -eq 'Succeeded') {
-            Write-Information "`tThe provisioning state of the Remediation Task is set to Succeeded. Moving on to the next non-compliant Policy Definition"
+            Write-Information "`tThe provisioning state of the Remediation Task is set to 'Succeeded'. Moving on to the next Remediation Task"
         }
         elseif ($newPolicyRemediationTask.ProvisioningState -eq 'Failed') {
-            Write-Information "`tThe provisioning state of the Remediation Task is set to Failed. Adding it to the array of failed Remediation Tasks"
+            Write-Information "`tThe provisioning state of the Remediation Task is set to 'Failed'. Adding it to the array of failed Remediation Tasks"
             $failedPolicyRemediationTask = [PSCustomObject]@{
                 'Remediation Task Name' = $newPolicyRemediationTask.Name
                 'Remediation Task Id'   = $newPolicyRemediationTask.Id
@@ -243,29 +244,39 @@ else {
             $failedPolicyRemediationTasks += $failedPolicyRemediationTask
         }
         else {
-            Write-Information "`tThe Remediation Task has not succeeded or failed right away. Continuing to check the provisioning state until it changes to Succeeded or Failed"
-            do {
-                Start-Sleep -Seconds 30
-                $existingPolicyRemediationTask = Get-AzPolicyRemediation -ResourceId $newPolicyRemediationTask.Id
-                if ($existingPolicyRemediationTask.ProvisioningState -eq 'Succeeded') {
-                    Write-Information "`tThe provisioning state of the Remediation Task has changed to Succeeded. Moving on to the next non-compliant Policy Definition"
+            Write-Information "`tThe Remediation Task has not succeeded or failed right away. Adding it to a variable to regularly check the provisioning state and moving on to the next Remediation Task"
+            $runningPolicyRemediationTasks += $newPolicyRemediationTask
+        }
+    }
+    if ($runningPolicyRemediationTasks.Count -ge 1) {
+        Write-Information "`nAt the moment, '$($runningPolicyRemediationTasks.Count)' Remediation Tasks are still running. Checking their provisioning state on a regular basis until they have succeeded or failed"
+        do {
+            foreach ($runningPolicyRemediationTask in $runningPolicyRemediationTasks) {
+                Write-Verbose "`tChecking the provisioning state of the '$($runningPolicyRemediationTask.Name)' Remediation Task"
+                $remediationTaskState = (Get-AzPolicyRemediation -ResourceId $runningPolicyRemediationTask.Id).ProvisioningState
+                if ($remediationTaskState -eq 'Succeeded') {
+                    Write-Information "`tThe '$($runningPolicyRemediationTask.Name)' Remediation Task has succeeded. Removing it from the array of running Remediation Tasks"
+                    $runningPolicyRemediationTasks = $runningPolicyRemediationTasks | Where-Object -FilterScript { $_.Id -ne $runningPolicyRemediationTask.Id } #Removing the completed Remediation Task from the array of running Remediation Tasks
                 }
-                elseif ($existingPolicyRemediationTask.ProvisioningState -eq 'Failed') {
-                    Write-Information "`tThe provisioning state of the Remediation Task has changed to Failed. Adding it to the array of failed Remediation Tasks"
+                elseif ($remediationTaskState -eq 'Failed') {
+                    Write-Information "`tThe '$($runningPolicyRemediationTask.Name)' Remediation Task has failed. Adding it to the array of failed Remediation Tasks and removing it from the array of running Remediation Tasks"
                     $failedPolicyRemediationTask = [PSCustomObject]@{
-                        'Remediation Task Name' = $existingPolicyRemediationTask.Name
-                        'Remediation Task Id'   = $existingPolicyRemediationTask.Id
-                        'Policy Assignment Id'  = $existingPolicyRemediationTask.PolicyAssignmentId
-                        'Provisioning State'    = $existingPolicyRemediationTask.ProvisioningState
+                        'Remediation Task Name' = $runningPolicyRemediationTask.Name
+                        'Remediation Task Id'   = $runningPolicyRemediationTask.Id
+                        'Policy Assignment Id'  = $runningPolicyRemediationTask.PolicyAssignmentId
+                        'Provisioning State'    = $runningPolicyRemediationTask.ProvisioningState
                     }
                     $failedPolicyRemediationTasks += $failedPolicyRemediationTask
-                    break
+                    $runningPolicyRemediationTasks = $runningPolicyRemediationTasks | Where-Object -FilterScript { $_.Id -ne $runningPolicyRemediationTask.Id } #Removing the completed Remediation Task from the array of running Remediation Tasks
                 }
                 else {
-                    Write-Verbose "`tThe provisioning state of the Remediation Task has not changed to Failed or Succeeded. Continuing to check the provisioning state"
+                    Write-Verbose "`tThe provisioning state of the '$($runningPolicyRemediationTask.Name)' Remediation Task is still set to '$($remediationTaskState)', Moving on to the next Remediation Task"
                 }
-            } until ($existingPolicyRemediationTask.ProvisioningState -eq 'Succeeded')
-        }
+            }
+        } until ($runningPolicyRemediationTasks.Count -eq 0)
+    }
+    else {
+        Write-Information "`nAll Remediation Tasks have succeeded or failed right away."
     }
     if ($failedPolicyRemediationTasks.Count -ge 1) {
         Write-Information "`nUnfortunately, '$($failedPolicyRemediationTasks.Count)' Remediation Task(s) has/have failed. Outputting the failedPolicyRemediationTasksJsonString variable as for later use in the Azure DevOps Pipeline"

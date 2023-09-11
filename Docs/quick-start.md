@@ -18,7 +18,7 @@ Install-Module EnterprisePolicyAsCode -Scope CurrentUser
 ```
 4. Create a new EPAC definitions folder to hold policy objects.
 ```ps1
-New-EPACDefinitionFolder -DefinitionsRootFolder Definitions
+New-EPACDefinitionsFolder -DefinitionsRootFolder Definitions
 ```
 5. This will create a folder called ```Definitions``` with a number of subfolder and a ```global-settings.jsonc``` file where the environment is defined.
 6. Edit the ```global-settings.jsonc``` file by copying the sample below. Modify the commented sections as appropriate.
