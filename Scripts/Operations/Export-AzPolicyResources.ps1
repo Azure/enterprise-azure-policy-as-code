@@ -270,7 +270,7 @@ if ($Mode -ne 'exportFromRawFiles') {
     if ($Mode -eq 'psrule') {
         # Export PsRule formatted output
         $outputArray = @()
-        foreach ($policy in ($deployed.policyassignments.all).GetEnumerator()) {
+        foreach ($policy in ($deployed.policyassignments.managed).GetEnumerator()) {
             $formattedObj = @{
                 Location           = $policy.Value.location
                 Name               = $policy.Value.Name
