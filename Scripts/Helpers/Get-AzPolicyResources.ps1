@@ -278,7 +278,7 @@ function Get-AzPolicyResources {
                 $expiresOnRaw = $properties.expiresOn
                 $expiresOn = $null
                 if ($null -ne $expiresOnRaw -and $expiresOnRaw -ne "") {
-                    if ($expiriseOnRaw -is [datetime]) {
+                    if ($expiresOnRaw -is [datetime]) {
                         $expiresOn = $expiresOnRaw.ToUniversalTime
                     }
                     else {
