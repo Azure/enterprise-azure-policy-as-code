@@ -26,7 +26,7 @@ function Confirm-PolicyDefinitionsInPolicySetMatch {
     if ($Object1.Count -ne $Object2.Count) {
         return $false
     }
-    for ($i = 0; $i -lt $Object1.Count; $i++) {
+    for ($i = 0; $i -le $Object1.Count; $i++) {
         $item1 = $Object1[$i]
         $item2 = $Object2[$i]
         if ($item1 -ne $item2) {
@@ -40,10 +40,10 @@ function Confirm-PolicyDefinitionsInPolicySetMatch {
             }
             $groupNames1 = $item1.groupNames
             $groupNames2 = $item2.groupNames
-            if ($null -eq $groupNames1 -and $null -eq $groupNames2) {
+            if ($null -eq $groupNames1 -and $null -eq $groupNames2 -and $i -eq $Object1.Count) {
                 return $true
             }
-            if ($null -eq $groupNames1 -or $null -eq $groupNames2) {
+            if ($null -eq $groupNames1 -or $null -eq $groupNames2 -and $i -eq $Object1.Count) {
                 if (($null -ne $groupNames1 -and $groupNames1.Count -eq 0) -or ($null -ne $groupNames2 -and $groupNames2.Count -eq 0)) {
                     return $true
                 }
@@ -53,11 +53,14 @@ function Confirm-PolicyDefinitionsInPolicySetMatch {
             if ($groupNames1.Count -ne $groupNames2.Count) {
                 return $false
             }
-            $groupNamesCompareResults = Compare-Object -ReferenceObject $groupNames1 -DifferenceObject $groupNames2
-            if ($groupNamesCompareResults) {
-                return $false
-            }
 
+            if ($groupNames1 -and $groupNames2) {
+                $groupNamesCompareResults = Compare-Object -ReferenceObject $groupNames1 -DifferenceObject $groupNames2
+                if ($groupNamesCompareResults) {
+                    return $false
+                }
+            }
+            
             $parametersUsageMatches = Confirm-ParametersUsageMatches `
                 -ExistingParametersObj $item1.parameters `
                 -DefinedParametersObj $item2.parameters `
