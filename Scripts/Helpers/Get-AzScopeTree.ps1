@@ -1,7 +1,8 @@
 function Get-AzScopeTree {
 
     param(
-        [hashtable] $PacEnvironment
+        [hashtable] $PacEnvironment,
+        [switch] $IgnoreScopeTreeErrors
     )
 
     $deploymentRootScope = $PacEnvironment.deploymentRootScope
@@ -127,7 +128,13 @@ function Get-AzScopeTree {
             }
             else {
                 # should not be possible
-                Write-Error "Code bug: Our root is not in this tree" -ErrorAction Stop
+                if ($IgnoreScopeTreeErrors) {
+                    Write-Error "Code bug: Our root is not in this tree" -ErrorAction SilentlyContinue
+                }
+                else {
+                    Write-Error "Code bug: Our root is not in this tree" -ErrorAction Stop
+                }
+                
             }
         }
     }
