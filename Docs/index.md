@@ -186,6 +186,10 @@ The table below provides a summary functions/features comparison between the thr
 | Implementation   | hosted web service | customer deployment, interactive Azure governance management and security reporting tool | customer deployment, deployment automation and reporting tool |
 | Requirements     | browser | PowerShell 7.0.3 | PowerShell 7.3.1 |
 
+## Support
+
+Please raise issues via the [GitHub](https://github.com/Azure/enterprise-azure-policy-as-code/issues) repository.
+
 ## Contributing
 
 This project welcomes contributions and suggestions. Most contributions require you to agree to a
