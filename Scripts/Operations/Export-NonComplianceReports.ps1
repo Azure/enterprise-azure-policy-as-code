@@ -169,7 +169,9 @@ else {
 
     #source
     $allPolicyDefinitions = $deployedPolicyResources.policydefinitions.all
-    $allPolicyAssignments = $deployedPolicyResources.policyassignments.all
+    #$allPolicyAssignments = $deployedPolicyResources.policyassignments.managed - Why don't you work??
+
+    Set-Variable -Name allPolicyAssignments -Value $deployedPolicyResources.policyassignments.managed
 
     $collatedByPolicyId = @{}
     $summaryListByPolicy = [System.Collections.ArrayList]::new()
