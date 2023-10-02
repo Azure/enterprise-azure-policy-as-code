@@ -128,22 +128,23 @@ To deploy the ALZ policies using EPAC follow the steps below.
 
     ```json
     {
+        "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
         "nodeName": "/Root/",
         "scope": {
-            "tenant1": [
+            "tenant1": [ // Replace with your EPAC environment name and validate the management group listed below exists
                 "/providers/Microsoft.Management/managementGroups/toplevelmanagementgroup"
             ]
         },
         "parameters": {
-            "logAnalytics": "",
-            "logAnalytics_1": "",
-            "emailSecurityContact": "",
-            "ascExportResourceGroupName": "",
-            "ascExportResourceGroupLocation": ""
-        }
+            "logAnalytics": "", // Replace with your central Log Analytics workspace ID
+            "logAnalytics_1": "", // Replace with your central Log Analytics workspace ID
+            "emailSecurityContact": "", // Security contact email address for Microsoft Defender for Cloud
+            "ascExportResourceGroupName": "mdfc-export", // Resource group to export Microsoft Defender for Cloud data to
+            "ascExportResourceGroupLocation": "" // Location of the resource group to export Microsoft Defender for Cloud data to
+    }
     ```
 
-    If my top level management group had an ID of contoso I and my PAC environments specified a production environment I would need to update the block as below.
+    If my top level management group had an ID of contoso and my PAC environments specified a production environment I would need to update the block as below.
 
     ```json
     {
@@ -189,7 +190,7 @@ Carefully review the proposed changes before deploying them. It is best to make 
     Assignments deployed via the ALZ accelerators are kept in sync with the EnterprisePolicyAsCode module so ensure you have the latest PowerShell module installed before running `Sync-ALZPolicies`
 
 !!! tip
-    Rename or copy the default CAF assignment files - when you do a sync it makes it easier to compare changes. 
+    Rename or copy the default ALZ assignment files - when you do a sync it makes it easier to compare changes. 
 
 ## Keeping up to date with GitHub Actions
 

@@ -1,0 +1,33 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
+    "nodeName": "/Platform/",
+    "scope": {
+        "tenant1": [ // Replace with your EPAC environment name and validate the management group listed below exists
+            "/providers/Microsoft.Management/managementGroups/platform"
+        ]
+    },
+    "children": [
+        {
+            "nodeName": "KeyVault/",
+            "children": [
+                {
+                    "nodeName": "GuardRails",
+                    "assignment": {
+                        "name": "Enforce-GR-KeyVault-PLT",
+                        "displayName": "Enforce recommended guardrails for Azure Key Vault",
+                        "description": "This initiative assignment enables recommended ALZ guardrails for Azure Key Vault."
+                    },
+                    "definitionEntry": {
+                        "policySetName": "Enforce-Guardrails-KeyVault",
+                        "displayName": "Key Vault Guardrails"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Recommended guardrails must be enforced for Azure Key Vault."
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
