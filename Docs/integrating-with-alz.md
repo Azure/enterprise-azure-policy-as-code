@@ -8,12 +8,23 @@ To enable customers to use the Enterprise Policy as Code solution and combine Mi
 
 As the policies and assignments change in main repository the base files in this solution can be updated to match.
 
+## Why and when should you use EPAC to manage ALZ deployed policies
+
+EPAC can be used to manage Azure Policy deployed using ALZ Bicep or Terraform using the scenarios below. Some reasons you may want to switch to EPAC policy management include:
+
+- You have existing unmanaged policies in a brownfield environment that you want to deploy in the new ALZ environment. [Export the existing policies](extract-existing-policy-resources.md) and manage them with EPAC alongside the ALZ policy objects.
+- You have ALZ deployed in a non standard way e.g. multiple management group structures for testing, non-conventional management group structure. The default assignment structure provided by other ALZ deployment methods may not fit your strategy.
+- A team that is not responsible for infrastructure deployment e.g. a security team may want to deploy and manage policies.
+- You require features from policy not available in the ALZ deployments e.g. policy exemptions, documentation, assignment customization.
+- Non-compliance reporting and remediation task management.
+
+Instructions are provided below for integrating with Bicep and Terraform deployments. 
 ## Scenarios
 
 There are two scenarios for integrating EPAC with ALZ.
 
-1. Existing Azure Landing Zone deployment and EPAC is to be used as the policy engine moving forward
-2. Using EPAC to deploy and manage the Azure Landing Zone policies
+1. Existing Azure Landing Zone deployment and EPAC is to be used as the policy engine moving forward.
+2. Using EPAC to deploy and manage the Azure Landing Zone policies.
 
 ## Scenario 1 - Existing Deployment
 
@@ -170,6 +181,9 @@ To deploy the ALZ policies using EPAC follow the steps below.
     Several of the assignment files also have parameters which need to be in place. Pay attention to the requirements about having a Log Analytics workspace deployed prior to assigning these policies as it is a requirement for several of the assignments. Less generic parameters are also available for modification in the assignment files.
 
 7. Follow the normal steps to deploy the solution to the environment.
+
+!!! tip
+    Searching for comments in the assignment JSON files will show which values need to be updated.
 
 ## Keeping up to date with changes manually
 
