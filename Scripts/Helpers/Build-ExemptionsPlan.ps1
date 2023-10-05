@@ -327,7 +327,7 @@ function Build-ExemptionsPlan {
                             $clearExpiration = $false
                             if (-not $expiresOnMatches) {
                                 if ($null -eq $expiresOn) {
-                                    $null = $exemption.Add("clearExpiration", $true)
+                                    $exemption.clearExpiration = $true
                                     $clearExpiration = $true
                                 }
                             }

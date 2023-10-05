@@ -8,12 +8,23 @@ To enable customers to use the Enterprise Policy as Code solution and combine Mi
 
 As the policies and assignments change in main repository the base files in this solution can be updated to match.
 
+## Why and when should you use EPAC to manage ALZ deployed policies
+
+EPAC can be used to manage Azure Policy deployed using ALZ Bicep or Terraform using the scenarios below. Some reasons you may want to switch to EPAC policy management include:
+
+- You have existing unmanaged policies in a brownfield environment that you want to deploy in the new ALZ environment. [Export the existing policies](extract-existing-policy-resources.md) and manage them with EPAC alongside the ALZ policy objects.
+- You have ALZ deployed in a non standard way e.g. multiple management group structures for testing, non-conventional management group structure. The default assignment structure provided by other ALZ deployment methods may not fit your strategy.
+- A team that is not responsible for infrastructure deployment e.g. a security team may want to deploy and manage policies.
+- You require features from policy not available in the ALZ deployments e.g. policy exemptions, documentation, assignment customization.
+- Non-compliance reporting and remediation task management.
+
+Instructions are provided below for integrating with Bicep and Terraform deployments. 
 ## Scenarios
 
 There are two scenarios for integrating EPAC with ALZ.
 
-1. Existing Azure Landing Zone deployment and EPAC is to be used as the policy engine moving forward
-2. Using EPAC to deploy and manage the Azure Landing Zone policies
+1. Existing Azure Landing Zone deployment and EPAC is to be used as the policy engine moving forward.
+2. Using EPAC to deploy and manage the Azure Landing Zone policies.
 
 ## Scenario 1 - Existing Deployment
 
@@ -128,22 +139,23 @@ To deploy the ALZ policies using EPAC follow the steps below.
 
     ```json
     {
+        "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
         "nodeName": "/Root/",
         "scope": {
-            "tenant1": [
+            "tenant1": [ // Replace with your EPAC environment name and validate the management group listed below exists
                 "/providers/Microsoft.Management/managementGroups/toplevelmanagementgroup"
             ]
         },
         "parameters": {
-            "logAnalytics": "",
-            "logAnalytics_1": "",
-            "emailSecurityContact": "",
-            "ascExportResourceGroupName": "",
-            "ascExportResourceGroupLocation": ""
-        }
+            "logAnalytics": "", // Replace with your central Log Analytics workspace ID
+            "logAnalytics_1": "", // Replace with your central Log Analytics workspace ID
+            "emailSecurityContact": "", // Security contact email address for Microsoft Defender for Cloud
+            "ascExportResourceGroupName": "mdfc-export", // Resource group to export Microsoft Defender for Cloud data to
+            "ascExportResourceGroupLocation": "" // Location of the resource group to export Microsoft Defender for Cloud data to
+    }
     ```
 
-    If my top level management group had an ID of contoso I and my PAC environments specified a production environment I would need to update the block as below.
+    If my top level management group had an ID of contoso and my PAC environments specified a production environment I would need to update the block as below.
 
     ```json
     {
@@ -170,6 +182,9 @@ To deploy the ALZ policies using EPAC follow the steps below.
 
 7. Follow the normal steps to deploy the solution to the environment.
 
+!!! tip
+    Searching for comments in the assignment JSON files will show which values need to be updated.
+
 ## Keeping up to date with changes manually
 
 The Azure Landing Zone deployment contains a number of policies which help provide guardrails to an environment, and the team which works on these policies is always providing updates to the original content to keep in line with Microsoft best practice and road map. The EPAC solution contains a function to help synchronize changes from the upstream project
@@ -189,7 +204,7 @@ Carefully review the proposed changes before deploying them. It is best to make 
     Assignments deployed via the ALZ accelerators are kept in sync with the EnterprisePolicyAsCode module so ensure you have the latest PowerShell module installed before running `Sync-ALZPolicies`
 
 !!! tip
-    Rename or copy the default CAF assignment files - when you do a sync it makes it easier to compare changes. 
+    Rename or copy the default ALZ assignment files - when you do a sync it makes it easier to compare changes. 
 
 ## Keeping up to date with GitHub Actions
 

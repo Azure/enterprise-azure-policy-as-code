@@ -314,9 +314,9 @@ function Build-AssignmentPlan {
                     $Assignments.numberOfChanges++
 
                 }
-                else {
-                    Write-AssignmentDetails -DisplayName $name -Scope $Scope -Prefix "Desired State($pacOwner,$strategy) - no delete" -IdentityStatus $IdentityStatus
-                }
+                # else {
+                #     Write-AssignmentDetails -DisplayName $name -Scope $Scope -Prefix "Desired State($pacOwner,$strategy) - no delete" -IdentityStatus $IdentityStatus
+                # }
             }
         }
 
