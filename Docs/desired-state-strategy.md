@@ -21,7 +21,7 @@ You may add the following JSON for clarity/documentation of the default behavior
 
 ```json
 "desiredState": {
-    "strategy": "full",
+    "strategy": "full"
 }
 ```
 
@@ -38,7 +38,7 @@ Repo A is managed the same as in use cases 1, 2 and 2a. Repo C sets sets the sam
 ```json
 "inheritedDefinitionsScopes": [],
 "desiredState": {
-    "strategy": "full",
+    "strategy": "full"
 }
 ```
 
@@ -49,7 +49,7 @@ While transitioning to EPAC, existing Policy resources may need to be kept. Sett
 
 ```json
 "desiredState": {
-    "strategy": "ownedOnly",
+    "strategy": "ownedOnly"
 }
 ```
 
@@ -115,7 +115,7 @@ By default, Policy Assignments at resource groups are not managed by EPAC. Prior
 ```json
 "desiredState": {
     "strategy": "full",
-    "includeResourceGroups": true,
+    "includeResourceGroups": true
 }
 ```
 
