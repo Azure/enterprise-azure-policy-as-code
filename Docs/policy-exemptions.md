@@ -26,7 +26,7 @@ We recommend that you use spreadsheets (`.csv`). The columns must have the follo
 * `exemptionCategory` - `waiver` or `mitigated`.
 * `expiresOn` - empty or expiry date.
 * `scope` - Management Group, subscription, Resource Group or resource.
-* `assignmentId` - fully qualified assignment id.
+* `policyAssignmentId` - fully qualified assignment id.
 * `policyDefinitionReferenceIds` use comma separated list within each cell.
 * `metadata` - valid JSON (see JSON format below)
 * Optional
@@ -49,7 +49,7 @@ This schema is new in v7.4.x and may not be complete. Please let us know if we m
 
 ## JSON Format
 
-`name`, `displayName`, `exemptionCategory`, `scope` and `assignmentId` are required fields. The others are optional.
+`name`, `displayName`, `exemptionCategory`, `scope` and `policyAssignmentId` are required fields. The others are optional.
 
 ```json
 {
