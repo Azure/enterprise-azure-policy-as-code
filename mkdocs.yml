@@ -38,7 +38,7 @@ nav:
       - GitHub Actions: github-actions.md
   - Azure Landing Zones:
       - ALZ Policy Integration: integrating-with-alz.md
-      - ALZ Monitor Integration: integrating-with-alz-monitor.md
+      - Azure Monitor Baseline Alerts: integrating-with-alz-monitor.md
   - Policy Objects:
       - Policy Definitions: policy-definitions.md
       - Policy Set Definitions: policy-set-definitions.md

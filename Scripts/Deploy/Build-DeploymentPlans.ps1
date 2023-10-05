@@ -50,7 +50,10 @@ param (
 
     [Parameter(HelpMessage = "If set, outputs variables consumable by conditions in a DevOps pipeline.")]
     [ValidateSet("ado", "gitlab", "")]
-    [string] $DevOpsType = ""
+    [string] $DevOpsType = "",
+
+    [Parameter(HelpMessage = "Ignore scope tree errors")]
+    [switch] $IgnoreScopeTreeErrors
 )
 
 $PSDefaultParameterValues = @{
@@ -93,7 +96,14 @@ elseif (!(Test-Path $exemptionsFolderForPacEnvironment -PathType Container)) {
     $exemptionsAreNotManaged = $true
 }
 
-$scopeTable = Get-AzScopeTree -PacEnvironment $pacEnvironment
+if ($IgnoreScopeTreeErrors) {
+    Write-Warning "Ignoring scope tree errors"
+    $scopeTable = Get-AzScopeTree -PacEnvironment $pacEnvironment -IgnoreScopeTreeErrors
+}
+else {
+    $scopeTable = Get-AzScopeTree -PacEnvironment $pacEnvironment
+}
+
 $deployedPolicyResources = Get-AzPolicyResources -PacEnvironment $pacEnvironment -ScopeTable $scopeTable -SkipExemptions:$exemptionsAreNotManaged
 
 # Process Policies

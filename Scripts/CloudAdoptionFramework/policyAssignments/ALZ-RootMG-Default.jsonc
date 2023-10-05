@@ -2,16 +2,16 @@
     "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
     "nodeName": "/Root/",
     "scope": {
-        "tenant1": [
-            "/providers/Microsoft.Management/managementGroups/toplevelmanagementgroup"
+        "tenant1": [ // Replace with your EPAC environment name and validate the management group listed below exists
+            "/providers/Microsoft.Management/managementGroups/intermediatelevelmanagementgroup"
         ]
     },
     "parameters": {
-        "logAnalytics": "",
-        "logAnalytics_1": "",
-        "emailSecurityContact": "",
-        "ascExportResourceGroupName": "mdfc-export",
-        "ascExportResourceGroupLocation": ""
+        "logAnalytics": "", // Replace with your central Log Analytics workspace ID
+        "logAnalytics_1": "", // Replace with your central Log Analytics workspace ID
+        "emailSecurityContact": "", // Security contact email address for Microsoft Defender for Cloud
+        "ascExportResourceGroupName": "mdfc-export", // Resource group to export Microsoft Defender for Cloud data to
+        "ascExportResourceGroupLocation": "" // Location of the resource group to export Microsoft Defender for Cloud data to
     },
     "children": [
         {
@@ -47,7 +47,7 @@
                         "displayName": "Microsoft Defender For Cloud"
                     },
                     "parameters": {
-                        "enableAscForServers": "Disabled",
+                        "enableAscForServers": "Disabled", // Adjust parameter values to control Microsoft Defender for Cloud configuration Disabled/DeployIfNotExists
                         "enableAscForSql": "Disabled",
                         "enableAscForAppServices": "Disabled",
                         "enableAscForStorage": "Disabled",
