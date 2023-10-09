@@ -108,6 +108,8 @@ function Get-GlobalSettings {
             excludedPolicyDefinitions    = @()
             excludedPolicySetDefinitions = @()
             excludedPolicyAssignments    = @()
+            deleteExpiredExemptions      = $true
+            deleteOrphanedExemptions     = $true
         }
         if ($null -ne $pacEnvironment.desiredState) {
             $desired = $pacEnvironment.desiredState
@@ -159,6 +161,24 @@ function Get-GlobalSettings {
                     Write-Error "Policy as Code environment $pacSelector field desiredState.excludedPolicyAssignments ($(ConvertTo-Json $excluded -Compress)) must be an array of strings." -ErrorAction Stop
                 }
                 $desiredState.excludedPolicyAssignments = $excluded
+            }
+            $deleteExpired = $desired.deleteExpiredExemptions
+            if ($null -ne $deleteExpired) {
+                if ($deleteExpired -is [bool]) {
+                    $desiredState.deleteExpiredExemptions = $deleteExpired
+                }
+                else {
+                    Write-Error "Policy as Code environment $pacSelector field desiredState.deleteExpiredExemptions ($deleteExpired) must be a boolean value." -ErrorAction Stop
+                }
+            }
+            $deleteOrphaned = $desired.deleteOrphanedExemptions
+            if ($null -ne $deleteOrphaned) {
+                if ($deleteOrphaned -is [bool]) {
+                    $desiredState.deleteOrphanedExemptions = $deleteOrphaned
+                }
+                else {
+                    Write-Error "Policy as Code environment $pacSelector field desiredState.deleteOrphanedExemptions ($deleteOrphaned) must be a boolean value." -ErrorAction Stop
+                }
             }
         }
         foreach ($entry in $globalNotScopeList) {
