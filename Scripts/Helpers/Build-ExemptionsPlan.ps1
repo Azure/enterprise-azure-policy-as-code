@@ -70,6 +70,11 @@ function Build-ExemptionsPlan {
                     }
                 }
 
+                $exemptionsNamesArray = @()
+                foreach ($item in $exemptionsArray) {
+                    $exemptionsNamesArray += $item.name
+                }
+
                 #endregion read each file
 
                 #region validate file contents
@@ -134,6 +139,7 @@ function Build-ExemptionsPlan {
                             Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "description too long (max 1024 characters)" -EntryNumber $entryNumber
                         }
                     }
+                    #Should add a check that name does not contain & or potentially any special characters.
                     if ([string]::IsNullOrWhitespace($assignmentScopeValidation)) {
                         $assignmentScopeValidation = "Default"
                     }
@@ -269,17 +275,19 @@ function Build-ExemptionsPlan {
 
                     #region expired and orphaned in definitions
 
+                    $deleteExpired = $PacEnvironment.desiredState.deleteExpiredExemptions
+                    $deleteOrphaned = $PacEnvironment.desiredState.deleteOrphanedExemptions
                     $deployedManagedExemption = $null
                     if ($deployedManagedExemptions.ContainsKey($id)) {
                         $deployedManagedExemption = $deployedManagedExemptions.$id
                         # Filter orphaned and expired Exemptions in definitions; deleteCandidates will delete it from environment if it is still deployed
-                        if (!$AllAssignments.ContainsKey($policyAssignmentId)) {
+                        if (!$AllAssignments.ContainsKey($policyAssignmentId) -and $deleteOrphaned -eq $false) {
                             Write-Warning "Orphaned exemption (name=$name, scope=$scope) in definitions"
                             $deployedManagedExemption.pacOwner = "thisPac"
                             $deployedManagedExemptions.status = "orphaned"
                             continue
                         }
-                        if ($expired) {
+                        if ($expired -and $deleteExpired -eq $false) {
                             Write-Warning "Expired exemption (name=$name, scope=$scope) in definitions"
                             if ($deployedManagedExemption.status -ne "orphaned") {
                                 $deployedManagedExemption.pacOwner = "thisPac"
@@ -287,14 +295,20 @@ function Build-ExemptionsPlan {
                             }
                             continue
                         }
+                        if (($deleteExpired -and $expired ) -or ($deleteOrphaned -and !$AllAssignments.ContainsKey($policyAssignmentId))) {
+                            continue
+                        }
                     }
                     else {
-                        if (!$AllAssignments.ContainsKey($policyAssignmentId)) {
+                        if (!$AllAssignments.ContainsKey($policyAssignmentId) -and $deleteOrpahed) {
                             Write-Warning "Orphaned exemption (name=$name, scope=$scope) in definitions"
                             continue
                         }
-                        if ($expired) {
+                        if ($expired -and $deleteExpired) {
                             Write-Warning "Expired exemption (name=$name, scope=$scope) in definitions"
+                            continue
+                        }
+                        if (($DeleteExpired -eq $false -and $expired ) -or ($DeleteOrphaned -eq $false -and !$AllAssignments.ContainsKey($policyAssignmentId))) {
                             continue
                         }
                     }
@@ -412,10 +426,14 @@ function Build-ExemptionsPlan {
                 $exemption = $deleteCandidates.$id
                 $pacOwner = $exemption.pacOwner
                 $status = $exemption.status
-                if ($status -eq "orphaned" -and $pacOwner -eq "unknownOwner") {
-                    $pacOwner = "thisPac"
+                if ($deleteExpired -eq $false -or $deleteOrphaned -eq $false) {
+                    $currentExemptionName = $exemption.name
+                    $removed = $false
+                    if ($currentExemptionName -notin $exemptionsNamesArray -and ($status -ne "orphaned" -and $status -ne "expired")) {
+                        $removed = $true
+                    }
                 }
-                $shallDelete = Confirm-DeleteForStrategy -PacOwner $pacOwner -Strategy $strategy
+                $shallDelete = Confirm-DeleteForStrategy -PacOwner $pacOwner -Strategy $strategy -Status $status -DeleteExpired $deleteExpired -DeleteOrphaned $deleteOrphaned -Removed $removed
 
                 if ($shallDelete) {
                     switch ($status) {
