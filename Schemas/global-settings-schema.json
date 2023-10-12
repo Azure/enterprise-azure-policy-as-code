@@ -78,6 +78,12 @@
                                             "type": "string"
                                         }
                                     ]
+                                },
+                                "deleteExpiredExemptions": {
+                                    "type": "boolean"
+                                },
+                                "deleteOrphanedExemptions": {
+                                    "type": "boolean"
                                 }
                             },
                             "additionalProperties": false,

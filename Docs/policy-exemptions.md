@@ -6,6 +6,15 @@ Exemptions can be defined as JSON or CSV files (we recommend that you use CSV fi
 
 The pacEnvironment (see global-settings.jsonc) is represented with a folder structure under the folder policyExemptions, such as epac-dev, tenant, ... A missing folder indicates that the pacEnvironment's Exemptions are not managed by this solution. To extract existing exemptions, the operations script Get-AzExemptions.ps1 can be used to generate JSON and CSV files. The output may be used to start the Exemption definitions. This same output is also created when [Extract existing Policy Resources from an Environment](extract-existing-policy-resources.md).
 
+
+The `desiredState` in global-settings.json allows for some modifications to the behavior of exemptions at deployment.  
+
+`deleteExpiredExemptions` - Default is true.  When set to false, EPAC will not delete expired, owned exemptions.  This is primarily used to prevent errors in EPAC deployments for organizations that choose to apply delete locks.
+
+`deleteOrphanedExemptions` - Default is true.  When set to false, EPAC will not delete orphaned, owned exemptions.  This is primarily used to prevent errors in EPAC deployments for organizations that choose to apply delete locks.
+
+EPAC will ignore all exemptions not owned by the executing pacOwnerId.
+
 A typical folder structure might look like this:
 
 ```
