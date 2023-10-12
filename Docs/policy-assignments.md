@@ -89,7 +89,7 @@ Each assignment assigns either a Policy or Policy Set. In EPAC this is done with
 
 Using `definitionEntryList` allows you to save on copy/paste tree branches. Without it, the number of branches would need to be duplicated as many times as the list has entries.
 
-Each entry in the list creates an Assignment at each leave of the tree. Since assignments must have unique names at a specific scope, the Assignment naming component must be amended for each list entry. In this sub-component you can decide if you want to concatenate the string by appending or prepending them by specifying `append` boolean value.
+Each entry in the list creates an Assignment at each leaf of the tree. Since assignments must have unique names at a specific scope, the Assignment naming component must be amended for each list entry. In this sub-component you can decide if you want to concatenate the string by appending or prepending them by specifying `append` boolean value.
 
 ```json
 "definitionEntryList": [
