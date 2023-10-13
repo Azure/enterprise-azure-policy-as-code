@@ -16,6 +16,9 @@
 .PARAMETER Interactive
     Use switch to indicate interactive use
 
+.PARAMETER IgnoreScopeLockedErrors
+    Ignore errors raised by locked scopes
+
 .EXAMPLE
     Deploy-PolicyPlan.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\git\policy-as-code\Definitions" -InputFolder "C:\git\policy-as-code\Output" -Interactive
     Deploys Policy resources from a plan file.
@@ -44,7 +47,10 @@ param (
     [string] $InputFolder,
 
     [Parameter(HelpMessage = "Use switch to indicate interactive use")]
-    [switch] $Interactive
+    [switch] $Interactive,
+
+    [Parameter(HelpMessage = "Ignore errors raised by locked scopes")]
+    [switch] $IgnoreScopeLockedErrors
 )
 
 $PSDefaultParameterValues = @{
@@ -100,7 +106,17 @@ else {
         foreach ($id in $exemptions.Keys) {
             $exemption = $exemptions[$id]
             Write-Information $exemption.displayName
-            $null = Remove-AzPolicyExemption -Id $id -Force -ErrorAction Continue
+            try {
+                $null = Remove-AzPolicyExemption -Id $id -Force -ErrorAction Stop
+            }
+            catch {
+                if ($IgnoreScopeLockedErrors -and $_.Exception.Message -match "^ScopeLocked") {
+                    Write-Warning "Scope is locked - error output: $($_.Exception.Message)"
+                }
+                else {
+                    throw $_
+                }
+            }
         }
     }
 
@@ -113,7 +129,17 @@ else {
         foreach ($id in $exemptions.Keys) {
             $exemption = $exemptions[$id]
             Write-Information $exemption.displayName
-            $null = Remove-AzPolicyExemption -Id $id -Force
+            try {
+                $null = Remove-AzPolicyExemption -Id $id -Force -ErrorAction Stop
+            }
+            catch {
+                if ($IgnoreScopeLockedErrors -and $_.Exception.Message -match "^ScopeLocked") {
+                    Write-Warning "Scope is locked - error output: $($_.Exception.Message)"
+                }
+                else {
+                    throw $_
+                }
+            }
         }
     }
 
