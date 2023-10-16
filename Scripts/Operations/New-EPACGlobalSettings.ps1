@@ -11,14 +11,14 @@
 .PARAMETER Tenant
     The Azure tenant ID for the solution ((Get-AzContext).Tenant)
 
-.PARAMETER DefinitionsPath
+.PARAMETER DefinitionsRootFolder
     The folder path to where the New-EPACDefinitionsFolder command created the definitions root folder (C:\definitions\)
 
-.PARAMETER ManagementGroupRootName
+.PARAMETER DeploymentRootScope
     The root management group to export definitions and assignments (/providers/Microsoft.Management/managementGroups/)
 
 .EXAMPLE
-    .\New-EPACGlobalSettings.ps1 -ManagedIdentityLocation NorthCentralUS -Tenant 00000000-0000-0000-0000-000000000000 -DefinitionsPath C:\definitions\ -ManagementGroupRootName /providers/Microsoft.Management/managementGroups/mgroup1
+    .\New-EPACGlobalSettings.ps1 -ManagedIdentityLocation NorthCentralUS -TenantId 00000000-0000-0000-0000-000000000000 -DefinitionsRootFolder C:\definitions\ -DeploymentRootScope /providers/Microsoft.Management/managementGroups/mgroup1
 
 #>
 [CmdletBinding()]
@@ -27,37 +27,40 @@ param (
     [string]$ManagedIdentityLocation,
 
     [Parameter(Mandatory = $true, Position = 1, HelpMessage = "The Azure tenant ID for the solution ((Get-AzContext).Tenant)")]
-    [string]$Tenant,
+    [string]$TenantId,
 
     [Parameter(Mandatory = $true, Position = 2, HelpMessage = "The folder path to where the New-EPACDefinitionsFolder command created the definitions root folder (C:\definitions\)")]
-    [string]$DefinitionsPath,
+    [string]$DefinitionsRootFolder,
 
     [Parameter(Mandatory = $true, Position = 3, HelpMessage = "The root management group to export definitions and assignments (/providers/Microsoft.Management/managementGroups/)")]
-    [string]$ManagementGroupRootName
+    [string]$DeploymentRootScope
 )
 
-$DefinitionsPath = $DefinitionsPath.TrimEnd('\')
+$DefinitionsRootFolder = $DefinitionsRootFolder.TrimEnd('\')
 
-if ($ManagementGroupRootName.StartsWith('/providers/Microsoft.Management/managementGroups')) {
-    if (Test-Path -Path $DefinitionsPath) {
-        if (Get-AzLocation | Where-Object {$_.Location -eq $ManagedIdentityLocation}) {
+if ($DeploymentRootScope.StartsWith('/providers/Microsoft.Management/managementGroups')) {
+    if (Test-Path -Path $DefinitionsRootFolder) {
+        if (Get-AzLocation | Where-Object { $_.Location -eq $ManagedIdentityLocation }) {
             $jsonstrings = @("{""`$schema"": ""https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/global-settings-schema.json"", ""pacOwnerId"": """,
-                        """, ""managedIdentityLocations"": { ""*"": """,
-                        """}, ""globalNotScopes"": { ""*"": [""/resourceGroupPatterns/excluded-rg*""] }, ""pacEnvironments"": [{ ""pacSelector"": ""quick-start"",""cloud"": ""AzureCloud"", ""tenantId"": """,
-                        """, ""deploymentRootScope"": ""$ManagementGroupRootName""}]}"
+                """, ""managedIdentityLocations"": { ""*"": """,
+                """}, ""globalNotScopes"": { ""*"": [""/resourceGroupPatterns/excluded-rg*""] }, ""pacEnvironments"": [{ ""pacSelector"": ""quick-start"",""cloud"": ""AzureCloud"", ""tenantId"": """,
+                """, ""deploymentRootScope"": ""$DeploymentRootScope""}]}"
             )
         
-            $jsonpackage = $jsonstrings[0] + (New-Guid).Guid + $jsonstrings[1] + $ManagedIdentityLocation + $jsonstrings[2] + $Tenant + $jsonstrings[3]
+            $jsonpackage = $jsonstrings[0] + (New-Guid).Guid + $jsonstrings[1] + $ManagedIdentityLocation + $jsonstrings[2] + $TenantId + $jsonstrings[3]
             
-            Set-Content -Value $jsonpackage -Path $DefinitionsPath\global-settings.jsonc -Encoding Ascii -Force
+            Set-Content -Value $jsonpackage -Path $DefinitionsRootFolder\global-settings.jsonc -Encoding Ascii -Force
     
-            Get-Content -Path $DefinitionsPath\global-settings.jsonc
-        } else {
+            Get-Content -Path $DefinitionsRootFolder\global-settings.jsonc
+        }
+        else {
             Write-Output "Location $ManagedIdentityLocation invalid. Please check the location with Get-AzLocation"
         }
-    } else {
+    }
+    else {
         Write-Output "Definition path not found. Specify a valid definition folder path."
     }
-} else {
+}
+else {
     Write-Output "Please provide the root management group path in the format /providers/Microsoft.Management/managementGroups/<MGName>"
 }
