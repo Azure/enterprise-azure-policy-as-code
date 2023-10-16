@@ -39,6 +39,7 @@ nav:
   - Azure Landing Zones:
       - ALZ Policy Integration: integrating-with-alz.md
       - Azure Monitor Baseline Alerts: integrating-with-alz-monitor.md
+      - Sovereign Landing Zones: integrating-with-slz.md
   - Policy Objects:
       - Policy Definitions: policy-definitions.md
       - Policy Set Definitions: policy-set-definitions.md
