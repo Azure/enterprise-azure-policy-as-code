@@ -57,6 +57,7 @@ function Out-PolicyAssignmentFile {
     }
 
     $assignmentDefinition = [ordered]@{
+        '$schema'       = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json"
         nodeName        = "/root"
         definitionEntry = $definitionEntry
     }
