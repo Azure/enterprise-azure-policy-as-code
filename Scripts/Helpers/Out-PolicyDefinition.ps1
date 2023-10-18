@@ -63,6 +63,13 @@ function Out-PolicyDefinition {
 
     # Write the content
     Remove-NullFields $Definition
-    $json = ConvertTo-Json $Definition -Depth 100
+    $outDefinition = [PSCustomObject]@{'$schema' = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json" }
+    
+    # update schema if policy set
+    if ($Definition.properties.policyDefinitions) {
+        $outDefinition.'$schema' = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-set-definition-schema.json" 
+    }
+    $Definition.psobject.Properties.ForEach{ ($outDefinition).psobject.Properties.Add($_, $true) }
+    $json = ConvertTo-Json $outDefinition -Depth 100
     $null = New-Item $fullPath -Force -ItemType File -Value $json
 }

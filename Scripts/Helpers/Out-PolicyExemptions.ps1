@@ -125,7 +125,8 @@ function Out-PolicyExemptions {
             if (Test-Path $jsonFile) {
                 Remove-Item $jsonFile
             }
-            $outputJsonObj = @{
+            $outputJsonObj = [ordered]@{
+                '$schema'  = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-exemption-schema.json"
                 exemptions = $jsonArray
             }
             ConvertTo-Json $outputJsonObj -Depth 100 | Out-File $jsonFile -Force
@@ -187,7 +188,8 @@ function Out-PolicyExemptions {
             if (Test-Path $jsonFile) {
                 Remove-Item $jsonFile
             }
-            $outputJsonObj = @{
+            $outputJsonObj = [ordered]@{
+                '$schema'  = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-exemption-schema.json"
                 exemptions = $jsonArray
             }
             ConvertTo-Json $outputJsonObj -Depth 100 | Out-File $jsonFile -Force
