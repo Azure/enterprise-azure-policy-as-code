@@ -215,7 +215,7 @@ function Get-AzPolicyResources {
                                 Default {
                                     # Read only definitions scopes
                                     $null = $deployedPolicyTable.all.Add($id, $policyResource)
-                                    $null = $policyDefinitions.readOnly.Add($id, $policyResource)
+                                    $null = $deployedPolicyTable.readOnly.Add($id, $policyResource)
                                     $deployedPolicyTable.counters.inherited += 1
                                     $found = $true
                                 }

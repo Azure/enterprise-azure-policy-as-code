@@ -183,5 +183,29 @@ function Get-AzScopeTree {
     }
     Write-Information "    Resource groups   = $($numberOfResourceGroups)"
 
+    if ($PacEnvironment.policyDefinitionsScopes.Count -gt 2) {
+        # Process policy definitions scopes
+        $numberOfPolicyDefinitionsScopes = 0
+        foreach ($policyDefinitionsScope in $PacEnvironment.policyDefinitionsScopes) {
+            if ($scopeTable.ContainsKey($policyDefinitionsScope) -or $policyDefinitionsScope -eq "") {}
+            else {
+                $scopeInformation = @{
+                    id             = $policyDefinitionsScope
+                    type           = "microsoft.management/managementgroups"
+                    name           = $policyDefinitionsScope
+                    displayName    = $policyDefinitionsScope
+                    parentList     = @{}
+                    childrenList   = @{}
+                    resourceGroups = @{}
+                    state          = $null
+                    location       = "global"
+                }
+                $null = $scopeTable.Add($policyDefinitionsScope, $scopeInformation)
+                $numberOfPolicyDefinitionsScopes++
+            }
+        }
+        Write-Information "    Policy definitions scopes = $($numberOfPolicyDefinitionsScopes)"
+    }
+
     return $scopeTable
 }
