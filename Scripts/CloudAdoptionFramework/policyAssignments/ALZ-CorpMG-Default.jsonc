@@ -28,7 +28,7 @@
                     ]
                 },
                 {
-                    "nodeName": "DNZZones",
+                    "nodeName": "DNSZones",
                     "assignment": {
                         "name": "Deploy-Private-DNS-Zones",
                         "displayName": "Configure Azure PaaS services to use private DNS zones",
