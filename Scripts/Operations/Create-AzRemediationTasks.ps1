@@ -173,7 +173,7 @@ else {
         }
 
         $parametersSplat = $null
-        if ($policyDefinitionReferenceId -and $policyDefinitionReferenceId -ne "") {
+        if ($policyDefinitionReferenceId -and $policyAssignmentId -ne "") {
             $parametersSplat = [ordered]@{
                 Name                        = $taskName
                 Scope                       = $policyAssignmentScope
