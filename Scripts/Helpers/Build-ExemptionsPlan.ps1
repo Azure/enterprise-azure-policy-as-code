@@ -300,7 +300,7 @@ function Build-ExemptionsPlan {
                         }
                     }
                     else {
-                        if (!$AllAssignments.ContainsKey($policyAssignmentId) -and $deleteOrpahed) {
+                        if (!$AllAssignments.ContainsKey($policyAssignmentId) -and $deleteOrphaned) {
                             Write-Warning "Orphaned exemption (name=$name, scope=$scope) in definitions"
                             continue
                         }
@@ -433,7 +433,17 @@ function Build-ExemptionsPlan {
                         $removed = $true
                     }
                 }
-                $shallDelete = Confirm-DeleteForStrategy -PacOwner $pacOwner -Strategy $strategy -Status $status -DeleteExpired $deleteExpired -DeleteOrphaned $deleteOrphaned -Removed $removed
+                if ($null -eq $exemption.metadata.pacOwnerId -and $PacEnvironment.desiredState.strategy -eq "ownedOnly") {
+                    $shallDelete = $false
+                }
+                else {
+                    $shallDelete = Confirm-DeleteForStrategy -PacOwner $pacOwner `
+                        -Strategy $strategy `
+                        -Status $status `
+                        -DeleteExpired $deleteExpired `
+                        -DeleteOrphaned $deleteOrphaned `
+                        -Removed $removed
+                }
 
                 if ($shallDelete) {
                     switch ($status) {
