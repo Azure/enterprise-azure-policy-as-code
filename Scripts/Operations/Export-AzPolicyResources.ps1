@@ -129,7 +129,7 @@ $policySetDefinitionsFolder = "$definitionsFolder/policySetDefinitions"
 $policyAssignmentsFolder = "$definitionsFolder/policyAssignments"
 $policyExemptionsFolder = "$definitionsFolder/policyExemptions"
 $invalidChars = [IO.Path]::GetInvalidFileNameChars()
-$invalidChars += ("[]()$".ToCharArray())
+$invalidChars += (":[]()$".ToCharArray())
 
 # Telemetry
 if ($globalSettings.telemetryEnabled) {
