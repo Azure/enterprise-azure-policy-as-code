@@ -3,7 +3,7 @@
     "pacOwnerId": "11083790-9b94-41c8-a7f8-92c3e4126e29",
     "pacEnvironments": [
         {
-            "pacSelector": "sandbox",
+            "pacSelector": "Sandbox",
             "cloud": "AzureCloud",
             "tenantId": "4fb849a3-3ff3-4362-af8e-45174cd753dd",
             "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350"

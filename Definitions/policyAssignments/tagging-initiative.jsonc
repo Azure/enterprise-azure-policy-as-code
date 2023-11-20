@@ -1,0 +1,30 @@
+{
+    "nodeName": "/tagging/",
+    "definitionEntryList": [
+      {
+        "policySetName": "cb71df76-7a26-4035-957f-0cf08844c4df",
+        "displayName": "Tagging",
+        "assignment": {
+          "append": true,
+          "name": "Tagging Requirements",
+          "displayName": "Tagging Requirements",
+          "description": "Policy for Tagging Requirements"
+        }
+      }
+    ],
+    "children": [
+      {
+        "nodeName": "Sandbox/",
+        "assignment": {
+          "name": "Tagging",
+          "displayName": "SB-",
+          "description": "Sandbox Environment controls enforcement with "
+        },
+        "scope": {
+          "Sandbox": [
+            "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350"
+          ]
+        }
+      }
+    ]
+  }
