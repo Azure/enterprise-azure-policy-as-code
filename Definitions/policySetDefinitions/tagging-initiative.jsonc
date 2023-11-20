@@ -1,0 +1,29 @@
+{
+    "name": "cb71df76-7a26-4035-957f-0cf08844c4df",
+    "properties": {
+      "displayName": "Tagging Initiative",
+      "description": "This is the groupig of tagging policies required for this environment",
+      "metadata": {
+        "version": "1.0.0",
+        "category": "Tag"
+      },
+      "PolicyDefinitions": [
+        {
+          "policyDefinitionReferenceId": "Require owner Tag on resources",
+          "policyDefinitionName": "5adc8112-eab4-4fe6-b786-710b6b9f548c"
+        },
+        {
+          "policyDefinitionReferenceId": "Require app_id Tag on resources",
+          "policyDefinitionName": "638ee850-1095-41ea-ae28-7aa964a70a31"
+        },
+        {
+          "policyDefinitionReferenceId": "Require revenue Tag on resources",
+          "policyDefinitionName": "17d09893-398f-4747-bafe-c21de15337e8"
+        },
+        {
+          "policyDefinitionReferenceId": "Built In: Inherit a tag from the subscription",
+          "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/b27a0cbd-a167-4dfa-ae64-4337be671140"
+        }
+      ]
+    }
+  }

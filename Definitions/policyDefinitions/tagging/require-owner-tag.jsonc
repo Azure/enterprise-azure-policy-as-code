@@ -1,0 +1,29 @@
+{
+    "name": "5adc8112-eab4-4fe6-b786-710b6b9f548c",
+    "properties": {
+        "displayName": "Require owner Tag on resources",
+        "mode": "All",
+        "description": "This policy validates the tag 'owner' is added to a resource and ensures a value is present",
+        "metadata": {
+            "version": "1.0.0",
+            "category": "Tags"
+        },
+        "policyRule": {
+            "if": {
+                "allOf": [
+                    {
+                        "field": "tags['owner']",
+                        "exists": "false"
+                    },
+                    {
+                        "field": "tags['owner']",
+                        "notEquals": ""
+                    }
+                ]
+            },
+            "then": {
+                "effect": "deny"
+            }
+        }
+    }
+}

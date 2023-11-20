@@ -9,7 +9,7 @@
             "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350"
         },
         {
-            "pacSelector": "Non-Production",
+            "pacSelector": "Non-Prod",
             "cloud": "AzureCloud",
             "tenantId": "4fb849a3-3ff3-4362-af8e-45174cd753dd",
             "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/af7c1edc-fe91-4bbe-98d9-aa3943b9a02a",

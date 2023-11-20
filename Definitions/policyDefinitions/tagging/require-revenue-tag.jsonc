@@ -1,0 +1,29 @@
+{
+    "name": "17d09893-398f-4747-bafe-c21de15337e8",
+    "properties": {
+        "displayName": "Require app_id Tag on resources",
+        "mode": "All",
+        "description": "This policy validates the tag 'app_id' is added to a resource and ensures a value is present",
+        "metadata": {
+            "version": "1.0.0",
+            "category": "Tags"
+        },
+        "policyRule": {
+            "if": {
+                "allOf": [
+                    {
+                        "field": "tags['app_id']",
+                        "exists": "false"
+                    },
+                    {
+                        "field": "tags['app_id']",
+                        "notEquals": ""
+                    }
+                ]
+            },
+            "then": {
+                "effect": "audit"
+            }
+        }
+    }
+}
