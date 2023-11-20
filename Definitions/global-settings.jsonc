@@ -1,37 +1,29 @@
 {
     "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/global-settings-schema.json",
-    "pacOwnerId": "11111111-2222-3333-4444-555555555555",
+    "pacOwnerId": "11083790-9b94-41c8-a7f8-92c3e4126e29",
     "pacEnvironments": [
         {
-            "pacSelector": "epac-dev",
+            "pacSelector": "sandbox",
             "cloud": "AzureCloud",
-            "tenantId": "77777777-8888-9999-1111-222222222222",
-            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/EPAC-Dev"
+            "tenantId": "4fb849a3-3ff3-4362-af8e-45174cd753dd",
+            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350"
         },
         {
-            "pacSelector": "tenant",
+            "pacSelector": "Non-Production",
             "cloud": "AzureCloud",
-            "tenantId": "77777777-8888-9999-1111-222222222222",
-            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/Contoso-Root", // replaces rootScope
-            "inheritedDefinitionsScopes": [], // [optional] inherited definition scopes used but not managed by this repository, scopes must be visible from deploymentScope
-            "desiredState": { // [optional]
-                "strategy": "full", // default full
-                // full      = delete any unknown assignments and Policy/Set definitions in managed scope not containing metadata.pacOwnerId
-                // ownedOnly = delete only our own assignments as indicated by metadata.pacOwnerId field
+            "tenantId": "4fb849a3-3ff3-4362-af8e-45174cd753dd",
+            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/af7c1edc-fe91-4bbe-98d9-aa3943b9a02a",
+            "inheritedDefinitionsScopes": [], 
+            "desiredState": { 
+                "strategy": "full",
                 "includeResourceGroups": false,
                 "excludedScopes": [
-                    // Management Groups
-                    // Subscriptions
-                    // Resource Groups
                 ],
                 "excludedPolicyDefinitions": [
-                    // wild cards allowed
                 ],
                 "excludedPolicySetDefinitions": [
-                    // wild cards allowed
                 ],
                 "excludedPolicyAssignments": [
-                    // wild cards allowed
                 ]
             }
         }
@@ -44,7 +36,7 @@
             "/resourceGroupPatterns/excluded-rg*",
         ],
         "tenant": [
-            "/providers/Microsoft.Management/managementGroups/EPAC-Dev"
+            "/providers/Microsoft.Management/managementGroups/4fb849a3-3ff3-4362-af8e-45174cd753dd"
         ]
     }
 }
