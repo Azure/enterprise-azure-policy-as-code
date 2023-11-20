@@ -6,8 +6,8 @@
         "displayName": "Tagging",
         "assignment": {
           "append": true,
-          "name": "Tagging Requirements",
-          "displayName": "Tagging Requirements",
+          "name": "Tagging",
+          "displayName": "Tagging",
           "description": "Policy for Tagging Requirements"
         }
       }
@@ -16,7 +16,7 @@
       {
         "nodeName": "Sandbox/",
         "assignment": {
-          "name": "Tagging",
+          "name": "SB-",
           "displayName": "SB-",
           "description": "Sandbox Environment controls enforcement with "
         },
