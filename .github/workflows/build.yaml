@@ -1,15 +1,13 @@
 name: Build Deployment Plan
 
 env:
-  REVIEWER: anwather # Change this to a GitHub reviewer
-  pacEnvironment: gh-action # Change this to a PAC environment name
+  REVIEWER: andrewybarra # Change this to a GitHub reviewer
+  pacEnvironment: sandbox # Change this to a PAC environment name
   definitionsRootFolder: Definitions
   planFolder: Output
 
 on:
-  push:
-    paths:
-      - Definitions/**
+  workflow_dispatch:
 
 jobs:
   build:
