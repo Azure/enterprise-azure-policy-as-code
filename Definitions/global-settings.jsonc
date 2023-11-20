@@ -13,19 +13,6 @@
             "cloud": "AzureCloud",
             "tenantId": "4fb849a3-3ff3-4362-af8e-45174cd753dd",
             "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/af7c1edc-fe91-4bbe-98d9-aa3943b9a02a",
-            "inheritedDefinitionsScopes": [], 
-            "desiredState": { 
-                "strategy": "full",
-                "includeResourceGroups": false,
-                "excludedScopes": [
-                ],
-                "excludedPolicyDefinitions": [
-                ],
-                "excludedPolicySetDefinitions": [
-                ],
-                "excludedPolicyAssignments": [
-                ]
-            }
         }
     ],
     "managedIdentityLocations": {
