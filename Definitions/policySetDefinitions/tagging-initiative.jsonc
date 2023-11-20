@@ -22,7 +22,12 @@
         },
         {
           "policyDefinitionReferenceId": "Built In: Inherit a tag from the subscription",
-          "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/b27a0cbd-a167-4dfa-ae64-4337be671140"
+          "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/b27a0cbd-a167-4dfa-ae64-4337be671140",
+          "parameters": {
+            "tagName": {
+              "value": "environment"
+            }
+          }
         }
       ]
     }
