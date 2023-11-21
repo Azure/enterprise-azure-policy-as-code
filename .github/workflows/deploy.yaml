@@ -2,7 +2,7 @@ name: Deploy Policy Plan and Roles
 
 env:
   REVIEWER: andrewybarra # Change this to a GitHub reviewer
-  pacEnvironment: sandbox # Change this to a PAC environment name
+  pacEnvironment: EPAC-Staging # Change this to a PAC environment name
   definitionsRootFolder: Definitions
   planFolder: Output
 

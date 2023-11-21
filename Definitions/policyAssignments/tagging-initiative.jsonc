@@ -14,14 +14,14 @@
     ],
     "children": [
       {
-        "nodeName": "Sandbox/",
+        "nodeName": "EPAC-Staging/",
         "assignment": {
-          "name": "SB-",
-          "displayName": "SB-",
-          "description": "Sandbox Environment controls enforcement with "
+          "name": "Stg-",
+          "displayName": "Stg-",
+          "description": "EPAC-Staging Environment controls enforcement with "
         },
         "scope": {
-          "Sandbox": [
+          "EPAC-Staging": [
             "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350"
           ]
         }
