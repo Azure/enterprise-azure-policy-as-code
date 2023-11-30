@@ -65,10 +65,13 @@ function Build-PolicySetPlan {
 
         foreach ($file in $definitionFiles) {
             $Json = Get-Content -Path $file.FullName -Raw -ErrorAction Stop
-            if (!(Test-Json $Json)) {
-                Write-Error "Policy Set JSON file '$($file.Name)' is not valid = $Json" -ErrorAction Stop
+
+            try {
+                $definitionObject = $Json | ConvertFrom-Json -Depth 100
             }
-            $definitionObject = $Json | ConvertFrom-Json -Depth 100
+            catch {
+                Write-Error "Assignment JSON file '$($file.Name)' is not valid." -ErrorAction Stop
+            }
 
             $definitionProperties = Get-PolicyResourceProperties -PolicyResource $definitionObject
             $name = $definitionObject.name

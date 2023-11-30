@@ -70,13 +70,12 @@ function Build-AssignmentPlan {
             }
 
             # Write-Information ""
-            if ((Test-Json $Json)) {
-                # Write-Information "Processing file '$($assignmentFile.FullName)'"
+            try {
+                $assignmentObject = $Json | ConvertFrom-Json -AsHashtable
             }
-            else {
+            catch {
                 Write-Error "Assignment JSON file '$($assignmentFile.FullName)' is not valid." -ErrorAction Stop
             }
-            $assignmentObject = $Json | ConvertFrom-Json -AsHashTable
             # Remove-NullFields $assignmentObject
 
             # Collect all assignment definitions (values)
