@@ -138,11 +138,13 @@ foreach ($file in $files) {
     if ($processThisFile) {
         Write-Information "Reading and Processing '$($file.Name)'"
         $json = Get-Content -Path $file.FullName -Raw -ErrorAction Stop
-        if (-not (Test-Json $json)) {
-            Write-Error "The JSON file '$($file.Name)' is not valid." -ErrorAction Stop
+        try {
+            $documentationSpec = $json | ConvertFrom-Json
         }
-        $documentationSpec = $json | ConvertFrom-Json
-
+        catch {
+            Write-Error "Assignment JSON file '$($file.Name)' is not valid." -ErrorAction Stop
+        }
+        
         if (-not ($documentationSpec.documentAssignments -or $documentationSpec.documentPolicySets)) {
             Write-Error "JSON document must contain 'documentAssignments' and/or 'documentPolicySets' element(s)." -ErrorAction Stop
         }
@@ -175,7 +177,7 @@ foreach ($file in $files) {
                 }
                 $environmentColumnsInCsv = $documentPolicySetEntry.environmentColumnsInCsv
 
-# Load pacEnvironment if not already loaded
+                # Load pacEnvironment if not already loaded
                 if (-not $cachedPolicyResourceDetails.ContainsKey($pacEnvironmentSelector)) {
                     if ($currentPacEnvironmentSelector -ne $pacEnvironmentSelector) {
                         $currentPacEnvironmentSelector = $pacEnvironmentSelector
@@ -194,7 +196,7 @@ foreach ($file in $files) {
                     -CachedPolicyResourceDetails $cachedPolicyResourceDetails
                 $policySetDetails = $policyResourceDetails.policySets
 
-# Calculate itemList
+                # Calculate itemList
                 $itemArrayList = [System.Collections.ArrayList]::new()
                 if ($null -ne $policySets -and $policySets.Count -gt 0) {
                     foreach ($policySet in $policySets) {

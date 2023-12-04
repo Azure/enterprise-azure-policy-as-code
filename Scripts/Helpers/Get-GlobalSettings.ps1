@@ -24,10 +24,13 @@ function Get-GlobalSettings {
     Write-Information "PowerShell Versions: $($PSVersionTable.PSVersion)"
 
     $Json = Get-Content -Path $globalSettingsFile -Raw -ErrorAction Stop
-    if (!(Test-Json $Json)) {
-        Write-Error "JSON file ""$($globalSettingsFile)"" is not valid = $Json" -ErrorAction Stop
+    try {
+        [hashtable] $settings = $Json | ConvertFrom-Json -AsHashTable
     }
-    [hashtable] $settings = $Json | ConvertFrom-Json -AsHashTable
+    catch {
+        Write-Error "Assignment JSON file '$($globalSettingsFile)' is not valid." -ErrorAction Stop
+    }
+
     [array] $pacEnvironments = $settings.pacEnvironments
     [hashtable] $pacEnvironmentDefinitions = @{}
     [string[]] $pacEnvironmentSelectors = @()

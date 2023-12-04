@@ -47,19 +47,20 @@ function Build-ExemptionsPlan {
                 $isXls = $false
                 if ($extension -eq ".json" -or $extension -eq ".jsonc") {
                     $content = Get-Content -Path $fullName -Raw -ErrorAction Stop
-                    if (!(Test-Json $content)) {
-                        Build-ErrorString -ErrorInfo $errorInfo -ErrorText "Invalid JSON"
-                    }
-                    else {
+                    try {
                         $jsonObj = ConvertFrom-Json $content -AsHashTable -Depth 100
-                        Write-Information ""
-                        if ($null -ne $jsonObj) {
-                            $jsonExemptions = $jsonObj.exemptions
-                            if ($null -ne $jsonExemptions -and $jsonExemptions.Count -gt 0) {
-                                $exemptionsArray += $jsonExemptions
-                            }
+                    }
+                    catch {
+                        Write-Error "Assignment JSON file '$($fullName)' is not valid." -ErrorAction Stop
+                    }
+                    Write-Information ""
+                    if ($null -ne $jsonObj) {
+                        $jsonExemptions = $jsonObj.exemptions
+                        if ($null -ne $jsonExemptions -and $jsonExemptions.Count -gt 0) {
+                            $exemptionsArray += $jsonExemptions
                         }
                     }
+
                 }
                 elseif ($extension -eq ".csv") {
                     $isXls = $true
@@ -173,15 +174,17 @@ function Build-ExemptionsPlan {
                         $resourceSelectors = $null
                         $step1 = $row.resourceSelectors
                         if (-not [string]::IsNullOrWhiteSpace($step1)) {
-                            $step2 = $step1.Trim()
-                            if ($step2.StartsWith("{") -and (Test-Json $step2)) {
-                                $step3 = ConvertFrom-Json $step2 -AsHashTable -Depth 100 -NoEnumerate
+                            $step2 = $step1.Trim()      
+                            if ($step2.StartsWith("{")) {
+                                try {
+                                    $step3 = ConvertFrom-Json $step2 -AsHashTable -Depth 100 -NoEnumerate
+                                }
+                                catch {
+                                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "invalid resourceSelectors format, must be empty or legal JSON: '$step2'" -EntryNumber $entryNumber
+                                }
                                 if ($step3 -ne @{}) {
                                     $resourceSelectors = $step3
                                 }
-                            }
-                            else {
-                                Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "invalid resourceSelectors format, must be empty or legal JSON: '$step2'" -EntryNumber $entryNumber
                             }
                         }
 
@@ -190,14 +193,16 @@ function Build-ExemptionsPlan {
                         $step1 = $row.metadata
                         if (-not [string]::IsNullOrWhiteSpace($step1)) {
                             $step2 = $step1.Trim()
-                            if ($step2.StartsWith("{") -and (Test-Json $step2)) {
-                                $step3 = ConvertFrom-Json $step2 -AsHashTable -Depth 100
+                            if ($step2.StartsWith("{")) {
+                                try {
+                                    $step3 = ConvertFrom-Json $step2 -AsHashTable -Depth 100
+                                }
+                                catch {
+                                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "invalid metadata format, must be empty or legal JSON: '$step2'" -EntryNumber $entryNumber
+                                }
                                 if ($step3 -ne @{}) {
                                     $metadata = $step3
                                 }
-                            }
-                            else {
-                                Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "invalid metadata format, must be empty or legal JSON: '$step2'" -EntryNumber $entryNumber
                             }
                         }
                         else {

@@ -354,10 +354,12 @@ else {
 
     foreach ($file in $rawFiles) {
         $Json = Get-Content -Path $file.FullName -Raw -ErrorAction Stop
-        if (!(Test-Json $Json)) {
-            Write-Error "Raw file '$($file.FullName)' is not valid." -ErrorAction Stop
+        try {
+            $policyResources = $Json | ConvertFrom-Json -Depth 100 -AsHashTable
         }
-        $policyResources = $Json | ConvertFrom-Json -Depth 100 -AsHashTable
+        catch {
+            Write-Error "Assignment JSON file '$($file.FullName)' is not valid." -ErrorAction Stop
+        }
         $currentPacSelector = $file.BaseName
         $policyResourcesByPacSelector[$currentPacSelector] = $policyResources
     }
