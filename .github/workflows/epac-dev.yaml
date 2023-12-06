@@ -44,7 +44,7 @@ jobs:
           inlineScript: |
             Build-DeploymentPlans -definitionsRootFolder $env:definitionsRootFolder -outputFolder $env:planFolder -pacEnvironment $env:pacEnvironment
             $epacInfoStream | Set-Content body.txt
-            echo "planFolder=$env:planFolder" >> $GITHUB_ENV
+            echo "artifactFolder=$env:planFolder" >> $GITHUB_ENV
           azPSVersion: "latest"
       - shell: pwsh
         name: Detect Plan
@@ -91,7 +91,7 @@ jobs:
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            Deploy-PolicyPlan -definitionsRootFolder $env:definitionsRootFolder -inputFolder "${{ env.planFolder }}" -pacEnvironment $env:pacEnvironment
+            Deploy-PolicyPlan -definitionsRootFolder $env:definitionsRootFolder -inputFolder "${{ env.artifactFolder }}" -pacEnvironment $env:pacEnvironment
           azPSVersion: "latest"
 
   deployRoles:
