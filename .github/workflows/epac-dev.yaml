@@ -1,4 +1,4 @@
-name: DEPLOY: EPAC-DEV
+name: DEPLOY - EPAC-DEV
 
 env:
   REVIEWER: andrewybarra # Change this to a GitHub reviewer
