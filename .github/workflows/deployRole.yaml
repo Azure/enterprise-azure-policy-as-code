@@ -7,14 +7,18 @@ env:
   planFolder: Output
 
 on:
-  pull_request_review:
-    types: [submitted]
+  workflow_run:
+    workflows: ["Deploy Policy Plan"]
+    types:
+      - completed
 
 jobs:
   deploy:
     name: Deploy Policy Roles
     if: github.event.review.state == 'approved'
     runs-on: ubuntu-latest
+    environment: 
+      name: ${{ vars.PAC_SELECTOR }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3.3.0
