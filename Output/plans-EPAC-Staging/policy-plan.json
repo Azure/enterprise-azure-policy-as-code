@@ -1,10 +1,21 @@
 {
+  "policySetDefinitions": {
+    "replace": {},
+    "numberOfChanges": 0,
+    "update": {},
+    "numberUnchanged": 1,
+    "new": {},
+    "delete": {}
+  },
   "assignments": {
+    "replace": {},
+    "numberOfChanges": 2,
+    "update": {},
+    "numberUnchanged": 0,
     "new": {
       "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350/providers/Microsoft.Authorization/policyAssignments/Stg-Tagging": {
+        "displayName": "Stg-Tagging",
         "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350/providers/Microsoft.Authorization/policySetDefinitions/cb71df76-7a26-4035-957f-0cf08844c4df",
-        "managedIdentityLocation": "eastus2",
-        "id": "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350/providers/Microsoft.Authorization/policyAssignments/Stg-Tagging",
         "metadata": {
           "roles": [
             {
@@ -15,67 +26,56 @@
           ],
           "pacOwnerId": "11083790-9b94-41c8-a7f8-92c3e4126e29"
         },
-        "displayName": "Stg-Tagging",
+        "scope": "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350",
+        "enforcementMode": "Default",
+        "id": "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350/providers/Microsoft.Authorization/policyAssignments/Stg-Tagging",
+        "name": "Stg-Tagging",
+        "notScopes": [],
+        "managedIdentityLocation": "eastus2",
+        "description": "EPAC-Staging Environment controls enforcement with Policy for Tagging Requirements",
+        "identityRequired": true,
         "identity": {
           "type": "SystemAssigned"
-        },
-        "name": "Stg-Tagging",
-        "description": "EPAC-Staging Environment controls enforcement with Policy for Tagging Requirements",
-        "enforcementMode": "Default",
-        "scope": "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350",
-        "identityRequired": true,
-        "notScopes": []
+        }
       },
       "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350/providers/Microsoft.Authorization/policyAssignments/eps-asb": {
-        "notScopes": [],
-        "enforcementMode": "Default",
-        "displayName": "EPS Azure Security Benchmark",
-        "id": "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350/providers/Microsoft.Authorization/policyAssignments/eps-asb",
         "metadata": {
           "pacOwnerId": "11083790-9b94-41c8-a7f8-92c3e4126e29"
         },
-        "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
         "scope": "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350",
+        "id": "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350/providers/Microsoft.Authorization/policyAssignments/eps-asb",
+        "enforcementMode": "Default",
+        "name": "eps-asb",
+        "notScopes": [],
         "identity": {
           "type": "None"
         },
-        "name": "eps-asb",
+        "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
+        "description": "EPAC-Staging Environment controls enforcement with Azure Security Benchmark Initiative.",
         "identityRequired": false,
-        "description": "EPAC-Staging Environment controls enforcement with Azure Security Benchmark Initiative."
+        "displayName": "EPS Azure Security Benchmark"
       }
     },
-    "update": {},
-    "numberOfChanges": 2,
-    "replace": {},
-    "numberUnchanged": 0,
     "delete": {}
   },
-  "policyDefinitions": {
-    "new": {},
-    "update": {},
-    "numberOfChanges": 0,
-    "replace": {},
-    "numberUnchanged": 3,
-    "delete": {}
-  },
-  "pacOwnerId": "11083790-9b94-41c8-a7f8-92c3e4126e29",
-  "createdOn": "2023-12-06 20:48:22Z",
   "exemptions": {
-    "numberOfExpired": 0,
     "delete": {},
-    "replace": {},
     "numberUnchanged": 0,
+    "numberOfExpired": 0,
     "new": {},
-    "update": {},
+    "replace": {},
     "numberOfChanges": 0,
+    "update": {},
     "numberOfOrphans": 0
   },
-  "policySetDefinitions": {
-    "new": {},
-    "update": {},
-    "numberOfChanges": 0,
+  "createdOn": "2023-12-06 20:57:02Z",
+  "policyDefinitions": {
     "replace": {},
-    "numberUnchanged": 1,
+    "numberOfChanges": 0,
+    "update": {},
+    "numberUnchanged": 3,
+    "new": {},
     "delete": {}
-  }
+  },
+  "pacOwnerId": "11083790-9b94-41c8-a7f8-92c3e4126e29"
 }

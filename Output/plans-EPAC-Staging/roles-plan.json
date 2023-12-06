@@ -1,18 +1,18 @@
 {
   "pacOwnerId": "11083790-9b94-41c8-a7f8-92c3e4126e29",
-  "createdOn": "2023-12-06 20:48:22Z",
+  "createdOn": "2023-12-06 20:57:02Z",
   "roleAssignments": {
     "numberOfChanges": 1,
     "removed": [],
     "added": [
       {
-        "roleDisplayName": "Contributor",
-        "displayName": null,
         "scope": "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350",
-        "principalId": null,
-        "objectType": "ServicePrincipal",
         "assignmentId": "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350/providers/Microsoft.Authorization/policyAssignments/Stg-Tagging",
-        "roleDefinitionId": "b24988ac-6180-42a0-ab88-20f7382dd24c"
+        "objectType": "ServicePrincipal",
+        "principalId": null,
+        "roleDefinitionId": "b24988ac-6180-42a0-ab88-20f7382dd24c",
+        "roleDisplayName": "Contributor",
+        "displayName": null
       }
     ]
   }
