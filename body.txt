@@ -1,0 +1,128 @@
+
+===================================================================================================
+Read global settings from 'Definitions/global-settings.jsonc'.
+===================================================================================================
+PowerShell Versions: 7.2.17
+PAC Environments: EPAC-Staging, Non-Prod
+Definitions root folder: Definitions
+Input folder: Output
+Output folder: Output
+
+Environment Selected: EPAC-Staging
+    cloud      = AzureCloud
+    tenant     = 4fb849a3-3ff3-4362-af8e-45174cd753dd
+    root scope = /providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350
+
+Telemetry is enabled
+
+
+===================================================================================================
+Get scope tree for EPAC environment 'EPAC-Staging' at root scope /managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350
+===================================================================================================
+Retrieved 5 resource containers
+
+Processing 5 resource containers:
+    Management groups = 1
+    Subscriptions     = 1
+    Resource groups   = 3
+
+===================================================================================================
+Get Policy Resources for EPAC environment 'EPAC-Staging' at root scope /managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350
+===================================================================================================
+Retrieved 1000 Policy definitions, Policy Set definitions, and Policy Assignments
+Retrieved 2000 Policy definitions, Policy Set definitions, and Policy Assignments
+Retrieved 3000 Policy definitions, Policy Set definitions, and Policy Assignments
+Retrieved 3133 Policy definitions, Policy Set definitions, and Policy Assignments
+Processed 1000 Policy definitions, Policy Set definitions, and Policy Assignments
+Processed 2000 Policy definitions, Policy Set definitions, and Policy Assignments
+Processed 3000 Policy definitions, Policy Set definitions, and Policy Assignments
+Processed 3133 Policy definitions, Policy Set definitions, and Policy Assignments
+
+Collecting Role assignments (this may take a while):
+
+===================================================================================================
+Policy Resources found for EPAC environment 'EPAC-Staging' at root scope /managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350
+===================================================================================================
+
+Policy counts:
+    BuiltIn        = 3019
+    Managed (3) by:
+        This PaC   = 3
+        Other PaC  = 0
+        Unknown    = 0
+    Inherited      = 0
+    Excluded       = 0
+
+Policy Set counts:
+    BuiltIn        = 110
+    Managed (1) by:
+        This PaC   = 1
+        Other PaC  = 0
+        Unknown    = 0
+    Inherited      = 0
+    Excluded       = 0
+
+Policy Assignment counts:
+    Managed (0) by:
+        This PaC    = 0
+        Other PaC   = 0
+        Unknown     = 0
+    With identity   = 0
+    Excluded        = 0
+
+Role Assignments:
+    Total principalIds     = 0
+    Total Scopes           = 0
+    Total Role Assignments = 0
+===================================================================================================
+Processing Policy JSON files in folder 'Definitions/policyDefinitions'
+===================================================================================================
+Number of Policy files = 3
+Number of unchanged Policies = 3
+
+===================================================================================================
+Processing Policy Set JSON files in folder 'Definitions/policySetDefinitions'
+===================================================================================================
+Number of Policy Set files = 1
+Number of unchanged Policy SetPolicy Sets definition = 1
+
+===================================================================================================
+Processing Policy Assignments JSON files in folder 'Definitions/policyAssignments'
+===================================================================================================
+Calculating effect parameters for 3022 Policies.
+Calculating effect parameters for 111 Policy Sets.
+Number of Policy Assignment files = 2
+New 'EPS Azure Security Benchmark' at /managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350
+New 'Stg-Tagging' at /managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350
+    add role Contributor at /managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350
+Number of unchanged Policy Assignments = 0
+
+===================================================================================================
+Processing Policy Exemption files in folder 'Definitions/policyExemptions/EPAC-Staging'
+===================================================================================================
+===================================================================================================
+Summary
+===================================================================================================
+Policy counts:
+    3 unchanged
+    0 changes
+Policy Set counts:
+    1 unchanged
+    0 changes
+Policy Assignment counts:
+    0 unchanged
+    2 changes:
+        new     = 2
+        update  = 0
+        replace = 0
+        delete  = 0
+Role Assignment counts:
+    1 changes:
+        add     = 1
+        remove  = 0
+---------------------------------------------------------------------------------------------------
+Output plan(s)
+    Policy resource deployment required; writing Policy plan file 'Output/plans-EPAC-Staging/policy-plan.json'
+    Role assignment changes required; writing Policy plan file 'Output/plans-EPAC-Staging/roles-plan.json'
+---------------------------------------------------------------------------------------------------
+
