@@ -58,6 +58,25 @@ jobs:
               echo "RolesOnly=true" >> $env:GITHUB_ENV
             }
           }
+
+      - name: Check if folder exists and upload artifacts
+        shell: pwsh
+        run: |
+          if (Test-Path $env:planFolder) {
+            echo "Folder exists, uploading artifacts"
+          } else {
+            echo "Folder does not exist"
+          }
+        env:
+          planFolder: ${{ env.planFolder }}
+
+      - name: Upload artifacts
+        if: success()
+        uses: actions/upload-artifact@v2
+        with:
+          name: deploymentPlan
+          path: ${{ env.planFolder }}
+
       - shell: pwsh
         name: Create PR
         if: ${{ env.Deploy == 'true' }}
@@ -87,7 +106,10 @@ jobs:
       name: EPAC-DEV
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.3.0
+        uses: actions/download-artifact@v2
+        with:
+          name: deploymentPlan
+          path: ${{ env.planFolder }}
       - shell: pwsh
         name: Install Required Modules
         run: |
