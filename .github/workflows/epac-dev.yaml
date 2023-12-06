@@ -1,0 +1,161 @@
+name: Build Deployment Plan
+
+env:
+  REVIEWER: andrewybarra # Change this to a GitHub reviewer
+  pacEnvironment: EPAC-Staging # Change this to a PAC environment name
+  definitionsRootFolder: Definitions
+  planFolder: Output
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Deployment Plan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.3.0
+      - name: Check for NO_ACTIONS
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if (Get-ChildItem -Path $env:definitionsRootFolder -Filter "NO_ACTIONS" -Recurse) {
+            Write-Output "NO_ACTIONS file found, exiting"
+            gh run cancel ${{ github.run_id }}
+            gh run watch ${{ github.run_id }}
+          }
+      - shell: pwsh
+        name: Install Required Modules
+        run: |
+          Install-Module Az.ResourceGraph -Force -AllowClobber
+          Install-Module Az.Resources -Force -AllowClobber
+          Install-Module EnterprisePolicyAsCode -Force
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
+          enable-AzPSSession: true
+      - name: Build Deployment Plan
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Build-DeploymentPlans -definitionsRootFolder $env:definitionsRootFolder -outputFolder $env:planFolder -pacEnvironment $env:pacEnvironment
+            $epacInfoStream | Set-Content body.txt
+          azPSVersion: "latest"
+      - shell: pwsh
+        name: Detect Plan
+        run: |
+          if (Get-ChildItem -Path $env:definitionsRootFolder -Filter "NO_DEPLOY" -Recurse) {
+            Write-Output "NO_DEPLOY file found, exiting"
+            gh run cancel ${{ github.run_id }}
+            gh run watch ${{ github.run_id }}
+          }
+          if (Test-Path $env:planFolder) {
+            echo "Deploy=true" >> $env:GITHUB_ENV
+            if (!(Get-ChildItem $env:planFolder -Recurse -Include policy-plan.json)){
+              echo "RolesOnly=true" >> $env:GITHUB_ENV
+            }
+          }
+      - shell: pwsh
+        name: Create PR
+        if: ${{ env.Deploy == 'true' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          Remove-Item .gitignore -Verbose -Force
+          $branchName = "automated-pr-$(Get-Date -Format yyyy-MM-dd-HH-mm)"
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+          git checkout -b $branchName
+          git add .
+          git commit -m "Deployment plan commit"
+          git push --set-upstream origin $branchName
+          if ($env:RolesOnly -eq "true") {
+            gh pr create -B main -H $branchName --title "Approval Required for Role Deployment - $branchName" -F body.txt --reviewer $env:REVIEWER --label RoleDeployment
+          }
+          else {
+            gh pr create -B main -H $branchName --title "Approval Required for Policy Deployment - $branchName" -F body.txt --reviewer $env:REVIEWER --label PolicyDeployment
+          }
+          
+jobs:
+  needs: build
+  deployPolicy:
+    name: Deploy Policy Plan
+    runs-on: ubuntu-latest
+    environment: 
+      name: EPAC-DEV
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.3.0
+      - shell: pwsh
+        name: Install Required Modules
+        run: |
+          Install-Module Az.ResourceGraph -Force -Verbose -AllowClobber
+          Install-Module Az.Resources -Force -Verbose -AllowClobber
+          Install-Module EnterprisePolicyAsCode -Force
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
+          enable-AzPSSession: true
+      - name: Deploy Policy Plan
+        if: contains(github.event.pull_request.labels.*.name, 'PolicyDeployment')
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Deploy-PolicyPlan -definitionsRootFolder $env:definitionsRootFolder -inputFolder $env:planFolder -pacEnvironment $env:pacEnvironment
+          azPSVersion: "latest"
+      - shell: pwsh
+        if: contains(github.event.pull_request.labels.*.name, 'PolicyDeployment')
+        name: Confirm PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if (Get-ChildItem $env:planFolder -recurse -include roles-plan.json) {
+            gh pr edit $env:PR_NUMBER --add-label 'RoleDeployment' --remove-label 'PolicyDeployment'
+            gh pr edit $env:PR_NUMBER --title 'Approval Required for Role Deployment' --remove-reviewer $env:REVIEWER
+            gh pr edit $env:PR_NUMBER --add-reviewer $env:REVIEWER
+          }
+          else {
+            gh pr close $env:PR_NUMBER --comment 'Changes deployed' --delete-branch
+          }
+        
+jobs:
+  needs: deployPolicy
+  deployRoles:
+    name: Deploy Policy Roles
+    runs-on: ubuntu-latest
+    environment: 
+      name: EPAC-DEV
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.3.0
+      - shell: pwsh
+        name: Install Required Modules
+        run: |
+          Install-Module Az.ResourceGraph -Force -Verbose -AllowClobber
+          Install-Module Az.Resources -Force -Verbose -AllowClobber
+          Install-Module EnterprisePolicyAsCode -Force
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
+          enable-AzPSSession: true
+      - name: Deploy Role Plan
+        if: contains(github.event.pull_request.labels.*.name, 'RoleDeployment')
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Deploy-RolesPlan -definitionsRootFolder $env:definitionsRootFolder -inputFolder $env:planFolder -pacEnvironment $env:pacEnvironment
+          azPSVersion: "latest"
+      - shell: pwsh
+        if: contains(github.event.pull_request.labels.*.name, 'RoleDeployment')
+        name: Confirm PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr close $env:PR_NUMBER --comment 'Changes deployed' --delete-branch
