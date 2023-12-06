@@ -58,7 +58,7 @@ jobs:
               echo "RolesOnly=true" >> $env:GITHUB_ENV
             }
           }
-      - name: Upload artifact
+      - name: Upload Deployment Plan
         uses: actions/upload-artifact@v2
         with:
           name: deployment-plan
