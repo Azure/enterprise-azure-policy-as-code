@@ -59,7 +59,7 @@ jobs:
             }
           }
       - shell: pwsh
-        name: Push to Main
+        name: Push Deployment Plan to Main
         if: ${{ env.Deploy == 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -73,28 +73,6 @@ jobs:
           git add .
           git commit -m "Deployment plan commit"
           git push
-      - shell: pwsh
-        name: Create PR
-        if: ${{ env.Deploy == 'true' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if (Test-Path .gitignore) {
-            Remove-Item .gitignore -Verbose -Force
-          }
-          $branchName = "automated-pr-$(Get-Date -Format yyyy-MM-dd-HH-mm)"
-          git config user.name "GitHub Actions Bot"
-          git config user.email "<>"
-          git checkout -b $branchName
-          git add .
-          git commit -m "Deployment plan commit"
-          git push --set-upstream origin $branchName
-          if ($env:RolesOnly -eq "true") {
-            gh pr create -B main -H $branchName --title "Approval Required for Role Deployment - $branchName" -F body.txt --reviewer $env:REVIEWER --label RoleDeployment
-          }
-          else {
-            gh pr create -B main -H $branchName --title "Approval Required for Policy Deployment - $branchName" -F body.txt --reviewer $env:REVIEWER --label PolicyDeployment
-          }
 
   deployPolicy:
     needs: build
