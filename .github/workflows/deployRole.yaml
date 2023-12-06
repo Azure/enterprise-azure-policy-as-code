@@ -18,7 +18,7 @@ jobs:
     if: github.event.review.state == 'approved'
     runs-on: ubuntu-latest
     environment: 
-      name: ${{ vars.PAC_SELECTOR }}
+      name: EPAC-DEV
     steps:
       - name: Checkout
         uses: actions/checkout@v3.3.0
