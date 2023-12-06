@@ -100,27 +100,11 @@ jobs:
           creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
           enable-AzPSSession: true
       - name: Deploy Policy Plan
-        if: contains(github.event.pull_request.labels.*.name, 'PolicyDeployment')
         uses: azure/powershell@v1
         with:
           inlineScript: |
             Deploy-PolicyPlan -definitionsRootFolder $env:definitionsRootFolder -inputFolder $env:planFolder -pacEnvironment $env:pacEnvironment
           azPSVersion: "latest"
-      - shell: pwsh
-        if: contains(github.event.pull_request.labels.*.name, 'PolicyDeployment')
-        name: Confirm PR
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          if (Get-ChildItem $env:planFolder -recurse -include roles-plan.json) {
-            gh pr edit $env:PR_NUMBER --add-label 'RoleDeployment' --remove-label 'PolicyDeployment'
-            gh pr edit $env:PR_NUMBER --title 'Approval Required for Role Deployment' --remove-reviewer $env:REVIEWER
-            gh pr edit $env:PR_NUMBER --add-reviewer $env:REVIEWER
-          }
-          else {
-            gh pr close $env:PR_NUMBER --comment 'Changes deployed' --delete-branch
-          }
 
   deployRoles:
     needs: deployPolicy
@@ -143,14 +127,12 @@ jobs:
           creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
           enable-AzPSSession: true
       - name: Deploy Role Plan
-        if: contains(github.event.pull_request.labels.*.name, 'RoleDeployment')
         uses: azure/powershell@v1
         with:
           inlineScript: |
             Deploy-RolesPlan -definitionsRootFolder $env:definitionsRootFolder -inputFolder $env:planFolder -pacEnvironment $env:pacEnvironment
           azPSVersion: "latest"
       - shell: pwsh
-        if: contains(github.event.pull_request.labels.*.name, 'RoleDeployment')
         name: Confirm PR
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
