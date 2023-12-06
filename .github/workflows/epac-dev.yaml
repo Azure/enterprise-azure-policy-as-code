@@ -58,10 +58,10 @@ jobs:
               echo "RolesOnly=true" >> $env:GITHUB_ENV
             }
           }
-      - name: Upload file
+      - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: body
+          name: deployment-plan
           path: body.txt
 
   deployPolicy:
