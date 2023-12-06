@@ -78,10 +78,9 @@ jobs:
           else {
             gh pr create -B main -H $branchName --title "Approval Required for Policy Deployment - $branchName" -F body.txt --reviewer $env:REVIEWER --label PolicyDeployment
           }
-          
-jobs:
-  needs: build
+
   deployPolicy:
+    needs: build
     name: Deploy Policy Plan
     runs-on: ubuntu-latest
     environment: 
@@ -122,10 +121,9 @@ jobs:
           else {
             gh pr close $env:PR_NUMBER --comment 'Changes deployed' --delete-branch
           }
-        
-jobs:
-  needs: deployPolicy
+
   deployRoles:
+    needs: Deploy Policy Plan
     name: Deploy Policy Roles
     runs-on: ubuntu-latest
     environment: 
