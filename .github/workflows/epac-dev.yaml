@@ -58,21 +58,21 @@ jobs:
               echo "RolesOnly=true" >> $env:GITHUB_ENV
             }
           }
-
       - shell: pwsh
         name: Push to Main
         if: ${{ env.Deploy == 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          Remove-Item .gitignore -Verbose -Force
+          if (Test-Path .gitignore) {
+            Remove-Item .gitignore -Verbose -Force
+          }
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
           git checkout main
           git add .
           git commit -m "Deployment plan commit"
           git push
-
       - shell: pwsh
         name: Create PR
         if: ${{ env.Deploy == 'true' }}
