@@ -59,23 +59,19 @@ jobs:
             }
           }
 
-      - name: Check if folder exists and upload artifacts
-        shell: pwsh
-        run: |
-          if (Test-Path $env:planFolder) {
-            echo "Folder exists, uploading artifacts"
-          } else {
-            echo "Folder does not exist"
-          }
+      - shell: pwsh
+        name: Push to Main
+        if: ${{ env.Deploy == 'true' }}
         env:
-          planFolder: ${{ env.planFolder }}
-
-      - name: Upload artifacts
-        if: success()
-        uses: actions/upload-artifact@v2
-        with:
-          name: deploymentPlan
-          path: ${{ env.planFolder }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          Remove-Item .gitignore -Verbose -Force
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+          git checkout main
+          git add .
+          git commit -m "Deployment plan commit"
+          git push
 
       - shell: pwsh
         name: Create PR
