@@ -1,4 +1,4 @@
-name: Deploy Policy Plan and Roles
+name: Deploy Policy Roles
 
 env:
   REVIEWER: andrewybarra # Change this to a GitHub reviewer
@@ -12,7 +12,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy Policy Plan and Roles
+    name: Deploy Policy Roles
     if: github.event.review.state == 'approved'
     runs-on: ubuntu-latest
     steps:

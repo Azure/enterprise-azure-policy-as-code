@@ -1,4 +1,4 @@
-name: Deploy Policy Plan and Roles
+name: Deploy Policy Plan
 
 env:
   REVIEWER: andrewybarra # Change this to a GitHub reviewer
