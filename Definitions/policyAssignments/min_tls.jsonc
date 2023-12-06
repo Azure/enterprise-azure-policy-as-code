@@ -1,0 +1,30 @@
+{
+    "nodeName": "/min_tls/",
+    "definitionEntryList": [
+      {
+        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/fe83a0eb-a853-422d-aac2-1bffd182c5d0",
+        "displayName": "min_tls",
+        "assignment": {
+          "append": true,
+          "name": "min_tls",
+          "displayName": "min_tls",
+          "description": "Policy for min_tls Requirements"
+        }
+      }
+    ],
+    "children": [
+      {
+        "nodeName": "EPAC-Staging/",
+        "assignment": {
+          "name": "Stg-",
+          "displayName": "Stg-",
+          "description": "EPAC-Staging Environment controls enforcement with "
+        },
+        "scope": {
+          "EPAC-Staging": [
+            "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350"
+          ]
+        }
+      }
+    ]
+  }
