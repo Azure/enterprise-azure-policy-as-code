@@ -79,7 +79,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          Remove-Item .gitignore -Verbose -Force
+          if (Test-Path .gitignore) {
+            Remove-Item .gitignore -Verbose -Force
+          }
           $branchName = "automated-pr-$(Get-Date -Format yyyy-MM-dd-HH-mm)"
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
