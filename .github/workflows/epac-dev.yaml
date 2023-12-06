@@ -1,4 +1,4 @@
-name: EPAC-DEV Workflow
+name: DEPLOY: EPAC-DEV
 
 env:
   REVIEWER: andrewybarra # Change this to a GitHub reviewer
@@ -58,21 +58,11 @@ jobs:
               echo "RolesOnly=true" >> $env:GITHUB_ENV
             }
           }
-      - shell: pwsh
-        name: Push Deployment Plan to Main
-        if: ${{ env.Deploy == 'true' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if (Test-Path .gitignore) {
-            Remove-Item .gitignore -Verbose -Force
-          }
-          git config user.name "GitHub Actions Bot"
-          git config user.email "<>"
-          git checkout main
-          git add .
-          git commit -m "Deployment plan commit"
-          git push
+      - name: Upload file
+        uses: actions/upload-artifact@v2
+        with:
+          name: body
+          path: body.txt
 
   deployPolicy:
     needs: build
