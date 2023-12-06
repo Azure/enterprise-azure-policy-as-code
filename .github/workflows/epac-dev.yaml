@@ -58,20 +58,12 @@ jobs:
               echo "RolesOnly=true" >> $env:GITHUB_ENV
             }
           }
-      - name: Upload Deployment Plan
-        uses: actions/upload-artifact@v2
-        with:
-          name: deployment-plan
-          path: body.txt
-          
-      - name: Create text file
-        run: echo "Hello, World!" > my_file.txt
-
-      - name: Upload text file
-        uses: actions/upload-artifact@v2
-        with:
-          name: my-artifact
-          path: my_file.txt
+      - name: Display Policy-Plan file
+        run: Get-Content Output/plans-EPAC-Staging/policy-plan.json | ConvertFrom-Json | ConvertTo-Json
+        shell: pwsh
+      - name: Display Roles-Plan file
+        run: Get-Content Output/plans-EPAC-Staging/roles-plan.json | ConvertFrom-Json | ConvertTo-Json
+        shell: pwsh
 
   deployPolicy:
     needs: build
