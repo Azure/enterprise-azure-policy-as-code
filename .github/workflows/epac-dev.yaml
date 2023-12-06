@@ -1,4 +1,4 @@
-name: Build Deployment Plan
+name: EPAC-DEV Workflow
 
 env:
   REVIEWER: andrewybarra # Change this to a GitHub reviewer
