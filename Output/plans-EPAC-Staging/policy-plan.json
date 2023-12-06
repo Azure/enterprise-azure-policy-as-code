@@ -1,81 +1,81 @@
 {
-  "policySetDefinitions": {
-    "replace": {},
+  "policyDefinitions": {
     "numberOfChanges": 0,
-    "update": {},
-    "numberUnchanged": 1,
-    "new": {},
-    "delete": {}
-  },
-  "assignments": {
+    "numberUnchanged": 3,
+    "delete": {},
     "replace": {},
+    "new": {},
+    "update": {}
+  },
+  "createdOn": "2023-12-06 21:10:31Z",
+  "assignments": {
     "numberOfChanges": 2,
-    "update": {},
     "numberUnchanged": 0,
+    "delete": {},
+    "replace": {},
     "new": {
       "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350/providers/Microsoft.Authorization/policyAssignments/Stg-Tagging": {
-        "displayName": "Stg-Tagging",
+        "description": "EPAC-Staging Environment controls enforcement with Policy for Tagging Requirements",
         "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350/providers/Microsoft.Authorization/policySetDefinitions/cb71df76-7a26-4035-957f-0cf08844c4df",
+        "identity": {
+          "type": "SystemAssigned"
+        },
+        "id": "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350/providers/Microsoft.Authorization/policyAssignments/Stg-Tagging",
+        "managedIdentityLocation": "eastus2",
         "metadata": {
           "roles": [
             {
-              "roleDisplayName": "Contributor",
               "scope": "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350",
+              "roleDisplayName": "Contributor",
               "roleDefinitionId": "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
             }
           ],
           "pacOwnerId": "11083790-9b94-41c8-a7f8-92c3e4126e29"
         },
-        "scope": "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350",
-        "enforcementMode": "Default",
-        "id": "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350/providers/Microsoft.Authorization/policyAssignments/Stg-Tagging",
-        "name": "Stg-Tagging",
         "notScopes": [],
-        "managedIdentityLocation": "eastus2",
-        "description": "EPAC-Staging Environment controls enforcement with Policy for Tagging Requirements",
+        "scope": "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350",
         "identityRequired": true,
-        "identity": {
-          "type": "SystemAssigned"
-        }
+        "enforcementMode": "Default",
+        "name": "Stg-Tagging",
+        "displayName": "Stg-Tagging"
       },
       "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350/providers/Microsoft.Authorization/policyAssignments/eps-asb": {
-        "metadata": {
-          "pacOwnerId": "11083790-9b94-41c8-a7f8-92c3e4126e29"
-        },
-        "scope": "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350",
-        "id": "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350/providers/Microsoft.Authorization/policyAssignments/eps-asb",
+        "description": "EPAC-Staging Environment controls enforcement with Azure Security Benchmark Initiative.",
         "enforcementMode": "Default",
-        "name": "eps-asb",
-        "notScopes": [],
         "identity": {
           "type": "None"
         },
-        "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
-        "description": "EPAC-Staging Environment controls enforcement with Azure Security Benchmark Initiative.",
         "identityRequired": false,
+        "id": "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350/providers/Microsoft.Authorization/policyAssignments/eps-asb",
+        "scope": "/providers/Microsoft.Management/managementGroups/972a17b5-6e2d-4da4-8304-84ac00bb3350",
+        "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
+        "metadata": {
+          "pacOwnerId": "11083790-9b94-41c8-a7f8-92c3e4126e29"
+        },
+        "notScopes": [],
+        "name": "eps-asb",
         "displayName": "EPS Azure Security Benchmark"
       }
     },
-    "delete": {}
+    "update": {}
   },
-  "exemptions": {
+  "policySetDefinitions": {
+    "numberOfChanges": 0,
+    "numberUnchanged": 1,
     "delete": {},
-    "numberUnchanged": 0,
+    "replace": {},
+    "new": {},
+    "update": {}
+  },
+  "pacOwnerId": "11083790-9b94-41c8-a7f8-92c3e4126e29",
+  "exemptions": {
+    "update": {},
+    "new": {},
     "numberOfExpired": 0,
-    "new": {},
+    "numberOfOrphans": 0,
     "replace": {},
+    "delete": {},
     "numberOfChanges": 0,
-    "update": {},
-    "numberOfOrphans": 0
-  },
-  "createdOn": "2023-12-06 20:57:02Z",
-  "policyDefinitions": {
-    "replace": {},
-    "numberOfChanges": 0,
-    "update": {},
-    "numberUnchanged": 3,
-    "new": {},
-    "delete": {}
-  },
-  "pacOwnerId": "11083790-9b94-41c8-a7f8-92c3e4126e29"
+    "numberUnchanged": 0
+  }
 }
