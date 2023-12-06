@@ -12,7 +12,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy Policy Plan and Roles
+    name: Deploy Policy Plan
     if: github.event.review.state == 'approved'
     runs-on: ubuntu-latest
     steps:
@@ -36,13 +36,6 @@ jobs:
           inlineScript: |
             Deploy-PolicyPlan -definitionsRootFolder $env:definitionsRootFolder -inputFolder $env:planFolder -pacEnvironment $env:pacEnvironment
           azPSVersion: "latest"
-      - name: Deploy Role Plan
-        if: contains(github.event.pull_request.labels.*.name, 'RoleDeployment')
-        uses: azure/powershell@v1
-        with:
-          inlineScript: |
-            Deploy-RolesPlan -definitionsRootFolder $env:definitionsRootFolder -inputFolder $env:planFolder -pacEnvironment $env:pacEnvironment
-          azPSVersion: "latest"
       - shell: pwsh
         if: contains(github.event.pull_request.labels.*.name, 'PolicyDeployment')
         name: Confirm PR
@@ -58,12 +51,4 @@ jobs:
           else {
             gh pr close $env:PR_NUMBER --comment 'Changes deployed' --delete-branch
           }
-      - shell: pwsh
-        if: contains(github.event.pull_request.labels.*.name, 'RoleDeployment')
-        name: Confirm PR
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          gh pr close $env:PR_NUMBER --comment 'Changes deployed' --delete-branch
           
