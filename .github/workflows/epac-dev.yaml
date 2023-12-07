@@ -87,6 +87,8 @@ jobs:
     environment: 
       name: EPAC-DEV
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3.3.0
       - name: Download Artifact
         uses: actions/download-artifact@v2
         with:
@@ -95,8 +97,6 @@ jobs:
         run: ls deploymentPlan
       - name: Set Folder Path as Env Variable
         run: echo "deploymentPlanFolderPath=$(pwd)/deploymentPlan/plans-EPAC-Staging" >> $GITHUB_ENV
-      - name: Checkout
-        uses: actions/checkout@v3.3.0
       - shell: pwsh
         name: Install Required Modules
         run: |
