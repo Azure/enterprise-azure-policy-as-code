@@ -127,7 +127,7 @@ jobs:
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            Deploy-PolicyPlan -definitionsRootFolder $env:definitionsRootFolder -inputFolder $env:deploymentPlanFolderPath -pacEnvironment $env:pacEnvironment
+            Deploy-PolicyPlan -definitionsRootFolder $env:definitionsRootFolder -inputFolder .\plans-EPAC-Staging -pacEnvironment $env:pacEnvironment
           azPSVersion: "latest"
 
   deployRoles:
