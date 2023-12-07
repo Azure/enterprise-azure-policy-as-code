@@ -106,13 +106,17 @@ jobs:
         with:
           creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
           enable-AzPSSession: true
-      - name: Display Policy-Plan File
-        run: |
-          if (Test-Path -Path $env:deploymentPlanFolderPath/policy-plan.json) {
-            Write-Output "Policy-Plan file exist"
-          } else {
-            Write-Output "Policy-Plan file does not exist"
-          }
+      - name: Check if JSON File Exists
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            $jsonFilePath = Join-Path -Path $env:deploymentPlanFolderPath -ChildPath "policy-plan.json"
+            if (Test-Path -Path $jsonFilePath) {
+              Write-Output "JSON file exists"
+            } else {
+              Write-Output "JSON file does not exist"
+            }
+          azPSVersion: "latest"
       - name: Deploy Policy Plan
         uses: azure/powershell@v1
         with:
