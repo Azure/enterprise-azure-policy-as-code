@@ -89,12 +89,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3.3.0
+      - name: List files in the directory
+        run: ls -la
       - name: Download Artifact
         uses: actions/download-artifact@v2
         with:
           name: deploymentPlan
-      - name: List files in the artifact
+      - name: List files in the directory after the artifact
         run: ls -la
+        run: pwd
       - name: Set Folder Path as Env Variable
         run: echo "deploymentPlanFolderPath=$(pwd)/deploymentPlan/plans-EPAC-Staging" >> $GITHUB_ENV
       - shell: pwsh
