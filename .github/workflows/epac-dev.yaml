@@ -14,9 +14,13 @@ jobs:
   build:
     name: Build Deployment Plan
     runs-on: ubuntu-latest
+    outputs:
+      policy_exists: ${{ steps.checkPolicy.outputs.policy_exists }}
+      role_exists: ${{ steps.checkRole.outputs.role_exists }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3.3.0
+
       - name: Check for NO_ACTIONS
         shell: pwsh
         env:
@@ -27,17 +31,20 @@ jobs:
             gh run cancel ${{ github.run_id }}
             gh run watch ${{ github.run_id }}
           }
+
       - shell: pwsh
         name: Install Required Modules
         run: |
           Install-Module Az.ResourceGraph -Force -AllowClobber
           Install-Module Az.Resources -Force -AllowClobber
           Install-Module EnterprisePolicyAsCode -Force
+
       - name: Azure Login
         uses: Azure/login@v1
         with:
           creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
           enable-AzPSSession: true
+
       - name: Build Deployment Plan
         uses: azure/powershell@v1
         with:
@@ -45,6 +52,7 @@ jobs:
             Build-DeploymentPlans -definitionsRootFolder $env:definitionsRootFolder -outputFolder $env:planFolder -pacEnvironment $env:pacEnvironment
             $epacInfoStream | Set-Content body.txt
           azPSVersion: "latest"
+
       - shell: pwsh
         name: Detect Plan
         run: |
@@ -59,22 +67,31 @@ jobs:
               echo "RolesOnly=true" >> $env:GITHUB_ENV
             }
           }
+
       - name: Display Policy Plan File
+        id: checkPolicy
         run: |
           if (Test-Path -Path Output/plans-EPAC-Staging/policy-plan.json) {
             Get-Content Output/plans-EPAC-Staging/policy-plan.json | ConvertFrom-Json | ConvertTo-Json -Depth 10
+            echo "::set-output name=policy_exists::true"
           } else {
             Write-Output "Policy-Plan file does not exist"
+            echo "::set-output name=policy_exists::false"
           }
         shell: pwsh
+
       - name: Display Roles Plan file
+        id: checkRole
         run: |
           if (Test-Path -Path Output/plans-EPAC-Staging/roles-plan.json) {
             Get-Content Output/plans-EPAC-Staging/roles-plan.json | ConvertFrom-Json | ConvertTo-Json -Depth 10
+            echo "::set-output name=role_exists::true"
           } else {
             Write-Output "Roles-Plan file does not exist"
+            echo "::set-output name=role_exists::false"
           }
         shell: pwsh
+
       - name: Upload Deployment Plan as Artifact
         uses: actions/upload-artifact@v2
         with:
@@ -85,30 +102,36 @@ jobs:
     needs: build
     name: Deploy Policy Plan
     runs-on: ubuntu-latest
+    if: needs.build.outputs.policy_exists == 'true'
     environment: 
       name: EPAC-DEV
     steps:
       - name: Checkout
         uses: actions/checkout@v3.3.0
+
       - name: Download Artifact
         uses: actions/download-artifact@v2
         with:
           name: deploymentPlan
+
       - name: Copy Artifact directory to Output Folder
         shell: pwsh
         run: |
           Copy-Item -Path .\plans-EPAC-Staging -Destination .\Output -Recurse -Force
+
       - shell: pwsh
         name: Install Required Modules
         run: |
           Install-Module Az.ResourceGraph -Force -Verbose -AllowClobber
           Install-Module Az.Resources -Force -Verbose -AllowClobber
           Install-Module EnterprisePolicyAsCode -Force
+
       - name: Azure Login
         uses: Azure/login@v1
         with:
           creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
           enable-AzPSSession: true
+
       - name: Deploy Policy Plan
         uses: azure/powershell@v1
         with:
@@ -120,36 +143,43 @@ jobs:
     needs: deployPolicy
     name: Deploy Policy Roles
     runs-on: ubuntu-latest
+    if: needs.build.outputs.role_exists == 'true'
     environment: 
       name: EPAC-DEV
     steps:
       - name: Checkout
         uses: actions/checkout@v3.3.0
+
       - name: Download Artifact
         uses: actions/download-artifact@v2
         with:
           name: deploymentPlan
+
       - name: Copy Artifact directory to Output Folder
         shell: pwsh
         run: |
           Copy-Item -Path .\plans-EPAC-Staging -Destination .\Output -Recurse -Force
+
       - shell: pwsh
         name: Install Required Modules
         run: |
           Install-Module Az.ResourceGraph -Force -Verbose -AllowClobber
           Install-Module Az.Resources -Force -Verbose -AllowClobber
           Install-Module EnterprisePolicyAsCode -Force
+
       - name: Azure Login
         uses: Azure/login@v1
         with:
           creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
           enable-AzPSSession: true
+
       - name: Deploy Role Plan
         uses: azure/powershell@v1
         with:
           inlineScript: |
             Deploy-RolesPlan -definitionsRootFolder $env:definitionsRootFolder -inputFolder $env:planFolder -pacEnvironment $env:pacEnvironment
           azPSVersion: "latest"
+
       - shell: pwsh
         name: Confirm PR
         env:
