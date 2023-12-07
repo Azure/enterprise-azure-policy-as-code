@@ -106,6 +106,13 @@ jobs:
         with:
           creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
           enable-AzPSSession: true
+      - name: Display Policy-Plan File
+        run: |
+          if (Test-Path -Path $env:deploymentPlanFolderPath/policy-plan.json) {
+            Get-Content $env:deploymentPlanFolderPath/policy-plan.json | ConvertFrom-Json | ConvertTo-Json -Depth 10
+          } else {
+            Write-Output "Policy-Plan file does not exist"
+          }
       - name: Deploy Policy Plan
         uses: azure/powershell@v1
         with:
