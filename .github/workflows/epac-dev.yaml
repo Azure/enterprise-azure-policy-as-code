@@ -58,18 +58,27 @@ jobs:
               echo "RolesOnly=true" >> $env:GITHUB_ENV
             }
           }
-      - name: Display Policy-Plan file
-        run: Get-Content Output/plans-EPAC-Staging/policy-plan.json | ConvertFrom-Json | ConvertTo-Json -Depth 10
+      - name: Display Policy-Plan File
+        run: |
+          if (Test-Path -Path Output/plans-EPAC-Staging/policy-plan.json) {
+            Get-Content Output/plans-EPAC-Staging/policy-plan.json | ConvertFrom-Json | ConvertTo-Json -Depth 10
+          } else {
+            Write-Output "Policy-Plan file does not exist"
+          }
         shell: pwsh
       - name: Display Roles-Plan file
-        run: Get-Content Output/plans-EPAC-Staging/roles-plan.json | ConvertFrom-Json | ConvertTo-Json -Depth 10
+        run: |
+          if (Test-Path -Path Output/plans-EPAC-Staging/roles-plan.json) {
+            Get-Content Output/plans-EPAC-Staging/roles-plan.json | ConvertFrom-Json | ConvertTo-Json -Depth 10
+          } else {
+            Write-Output "Roles-Plan file does not exist"
+          }
         shell: pwsh
       - name: Upload Deployment Plan as Artifact
         uses: actions/upload-artifact@v3
         with:
           name: deploymentPlan
           path: Output
-
 
   deployPolicy:
     needs: build
@@ -82,7 +91,8 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: deploymentPlan
-          path: Output
+      - name: Set Folder Path as Env Variable
+        run: echo "deploymentPlanFolderPath=$(pwd)/deploymentPlan" >> $GITHUB_ENV
       - name: Checkout
         uses: actions/checkout@v3.3.0
       - shell: pwsh
@@ -100,7 +110,7 @@ jobs:
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            Deploy-PolicyPlan -definitionsRootFolder $env:definitionsRootFolder -inputFolder "Output" -pacEnvironment $env:pacEnvironment
+            Deploy-PolicyPlan -definitionsRootFolder $env:definitionsRootFolder -inputFolder $deploymentPlanFolderPath -pacEnvironment $env:pacEnvironment
           azPSVersion: "latest"
 
   deployRoles:
