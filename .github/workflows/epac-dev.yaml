@@ -75,10 +75,10 @@ jobs:
           }
         shell: pwsh
       - name: Upload Deployment Plan as Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: deploymentPlan
-          path: Output
+          path: Output/
 
   deployPolicy:
     needs: build
@@ -91,6 +91,8 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: deploymentPlan
+      - name: List files in the artifact
+        run: ls my-artifact
       - name: Set Folder Path as Env Variable
         run: echo "deploymentPlanFolderPath=$(pwd)/deploymentPlan/plans-EPAC-Staging" >> $GITHUB_ENV
       - name: Checkout
