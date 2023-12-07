@@ -12,9 +12,6 @@ jobs:
   build:
     name: Build Deployment Plan
     runs-on: ubuntu-latest
-    outputs:
-      policy_exists: ${{ steps.checkPolicy.outputs.policy_exists }}
-      role_exists: ${{ steps.checkRole.outputs.role_exists }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3.3.0
@@ -71,10 +68,8 @@ jobs:
         run: |
           if (Test-Path -Path Output/plans-EPAC-Staging/policy-plan.json) {
             Get-Content Output/plans-EPAC-Staging/policy-plan.json | ConvertFrom-Json | ConvertTo-Json -Depth 10
-            echo "::set-output name=policy_exists::true"
           } else {
             Write-Output "Policy-Plan file does not exist"
-            echo "::set-output name=policy_exists::false"
           }
         shell: pwsh
 
@@ -83,10 +78,8 @@ jobs:
         run: |
           if (Test-Path -Path Output/plans-EPAC-Staging/roles-plan.json) {
             Get-Content Output/plans-EPAC-Staging/roles-plan.json | ConvertFrom-Json | ConvertTo-Json -Depth 10
-            echo "::set-output name=role_exists::true"
           } else {
             Write-Output "Roles-Plan file does not exist"
-            echo "::set-output name=role_exists::false"
           }
         shell: pwsh
 
@@ -96,20 +89,11 @@ jobs:
           name: deploymentPlan
           path: Output
 
-      - name: Echo output variable
-        run: echo "${{ steps.checkPolicy.outputs.policy_exists }}" 
-        shell: pwsh
-
-      - name: Echo output variable 2
-        run: echo "${{ steps.checkRole.outputs.role_exists }}" 
-        shell: pwsh
-
 
   deployPolicy:
     needs: build
     name: Deploy Policy Plan
     runs-on: ubuntu-latest
-    if: needs.build.outputs.policy_exists == true
     environment: 
       name: EPAC-DEV
     steps:
@@ -150,7 +134,6 @@ jobs:
     needs: deployPolicy
     name: Deploy Policy Roles
     runs-on: ubuntu-latest
-    if: needs.build.outputs.role_exists == true
     environment: 
       name: EPAC-DEV
     steps:
@@ -186,11 +169,3 @@ jobs:
           inlineScript: |
             Deploy-RolesPlan -definitionsRootFolder $env:definitionsRootFolder -inputFolder $env:planFolder -pacEnvironment $env:pacEnvironment
           azPSVersion: "latest"
-
-      - shell: pwsh
-        name: Confirm PR
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          gh pr close $env:PR_NUMBER --comment 'Changes deployed' --delete-branch
