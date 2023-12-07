@@ -1,11 +1,9 @@
 name: EPAC-DEV Workflow
 
 env:
-  REVIEWER: andrewybarra # Change this to a GitHub reviewer
   pacEnvironment: EPAC-Staging # Change this to a PAC environment name
   definitionsRootFolder: Definitions
   planFolder: Output
-  artifactFolder: plans-EPAC-Staging
 
 on:
   workflow_dispatch:
@@ -73,10 +71,10 @@ jobs:
         run: |
           if (Test-Path -Path Output/plans-EPAC-Staging/policy-plan.json) {
             Get-Content Output/plans-EPAC-Staging/policy-plan.json | ConvertFrom-Json | ConvertTo-Json -Depth 10
-            echo "::set-output name=policy_exists::true"
+            echo "policy_exists=true" >> $GITHUB_OUTPUT
           } else {
             Write-Output "Policy-Plan file does not exist"
-            echo "::set-output name=policy_exists::false"
+            echo "policy_exists=false" >> $GITHUB_OUTPUT
           }
         shell: pwsh
 
@@ -85,10 +83,10 @@ jobs:
         run: |
           if (Test-Path -Path Output/plans-EPAC-Staging/roles-plan.json) {
             Get-Content Output/plans-EPAC-Staging/roles-plan.json | ConvertFrom-Json | ConvertTo-Json -Depth 10
-            echo "::set-output name=role_exists::true"
+            echo "role_exists=true" >> $GITHUB_OUTPUT
           } else {
             Write-Output "Roles-Plan file does not exist"
-            echo "::set-output name=role_exists::false"
+            echo "role_exists=false" >> $GITHUB_OUTPUT
           }
         shell: pwsh
 
