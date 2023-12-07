@@ -95,6 +95,7 @@ jobs:
         with:
           name: deploymentPlan
       - name: Copy directory
+        shell: pwsh
         run: |
           Copy-Item -Path .\plans-EPAC-Staging -Destination .\Output -Recurse -Force
       - name: List files in the artifact
