@@ -96,6 +96,15 @@ jobs:
           name: deploymentPlan
           path: Output
 
+      - name: Echo output variable
+        run: echo "${{ steps.checkPolicy.outputs.policy_exists }}" 
+        shell: pwsh
+
+      - name: Echo output variable 2
+        run: echo "${{ steps.checkRole.outputs.role_exists }}" 
+        shell: pwsh
+
+
   deployPolicy:
     needs: build
     name: Deploy Policy Plan
