@@ -109,7 +109,7 @@ jobs:
     needs: build
     name: Deploy Policy Plan
     runs-on: ubuntu-latest
-    if: needs.build.outputs.policy_exists == 'true'
+    if: needs.build.outputs.policy_exists == true
     environment: 
       name: EPAC-DEV
     steps:
@@ -150,7 +150,7 @@ jobs:
     needs: deployPolicy
     name: Deploy Policy Roles
     runs-on: ubuntu-latest
-    if: needs.build.outputs.role_exists == 'true'
+    if: needs.build.outputs.role_exists == true
     environment: 
       name: EPAC-DEV
     steps:
