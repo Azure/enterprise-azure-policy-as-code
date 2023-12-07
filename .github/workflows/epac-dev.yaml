@@ -94,6 +94,9 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: deploymentPlan
+      - name: Copy directory
+        run: |
+          Copy-Item -Path .\plans-EPAC-Staging -Destination .\Output -Recurse -Force
       - name: List files in the artifact
         run: ls -l "${{ github.workspace }}/plans-EPAC-Staging"
       - name: List all files and directories
@@ -126,7 +129,7 @@ jobs:
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            Deploy-PolicyPlan -definitionsRootFolder $env:definitionsRootFolder -inputFolder "${{ github.workspace }}/plans-EPAC-Staging" -pacEnvironment $env:pacEnvironment
+            Deploy-PolicyPlan -definitionsRootFolder $env:definitionsRootFolder -inputFolder $env:planFolder -pacEnvironment $env:pacEnvironment
           azPSVersion: "latest"
 
   deployRoles:
