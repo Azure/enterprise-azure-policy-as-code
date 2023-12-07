@@ -71,10 +71,10 @@ jobs:
         run: |
           if (Test-Path -Path Output/plans-EPAC-Staging/policy-plan.json) {
             Get-Content Output/plans-EPAC-Staging/policy-plan.json | ConvertFrom-Json | ConvertTo-Json -Depth 10
-            echo "policy_exists='true'" >> $GITHUB_OUTPUT
+            echo "policy_exists=true" | Out-File -FilePath $env:GITHUB_ENV -Append
           } else {
             Write-Output "Policy-Plan file does not exist"
-            echo "policy_exists='false'" >> $GITHUB_OUTPUT
+            echo "policy_exists=false" | Out-File -FilePath $env:GITHUB_ENV -Append
           }
         shell: pwsh
 
@@ -83,10 +83,10 @@ jobs:
         run: |
           if (Test-Path -Path Output/plans-EPAC-Staging/roles-plan.json) {
             Get-Content Output/plans-EPAC-Staging/roles-plan.json | ConvertFrom-Json | ConvertTo-Json -Depth 10
-            echo "role_exists='true'" >> $GITHUB_OUTPUT
+            echo "role_exists=true" | Out-File -FilePath $env:GITHUB_ENV -Append
           } else {
             Write-Output "Roles-Plan file does not exist"
-            echo "role_exists='false'" >> $GITHUB_OUTPUT
+            echo "role_exists=false" | Out-File -FilePath $env:GITHUB_ENV -Append
           }
         shell: pwsh
 
