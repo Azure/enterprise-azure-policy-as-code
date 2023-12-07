@@ -95,7 +95,9 @@ jobs:
         with:
           name: deploymentPlan
       - name: List files in the artifact
-        run: ls -l "${{ github.workspace }}/deploymentPlan"
+        run: ls -l "${{ github.workspace }}/plans-EPAC-Staging"
+      - name: List all files and directories
+        run: ls -R
       - name: Set Folder Path as Env Variable
         run: echo "deploymentPlanFolderPath=$(pwd)/deploymentPlan/plans-EPAC-Staging" >> $GITHUB_ENV
       - shell: pwsh
