@@ -94,16 +94,10 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: deploymentPlan
-      - name: Copy directory
+      - name: Copy Artifact directory to Output Folder
         shell: pwsh
         run: |
           Copy-Item -Path .\plans-EPAC-Staging -Destination .\Output -Recurse -Force
-      - name: List files in the artifact
-        run: ls -l "${{ github.workspace }}/plans-EPAC-Staging"
-      - name: List all files and directories
-        run: ls -R
-      - name: Set Folder Path as Env Variable
-        run: echo "deploymentPlanFolderPath=$(pwd)/deploymentPlan/plans-EPAC-Staging" >> $GITHUB_ENV
       - shell: pwsh
         name: Install Required Modules
         run: |
@@ -115,17 +109,6 @@ jobs:
         with:
           creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
           enable-AzPSSession: true
-      - name: Check if JSON File Exists
-        uses: azure/powershell@v1
-        with:
-          inlineScript: |
-            $jsonFilePath = Join-Path -Path $env:deploymentPlanFolderPath -ChildPath "policy-plan.json"
-            if (Test-Path -Path $jsonFilePath) {
-              Write-Output "JSON file exists"
-            } else {
-              Write-Output "JSON file does not exist"
-            }
-          azPSVersion: "latest"
       - name: Deploy Policy Plan
         uses: azure/powershell@v1
         with:
@@ -142,6 +125,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3.3.0
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: deploymentPlan
+      - name: Copy Artifact directory to Output Folder
+        shell: pwsh
+        run: |
+          Copy-Item -Path .\plans-EPAC-Staging -Destination .\Output -Recurse -Force
       - shell: pwsh
         name: Install Required Modules
         run: |
