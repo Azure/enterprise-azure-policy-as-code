@@ -3,7 +3,7 @@ function Confirm-PolicyResourceExclusions {
     param (
         $TestId,
         $ResourceId,
-                $ScopeTable,
+        $ScopeTable,
         $IncludeResourceGroups,
         $ExcludedScopes,
         $ExcludedIds,
@@ -24,7 +24,7 @@ function Confirm-PolicyResourceExclusions {
     }
     if (!$ScopeTable.ContainsKey($scope)) {
         $PolicyResourceTable.counters.unmanagedScopes += 1
-                return $false, $resourceIdParts
+        return $false, $resourceIdParts
     }
     $scopeEntry = $ScopeTable.$scope
     $parentList = $scopeEntry.parentList
@@ -34,20 +34,29 @@ function Confirm-PolicyResourceExclusions {
     if (!$IncludeResourceGroups -and $scopeType -eq "resourceGroups") {
         Write-Verbose "Exclude(resourceGroup) $($ResourceId)"
         $PolicyResourceTable.counters.excluded += 1
-                return $false, $resourceIdParts
+        return $false, $resourceIdParts
     }
     foreach ($testScope in $ExcludedScopes) {
-        if ($scope -eq $testScope -or $parentList.ContainsKey($testScope)) {
+        if ($scope -like $testScope -or $parentList.ContainsKey($testScope)) {
             Write-Verbose "Exclude(scope,$testScope) $($ResourceId)"
             $PolicyResourceTable.counters.excluded += 1
-                        return $false, $resourceIdParts
+            return $false, $resourceIdParts
+        }
+        elseif ($testScope -contains "*") {
+            foreach ($parentScope in $parentList.Keys) {
+                if ($parentScope -like $testScope) {
+                    Write-Verbose "Exclude(scope,$testScope) $($ResourceId)"
+                    $PolicyResourceTable.counters.excluded += 1
+                    return $false, $resourceIdParts
+                }
+            }
         }
     }
     foreach ($testExcludedId in $ExcludedIds) {
         if ($TestId -like $testExcludedId) {
             Write-Verbose "Exclude(id,$testExcludedId) $($ResourceId)"
             $PolicyResourceTable.counters.excluded += 1
-                        return $false, $resourceIdParts
+            return $false, $resourceIdParts
         }
     }
     return $true, $resourceIdParts
