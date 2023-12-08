@@ -32,7 +32,7 @@ function Confirm-PolicyResourceExclusions {
         Write-Error "Code bug parentList is $null $($scopeEntry | ConvertTo-Json -Depth 100 -Compress)" -ErrorAction Stop
     }
     if (!$IncludeResourceGroups -and $scopeType -eq "resourceGroups") {
-        Write-Verbose "Exclude(resourceGroup) $($ResourceId)"
+        Write-Verbose "Exclude(resourceGroup) $($ResourceId)" 
         $PolicyResourceTable.counters.excluded += 1
         return $false, $resourceIdParts
     }
