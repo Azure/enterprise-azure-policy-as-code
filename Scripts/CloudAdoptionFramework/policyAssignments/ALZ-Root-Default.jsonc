@@ -47,20 +47,20 @@
                         "displayName": "Microsoft Defender For Cloud"
                     },
                     "parameters": {
-                        "enableAscForServers": "Disabled", // Adjust parameter values to control Microsoft Defender for Cloud configuration Disabled/DeployIfNotExists
-                        "enableAscForSql": "Disabled",
-                        "enableAscForAppServices": "Disabled",
-                        "enableAscForStorage": "Disabled",
-                        "enableAscForContainers": "Disabled",
-                        "enableAscForKeyVault": "Disabled",
-                        "enableAscForSqlOnVm": "Disabled",
-                        "enableAscForArm": "Disabled",
-                        "enableAscForDns": "Disabled",
-                        "enableAscForOssDb": "Disabled",
-                        "enableAscForCosmosDbs": "Disabled",
-                        "enableAscForServersVulnerabilityAssessments": "Disabled",
-                        "enableAscForApis": "Disabled",
-                        "enableAscForCspm": "Disabled"
+                        "enableAscForServers": "DeployIfNotExists", // Adjust parameter values to control Microsoft Defender for Cloud configuration DeployIfNotExists/DeployIfNotExists
+                        "enableAscForSql": "DeployIfNotExists",
+                        "enableAscForAppServices": "DeployIfNotExists",
+                        "enableAscForStorage": "DeployIfNotExists",
+                        "enableAscForContainers": "DeployIfNotExists",
+                        "enableAscForKeyVault": "DeployIfNotExists",
+                        "enableAscForSqlOnVm": "DeployIfNotExists",
+                        "enableAscForArm": "DeployIfNotExists",
+                        "enableAscForDns": "DeployIfNotExists",
+                        "enableAscForOssDb": "DeployIfNotExists",
+                        "enableAscForCosmosDbs": "DeployIfNotExists",
+                        "enableAscForServersVulnerabilityAssessments": "DeployIfNotExists",
+                        "enableAscForApis": "DeployIfNotExists",
+                        "enableAscForCspm": "DeployIfNotExists"
                     },
                     "nonComplianceMessages": [
                         {

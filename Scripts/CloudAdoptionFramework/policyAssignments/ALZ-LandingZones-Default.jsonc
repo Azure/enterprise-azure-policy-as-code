@@ -293,22 +293,6 @@
                     ]
                 },
                 {
-                    "nodeName": "ACSB",
-                    "assignment": {
-                        "name": "Enforce-ACSB",
-                        "description": "This initiative assignment enables Azure Compute Security Baseline compliance auditing for Windows and Linux virtual machines.",
-                        "displayName": "Enforce Azure Compute Security Baseline compliance auditing"
-                    },
-                    "definitionEntry": {
-                        "policySetName": "Enforce-ACSB"
-                    },
-                    "nonComplianceMessages": [
-                        {
-                            "message": "Azure Compute Security Baseline compliance auditing must be enforced."
-                        }
-                    ]
-                },
-                {
                     "nodeName": "DenyMgmt",
                     "assignment": {
                         "name": "Deny-MgmtPorts-Internet",

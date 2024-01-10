@@ -20,7 +20,7 @@
             },
             "parameters": {
                 "effect": "Modify",
-                "ddosPlan": ""
+                "ddosPlan": "null"
             },
             "nonComplianceMessages": [
                 {
