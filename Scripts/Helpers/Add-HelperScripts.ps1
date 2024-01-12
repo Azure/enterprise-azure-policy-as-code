@@ -29,6 +29,7 @@
 . "$PSScriptRoot/Confirm-PolicyDefinitionsParametersMatch.ps1"
 . "$PSScriptRoot/Confirm-PolicyResourceExclusions.ps1"
 . "$PSScriptRoot/Confirm-PolicySetDefinitionUsedExists.ps1"
+. "$PSScriptRoot/Confirm-ValidPolicyResourceName.ps1"
 
 . "$PSScriptRoot/Convert-EffectToOrdinal.ps1"
 . "$PSScriptRoot/Convert-EffectToString.ps1"
@@ -77,6 +78,7 @@
 . "$PSScriptRoot/Out-PolicyExemptions.ps1"
 . "$PSScriptRoot/Out-PolicySetsDocumentationToFile.ps1"
 
+. "$PSScriptRoot/Remove-AzRoleAssignmentRestMethod.ps1"
 . "$PSScriptRoot/Remove-NullFields.ps1"
 . "$PSScriptRoot/Remove-GlobalNotScopes.ps1"
 

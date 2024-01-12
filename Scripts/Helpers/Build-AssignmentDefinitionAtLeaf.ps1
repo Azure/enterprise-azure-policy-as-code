@@ -158,6 +158,11 @@ function Build-AssignmentDefinitionAtLeaf {
             $hasErrors = $true
             continue
         }
+        elseif (-not (Confirm-ValidPolicyResourceName -Name $name)) {
+            Write-Error "    Leaf Node $($nodeName): Assignment name '$name' contains invalid charachters <>*%&:?.+/ or ends with a space."
+            $hasErrors = $true
+            continue
+        }
         $enforcementMode = $AssignmentDefinition.enforcementMode
         $metadata = $AssignmentDefinition.metadata
         if ($metadata) {
@@ -595,9 +600,8 @@ function Build-AssignmentDefinitionAtLeaf {
                 $roleDefinitionIds = $PolicyRoleIds.$policyDefinitionId
                 foreach ($roleDefinitionId in $roleDefinitionIds) {
                     $roleDisplayName = "Unknown"
-                    $roleDefinitionName = ($roleDefinitionId.Split("/"))[-1]
-                    if ($RoleDefinitions.ContainsKey($roleDefinitionName)) {
-                        $roleDisplayName = $RoleDefinitions.$roleDefinitionName
+                    if ($RoleDefinitions.ContainsKey($roleDefinitionId)) {
+                        $roleDisplayName = $RoleDefinitions.$roleDefinitionId
                     }
                     $roleAssignmentSpecs += @{
                         scope            = $scopeEntry.scope

@@ -16,14 +16,9 @@ function Build-AssignmentPlan {
     Write-Information "==================================================================================================="
     Write-Information "Processing Policy Assignments JSON files in folder '$AssignmentsRootFolder'"
     Write-Information "==================================================================================================="
+
     # Cache role definitions
-    $roleDefinitionList = Get-AzRoleDefinition
-    [hashtable] $roleDefinitions = @{}
-    foreach ($roleDefinition in $roleDefinitionList) {
-        if (!$roleDefinitions.ContainsKey($roleDefinition.Id)) {
-            $null = $roleDefinitions.Add($roleDefinition.Id, $roleDefinition.Name)
-        }
-    }
+    [hashtable] $roleDefinitions = $DeployedPolicyResources.roleDefinitions
 
     # Populate allAssignments
     $deployedPolicyAssignments = $DeployedPolicyResources.policyassignments.managed

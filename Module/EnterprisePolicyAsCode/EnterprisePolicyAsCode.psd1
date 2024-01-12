@@ -15,7 +15,7 @@
 	CompanyName       = 'Microsoft'
 	
 	# Copyright statement for this module
-	Copyright         = 'Copyright (c) 2023 Microsoft Corporation'
+	Copyright         = 'Copyright (c) 2022,2023,2024 Microsoft Corporation'
 	
 	# Description of the functionality provided by this module
 	Description       = 'Enterprise Policy as Code PowerShell Module'

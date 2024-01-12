@@ -118,6 +118,9 @@ function Build-ExemptionsPlan {
                     if ([string]::IsNullOrWhitespace($name)) {
                         Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "required name missing" -EntryNumber $entryNumber
                     }
+                    if (-not (Confirm-ValidPolicyResourceName -Name $name)) {
+                        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "name '$name' contains invalid charachters <>*%&:?.+/ or ends with a space." -EntryNumber $entryNumber
+                    }
                     if ([string]::IsNullOrWhitespace($displayName)) {
                         Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "required displayName missing" -EntryNumber $entryNumber
                     }
