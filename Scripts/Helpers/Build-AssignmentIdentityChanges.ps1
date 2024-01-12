@@ -106,10 +106,10 @@ function Build-AssignmentIdentityChanges {
             if ($identityRequired) {
                 if ($definedIdentityType -ne "UserAssigned") {
                     foreach ($requiredRoleDefinition in $requiredRoleDefinitions) {
-                        $requiredRoleDefinitionId = $requiredRoleDefinition.roleDefinitionId.Split('/')[-1]
+                        $requiredRoleDefinitionId = $requiredRoleDefinition.roleDefinitionId
                         $addedEntry = @{
                             assignmentId     = $Assignment.id
-                            displayName      = $Assignment.DisplayName
+                            displayName      = $Assignment.displayName
                             scope            = $requiredRoleDefinition.scope
                             principalId      = $null
                             objectType       = "ServicePrincipal"
@@ -131,7 +131,7 @@ function Build-AssignmentIdentityChanges {
 
                 # calculate addedList role assignments (rare)
                 foreach ($requiredRoleDefinition in $requiredRoleDefinitions) {
-                    $requiredRoleDefinitionId = $requiredRoleDefinition.roleDefinitionId.Split('/')[-1]
+                    $requiredRoleDefinitionId = $requiredRoleDefinition.roleDefinitionId
                     $matchFound = $false
                     foreach ($deployedRoleAssignment in $existingRoleAssignments) {
                         $deployedScope = $deployedRoleAssignment.scope
@@ -146,7 +146,7 @@ function Build-AssignmentIdentityChanges {
                         # add role
                         $addedEntry = @{
                             assignmentId     = $Assignment.id
-                            displayName      = $Assignment.DisplayName
+                            displayName      = $Assignment.displayName
                             principalId      = $principalIdForAddedRoles
                             objectType       = "ServicePrincipal"
                             scope            = $requiredRoleDefinition.scope
@@ -163,7 +163,7 @@ function Build-AssignmentIdentityChanges {
                     $deployedRoleDefinitionId = $deployedRoleAssignment.roleDefinitionId
                     $matchFound = $false
                     foreach ($requiredRoleDefinition in $requiredRoleDefinitions) {
-                        $requiredRoleDefinitionId = $requiredRoleDefinition.roleDefinitionId.Split('/')[-1]
+                        $requiredRoleDefinitionId = $requiredRoleDefinition.roleDefinitionId
                         if (($deployedScope -eq $requiredRoleDefinition.scope) -and ($deployedRoleDefinitionId -eq $requiredRoleDefinitionId)) {
                             $matchFound = $true
                             # Nothing to do
@@ -191,7 +191,7 @@ function Build-AssignmentIdentityChanges {
         $replaced = $true
     }
 
-if ($addedList.Count -gt 0) {
+    if ($addedList.Count -gt 0) {
         $changedIdentityStrings += "addedRoleAssignments"
     }
     if ($removedList.Count -gt 0) {

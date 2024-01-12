@@ -63,126 +63,131 @@ function Merge-AssignmentParametersEx {
                 $desiredEffect = $effect.ToLower()
                 $useOverrides = $false
                 $policyDefinitionReferenceId = $perPolicySet.policyDefinitionReferenceId
-                if ($perPolicySet.isEffectParameterized) {
-                    if ($setEffectAllowedValues -notcontains $desiredEffect) {
-                        if ($effectAllowedOverrides -notcontains $desiredEffect) {
-                            Write-Error "    Node $($NodeName):  CSV parameterFile '$parameterFileName' row for Policy name '$name': the effect ($effect) must be an allowed parameter or override value [$($effectAllowedOverrides -join ',')]."
-                            $hasErrors = $true
-                            continue
-                        }
-                        else {
-                            $useOverrides = $true
-                        }
-                    }
-                }
-                else {
-                    if ($effectAllowedOverrides -notcontains $desiredEffect) {
-                        Write-Error "    Node $($NodeName):  CSV parameterFile '$parameterFileName' row for Policy name '$name': the effect ($effect) must be an allowed override value [$($effectAllowedOverrides -join ',')]."
-                        $hasErrors = $true
-                        continue
-                    }
-                    $useOverrides = $true
-                }
                 $isProcessed = $EffectProcessedForPolicy.ContainsKey($flatPolicyEntryKey)
+                $modifiedEffect = $desiredEffect
                 if ($isProcessed) {
+                    # the second and subsequent time this Policy is processed, the effect must be adjusted to audit
                     if ($desiredEffect -eq $EffectProcessedForPolicy.$flatPolicyEntryKey) {
                         # Adjust desiredEffect
                         $modifiedEffect = switch ($desiredEffect) {
                             append {
-                                "audit"
+                                "Audit"
                             }
                             modify {
-                                "audit"
+                                "Audit"
                             }
                             deny {
-                                "audit"
+                                "Audit"
                             }
                             deployIfNotExists {
-                                "auditIfNotExists"
+                                "AuditIfNotExists"
                             }
                             manual {
-                                "manual"
+                                "Manual"
                             }
                             Default {
                                 $_
                             }
                         }
+                    }
+                }
+                else {
+                    # first encounter of this Policy, use desired value (previously set) and enter in list of processed Policies
+                    $null = $EffectProcessedForPolicy.Add($flatPolicyEntryKey, $desiredEffect)
+                }
+
+                $isAllowed = $false
+                if ($perPolicySet.isEffectParameterized) {
+                    if ($desiredEffect -ne $modifiedEffect) {
+                        # check if the modified effect is an allowed parameter value or an allowed override value
                         if ($setEffectAllowedValues -contains $modifiedEffect) {
+                            # the modified effect is an allowed parameter value
+                            $isAllowed = $true
                             $desiredEffect = $modifiedEffect
                         }
                         elseif ($effectAllowedOverrides -contains $modifiedEffect) {
-                            $useOverrides = $true
+                            # the modified effect is an allowed override value
                             $desiredEffect = $modifiedEffect
+                            $isAllowed = $true
+                            $useOverrides = $true
                         }
-                        elseif (@("audit", "auditIfNotExists") -contains $modifiedEffect) {
-                            $desiredEffect = "disabled"
-                            if ($setEffectAllowedValues -contains "disabled") {
-                                $useOverrides = $false
-                            }
-                            elseif ($effectAllowedOverrides -contains "disabled") {
-                                $useOverrides = $true
-                            }
+                    }
+                    if (!$isAllowed) {
+                        # check if the original desired effect is an allowed parameter value or an allowed override value
+                        if ($setEffectAllowedValues -contains $desiredEffect) {
+                            # the original desired effect is an allowed parameter value
+                            $isAllowed = $true
+                        }
+                        elseif ($effectAllowedOverrides -contains $desiredEffect) {
+                            # the original desired effect is an allowed override value
+                            $isAllowed = $true
+                            $useOverrides = $true
                         }
                     }
                 }
                 else {
-                    $null = $EffectProcessedForPolicy.Add($flatPolicyEntryKey, $desiredEffect)
+                    # the effect is not parameterized
+                    if ($desiredEffect -ne $modifiedEffect) {
+                        # check if the modified effect is an allowed override value
+                        if ($effectAllowedOverrides -contains $modifiedEffect) {
+                            # the modified effect is an allowed override value
+                            $desiredEffect = $modifiedEffect
+                            $isAllowed = $true
+                            $useOverrides = $true
+                        }
+                    }
+                    if (!$isAllowed) {
+                        # check if the original desired effect is an allowed override value
+                        if ($effectAllowedOverrides -contains $desiredEffect) {
+                            # the original desired effect is an allowed override value
+                            $isAllowed = $true
+                            $useOverrides = $true
+                        }
+                    }
                 }
 
-                $wrongCase = !($setEffectAllowedValues -ccontains $desiredEffect -or $effectAllowedOverrides -ccontains $desiredEffect)
-                if ($wrongCase) {
-                    $modifiedEffect = switch ($desiredEffect) {
-                        append {
-                            "Append"
-                        }
-                        audit {
-                            "Audit"
-                        }
-                        auditIfNotExists {
-                            "AuditIfNotExists"
-                        }
-                        deny {
-                            "Deny"
-                        }
-                        deployIfNotExists {
-                            "DeployIfNotExists"
-                        }
-                        disabled {
-                            "Disabled"
-                        }
-                        manual {
-                            "Manual"
-                        }
-                        modify {
-                            "Modify"
-                        }
-                    }
-                    if ($setEffectAllowedValues -ccontains $modifiedEffect -or $effectAllowedOverrides -ccontains $modifiedEffect) {
-                        $desiredEffect = $modifiedEffect
-                    }
-                    else {
-                        Write-Error "    Node $($NodeName): CSV parameterFile '$parameterFileName' row for Policy name '$name': the effect ($desiredEffect) must be an allowed value [$($setEffectAllowedValues -join ',')]."
-                        $hasErrors = $true
-                        continue
-                    }
+                if (!$isAllowed) {
+                    # the effect is not an allowed value
+                    Write-Error "    Node $($NodeName):  CSV parameterFile '$parameterFileName' row for Policy name '$name': the effect ($effect) must be an allowed value."
+                    $hasErrors = $true
+                    continue
                 }
-                if ($desiredEffect -ne $effectDefault) {
-                    if ($useOverrides) {
-                        $byEffectList = $null
-                        if ($overridesByEffect.ContainsKey($desiredEffect)) {
-                            $byEffectList = $overridesByEffect[$desiredEffect]
+                else {
+                    if ($desiredEffect -ne $effectDefault) {
+                        # the effect is not the default value
+                        if ($useOverrides) {
+                            # find the correct case for the allowed override value
+                            foreach ($effectAllowedOverride in $effectAllowedOverrides) {
+                                if ($effectAllowedOverride -eq $desiredEffect) {
+                                    $desiredEffect = $effectAllowedOverride # fixes potentially wrong case, or keeps the original case
+                                    break
+                                }
+                            }
+                            # collate the overrides by effect
+                            $byEffectList = $null
+                            if ($overridesByEffect.ContainsKey($desiredEffect)) {
+                                $byEffectList = $overridesByEffect[$desiredEffect]
+                            }
+                            else {
+                                $byEffectList = [System.Collections.ArrayList]::new()
+                                $overridesByEffect[$desiredEffect] = $byEffectList
+                            }
+                            $null = $byEffectList.Add($policyDefinitionReferenceId)
                         }
                         else {
-                            $byEffectList = [System.Collections.ArrayList]::new()
-                            $overridesByEffect[$desiredEffect] = $byEffectList
+                            # find the correct case for the allowed parameter value
+                            foreach ($setEffectAllowedValue in $setEffectAllowedValues) {
+                                if ($setEffectAllowedValue -eq $desiredEffect) {
+                                    $desiredEffect = $setEffectAllowedValue # fixes potentially wrong case, or keeps the original case
+                                    break
+                                }
+                            }
+                            # set the effect parameter
+                            $parameters[$effectParameterName] = $desiredEffect
                         }
-                        $null = $byEffectList.Add($policyDefinitionReferenceId)
-                    }
-                    else {
-                        $parameters[$effectParameterName] = $desiredEffect
                     }
                 }
-                #endregion effect parameters including overrides and nonComplianceMessages
+                #endregion effect parameters including overrides
 
                 #region nonComplianceMessages
                 if ($null -ne $nonComplianceMessageColumn) {
@@ -211,15 +216,17 @@ function Merge-AssignmentParametersEx {
         foreach ($effectValue in $overridesByEffect.Keys) {
             [System.Collections.ArrayList] $policyDefinitionReferenceIds = $overridesByEffect[$effectValue]
             $idsCount = $policyDefinitionReferenceIds.Count
+            $startIndex = 0
             while ($idsCount -gt 0) {
                 $ids = $null
                 if ($idsCount -gt 50) {
-                    $ids = $policyDefinitionReferenceIds.GetRange(0, 50)
-                    $policyDefinitionReferenceIds.RemoveRange(0, 50)
+                    # each override can have up to 50 selectors
+                    $ids = ($policyDefinitionReferenceIds.GetRange($startIndex, 50)).ToArray()
+                    $startIndex += 50
                     $idsCount -= 50
                 }
                 else {
-                    $ids = $policyDefinitionReferenceIds
+                    $ids = ($policyDefinitionReferenceIds.GetRange($startIndex, $idsCount)).ToArray()
                     $idsCount = 0
                 }
                 $override = @{
@@ -228,7 +235,7 @@ function Merge-AssignmentParametersEx {
                     selectors = @(
                         @{
                             kind = "policyDefinitionReferenceId"
-                            in   = $ids.ToArray()
+                            in   = $ids
                         }
                     )
                 }

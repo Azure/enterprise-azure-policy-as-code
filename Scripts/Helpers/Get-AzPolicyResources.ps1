@@ -83,6 +83,7 @@ function Get-AzPolicyResources {
             }
         }
         roleAssignmentsByPrincipalId = @{}
+        roleDefinitions              = @{}
         roleAssignmentsNotRetrieved  = $false
         nonComplianceSummary         = @{}
         remediationTasks             = @{}
@@ -384,114 +385,48 @@ function Get-AzPolicyResources {
         }
     }
 
+    $deployedRoleAssignmentsByPrincipalId = $deployed.roleAssignmentsByPrincipalId
     if (!$SkipRoleAssignments) {
-        # Get-AzRoleAssignment from the lowest scopes up. This will reduce the number of calls to Azure
-        $roleAssignmentsById = @{}
-        $scopesCovered = @{}
-        $scopesCollectedCount = 0
-        $roleAssignmentsCount = 0
-        # Write-Information "    Progress:"
-        # individual resources
+        $prefBackup = $WarningPreference
+        $WarningPreference = 'SilentlyContinue'
+
         Write-Information ""
-        Write-Information "Collecting Role assignments (this may take a while):"
-        foreach ($scope in $uniqueRoleAssignmentScopes.resources.Keys) {
-            if (!$scopesCovered.ContainsKey($scope)) {
-                $scopesCovered[$scope] = $true
-                $results = @()
-                $scopesCollectedCount++
-                Write-Information "    $scope"
-                $results += Get-AzRoleAssignment -Scope $scope -WarningAction SilentlyContinue
-                $localScopesCovered = @{}
-                foreach ($result in $results) {
-                    if ($result.ObjectType -eq "ServicePrincipal" -and $uniquePrincipalIds.ContainsKey($result.ObjectId)) {
-                        $localScopesCovered[$result.Scope] = $true
-                        $roleAssignmentsById[$result.RoleAssignmentId] = $result
-                        $roleAssignmentsCount++
-                    }
-                }
-                foreach ($localScope in $localScopesCovered.Keys) {
-                    $scopesCovered[$localScope] = $true
-                }
-            }
+        $principalIds = '"' + ($uniquePrincipalIds.Keys -join '", "') + '"'
+        $roleAssignments = Search-AzGraphAllItems `
+            -Query "authorizationresources | where type == `"microsoft.authorization/roleassignments`" and properties.principalId in ( $principalIds )" `
+            -Scope @{ UseTenantScope = $true } `
+            -ProgressItemName "Role Assignments"
+        $roleDefinitions = Search-AzGraphAllItems 'authorizationresources | where type == "microsoft.authorization/roledefinitions"' `
+            -Scope @{ UseTenantScope = $true } `
+            -ProgressItemName "Role Definitions"
+
+        $roleDefinitionsHt = $deployed.roleDefinitions
+        foreach ($roleDefinition in $roleDefinitions) {
+            $roleDefinitionId = $roleDefinition.id
+            $roleDefinitionName = $roleDefinition.properties.roleName
+            $null = $roleDefinitionsHt.Add($roleDefinitionId, $roleDefinitionName)
         }
-        # resource groups
-        foreach ($scope in $uniqueRoleAssignmentScopes.resourceGroups.Keys) {
-            if (!$scopesCovered.ContainsKey($scope)) {
-                $scopesCovered[$scope] = $true
-                $results = @()
-                Write-Information "    $scope"
-                $results += Get-AzRoleAssignment -Scope $scope -WarningAction SilentlyContinue
-                $scopesCollectedCount++
-                $localScopesCovered = @{}
-                foreach ($result in $results) {
-                    if ($result.ObjectType -eq "ServicePrincipal" -and $uniquePrincipalIds.ContainsKey($result.ObjectId)) {
-                        $localScopesCovered[$result.Scope] = $true
-                        $roleAssignmentsById[$result.RoleAssignmentId] = $result
-                        $roleAssignmentsCount++
-                    }
-                }
-                foreach ($localScope in $localScopesCovered.Keys) {
-                    $scopesCovered[$localScope] = $true
-                }
-            }
-        }
-        # subscriptions
-        foreach ($scope in $uniqueRoleAssignmentScopes.subscriptions.Keys) {
-            if (!$scopesCovered.ContainsKey($scope)) {
-                $scopesCovered[$scope] = $true
-                $results = @()
-                Write-Information "    $scope"
-                $subscriptionId = $scope.Replace("/subscriptions/", "")
-                $null = Set-AzContext -SubscriptionId $subscriptionId -Tenant $PacEnvironment.tenantId
-                $results += Get-AzRoleAssignment
-                $scopesCollectedCount++
-                $localScopesCovered = @{}
-                foreach ($result in $results) {
-                    if ($result.ObjectType -eq "ServicePrincipal" -and $uniquePrincipalIds.ContainsKey($result.ObjectId)) {
-                        $localScopesCovered[$result.Scope] = $true
-                        $roleAssignmentsById[$result.RoleAssignmentId] = $result
-                        $roleAssignmentsCount++
-                    }
-                }
-                foreach ($localScope in $localScopesCovered.Keys) {
-                    $scopesCovered[$localScope] = $true
-                }
-            }
-        }
-        # management groups (we are not trying to optimize based on the management group tree structure)
-        foreach ($scope in $uniqueRoleAssignmentScopes.managementGroups.Keys) {
-            if (!$scopesCovered.ContainsKey($scope)) {
-                $scopesCovered[$scope] = $true
-                $results = @()
-                Write-Information "    $scope"
-                $results += Get-AzRoleAssignment -Scope $scope -WarningAction SilentlyContinue
-                $scopesCollectedCount++
-                $localScopesCovered = @{}
-                foreach ($result in $results) {
-                    if ($result.ObjectType -eq "ServicePrincipal" -and $uniquePrincipalIds.ContainsKey($result.ObjectId)) {
-                        $localScopesCovered[$result.Scope] = $true
-                        $roleAssignmentsById[$result.RoleAssignmentId] = $result
-                        $roleAssignmentsCount++
-                    }
-                }
-                foreach ($localScope in $localScopesCovered.Keys) {
-                    $scopesCovered[$localScope] = $true
-                }
-            }
-        }
+        $WarningPreference = $prefBackup
 
         # loop through the collected role assignments to collate by principalId
-        $deployedRoleAssignmentsByPrincipalId = $deployed.roleAssignmentsByPrincipalId
-        foreach ($roleAssignment in $roleAssignmentsById.Values) {
-            $principalId = $roleAssignment.ObjectId
+        $roleAssignmentsCount = 0
+        foreach ($roleAssignment in $roleAssignments) {
+            $properties = $roleAssignment.properties
+            $principalId = $roleAssignment.properties.principalId
+            $roleDefinitionId = $properties.roleDefinitionId
+            $roleDefinitionName = $roleDefinitionId
+            if ($roleDefinitionsHt.ContainsKey($roleDefinitionId)) {
+                $roleDefinitionName = $roleDefinitionsHt.$roleDefinitionId
+            }
             $normalizedRoleAssignment = @{
-                id               = $roleAssignment.RoleAssignmentId
-                scope            = $roleAssignment.Scope
-                displayName      = $roleAssignment.DisplayName
-                objectType       = $roleAssignment.ObjectType
+                id               = $roleAssignment.id
+                name             = $roleAssignment.name
+                scope            = $properties.scope
+                displayName      = ""
+                objectType       = $properties.principalType
                 principalId      = $principalId
-                roleDefinitionId = $roleAssignment.RoleDefinitionId
-                roleDisplayName  = $roleAssignment.RoleDefinitionName
+                roleDefinitionId = $roleDefinitionId
+                roleDisplayName  = $roleDefinitionName
             }
             if ($deployedRoleAssignmentsByPrincipalId.ContainsKey($principalId)) {
                 $normalizedRoleAssignments = $deployedRoleAssignmentsByPrincipalId.$principalId
@@ -501,12 +436,19 @@ function Get-AzPolicyResources {
             else {
                 $null = $deployedRoleAssignmentsByPrincipalId.Add($principalId, @( $normalizedRoleAssignment ))
             }
+            $roleAssignmentsCount++
+            if ($roleAssignmentsCount % 1000 -eq 0) {
+                Write-Information "Processed $roleAssignmentsCount Role Assignments"
+            }
+        }
+        if ($roleAssignmentsCount % 1000 -ne 0) {
+            Write-Information "Processed $roleAssignmentsCount Policy Exemptions"
         }
     }
 
     Write-Information ""
     Write-Information "==================================================================================================="
-    Write-Information "Policy Resources found for EPAC environment '$($PacEnvironment.pacSelector)' at root scope $($deploymentRootScope -replace '/providers/Microsoft.Management','')"
+    Write-Information "Policy Resources found for EPAC environment '$($PacEnvironment.pacSelector)' at root scope $($deploymentRootScope -replace '/providers/Microsoft.Management', '')"
     Write-Information "==================================================================================================="
 
     foreach ($kind in @("policydefinitions", "policysetdefinitions")) {
@@ -561,14 +503,13 @@ function Get-AzPolicyResources {
 
     if (!$SkipRoleAssignments) {
         Write-Information ""
-        if ($scopesCovered.Count -gt 0 -and $deployedRoleAssignmentsByPrincipalId.Count -eq 0) {
-            Write-Warning "Role assignment retrieval failed to receive any assignments in $($scopesCovered.Count) scopes. This likely due to a missing permission for the SPN running the pipeline. Please read the pipeline documentation in EPAC. In rare cases, this can happen when a previous role assignment failed." -WarningAction Continue
+        if ($uniquePrincipalIds.Count -gt 0 -and $deployedRoleAssignmentsByPrincipalId.Count -eq 0) {
+            Write-Warning "Role assignment retrieval failed to receive any role assignments. This likely due to a missing permission for the SPN running the pipeline. Please read the pipeline documentation in EPAC. In rare cases, this can happen when a previous role assignment failed." -WarningAction Continue
             $deployed.roleAssignmentsNotRetrieved = $true
         }
         Write-Information "Role Assignments:"
         Write-Information "    Total principalIds     = $($deployedRoleAssignmentsByPrincipalId.Count)"
-        Write-Information "    Total Scopes           = $($scopesCovered.Count)"
-        Write-Information "    Total Role Assignments = $($roleAssignmentsById.Count)"
+        Write-Information "    Total Role Assignments = $($roleAssignmentsCount)"
     }
 
     return $deployed

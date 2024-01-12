@@ -90,11 +90,9 @@ else {
         Write-Information "==================================================================================================="
         Write-Information "Remove ($($removedRoleAssignments.psbase.Count)) obsolete Role assignments"
         Write-Information "---------------------------------------------------------------------------------------------------"
-        $splatTransform = "principalId/ObjectId scope/Scope roleDefinitionId/RoleDefinitionId"
         foreach ($roleAssignment in $removedRoleAssignments) {
-            Write-Information "$($roleAssignment.displayName): $($roleAssignment.roleDisplayName)($($roleAssignment.roleDefinitionId)) at $($roleAssignment.scope)"
-            $splat = Get-FilteredHashTable $roleAssignment -SplatTransform $splatTransform
-            $null = Remove-AzRoleAssignment @splat -WarningAction SilentlyContinue
+            Write-Information "PrincipalId $($roleAssignment.principalId), role $($roleAssignment.roleDisplayName)($($roleAssignment.roleDefinitionId)) at $($roleAssignment.scope) -- id '$($roleAssignment.id)'"
+            $null = Remove-AzRoleAssignmentRestMethod -RoleAssignmentId $roleAssignment.id
         }
         Write-Information ""
     }
@@ -104,10 +102,12 @@ else {
         Write-Information "Add ($($addedRoleAssignments.psbase.Count)) new Role assignments"
         Write-Information "---------------------------------------------------------------------------------------------------"
         $retriesLimit = 4
-        $splatTransform = "principalId/ObjectId objectType/ObjectType scope/Scope roleDefinitionId/RoleDefinitionId"
         $identitiesByAssignmentId = @{}
         foreach ($roleAssignment in $addedRoleAssignments) {
             $principalId = $roleAssignment.principalId
+            $scope = $roleAssignment.scope
+            $roleDefinitionId = ($roleAssignment.roleDefinitionId -split "/")[-1]
+            $assignmentDisplayName = $roleAssignment.displayName
             if ($null -eq $principalId) {
                 $policyAssignmentId = $roleAssignment.assignmentId
                 $identity = $null
@@ -122,15 +122,15 @@ else {
                 $principalId = $identity.PrincipalId
                 $roleAssignment.principalId = $principalId
             }
-            Write-Information "$($policyAssignment.Properties.displayName): $($roleAssignment.roleDisplayName)($($roleAssignment.roleDefinitionId)) at $($roleAssignment.scope)"
-            $splat = Get-FilteredHashTable $roleAssignment -SplatTransform $splatTransform
-            if (Get-AzRoleAssignment -Scope $splat.Scope -ObjectId $splat.ObjectId -RoleDefinitionId $splat.RoleDefinitionId) {
+            Write-Information "$($assignmentDisplayName)($principalId): $($roleAssignment.roleDisplayName)($($roleDefinitionId)) at $($scope)"
+
+            if (Get-AzRoleAssignment -Scope $scope -ObjectId $principalId -RoleDefinitionId $roleDefinitionId) {
                 Write-Information "Role assignment already exists"
             }
             else {
                 while ($retries -le $retriesLimit) {
-
-                    $result = New-AzRoleAssignment @splat -WarningAction SilentlyContinue
+                    # Write-Information "Attempt $retries of $retriesLimit"
+                    $result = New-AzRoleAssignment -Scope $scope -ObjectType $roleAssignment.objectType -ObjectId $principalId -RoleDefinitionId $roleDefinitionId -WarningAction SilentlyContinue
                     if ($null -ne $result) {
                         break
                     }
