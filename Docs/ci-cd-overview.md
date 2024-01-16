@@ -48,7 +48,9 @@ While this script intended to be used in CI/CD, they can be run manually to crea
 * CI/CD environment is not yet available.
 * Debugging the scripts from Visual Studio Code.
 
-The image below shows the scripts and the roles required for their execution. To setup the SPNs and roles, see [Setup App Registrations](./ci-cd-app-registrations.md).
+Deployment scripts require permissions to the Azure environment and Microsoft Graph API. In a CI/CD scenario, App Registration (SPNs) are used to execute the scripts. These identities must be granted the necessay permissions as documented in [App Registrations Setup](./ci-cd-app-registrations.md). In a semi-automated scenario, the user executing the scripts must have the necessary permissions. The scripts will prompt for the necessary permissions.
+
+The image below shows the scripts and the roles required for their execution.
 
 * `Build-DeploymentPlans.ps1` requires `EPAC Resource Policy Reader` custom role on the root or pseudo-root management group and the Microsoft Graph permissions described below.
 * `Deploy-PolicyPlan.ps1` requires `Resource Policy Contributor` built-in role on the root or pseudo-root management group. Microsoft Graph permissions are not required.
@@ -93,55 +95,3 @@ Creates the role assignments for the Managed Identities required for `DeployIfNo
 |----------|-------------|
 | `InputFolder` | Input folder path for plan files. Defaults to environment variable `$env:PAC_INPUT_FOLDER`, `$env:PAC_OUTPUT_FOLDER` or `./Output`. |
 
-## Deployments
-
-* Feature branch during development
-    * Trigger on push
-        * branch `feature/**`
-        * files `Definitions/**`
-    * Deploy to `epac-dev` environment
-        * Scripts: `Build-DeploymentPlans.ps1`, `Deploy-PolicyPlan.ps1`, `Deploy-RolesPlan.ps1`
-        * App Registration (SPN): `ci-cd-epac-owner`
-        * Roles: `Owner` on `epac-dev` management group (Owner simplifies need for app registrations)
-        * [Microsoft Graph Permissions](#ms-graph-permissions)
-    * *Optional:* Calculate deployment plan for each tenant's prod environment
-        * Script `Build-DeploymentPlans.ps1`
-        * App Registration (SPN): `ci-cd-root-policy-reader`
-        * Roles: [`EPAC Resource Policy Reader`](#custom-epac-resource-policy-reader-role) on root or pseudo-root management group
-        * [Microsoft Graph Permissions](#ms-graph-permissions)
-* Optional testing when opening a PR (rarely useful)
-    * Trigger on PR open/reopen
-        * target branch `main`
-        * source branch `feature/**`
-        * files `Definitions/**`
-    * Deploy to `epac-test` environment
-        * Scripts `Build-DeploymentPlans.ps1`, `Deploy-PolicyPlan.ps1`, `Deploy-RolesPlan.ps1`
-        * App Registration (SPN): `ci-cd-epac-test-owner`
-        * Roles: `Owner` on `epac-test` management group (Owner simplifies need for app registrations)
-        * [Microsoft Graph Permissions](#ms-graph-permissions)
-    * *Optional:* Calculate deployment plan for each tenant's prod environment
-        * Script `Build-DeploymentPlans.ps1`
-        * App Registration (SPN): `ci-cd-root-policy-reader`
-        * Roles: [`EPAC Resource Policy Reader`](#custom-epac-resource-policy-reader-role) on root or pseudo-root management group
-        * [Microsoft Graph Permissions](#ms-graph-permissions)
-* Main branch
-    * Trigger on push
-        * branch `feature/**`
-        * files `Definitions/**`
-    * Deploy to each tenant's prod environment
-        * Script `Build-DeploymentPlans.ps1`
-            * App Registration (SPN): `ci-cd-root-policy-reader`
-            * Roles: [`EPAC Resource Policy Reader`](#custom-epac-resource-policy-reader-role) on root or pseudo-root management group
-            * [Microsoft Graph Permissions](#ms-graph-permissions)
-        * Script `Deploy-PolicyPlan.ps1`
-            * Requires an environment **approval gate**
-            * App Registration (SPN): `ci-cd-root-policy-contributor`
-            * Roles: `Resource Policy Contributorader` on root or pseudo-root management group
-        * Script `Deploy-RolesPlan.ps1`
-            * Requires an environment **approval gate**
-            * App Registration (SPN): `ci-cd-root-policy-reader`
-            * Roles: `User Access Administrator` on root or pseudo-root management group
-            * [Microsoft Graph Permissions](#ms-graph-permissions)
-
-
-[Setup App Registrations](./ci-cd-app-registrations.md) contains detailed instructions. We also recommend reading the the Microsoft documentation: [Learn more about MS Graph Application Permissions](https://learn.microsoft.com/en-us/graph/permissions-overview?tabs=http#application-permissions).

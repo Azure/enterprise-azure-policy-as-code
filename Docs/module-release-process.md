@@ -1,6 +1,6 @@
 # Module Release Process
 
-This is a guide on how to release a new version of the project - including automated PowerShell module publish.
+This is a guide on how to release a new version of the project - including automated PowerShell module publish. It is used by the EPAC maintainers only.
 
 ## GitHub Release Process
 

@@ -9,7 +9,31 @@ This original (previously the only) use case assumes one team/repo manages all P
 * `inheritedDefinitionsScopes`
 * `desiredState`
 
-## Use Case 2: Multiple Teams with Shared Responsibility
+## Use case 2: Manage Policy Definitions, Assignments, or Exemptions differently
+
+In some organizations the lifecycle of different parts may be managed separately. For example, you may have one repo to manage Definitions and Assignments separately from Exemptions. Since the ownership of Exemptions is managed from the Assignment `pacOwnerId`, changing it is not effective.
+
+EPAC only manages items with a directory in the `Definitions` folder. Therefore, you can use the same `pacOwnerId` from two repos and remove the folders to separate them. In this example:
+
+* Repo1: `Definitions` contains `policyDefinitions`, `policySetDefinitions` and `policyAssignments` folders.
+* Repo2: `Definitions` contains `policyExemptions` folder.
+
+Policy resource that would be defined in the folder. It is important to remove the folders. GitHub repos remove empty folder automatically.
+
+If you have an empty folder or a folder with a file extension not recognized by EPAC, EPAC will delete any item which the folder could define from your environment.
+
+## Use case 3: Include Resource Groups
+
+By default, Policy Assignments at resource groups are not managed by EPAC. Prior to v6.0, managing resource groups was to expensive. **Breaking change:** If you used the `-IncludeResourceGroup` switch in prior versions, set `includeResourceGroups` to `true` to achieve the same effect. We also recommend this for new installations.
+
+```json
+"desiredState": {
+    "strategy": "full",
+    "includeResourceGroups": true
+}
+```
+
+## Use Case 4: Multiple Teams with Shared Responsibility
 
 In a shared responsibility model multiple teams manage the same tenant(s) at the same scope. Additionally, a variant of this use case is well suited to what previously was called `brownfield` which needs to preserve Policy resources deployed prior to EPAC. The following diagram shows two EPAC solutions managing the same root (tenant). Other Policy as Code solutions can also participate if the solution sets `metadata.pacOwnerId`.
 
@@ -25,7 +49,7 @@ You may add the following JSON for clarity/documentation of the default behavior
 }
 ```
 
-## Use Case 3:  Multiple Teams in a Hierarchical Organization
+## Use Case 5:  Multiple Teams in a Hierarchical Organization
 
 The hierarchical model allows a central team to manage the commonality while giving parts of the organization a capability to further restrict resources with Policies. This is a common scenario in multi-national corporations with additional jurisdictional requirements (e.g., data sovereignty, local regulations, ...).
 
@@ -42,7 +66,7 @@ Repo A is managed the same as in use cases 1, 2 and 2a. Repo C sets sets the sam
 }
 ```
 
-## Use Case 4: Transitioning to EPAC
+## Use Case 6: Transitioning to EPAC
 
 While transitioning to EPAC, existing Policy resources may need to be kept. Setting `desiredState` to `ownedOnly` allows EPAC to remove its own resources while preserving instances requiring (temporary) preservation.
 
@@ -53,10 +77,7 @@ While transitioning to EPAC, existing Policy resources may need to be kept. Sett
 }
 ```
 
-!!! warning
-    **Breaking change:** Previously this was accomplished with the `brownfield` variable in the pipeline used to set the `SuppressDeletes` flag on the planning script. Unfortunately, the previous approach was to course-grained, preventing an EPAC solution to remove its own deprecated Policy resources. The above is the new approach to the problem
-
-## Use Case 5: Exclude some Scopes and Policy Resources
+## Use Case 7: Exclude some Scopes and Policy Resources
 
 In rare cases you may need to exclude individual child scopes, or Policy resources from management by an EPAC solution.
 
@@ -108,24 +129,3 @@ Examples
 
 ![image.png](Images/shared-excluded.png)
 
-## Use case 6: Include Resource Groups
-
-By default, Policy Assignments at resource groups are not managed by EPAC. Prior to v6.0, managing resource groups was to expensive. **Breaking change:** If you used the `-IncludeResourceGroup` switch in prior versions, set `includeResourceGroups` to `true` to achieve the same effect.
-
-```json
-"desiredState": {
-    "strategy": "full",
-    "includeResourceGroups": true
-}
-```
-
-## Use case 7: Manage Policy Definitions, Assignments, or Exemptions differently
-
-In some organizations the lifecycle of different parts may be managed separately. For example, you may have one repo to manage Definitions and Assignments separately from Exemptions. Since the ownership of Exemptions is managed from the Assignment `pacOwnerId`, changing it is not effective.
-
-EPAC only manages items with a directory in the `Definitions` folder. Therefore, you can use the same `pacOwnerId` from  two repos and remove the folders to separate them. In this example:
-
-* Repo1: `Definitions` contains `policyDefinitions`, `policySetDefinitions` and `policyAssignments` folders.
-* Repo2: `Definitions` contains `policyExemptions` folder.
-
-Policy resource that would be defined in the folderIt is important to remove the folders. If you have an empty folder, EPAC will delete any item which the folder could define from your environment.

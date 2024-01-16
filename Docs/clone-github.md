@@ -1,10 +1,6 @@
-# GitHub repository: How to clone or fork, update and contribute
+# Alternate Script Installation cloning the GitHub Repository
 
-Git lacks a capability to ignore files/directories during a PR only. This repo has been organized so that Definitions and Pipeline folders are not touched by syncing latest update from GitHub to your repo or reverse syncing to contribute to the project.
-
-!!! note
-    This steps are no longer necessary if you use the [PowerShell Module](powershell-module.md). You may still need to copy files from the starter kit.
-    You can still use this method to continue your current approach or to [contribute improvements](#contribute-to-github).
+Instead of installing `EnterprisePolicyAsCode` from the PowerShell Gallery, you can clone the GitHub repository and use the scripts described below to install the script source code. This is useful, if your organization has overly restrictive policies on installing PowerShell modules from the PowerShell Gallery. It can also be usefule if you want to contribute EPAC source code to the project.
 
 ## Setting up your Repo
 
@@ -35,9 +31,11 @@ Git lacks a capability to ignore files/directories during a PR only. This repo h
 3. PR changes in your fork (`MyForkRepo`) to GitHub.
 4. GitHub maintainers will review the PR.
 
-## Sync-Repo.ps1
+## Sync-Repo.ps1, Sync-FromGH.ps1, Sync-ToGH.ps1
 
-The repo contains a script to synchronize directories in both directions: `Sync-Repo.ps1`. It only works if you do not modify:
+### Sync-Repo.ps1
+
+The repo contains script to synchronize directories in both directions: `Sync-Repo.ps1`. It only works if you do not modify:
 
 * `Docs`, `Scripts`, `Module` and `StarterKit` directories
 * `*.md`, `*.ps1`, `*.yml`, and `LICENSE` files in repo root directory
@@ -47,6 +45,10 @@ The repo contains a script to synchronize directories in both directions: `Sync-
 | `SourceDirectory` | Required | Directory with the source (forked repo) |
 | `DestinationDirectory` | Required | Directory with the destination (your private repo) |
 | `SuppressDeleteFiles` | Optional | Switch parameter to suppress deleting files in `$destinationDirectory` tree |
+
+### Sync-FromGH.ps1 and Sync-ToGH.ps1
+
+Sync-FromGH.ps1 and Sync-ToGH.ps1 are a wrapper around Sync-Repo.ps1 used by the EPAC maintainers to simplify syncing their development repo `epac-development` and the GitHub repo `enterprise-azure-policy-as-code`.
 
 ## Process for Development (Maintainers Only)
 
