@@ -1,5 +1,10 @@
 # Getting Started
 
+EPAC scripts can be installed in the following ways:
+
+* Install the `EnterprisePolicyAsCode` module from the [PowerShell marketplace](https://www.powershellgallery.com/packages/EnterprisePolicyAsCode). This is the recommended approach documented in step 3 below.
+* Copy the source code from the [EPAC GitHub repository](https://github.com/Azure/enterprise-azure-policy-as-code). The process is described in [Alternate Script Installation](clone-github.md) page. That process replaces step 4 below.
+
 ## EPAC Quick Start
 
 In this quick start you can get set up with EPAC and use it to extract the policies and assignments in your own environment. From that point you can either choose to let EPAC manage the policies or look at some of the more advanced features allowing you to complete a gradual rollout.
@@ -9,44 +14,48 @@ For this example all you need is ```Reader``` permission in your Azure environme
 1. [Install PowerShell 7](https://github.com/PowerShell/PowerShell/releases).
 2. Install the Az PowerShell modules and connect to Azure.
 ```ps1
-Install-Module Az -Scope CurrentUser
-Connect-AzAccount
+    Install-Module Az -Scope CurrentUser
+    Connect-AzAccount
 ```
 3. Install the Enterprise Policy as Code module.
 ```ps1
-Install-Module EnterprisePolicyAsCode -Scope CurrentUser
+    Install-Module EnterprisePolicyAsCode -Scope CurrentUser
 ```
-4. Create a new EPAC definitions folder to hold policy objects.
+4. Many scripts use parameters for input and output folders. They default to the current directory. We recommend that you do one of the following approaches instead of accepting the default to prevent your files being created in the wrong location:
+    - Set the environment variables `PAC_DEFINITIONS_FOLDER`, `PAC_OUTPUT_FOLDER`, and `PAC_INPUT_FOLDER`.
+    - Use the script parameters `-DefinitionsRootFolder`, `-OutputFolder`, and `-InputFolder`.
+
+5. Create a new EPAC definitions folder to hold policy objects.
 ```ps1
-New-EPACDefinitionFolder -DefinitionsRootFolder Definitions
+    New-EPACDefinitionFolder -DefinitionsRootFolder Definitions
 ```
-5. This will create a folder called ```Definitions``` with a number of subfolder and a ```global-settings.jsonc``` file where the environment is defined.
-6. Edit the ```global-settings.jsonc``` file by copying the sample below. Modify the commented sections as appropriate.
+6. This will create a folder called ```Definitions``` with a number of subfolder and a ```global-settings.jsonc``` file where the environment is defined.
+7. Edit the ```global-settings.jsonc``` file by copying the sample below. Modify the commented sections as appropriate.
 ```json
-{
-    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/global-settings-schema.json",
-    "pacOwnerId": "f2ce1aea-944e-4517-94fb-edada00633ae", # Generate a guid using New-Guid and place it here
-    "managedIdentityLocations": {
-        "*": "australiaeast" # Update the default location for managed identities
-    },
-    "globalNotScopes": {
-        "*": [
-            "/resourceGroupPatterns/excluded-rg*"
+    {
+        "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/global-settings-schema.json",
+        "pacOwnerId": "f2ce1aea-944e-4517-94fb-edada00633ae", // Generate a guid using New-Guid and place it here
+        "managedIdentityLocations": {
+            "*": "australiaeast" // Update the default location for managed identities
+        },
+        "globalNotScopes": {
+            "*": [
+                "/resourceGroupPatterns/excluded-rg*"
+            ]
+        },
+        "pacEnvironments": [
+            {
+                "pacSelector": "quick-start",
+                "cloud": "AzureCloud",
+                "tenantId": "bdb8ea1c-17da-4423-8895-6b79af002b4e", // Replace this with your tenant Id
+                "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/root" // Replace this with a management group that represents the functional root in your environment. 
+            }
         ]
-    },
-    "pacEnvironments": [
-        {
-            "pacSelector": "quick-start",
-            "cloud": "AzureCloud",
-            "tenantId": "bdb8ea1c-17da-4423-8895-6b79af002b4e", # Replace this with your tenant Id
-            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/root" # Replace this with a management group that represents the functional root in your environment. 
-        }
-    ]
-}
+    }
 ```
-7. Extract all the existing policies and assignments at the scope indicated above by running the script below.
+8. Extract all the existing policies and assignments at the scope indicated above by running the script below.
 ```ps1
-Export-AzPolicyResources -DefinitionsRootFolder .\Definitions -OutputFolder Output
+    Export-AzPolicyResources -DefinitionsRootFolder .\Definitions -OutputFolder Output
 ```
 
 In the ```Output``` folder you should now find all the custom policy definitions and assignments which have been deployed in your environment. From this point you can make some choices about how to best utilize EPAC to handle Azure Policy in your environment including:-

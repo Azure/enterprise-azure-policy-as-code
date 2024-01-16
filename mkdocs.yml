@@ -28,11 +28,10 @@ nav:
       - Overview: quick-start.md
       - Usage Tracking: usage-tracking.md
       - Operating Environment: operating-environment.md
-      - Cloning the Project: clone-github.md
-      - PowerShell Module: powershell-module.md
-      - Desired State Strategy: desired-state-strategy.md
       - Global Settings and Definitions: definitions-and-global-settings.md
+      - Desired State Strategy: desired-state-strategy.md
       - Tips: tips.md
+      - Alternate Script Installation: clone-github.md
   - CI/CD Integration:
       - CI/CD Overview: ci-cd-overview.md
       - App Registrations Setup: ci-cd-app-registrations.md

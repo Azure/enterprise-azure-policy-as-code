@@ -22,9 +22,11 @@ EPAC can be used by small organizations with a small number of Policies, Policy 
 
 For extremely small Azure customers with one or two subscriptions Microsoft Defender for Cloud automated Policy Assignments for built-in Policies is sufficient.
 
-## Major Change in v8.0.0
+## Tracking EPAC Usage
 
-Starting with v8.0.0, Enterprise Policy as Code (EPAC) is tracking the usage using Customer Usage Attribution (PID). For details and how to **opt-out** see [Usage Tracking](usage-tracking.md).
+Starting with v8.0.0, Enterprise Policy as Code (EPAC) is tracking the usage using [Customer Usage Attribution](https://learn.microsoft.com/en-us/partner-center/marketplace/azure-partner-customer-usage-attribution) EPAC is in the role of a partner as defined in the linked documentation. We use this data to justify the investment in EPAC and to prioritize features.
+
+You have the right and means to **opt-out**; see [Usage Tracking](usage-tracking.md).
 
 ## Project Links
 
@@ -38,17 +40,6 @@ Starting with v8.0.0, Enterprise Policy as Code (EPAC) is tracking the usage usi
 ## Microsoft's Security & Compliance for Cloud Infrastructure
 
 This `enterprise-policy-as-code` **(EPAC)** repo has been developed in partnership with the Security & Compliance for Cloud Infrastructure (S&C4CI) offering available from Microsoft's Industry Solutions (Consulting Services). Microsoft Industry Solutions can assist you with securing your cloud. S&C4CI improves your new or existing security posture in Azure by securing platforms, services, and workloads at scale.
-
-## Breaking changes in v7.0
-
-Script `Export-AzPolicyResources` replaces `Build-PolicyDefinitionFolder` with a [substantial increase in capability](extract-existing-policy-resources.md). It has a round-trip capability supporting the extract to be used in the build `Definitions`.
-
-Introducing a new approach using PowerShell Module. This not (actually) breaking existing implementation since you can continue as is; however, for a simplified usage of EPAC, the PowerShell module is the best approach.
-
-The move from synchronizing your repo with the GitHub repo to a PowerShell module necessitated the reworking of the default values for `Definitions`, `Output`, and `Input` folders. Many scripts use parameters for definitions, input and output folders. They default to the current directory, which should be the root of the repo. make sure that the current directory is the root of your repo. We recommend that you do one of the following approaches instead of accepting the default:
-
-- Set the environment variables `PAC_DEFINITIONS_FOLDER`, `PAC_OUTPUT_FOLDER`, and `PAC_INPUT_FOLDER`.
-- Use the script parameters `-DefinitionsRootFolder`, `-OutputFolder`, and `-InputFolder` (They vary by script).
 
 ## Terminology
 
@@ -80,18 +71,23 @@ EPAC supports single and multi-tenant deployments from a single source. In most 
 
 In some multi-tenant implementations, not all policies, policy sets, and/or assignments will function in all tenants, usually due to either built-in policies that don't exist in some tenant types or unavailable resource providers.  In order to facilitate multi-tenant deployments in these scenarios, utilize the "   epacCloudEnvironments" property to specify which cloud type a specific file should be considered in.  For example in order to have a policy definition deployed only to epacEnvironments that are China cloud tenants, add a metadata property like this to that definition (or definitionSet) file:
 
-    "metadata": {
-      "epacCloudEnvironments": [
-        "AzureChinaCloud"
-      ]
-    },
+```json
+"metadata": {
+  "epacCloudEnvironments": [
+    "AzureChinaCloud"
+  ]
+},
+```
 
 For assignment files, this is a top level property on the assignment's root node:
 
-    "nodeName": "/root",
-    "epacCloudEnvironments": [
-        "AzureChinaCloud"
-    ],
+```json
+"nodeName": "/root",
+"epacCloudEnvironments": [
+    "AzureChinaCloud"
+],
+```
+
 ## Operational Scripts
 
 Scripts to simplify [operational task](operational-scripts.md) are provided. Examples are:
@@ -125,30 +121,6 @@ The `pacSelector` is just a name. We highly recommend to call the Policy develop
 - Defining the association (`pacEnvironments`) of an EPAC environment, `managedIdentityLocation` and `globalNotScopes` in `global-settings.jsonc`
 - Script parameter when executing different deployment stages in a CI/CD pipeline or semi-automated deployment targeting a specific EPAC environments.
 - `scopes`, `notScopes`, `additionalRoleAssignments`, `managedIdentityLocations`, and `userAssignedIdentity` definitions in Policy Assignment JSON files.
-
-## CI/CD Scenarios Flexibility
-
-The solution supports any DevOps CI/CD approach you desire. The starter kits assume a GitHub flow approach to branching and CI/CD integration with a standard model below.
-
-- **Simple**
-  - Create a feature branch
-  - Commits to the feature branch trigger:
-    - Plan and deploy changes to a Policy resources development Management Group or subscription.
-    - Create a plan (based on feature branch) for te EPAC production environment(s)/tenant(s).
-  - Pull request (PR) merges trigger:
-    - Plan and deploy from the merged main branch to your EPAC production environment(s) without additional approvals.
-- **Standard** - starter kits implement this approach
-  - Create a feature branch
-  - Commits to the feature branch trigger:
-    - Plan and deploy changes to a Policy resources development Management Group or subscription
-    - Create a plan (based on feature branch) for te EPAC production environment(s)/tenant(s).
-  - Pull request (PR) merges trigger:
-    - Plan from the merged main branch to your EPAC production environment(s).
-  - Approval gate for plan deployment is inserted.
-  - Deploy the planned changes to environment(s)/tenant(s)
-    - Deploy Policy resources.
-    - [Recommended] Approval gate for Role Assignment is inserted.
-    - Deploy Role Assignment.
 
 ## Coexistence and Desired State Strategy
 
