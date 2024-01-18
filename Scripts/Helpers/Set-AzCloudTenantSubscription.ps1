@@ -7,7 +7,7 @@ function Set-AzCloudTenantSubscription {
         [Parameter(Mandatory = $true)] [bool] $Interactive
     )
 
-    if (!(Get-Module Az.ResourceGraph -ListAvailable)) {
+    if ($null -eq (Get-Module Az.ResourceGraph -ListAvailable)) {
         Write-Information "Installing Az.ResourceGraph module"
         Install-Module Az.ResourceGraph -Force -Repository PSGallery
     }

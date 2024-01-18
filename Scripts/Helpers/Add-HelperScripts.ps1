@@ -44,7 +44,7 @@
 . "$PSScriptRoot/Find-AzNonCompliantResources.ps1"
 
 . "$PSScriptRoot/Get-AssignmentsDetails.ps1"
-. "$PSScriptRoot/Get-AzPolicyExemptionsAtScopeRestMethod.ps1"
+. "$PSScriptRoot/Get-AzPolicyAssignmentRestMethod.ps1"
 . "$PSScriptRoot/Get-AzPolicyResources.ps1"
 . "$PSScriptRoot/Get-AzScopeTree.ps1"
 . "$PSScriptRoot/Get-CustomMetadata.ps1"
@@ -91,6 +91,7 @@
 . "$PSScriptRoot/Set-AzPolicyDefinitionRestMethod.ps1"
 . "$PSScriptRoot/Set-AzPolicySetDefinitionRestMethod.ps1"
 . "$PSScriptRoot/Set-AzPolicyExemptionRestMethod.ps1"
+. "$PSScriptRoot/Set-AzRoleAssignmentRestMethod.ps1"
 
 . "$PSScriptRoot/Export-AssignmentNode.ps1"
 . "$PSScriptRoot/Set-ExportNode.ps1"
