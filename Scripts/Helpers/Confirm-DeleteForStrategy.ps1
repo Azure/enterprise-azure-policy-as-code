@@ -6,7 +6,10 @@ function Confirm-DeleteForStrategy {
         [string] $Status,
         [string] $DeleteExpired,
         [string] $DeleteOrphaned,
-        [string] $Removed
+        [string] $Removed,
+
+        [Parameter(Mandatory = $false)]
+        $KeepDfcSecurityAssignments = $false
     )
 
     $shallDelete = switch ($PacOwner) {
@@ -26,6 +29,14 @@ function Confirm-DeleteForStrategy {
         }
         "unknownOwner" {
             $Strategy -eq "full"
+            break
+        }
+        "managedByDfcSecurityPolicies" {
+            !$KeepDfcSecurityAssignments -and $Strategy -eq "full"
+            break
+        }
+        "managedByDfcDefenderPlans" {
+            $false
             break
         }
     }

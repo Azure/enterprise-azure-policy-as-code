@@ -113,6 +113,7 @@ function Get-GlobalSettings {
             excludedPolicyAssignments    = @()
             deleteExpiredExemptions      = $true
             deleteOrphanedExemptions     = $true
+            keepDfcSecurityAssignments   = $false
         }
         if ($null -ne $pacEnvironment.desiredState) {
             $desired = $pacEnvironment.desiredState
@@ -131,6 +132,15 @@ function Get-GlobalSettings {
                 }
                 else {
                     Write-Error "Policy as Code environment $pacSelector field desiredState.includeResourceGroups ($includeResourceGroups) must be a boolean value." -ErrorAction Stop
+                }
+            }
+            $keepDfcSecurityAssignments = $desired.keepDfcSecurityAssignments
+            if ($null -ne $keepDfcSecurityAssignments) {
+                if ($keepDfcSecurityAssignments -is [bool]) {
+                    $desiredState.keepDfcSecurityAssignments = $keepDfcSecurityAssignments
+                }
+                else {
+                    Write-Error "Policy as Code environment $pacSelector field desiredState.keepDfcSecurityAssignments ($keepDfcSecurityAssignments) must be a boolean value." -ErrorAction Stop
                 }
             }
             $excluded = $desired.excludedScopes
