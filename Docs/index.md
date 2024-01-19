@@ -37,9 +37,14 @@ You have the right and means to **opt-out**; see [Usage Tracking](usage-tracking
 - [Azure Enterprise Policy as Code – A New Approach](https://techcommunity.microsoft.com/t5/core-infrastructure-and-security/azure-enterprise-policy-as-code-a-new-approach/ba-p/3607843)
 - [Azure Enterprise Policy as Code – Azure Landing Zones Integration](https://techcommunity.microsoft.com/t5/core-infrastructure-and-security/azure-enterprise-policy-as-code-azure-landing-zones-integration/ba-p/3642784)
 
-## Microsoft's Security & Compliance for Cloud Infrastructure
+## EPAC and Defender for Cloud Assignments
 
-This `enterprise-policy-as-code` **(EPAC)** repo has been developed in partnership with the Security & Compliance for Cloud Infrastructure (S&C4CI) offering available from Microsoft's Industry Solutions (Consulting Services). Microsoft Industry Solutions can assist you with securing your cloud. S&C4CI improves your new or existing security posture in Azure by securing platforms, services, and workloads at scale.
+Defender for Cloud uses Azure Policy Assignments to enable and configure the various capabilities. Prior to v9.0.0 of EPAC removed these subscription-level assignments.
+
+* Policy Assignments required for Defender plans (e.g., SQL, App Service, ...). These is no longer managed (removed) by EPAC v9.0.0 and later.
+* Policy Assignments required for Security policies (e.g., Microsoft Cloud Security Benchmark, NIST 800-53 Rev 5, NIST 800-171, ...). The defult `desiredState` behavior is to manage (remove) these assignments. Setting `keepDfcSecurityAssignments` to `true` disables the management (removal) by EPAC.
+
+Carefully review [Managing Defender for Cloud Assignments](dfc-assignments.md) .
 
 ## Terminology
 

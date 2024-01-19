@@ -47,6 +47,9 @@
                                 "includeResourceGroups": {
                                     "type": "boolean"
                                 },
+                                "keepDfcSecurityAssignments": {
+                                    "type": "boolean"
+                                },
                                 "excludedScopes": {
                                     "type": "array",
                                     "items": [

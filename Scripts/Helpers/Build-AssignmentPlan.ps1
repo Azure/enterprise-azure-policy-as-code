@@ -161,17 +161,17 @@ function Build-AssignmentPlan {
                         $resourceSelectors `
                         -HandleRandomOrderArray
 
-                    $IdentityStatus = Build-AssignmentIdentityChanges `
+                    $identityStatus = Build-AssignmentIdentityChanges `
                         -Existing $deployedPolicyAssignment `
                         -Assignment $assignment `
                         -ReplacedAssignment ($replacedDefinition -or $changedPolicyDefinitionId) `
                         -DeployedRoleAssignmentsByPrincipalId $deployedRoleAssignmentsByPrincipalId
-                    if ($IdentityStatus.requiresRoleChanges) {
-                        $RoleAssignments.added += ($IdentityStatus.added)
-                        $RoleAssignments.removed += ($IdentityStatus.removed)
-                        $RoleAssignments.numberOfChanges += ($IdentityStatus.numberOfChanges)
+                    if ($identityStatus.requiresRoleChanges) {
+                        $RoleAssignments.added += ($identityStatus.added)
+                        $RoleAssignments.removed += ($identityStatus.removed)
+                        $RoleAssignments.numberOfChanges += ($identityStatus.numberOfChanges)
                     }
-                    if ($IdentityStatus.isUserAssigned) {
+                    if ($identityStatus.isUserAssigned) {
                         $isUserAssignedAny = $true
                     }
 
@@ -179,21 +179,21 @@ function Build-AssignmentPlan {
 
                     $changesStrings = @()
                     $match = $displayNameMatches -and $descriptionMatches -and $parametersMatch -and $metadataMatches -and !$changePacOwnerId `
-                        -and $enforcementModeMatches -and $notScopesMatch -and $nonComplianceMessagesMatches -and $overridesMatch -and $resourceSelectorsMatch -and !$IdentityStatus.replaced
+                        -and $enforcementModeMatches -and $notScopesMatch -and $nonComplianceMessagesMatches -and $overridesMatch -and $resourceSelectorsMatch -and !$identityStatus.replaced
                     if ($match) {
                         # no Assignment properties changed
                         $Assignments.numberUnchanged++
-                        if ($IdentityStatus.requiresRoleChanges) {
+                        if ($identityStatus.requiresRoleChanges) {
                             # role assignments for Managed Identity changed - caused by a mangedIdentityLocation changed or a previously failed role assignment failure
-                            Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "Update($($IdentityStatus.changedIdentityStrings -join ','))" -IdentityStatus $IdentityStatus
+                            Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "Update($($identityStatus.changedIdentityStrings -join ','))" -IdentityStatus $identityStatus
                         }
                         else {
-                            # Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "Unchanged" -IdentityStatus $IdentityStatus
+                            # Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "Unchanged" -IdentityStatus $identityStatus
                         }
                     }
                     else {
                         # One or more properties have changed
-                        if ($IdentityStatus.replaced) {
+                        if ($identityStatus.replaced) {
                             # Assignment must be deleted and recreated (new)
                             if ($changedPolicyDefinitionId) {
                                 $changesStrings += "definitionId"
@@ -201,7 +201,7 @@ function Build-AssignmentPlan {
                             if ($replacedDefinition) {
                                 $changesStrings += "replacedDefinition"
                             }
-                            $changesStrings += ($IdentityStatus.changedIdentityStrings)
+                            $changesStrings += ($identityStatus.changedIdentityStrings)
                         }
 
                         if (!$displayNameMatches) {
@@ -236,14 +236,14 @@ function Build-AssignmentPlan {
                         }
 
                         $changesString = $changesStrings -join ","
-                        if ($IdentityStatus.replaced) {
+                        if ($identityStatus.replaced) {
                             # Assignment must be deleted and recreated (new)
                             $null = $Assignments.replace.Add($id, $assignment)
-                            Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "Replace($changesString)" -IdentityStatus $IdentityStatus
+                            Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "Replace($changesString)" -IdentityStatus $identityStatus
                         }
                         else {
                             $null = $Assignments.update.Add($id, $assignment)
-                            Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "Update($changesString)" -IdentityStatus $IdentityStatus
+                            Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "Update($changesString)" -IdentityStatus $identityStatus
                         }
                         $Assignments.numberOfChanges++
                     }
@@ -252,24 +252,25 @@ function Build-AssignmentPlan {
                     # New Assignment
                     $null = $Assignments.new.Add($id, $assignment)
                     $Assignments.numberOfChanges++
-                    $IdentityStatus = Build-AssignmentIdentityChanges `
+                    $identityStatus = Build-AssignmentIdentityChanges `
                         -Existing $null `
                         -Assignment $assignment `
                         -ReplacedAssignment $false `
                         -DeployedRoleAssignmentsByPrincipalId $deployedRoleAssignmentsByPrincipalId
-                    if ($IdentityStatus.requiresRoleChanges) {
-                        $RoleAssignments.added += ($IdentityStatus.added)
-                        $RoleAssignments.numberOfChanges += ($IdentityStatus.numberOfChanges)
+                    if ($identityStatus.requiresRoleChanges) {
+                        $RoleAssignments.added += ($identityStatus.added)
+                        $RoleAssignments.numberOfChanges += ($identityStatus.numberOfChanges)
                     }
-                    if ($IdentityStatus.isUserAssigned) {
+                    if ($identityStatus.isUserAssigned) {
                         $isUserAssignedAny = $true
                     }
-                    Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "New" -IdentityStatus $IdentityStatus
+                    Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "New" -IdentityStatus $identityStatus
                 }
             }
         }
 
         $strategy = $PacEnvironment.desiredState.strategy
+        $keepDfcSecurityAssignments = $PacEnvironment.desiredState.keepDfcSecurityAssignments
         if ($deleteCandidates.psbase.Count -gt 0) {
             foreach ($id in $deleteCandidates.Keys) {
                 $deleteCandidate = $deleteCandidates.$id
@@ -278,24 +279,24 @@ function Build-AssignmentPlan {
                 $DisplayName = $deleteCandidateProperties.displayName
                 $Scope = $deleteCandidateProperties.scope
                 $pacOwner = $deleteCandidate.pacOwner
-                $shallDelete = Confirm-DeleteForStrategy -PacOwner $pacOwner -Strategy $strategy
+                $shallDelete = Confirm-DeleteForStrategy -PacOwner $pacOwner -Strategy $strategy -KeepDfcSecurityAssignments $keepDfcSecurityAssignments
                 if ($shallDelete) {
                     # always delete if owned by this Policy as Code solution
                     # never delete if owned by another Policy as Code solution
                     # if strategy is "full", delete with unknown owner (missing pacOwnerId)
-                    $IdentityStatus = Build-AssignmentIdentityChanges `
+                    $identityStatus = Build-AssignmentIdentityChanges `
                         -Existing $deleteCandidate `
                         -Assignment $null `
                         -ReplacedAssignment $false `
                         -DeployedRoleAssignmentsByPrincipalId $deployedRoleAssignmentsByPrincipalId
-                    if ($IdentityStatus.requiresRoleChanges) {
-                        $RoleAssignments.removed += ($IdentityStatus.removed)
-                        $RoleAssignments.numberOfChanges += ($IdentityStatus.numberOfChanges)
+                    if ($identityStatus.requiresRoleChanges) {
+                        $RoleAssignments.removed += ($identityStatus.removed)
+                        $RoleAssignments.numberOfChanges += ($identityStatus.numberOfChanges)
                     }
-                    if ($IdentityStatus.isUserAssigned) {
+                    if ($identityStatus.isUserAssigned) {
                         $isUserAssignedAny = $true
                     }
-                    Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "Delete" -IdentityStatus $IdentityStatus
+                    Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "Delete" -IdentityStatus $identityStatus
                     $splat = @{
                         id          = $id
                         name        = $name
@@ -308,9 +309,38 @@ function Build-AssignmentPlan {
                     $Assignments.numberOfChanges++
 
                 }
-                # else {
-                #     Write-AssignmentDetails -DisplayName $name -Scope $Scope -Prefix "Desired State($pacOwner,$strategy) - no delete" -IdentityStatus $IdentityStatus
-                # }
+                else {
+                    $identityStatus = @{
+                        requiresRoleChanges    = $false
+                        numberOfChanges        = 0
+                        added                  = @()
+                        removed                = @()
+                        changedIdentityStrings = @()
+                        replaced               = $false
+                        isUserAssigned         = $false
+                    }
+                    $shortScope = $Scope -replace "/providers/Microsoft.Management", ""
+                    switch ($pacOwner) {
+                        thisPaC { 
+                            Write-Error "Policy Assignment '$DisplayName' at $shortScope owned by this Policy as Code solution should have been deleted." -ErrorAction Stop
+                        }
+                        otherPaC {
+                            if ($VerbosePreference -eq "Continue") {
+                                Write-AssignmentDetails -DisplayName $name -Scope $Scope -Prefix "Skipping delete (owened by other PaC):" -IdentityStatus $identityStatus
+                            }
+                        }
+                        unknownOwner {
+                            Write-AssignmentDetails -DisplayName $name -Scope $Scope -Prefix "Skipping delete (strategy $strategy):" -IdentityStatus $identityStatus
+                        }
+                        managedByDfcSecurityPolicies {
+                            Write-AssignmentDetails -DisplayName $name -Scope $Scope -Prefix "Skipping delete (DfC Security Policies):" -IdentityStatus $identityStatus
+                        }
+                        managedByDfcDefenderPlans {
+                            Write-AssignmentDetails -DisplayName $name -Scope $Scope -Prefix "Skipping delete (DfC Defender Plans):" -IdentityStatus $identityStatus
+                        }
+                    }
+
+                } 
             }
         }
 

@@ -63,6 +63,8 @@ function Get-AzPolicyResources {
                 managedBy       = @{
                     thisPaC  = 0
                     otherPaC = 0
+                    dfcSecurityPolicies = 0
+                    dfcDefenderPlans = 0
                     unknown  = 0
                 }
                 excluded        = 0
@@ -118,12 +120,6 @@ function Get-AzPolicyResources {
     $scopesLast = $scopesLength - 1
     $policyAssignmentsTable = $deployed.policyassignments
     $thisPacOwnerId = $PacEnvironment.pacOwnerId
-    $uniqueRoleAssignmentScopes = @{
-        resources        = @{}
-        resourceGroups   = @{}
-        subscriptions    = @{}
-        managementGroups = @{}
-    }
     $uniquePrincipalIds = @{}
     $assignmentsWithIdentity = @{}
     $numberPolicyResourcesProcessed = 0
@@ -147,7 +143,7 @@ function Get-AzPolicyResources {
                 if ($included) {
                     $scope = $resourceIdParts.scope
                     $policyResource.resourceIdParts = $resourceIdParts
-                    $policyResource.pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -Metadata $policyResource.properties.metadata -ManagedByCounters $policyAssignmentsTable.counters.managedBy
+                    $policyResource.pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -PolicyResource $policyResource -Scope $scope -ManagedByCounters $policyAssignmentsTable.counters.managedBy
                     $null = $policyAssignmentsTable.managed.Add($id, $policyResource)
                     if ($policyResource.identity -and $policyResource.identity.type -ne "None") {
                         $principalId = ""
@@ -158,18 +154,7 @@ function Get-AzPolicyResources {
                             $userAssignedIdentityId = $policyResource.identity.userAssignedIdentities.PSObject.Properties.Name
                             $principalId = $policyResource.identity.userAssignedIdentities.$userAssignedIdentityId.principalId
                         }
-                        Set-UniqueRoleAssignmentScopes `
-                            -ScopeId $scope `
-                            -UniqueRoleAssignmentScopes $uniqueRoleAssignmentScopes
                         $uniquePrincipalIds[$principalId] = $true
-                        if ($policyResource.properties.metadata.roles) {
-                            $roles = $policyResource.properties.metadata.roles
-                            foreach ($role in $roles) {
-                                Set-UniqueRoleAssignmentScopes `
-                                    -ScopeId $role.scope `
-                                    -UniqueRoleAssignmentScopes $uniqueRoleAssignmentScopes
-                            }
-                        }
                         $null = $assignmentsWithIdentity.Add($id, $policyResource)
                     }
                 }
@@ -201,7 +186,7 @@ function Get-AzPolicyResources {
                             switch ($i) {
                                 0 {
                                     # deploymentRootScope
-                                    $policyResource.pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -Metadata $policyResource.properties.metadata -ManagedByCounters $deployedPolicyTable.counters.managedBy
+                                    $policyResource.pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -PolicyResource $policyResource -ManagedByCounters $deployedPolicyTable.counters.managedBy
                                     $null = $deployedPolicyTable.all.Add($id, $policyResource)
                                     $null = $deployedPolicyTable.managed.Add($id, $policyResource)
                                     $found = $true
@@ -225,7 +210,7 @@ function Get-AzPolicyResources {
                     }
                     if (!$found) {
                         if ($CollectAllPolicies) {
-                            $policyResource.pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -Metadata $policyResource.properties.metadata -ManagedByCounters $deployedPolicyTable.counters.managedBy
+                            $policyResource.pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -PolicyResource $policyResource -ManagedByCounters $deployedPolicyTable.counters.managedBy
                             $null = $deployedPolicyTable.all.Add($id, $policyResource)
                             $null = $deployedPolicyTable.managed.Add($id, $policyResource)
                         }
@@ -311,23 +296,12 @@ function Get-AzPolicyResources {
                     -PolicyResourceTable $exemptionsTable
                 if ($included) {
                     $status = "unknown"
-                    $pacOwner = "unknownOwner"
-                    $assignmentPacOwner = "unknownOwner"
-                    $exemptionPacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -Metadata $metadata -ManagedByCounters $managedByCounters
+                    $pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -PolicyResource $policyResourceRaw -ManagedByCounters $managedByCounters
                     if ($managedPolicyAssignmentsTable.ContainsKey($policyAssignmentId)) {
                         $status = "active"
-                        $policyAssignment = $managedPolicyAssignmentsTable.$policyAssignmentId
-                        $assignmentPacOwner = $policyAssignment.pacOwner
-                        if ($exemptionPacOwner -eq "unknownOwner") {
-                            $pacOwner = $assignmentPacOwner
-                        }
-                        else {
-                            $pacOwner = $exemptionPacOwner
-                        }
                     }
                     else {
                         $status = "orphaned"
-                        $pacOwner = $exemptionPacOwner
                     }
                     $expiresInDays = [Int32]::MaxValue
                     if ($expiresOn) {
@@ -475,16 +449,18 @@ function Get-AzPolicyResources {
 
     $counters = $deployed.policyassignments.counters
     $managedBy = $counters.managedBy
-    $managedByAny = $managedBy.thisPaC + $managedBy.otherPaC + $managedBy.unknown
+    $managedByAny = $managedBy.thisPaC + $managedBy.otherPaC + $managedBy.unknown + $managedBy.dfcSecurityPolicies + $managedBy.dfcDefenderPlans
     Write-Information ""
     Write-Information "Policy Assignment counts:"
     Write-Information "    Managed ($($managedByAny)) by:"
-    Write-Information "        This PaC    = $($managedBy.thisPaC)"
-    Write-Information "        Other PaC   = $($managedBy.otherPaC)"
-    Write-Information "        Unknown     = $($managedBy.unknown)"
-    Write-Information "    With identity   = $($assignmentsWithIdentity.psbase.Count)"
-    Write-Information "    Excluded        = $($counters.excluded)"
-    Write-Verbose "    Not our scopes  = $($counters.unmanagedScopes)"
+    Write-Information "        This PaC              = $($managedBy.thisPaC)"
+    Write-Information "        Other PaC             = $($managedBy.otherPaC)"
+    Write-Information "        Unknown               = $($managedBy.unknown)"
+    Write-Information "        DfC Security Policies = $($managedBy.dfcSecurityPolicies)"
+    Write-Information "        DfC Defender Plans    = $($managedBy.dfcDefenderPlans)"
+    Write-Information "    With identity             = $($assignmentsWithIdentity.psbase.Count)"
+    Write-Information "    Excluded                  = $($counters.excluded)"
+    Write-Verbose "    Not our scopes = $($counters.unmanagedScopes)"
 
     if (!$SkipExemptions) {
         $counters = $exemptionsTable.counters
