@@ -1,4 +1,4 @@
-# Desired state strategy
+# Desired State Strategy
 
 Desired State strategy enables shared responsibility scenarios. the following documents the archetypical use cases. For complex scenarios it is possible to combine multiple use cases.
 

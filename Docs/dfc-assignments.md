@@ -13,10 +13,10 @@ Prior to v9.0.0 of EPAC, Defender for Cloud Assignments were removed by EPAC. Th
 
 ## Revised behavior of EPAC Starting with v9.0.0:
 
-* EPAC **no longer manages** Defender for Cloud Assignments required for Defender Plans. 
+* EPAC **no longer manages (removes)** `Defender for Cloud`'s Policy Assignments required for enabled Defender Plans. 
 * EPAC behavior for Security Policy **is controlled by** the `keepDfcSecurityAssignments` in `desiredState` setting per `pacEnvironment` in `global-settings.jsonc`.
-    * If set to `true`, EPAC will **not** remove Security Policy Set Assignments created by Defender for Cloud.
-    * If **omitted** or **set to `false`**, EPAC will remove Security Policy Set Assignments created by Defender for Cloud.
+    * If set to `true` or `strategy` is `ownedOnly`, EPAC will **not** remove Security Policy assignments created by Defender for Cloud.
+    * If **omitted** or **set to `false`** and `strategy` is `full`, EPAC will remove Security Policy Set Assignments created by Defender for Cloud.
 
     ```json
     "desiredState": {
@@ -25,7 +25,7 @@ Prior to v9.0.0 of EPAC, Defender for Cloud Assignments were removed by EPAC. Th
     }
     ```
 
-**Security Policies should be manged by EPAC at the Management Group level.**; This is the recommended approach for managing Security Policies instead of relying on the auto-assignments.
+**Security Policies should be manged by EPAC at the Management Group level**; this is the recommended approach for managing Security Policies instead of relying on the auto-assignments.
 
 ## Defender for Cloud Settings
 
