@@ -39,10 +39,10 @@ You have the right and means to **opt-out**; see [Usage Tracking](usage-tracking
 
 ## EPAC and Defender for Cloud Assignments
 
-Defender for Cloud uses Azure Policy Assignments to enable and configure the various capabilities. Prior to v9.0.0 of EPAC removed these subscription-level assignments.
+Defender for Cloud uses Azure Policy Assignments to enable and configure the various capabilities. Prior to v9.0.0 EPAC removed these subscription-level assignments.
 
 * Policy Assignments required for Defender plans (e.g., SQL, App Service, ...). These is no longer managed (removed) by EPAC v9.0.0 and later.
-* Policy Assignments required for Security policies (e.g., Microsoft Cloud Security Benchmark, NIST 800-53 Rev 5, NIST 800-171, ...). The defult `desiredState` behavior is to manage (remove) these assignments. Setting `keepDfcSecurityAssignments` to `true` disables the management (removal) by EPAC.
+* Policy Assignments required for Security policies (e.g., Microsoft Cloud Security Benchmark, NIST 800-53 Rev 5, NIST 800-171, ...). The default `desiredState` behavior is to manage (remove) these assignments. Setting `keepDfcSecurityAssignments` to `true` disables the management (removal) by EPAC.
 
 Carefully review [Managing Defender for Cloud Assignments](dfc-assignments.md) .
 

@@ -56,7 +56,9 @@ EPAC has a concept of an environment identified by a string (unique per reposito
 - `rootDefinitionScope` - the deployment scope for the Policies and Policy Sets to be used in assignments later.
   - Policy Assignments can only defined at this scope and child scopes (recursive).
   - Operational tasks, such as `Create-AzRemediationTasks.ps1`, must use the same `rootDefinitionScope` or they will fail.
-- Optional: define `desiredState` strategy. This element is documented [here](desired-state-strategy.md).
+- Optional: define `desiredState` strategy. This element is documented in two places:
+  - [Desired State Strategy](desired-state-strategy.md). and 
+  - [Managing Defender for Cloud Assignments](dfc-assignments.md).
 
 Like any other software or IaC solution, EPAC needs areas for developing and testing new Policies, Policy Sets and Policy Assignments before any deployment to EPAC prod environments. In most cases you will need one management group hierarchy to simulate EPAC production management groups for development and testing of Policies. EPAC's prod environment will govern all other IaC environments (e.g., sandbox, development, integration, test/qa, pre-prod, prod, ...) and tenants. This can be confusing. We will use EPAC environment(s) and IaC environments to disambiguate the environments.
 

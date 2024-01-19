@@ -116,12 +116,12 @@ function Build-AssignmentPlan {
                 # Remove-NullFields $assignment
                 $id = $assignment.id
                 $AllAssignments[$id] = $assignment
-                $DisplayName = $assignment.displayName
+                $displayName = $assignment.displayName
                 $description = $assignment.description
                 $metadata = $assignment.metadata
                 $parameters = $assignment.parameters
                 $policyDefinitionId = $assignment.policyDefinitionId
-                $Scope = $assignment.scope
+                $scope = $assignment.scope
                 $notScopes = $assignment.notScopes
                 $enforcementMode = $assignment.enforcementMode
                 $nonComplianceMessages = $assignment.nonComplianceMessages
@@ -135,7 +135,7 @@ function Build-AssignmentPlan {
 
                     $replacedDefinition = $ReplaceDefinitions.ContainsKey($policyDefinitionId)
                     $changedPolicyDefinitionId = $policyDefinitionId -ne $deployedPolicyAssignmentProperties.policyDefinitionId
-                    $displayNameMatches = $DisplayName -eq $deployedPolicyAssignmentProperties.displayName
+                    $displayNameMatches = $displayName -eq $deployedPolicyAssignmentProperties.displayName
                     $descriptionMatches = $description -eq $deployedPolicyAssignmentProperties.description
                     $notScopesMatch = Confirm-ObjectValueEqualityDeep `
                         $deployedPolicyAssignmentProperties.notScopes `
@@ -185,10 +185,10 @@ function Build-AssignmentPlan {
                         $Assignments.numberUnchanged++
                         if ($identityStatus.requiresRoleChanges) {
                             # role assignments for Managed Identity changed - caused by a mangedIdentityLocation changed or a previously failed role assignment failure
-                            Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "Update($($identityStatus.changedIdentityStrings -join ','))" -IdentityStatus $identityStatus
+                            Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix "Update($($identityStatus.changedIdentityStrings -join ','))" -IdentityStatus $identityStatus
                         }
                         else {
-                            # Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "Unchanged" -IdentityStatus $identityStatus
+                            # Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix "Unchanged" -IdentityStatus $identityStatus
                         }
                     }
                     else {
@@ -239,11 +239,11 @@ function Build-AssignmentPlan {
                         if ($identityStatus.replaced) {
                             # Assignment must be deleted and recreated (new)
                             $null = $Assignments.replace.Add($id, $assignment)
-                            Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "Replace($changesString)" -IdentityStatus $identityStatus
+                            Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix "Replace($changesString)" -IdentityStatus $identityStatus
                         }
                         else {
                             $null = $Assignments.update.Add($id, $assignment)
-                            Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "Update($changesString)" -IdentityStatus $identityStatus
+                            Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix "Update($changesString)" -IdentityStatus $identityStatus
                         }
                         $Assignments.numberOfChanges++
                     }
@@ -264,7 +264,7 @@ function Build-AssignmentPlan {
                     if ($identityStatus.isUserAssigned) {
                         $isUserAssignedAny = $true
                     }
-                    Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "New" -IdentityStatus $identityStatus
+                    Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix "New" -IdentityStatus $identityStatus
                 }
             }
         }
@@ -276,8 +276,8 @@ function Build-AssignmentPlan {
                 $deleteCandidate = $deleteCandidates.$id
                 $deleteCandidateProperties = Get-PolicyResourceProperties $deleteCandidate
                 $name = $deleteCandidate.name
-                $DisplayName = $deleteCandidateProperties.displayName
-                $Scope = $deleteCandidateProperties.scope
+                $displayName = $deleteCandidateProperties.displayName
+                $scope = $deleteCandidateProperties.scope
                 $pacOwner = $deleteCandidate.pacOwner
                 $shallDelete = Confirm-DeleteForStrategy -PacOwner $pacOwner -Strategy $strategy -KeepDfcSecurityAssignments $keepDfcSecurityAssignments
                 if ($shallDelete) {
@@ -296,12 +296,12 @@ function Build-AssignmentPlan {
                     if ($identityStatus.isUserAssigned) {
                         $isUserAssignedAny = $true
                     }
-                    Write-AssignmentDetails -DisplayName $DisplayName -Scope $Scope -Prefix "Delete" -IdentityStatus $identityStatus
+                    Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix "Delete" -IdentityStatus $identityStatus
                     $splat = @{
                         id          = $id
                         name        = $name
-                        scopeId     = $Scope
-                        displayName = $DisplayName
+                        scopeId     = $scope
+                        displayName = $displayName
                     }
 
                     $AllAssignments.Remove($id)
@@ -319,27 +319,28 @@ function Build-AssignmentPlan {
                         replaced               = $false
                         isUserAssigned         = $false
                     }
-                    $shortScope = $Scope -replace "/providers/Microsoft.Management", ""
+                    $shortScope = $scope -replace "/providers/Microsoft.Management", ""
                     switch ($pacOwner) {
                         thisPaC { 
-                            Write-Error "Policy Assignment '$DisplayName' at $shortScope owned by this Policy as Code solution should have been deleted." -ErrorAction Stop
+                            Write-Error "Policy Assignment '$displayName' at $shortScope owned by this Policy as Code solution should have been deleted." -ErrorAction Stop
                         }
                         otherPaC {
                             if ($VerbosePreference -eq "Continue") {
-                                Write-AssignmentDetails -DisplayName $name -Scope $Scope -Prefix "Skipping delete (owened by other PaC):" -IdentityStatus $identityStatus
+                                Write-AssignmentDetails -DisplayName $displayName -Scope $shortScope -Prefix "Skipping delete (owened by other PaC):" -IdentityStatus $identityStatus
                             }
                         }
                         unknownOwner {
-                            Write-AssignmentDetails -DisplayName $name -Scope $Scope -Prefix "Skipping delete (strategy $strategy):" -IdentityStatus $identityStatus
+                            if ($VerbosePreference -eq "Continue") {
+                                Write-AssignmentDetails -DisplayName $displayName -Scope $shortScope -Prefix "Skipping delete (strategy $strategy):" -IdentityStatus $identityStatus
+                            }
                         }
                         managedByDfcSecurityPolicies {
-                            Write-AssignmentDetails -DisplayName $name -Scope $Scope -Prefix "Skipping delete (DfC Security Policies):" -IdentityStatus $identityStatus
+                            Write-AssignmentDetails -DisplayName $displayName -Scope $shortScope -Prefix "Skipping delete (DfC Security Policies):" -IdentityStatus $identityStatus
                         }
                         managedByDfcDefenderPlans {
-                            Write-AssignmentDetails -DisplayName $name -Scope $Scope -Prefix "Skipping delete (DfC Defender Plans):" -IdentityStatus $identityStatus
+                            Write-AssignmentDetails -DisplayName $displayName -Scope $shortScope -Prefix "Skipping delete (DfC Defender Plans):" -IdentityStatus $identityStatus
                         }
                     }
-
                 } 
             }
         }
