@@ -33,7 +33,7 @@ function Get-AssignmentsDetails {
             }
             $assignment = $allAssignments.$assignmentId
             $policySetId = $assignment.properties.policyDefinitionId
-            if ($policySetId.Contains("policySetDefinition")) {
+            if ($policySetId.Contains("policySetDefinition", [StringComparison]::InvariantCultureIgnoreCase)) {
                 # PolicySet
                 if ($policySetsDetails.ContainsKey($policySetId)) {
                     $combinedDetail = Get-DeepClone $policySetsDetails.$policySetId -AsHashTable
