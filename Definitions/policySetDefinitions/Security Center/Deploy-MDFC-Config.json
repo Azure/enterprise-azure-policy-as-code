@@ -1,0 +1,438 @@
+{
+  "properties": {
+    "policyType": "Custom",
+    "displayName": "Deploy Microsoft Defender for Cloud configuration",
+    "description": "Deploy Microsoft Defender for Cloud configuration",
+    "metadata": {
+      "version": "6.0.1",
+      "category": "Security Center",
+      "source": "https://github.com/Azure/Enterprise-Scale/",
+      "alzCloudEnvironments": [
+        "AzureCloud"
+      ]
+    },
+    "parameters": {
+      "emailSecurityContact": {
+        "type": "string",
+        "metadata": {
+          "displayName": "Security contacts email address",
+          "description": "Provide email address for Microsoft Defender for Cloud contact details"
+        }
+      },
+      "minimalSeverity": {
+        "type": "string",
+        "allowedValues": [
+          "High",
+          "Medium",
+          "Low"
+        ],
+        "defaultValue": "High",
+        "metadata": {
+          "displayName": "Minimal severity",
+          "description": "Defines the minimal alert severity which will be sent as email notifications"
+        }
+      },
+      "logAnalytics": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Primary Log Analytics workspace",
+          "description": "Select Log Analytics workspace from dropdown list. If this workspace is outside of the scope of the assignment you must manually grant 'Log Analytics Contributor' permissions (or similar) to the policy assignment's principal ID.",
+          "strongType": "omsWorkspace"
+        }
+      },
+      "ascExportResourceGroupName": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Resource Group name for the export to Log Analytics workspace configuration",
+          "description": "The resource group name where the export to Log Analytics workspace configuration is created. If you enter a name for a resource group that doesn't exist, it'll be created in the subscription. Note that each resource group can only have one export to Log Analytics workspace configured."
+        }
+      },
+      "ascExportResourceGroupLocation": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Resource Group location for the export to Log Analytics workspace configuration",
+          "description": "The location where the resource group and the export to Log Analytics workspace configuration are created."
+        }
+      },
+      "enableAscForCosmosDbs": {
+        "type": "String",
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        }
+      },
+      "enableAscForSql": {
+        "type": "String",
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        }
+      },
+      "enableAscForSqlOnVm": {
+        "type": "String",
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        }
+      },
+      "enableAscForDns": {
+        "type": "String",
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        }
+      },
+      "enableAscForArm": {
+        "type": "String",
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        }
+      },
+      "enableAscForOssDb": {
+        "type": "String",
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        }
+      },
+      "enableAscForAppServices": {
+        "type": "String",
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        }
+      },
+      "enableAscForKeyVault": {
+        "type": "String",
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        }
+      },
+      "enableAscForStorage": {
+        "type": "String",
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        }
+      },
+      "enableAscForContainers": {
+        "type": "String",
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        }
+      },
+      "enableAscForServers": {
+        "type": "String",
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        }
+      },
+      "enableAscForServersVulnerabilityAssessments": {
+        "type": "String",
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        }
+      },
+      "vulnerabilityAssessmentProvider": {
+        "type": "String",
+        "allowedValues": [
+          "default",
+          "mdeTvm"
+        ],
+        "defaultValue": "default",
+        "metadata": {
+          "displayName": "Vulnerability assessment provider type",
+          "description": "Select the vulnerability assessment solution to provision to machines."
+        }
+      },
+      "enableAscForApis": {
+        "type": "String",
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        }
+      },
+      "enableAscForCspm": {
+        "type": "String",
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        }
+      }
+    },
+    "policyDefinitions": [
+      {
+        "policyDefinitionReferenceId": "defenderForOssDb",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('enableAscForOssDb')]"
+          }
+        },
+        "groupNames": [],
+        "policyDefinitionName": "44433aa3-7ec2-4002-93ea-65c65ff0310a"
+      },
+      {
+        "policyDefinitionReferenceId": "defenderForVM",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('enableAscForServers')]"
+          }
+        },
+        "groupNames": [],
+        "policyDefinitionName": "8e86a5b6-b9bd-49d1-8e21-4bb8a0862222"
+      },
+      {
+        "policyDefinitionReferenceId": "defenderForVMVulnerabilityAssessment",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('enableAscForServersVulnerabilityAssessments')]"
+          },
+          "vaType": {
+            "value": "[parameters('vulnerabilityAssessmentProvider')]"
+          }
+        },
+        "groupNames": [],
+        "policyDefinitionName": "13ce0167-8ca6-4048-8e6b-f996402e3c1b"
+      },
+      {
+        "policyDefinitionReferenceId": "defenderForSqlServerVirtualMachines",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('enableAscForSqlOnVm')]"
+          }
+        },
+        "groupNames": [],
+        "policyDefinitionName": "50ea7265-7d8c-429e-9a7d-ca1f410191c3"
+      },
+      {
+        "policyDefinitionReferenceId": "defenderForAppServices",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('enableAscForAppServices')]"
+          }
+        },
+        "groupNames": [],
+        "policyDefinitionName": "b40e7bcd-a1e5-47fe-b9cf-2f534d0bfb7d"
+      },
+      {
+        "policyDefinitionReferenceId": "defenderForStorageAccountsV2",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('enableAscForStorage')]"
+          }
+        },
+        "groupNames": [],
+        "policyDefinitionName": "cfdc5972-75b3-4418-8ae1-7f5c36839390"
+      },
+      {
+        "policyDefinitionReferenceId": "defenderforContainers",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('enableAscForContainers')]"
+          }
+        },
+        "groupNames": [],
+        "policyDefinitionName": "c9ddb292-b203-4738-aead-18e2716e858f"
+      },
+      {
+        "policyDefinitionReferenceId": "defenderforKubernetes",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('enableAscForContainers')]"
+          },
+          "logAnalyticsWorkspaceResourceId": {
+            "value": "[parameters('logAnalytics')]"
+          }
+        },
+        "groupNames": [],
+        "policyDefinitionName": "64def556-fbad-4622-930e-72d1d5589bf5"
+      },
+      {
+        "policyDefinitionReferenceId": "azurePolicyForKubernetes",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('enableAscForContainers')]"
+          }
+        },
+        "groupNames": [],
+        "policyDefinitionName": "a8eff44f-8c92-45c3-a3fb-9880802d67a7"
+      },
+      {
+        "policyDefinitionReferenceId": "defenderForKeyVaults",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('enableAscForKeyVault')]"
+          }
+        },
+        "groupNames": [],
+        "policyDefinitionName": "1f725891-01c0-420a-9059-4fa46cb770b7"
+      },
+      {
+        "policyDefinitionReferenceId": "defenderForDns",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('enableAscForDns')]"
+          }
+        },
+        "groupNames": [],
+        "policyDefinitionName": "2370a3c1-4a25-4283-a91a-c9c1a145fb2f"
+      },
+      {
+        "policyDefinitionReferenceId": "defenderForArm",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('enableAscForArm')]"
+          }
+        },
+        "groupNames": [],
+        "policyDefinitionName": "b7021b2b-08fd-4dc0-9de7-3c6ece09faf9"
+      },
+      {
+        "policyDefinitionReferenceId": "defenderForSqlPaas",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('enableAscForSql')]"
+          }
+        },
+        "groupNames": [],
+        "policyDefinitionName": "b99b73e7-074b-4089-9395-b7236f094491"
+      },
+      {
+        "policyDefinitionReferenceId": "defenderForCosmosDbs",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('enableAscForCosmosDbs')]"
+          }
+        },
+        "groupNames": [],
+        "policyDefinitionName": "82bf5b87-728b-4a74-ba4d-6123845cf542"
+      },
+      {
+        "policyDefinitionReferenceId": "defenderForApis",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('enableAscForApis')]"
+          }
+        },
+        "groupNames": [],
+        "policyDefinitionName": "e54d2be9-5f2e-4d65-98e4-4f0e670b23d6"
+      },
+      {
+        "policyDefinitionReferenceId": "defenderForCspm",
+        "parameters": {
+          "effect": {
+            "value": "[parameters('enableAscForCspm')]"
+          }
+        },
+        "groupNames": [],
+        "policyDefinitionName": "689f7782-ef2c-4270-a6d0-7664869076bd"
+      },
+      {
+        "policyDefinitionReferenceId": "securityEmailContact",
+        "parameters": {
+          "emailSecurityContact": {
+            "value": "[parameters('emailSecurityContact')]"
+          },
+          "minimalSeverity": {
+            "value": "[parameters('minimalSeverity')]"
+          }
+        },
+        "groupNames": [],
+        "policyDefinitionName": "Deploy-ASC-SecurityContacts"
+      },
+      {
+        "policyDefinitionReferenceId": "ascExport",
+        "parameters": {
+          "resourceGroupName": {
+            "value": "[parameters('ascExportResourceGroupName')]"
+          },
+          "resourceGroupLocation": {
+            "value": "[parameters('ascExportResourceGroupLocation')]"
+          },
+          "workspaceResourceId": {
+            "value": "[parameters('logAnalytics')]"
+          }
+        },
+        "groupNames": [],
+        "policyDefinitionName": "ffb6f416-7bd2-4488-8828-56585fef2be9"
+      }
+    ],
+    "policyDefinitionGroups": null
+  },
+  "name": "Deploy-MDFC-Config"
+}

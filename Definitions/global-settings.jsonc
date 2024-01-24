@@ -1,0 +1,37 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/global-settings-schema.json",
+    "pacOwnerId": "im-sh-001", // Generate a guid using New-Guid and place it here
+    "managedIdentityLocations": {
+        "*": "westus3" // Update the default location for managed identities
+    },
+    "globalNotScopes": {
+        "*": [
+            "/resourceGroupPatterns/excluded-rg*"
+        ]
+    },
+    "pacEnvironments": [
+        {
+            "pacSelector": "cesart100",
+            "cloud": "AzureCloud",
+            "tenantId": "b4d1f2b8-7fc4-478e-9cd7-bb62ed356130", // Replace this with your tenant Id
+            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/cesart100", // Replace this with a management group that represents the functional root in your environment. 
+            
+            "desiredState": {
+                "strategy": "full",
+                "includeResourceGroups": true
+            }
+        },
+        {
+            "pacSelector": "cesart200",
+            "cloud": "AzureCloud",
+            "tenantId": "b4d1f2b8-7fc4-478e-9cd7-bb62ed356130",
+            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/cesart200",
+            "inheritedDefinitionsScopes": [], // optional for desired state coexistence scenarios
+            
+            "desiredState": {
+                "strategy": "full",
+                "includeResourceGroups": true
+            }
+        }
+    ]
+}

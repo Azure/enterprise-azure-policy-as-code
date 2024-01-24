@@ -1,0 +1,315 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
+    "nodeName": "/LandingZones/",
+    "scope": {
+        "tenant1": [ // Replace with your EPAC environment name and validate the management group listed below exists
+            "/providers/Microsoft.Management/managementGroups/cesart200"
+        ]
+    },
+    "parameters": {
+        "logAnalyticsWorkspaceId": "" // Replace with your central Log Analytics workspace ID
+    },
+    "children": [
+        {
+            "nodeName": "AKS/",
+            "children": [
+                {
+                    "nodeName": "PrivilegeEscalation",
+                    "assignment": {
+                        "name": "Deny-Priv-Esc-AKS",
+                        "displayName": "Kubernetes clusters should not allow container privilege escalation",
+                        "description": "Do not allow containers to run with privilege escalation to root in a Kubernetes cluster. This recommendation is part of CIS 5.2.5 which is intended to improve the security of your Kubernetes environments. This policy is generally available for Kubernetes Service (AKS), and preview for AKS Engine and Azure Arc enabled Kubernetes. For more information, see https://aka.ms/kubepolicydoc."
+                    },
+                    "definitionEntry": {
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/1c6e92c9-99f0-4e55-9cf2-0c234dc48f99",
+                        "displayName": "AKS Privilege Escalation"
+                    },
+                    "parameters": {
+                        "effect": "Deny"
+                    }
+                },
+                {
+                    "nodeName": "PrivilegeEscalation",
+                    "assignment": {
+                        "name": "Deny-Privileged-AKS",
+                        "displayName": "Kubernetes cluster should not allow privileged containers",
+                        "description": "Do not allow privileged containers creation in a Kubernetes cluster. This recommendation is part of CIS 5.2.1 which is intended to improve the security of your Kubernetes environments. This policy is generally available for Kubernetes Service (AKS), and preview for AKS Engine and Azure Arc enabled Kubernetes. For more information, see https://aka.ms/kubepolicydoc."
+                    },
+                    "definitionEntry": {
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/95edb821-ddaf-4404-9732-666045e056b4",
+                        "displayName": "AKS Privilege Containers"
+                    }
+                },
+                {
+                    "nodeName": "Security",
+                    "assignment": {
+                        "name": "Enforce-AKS-HTTPS",
+                        "displayName": "Kubernetes clusters should be accessible only over HTTPS",
+                        "description": "Use of HTTPS ensures authentication and protects data in transit from network layer eavesdropping attacks. This capability is currently generally available for Kubernetes Service (AKS), and in preview for AKS Engine and Azure Arc enabled Kubernetes. For more info, visit https://aka.ms/kubepolicydoc"
+                    },
+                    "definitionEntry": {
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/1a5b4dca-0b6f-4cf5-907c-56316bc1bf3d",
+                        "displayName": "AKS HTTPS Access"
+                    }
+                },
+                {
+                    "nodeName": "Security",
+                    "assignment": {
+                        "name": "Deploy-AKS-Policy",
+                        "displayName": "Deploy Azure Policy Add-on to Azure Kubernetes Service clusters",
+                        "description": "Use Azure Policy Add-on to manage and report on the compliance state of your Azure Kubernetes Service (AKS) clusters. For more information, see https://aka.ms/akspolicydoc."
+                    },
+                    "definitionEntry": {
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/a8eff44f-8c92-45c3-a3fb-9880802d67a7",
+                        "displayName": "Deploy AKS Policy"
+                    }
+                }
+            ]
+        },
+        {
+            "nodeName": "Networking/",
+            "children": [
+                {
+                    "nodeName": "IPForwarding",
+                    "assignment": {
+                        "name": "Deny-IP-forwarding",
+                        "displayName": "Network interfaces should disable IP forwarding",
+                        "description": "This policy denies the network interfaces which enabled IP forwarding. The setting of IP forwarding disables Azure's check of the source and destination for a network interface. This should be reviewed by the network security team."
+                    },
+                    "definitionEntry": {
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/88c0b9da-ce96-4b03-9635-f29a937e2900",
+                        "displayName": "Deny IP Forwarding"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Network interfaces must disable IP forwarding."
+                        }
+                    ]
+                },
+                {
+                    "nodeName": "NoNSG",
+                    "assignment": {
+                        "name": "Deny-Subnet-Without-Nsg",
+                        "displayName": "Subnets should have a Network Security Group",
+                        "description": "This policy denies the creation of a subnet without a Network Security Group to protect traffic across subnets."
+                    },
+                    "definitionEntry": {
+                        "policyName": "Deny-Subnet-Without-Nsg",
+                        "displayName": "Deny Subnet without NSG"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Subnets must have a Network Security Group."
+                        }
+                    ]
+                },
+                {
+                    "nodeName": "EnableDDOS",
+                    "assignment": {
+                        "name": "Enable-DDoS-VNET",
+                        "displayName": "Virtual networks should be protected by Azure DDoS Network Protection",
+                        "description": "Protect your virtual networks against volumetric and protocol attacks with Azure DDoS Network Protection. For more information, visit https://aka.ms/ddosprotectiondocs."
+                    },
+                    "definitionEntry": {
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/94de2ad3-e0c1-4caf-ad78-5d47bbc83d3d",
+                        "displayName": "Audit DDOS Landing Zones"
+                    },
+                    "parameters": {
+                        "effect": "Modify",
+                        "ddosPlan": "null"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Virtual networks must be protected by Azure DDoS Network Protection."
+                        }
+                    ]
+                },
+                {
+                    "nodeName": "AppGW-WAF",
+                    "assignment": {
+                        "name": "Audit-AppGW-WAF",
+                        "displayName": "Web Application Firewall (WAF) should be enabled for Application Gateway",
+                        "description": "Deploy Azure Web Application Firewall (WAF) in front of public facing web applications for additional inspection of incoming traffic. Web Application Firewall (WAF) provides centralized protection of your web applications from common exploits and vulnerabilities such as SQL injections, Cross-Site Scripting, local and remote file executions. You can also restrict access to your web applications by countries, IP address ranges, and other http(s) parameters via custom rules."
+                    },
+                    "definitionEntry": {
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/564feb30-bf6a-4854-b4bb-0d2d2d1e6c66",
+                        "displayName": "Application Gateway with WAF"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Web Application Firewall (WAF) must be enabled for Application Gateway."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "nodeName": "Storage/",
+            "children": [
+                {
+                    "nodeName": "NoHTTP",
+                    "assignment": {
+                        "name": "Deny-Storage-http",
+                        "displayName": "Secure transfer to storage accounts should be enabled",
+                        "description": "Audit requirement of Secure transfer in your storage account. Secure transfer is an option that forces your storage account to accept requests only from secure connections (HTTPS). Use of HTTPS ensures authentication between the server and the service and protects data in transit from network layer attacks such as man-in-the-middle, eavesdropping, and session-hijacking"
+                    },
+                    "definitionEntry": {
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/404c3081-a854-4457-ae30-26a93ef643f9",
+                        "displayName": "Deny Storage HTTP"
+                    },
+                    "parameters": {
+                        "effect": "Deny"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Secure transfer to storage accounts must be enabled."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "nodeName": "SQL/",
+            "children": [
+                {
+                    "nodeName": "Auditing",
+                    "assignment": {
+                        "name": "Deploy-AzSqlDb-Auditing",
+                        "displayName": "Configure SQL servers to have auditing enabled to Log Analytics workspace",
+                        "description": "To ensure the operations performed against your SQL assets are captured, SQL servers should have auditing enabled. If auditing is not enabled, this policy will configure auditing events to flow to the specified Log Analytics workspace."
+                    },
+                    "definitionEntry": {
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/25da7dfb-0666-4a15-a8f5-402127efd8bb",
+                        "displayName": "Deploy SQL DB Auditing"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "SQL servers must have auditing enabled to Log Analytics workspace."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "nodeName": "Compute/",
+            "children": [
+                {
+                    "nodeName": "Backup",
+                    "assignment": {
+                        "name": "Deploy-VM-Backup",
+                        "displayName": "Configure backup on virtual machines without a given tag to a new recovery services vault with a default policy",
+                        "description": "Enforce backup for all virtual machines by deploying a recovery services vault in the same location and resource group as the virtual machine. Doing this is useful when different application teams in your organization are allocated separate resource groups and need to manage their own backups and restores. You can optionally exclude virtual machines containing a specified tag to control the scope of assignment. See https://aka.ms/AzureVMAppCentricBackupExcludeTag."
+                    },
+                    "definitionEntry": {
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/98d0b9f8-fd90-49c9-88e2-d3baf3b0dd86",
+                        "displayName": "Deploy VM Backup"
+                    },
+                    "parameters": {
+                        "exclusionTagName": "",
+                        "exclusionTagValue": []
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Backup on virtual machines without a given tag must be configured to a new recovery services vault with a default policy."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "nodeName": "KeyVault/",
+            "children": [
+                {
+                    "nodeName": "GuardRails",
+                    "assignment": {
+                        "name": "Enforce-GR-KeyVault",
+                        "displayName": "Enforce recommended guardrails for Azure Key Vault",
+                        "description": "This initiative assignment enables recommended ALZ guardrails for Azure Key Vault."
+                    },
+                    "definitionEntry": {
+                        "policySetName": "Enforce-Guardrails-KeyVault",
+                        "displayName": "Key Vault Guardrails"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Recommended guardrails must be enforced for Azure Key Vault."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "nodeName": "Security/",
+            "children": [
+                {
+                    "nodeName": "TLS",
+                    "assignment": {
+                        "name": "Enforce-TLS-SSL",
+                        "displayName": "Deny or Deploy and append TLS requirements and SSL enforcement on resources without Encryption in transit",
+                        "description": "Choose either Deploy if not exist and append in combination with audit or Select Deny in the Policy effect. Deny polices shift left. Deploy if not exist and append enforce but can be changed, and because missing exsistense condition require then the combination of Audit."
+                    },
+                    "definitionEntry": {
+                        "policySetName": "Enforce-EncryptTransit",
+                        "displayName": "Enforce Encrypt Transit"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "TLS and SSL must be enabled for on resources without encryption in transit."
+                        }
+                    ]
+                },
+                {
+                    "nodeName": "SQLThreat",
+                    "assignment": {
+                        "name": "Deploy-SQL-Threat",
+                        "displayName": "Deploy Threat Detection on SQL servers",
+                        "description": "This policy ensures that Threat Detection is enabled on SQL Servers."
+                    },
+                    "definitionEntry": {
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/36d49e87-48c4-4f2e-beed-ba4ed02b71f5",
+                        "displayName": "Deploy SQL Threat Detection"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Threat Detection must be deployed on SQL servers."
+                        }
+                    ]
+                },
+                {
+                    "nodeName": "SQLTDE",
+                    "assignment": {
+                        "name": "Deploy-SQL-TDE",
+                        "displayName": "Deploy TDE on SQL servers",
+                        "description": "This policy ensures that Transparent Data Encryption is enabled on SQL Servers."
+                    },
+                    "definitionEntry": {
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/86a912f6-9a06-4e26-b447-11b16ba8659f",
+                        "displayName": "Deploy SQL TDE"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "TDE must be deployed on SQL servers."
+                        }
+                    ]
+                },
+                {
+                    "nodeName": "DenyMgmt",
+                    "assignment": {
+                        "name": "Deny-MgmtPorts-Internet",
+                        "displayName": "Management port access from the Internet should be blocked",
+                        "description": "This policy denies any network security rule that allows management port access from the Internet"
+                    },
+                    "definitionEntry": {
+                        "policyName": "Deny-MgmtPorts-From-Internet",
+                        "displayName": "Deny Management Ports"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Management port access from the Internet must be blocked."
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
