@@ -308,6 +308,11 @@ foreach ($file in $files) {
                     -WindowsNewLineCells:$WindowsNewLineCells `
                     -DocumentationSpecification $documentationSpecification `
                     -AssignmentsByEnvironment $assignmentsByEnvironment
+                # Out-PolicyAssignmentDocumentationToFile `
+                #     -OutputPath $outputPath `
+                #     -WindowsNewLineCells:$true `
+                #     -DocumentationSpecification $documentationSpecification `
+                #     -AssignmentsByEnvironment $assignmentsByEnvironment
             }
         }
 

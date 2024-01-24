@@ -31,8 +31,10 @@
 . "$PSScriptRoot/Confirm-PolicySetDefinitionUsedExists.ps1"
 . "$PSScriptRoot/Confirm-ValidPolicyResourceName.ps1"
 
+. "$PSScriptRoot/Convert-AllowedEffectsToCsvString.ps1"
 . "$PSScriptRoot/Convert-EffectToOrdinal.ps1"
-. "$PSScriptRoot/Convert-EffectToString.ps1"
+. "$PSScriptRoot/Convert-EffectToMarkdownString.ps1"
+. "$PSScriptRoot/Convert-EffectToCsvString.ps1"
 . "$PSScriptRoot/Convert-OrdinalToEffectDisplayName.ps1"
 . "$PSScriptRoot/Convert-ListToToCsvRow.ps1"
 . "$PSScriptRoot/Convert-ParametersToString.ps1"
