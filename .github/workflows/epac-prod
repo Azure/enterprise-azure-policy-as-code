@@ -1,0 +1,165 @@
+name: PR-Merge - EPAC-TENANT Workflow
+
+env:
+  pacEnvironment: tenant # Change this to a PAC environment name
+  definitionsRootFolder: Definitions
+  planFolder: Output
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:      
+      - 'main' 
+  workflow_dispatch:
+  
+jobs:
+  build:
+    name: Build Deployment Plan
+    runs-on: ubuntu-latest
+    environment:
+      name: TENANT-PLAN
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.3.0
+
+      - shell: pwsh
+        name: Install Required Modules
+        run: |
+          Install-Module Az.ResourceGraph -Force -AllowClobber
+          Install-Module Az.Resources -Force -AllowClobber
+          Install-Module EnterprisePolicyAsCode -Force
+
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","tenantId":"${{ secrets.TENANT_ID }}"}'
+          enable-AzPSSession: true
+          allow-no-subscriptions: true
+
+      - name: Build Deployment Plan
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Build-DeploymentPlans -definitionsRootFolder $env:definitionsRootFolder -outputFolder $env:planFolder -pacEnvironment $env:pacEnvironment
+            $epacInfoStream | Set-Content body.txt
+          azPSVersion: "latest"
+
+      - shell: pwsh
+        name: Detect Plan
+        run: |
+          if (Test-Path $env:planFolder) {
+            echo "Deploy=true" >> $env:GITHUB_ENV
+            if (!(Get-ChildItem $env:planFolder -Recurse -Include policy-plan.json)){
+              echo "RolesOnly=true" >> $env:GITHUB_ENV
+            }
+          }
+
+      - name: Display Policy Plan File
+        id: checkPolicy
+        run: |
+          if (Test-Path -Path "Output/plans-${{ env.pacEnvironment }}/policy-plan.json") {
+            Get-Content "Output/plans-${{ env.pacEnvironment }}/policy-plan.json" | ConvertFrom-Json | ConvertTo-Json -Depth 10
+          } else {
+            Write-Output "Policy-Plan file does not exist"
+          }
+        shell: pwsh
+
+      - name: Display Roles Plan file
+        id: checkRole
+        run: |
+          if (Test-Path -Path "Output/plans-${{ env.pacEnvironment }}/roles-plan.json") {
+            Get-Content "Output/plans-${{ env.pacEnvironment }}/roles-plan.json" | ConvertFrom-Json | ConvertTo-Json -Depth 10
+          } else {
+            Write-Output "Roles-Plan file does not exist"
+          }
+        shell: pwsh
+
+      - name: Upload Deployment Plan as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: deploymentPlan
+          path: Output
+
+
+  deployPolicy:
+    needs: build
+    name: Deploy Policy Plan
+    runs-on: ubuntu-latest
+    environment:
+      name: TENANT-DEPLOY-POLICY
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.3.0
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: deploymentPlan
+
+      - name: Copy Artifact directory to Output Folder
+        shell: pwsh
+        run: |
+          Copy-Item -Path ".\plans-${{ env.pacEnvironment }}" -Destination "$env:planFolder\plans-${{ env.pacEnvironment }}" -Recurse -Force
+
+      - shell: pwsh
+        name: Install Required Modules
+        run: |
+          Install-Module Az.ResourceGraph -Force -Verbose -AllowClobber
+          Install-Module Az.Resources -Force -Verbose -AllowClobber
+          Install-Module EnterprisePolicyAsCode -Force
+
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","tenantId":"${{ secrets.TENANT_ID }}"}'
+          enable-AzPSSession: true
+          allow-no-subscriptions: true
+
+      - name: Deploy Policy Plan
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Deploy-PolicyPlan -definitionsRootFolder $env:definitionsRootFolder -inputFolder $env:planFolder -pacEnvironment $env:pacEnvironment
+          azPSVersion: "latest"
+
+  deployRoles:
+    needs: deployPolicy
+    name: Deploy Policy Roles
+    runs-on: ubuntu-latest
+    environment: 
+      name: TENANT-DEPLOY-ROLES
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.3.0
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: deploymentPlan
+
+      - name: Copy Artifact directory to Output Folder
+        shell: pwsh
+        run: |
+          Copy-Item -Path ".\plans-${{ env.pacEnvironment }}" -Destination "$env:planFolder\plans-${{ env.pacEnvironment }}" -Recurse -Force
+
+      - shell: pwsh
+        name: Install Required Modules
+        run: |
+          Install-Module Az.ResourceGraph -Force -Verbose -AllowClobber
+          Install-Module Az.Resources -Force -Verbose -AllowClobber
+          Install-Module EnterprisePolicyAsCode -Force
+
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","tenantId":"${{ secrets.TENANT_ID }}"}'
+          enable-AzPSSession: true
+          allow-no-subscriptions: true
+
+      - name: Deploy Role Plan
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            Deploy-RolesPlan -definitionsRootFolder $env:definitionsRootFolder -inputFolder $env:planFolder -pacEnvironment $env:pacEnvironment
+          azPSVersion: "latest"
