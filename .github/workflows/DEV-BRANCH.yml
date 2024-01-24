@@ -1,7 +1,7 @@
 name: DEV-BRANCH-Change - EPAC-SANDBOX Workflow
 
 env:
-  pacEnvironment: cesart100 # Change this to a PAC environment name
+  pacEnvironment: EPAC-DEV # Change this to a PAC environment name
   definitionsRootFolder: Definitions
   planFolder: Output
 
@@ -87,7 +87,7 @@ jobs:
     name: Deploy Policy Plan
     runs-on: ubuntu-latest
     environment:
-      name: cesart100
+      name: EPAC-DEV
     steps:
       - name: Checkout
         uses: actions/checkout@v3.3.0
@@ -128,7 +128,7 @@ jobs:
     name: Deploy Policy Roles
     runs-on: ubuntu-latest
     environment:
-      name: cesart100
+      name: EPAC-DEV
     steps:
       - name: Checkout
         uses: actions/checkout@v3.3.0

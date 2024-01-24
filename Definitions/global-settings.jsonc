@@ -11,7 +11,7 @@
     },
     "pacEnvironments": [
         {
-            "pacSelector": "cesart100",
+            "pacSelector": "EPAC-DEV",
             "cloud": "AzureCloud",
             "tenantId": "b4d1f2b8-7fc4-478e-9cd7-bb62ed356130", // Replace this with your tenant Id
             "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/cesart100", // Replace this with a management group that represents the functional root in your environment. 
