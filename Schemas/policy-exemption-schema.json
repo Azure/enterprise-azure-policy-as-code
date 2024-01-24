@@ -29,16 +29,17 @@
                         "policyAssignmentId": {
                             "type": "string"
                         },
+                        "policyDefinitionReferenceIds": {
+                            "type": "array"
+                        },
+                        "resourceSelectors": {
+                            "type": "array"
+                        },
+                        "assignmentScopeValidation": {
+                            "type": "string"
+                        },
                         "metadata": {
-                            "type": "object",
-                            "properties": {
-                                "stuff": {
-                                    "type": "string"
-                                }
-                            },
-                            "required": [
-                                "stuff"
-                            ]
+                            "type": "object"
                         }
                     },
                     "additionalProperties": false,

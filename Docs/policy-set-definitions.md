@@ -72,7 +72,7 @@ This schema is new in v7.4.x and may not be complete. Please let us know if we m
         "defaultValue": []
       }
     },
-    "PolicyDefinitions": [
+    "policyDefinitions": [
       {
         "policyDefinitionReferenceId": "Reference to policy number one",
         "policyDefinitionName": "Name of Policy Number One",
