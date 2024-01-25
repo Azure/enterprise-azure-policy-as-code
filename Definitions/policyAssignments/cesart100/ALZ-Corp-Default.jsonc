@@ -106,7 +106,7 @@
                         "*": [
                             {
                                 "roleDefinitionId": "/providers/microsoft.authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7",
-                                "scope": "/subscriptions/connectivity--subscription--id" // Replace with your connectivity subscription Id
+                                "scope": "/subscriptions/d200e3b2-c0dc-4076-bd30-4ccccf05ffeb" // Replace with your connectivity subscription Id
                             }
                         ]
                     }
