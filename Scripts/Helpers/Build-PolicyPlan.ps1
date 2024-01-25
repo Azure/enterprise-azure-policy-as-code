@@ -107,9 +107,14 @@ function Build-PolicyPlan {
             }
 
             # Calculate roleDefinitionIds for this Policy
-            if ($definitionProperties.policyRule.then.details -and $definitionProperties.policyRule.then.details.roleDefinitionIds) {
-                $roleDefinitionIdsInPolicy = $definitionProperties.policyRule.then.details.roleDefinitionIds
-                $null = $PolicyRoleIds.Add($id, $roleDefinitionIdsInPolicy)
+            if ($null -ne $definitionProperties.policyRule.then.details) {
+                $details = $definitionProperties.policyRule.then.details
+                if ($details -isnot [array]) {
+                    $roleDefinitionIdsInPolicy = $details.roleDefinitionIds
+                    if ($null -ne $roleDefinitionIdsInPolicy) {
+                        $null = $PolicyRoleIds.Add($id, $roleDefinitionIdsInPolicy)
+                    }
+                }
             }
 
             # Constructing Policy parameters for splatting
