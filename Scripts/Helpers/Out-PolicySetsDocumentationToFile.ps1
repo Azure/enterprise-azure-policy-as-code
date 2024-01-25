@@ -55,10 +55,9 @@ function Out-PolicySetsDocumentationToFile {
                 $perPolicySet = $policySetList.$shortName
                 $effectValue = $perPolicySet.effectValue
                 $effectAllowedValues = $perPolicySet.effectAllowedValues
-                $text = Convert-EffectToString `
+                $text = Convert-EffectToMarkdownString `
                     -Effect $effectValue `
-                    -AllowedValues $effectAllowedValues `
-                    -Markdown
+                    -AllowedValues $effectAllowedValues
                 $addedEffectColumns += " $text |"
 
                 [array] $groupNames = $perPolicySet.groupNames
@@ -152,18 +151,20 @@ function Out-PolicySetsDocumentationToFile {
         if ($policySetEffectStrings.Count -gt 0) {
             $rowObj.policySets = $policySetEffectStrings -join $inCellSeparator3
         }
-        if ($isEffectParameterized -and $effectAllowedValues.Count -gt 1) {
-            $rowObj.allowedEffects = "parameter$inCellSeparator1$($effectAllowedValues.Keys -join $inCellSeparator2)"
-        }
-        elseif ($effectAllowedOverrides.Count -gt 0) {
-            $rowObj.allowedEffects = "override$inCellSeparator1$($effectAllowedOverrides -join $inCellSeparator2)"
-        }
+        $rowObj.allowedEffects = Convert-AllowedEffectsToCsvString `
+            -DefaultEffect $effectDefault `
+            -IsEffectParameterized $isEffectParameterized `
+            -EffectAllowedValues $effectAllowedValues.Keys `
+            -EffectAllowedOverrides $effectAllowedOverrides `
+            -InCellSeparator1 $inCellSeparator1 `
+            -InCellSeparator2 $inCellSeparator2
 
         # Per environment columns
         $parameters = $_.parameters
         $parametersValueString = Convert-ParametersToString -Parameters $parameters -OutputType "csvValues"
+        $normalizedEffectDefault = Convert-EffectToCsvString -Effect $effectDefault
         foreach ($environmentCategory in $EnvironmentColumnsInCsv) {
-            $rowObj["$($environmentCategory)Effect"] = $effectDefault
+            $rowObj["$($environmentCategory)Effect"] = $normalizedEffectDefault
             $rowObj["$($environmentCategory)Parameters"] = $parametersValueString
         }
 

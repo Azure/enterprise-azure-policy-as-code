@@ -4,15 +4,16 @@ function Convert-EffectToOrdinal {
     )
 
     $ordinal = switch ($Effect) {
-        "Modify" { $ordinal = 0 }
-        "Append" { $ordinal = 0 }
-        "DeployIfNotExists" { $ordinal = 0 }
-        "Deny" { $ordinal = 1 }
-        "Audit" { $ordinal = 2 }
-        "Manual" { $ordinal = 2 }
-        "AuditIfNotExists" { $ordinal = 2 }
-        "Disabled" { $ordinal = 9 }
-        default { $ordinal = 9 }
+        "Modify" { 0 }
+        "Append" { 1 }
+        "DeployIfNotExists" { 2 }
+        "DenyAction" { 3 }
+        "Deny" { 4 }
+        "Audit" { 5 }
+        "Manual" { 6 }
+        "AuditIfNotExists" { 7 }
+        "Disabled" { 8 }
+        default { 98 }
     }
     return $ordinal
 }
