@@ -1,14 +1,14 @@
 name: Feature-Change - EPAC-SANDBOX Workflow
 
 env:
-  pacEnvironment: epac-dev # Change this to a PAC environment name
+  pacEnvironment: cesart100 # Change this to a PAC environment name
   definitionsRootFolder: Definitions
   planFolder: Output
 
 on:  
   push:    
     branches:      
-      - 'feature/**'    
+      - 'DEV-BRANCH/**'    
     paths:      
       - 'Definitions/**'
   workflow_dispatch:

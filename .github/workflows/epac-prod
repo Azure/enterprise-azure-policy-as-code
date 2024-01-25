@@ -1,7 +1,7 @@
 name: PR-Merge - EPAC-TENANT Workflow
 
 env:
-  pacEnvironment: tenant # Change this to a PAC environment name
+  pacEnvironment: cesart100 # Change this to a PAC environment name
   definitionsRootFolder: Definitions
   planFolder: Output
 
