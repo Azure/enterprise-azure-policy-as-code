@@ -233,7 +233,7 @@ function Build-AssignmentDefinitionNode {
             # Ignore empty lines with a warning
             $name = $row.name
             if ($null -eq $name -or $name -eq "") {
-                Write-Warning "    Node $($nodeName): CSV parameterFile '$parameterFileName' has an empty row."
+                Write-Verbose "    Node $($nodeName): CSV parameterFile '$parameterFileName' has an empty row."
                 continue
             }
 
@@ -264,8 +264,8 @@ function Build-AssignmentDefinitionNode {
             }
             else {
                 $flatPolicyEntry = $flatPolicyList.$flatPolicyEntryKey
-                if ($flatPolicyEntry.isEffectParameterized) {
-                    # Complain only about Policies with parameterized effect value
+                if ($VerbosePreference -eq "Continue" -or ($flatPolicyEntry.effectDefault -ne "Manual" -and $flatPolicyEntry.effectDefault -ne "Disabled")) {
+                    # Complain only about Policies NOT with  Manual or Disabled effect default or when Verbose is on
                     if ($flatPolicyEntry.referencePath) {
                         $null = $missingInCsv.Add("$($flatPolicyEntry.displayName) ($($flatPolicyEntry.name) -- $($flatPolicyEntry.referencePath))")
                     }
