@@ -61,7 +61,7 @@ $InformationPreference = 'Continue'
 $globalSettings = Get-GlobalSettings -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder
 $definitionsFolder = $globalSettings.policyDocumentationsFolder
 $pacEnvironments = $globalSettings.pacEnvironments
-$outputPath = "$($globalSettings.outputFolder)/PolicyDocumentation"
+$outputPath = "$($globalSettings.outputFolder)/policy-documentation"
 if (-not (Test-Path $outputPath)) {
     New-Item $outputPath -Force -ItemType directory
 }

@@ -22,6 +22,8 @@ function Out-PolicyExemptions {
         $null = New-Item $outputPath -Force -ItemType directory
     }
 
+    #region Transformations
+
     $policyDefinitionReferenceIdsTransform = @{
         label      = "policyDefinitionReferenceIds"
         expression = {
@@ -97,10 +99,15 @@ function Out-PolicyExemptions {
         }
     }
 
+    #endregion Transformations
+
     Write-Information ""
-    $selectedExemptions = $Exemptions.Values
+    $selectedExemptions = $policyExemptions.Values
     $numberOfExemptions = $selectedExemptions.Count
     if ($ActiveExemptionsOnly) {
+
+        #region Active Exemptions
+
         $stem = "$outputPath/active-exemptions"
         Write-Information "==================================================================================================="
         Write-Information "Output $numberOfExemptions active (not expired or orphaned) Exemptions for epac environment '$pacSelector'"
@@ -158,10 +165,15 @@ function Out-PolicyExemptions {
                 $columnHeaders = "name,displayName,description,exemptionCategory,expiresOn,scope,policyAssignmentId,policyDefinitionReferenceIds,metadata,assignmentScopeValidation"
                 $columnHeaders | Out-File $csvFile -Force
             }
-
         }
+
+        #endregion Active Exemptions
+
     }
     else {
+
+        #region All Exemptions
+
         $stem = "$outputPath/all-exemptions"
         Write-Information "==================================================================================================="
         Write-Information "Output $numberOfExemptions Exemptions (all) for epac environment '$pacSelector'"
@@ -225,5 +237,8 @@ function Out-PolicyExemptions {
             }
 
         }
+
+        #endregion All Exemptions
+
     }
 }
