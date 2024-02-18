@@ -2,7 +2,12 @@ name: build-docs
 on:
   push:
     branches:
-      - main
+      - actions-fix
+
+permissions: 
+  pages: write
+  contents: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
