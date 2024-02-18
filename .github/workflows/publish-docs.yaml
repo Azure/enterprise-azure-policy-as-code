@@ -2,7 +2,7 @@ name: build-docs
 on:
   push:
     branches:
-      - actions-fix
+      - main
 
 permissions: 
   pages: write
