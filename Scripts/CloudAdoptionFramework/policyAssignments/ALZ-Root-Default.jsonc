@@ -62,7 +62,7 @@
                         "enableAscForServersVulnerabilityAssessments": "DeployIfNotExists",
                         "enableAscForApis": "DeployIfNotExists",
                         "enableAscForCspm": "DeployIfNotExists",
-                        "vulnerabilityAssessmentProviderr": "mdeTvm"
+                        "vulnerabilityAssessmentProvider": "mdeTvm"
                     },
                     "nonComplianceMessages": [
                         {
