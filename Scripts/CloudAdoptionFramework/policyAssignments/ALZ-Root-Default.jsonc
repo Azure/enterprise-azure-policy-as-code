@@ -12,7 +12,8 @@
         "emailSecurityContact": "", // Security contact email address for Microsoft Defender for Cloud
         "ascExportResourceGroupName": "mdfc-export", // Resource group to export Microsoft Defender for Cloud data to
         "ascExportResourceGroupLocation": "", // Location of the resource group to export Microsoft Defender for Cloud data to
-        "dataCollectionRuleResourceId": "" // Resource Id for the DCR for Azure Monitor - see https://github.com/Azure/Enterprise-Scale/blob/main/eslzArm/resourceGroupTemplates/dataCollectionRule.json
+        "dataCollectionRuleResourceId": "", // Resource Id for the DCR for Azure Monitor - see https://github.com/Azure/Enterprise-Scale/blob/main/eslzArm/resourceGroupTemplates/dataCollectionRule.json
+        "dcrResourceId": "" // Resource Id for the DCR for Azure Monitor - see https://github.com/Azure/Enterprise-Scale/blob/main/eslzArm/resourceGroupTemplates/dataCollectionRule.json
     },
     "children": [
         {
