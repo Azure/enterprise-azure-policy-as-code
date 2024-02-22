@@ -198,7 +198,8 @@
                         "description": "Enable Azure Monitor for the virtual machines (VMs) in the specified scope (management group, subscription or resource group). Takes Log Analytics workspace as parameter."
                     },
                     "definitionEntry": {
-                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/924bfe3a-762f-40e7-86dd-5c8b95eb09e6"
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/924bfe3a-762f-40e7-86dd-5c8b95eb09e6",
+                        "displayName": "VM Monitoring"
                     },
                     "parameters": {
                         "bringYourOwnUserAssignedManagedIdentity": false
@@ -217,7 +218,7 @@
                         "description": "Enable Azure Monitor for the Virtual Machine Scale Sets in the specified scope (Management group, Subscription or resource group). Takes Log Analytics workspace as parameter. Note: if your scale set upgradePolicy is set to Manual, you need to apply the extension to the all VMs in the set by calling upgrade on them. In CLI this would be az vmss update-instances."
                     },
                     "definitionEntry": {
-                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/f5bf694c-cca7-4033-b883-3a23327d5485"
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/f5bf694c-cca7-4033-b883-3a23327d5485",
                         "displayName": "VMSS Monitoring"
                     },
                     "parameters": {
