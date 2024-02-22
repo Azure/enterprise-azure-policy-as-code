@@ -198,7 +198,7 @@
                         "description": "Enable Azure Monitor for the virtual machines (VMs) in the specified scope (management group, subscription or resource group). Takes Log Analytics workspace as parameter."
                     },
                     "definitionEntry": {
-                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/924bfe3a-762f-40e7-86dd-5c8b95eb09e6",
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/924bfe3a-762f-40e7-86dd-5c8b95eb09e6"
                     },
                     "parameters": {
                         "bringYourOwnUserAssignedManagedIdentity": false
