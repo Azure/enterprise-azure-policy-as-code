@@ -260,11 +260,11 @@ function Build-AssignmentDefinitionAtLeaf {
                     }
                 }
                 if ($belongsToThisDefinitionEntry) {
-                    $name = $resourceSelector.name
+                    $resourceSelectorName = $resourceSelector.name
                     $selectors = $resourceSelector.selectors
-                    if ($null -ne $name -and $null -ne $selectors) {
+                    if ($null -ne $resourceSelectorName -and $null -ne $selectors) {
                         $resourceSelectorFinal = @{
-                            name      = $name
+                            name      = $resourceSelectorName
                             selectors = $selectors
                         }
                         $null = $resourceSelectorsList.Add($resourceSelectorFinal)
