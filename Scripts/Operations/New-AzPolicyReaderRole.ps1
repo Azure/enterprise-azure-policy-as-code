@@ -69,6 +69,7 @@ $perms = @(
     "Microsoft.Authorization/policydefinitions/read",
     "Microsoft.Authorization/policyexemptions/read",
     "Microsoft.Authorization/policysetdefinitions/read",
+    "Microsoft.Authorization/roleAssignments/read",
     "Microsoft.PolicyInsights/*",
     "Microsoft.Management/register/action",
     "Microsoft.Management/managementGroups/read"
