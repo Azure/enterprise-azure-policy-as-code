@@ -6,6 +6,7 @@ Creates a custom role `EPAC Resource Policy Reader` with `Id` `2baa1a7c-6807-46a
 * `Microsoft.Authorization/policydefinitions/read`
 * `Microsoft.Authorization/policyexemptions/read`
 * `Microsoft.Authorization/policysetdefinitions/read`
+* `Microsoft.Authorization/roleAssignments/read`
 * `Microsoft.PolicyInsights/*`
 * `Microsoft.Management/register/action`
 * `Microsoft.Management/managementGroups/read`
