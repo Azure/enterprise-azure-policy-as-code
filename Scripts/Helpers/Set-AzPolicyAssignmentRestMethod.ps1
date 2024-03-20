@@ -35,7 +35,7 @@ function Set-AzPolicyAssignmentRestMethod {
         }
     }
     if ($AssignmentObj.identityRequired) {
-        $assignment.location = $AssignmentObj.managedIdentityLocation
+        $assignment.location = $AssignmentObj.managedIdentityLocation | Select-Object -First 1
     }
     if ($parameters.psbase.Count -gt 0) {
         $assignment.properties.parameters = $parameters
