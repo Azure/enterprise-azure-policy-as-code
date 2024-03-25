@@ -159,7 +159,7 @@ stages:
             #   condition: and(succeeded(), or(eq(variables['planStep.deployPolicyChanges'], 'yes'), eq(variables['planStep.deployRoleChanges'], 'yes')))
           # End Publish
   - stage: completedFeature
-    displayName: "Completed Plans - Feature Branch"
+    displayName: "Tenant 1 and 2 Completed Plans - Feature Branch"
     dependsOn:
       - tenant1PlanFeatureStage
       - tenant2PlanFeatureStage
@@ -225,7 +225,7 @@ stages:
                 - checkout: self
                 - task: AzurePowerShell@5
                   name: deployStep
-                  displayName: Deploy Tenant1 Policy
+                  displayName: Deploy Tenant 1 Policy
                   inputs:
                     azureSubscription: $(tenantDeployServiceConnection)
                     pwsh: true
@@ -251,7 +251,7 @@ stages:
               steps:
                 - checkout: self
                 - task: AzurePowerShell@5
-                  displayName: Deploy Tenant1 Role Assignments
+                  displayName: Deploy Tenant 1 Role Assignments
                   inputs:
                     azureSubscription: $(tenantRolesServiceConnection)
                     pwsh: true
@@ -313,7 +313,7 @@ stages:
                 - checkout: self
                 - task: AzurePowerShell@5
                   name: deployStep
-                  displayName: Deploy Tenant1 Policy
+                  displayName: Deploy Tenant 2 Policy
                   inputs:
                     azureSubscription: $(tenantDeployServiceConnection)
                     pwsh: true
@@ -323,7 +323,7 @@ stages:
                       -pacEnvironmentSelector $(pacEnvironmentSelector) `
                       -InformationAction Continue
   - stage: tenant2RolesStage
-    displayName: "Tenant Deploy Role Assignments"
+    displayName: "Tenant 2 Deploy Role Assignments"
     dependsOn:
       - tenant2DeployPolicyStage
     condition: and(not(failed()), not(canceled()), eq(dependencies.tenant2PlanMainStage.outputs['planJob.planStep.deployRoleChanges'], 'yes'), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
@@ -339,7 +339,7 @@ stages:
               steps:
                 - checkout: self
                 - task: AzurePowerShell@5
-                  displayName: Deploy Tenant1 Role Assignments
+                  displayName: Deploy Tenant 2 Role Assignments
                   inputs:
                     azureSubscription: $(tenantRolesServiceConnection)
                     pwsh: true
