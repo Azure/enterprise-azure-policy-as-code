@@ -54,7 +54,7 @@ stages:
                 # Publish pipeline Artifact for ADO Service
                 - publish: "$(PAC_OUTPUT_FOLDER)/plans-$(pacEnvironmentSelector)"
                   artifact: "plans-$(pacEnvironmentSelector)"
-                  condition: and(succeeded(), eq(variables['planStep.deployPolicyChanges'], 'yes'))
+                  condition: and(succeeded(), or(eq(variables['planStep.deployPolicyChanges'], 'yes'), eq(variables['planStep.deployRoleChanges'], 'yes')))
                 # Publish build artifact for ADO Server
                 # - task: PublishBuildArtifacts@1
                 #   inputs:
@@ -110,7 +110,7 @@ stages:
           # Publish pipeline Artifact for ADO Service
           - publish: "$(PAC_OUTPUT_FOLDER)/plans-$(pacEnvironmentSelector)"
             artifact: "plans-feature-branch-$(pacEnvironmentSelector)"
-            condition: and(succeeded(), eq(variables['planStep.deployPolicyChanges'], 'yes'))
+            condition: and(succeeded(), or(eq(variables['planStep.deployPolicyChanges'], 'yes'), eq(variables['planStep.deployRoleChanges'], 'yes')))
             # Publish build artifact for ADO Server
             # - task: PublishBuildArtifacts@1
             #   inputs:
@@ -144,7 +144,7 @@ stages:
           # Publish pipeline Artifact for ADO Service
           - publish: "$(PAC_OUTPUT_FOLDER)/plans-$(pacEnvironmentSelector)"
             artifact: "plans-$(pacEnvironmentSelector)"
-            condition: and(succeeded(), eq(variables['planStep.deployPolicyChanges'], 'yes'))
+            condition: and(succeeded(), or(eq(variables['planStep.deployPolicyChanges'], 'yes'), eq(variables['planStep.deployRoleChanges'], 'yes')))
             # Publish build artifact for ADO Server
             # - task: PublishBuildArtifacts@1
             #   inputs:
