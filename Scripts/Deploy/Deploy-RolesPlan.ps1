@@ -151,6 +151,7 @@ else {
                 RoleDefinitionId      = $roleAssignment.roleDefinitionId
                 RoleDisplayName       = $roleAssignment.roleDisplayName
                 AssignmentDisplayName = $assignmentInfo.displayName
+                Description           = "Deployed by EPAC"
             }
             Set-AzRoleAssignmentRestMethod @splat -IgnoreDuplicateError
         }
