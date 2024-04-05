@@ -1,6 +1,6 @@
 <#
   .SYNOPSIS
-  This PowerShell script creates an Issue when there are one or multiple failed Remedation Tasks.
+  This PowerShell script creates an Issue when there are one or multiple failed Remediation Tasks.
 
   .DESCRIPTION
   The Create-GitHubIssue.ps1 PowerShell script creates an Issue in a GitHub Repository that is located under

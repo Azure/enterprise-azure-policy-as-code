@@ -1,0 +1,23 @@
+parameters:
+  - name: serviceConnection
+    type: string
+  - name: pacEnvironmentSelector
+    type: string
+
+steps:
+  - checkout: self
+  - download: current
+    artifact: "plans-${{ parameters.pacEnvironmentSelector }}"
+  - pwsh: |
+      Install-Module EnterprisePolicyAsCode -Force
+      Install-Module Az.ResourceGraph -Force
+  - task: AzurePowerShell@5
+    name: Deploy
+    displayName: Deploy Roles
+    inputs:
+      azureSubscription: ${{ parameters.serviceConnection }}
+      pwsh: true
+      azurePowerShellVersion: LatestVersion
+      ScriptType: InlineScript
+      Inline: |
+        Deploy-RolesPlan -PacEnvironmentSelector ${{ parameters.pacEnvironmentSelector }} -InformationAction Continue

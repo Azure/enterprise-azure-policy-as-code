@@ -17,6 +17,13 @@
 .PARAMETER SuppressConfirmation
     Suppresses prompt for confirmation to delete existing file in interactive mode
 
+.PARAMETER IncludeManualPolicies
+    Include Policies with effect Manual. Default: do not include Polcies with effect Manual.
+
+.PARAMETER VirtualCores
+    Number of virtual cores to use for the operation. Default is 4.
+
+
 .EXAMPLE
     Build-PolicyDocumentation.ps1 -DefinitionsRootFolder "C:\PAC\Definitions" -OutputFolder "C:\PAC\Output" -Interactive
     Builds documentation from instructions in policyDocumentations folder reading the delployed Policy Resources from the EPAC envioronment.
@@ -49,7 +56,13 @@ param (
     [bool] $Interactive = $true,
 
     [Parameter(Mandatory = $false, HelpMessage = "Suppresses prompt for confirmation of each file in interactive mode")]
-    [switch] $SuppressConfirmation
+    [switch] $SuppressConfirmation,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Include Policies with effect Manual. Default: do not include Polcies with effect Manual.")]
+    [switch] $IncludeManualPolicies,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Number of virtual cores to use for the operation. Default is 4.")]
+    [Int16] $VirtualCores = 4
 )
 
 # Dot Source Helper Scripts
@@ -185,15 +198,15 @@ foreach ($file in $files) {
                             -PacEnvironmentSelector $currentPacEnvironmentSelector `
                             -PacEnvironments $pacEnvironments `
                             -Interactive $Interactive
-
                     }
                 }
 
                 # Retrieve Policies and PolicySets for current pacEnvironment from cache or from Azure
-                $policyResourceDetails = Get-PolicyResourceDetails `
+                $policyResourceDetails = Get-AzPolicyResourcesDetails `
                     -PacEnvironmentSelector $pacEnvironmentSelector `
                     -PacEnvironment $pacEnvironment `
-                    -CachedPolicyResourceDetails $cachedPolicyResourceDetails
+                    -CachedPolicyResourceDetails $cachedPolicyResourceDetails `
+                    -VirtualCores $VirtualCores
                 $policySetDetails = $policyResourceDetails.policySets
 
                 # Calculate itemList
@@ -227,7 +240,7 @@ foreach ($file in $files) {
                 $itemList = $itemArrayList.ToArray()
 
                 # flatten structure and reconcile most restrictive effect for each policy
-                $flatPolicyList = Convert-PolicySetsToFlatList `
+                $flatPolicyList = Convert-PolicyResourcesDetailsToFlatList `
                     -ItemList $itemList `
                     -Details $policySetDetails
 
@@ -240,7 +253,8 @@ foreach ($file in $files) {
                     -ItemList $itemList `
                     -EnvironmentColumnsInCsv $environmentColumnsInCsv `
                     -PolicySetDetails $policySetDetails `
-                    -FlatPolicyList $flatPolicyList
+                    -FlatPolicyList $flatPolicyList `
+                    -IncludeManualPolicies:$IncludeManualPolicies
             }
         }
 
@@ -266,22 +280,23 @@ foreach ($file in $files) {
                 }
 
                 # Retrieve Policies and PolicySets for current pacEnvironment from cache or from Azure
-                $policyResourceDetails = Get-PolicyResourceDetails `
+                $policyResourceDetails = Get-AzPolicyResourcesDetails `
                     -PacEnvironmentSelector $currentPacEnvironmentSelector `
                     -PacEnvironment $pacEnvironment `
-                    -CachedPolicyResourceDetails $cachedPolicyResourceDetails
+                    -CachedPolicyResourceDetails $cachedPolicyResourceDetails `
+                    -VirtualCores $VirtualCores
 
                 # Retrieve assignments and process information or retrieve from cache is assignment previously processed
                 $assignmentArray = $environmentCategoryEntry.representativeAssignments
 
-                $itemList, $assignmentsDetails = Get-AssignmentsDetails `
+                $itemList, $assignmentsDetails = Get-PolicyAssignmentsDetails `
                     -PacEnvironmentSelector $currentPacEnvironmentSelector `
                     -AssignmentArray $assignmentArray `
                     -PolicyResourceDetails $policyResourceDetails `
                     -CachedAssignmentsDetails $cachedAssignmentsDetails
 
                 # Flatten Policy lists in Assignments and reconcile the most restrictive effect for each Policy
-                $flatPolicyList = Convert-PolicySetsToFlatList `
+                $flatPolicyList = Convert-PolicyResourcesDetailsToFlatList `
                     -ItemList $itemList `
                     -Details $assignmentsDetails
 
@@ -307,7 +322,8 @@ foreach ($file in $files) {
                     -OutputPath $outputPath `
                     -WindowsNewLineCells:$WindowsNewLineCells `
                     -DocumentationSpecification $documentationSpecification `
-                    -AssignmentsByEnvironment $assignmentsByEnvironment
+                    -AssignmentsByEnvironment $assignmentsByEnvironment `
+                    -IncludeManualPolicies:$IncludeManualPolicies
                 # Out-PolicyAssignmentDocumentationToFile `
                 #     -OutputPath $outputPath `
                 #     -WindowsNewLineCells:$true `

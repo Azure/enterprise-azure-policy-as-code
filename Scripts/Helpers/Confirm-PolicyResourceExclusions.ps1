@@ -4,10 +4,9 @@ function Confirm-PolicyResourceExclusions {
         $TestId,
         $ResourceId,
         $ScopeTable,
-        $IncludeResourceGroups,
-        $ExcludedScopes,
-        $ExcludedIds,
-        $PolicyResourceTable
+        $ExcludedScopesTable,
+        $ExcludedIds = @(),
+        $PolicyResourceTable = $null
     )
 
     $testResourceIdParts = Split-AzPolicyResourceId -Id $TestId
@@ -22,40 +21,30 @@ function Confirm-PolicyResourceExclusions {
     if ($scopeType -eq "builtin") {
         return $true, $resourceIdParts
     }
-    if (!$ScopeTable.ContainsKey($scope)) {
-        $PolicyResourceTable.counters.unmanagedScopes += 1
+    if (-not $ScopeTable.ContainsKey($scope)) {
+        Write-Verbose "Unmanged scope '$scope', resource '$($ResourceId)'"
+        if ($null -ne $PolicyResourceTable) {
+            $PolicyResourceTable.counters.unmanagedScopes += 1
+        }
         return $false, $resourceIdParts
     }
-    $scopeEntry = $ScopeTable.$scope
-    $parentList = $scopeEntry.parentList
-    if ($null -eq $parentList) {
-        Write-Error "Code bug parentList is $null $($scopeEntry | ConvertTo-Json -Depth 100 -Compress)" -ErrorAction Stop
-    }
-    if (!$IncludeResourceGroups -and $scopeType -eq "resourceGroups") {
-        Write-Verbose "Exclude(resourceGroup) $($ResourceId)"
-        $PolicyResourceTable.counters.excluded += 1
-        return $false, $resourceIdParts
-    }
-    foreach ($testScope in $ExcludedScopes) {
-        if ($scope -like $testScope -or $parentList.ContainsKey($testScope)) {
-            Write-Verbose "Exclude(scope,$testScope) $($ResourceId)"
+    if ($ExcludedScopesTable.ContainsKey($scope)) {
+        Write-Verbose "Excluded scope '$scope', resource '$($ResourceId)'"
+        if ($null -ne $PolicyResourceTable) {
             $PolicyResourceTable.counters.excluded += 1
-            return $false, $resourceIdParts
         }
-        elseif ($testScope -contains "*") {
-            foreach ($parentScope in $parentList.Keys) {
-                if ($parentScope -like $testScope) {
-                    Write-Verbose "Exclude(scope,$testScope) $($ResourceId)"
-                    $PolicyResourceTable.counters.excluded += 1
-                    return $false, $resourceIdParts
-                }
-            }
+        if ($resourceIdParts.kind -eq "policyAssignments") {
+            $excludedScope = $ExcludedScopesTable.$scope
+            $null = $null
         }
+        return $false, $resourceIdParts
     }
     foreach ($testExcludedId in $ExcludedIds) {
         if ($TestId -like $testExcludedId) {
-            Write-Verbose "Exclude(id,$testExcludedId) $($ResourceId)"
-            $PolicyResourceTable.counters.excluded += 1
+            Write-Verbose "Excluded id '$($ResourceId)'"
+            if ($null -ne $PolicyResourceTable) {
+                $PolicyResourceTable.counters.excluded += 1
+            }
             return $false, $resourceIdParts
         }
     }

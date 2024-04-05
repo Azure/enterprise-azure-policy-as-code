@@ -1,22 +1,10 @@
 # Enterprise Azure Policy as Code
 
-## Breaking changes in V6.0 and v7.0
-
-Substantial feature enhancements required [breaking changes in v6.0 and to a lesser extend in v7.0](Docs/breaking-changes.md).
-
-## Az PowerShell Module 9.2.x issue
-
-**Az PowerShell Module 9.2.x has a known issue (bug).** This bug causes multiple failures of EPAC and any other Policy as Code solution depending on Az Module. **Az PowerShell Module 9.3.0 fixed this issue.**
-
-## Documentation
-
-In v7.0, the documentation source has moved to the [file './Docs/index.md'](Docs/index.md).
-
-The current release documentation is hosted on [https://azure.github.io/enterprise-azure-policy-as-code/](https://azure.github.io/enterprise-azure-policy-as-code/).
+This repository contains the source code for the Enterprise Azure Policy as Code (EPAC) solution. EPAC is a solution that allows you to manage Azure Policy as code in a git repository. For an overview see the [EPAC documentation](https://aka.ms/epac).
 
 ## Contributing
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
+This project welcomes contributions and suggestions.  Contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
 the rights to use your contribution. For details, visit <https://cla.opensource.microsoft.com>.
 

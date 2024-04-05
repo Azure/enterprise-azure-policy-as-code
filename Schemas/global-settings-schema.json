@@ -1,5 +1,5 @@
 {
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
     "properties": {
         "pacOwnerId": {
@@ -23,10 +23,32 @@
                         "tenantId": {
                             "type": "string"
                         },
+                        "deployedBy": {
+                            "type": "string"
+                        },
+                        "managedIdentityLocation": {
+                            "type": "string"
+                        },
+                        "managingTenant": {
+                            "type": "array",
+                            "item": [
+                                {
+                                    "managingTenantId": "string"
+                                },
+                                {
+                                    "managingTenantRootScopes": "array"
+                                }
+                            ],
+                            "additionalProperties": false,
+                            "required": [
+                                "managingTenantId",
+                                "managingTenantRootScopes"
+                            ]
+                        },
                         "deploymentRootScope": {
                             "type": "string"
                         },
-                        "inheritedDefinitionsScopes": {
+                        "globalNotScopes": {
                             "type": "array",
                             "items": [
                                 {
@@ -43,9 +65,6 @@
                                         "full",
                                         "ownedOnly"
                                     ]
-                                },
-                                "includeResourceGroups": {
-                                    "type": "boolean"
                                 },
                                 "keepDfcSecurityAssignments": {
                                     "type": "boolean"
@@ -81,17 +100,12 @@
                                             "type": "string"
                                         }
                                     ]
-                                },
-                                "deleteExpiredExemptions": {
-                                    "type": "boolean"
-                                },
-                                "deleteOrphanedExemptions": {
-                                    "type": "boolean"
                                 }
                             },
                             "additionalProperties": false,
                             "required": [
-                                "strategy"
+                                "strategy",
+                                "keepDfcSecurityAssignments"
                             ]
                         }
                     },
@@ -100,31 +114,12 @@
                         "pacSelector",
                         "cloud",
                         "tenantId",
-                        "deploymentRootScope"
+                        "deploymentRootScope",
+                        "managedIdentityLocation",
+                        "desiredState"
                     ]
                 }
             ]
-        },
-        "managedIdentityLocations": {
-            "type": "object",
-            "patternProperties": {
-                "^*$": {
-                    "type": "string"
-                }
-            }
-        },
-        "globalNotScopes": {
-            "type": "object",
-            "patternProperties": {
-                "^*$": {
-                    "type": "array",
-                    "items": [
-                        {
-                            "type": "string"
-                        }
-                    ]
-                }
-            }
         }
     },
     "additionalProperties": false,

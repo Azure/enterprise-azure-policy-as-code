@@ -7,15 +7,13 @@ function Add-ErrorMessage {
     )
     
     if ($EntryNumber -ne -1) {
-        if ($ErrorInfo.currentEntryNumber -ne $EntryNumber) {
-            $ErrorInfo.errorStrings.Add("- Entry number $($EntryNumber):")
-        }
-        $ErrorInfo.errorStrings.Add("  - $ErrorString")
+        $null = $ErrorInfo.errorStrings.Add("  $($EntryNumber): $ErrorString")
     }
     else {
-        $ErrorInfo.errorStrings.Add("- $ErrorString")
+        $null = $ErrorInfo.errorStrings.Add("  $ErrorString")
     }
     $ErrorInfo.errorsInFile++
     $ErrorInfo.hasErrors = $true
+    $ErrorInfo.hasLocalErrors = $true
     $ErrorInfo.currentEntryNumber = $EntryNumber
 }

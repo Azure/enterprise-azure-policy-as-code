@@ -5,22 +5,26 @@ function Select-PacEnvironment {
         [Parameter(Mandatory = $false)] [string] $DefinitionsRootFolder,
         [Parameter(Mandatory = $false)] [string] $OutputFolder,
         [Parameter(Mandatory = $false)] [string] $InputFolder,
-        [Parameter(Mandatory = $false)] [bool] $Interactive = $false
+        [Parameter(Mandatory = $false)] [bool] $Interactive = $false,
+        [switch] $PickFirstPacEnvironment
     )
 
     $globalSettings = Get-GlobalSettings -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -InputFolder $InputFolder
 
     $pacEnvironment = $null
     $pacEnvironments = $globalSettings.pacEnvironments
+
+    if ($PickFirstPacEnvironment) {
+        $PacEnvironmentSelector = $globalSettings.pacEnvironmentSelectors[0]
+    }
+    
     if ($PacEnvironmentSelector -eq "") {
         # Interactive
         $InformationPreference = "Continue"
         $Interactive = $true
         if ($pacEnvironments.Count -eq 1) {
-            $pacEnvironment = @{} # Build hashtable for single PAC environment
-            $pacEnvironments.Values.Keys | Foreach-Object {
-                $pacEnvironment.Add($_, $pacEnvironments.Values.$_)
-            }
+            $PacEnvironmentSelector = $globalSettings.pacEnvironmentSelectors[0]
+            $pacEnvironment = $pacEnvironments[$PacEnvironmentSelector]
         }
         else {
             $prompt = $globalSettings.pacEnvironmentPrompt
@@ -54,13 +58,32 @@ function Select-PacEnvironment {
 
     $OutputFolder = $globalSettings.outputFolder
     $InputFolder = $globalSettings.inputFolder
-    $pacEnvironmentDefinition = $pacEnvironment + $globalSettings + @{
+    $apiVersions = @{
+        policyDefinitions    = "2023-04-01"
+        policySetDefinitions = "2023-04-01"
+        policyAssignments    = "2023-04-01"
+        policyExemptions     = "2022-07-01-preview"
+        roleAssignments      = "2022-04-01"
+    }
+    if ($pacEnvironment.cloud -eq "AzureChinaCloud") {
+        $apiVersions = @{
+            policyDefinitions    = "2021-06-01"
+            policySetDefinitions = "2021-06-01"
+            policyAssignments    = "2022-06-01"
+            policyExemptions     = "2022-07-01-preview"
+            roleAssignments      = "2022-04-01"
+        }
+    }
+    $planFiles = @{
         interactive          = $Interactive
         policyPlanOutputFile = "$($OutputFolder)/plans-$PacEnvironmentSelector/policy-plan.json"
         rolesPlanOutputFile  = "$($OutputFolder)/plans-$PacEnvironmentSelector/roles-plan.json"
         policyPlanInputFile  = "$($InputFolder)/plans-$PacEnvironmentSelector/policy-plan.json"
         rolesPlanInputFile   = "$($InputFolder)/plans-$PacEnvironmentSelector/roles-plan.json"
-
     }
+    $pacEnvironmentDefinition = $pacEnvironment + $planFiles + $globalSettings + @{
+        apiVersions = $apiVersions
+    }
+
     return $pacEnvironmentDefinition
 }

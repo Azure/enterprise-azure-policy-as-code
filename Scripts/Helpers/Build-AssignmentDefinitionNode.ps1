@@ -14,11 +14,10 @@ function Build-AssignmentDefinitionNode {
     )
 
     # Each tree branch needs a private copy
-    $definition = Get-DeepClone -InputObject $AssignmentDefinition -AsHashTable
+    $definition = Get-ClonedObject -InputObject $AssignmentDefinition
     $pacSelector = $PacEnvironment.pacSelector
 
     #region nodeName (required)
-
     $nodeName = $definition.nodeName
     if ($DefinitionNode.nodeName) {
         $nodeName += $DefinitionNode.nodeName
@@ -29,13 +28,11 @@ function Build-AssignmentDefinitionNode {
         $definition.hasErrors = $true
     }
     $definition.nodeName = $nodeName
-
     #endregion nodeName (required)
 
     #region ignoreBranch and enforcementMode
-
-    # Ignoring a branch can be useful for prep work to an future state
-    # Due to the history of EPAC, there are two ways ignoreBranch and enforcementMode
+    #   Ignoring a branch can be useful for prep work to an future state
+    #   Due to the history of EPAC, there are two ways ignoreBranch and enforcementMode
     if ($DefinitionNode.ignoreBranch) {
         # Does not deploy assignment(s), precedes Azure Policy feature enforcementMode
         Write-Warning "    Node $($nodeName): ignoreBranch is legacy, consider using enforcementMode instead."
@@ -75,11 +72,9 @@ function Build-AssignmentDefinitionNode {
             $definition.hasErrors = $true
         }
     }
-
     #endregion assignment (required at least once per branch, concatenate strings)
 
     #region definitionEntry or definitionEntryList (required exactly once per branch)
-
     $definitionEntry = $DefinitionNode.definitionEntry
     $definitionEntryList = $DefinitionNode.definitionEntryList
     $defEntryList = $definition.definitionEntryList
@@ -87,8 +82,7 @@ function Build-AssignmentDefinitionNode {
         if ($null -eq $defEntryList -and ($null -ne $definitionEntry -xor $null -ne $definitionEntryList)) {
             # OK; first and only occurrence in tree branch
 
-            #region  Validate and normalize definitionEntryList
-
+            #region validate and normalize definitionEntryList
             if ($null -ne $definitionEntry) {
                 # Convert to list
                 $definitionEntryList = @( $definitionEntry )
@@ -135,18 +129,16 @@ function Build-AssignmentDefinitionNode {
                     $definition.hasErrors = $true
                 }
             }
+            #endregion validate and normalize definitionEntryList
 
             #region compile flat Policy List for all Policy Sets used in this branch
-
             $flatPolicyList = $null
             $hasPolicySets = $itemList.Count -gt 0
-
             if ($hasPolicySets) {
-                $flatPolicyList = Convert-PolicySetsToFlatList `
+                $flatPolicyList = Convert-PolicyResourcesDetailsToFlatList `
                     -ItemList $itemList.Values `
                     -Details $CombinedPolicyDetails.policySets
             }
-
             #endregion compile flat Policy List for all Policy Sets used in this branch
 
             $definition.definitionEntryList = $normalizedDefinitionEntryList
@@ -159,40 +151,32 @@ function Build-AssignmentDefinitionNode {
             $definition.hasErrors = $true
         }
     }
-
     #endregion definitionEntry or definitionEntryList (required exactly once per branch)
 
     #region metadata
-
     if ($DefinitionNode.metadata) {
-        if ($definition.metadata) {
-            # merge metadata
-            $metadata = $definition.metadata
-            $merge = Get-DeepClone $DefinitionNode.metadata -AsHashTable
-            foreach ($key in $merge) {
-                $metadata[$key] = $merge.$key
-            }
-        }
-        else {
-            $definition.metadata = Get-DeepClone $DefinitionNode.metadata -AsHashTable
+        # merge metadata
+        $metadata = $definition.metadata
+        $merge = Get-ClonedObject $DefinitionNode.metadata -AsHashTable
+        foreach ($key in $merge.Keys) {
+            $metadata[$key] = $merge.$key
         }
     }
     #endregion metadata
 
-    #region parameters
-
-    # parameters in JSON; parameters defined at a deeper level override previous parameters (union operator)
+    #region parameters in JSON; parameters defined at a deeper level override previous parameters (union operator)
     if ($DefinitionNode.parameters) {
         $allParameters = $definition.parameters
         $addedParameters = $DefinitionNode.parameters
         foreach ($parameterName in $addedParameters.Keys) {
             $rawParameterValue = $addedParameters.$parameterName
-            $parameterValue = Get-DeepClone $rawParameterValue -AsHashTable
+            $parameterValue = Get-ClonedObject $rawParameterValue -AsHashTable
             $allParameters[$parameterName] = $parameterValue
         }
     }
+    #endregion parameters in JSON; parameters defined at a deeper level override previous parameters (union operator)
 
-    # Process parameterFileName and parameterSelector
+    #region process parameterFileName and parameterSelector
     if ($DefinitionNode.parameterSelector) {
         $parameterSelector = $DefinitionNode.parameterSelector
         $definition.parameterSelector = $parameterSelector
@@ -205,7 +189,7 @@ function Build-AssignmentDefinitionNode {
             $fullName = $ParameterFilesCsv.$parameterFileName
             $content = Get-Content -Path $fullName -Raw -ErrorAction Stop
             $xlsArray = @() + ($content | ConvertFrom-Csv -ErrorAction Stop)
-            $csvParameterArray = Get-DeepClone $xlsArray -AsHashTable
+            $csvParameterArray = Get-ClonedObject $xlsArray -AsHashTable
             $definition.parameterFileName = $parameterFileName
             $definition.csvParameterArray = $csvParameterArray
             $definition.csvRowsValidated = $false
@@ -219,9 +203,9 @@ function Build-AssignmentDefinitionNode {
             $definition.hasErrors = $true
         }
     }
+    #endregion process parameterFileName and parameterSelector
 
-    #region Validate CSV rows
-
+    #region validate CSV rows
     if (!($definition.csvRowsValidated) -and $definition.hasPolicySets -and $definition.parameterFileName -and $definition.definitionEntryList) {
 
         $csvParameterArray = $definition.csvParameterArray
@@ -276,23 +260,21 @@ function Build-AssignmentDefinitionNode {
             }
         }
         if ($rowHashtable.Count -gt 0) {
-            Write-Warning "    Node $($nodeName): CSV parameterFile '$parameterFileName' contains rows for Policies not included in any of the Policy Sets:"
+            Write-Warning "Node $($nodeName): CSV parameterFile '$parameterFileName' contains rows for Policies not included in any of the Policy Sets. Remove the obsolete rows or regenerate the CSV file."
             foreach ($displayString in $rowHashtable.Values) {
-                Write-Information "                         $($displayString)"
+                Write-Information "    $($displayString)"
             }
         }
         if ($missingInCsv.Count -gt 0) {
-            Write-Warning "    Node $($nodeName): CSV parameterFile '$parameterFileName' is missing rows for Policies included in the Policy Sets:"
+            Write-Warning "Node $($nodeName): CSV parameterFile '$parameterFileName' is missing rows for Policies included in the Policy Sets. Regenerate the CSV file."
             foreach ($missing in $missingInCsv) {
-                Write-Information "                         $($missing)"
+                Write-Information "    $($missing)"
             }
         }
-
     }
-    #endregion parameters
+    #endregion validate CSV rows
 
     #region advanced - overrides, resourceSelectors and nonComplianceMessages
-
     if ($DefinitionNode.overrides) {
         # Cumulative in branch
         # overrides behave like parameters, we define them similarly (simplified from Azure Policy)
@@ -312,7 +294,6 @@ function Build-AssignmentDefinitionNode {
     if ($DefinitionNode.nonComplianceMessages) {
         $definition.nonComplianceMessages += $DefinitionNode.nonComplianceMessages
     }
-
     #endregion advanced parameters - overrides and resourceSelectors
 
     #region scopes, notScopes
@@ -322,111 +303,106 @@ function Build-AssignmentDefinitionNode {
             Write-Error "    Node $($nodeName): multiple scope definitions at different tree levels are not allowed"
             $definition.hasErrors = $true
         }
-        if ($DefinitionNode.notScope) {
+        if ($DefinitionNode.notScope -or $DefinitionNode.notScopes) {
             Write-Error "    Node $($nodeName): detected notScope definition in in a child node when the scope was already defined"
             $definition.hasErrors = $true
         }
     }
     else {
-        # may define notScope
+        # may define notScope or notScopes
+        $definitionNotScopesList = $definition.notScopesList
         if ($DefinitionNode.notScope) {
-            $notScope = $DefinitionNode.notScope
-            Write-Debug "         notScope defined at $($nodeName) = $($notScope | ConvertTo-Json -Depth 100)"
-            foreach ($selector in $notScope.Keys) {
-                if ($selector -eq "*" -or $selector -eq $pacSelector) {
-                    $notScopeList = $notScope.$selector
-                    if ($definition.notScope) {
-                        $definition.notScope += $notScopeList
-                    }
-                    else {
-                        $definition.notScope = @() + $notScopeList
-                    }
-                }
-            }
+            Add-SelectedPacArray -InputObject $DefinitionNode.notScope -PacSelector $pacSelector -OutputArrayList $definitionNotScopesList
+        }
+        if ($DefinitionNode.notScopes) {
+            Add-SelectedPacArray -InputObject $DefinitionNode.notScopes -PacSelector $pacSelector -OutputArrayList $definitionNotScopesList
         }
         if ($DefinitionNode.scope) {
-            ## Found a scope list - process notScope
-            $scopeList = $null
-            $scope = $DefinitionNode.scope
-            foreach ($selector in $scope.Keys) {
-                if ($selector -eq "*" -or $selector -eq $pacSelector) {
-                    $scopeList = @() + $scope.$selector
-                    break
-                }
-            }
-            if ($null -eq $scopeList) {
+            ## Found a scope list - process scope notScopes
+            $scopeList = [System.Collections.ArrayList]::new()
+            Add-SelectedPacArray -InputObject $DefinitionNode.scope -PacSelector $pacSelector -OutputArrayList $scopeList
+            if ($scopeList.Count -eq 0) {
                 # This branch does not have a scope for this assignment's pacSelector; ignore branch
                 $definition.hasOnlyNotSelectedEnvironments = $true
             }
             else {
-                if ($scopeList -is [array] -and $scopeList.Length -gt 0) {
-                    $scopeCollection = @()
-                    if ($definition.notScope) {
-                        $uniqueNotScope = @() + ($definition.notScope | Sort-Object | Get-Unique)
-                        $scopeCollection = Build-NotScopes -ScopeList $scopeList -notScope $uniqueNotScope -ScopeTable $ScopeTable
+                $scopeCollection = [System.Collections.ArrayList]::new()
+                foreach ($scope in $scopeList) {
+                    $thisScopeDetails = $ScopeTable.$scope
+                    if ($null -eq $thisScopeDetails) {
+                        Write-Error "    Node $($nodeName): scope '$scope' is not defined in the ScopeTable."
+                        $definition.hasErrors = $true
+                        continue
                     }
-                    else {
-                        foreach ($scope in $scopeList) {
-                            $scopeCollection += @{
-                                scope    = $scope
-                                notScope = @()
+                    elseif ($thisScopeDetails.isExcluded) {
+                        Write-Error "    Node $($nodeName): scope '$scope' is excluded in the ScopeTable."
+                        $definition.hasErrors = $true
+                        continue
+                    }
+                    $thisNotScopeList = [System.Collections.ArrayList]::new()
+                    $thisScopeChildren = $thisScopeDetails.childrenTable
+                    $thisScopeGlobalNotScopeList = $thisScopeDetails.notScopesList
+                    $thisScopeGlobalNotScopeTable = $thisScopeDetails.notScopesTable
+                    foreach ($notScope in $definitionNotScopesList) {
+                        if (-not $thisScopeGlobalNotScopeTable.ContainsKey($notScope)) {
+                            if ($thisScopeChildren.ContainsKey($notScope)) {
+                                $null = $thisNotScopeList.Add($notScope)
+                            }
+                            elseif ($notScope.Contains("*")) {
+                                foreach ($scopeChildId in $thisScopeChildren.Keys) {
+                                    if ($scopeChildId -like $notScope) {
+                                        $null = $thisNotScopeList.Add($scopeChildId)
+                                    }
+                                }
+                            }
+                            else {
+                                continue
                             }
                         }
                     }
-                    $definition.scopeCollection = $scopeCollection
+                    $null = $thisNotScopeList.AddRange($thisScopeGlobalNotScopeList)
+                    $thisNotScopeListUnique = $thisNotScopeList | Select-Object -Unique
+                    if ($null -eq $thisNotScopeListUnique) {
+                        $thisNotScopeListUnique = @()
+                    }
+                    elseif ($thisNotScopeListUnique -isnot [array]) {
+                        $thisNotScopeListUnique = @($thisNotScopeListUnique)
+                    }
+                    $scopeResult = @{
+                        scope         = $scope
+                        notScopesList = $thisNotScopeListUnique
+                    }
+                    $null = $scopeCollection.Add($scopeResult)
                 }
-                else {
-                    Write-Error "    Node $($nodeName): scope array must not be empty"
-                    $definition.hasErrors = $true
-                }
+                $definition.scopeCollection = $scopeCollection
             }
         }
     }
     #endregion scopes, notScopes
 
     #region identity and additionalRoleAssignments (optional, specific to an EPAC environment)
-
     if ($DefinitionNode.additionalRoleAssignments) {
         # Process additional permissions needed to execute remediations; for example permissions to log to Event Hub, Storage Account or Log Analytics
-        $additionalRoleAssignments = $DefinitionNode.additionalRoleAssignments
-        foreach ($selector in $additionalRoleAssignments.Keys) {
-            if ($selector -eq "*" -or $selector -eq $pacSelector) {
-                $additionalRoleAssignmentsList = Get-DeepClone $additionalRoleAssignments.$selector -AsHashTable
-                if ($definition.additionalRoleAssignments) {
-                    $definition.additionalRoleAssignments += $additionalRoleAssignmentsList
-                }
-                else {
-                    $definition.additionalRoleAssignments = @() + $additionalRoleAssignmentsList
-                }
-            }
-        }
+        Add-SelectedPacArray -InputObject $DefinitionNode.additionalRoleAssignments -PacSelector $pacSelector -OutputArrayList $definition.additionalRoleAssignments
     }
 
     if ($DefinitionNode.managedIdentityLocations) {
         # Process managedIdentityLocation; can be overridden
-        $managedIdentityLocations = $DefinitionNode.managedIdentityLocations
-        $localManagedIdentityLocationValue = Get-SelectedPacValue $managedIdentityLocations -PacSelector $pacSelector
-        if ($null -ne $localManagedIdentityLocationValue) {
-            $definition.managedIdentityLocation = $localManagedIdentityLocationValue
-        }
+        Add-SelectedPacValue -InputObject $DefinitionNode.managedIdentityLocations -PacSelector $pacSelector -OutputObject $definition -OutputKey "managedIdentityLocation"
     }
 
     if ($DefinitionNode.userAssignedIdentity) {
         # Process userAssignedIdentity; can be overridden
-        $localUserAssignedIdentityRaw = Get-SelectedPacValue $DefinitionNode.userAssignedIdentity -PacSelector $pacSelector
-        if ($null -ne $localUserAssignedIdentityRaw) {
-            $definition.userAssignedIdentity = $localUserAssignedIdentityRaw
-        }
+        Add-SelectedPacValue -InputObject $DefinitionNode.userAssignedIdentity -PacSelector $pacSelector -OutputObject $definition -OutputKey "userAssignedIdentity"
     }
-
     #endregion identity and additionalRoleAssignments (optional, specific to an EPAC environment)
 
     #region children and the leaf node
-    $assignmentsList = @()
     if ($DefinitionNode.children) {
         # Process child nodes
         Write-Debug " $($DefinitionNode.children.Count) children below at $($nodeName)"
         $hasErrors = $false
+        $assignmentsList = [System.Collections.ArrayList]::new()
         foreach ($child in $DefinitionNode.children) {
             $hasErrorsLocal, $assignmentsListLocal = Build-AssignmentDefinitionNode `
                 -PacEnvironment $PacEnvironment `
@@ -442,36 +418,27 @@ function Build-AssignmentDefinitionNode {
                 $hasErrors = $true
             }
             elseif ($null -ne $assignmentsListLocal) {
-                $assignmentsList += $assignmentsListLocal
+                $null = $assignmentsList.AddRange($assignmentsListLocal)
             }
         }
+        return $hasErrors, $assignmentsList
     }
     else {
         # Arrived at a leaf node - return the values collected in this branch after checking validity
         if ($definition.ignoreBranch -or $definition.hasOnlyNotSelectedEnvironments -or $definition.hasErrors) {
             # Empty collection
-            return $definition.hasErrors, @()
+            return $definition.hasErrors, [System.Collections.ArrayList]::new()
         }
         else {
-            $hasErrors, $assignmentsList = Build-AssignmentDefinitionAtLeaf `
+            $hasErrors, $assignmentsListAtLeaf = Build-AssignmentDefinitionAtLeaf `
                 -PacEnvironment $PacEnvironment `
                 -AssignmentDefinition $definition `
                 -CombinedPolicyDetails $CombinedPolicyDetails `
                 -PolicyRoleIds $PolicyRoleIds `
                 -RoleDefinitions $RoleDefinitions
+            return $hasErrors, $assignmentsListAtLeaf
         }
     }
     #endregion children and the leaf node
 
-    #region recursive return
-    if ($hasErrors) {
-        return $true, $null
-    }
-    elseif (($assignmentsList -is [array])) {
-        return $false, $assignmentsList
-    }
-    else {
-        return $false, $( $assignmentsList )
-    }
-    #endregion recursive return
 }

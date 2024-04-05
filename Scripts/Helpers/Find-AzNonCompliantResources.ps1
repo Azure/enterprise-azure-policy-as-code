@@ -3,12 +3,12 @@ function Find-AzNonCompliantResources {
     param (
         [switch] $RemediationOnly,
         $PacEnvironment,
-        [switch] $OnlyCheckManagedAssignments,
         [string[]] $PolicyDefinitionFilter,
         [string[]] $PolicySetDefinitionFilter,
         [string[]] $PolicyAssignmentFilter,
         [string[]] $PolicyExemptionFilter,
         [string[]] $PolicyEffectFilter,
+        [switch] $OnlyCheckManagedAssignments,
         [switch] $ExcludeManualPolicyEffect
     )
     
@@ -60,7 +60,7 @@ function Find-AzNonCompliantResources {
         $query = "policyresources | where type == `"microsoft.policyinsights/policystates`" and properties.complianceState <> `"Compliant`"$($effectFilter)"
     }
     Write-Information "Az Graph Query: '$query'"
-    $result = @() + (Search-AzGraphAllItems -Query $query -Scope @{ UseTenantScope = $true } -ProgressItemName "Policy compliance records")
+    $result = @() + (Search-AzGraphAllItems -Query $query -ProgressItemName "Policy compliance records")
     Write-Information ""
 
     $rawNonCompliantList = [System.Collections.ArrayList]::new()
@@ -68,60 +68,62 @@ function Find-AzNonCompliantResources {
     $scopeTable = $null
     if ($result.Count -ne 0) {
         # Get all Policy Assignments, Policy Definitions and Policy Set Definitions
-        $scopeTable = Get-AzScopeTree -PacEnvironment $PacEnvironment
-        $notOnlyCheckManagedAssignments = -not $OnlyCheckManagedAssignments
-        $deployedPolicyResources = Get-AzPolicyResources -PacEnvironment $PacEnvironment -ScopeTable $scopeTable -SkipExemptions -SkipRoleAssignments -CollectAllPolicies:$notOnlyCheckManagedAssignments
+        $scopeTable = Build-ScopeTableForDeploymentRootScope -PacEnvironment $PacEnvironment
+        $deployedPolicyResources = Get-AzPolicyResources -PacEnvironment $PacEnvironment -ScopeTable $scopeTable -SkipExemptions -SkipRoleAssignments
         $allAssignments = $deployedPolicyResources.policyassignments.managed
-        $strategy = $pacEnvironment.desiredState.strategy
         # Filter result
-        if (-not $OnlyCheckManagedAssignments -and -not $PolicyDefinitionFilter -and -not $PolicySetDefinitionFilter -and -not $PolicyAssignmentFilter) {
-            $null = $rawNonCompliantList.AddRange($result)
-        }
-        else {
-            foreach ($entry in $result) {
-                $entryProperties = $entry.properties
-                $policyAssignmentId = $entryProperties.policyAssignmentId
-                if ($allAssignments.ContainsKey($policyAssignmentId)) {
-                    $entryToAdd = $null
-                    $assignment = $allAssignments.$policyAssignmentId
-                    $assignmentPacOwner = $assignment.pacOwner
-                    if (-not $OnlyCheckManagedAssignments -or ($assignmentPacOwner -eq "thisPaC" -or ($assignmentPacOwner -eq "unknownOwner" -and $strategy -eq "full"))) {
-                        if ($PolicyDefinitionFilter -or $PolicySetDefinitionFilter -or $PolicyAssignmentFilter) {
-                            if ($PolicyDefinitionFilter) {
-                                foreach ($filterValue in $PolicyDefinitionFilter) {
-                                    if ($entryProperties.policyDefinitionName -eq $filterValue -or $entryProperties.policyDefinitionId -eq $filterValue) {
-                                        $entryToAdd = $entry
-                                        break
-                                    }
-                                }
-                            }
-                            if (!$entryToAdd -and $PolicySetDefinitionFilter) {
-                                foreach ($filterValue in $PolicySetDefinitionFilter) {
-                                    if ($entryProperties.policySetDefinitionName -eq $filterValue -or $entryProperties.policySetDefinitionId -eq $filterValue) {
-                                        $entryToAdd = $entry
-                                        break
-                                    }
-                                }
-                            }
-                            if (!$entryToAdd -and $PolicyAssignmentFilter) {
-                                foreach ($filterValue in $PolicyAssignmentFilter) {
-                                    if ($entryProperties.policyAssignmentName -eq $filterValue -or $entryProperties.policyAssignmentId -eq $filterValue) {
-                                        $entryToAdd = $entry
-                                        break
-                                    }
+        foreach ($entry in $result) {
+            $entryProperties = $entry.properties
+            $policyAssignmentId = $entryProperties.policyAssignmentId
+            if ($allAssignments.ContainsKey($policyAssignmentId)) {
+                $entryToAdd = $null
+                $assignment = $allAssignments.$policyAssignmentId
+                $assignmentPacOwner = $assignment.pacOwner
+                $process = $false
+                if ($OnlyCheckManagedAssignments -and $assignmentPacOwner -ne "otherPaC" -and $assignmentPacOwner -ne "unknownOwner") {
+                    # owned by the PaC solution of auto-created by Defender for Cloud (DfC)
+                    $process = $true
+                }
+                else {
+                    $process = $true
+                }
+                if ($process) {
+                    if ($PolicyDefinitionFilter -or $PolicySetDefinitionFilter -or $PolicyAssignmentFilter) {
+                        if ($PolicyDefinitionFilter) {
+                            foreach ($filterValue in $PolicyDefinitionFilter) {
+                                if ($entryProperties.policyDefinitionName -eq $filterValue -or $entryProperties.policyDefinitionId -eq $filterValue) {
+                                    $entryToAdd = $entry
+                                    break
                                 }
                             }
                         }
-                        else {
-                            $entryToAdd = $entry
+                        if (!$entryToAdd -and $PolicySetDefinitionFilter) {
+                            foreach ($filterValue in $PolicySetDefinitionFilter) {
+                                if ($entryProperties.policySetDefinitionName -eq $filterValue -or $entryProperties.policySetDefinitionId -eq $filterValue) {
+                                    $entryToAdd = $entry
+                                    break
+                                }
+                            }
+                        }
+                        if (!$entryToAdd -and $PolicyAssignmentFilter) {
+                            foreach ($filterValue in $PolicyAssignmentFilter) {
+                                if ($entryProperties.policyAssignmentName -eq $filterValue -or $entryProperties.policyAssignmentId -eq $filterValue) {
+                                    $entryToAdd = $entry
+                                    break
+                                }
+                            }
                         }
                     }
-                    if ($entryToAdd) {
-                        $null = $rawNonCompliantList.Add($entryToAdd)
+                    else {
+                        $entryToAdd = $entry
                     }
+                }
+                if ($null -ne $entryToAdd) {
+                    $null = $rawNonCompliantList.Add($entryToAdd)
                 }
             }
         }
+        
     }
     Write-Information "Found $($rawNonCompliantList.Count) non-compliant resources"
     Write-Information ""

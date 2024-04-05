@@ -1,0 +1,72 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-documentation-schema.json",
+    "documentAssignments": {
+        "environmentCategories": [
+            {
+                "pacEnvironment": "tenant",
+                "environmentCategory": "prod",
+                "scopes": [
+                    "Management Group: Contoso-Prod"
+                ],
+                "representativeAssignments": [
+                    {
+                        "shortName": "ASB",
+                        "id": "/providers/Microsoft.Management/managementGroups/mg-prod/providers/Microsoft.Authorization/policyAssignments/pr-asb"
+                    },
+                    {
+                        "shortName": "NIST-800-53",
+                        "id": "/providers/Microsoft.Management/managementGroups/mg-prod/providers/Microsoft.Authorization/policyAssignments/pr-nist-800-53-r5"
+                    }
+                ]
+            },
+            {
+                "pacEnvironment": "tenant",
+                "environmentCategory": "nonprod",
+                "scopes": [
+                    "Management Group: Contoso-NonProd"
+                ],
+                "representativeAssignments": [
+                    {
+                        "shortName": "ASB",
+                        "id": "/providers/Microsoft.Management/managementGroups/mg-nonprod/providers/Microsoft.Authorization/policyAssignments/np-asb"
+                    },
+                    {
+                        "shortName": "NIST-800-53",
+                        "id": "/providers/Microsoft.Management/managementGroups/mg-nonprod/providers/Microsoft.Authorization/policyAssignments/np-nist-800-53-r5"
+                    }
+                ]
+            }
+        ],
+        "documentationSpecifications": [
+            {
+                "fileNameStem": "contoso-policy-effects",
+                "environmentCategories": [
+                    "prod",
+                    "nonprod"
+                ],
+                "title": "Contoso Policy effects"
+            }
+        ]
+    },
+    "documentPolicySets": [
+        {
+            "pacEnvironment": "epac-dev",
+            "fileNameStem": "contoso-compliance-initiatives",
+            "title": "Document Initiatives",
+            "policySets": [
+                {
+                    "shortName": "ASB",
+                    "id": "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8"
+                },
+                {
+                    "shortName": "NIST-800-53",
+                    "id": "/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f"
+                }
+            ],
+            "environmentColumnsInCsv": [
+                "prod",
+                "nonprod"
+            ]
+        }
+    ]
+}

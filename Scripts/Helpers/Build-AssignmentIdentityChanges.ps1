@@ -20,7 +20,7 @@ function Build-AssignmentIdentityChanges {
     $definedIdentity = $null
     $definedIdentityType = "None"
     $definedUserAssignedIdentity = $null
-    $requiredRoleDefinitions = @()
+    $requiredRoleAssignments = @()
 
     $existingLocation = $Existing.location 
     $definedLocation = "global"
@@ -46,7 +46,7 @@ function Build-AssignmentIdentityChanges {
             $definedUserAssignedIdentity = $definedIdentity.userAssignedIdentities.GetEnumerator().Name
         } 
         $definedLocation = $Assignment.managedIdentityLocation
-        $requiredRoleDefinitions = $Assignment.metadata.roles 
+        $requiredRoleAssignments = $Assignment.requiredRoleAssignments 
     }
 
     $replaced = $ReplacedAssignment
@@ -54,6 +54,7 @@ function Build-AssignmentIdentityChanges {
     $isUserAssigned = $false
     $changedIdentityStrings = @()
     $addedList = [System.Collections.ArrayList]::new()
+    $updatedList = [System.Collections.ArrayList]::new()    
     $removedList = [System.Collections.ArrayList]::new()
     if ($hasExistingIdentity -or $identityRequired) {
         # need to check if either an existing identity or a newly added identity or existing and required identity
@@ -105,16 +106,36 @@ function Build-AssignmentIdentityChanges {
             }
             if ($identityRequired) {
                 if ($definedIdentityType -ne "UserAssigned") {
-                    foreach ($requiredRoleDefinition in $requiredRoleDefinitions) {
-                        $requiredRoleDefinitionId = $requiredRoleDefinition.roleDefinitionId
-                        $addedEntry = @{
-                            assignmentId     = $Assignment.id
-                            displayName      = $Assignment.displayName
-                            scope            = $requiredRoleDefinition.scope
-                            principalId      = $null
-                            objectType       = "ServicePrincipal"
-                            roleDefinitionId = $requiredRoleDefinitionId
-                            roleDisplayName  = $requiredRoleDefinition.roleDisplayName
+                    foreach ($requiredRoleAssignment in $requiredRoleAssignments) {
+                        $addedEntry = $null
+                        if ($requiredRoleAssignment.crossTenant) {
+                            $addedEntry = @{
+                                assignmentId          = $Assignment.id
+                                assignmentDisplayName = $Assignment.displayName
+                                roleDisplayName       = $requiredRoleAssignment.roleDisplayName
+                                scope                 = $requiredRoleAssignment.scope
+                                properties            = @{
+                                    roleDefinitionId = $requiredRoleAssignment.roleDefinitionId
+                                    principalId      = $null
+                                    principalType    = "ServicePrincipal"
+                                    description      = $requiredRoleAssignment.description
+                                    crossTenant      = $true
+                                }
+                            }
+                        }
+                        else {
+                            $addedEntry = @{
+                                assignmentId          = $Assignment.id
+                                assignmentDisplayName = $Assignment.displayName
+                                roleDisplayName       = $requiredRoleAssignment.roleDisplayName
+                                scope                 = $requiredRoleAssignment.scope
+                                properties            = @{
+                                    roleDefinitionId = $requiredRoleAssignment.roleDefinitionId
+                                    principalId      = $null
+                                    principalType    = "ServicePrincipal"
+                                    description      = $requiredRoleAssignment.description
+                                }
+                            }
                         }
                         $null = $addedList.Add($addedEntry)
                     }
@@ -126,33 +147,66 @@ function Build-AssignmentIdentityChanges {
             }
         }
         else {
-            # Updating existing assignment
+            # Updating existing Policy assignment
             if ($existingIdentityType -ne "UserAssigned") {
 
                 # calculate addedList role assignments (rare)
-                foreach ($requiredRoleDefinition in $requiredRoleDefinitions) {
-                    $requiredRoleDefinitionId = $requiredRoleDefinition.roleDefinitionId
+                foreach ($requiredRoleAssignment in $requiredRoleAssignments) {
+                    $requiredScope = $requiredRoleAssignment.scope
+                    $requiredRoleDefinitionId = $requiredRoleAssignment.roleDefinitionId
+                    $requiredDescription = $requiredRoleAssignment.description
+                    $deployedRoleAssignmentWithUpdatedDescription = $null
                     $matchFound = $false
                     foreach ($deployedRoleAssignment in $existingRoleAssignments) {
                         $deployedScope = $deployedRoleAssignment.scope
                         $deployedRoleDefinitionId = $deployedRoleAssignment.roleDefinitionId
-                        if (($deployedScope -eq $requiredRoleDefinition.scope) -and ($deployedRoleDefinitionId -eq $requiredRoleDefinitionId)) {
+                        if (($deployedScope -eq $requiredScope) -and ($deployedRoleDefinitionId -eq $requiredRoleDefinitionId)) {
+                            $deployedDescription = $deployedRoleAssignment.description
+                            if ($deployedDescription -ne $requiredDescription) {
+                                $deployedRoleAssignmentWithUpdatedDescription = $deployedRoleAssignment
+                            }
                             $matchFound = $true
-                            # nothing to do
                             break
                         }
                     }
-                    if (!$matchFound) {
-                        # add role
+                    $addedEntry = $null
+                    if ($requiredRoleAssignment.crossTenant) {
                         $addedEntry = @{
-                            assignmentId     = $Assignment.id
-                            displayName      = $Assignment.displayName
-                            principalId      = $principalIdForAddedRoles
-                            objectType       = "ServicePrincipal"
-                            scope            = $requiredRoleDefinition.scope
-                            roleDefinitionId = $requiredRoleDefinitionId
-                            roleDisplayName  = $requiredRoleDefinition.roleDisplayName
+                            assignmentId          = $Assignment.id
+                            assignmentDisplayName = $Assignment.displayName
+                            roleDisplayName       = $requiredRoleAssignment.roleDisplayName
+                            scope                 = $requiredRoleAssignment.scope
+                            properties            = @{
+                                roleDefinitionId = $requiredRoleAssignment.roleDefinitionId
+                                principalId      = $null
+                                principalType    = "ServicePrincipal"
+                                description      = $requiredRoleAssignment.description
+                                crossTenant      = $true
+                            }
                         }
+                    }
+                    else {
+                        $addedEntry = @{
+                            assignmentId          = $Assignment.id
+                            assignmentDisplayName = $Assignment.displayName
+                            roleDisplayName       = $requiredRoleAssignment.roleDisplayName
+                            scope                 = $requiredRoleAssignment.scope
+                            properties            = @{
+                                roleDefinitionId = $requiredRoleAssignment.roleDefinitionId
+                                principalId      = $null
+                                principalType    = "ServicePrincipal"
+                                description      = $requiredRoleAssignment.description
+                            }
+                        }
+                    }
+                    if ($matchFound) {
+                        if ($null -ne $deployedRoleAssignmentWithUpdatedDescription) {
+                            $addedEntry.id = $deployedRoleAssignmentWithUpdatedDescription.id
+                            $addedEntry.properties.principalId = $deployedRoleAssignmentWithUpdatedDescription.principalId
+                            $null = $updatedList.Add($addedEntry)
+                        }
+                    }
+                    else {
                         $null = $addedList.Add($addedEntry)
                     }
                 }
@@ -162,11 +216,11 @@ function Build-AssignmentIdentityChanges {
                     $deployedScope = $deployedRoleAssignment.scope
                     $deployedRoleDefinitionId = $deployedRoleAssignment.roleDefinitionId
                     $matchFound = $false
-                    foreach ($requiredRoleDefinition in $requiredRoleDefinitions) {
-                        $requiredRoleDefinitionId = $requiredRoleDefinition.roleDefinitionId
-                        if (($deployedScope -eq $requiredRoleDefinition.scope) -and ($deployedRoleDefinitionId -eq $requiredRoleDefinitionId)) {
+                    foreach ($requiredRoleAssignment in $requiredRoleAssignments) {
+                        $requiredScope = $requiredRoleAssignment.scope
+                        $requiredRoleDefinitionId = $requiredRoleAssignment.roleDefinitionId
+                        if (($deployedScope -eq $requiredScope) -and ($deployedRoleDefinitionId -eq $requiredRoleDefinitionId)) {
                             $matchFound = $true
-                            # Nothing to do
                             break
                         }
                     }
@@ -191,20 +245,27 @@ function Build-AssignmentIdentityChanges {
         $replaced = $true
     }
 
+    $numberOfChanges = 0
     if ($addedList.Count -gt 0) {
+        $numberOfChanges += $addedList.Count
         $changedIdentityStrings += "addedRoleAssignments"
     }
+    if ($updatedList.Count -gt 0) {
+        $numberOfChanges += $updatedList.Count
+        $changedIdentityStrings += "updatedRoleAssignments"
+    }
     if ($removedList.Count -gt 0) {
+        $numberOfChanges += $removedList.Count
         $changedIdentityStrings += "removedRoleAssignments"
     }
-    $numberOfChanges = $addedList.Count + $removedList.Count
     return @{
         replaced               = $replaced
         requiresRoleChanges    = $numberOfChanges -gt 0
         numberOfChanges        = $numberOfChanges
         changedIdentityStrings = $changedIdentityStrings
         isUserAssigned         = $isUserAssigned
-        added                  = $addedList.ToArray()
-        removed                = $removedList.ToArray()
+        added                  = $addedList
+        updated                = $updatedList
+        removed                = $removedList
     }
 }

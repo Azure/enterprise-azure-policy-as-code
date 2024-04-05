@@ -8,7 +8,7 @@ The following screenshot shows the Management Group hierarchy that used for the 
 
 ## Custom `EPAC Resource Policy Reader Role`
 
-EPAC uses a set of Entra ID App Registrations (Service Principals). To build the deployment plan and adhere to the least-privilege-principle, a Resource Policy Reader role is required. This role is not built-in. EPAC contains script `New-AzPolicyReaderRole.ps1` to create this role or you can use the below JSON in Azure Portal.
+EPAC uses a set of Entra ID App Registrations (Service Principals). To build the deployment plan and adhere to the least-privilege-principle, a Resource Policy Reader role is required. This role is not built-in. EPAC contains script `New-AzPolicyReaderRole` to create this role or you can use the below JSON in Azure Portal.
 
 ```json
 {

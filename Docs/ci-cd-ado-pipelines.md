@@ -1,8 +1,8 @@
 # Azure DevOps Pipelines
 
-This page covers the specifics for Azure DevOps (ADO) pipelines. It si based on a simplified GitHub Flow as documented in [CI/CD Overview](./ci-cd-overview.md)
+This page covers the specifics for Azure DevOps (ADO) pipelines. It si based on a simplified GitHub Flow as documented in [CI/CD Overview](ci-cd-overview.md)
 
-Previously [setup App Registrations](./ci-cd-app-registrations.md) are a pre-requisite.
+Previously [setup App Registrations](ci-cd-app-registrations.md) are a pre-requisite.
 
 This repository contains starter pipelines
 
@@ -12,13 +12,13 @@ This repository contains starter pipelines
 
 ## Service connections for Azure DevOps CI/CD
 
-Create ADO service connections for each of the previously created [App Registrations](./ci-cd-app-registrations.md). You will need to retrieve the client id and create a client secret or authenticate with a X509 certificate configured for the SPN.
+Create ADO service connections for each of the previously created [App Registrations](ci-cd-app-registrations.md). You will need to retrieve the client id and create a client secret or authenticate with a X509 certificate configured for the SPN.
 
 When creating a Service Connection in Azure DevOps you can set up the service connections on a Subscription or a Management Group scope level. If you are using subscriptions to simulate a hierarchy during EPAC development, configure the service connection(s) scope level as **Subscription**. When creating a Service Connections for management groups (any EPAC environments) Deployment and EPAC Role Assignment the service connection scope level is **Management Group**.
 
 Subscription scope level | Management Group scope level
 :-----------:|:----------------:
-![image](./Images/azdoServiceConnectionSubConf.png) | ![image](./Images/azdoServiceConnectionMGConf.png)
+![image](Images/azdoServiceConnectionSubConf.png) | ![image](Images/azdoServiceConnectionMGConf.png)
 
 ## Single Tenant Pipeline
 
@@ -26,15 +26,15 @@ Subscription scope level | Management Group scope level
 
 | Stage | Purpose | Trigger | Scripts |
 |-------|---------|---------|---------|
-| devStage | Feature branch DEV environment build, deploy and test | CI, Manual | Build-DeploymentPlans.ps1 <br> Deploy-PolicyPlan.ps1 <br/> Deploy-RolesPlan.ps1 |
-| tenantPlanFeatureStage | Feature branch based plan for prod deployment | CI, Manual | Build-DeploymentPlans.ps1 |
-| tenantPlanMainStage | Main branch based plan for prod deployment | PR Merged, Manual | Build-DeploymentPlans.ps1 |
-| tenantDeployStage | Deploy Policies defined by Main branch based plan | Prod stage approved | Deploy-PolicyPlan.ps1 |
-| tenantRolesStage | Assign roles defined by Main branch based plan | Role stage approved | Deploy-RolesPlan.ps1 |
+| devStage | Feature branch DEV environment build, deploy and test | CI, Manual | Build-DeploymentPlans <br> Deploy-PolicyPlan <br/> Deploy-RolesPlan |
+| tenantPlanFeatureStage | Feature branch based plan for prod deployment | CI, Manual | Build-DeploymentPlans |
+| tenantPlanMainStage | Main branch based plan for prod deployment | PR Merged, Manual | Build-DeploymentPlans |
+| tenantDeployStage | Deploy Policies defined by Main branch based plan | Prod stage approved | Deploy-PolicyPlan |
+| tenantRolesStage | Assign roles defined by Main branch based plan | Role stage approved | Deploy-RolesPlan |
 
 ### Single Tenant Service Connections and Roles
 
-Create Service Principals and associated service connections in Azure DevOps or the equivalent in your CI/CD tool. The SPNs require the following roles to adhere to the least privilege principle. If you have a single tenant, remove the last column and rows with connections ending in "-2".
+Create Service Principals and associated service connections in Azure DevOps or the equivalent in your CI/CD tool. The SPNs require the following roles to adhere to the least privilege principle. If you have a single tenant, remove the last column and rows with connections ending in "-2".  If a pacEnvironment in any of these stages is deploying to a lighthouse managed tenant and additionalRoleAssignemnts are to be used, ABAC assignments will need to be granted to the service principal at all remote scopes granting User Access Administrator for any roles that may need to be granted via additionalRoleAssignments.
 
 | Connection | Stages  | MG: epac-dev-mg | MG: Tenant Root |
 | :--- | :--- | :--- | :--- |
@@ -49,20 +49,20 @@ Create Service Principals and associated service connections in Azure DevOps or 
 
 | Stage | Purpose | Trigger | Scripts |
 |-------|---------|---------|---------|
-| devStage | Feature branch EPAC DEV environment build, deploy and test | CI, Manual | Build-DeploymentPlans.ps1 <br> Deploy-PolicyPlan.ps1 <br/> Deploy-RolesPlan.ps1 |
-| tenantPlanFeatureStage-1 | Feature branch based plan for prod deployment (tenant 1) | CI, Manual | Build-DeploymentPlans.ps1 |
-| tenantPlanFeatureStage-2 | Feature branch based plan for prod deployment (tenant 2) | CI, Manual | Build-DeploymentPlans.ps1 |
+| devStage | Feature branch EPAC DEV environment build, deploy and test | CI, Manual | Build-DeploymentPlans <br> Deploy-PolicyPlan <br/> Deploy-RolesPlan |
+| tenantPlanFeatureStage-1 | Feature branch based plan for prod deployment (tenant 1) | CI, Manual | Build-DeploymentPlans |
+| tenantPlanFeatureStage-2 | Feature branch based plan for prod deployment (tenant 2) | CI, Manual | Build-DeploymentPlans |
 | completedFeature | Empty stage to complete feature branch | None | None |
-| tenantPlanMainStage-1 | Main branch based plan for prod deployment (tenant 1) | PR Merged, Manual | Build-DeploymentPlans.ps1 |
-| tenantDeployStage-1 | Deploy Policies defined by Main branch based plan (tenant 1) | Prod stage approved | Deploy-PolicyPlan.ps1 |
-| tenantRolesStage-1 | Assign roles defined by Main branch based plan (tenant 1) | Role stage approved | Deploy-RolesPlan.ps1 |
-| tenantPlanMainStage-2 | Main branch based plan for prod deployment (tenant 2) | PR Merged, Manual | Build-DeploymentPlans.ps1 |
-| tenantDeployStage-2 | Deploy Policies defined by Main branch based plan (tenant 2) | Prod stage approved | Deploy-PolicyPlan.ps1 |
-| tenantRolesStage-2 | Assign roles defined by Main branch based plan (tenant 2) | Role stage approved | Deploy-RolesPlan.ps1 |
+| tenantPlanMainStage-1 | Main branch based plan for prod deployment (tenant 1) | PR Merged, Manual | Build-DeploymentPlans |
+| tenantDeployStage-1 | Deploy Policies defined by Main branch based plan (tenant 1) | Prod stage approved | Deploy-PolicyPlan |
+| tenantRolesStage-1 | Assign roles defined by Main branch based plan (tenant 1) | Role stage approved | Deploy-RolesPlan |
+| tenantPlanMainStage-2 | Main branch based plan for prod deployment (tenant 2) | PR Merged, Manual | Build-DeploymentPlans |
+| tenantDeployStage-2 | Deploy Policies defined by Main branch based plan (tenant 2) | Prod stage approved | Deploy-PolicyPlan |
+| tenantRolesStage-2 | Assign roles defined by Main branch based plan (tenant 2) | Role stage approved | Deploy-RolesPlan |
 
 ### Multi Tenant Service Connections and Roles
 
-Create Service Principals and associated service connections in Azure DevOps or the equivalent in your CI/CD tool. The SPNs require the following roles to adhere to the least privilege principle. If you have a single tenant, remove the last column and rows with connections ending in "-2".
+Create Service Principals and associated service connections in Azure DevOps or the equivalent in your CI/CD tool. The SPNs require the following roles to adhere to the least privilege principle. If you have a single tenant, remove the last column and rows with connections ending in "-2".  If a pacEnvironment in any of these stages is deploying to a lighthouse managed tenant and additionalRoleAssignemnts are to be used, ABAC assignments will need to be granted to the service principal at all remote scopes granting User Access Administrator for any roles that may need to be granted via additionalRoleAssignments.
 
 | Connection | Stages  | MG: epac-dev-mg | MG: Tenant 1 Root | MG: Tenant 2 Root |
 | :--- | :--- | :--- | :--- | :--- |

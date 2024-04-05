@@ -1,0 +1,50 @@
+# This pipeline is used to deploy Policies, Initiative definitions and Assignments into Azure.
+name: EPAC PROD Workflow
+
+on:
+  push:
+    branches:
+      - releases-prod/**
+
+env:
+  PAC_OUTPUT_FOLDER: ./Output
+  PAC_DEFINITIONS_FOLDER: ./Definitions
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  plan:
+    name: Plan prod
+    uses: ./.github/workflows/plan.yml
+    with:
+      pacEnvironmentSelector: prod
+      planGitHubEnvironment: PROD-PLAN
+      PAC_OUTPUT_FOLDER: ./Output
+      PAC_DEFINITIONS_FOLDER: ./Definitions
+    secrets: inherit
+
+  deployPolicy:
+    name: Deploy prod Policy Changes
+    needs: plan
+    if: needs.plan.outputs.deployPolicyChanges == 'yes' && startsWith(github.ref, 'refs/heads/releases-prod/')
+    uses: ./.github/workflows/deploy-policy.yml
+    with:
+      pacEnvironmentSelector: prod
+      planGitHubEnvironment: PROD-DEPLOY-POLICY
+      PAC_INPUT_FOLDER: "$(GITHUB_WORKSPACE)/plans-prod"
+      PAC_DEFINITIONS_FOLDER: ./Definitions
+    secrets: inherit
+
+  deployRoles:
+    name: Deploy prod Role Changes
+    needs: plan
+    if: needs.plan.outputs.deployRoleChanges == 'yes' && startsWith(github.ref, 'refs/heads/releases')
+    uses: ./.github/workflows/deploy-roles.yml
+    with:
+      pacEnvironmentSelector: prod
+      planGitHubEnvironment: PROD-DEPLOY-ROLES
+      PAC_INPUT_FOLDER: "$(GITHUB_WORKSPACE)/plans-prod"
+      PAC_DEFINITIONS_FOLDER: ./Definitions
+    secrets: inherit

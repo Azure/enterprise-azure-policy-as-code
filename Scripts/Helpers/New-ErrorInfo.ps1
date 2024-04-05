@@ -8,6 +8,7 @@ function New-ErrorInfo {
         errorsInFile       = 0
         currentEntryNumber = -1
         hasErrors          = $false
+        hasLocalErrors    = $false
         fileName           = $FileName
     }
     $errorInfo

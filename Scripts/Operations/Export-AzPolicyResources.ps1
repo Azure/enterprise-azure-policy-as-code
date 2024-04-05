@@ -4,8 +4,8 @@ Exports Azure Policy resources in EPAC format or raw format.
 
 .DESCRIPTION
 Exports Azure Policy resources in EPAC format or raw format. It has 4 operating modes - see -Mode parameter for details.
-It also generates documentaion for the exported resources (can be suppressed with -SuppressDocumentation).
-To just generate EPAC formatted Definitions without generating documentaion files, use -supressEpacOutput.
+It also generates documentation for the exported resources (can be suppressed with -SuppressDocumentation).
+To just generate EPAC formatted Definitions without generating documentation files, use -supressEpacOutput.
 
 .PARAMETER DefinitionsRootFolder
 Definitions folder path. Defaults to environment variable $env:PAC_DEFINITIONS_FOLDER or './Definitions'.
@@ -217,7 +217,7 @@ if ($Mode -ne 'exportFromRawFiles') {
             elseif ($Mode -eq 'psrule' -and $PSRuleIgnoreFullScope -eq $true) {
                 $pacEnvironmentOriginalScope = $pacEnvironment.deploymentRootScope
             }
-            $scopeTable = Get-AzScopeTree -PacEnvironment $pacEnvironment
+            $scopeTable = Build-ScopeTableForDeploymentRootScope -PacEnvironment $pacEnvironment
             if ($Mode -eq 'psrule') {
                 $newScopeTable = @{}
                 foreach ($scope in $scopeTable.GetEnumerator()) {
@@ -402,10 +402,18 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
             $rowObj.pacSelector = $pacSelector
             $rowObj.kind = "Policy"
             if ($policyDefinition.pacOwner -eq "otherPaC") {
-                $rowObj.owner = "otherPaC($($rawMetadata.pacOwnerId))"
+                $rowObj.owner = "otherPaC(pacOwnerId=$($rawMetadata.pacOwnerId))"
             }
             else {
                 $rowObj.owner = $policyDefinition.pacOwner
+            }
+            if ($null -ne $rawMetadata.updatedBy) {
+                $rowObj.principalId = $rawMetadata.updatedBy
+                $rowObj.lastChange = ($rawMetadata.updatedOn).ToString("s")
+            }
+            else {
+                $rowObj.principalId = $rawMetadata.createdBy
+                $rowObj.lastChange = ($rawMetadata.createdOn).ToString("s")
             }
             if ($null -ne $rawMetadata.category) {
                 $rowObj.category = $rawMetadata.category
@@ -413,7 +421,12 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
             else {
                 $rowObj.category = ""
             }
-            $rowObj.displayName = $properties.displayName
+            if ($null -ne $properties.displayName) {
+                $rowObj.displayName = $properties.displayName
+            }
+            else {
+                $rowObj.displayName = $policyDefinition.name
+            }
             $rowObj.id = $policyDefinition.id
             $null = $allRows.Add($rowObj)
 
@@ -487,10 +500,18 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
             $rowObj.pacSelector = $pacSelector
             $rowObj.kind = "Policy Set"
             if ($policySetDefinition.pacOwner -eq "otherPaC") {
-                $rowObj.owner = "otherPaC($($rawMetadata.pacOwnerId))"
+                $rowObj.owner = "otherPaC(pacOwnerId=$($rawMetadata.pacOwnerId))"
             }
             else {
                 $rowObj.owner = $policySetDefinition.pacOwner
+            }
+            if ($null -ne $rawMetadata.updatedBy) {
+                $rowObj.principalId = $rawMetadata.updatedBy
+                $rowObj.lastChange = ($rawMetadata.updatedOn).ToString("s")
+            }
+            else {
+                $rowObj.principalId = $rawMetadata.createdBy
+                $rowObj.lastChange = ($rawMetadata.createdOn).ToString("s")
             }
             if ($null -ne $rawMetadata.category) {
                 $rowObj.category = $rawMetadata.category
@@ -498,7 +519,12 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
             else {
                 $rowObj.category = ""
             }
-            $rowObj.displayName = $properties.displayName
+            if ($null -ne $properties.displayName) {
+                $rowObj.displayName = $properties.displayName
+            }
+            else {
+                $rowObj.displayName = $policySetDefinition.name
+            }
             $rowObj.id = $policySetDefinition.id
             $null = $allRows.Add($rowObj)
 
@@ -517,7 +543,7 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
             # }
 
             # Adjust policyDefinitions for EPAC
-            $policyDefinitionsIn = Get-DeepClone $properties.policyDefinitions -AsHashTable
+            $policyDefinitionsIn = Get-ClonedObject $properties.policyDefinitions -AsHashTable
             $policyDefinitionsOut = [System.Collections.ArrayList]::new()
             foreach ($policyDefinitionIn in $policyDefinitionsIn) {
                 $parts = Split-AzPolicyResourceId -Id $policyDefinitionIn.policyDefinitionId
@@ -609,10 +635,18 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
             $policyType = if ($parts.scopeType -eq "builtin") { "Builtin" } else { "Custom" }
             $rowObj.kind = "Assignment($($policyKind)-$($policyType))"
             if ($policyAssignment.pacOwner -eq "otherPaC") {
-                $rowObj.owner = "otherPaC($($rawMetadata.pacOwnerId))"
+                $rowObj.owner = "otherPaC(pacOwnerId=$($rawMetadata.pacOwnerId))"
             }
             else {
                 $rowObj.owner = $policyAssignment.pacOwner
+            }
+            if ($null -ne $rawMetadata.updatedBy) {
+                $rowObj.principalId = $rawMetadata.updatedBy
+                $rowObj.lastChange = ($rawMetadata.updatedOn).ToString("s")
+            }
+            else {
+                $rowObj.principalId = $rawMetadata.createdBy
+                $rowObj.lastChange = ($rawMetadata.createdOn).ToString("s")
             }
             if ($null -ne $rawMetadata.category) {
                 $rowObj.category = $rawMetadata.category
@@ -620,7 +654,12 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
             else {
                 $rowObj.category = ""
             }
-            $rowObj.displayName = $properties.displayName
+            if ($null -ne $properties.displayName) {
+                $rowObj.displayName = $properties.displayName
+            }
+            else {
+                $rowObj.displayName = $policyAssignment.name
+            }
             $rowObj.id = $policyAssignment.id
             $null = $allRows.Add($rowObj)
 
@@ -698,7 +737,7 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
 
             $parameters = @{}
             if ($null -ne $properties.parameters -and $properties.parameters.psbase.Count -gt 0) {
-                $parametersClone = Get-DeepClone $properties.parameters -AsHashTable
+                $parametersClone = Get-ClonedObject $properties.parameters -AsHashTable
                 foreach ($parameterName in $parametersClone.Keys) {
                     $parameterValue = $parametersClone.$parameterName
                     $parameters[$parameterName] = $parameterValue.value
@@ -770,13 +809,20 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
                 $rowObj.kind = "Exemption($($exemption.status))"
                 $rawMetadata = $exemption.metadata
                 if ($exemption.pacOwner -eq "otherPaC") {
-                    $rowObj.owner = "otherPaC($($rawMetadata.pacOwnerId))"
+                    $rowObj.owner = "otherPaC(pacOwnerId=$($rawMetadata.pacOwnerId))"
                 }
                 else {
                     $rowObj.owner = $exemption.pacOwner
                 }
+                $rowObj.principalId = "n/a"
+                $rowObj.lastChange = "n/a"
                 $rowObj.category = $exemption.exemptionCategory
-                $rowObj.displayName = $exemption.displayName
+                if ($null -ne $exemption.displayName) {
+                    $rowObj.displayName = $exemption.displayName
+                }
+                else {
+                    $rowObj.displayName = $exemption.name
+                }
                 $rowObj.id = $exemption.id
                 $null = $allRows.Add($rowObj)
             }
@@ -806,11 +852,6 @@ Write-Information "=============================================================
 Write-Information "Optimizing $($assignmentsByPolicyDefinition.psbase.Count) Policy Assignment trees"
 Write-Information "==================================================================================================="
 
-# $fullPath = "$policyAssignmentsFolder/tree-raw.$FileExtension"
-# $object = Get-HashtableWithPropertyNamesRemoved -Object $assignmentsByPolicyDefinition -PropertyNames "parent", "clusters"
-# $json = ConvertTo-Json $object -Depth 100
-# $null = New-Item $fullPath -Force -ItemType File -Value $json
-
 foreach ($policyDefinitionKey in $assignmentsByPolicyDefinition.Keys) {
     $perDefinition = $assignmentsByPolicyDefinition.$policyDefinitionKey
     foreach ($child in $perDefinition.children) {
@@ -820,12 +861,6 @@ foreach ($policyDefinitionKey in $assignmentsByPolicyDefinition.Keys) {
             -CurrentIndex 0
     }
 }
-
-# $fullPath = "$policyAssignmentsFolder/tree-optimized.$FileExtension"
-# $object = Get-HashtableWithPropertyNamesRemoved -Object $assignmentsByPolicyDefinition -PropertyNames "parent", "clusters"
-# $json = ConvertTo-Json $object -Depth 100
-# $null = New-Item $fullPath -Force -ItemType File -Value $json
-# $assignmentsByPolicyDefinition = $object
 
 #endregion prep tree for collapsing nodes
 

@@ -1,0 +1,60 @@
+variables:
+  # This pipeline is used to auto remdiate Azure policy that are non-compliant.
+  PAC_OUTPUT_FOLDER: ./Output
+  PAC_DEFINITIONS_FOLDER: ./Definitions
+
+  ## Use the plain text name of each service connection as a reference
+  remediationServiceConnection: "sc-epac-tenant-remediation"
+
+# what to build trigger
+trigger: none
+pr: none
+
+pool:
+  vmImage: "ubuntu-latest"
+
+## Change the cron job schedule according to the requirement
+# cron: '0 5,17 * * *' # UTC 5:00 AM daily, midnight and noon EST (might be useful for VMs that are not running 24/7)
+# cron: '0 5 * * 0' # UTC 5:00 AM on Sundays only, midnight EST (0=Sunday,1=Monday,2=Tuesday,3=Wednesday,4=Thursday,5=Friday,6=Saturday)
+schedules:
+- cron: '0 5 * * *' # UTC 5:00 AM daily, midnight EST
+  displayName: Daily midnight (EST) run
+  branches:
+    include:
+    - main
+  always: true    
+
+stages:
+  - stage: epacDev
+    dependsOn: []
+    displayName: "Remediate epac-dev environment"
+    jobs:
+      - job: remediation
+        displayName: "Remediation Job"
+        steps:
+          - template: templates/remediate.yml
+            parameters:
+              serviceConnection: $(remediationServiceConnection)
+              pacEnvironmentSelector: epac-dev
+
+  - stage: nonprod
+    dependsOn: []
+    displayName: "Remediation nonprod environment"
+    jobs:
+      - job: remediation
+        steps:
+          - template: templates/remediate.yml
+            parameters:
+              serviceConnection: $(remediationServiceConnection)
+              pacEnvironmentSelector: nonprod
+
+  - stage: prod
+    dependsOn: []
+    displayName: "Remediation prod environment"
+    jobs:
+      - job: remediation
+        steps:
+          - template: templates/remediate.yml
+            parameters:
+              serviceConnection: $(remediationServiceConnection)
+              pacEnvironmentSelector: prod

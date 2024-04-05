@@ -3,10 +3,6 @@ function Confirm-DeleteForStrategy {
     param (
         [string] $PacOwner,
         [string] $Strategy,
-        [string] $Status,
-        [string] $DeleteExpired,
-        [string] $DeleteOrphaned,
-        [string] $Removed,
 
         [Parameter(Mandatory = $false)]
         $KeepDfcSecurityAssignments = $false
@@ -14,30 +10,19 @@ function Confirm-DeleteForStrategy {
 
     $shallDelete = switch ($PacOwner) {
         "thisPaC" {
-            if (($DeleteExpired -eq $false -and $Status -eq "expired") -or ($DeleteOrphaned -eq $false -and $Status -eq "orphaned") -and $Removed -eq $false) {
-                $false
-                break
-            }
-            else {
-                $true
-                break
-            }
+            $true
         }
         "otherPaC" {
             $false
-            break
         }
         "unknownOwner" {
             $Strategy -eq "full"
-            break
         }
         "managedByDfcSecurityPolicies" {
             !$KeepDfcSecurityAssignments -and $Strategy -eq "full"
-            break
         }
         "managedByDfcDefenderPlans" {
             $false
-            break
         }
     }
     return $shallDelete

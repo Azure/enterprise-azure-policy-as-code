@@ -1,4 +1,4 @@
-function    ConvertTo-HashTable {
+function ConvertTo-HashTable {
     [CmdletBinding()]
     param
     (
@@ -25,5 +25,4 @@ function    ConvertTo-HashTable {
         }
     }
     return $hashTable
-
 }
