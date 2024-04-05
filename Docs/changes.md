@@ -129,12 +129,6 @@ If not defined in global settings, EPAC generates it as `"epac/{{pacOwnerId}}/{{
 
 Updating JSON schema to the latest [specification 2020-12](https://json-schema.org/specification).
 
-## Delayed to v10.1.0
-
-- Script to update CSV effect/parameter files preserving extra columns.
-- Automatically disable deprecated Policies.
-- `Get-AzExemptions` and `Export-AzPolicyResources` scripts to generate the new simplified Exemptions format.
-
 ### Documentation Updates
 
 Reorganized the documentation to make it easier to find information. Added a new section on how to use the starter kit and how to use the Microsoft release flow.
