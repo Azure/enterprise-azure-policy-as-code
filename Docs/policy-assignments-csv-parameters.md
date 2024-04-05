@@ -5,8 +5,9 @@ Assigning single or multiple security and compliance focused Policy Sets (Initia
 
 To address the problem of reading and maintaining hundreds or thousands of JSON lines, EPAC can use the content of a spreadsheet (CSV) to create `parameters`, `overrides` and optionally `nonComplianceMessages` for a single Policy assignment `definitionEntry` or multiple Policy definitions (`definitionEntryList`).
 
-> [!TIP]
-> This approach is best for large Policy Sets such as Azure Security Benchmark, NIST 800-53, etc. Smaller Policy Sets should still be handled with JSON `parameters`, `overrides` and `nonComplianceMessages`.
+!!! tip
+
+    This approach is best for large Policy Sets such as Azure Security Benchmark, NIST 800-53, etc. Smaller Policy Sets should still be handled with JSON `parameters`, `overrides` and `nonComplianceMessages`.
 
 ## Generate the CSV File
 
@@ -31,8 +32,9 @@ The CSV file generated contains the following headers/columns:
 * `<env>Parameters` can contain additional parameters. You can also specify such parameters in JSON. EPAC will use the union of all parameters.
 * `nonComplianceMessages` column is optional. The documentation script does not generate this columns.
 
-> [!NOTE]
-> Additional columns are allowed and ignored by EPAC.
+!!! note
+
+    Additional columns are allowed and ignored by EPAC.
 
 EPAC will find the effect parameter name for each Policy in each Policy Set and use them. If no effect parameter is defined by the Policy Set, EPAC will use `overrides` to set the effect. EPAC will generate the `policyDefinitionReferenceId` for `nonComplianceMessages`.
 
@@ -131,5 +133,6 @@ If a Policy is added to a Policy Set, add the row manually to the CSV file. The 
 
 Better, [regenerate the CSV file from the deployed Policy Assignments](operational-scripts-documenting-policy.md#assignment-documentation). This will ensure that all Policies are included in the CSV file. However, this does not generate the `nonComplianceMessages` column or any additional columns you added.
 
-> [!NOTE]
-> We have planned to add a feature to generate the CSV file from the Policy Assignments and merge them with your existing CSV File to preserve extra columns.
+!!! note
+
+    We have planned to add a feature to generate the CSV file from the Policy Assignments and merge them with your existing CSV File to preserve extra columns.

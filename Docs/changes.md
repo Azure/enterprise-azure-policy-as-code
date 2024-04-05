@@ -2,7 +2,7 @@
 
 !!! danger "Caution"
 
-  Read the [breaking changes](#breaking-changes-in-v1000) carefully and adjust your environment accordingly.
+    Read the [breaking changes](#breaking-changes-in-v1000) carefully and adjust your environment accordingly.
 
 ## Breaking Changes in v10.0.0
 
@@ -10,7 +10,7 @@
 
 !!! warning
 
-  We heavily reworked the `globalSettings.jsonc` file. You will need to update the file.
+    We heavily reworked the `globalSettings.jsonc` file. You will need to update the file.
 
 Deprecated top-level elements:
 

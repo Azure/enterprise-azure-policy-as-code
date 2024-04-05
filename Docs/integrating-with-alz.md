@@ -182,9 +182,6 @@ To deploy the ALZ policies using EPAC follow the steps below.
 
 7. Follow the normal steps to deploy the solution to the environment.
 
-> [!TIP]
-> Searching for comments in the assignment JSON files will show which values need to be updated.
-
 ## Keeping up to date with changes manually
 
 The Azure Landing Zone deployment contains a number of policies which help provide guardrails to an environment, and the team which works on these policies is always providing updates to the original content to keep in line with Microsoft best practice and road map. The EPAC solution contains a function to help synchronize changes from the upstream project
@@ -197,14 +194,17 @@ Sync-ALZPolicies -DefinitionsRootFolder .\Definitions -CloudEnvironment AzureClo
 
 Carefully review the proposed changes before deploying them. It is best to make sure you're project is stored in source control so you can easily see which files have changed before deployment.
 
-> [!WARNING]
-> If you have follow Scenario 1 above, the first time you run the `Sync-ALZPolicies` there will be many changes recorded due to formatting. Review the files completely before deploying.
+!!! warning
 
-> [!WARNING]
-> Assignments deployed via the ALZ accelerators are kept in sync with the EnterprisePolicyAsCode module so ensure you have the latest PowerShell module installed before running `Sync-ALZPolicies`
+    If you have follow Scenario 1 above, the first time you run the `Sync-ALZPolicies` there will be many changes recorded due to formatting. Review the files completely before deploying.
 
-> [!TIP]
-> Rename or copy the default ALZ assignment files - when you do a sync it makes it easier to compare changes. 
+!!! warning
+
+    Assignments deployed via the ALZ accelerators are kept in sync with the EnterprisePolicyAsCode module so ensure you have the latest PowerShell module installed before running `Sync-ALZPolicies`
+
+!!! tip
+
+    Rename or copy the default ALZ assignment files - when you do a sync it makes it easier to compare changes. 
 
 ## Keeping up to date with GitHub Actions
 

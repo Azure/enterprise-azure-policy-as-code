@@ -2,7 +2,7 @@
 
 !!! danger "Caution"
 
-  EPAC is a true desired state deployment technology. It takes possession of all Policy Resources at the `deploymentRootScope` and its children. It will **delete any Policy resources not defined in the EPAC repo**. This behavior can be modified as documented in the [desired state strategy](desired-state-strategy.md) page.
+    EPAC is a true desired state deployment technology. It takes possession of all Policy Resources at the `deploymentRootScope` and its children. It will **delete any Policy resources not defined in the EPAC repo**. This behavior can be modified as documented in the [desired state strategy](desired-state-strategy.md) page.
 
 ## Getting Started
 
@@ -28,8 +28,9 @@ The following steps are required to implement Enterprise Policy as Code (EPAC) i
 
 ## EPAC Concepts and Environments
 
-> [!IMPORTANT]
-> Understanding the concepts and  environments is crucial. Do **not** proceed until you completely understand this section.
+!!! success "Important"
+
+    Understanding the concepts and  environments is crucial. Do **not** proceed until you completely understand this section.
 
 ### EPAC Concepts
 
@@ -56,26 +57,6 @@ These associations are stored in [global-settings.jsonc](settings-global-setting
 ### Multi-Tenant Support
 
 EPAC supports single and multi-tenant deployments from a single source. In most cases you should have a fully or partially isolated area for Policy development and testing, such as a Management Group. An entire tenant can be used; however, it is not necessary since EPAC has sophisticated partitioning capabilities.  EPAC also supports deployments to managed (Lighthouse) tenants and is able to deploy cross tenant role assignments to projected subscriptions in order to facilitate writing data back to the managing tenant (e.g. diagnostic settings).
-
-> [!IMPORTANT]
-> In some multi-tenant implementations, not all policies, policy sets, and/or assignments will function in all tenants, usually due to either built-in policies that don't exist in some tenant types or unavailable resource providers.  In order to facilitate multi-tenant deployments in these scenarios, utilize the `epacCloudEnvironments` property to specify which cloud type a specific file should be considered in.  For example in order to have a policy definition deployed only to epacEnvironments that are China cloud tenants, add a metadata property like this to that definition (or definitionSet) file:
-
-```json
-"metadata": {
-  "epacCloudEnvironments": [
-    "AzureChinaCloud"
-  ]
-},
-```
-
-For assignment files, this is a top level property on the assignment's root node:
-
-```json
-"nodeName": "/root",
-"epacCloudEnvironments": [
-    "AzureChinaCloud"
-],
-```
 
 ### Example Management Group Structure and EPAC Environments
 
@@ -133,6 +114,28 @@ The simplest `global-settings.jsonc` for the above structure is:
     ]
 }
 ```
+
+## Cloud Environment with Unsupported/Missing Policy Definitions
+
+In some multi-tenant implementations, not all policies, policy sets, and/or assignments will function in all tenants, usually due to either built-in policies that don't exist in some tenant types or unavailable resource providers.  In order to facilitate multi-tenant deployments in these scenarios, utilize the `epacCloudEnvironments` property to specify which cloud type a specific file should be considered in.  For example in order to have a policy definition deployed only to epacEnvironments that are China cloud tenants, add a metadata property like this to that definition (or definitionSet) file:
+
+```json
+"metadata": {
+  "epacCloudEnvironments": [
+    "AzureChinaCloud"
+  ]
+},
+```
+
+For assignment files, this is a top level property on the assignment's root node:
+
+```json
+"nodeName": "/root",
+"epacCloudEnvironments": [
+    "AzureChinaCloud"
+],
+```
+
 
 ## Install Powershell and EPAC
 
