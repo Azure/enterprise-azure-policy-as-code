@@ -35,7 +35,7 @@ nav:
   - Define Policy Resources:
     - Policy Definitions: policy-definitions.md
     - Policy Set Definitions: policy-set-definitions.md
-    - Policy Assignment Files: policy-assignments-files.md
+    - Policy Assignment Files: policy-assignments.md
     - CSV Assignment Parameters: policy-assignments-csv-parameters.md
     - Policy Exemptions: policy-exemptions.md
   - Azure Landing Zones: 
@@ -48,7 +48,7 @@ nav:
     - Azure DevOps Pipelines: ci-cd-ado-pipelines.md
     - GitHub Actions: ci-cd-github-actions.md
   - Operational Scripts:
-    - Scripts Overview: operational-scripts-overview.md
+    - Scripts Overview: operational-scripts.md
     - Documenting Policy: operational-scripts-documenting-policy.md
     - Hydration Kit: operational-scripts-hydration-kit.md
     - Reference: operational-scripts-reference.md
