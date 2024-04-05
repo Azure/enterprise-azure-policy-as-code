@@ -115,6 +115,7 @@ if (Test-Path $SourceDirectory -PathType Container) {
     Write-Information "Copying files from root directory and workflows '$SourceDirectory' to '$DestinationDirectory'"
     Copy-Item "$SourceDirectory/CODE_OF_CONDUCT.md" "$DestinationDirectory"
     Copy-Item "$SourceDirectory/LICENSE" "$DestinationDirectory"
+    Copy-Item "$SourceDirectory/mkdocs.yml" "$DestinationDirectory"
     Copy-Item "$SourceDirectory/README.md" "$DestinationDirectory"
     Copy-Item "$SourceDirectory/SECURITY.md" "$DestinationDirectory"
     Copy-Item "$SourceDirectory/SUPPORT.md" "$DestinationDirectory"
