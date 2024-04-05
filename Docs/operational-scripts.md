@@ -49,9 +49,6 @@ See usage documentation in [Documenting Policy](operational-scripts-documenting-
 - `full-details-by-assignment.csv` contains the details of the non-compliant resources sorted by Policy Assignment id.
 - `full-details-by-resource.csv` contains the details of the non-compliant resources sorted by Resource id including the Policy Assignment details.
 
-<details>
-<summary>Sample Output</summary>
-
 ### Sample `summary-by-policy.csv`
 
 | Category | Policy Name | Policy Id | Non Compliant | Unknown | Not Started | Exempt | Conflicting | Error | Assignment Ids | Group Names |
@@ -66,4 +63,3 @@ See usage documentation in [Documenting Policy](operational-scripts-documenting-
 | /subscriptions/******************************** | ******************************** | PAC-DEV-001 |  | subscriptions |  |  | 25 | 481 | 0 | 0 | 0 | 0 |
 | /subscriptions/********************************/providers/microsoft.authorization/roledefinitions/0b00bc79-2207-410c-b9d5-d5d182ad514f | ******************************** | PAC-DEV-001 |  | microsoft.authorization/roledefinitions | 0b00bc79-2207-410c-b9d5-d5d182ad514f |  | 0 | 0 | 0 | 0 | 0 | 0 |
 
-</details>

@@ -1,14 +1,16 @@
 # Changes in v10.0.0
 
-> [!CAUTION]
-> Read the [breaking changes](#breaking-changes-in-v1000) carefully and adjust your environment accordingly.
+!!! danger "Caution"
+
+  Read the [breaking changes](#breaking-changes-in-v1000) carefully and adjust your environment accordingly.
 
 ## Breaking Changes in v10.0.0
 
 ### Changes in `globalSettings.jsonc`
 
-> [!CAUTION]
-We heavily reworked the `globalSettings.jsonc` file. You will need to update the file.
+!!! warning
+
+  We heavily reworked the `globalSettings.jsonc` file. You will need to update the file.
 
 Deprecated top-level elements:
 
