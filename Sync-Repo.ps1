@@ -9,14 +9,19 @@
         * Module
         * Schemas
         * Scripts
+        * Scripts-Deprecated
         * StarterKit
     * Files in root folder ($SourceDirectory)
         * CODE_OF_CONDUCT.md
         * LICENSE
+        * mkdocs.yml
         * README.md
         * SECURITY.md
         * SUPPORT.md
         * Sync-Repo.ps1
+        * Sync-FromGH.ps1
+        * Sync-ToGH.ps1
+        * .github (workflows for publishing to PSGallery)
 
 .PARAMETER SourceDirectory
     Directory with the source (cloned or forked/cloned repo)
@@ -84,6 +89,10 @@ if (Test-Path $SourceDirectory -PathType Container) {
             Write-Information "Deleting '$DestinationDirectory/Scripts'"
             Remove-Item "$DestinationDirectory/Scripts" -Recurse
         }
+        if (Test-Path "$DestinationDirectory/Scripts-Deprecated") {
+            Write-Information "Deleting '$DestinationDirectory/Scripts-Deprecated'"
+            Remove-Item "$DestinationDirectory/Scripts-Deprecated" -Recurse
+        }
         if (Test-Path "$DestinationDirectory/StarterKit") {
             Write-Information "Deleting '$DestinationDirectory/StarterKit'"
             Remove-Item "$DestinationDirectory/StarterKit" -Recurse
@@ -98,14 +107,20 @@ if (Test-Path $SourceDirectory -PathType Container) {
     Copy-Item "$SourceDirectory/Schemas" "$DestinationDirectory/Schemas" -Recurse -Force
     Write-Information "Copying '$SourceDirectory/Scripts' to '$DestinationDirectory/Scripts'"
     Copy-Item "$SourceDirectory/Scripts" "$DestinationDirectory/Scripts" -Recurse -Force
+    Write-Information "Copying '$SourceDirectory/Scripts-Deprecated' to '$DestinationDirectory/Scripts-Deprecated'"
+    Copy-Item "$SourceDirectory/Scripts-Deprecated" "$DestinationDirectory/Scripts-Deprecated" -Recurse -Force
     Write-Information "Copying '$SourceDirectory/StarterKit' to '$DestinationDirectory/StarterKit'"
     Copy-Item "$SourceDirectory/StarterKit" "$DestinationDirectory/StarterKit" -Recurse -Force
 
-    Write-Information "Copying files from root directory '$SourceDirectory' to '$DestinationDirectory'"
-    Copy-Item "$SourceDirectory/*.md" "$DestinationDirectory"
-    Copy-Item "$SourceDirectory/*.ps1" "$DestinationDirectory"
-    Copy-Item "$SourceDirectory/*.yml" "$DestinationDirectory"
+    Write-Information "Copying files from root directory and workflows '$SourceDirectory' to '$DestinationDirectory'"
+    Copy-Item "$SourceDirectory/CODE_OF_CONDUCT.md" "$DestinationDirectory"
     Copy-Item "$SourceDirectory/LICENSE" "$DestinationDirectory"
+    Copy-Item "$SourceDirectory/README.md" "$DestinationDirectory"
+    Copy-Item "$SourceDirectory/SECURITY.md" "$DestinationDirectory"
+    Copy-Item "$SourceDirectory/SUPPORT.md" "$DestinationDirectory"
+    Copy-Item "$SourceDirectory/Sync-Repo.ps1" "$DestinationDirectory"
+    Copy-Item "$SourceDirectory/Sync-FromGH.ps1" "$DestinationDirectory"
+    Copy-Item "$SourceDirectory/Sync-ToGH.ps1" "$DestinationDirectory"
 }
 else {
     Write-Error "The source directory '$SourceDirectory' must exist" -ErrorAction Stop

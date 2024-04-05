@@ -99,7 +99,7 @@ param(
     [Parameter(Mandatory = $false, HelpMessage = "Filter by Policy Effect")]
     [string[]] $PolicyEffectFilter = $null,
 
-    [Parameter(Mandatory = $false, HelpMessage = "Switch parmeter to filter out Policy Effect Manual")]
+    [Parameter(Mandatory = $false, HelpMessage = "Switch parameter to filter out Policy Effect Manual")]
     [switch] $ExcludeManualPolicyEffect,
 
     [Parameter(Mandatory = $false, HelpMessage = "Filter by Policy Effect `"deployifnotexists`" and `"modify`" and compliance status `"NonCompliant`"")]

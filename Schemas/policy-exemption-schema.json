@@ -1,5 +1,5 @@
 {
-    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
     "properties": {
         "exemptions": {
@@ -32,6 +32,18 @@
                         "policyDefinitionReferenceIds": {
                             "type": "array"
                         },
+                        "policyId": {
+                            "type": "string"
+                        },
+                        "policyName": {
+                            "type": "string"
+                        },
+                        "policySetId": {
+                            "type": "string"
+                        },
+                        "policySetName": {
+                            "type": "string"
+                        },
                         "resourceSelectors": {
                             "type": "array"
                         },
@@ -43,12 +55,38 @@
                         }
                     },
                     "additionalProperties": false,
+                    "oneOf": [
+                        {
+                            "required": [
+                                "policyAssignmentId"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "policyId"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "policyName"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "policySetId"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "policySetName"
+                            ]
+                        }
+                    ],
                     "required": [
                         "name",
                         "displayName",
                         "exemptionCategory",
-                        "scope",
-                        "policyAssignmentId"
+                        "scope"
                     ]
                 }
             ]

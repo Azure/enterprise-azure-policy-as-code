@@ -1,8 +1,6 @@
 function Switch-PacEnvironment {
     [CmdletBinding()]
     param (
-        [int] $DefinitionStartingLine,
-        [int] $DefinitionEndingLine,
         [hashtable] $PacEnvironments,
         [string] $PacEnvironmentSelector,
         [bool] $Interactive
@@ -14,7 +12,7 @@ function Switch-PacEnvironment {
         $pacEnvironment = $PacEnvironments.$PacEnvironmentSelector
     }
     else {
-        Write-Error "    pacEnvironment '$PacEnvironmentSelector' in definition on lines $DefinitionStartingLine - $DefinitionEndingLine does not exist" -ErrorAction Stop
+        Write-Error "    pacEnvironment '$PacEnvironmentSelector' does not exist" -ErrorAction Stop
     }
     $null = Set-AzCloudTenantSubscription `
         -Cloud $pacEnvironment.cloud `

@@ -43,7 +43,7 @@ if ($DeploymentRootScope.StartsWith('/providers/Microsoft.Management/managementG
         if (Get-AzLocation | Where-Object { $_.Location -eq $ManagedIdentityLocation }) {
             $jsonstrings = @("{""`$schema"": ""https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/global-settings-schema.json"", ""pacOwnerId"": """,
                 """, ""managedIdentityLocations"": { ""*"": """,
-                """}, ""globalNotScopes"": { ""*"": [""/resourceGroupPatterns/excluded-rg*""] }, ""pacEnvironments"": [{ ""pacSelector"": ""quick-start"",""cloud"": ""AzureCloud"", ""tenantId"": """,
+                """}, ""pacEnvironments"": [{ ""pacSelector"": ""quick-start"",""cloud"": ""AzureCloud"", ""tenantId"": """,
                 """, ""deploymentRootScope"": ""$DeploymentRootScope""}]}"
             )
         

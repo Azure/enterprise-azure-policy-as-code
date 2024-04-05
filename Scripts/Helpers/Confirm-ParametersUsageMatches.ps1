@@ -56,7 +56,7 @@ function Confirm-ParametersUsageMatches {
             $definedParameterValue = $definedParameter.value
         }
 
-        if (!(Confirm-ObjectValueEqualityDeep $existingParameterValue $definedParameterValue -HandleRandomOrderArray)) {
+        if (!(Confirm-ObjectValueEqualityDeep $existingParameterValue $definedParameterValue)) {
             return $false
         }
     }

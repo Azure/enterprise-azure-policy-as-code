@@ -1,0 +1,77 @@
+name: 'Reusable Workflow: Plan Exemptions Only'
+
+on:
+  workflow_call:
+    inputs:
+      pacEnvironmentSelector:
+        required: true
+        type: string
+      planGitHubEnvironment:
+        required: true
+        type: string
+      PAC_OUTPUT_FOLDER:
+        required: true
+        type: string
+      PAC_DEFINITIONS_FOLDER:
+        required: true
+        type: string
+    outputs:
+      deployPolicyChanges:
+        description: "The result of evaluating if a policy deployment is required"
+        value: ${{ jobs.plan.outputs.deployPolicyChanges }}
+      deployRoleChanges:
+        description: "The result of evaluating if a role deployment is required"
+        value: ${{ jobs.plan.outputs.deployRoleChanges }}
+
+env:
+  pacEnvironmentSelector: ${{ inputs.pacEnvironmentSelector }}
+  PAC_OUTPUT_FOLDER: ${{ inputs.PAC_OUTPUT_FOLDER }}
+  PAC_DEFINITIONS_FOLDER: ${{ inputs.PAC_DEFINITIONS_FOLDER }}
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.planGitHubEnvironment }}
+    outputs:
+      deployPolicyChanges: ${{ steps.detectPlan.outputs.deployPolicyChanges }}
+      deployRoleChanges: ${{ steps.detectPlan.outputs.deployRoleChanges }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          enable-AzPSSession: true
+          allow-no-subscriptions: true
+
+      - name: Plan
+        uses: azure/powershell@v2
+        with:
+          inlineScript: 'Scripts/Deploy/Build-DeploymentPlans.ps1 -PacEnvironmentSelector ${{ env.pacEnvironmentSelector }} -BuildExemptionsOnly -InformationAction Continue'
+          azPSVersion: "latest"
+
+      - name: Detect Plan
+        id: detectPlan
+        run: |
+          if (Test-Path $env:PAC_OUTPUT_FOLDER) {
+            echo "deployPolicyChanges=yes" >> $env:GITHUB_OUTPUT
+            if (Get-ChildItem $env:PAC_OUTPUT_FOLDER -Recurse -Include roles-plan.json){
+              echo "deployRoleChanges=yes" >> $env:GITHUB_OUTPUT
+            }
+          }
+          else {
+            echo "::notice title=Detect Plan::Plan not found. Nothing to deploy. Skipping remaining tasks and deploy jobs..."
+          }
+        shell: pwsh
+
+      - name: Upload Deployment Plan as Artifact
+        if: steps.detectPlan.outputs.deployPolicyChanges == 'yes' || steps.detectPlan.outputs.deployRoleChanges == 'yes'
+        uses: actions/upload-artifact@v4
+        with:
+          name: "plans-${{ inputs.pacEnvironmentSelector }}"
+          path: ${{ env.PAC_OUTPUT_FOLDER }}
+          if-no-files-found: error

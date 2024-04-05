@@ -9,7 +9,7 @@ function Confirm-ParametersDefinitionMatch {
 
     $existingParameters = ConvertTo-HashTable $ExistingParametersObj
     $definedParameters = ConvertTo-HashTable $DefinedParametersObj
-    $addedParameters = Get-HashtableShallowClone $definedParameters
+    $addedParameters = Get-ClonedObject $definedParameters -AsHashTable -AsShallowClone
     foreach ($existingParameterName in $existingParameters.Keys) {
         if ($definedParameters.Keys -contains $existingParameterName) {
             # Remove key from $addedParameters
@@ -28,7 +28,7 @@ function Confirm-ParametersDefinitionMatch {
             }
 
             # Analyze parameter allowedValues
-            $thisMatch = Confirm-ObjectValueEqualityDeep $existing.allowedValues $defined.allowedValues -HandleRandomOrderArray
+            $thisMatch = Confirm-ObjectValueEqualityDeep $existing.allowedValues $defined.allowedValues
             if (!$thisMatch) {
                 $match = $false
                 if ($null -eq $defined.defaultValue) {
@@ -46,7 +46,7 @@ function Confirm-ParametersDefinitionMatch {
 
             $existingMetadata = $existing.metadata
             $definedMetadata = $defined.metadata
-            $thisMatch = Confirm-ObjectValueEqualityDeep $existingMetadata $definedMetadata -HandleRandomOrderArray
+            $thisMatch = Confirm-ObjectValueEqualityDeep $existingMetadata $definedMetadata
             if (!$thisMatch) {
                 $match = $false
                 if ($existingMetadata.strongType -ne $definedMetadata.strongType) {

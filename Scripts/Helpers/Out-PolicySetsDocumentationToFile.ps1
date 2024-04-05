@@ -8,7 +8,8 @@ function Out-PolicySetsDocumentationToFile {
         [array] $ItemList,
         [array] $EnvironmentColumnsInCsv,
         [hashtable] $PolicySetDetails,
-        [hashtable] $FlatPolicyList
+        [hashtable] $FlatPolicyList,
+        [switch] $IncludeManualPolicies
     )
 
     Write-Information "Generating Policy Set documentation for '$Title', files '$FileNameStem'."
@@ -49,37 +50,51 @@ function Out-PolicySetsDocumentationToFile {
         $policySetList = $_.policySetList
         $addedEffectColumns = ""
         $addedRows = ""
-        foreach ($item in $ItemList) {
-            $shortName = $item.shortName
-            if ($policySetList.ContainsKey($shortName)) {
-                $perPolicySet = $policySetList.$shortName
-                $effectValue = $perPolicySet.effectValue
-                $effectAllowedValues = $perPolicySet.effectAllowedValues
-                $text = Convert-EffectToMarkdownString `
-                    -Effect $effectValue `
-                    -AllowedValues $effectAllowedValues
-                $addedEffectColumns += " $text |"
+        $effectValue = "Unknown"
+        if ($null -ne $_.effectValue) {
+            $effectValue = $_.effectValue
+        }
+        else {
+            $effectValue = $_.effectDefault
+        }
 
-                [array] $groupNames = $perPolicySet.groupNames
-                $parameters = $perPolicySet.parameters
-                if ($parameters.psbase.Count -gt 0 -or $groupNames.Count -gt 0) {
-                    $addedRows += "<br/>*$($perPolicySet.displayName):*"
-                    $text = Convert-ParametersToString -Parameters $parameters -OutputType "markdown"
-                    $addedRows += $text
-                    foreach ($groupName in $groupNames) {
-                        $addedRows += "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$groupName"
+        if ($effectValue -ne "Manual" -or $IncludeManualPolicies) {
+
+            foreach ($item in $ItemList) {
+                $shortName = $item.shortName
+                if ($policySetList.ContainsKey($shortName)) {
+                    $perPolicySet = $policySetList.$shortName
+                    $effectValue = $perPolicySet.effectValue
+                    $effectAllowedValues = $perPolicySet.effectAllowedValues
+                    $text = Convert-EffectToMarkdownString `
+                        -Effect $effectValue `
+                        -AllowedValues $effectAllowedValues
+                    $addedEffectColumns += " $text |"
+
+                    [array] $groupNames = $perPolicySet.groupNames
+                    $parameters = $perPolicySet.parameters
+                    if ($parameters.psbase.Count -gt 0 -or $groupNames.Count -gt 0) {
+                        $addedRows += "<br/>*$($perPolicySet.displayName):*"
+                        $text = Convert-ParametersToString -Parameters $parameters -OutputType "markdown"
+                        $addedRows += $text
+                        foreach ($groupName in $groupNames) {
+                            $addedRows += "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$groupName"
+                        }
                     }
                 }
+                else {
+                    $addedEffectColumns += "  |"
+                }
             }
-            else {
-                $addedEffectColumns += "  |"
+            $referencePathString = ""
+            if ($_.referencePath -ne "") {
+                $referencePathString = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;referencePath: ``$($_.referencePath)``<br/>"
             }
+            $null = $body.Add("| $($_.category) | **$($_.displayName)**<br/>$($referencePathString)$($_.description)$($addedRows) |$addedEffectColumns")
         }
-        $referencePathString = ""
-        if ($_.referencePath -ne "") {
-            $referencePathString = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;referencePath: ``$($_.referencePath)``<br/>"
+        else {
+            Write-Verbose "Skipping manual policy: $($_.name)"
         }
-        $null = $body.Add("| $($_.category) | **$($_.displayName)**<br/>$($referencePathString)$($_.description)$($addedRows) |$addedEffectColumns")
     }
     $null = $headerAndToc.Add("`n<br/>")
     $null = $allLines.AddRange($headerAndToc)
@@ -138,38 +153,52 @@ function Out-PolicySetsDocumentationToFile {
         $effectDefault = $_.effectDefault
         $policySetEffectStrings = $_.policySetEffectStrings
 
-        # Build common columns
-        $rowObj.name = $_.name
-        $rowObj.referencePath = $_.referencePath
-        $rowObj.policyType = $_.policyType
-        $rowObj.category = $_.category
-        $rowObj.displayName = $_.displayName
-        $rowObj.description = $_.description
-        if ($groupNamesList.Count -gt 0) {
-            $rowObj.groupNames = $groupNamesList -join $inCellSeparator3
+        $effectValue = "Unknown"
+        if ($null -ne $_.effectValue) {
+            $effectValue = $_.effectValue
         }
-        if ($policySetEffectStrings.Count -gt 0) {
-            $rowObj.policySets = $policySetEffectStrings -join $inCellSeparator3
-        }
-        $rowObj.allowedEffects = Convert-AllowedEffectsToCsvString `
-            -DefaultEffect $effectDefault `
-            -IsEffectParameterized $isEffectParameterized `
-            -EffectAllowedValues $effectAllowedValues.Keys `
-            -EffectAllowedOverrides $effectAllowedOverrides `
-            -InCellSeparator1 $inCellSeparator1 `
-            -InCellSeparator2 $inCellSeparator2
-
-        # Per environment columns
-        $parameters = $_.parameters
-        $parametersValueString = Convert-ParametersToString -Parameters $parameters -OutputType "csvValues"
-        $normalizedEffectDefault = Convert-EffectToCsvString -Effect $effectDefault
-        foreach ($environmentCategory in $EnvironmentColumnsInCsv) {
-            $rowObj["$($environmentCategory)Effect"] = $normalizedEffectDefault
-            $rowObj["$($environmentCategory)Parameters"] = $parametersValueString
+        else {
+            $effectValue = $_.effectDefault
         }
 
-        # Add row to spreadsheet
-        $null = $allRows.Add($rowObj)
+        if ($effectValue -ne "Manual" -or $IncludeManualPolicies) {
+
+            # Build common columns
+            $rowObj.name = $_.name
+            $rowObj.referencePath = $_.referencePath
+            $rowObj.policyType = $_.policyType
+            $rowObj.category = $_.category
+            $rowObj.displayName = $_.displayName
+            $rowObj.description = $_.description
+            if ($groupNamesList.Count -gt 0) {
+                $rowObj.groupNames = $groupNamesList -join $inCellSeparator3
+            }
+            if ($policySetEffectStrings.Count -gt 0) {
+                $rowObj.policySets = $policySetEffectStrings -join $inCellSeparator3
+            }
+            $rowObj.allowedEffects = Convert-AllowedEffectsToCsvString `
+                -DefaultEffect $effectDefault `
+                -IsEffectParameterized $isEffectParameterized `
+                -EffectAllowedValues $effectAllowedValues.Keys `
+                -EffectAllowedOverrides $effectAllowedOverrides `
+                -InCellSeparator1 $inCellSeparator1 `
+                -InCellSeparator2 $inCellSeparator2
+
+            # Per environment columns
+            $parameters = $_.parameters
+            $parametersValueString = Convert-ParametersToString -Parameters $parameters -OutputType "csvValues"
+            $normalizedEffectDefault = Convert-EffectToCsvString -Effect $effectDefault
+            foreach ($environmentCategory in $EnvironmentColumnsInCsv) {
+                $rowObj["$($environmentCategory)Effect"] = $normalizedEffectDefault
+                $rowObj["$($environmentCategory)Parameters"] = $parametersValueString
+            }
+
+            # Add row to spreadsheet
+            $null = $allRows.Add($rowObj)
+        }
+        else {
+            Write-Verbose "Skipping manual policy: $($_.name)"
+        }
     }
 
     # Output file

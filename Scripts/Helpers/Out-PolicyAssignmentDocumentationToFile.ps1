@@ -4,7 +4,8 @@ function Out-PolicyAssignmentDocumentationToFile {
         [string] $OutputPath,
         [switch] $WindowsNewLineCells,
         $DocumentationSpecification,
-        [hashtable] $AssignmentsByEnvironment
+        [hashtable] $AssignmentsByEnvironment,
+        [switch] $IncludeManualPolicies
     )
 
     [string] $fileNameStem = $DocumentationSpecification.fileNameStem
@@ -38,62 +39,9 @@ function Out-PolicyAssignmentDocumentationToFile {
         $perEnvironment = $AssignmentsByEnvironment.$environmentCategory
         $flatPolicyList = $perEnvironment.flatPolicyList
         foreach ($policyTableId in $flatPolicyList.Keys) {
+
             $flatPolicyEntry = $flatPolicyList.$policyTableId
             $isEffectParameterized = $flatPolicyEntry.isEffectParameterized
-
-            $flatPolicyEntryAcrossEnvironments = @{}
-            if ($flatPolicyListAcrossEnvironments.ContainsKey($policyTableId)) {
-                $flatPolicyEntryAcrossEnvironments = $flatPolicyListAcrossEnvironments.$policyTableId
-                if ($isEffectParameterized) {
-                    $flatPolicyEntry.isEffectParameterized = $true
-                }
-            }
-            else {
-                $flatPolicyEntryAcrossEnvironments = @{
-                    policyTableId          = $policyTableId
-                    name                   = $flatPolicyEntry.name
-                    referencePath          = $flatPolicyEntry.ReferencePath
-                    displayName            = $flatPolicyEntry.displayName
-                    description            = $flatPolicyEntry.description
-                    policyType             = $flatPolicyEntry.policyType
-                    category               = $flatPolicyEntry.category
-                    isEffectParameterized  = $isEffectParameterized
-                    ordinal                = 99
-                    effectAllowedValues    = @{}
-                    effectAllowedOverrides = $flatPolicyEntry.effectAllowedOverrides
-                    environmentList        = @{}
-                    groupNames             = [System.Collections.ArrayList]::new()
-                    policySetList          = @{}
-                    policySetEffectStrings = $flatPolicyEntry.policySetEffectStrings
-                }
-                $null = $flatPolicyListAcrossEnvironments.Add($policyTableId, $flatPolicyEntryAcrossEnvironments)
-            }
-
-            # Find out lowest ordinal for grouping (optional)
-            if ($flatPolicyEntry.ordinal -lt $flatPolicyEntryAcrossEnvironments.ordinal) {
-                $flatPolicyEntryAcrossEnvironments.ordinal = $flatPolicyEntry.ordinal
-            }
-
-            # Collect union of all effect parameter allowed values
-            $effectAllowedValues = $flatPolicyEntryAcrossEnvironments.effectAllowedValues
-            foreach ($allowedValue in $flatPolicyEntry.effectAllowedValues.Keys) {
-                if (-not $effectAllowedValues.ContainsKey($allowedValue)) {
-                    $null = $effectAllowedValues.Add($allowedValue, $allowedValue)
-                }
-            }
-
-            # Collect union of all group names
-            $groupNamesList = $flatPolicyEntry.groupNamesList
-            if ($null -ne $groupNamesList -and $groupNamesList.Count -gt 0) {
-                $existingGroupNames = $flatPolicyEntryAcrossEnvironments.groupNames
-                $existingGroupNames.AddRange($groupNamesList)
-            }
-
-            # Collect environment category specific items
-            $environmentList = $flatPolicyEntryAcrossEnvironments.environmentList
-            if ($environmentList.ContainsKey($environmentCategory)) {
-                Write-Error "Duplicate environmentCategory '$environmentCategory' encountered - bug in EPAC PowerShell code" -ErrorAction Stop
-            }
             $effectValue = "Unknown"
             if ($null -ne $flatPolicyEntry.effectValue) {
                 $effectValue = $flatPolicyEntry.effectValue
@@ -101,38 +49,98 @@ function Out-PolicyAssignmentDocumentationToFile {
             else {
                 $effectValue = $flatPolicyEntry.effectDefault
             }
-            $environmentCategoryInfo = @{
-                environmentCategory = $environmentCategory
-                effectValue         = $effectValue
-                parameters          = $flatPolicyEntry.parameters
 
-                policySetList       = $flatPolicyEntry.policySetList
-            }
-            $null = $environmentList.Add($environmentCategory, $environmentCategoryInfo)
+            if ($effectValue -ne "Manual" -or $IncludeManualPolicies) {
 
-            # Collect policySet specific items
-            $policySetList = $flatPolicyEntryAcrossEnvironments.policySetList
-            $flatPolicyEntryPolicySetList = $flatPolicyEntry.policySetList
-            foreach ($shortName in $flatPolicyEntryPolicySetList.Keys) {
-                $policySetInfo = $flatPolicyEntryPolicySetList.$shortName
-                if (-not $policySetList.ContainsKey($shortName)) {
-                    $policySetEntry = @{
-                        shortName              = $shortName
-                        id                     = $policySetInfo.id
-                        name                   = $policySetInfo.name
-                        displayName            = $policySetInfo.displayName
-                        description            = $policySetInfo.description
-                        policyType             = $policySetInfo.policyType
-                        effectParameterName    = $policySetInfo.effectParameterName
-                        effectDefault          = $policySetInfo.effectDefault
-                        effectAllowedValues    = $policySetInfo.effectAllowedValues
-                        effectAllowedOverrides = $policySetInfo.effectAllowedOverrides
-                        effectReason           = $policySetInfo.effectReason
-                        isEffectParameterized  = $policySetInfo.isEffectParameterized
-                        parameters             = $policySetInfo.parameters
+                $flatPolicyEntryAcrossEnvironments = @{}
+                if ($flatPolicyListAcrossEnvironments.ContainsKey($policyTableId)) {
+                    $flatPolicyEntryAcrossEnvironments = $flatPolicyListAcrossEnvironments.$policyTableId
+                    if ($isEffectParameterized) {
+                        $flatPolicyEntry.isEffectParameterized = $true
                     }
-                    $null = $policySetList.Add($shortName, $policySetEntry)
                 }
+                else {
+                    $flatPolicyEntryAcrossEnvironments = @{
+                        policyTableId          = $policyTableId
+                        name                   = $flatPolicyEntry.name
+                        referencePath          = $flatPolicyEntry.ReferencePath
+                        displayName            = $flatPolicyEntry.displayName
+                        description            = $flatPolicyEntry.description
+                        policyType             = $flatPolicyEntry.policyType
+                        category               = $flatPolicyEntry.category
+                        isEffectParameterized  = $isEffectParameterized
+                        ordinal                = 99
+                        effectAllowedValues    = @{}
+                        effectAllowedOverrides = $flatPolicyEntry.effectAllowedOverrides
+                        environmentList        = @{}
+                        groupNames             = [System.Collections.ArrayList]::new()
+                        policySetList          = @{}
+                        policySetEffectStrings = $flatPolicyEntry.policySetEffectStrings
+                    }
+                    $null = $flatPolicyListAcrossEnvironments.Add($policyTableId, $flatPolicyEntryAcrossEnvironments)
+                }
+
+                # Find out lowest ordinal for grouping (optional)
+                if ($flatPolicyEntry.ordinal -lt $flatPolicyEntryAcrossEnvironments.ordinal) {
+                    $flatPolicyEntryAcrossEnvironments.ordinal = $flatPolicyEntry.ordinal
+                }
+
+                # Collect union of all effect parameter allowed values
+                $effectAllowedValues = $flatPolicyEntryAcrossEnvironments.effectAllowedValues
+                foreach ($allowedValue in $flatPolicyEntry.effectAllowedValues.Keys) {
+                    if (-not $effectAllowedValues.ContainsKey($allowedValue)) {
+                        $null = $effectAllowedValues.Add($allowedValue, $allowedValue)
+                    }
+                }
+
+                # Collect union of all group names
+                $groupNamesList = $flatPolicyEntry.groupNamesList
+                if ($null -ne $groupNamesList -and $groupNamesList.Count -gt 0) {
+                    $existingGroupNames = $flatPolicyEntryAcrossEnvironments.groupNames
+                    $existingGroupNames.AddRange($groupNamesList)
+                }
+
+                # Collect environment category specific items
+                $environmentList = $flatPolicyEntryAcrossEnvironments.environmentList
+                if ($environmentList.ContainsKey($environmentCategory)) {
+                    Write-Error "Duplicate environmentCategory '$environmentCategory' encountered - bug in EPAC PowerShell code" -ErrorAction Stop
+                }
+                $environmentCategoryInfo = @{
+                    environmentCategory = $environmentCategory
+                    effectValue         = $effectValue
+                    parameters          = $flatPolicyEntry.parameters
+
+                    policySetList       = $flatPolicyEntry.policySetList
+                }
+                $null = $environmentList.Add($environmentCategory, $environmentCategoryInfo)
+
+                # Collect policySet specific items
+                $policySetList = $flatPolicyEntryAcrossEnvironments.policySetList
+                $flatPolicyEntryPolicySetList = $flatPolicyEntry.policySetList
+                foreach ($shortName in $flatPolicyEntryPolicySetList.Keys) {
+                    $policySetInfo = $flatPolicyEntryPolicySetList.$shortName
+                    if (-not $policySetList.ContainsKey($shortName)) {
+                        $policySetEntry = @{
+                            shortName              = $shortName
+                            id                     = $policySetInfo.id
+                            name                   = $policySetInfo.name
+                            displayName            = $policySetInfo.displayName
+                            description            = $policySetInfo.description
+                            policyType             = $policySetInfo.policyType
+                            effectParameterName    = $policySetInfo.effectParameterName
+                            effectDefault          = $policySetInfo.effectDefault
+                            effectAllowedValues    = $policySetInfo.effectAllowedValues
+                            effectAllowedOverrides = $policySetInfo.effectAllowedOverrides
+                            effectReason           = $policySetInfo.effectReason
+                            isEffectParameterized  = $policySetInfo.isEffectParameterized
+                            parameters             = $policySetInfo.parameters
+                        }
+                        $null = $policySetList.Add($shortName, $policySetEntry)
+                    }
+                }
+            }
+            else {
+                Write-Verbose "Skipping Manual effect Policy '$($flatPolicyEntry.displayName)'"
             }
         }
     }

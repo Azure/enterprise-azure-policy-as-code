@@ -115,7 +115,7 @@ function Build-AssignmentDefinitionAtLeaf {
 
     #endregion Validate CSV data
 
-    $assignmentsList = @()
+    $assignmentsList = [System.Collections.ArrayList]::new()
     $policiesDetails = $CombinedPolicyDetails.policies
     $policySetsDetails = $CombinedPolicyDetails.policySets
     $effectProcessedForPolicy = @{}
@@ -164,23 +164,18 @@ function Build-AssignmentDefinitionAtLeaf {
             continue
         }
         $enforcementMode = $AssignmentDefinition.enforcementMode
-        $metadata = $AssignmentDefinition.metadata
-        if ($metadata) {
-            if ($metadata.ContainsKey("pacOwnerId")) {
-                Write-Error "    Leaf Node $($nodeName): metadata.pacOwnerId ($($metadata.pacOwnerId)) may not be set explicitly; it is reserved for EPAC usage."
-                $hasErrors = $true
-                continue
-            }
-            if ($metadata.ContainsKey("roles")) {
-                Write-Error "    Leaf Node $($nodeName): metadata.roles ($($metadata.roles)) may not be set explicitly; it is reserved for EPAC usage."
-                $hasErrors = $true
-                continue
-            }
-            $metadata.pacOwnerId = $thisPacOwnerId
+        $metadata = Get-ClonedObject $AssignmentDefinition.metadata -AsHashTable
+        if ($metadata.ContainsKey("pacOwnerId")) {
+            Write-Error "    Leaf Node $($nodeName): metadata.pacOwnerId ($($metadata.pacOwnerId)) may not be set explicitly; it is reserved for EPAC usage."
+            $hasErrors = $true
+            continue
         }
-        else {
-            $metadata = @{ pacOwnerId = $thisPacOwnerId }
+        if ($metadata.ContainsKey("roles")) {
+            Write-Error "    Leaf Node $($nodeName): metadata.roles ($($metadata.roles)) may not be set explicitly; it is reserved for EPAC usage."
+            $hasErrors = $true
+            continue
         }
+        $metadata.pacOwnerId = $thisPacOwnerId
 
         #endregion assignment name, displayName, description, metadata, enforcementMode
 
@@ -201,7 +196,7 @@ function Build-AssignmentDefinitionAtLeaf {
         }
         foreach ($nonComplianceMessageRaw in $nonComplianceMessagesList) {
             if ($null -eq $nonComplianceMessageRaw.message -or $nonComplianceMessageRaw.message -eq "") {
-                Write-Error "    Leaf Node $($nodeName): each nonComplianceMessage must conatin a message string: $($nonComplianceMessageRaw | ConvertTo-Json -Depth 3 -Compress)"
+                Write-Error "    Leaf Node $($nodeName): each nonComplianceMessage must conatin a message string: $($nonComplianceMessageRaw | ConvertTo-Json -Depth 100 -Compress)"
                 $hasErrors = $true
             }
         }
@@ -270,7 +265,7 @@ function Build-AssignmentDefinitionAtLeaf {
                         $null = $resourceSelectorsList.Add($resourceSelectorFinal)
                     }
                     else {
-                        Write-Error "    Leaf Node $($nodeName): resourceSelector is invalid: $($resourceSelector | ConvertTo-Json -Depth 3 -Compress)"
+                        Write-Error "    Leaf Node $($nodeName): resourceSelector is invalid: $($resourceSelector | ConvertTo-Json -Depth 100 -Compress)"
                         $hasErrors = $true
                     }
                 }
@@ -301,12 +296,12 @@ function Build-AssignmentDefinitionAtLeaf {
                             }
                         }
                         else {
-                            Write-Error "    Leaf Node $($nodeName): overrides must specify which Policy Set in the definitionEntryList they belong to by either using policySetName or policySetId: $($effectOverride | ConvertTo-Json -Depth 3 -Compress)"
+                            Write-Error "    Leaf Node $($nodeName): overrides must specify which Policy Set in the definitionEntryList they belong to by either using policySetName or policySetId: $($effectOverride | ConvertTo-Json -Depth 100 -Compress)"
                             $hasErrors = $true
                         }
                     }
                     elseif ($null -ne $policySetName -or $null -ne $policySetId) {
-                        Write-Error "    Leaf Node $($nodeName): overrides must NOT specify which Policy Set for a single definitionEntry it belongs to by using policySetName or policySetId: $($effectOverride | ConvertTo-Json -Depth 3 -Compress)"
+                        Write-Error "    Leaf Node $($nodeName): overrides must NOT specify which Policy Set for a single definitionEntry it belongs to by using policySetName or policySetId: $($effectOverride | ConvertTo-Json -Depth 100 -Compress)"
                         $hasErrors = $true
                     }
                     else {
@@ -328,12 +323,12 @@ function Build-AssignmentDefinitionAtLeaf {
                             }
                         }
                         else {
-                            Write-Error "    Leaf Node $($nodeName): overrides must specify which Policy in the definitionEntryList they belong to by either using policyName or policyId: $($effectOverride | ConvertTo-Json -Depth 3 -Compress)"
+                            Write-Error "    Leaf Node $($nodeName): overrides must specify which Policy in the definitionEntryList they belong to by either using policyName or policyId: $($effectOverride | ConvertTo-Json -Depth 100 -Compress)"
                             $hasErrors = $true
                         }
                     }
                     elseif ($null -ne $policySetName -or $null -ne $policySetId) {
-                        Write-Error "    Leaf Node $($nodeName): overrides must NOT specify which Policy for a single definitionEntry it belongs to by using policyName or policyId: $($effectOverride | ConvertTo-Json -Depth 3 -Compress)"
+                        Write-Error "    Leaf Node $($nodeName): overrides must NOT specify which Policy for a single definitionEntry it belongs to by using policyName or policyId: $($effectOverride | ConvertTo-Json -Depth 100 -Compress)"
                         $hasErrors = $true
                     }
                     else {
@@ -356,7 +351,7 @@ function Build-AssignmentDefinitionAtLeaf {
                                 }
                             }
                             else {
-                                Write-Error "    Leaf Node $($nodeName): overrides must specify a selectors element for an assignment of a Policy Set: $($effectOverride | ConvertTo-Json -Depth 3 -Compress)"
+                                Write-Error "    Leaf Node $($nodeName): overrides must specify a selectors element for an assignment of a Policy Set: $($effectOverride | ConvertTo-Json -Depth 100 -Compress)"
                                 $hasErrors = $true
                             }
                         }
@@ -370,12 +365,12 @@ function Build-AssignmentDefinitionAtLeaf {
                                     }
                                 }
                                 else {
-                                    Write-Error "    Leaf Node $($nodeName): overrides must specify a valid effect ($($effectAllowedOverrides -join ",")): $($effectOverride | ConvertTo-Json -Depth 3 -Compress)"
+                                    Write-Error "    Leaf Node $($nodeName): overrides must specify a valid effect ($($effectAllowedOverrides -join ",")): $($effectOverride | ConvertTo-Json -Depth 100 -Compress)"
                                     $hasErrors = $true
                                 }
                             }
                             else {
-                                Write-Error "    Leaf Node $($nodeName): overrides must NOT specify a selectors element for an assignment of a Policy: $($effectOverride | ConvertTo-Json -Depth 3 -Compress)"
+                                Write-Error "    Leaf Node $($nodeName): overrides must NOT specify a selectors element for an assignment of a Policy: $($effectOverride | ConvertTo-Json -Depth 100 -Compress)"
                                 $hasErrors = $true
                             }
                         }
@@ -384,7 +379,7 @@ function Build-AssignmentDefinitionAtLeaf {
                         }
                     }
                     else {
-                        Write-Error "    Leaf Node $($nodeName): overrides must specify a kind and value element: $($effectOverride | ConvertTo-Json -Depth 3 -Compress)"
+                        Write-Error "    Leaf Node $($nodeName): overrides must specify a kind and value element: $($effectOverride | ConvertTo-Json -Depth 100 -Compress)"
                         $hasErrors = $true
                     }
                 }
@@ -395,7 +390,6 @@ function Build-AssignmentDefinitionAtLeaf {
 
         #region identity (location, user-assigned, additionalRoleAssignments)
 
-        $baseRoleAssignmentSpecs = @()
         $roleDefinitionIds = $null
         $identityRequired = $false
         $managedIdentityLocation = $null
@@ -425,7 +419,7 @@ function Build-AssignmentDefinitionAtLeaf {
                                 }
                             }
                             else {
-                                Write-Error "    Leaf Node $($nodeName): userAssignedIdentity must specify which Policy Set in the definitionEntryList they belong to by either using policySetName or policySetId: $($userAssignedIdentityRaw | ConvertTo-Json -Depth 3 -Compress)"
+                                Write-Error "    Leaf Node $($nodeName): userAssignedIdentity must specify which Policy Set in the definitionEntryList they belong to by either using policySetName or policySetId: $($userAssignedIdentityRaw | ConvertTo-Json -Depth 100 -Compress)"
                                 $hasErrors = $true
                                 continue
                             }
@@ -444,7 +438,7 @@ function Build-AssignmentDefinitionAtLeaf {
                                 }
                             }
                             else {
-                                Write-Error "    Leaf Node $($nodeName): userAssignedIdentity must specify which Policy in the definitionEntryList they belong to by either using policyName or policyId: $($userAssignedIdentityRaw | ConvertTo-Json -Depth 3 -Compress)"
+                                Write-Error "    Leaf Node $($nodeName): userAssignedIdentity must specify which Policy in the definitionEntryList they belong to by either using policyName or policyId: $($userAssignedIdentityRaw | ConvertTo-Json -Depth 100 -Compress)"
                                 $hasErrors = $true
                                 continue
                             }
@@ -452,7 +446,7 @@ function Build-AssignmentDefinitionAtLeaf {
                     }
                 }
                 else {
-                    Write-Error "    Leaf Node $($nodeName): userAssignedIdentity is not valid: $($userAssignedIdentityRaw | ConvertTo-Json -Depth 3 -Compress)" -ErrorAction Stop
+                    Write-Error "    Leaf Node $($nodeName): userAssignedIdentity is not valid: $($userAssignedIdentityRaw | ConvertTo-Json -Depth 100 -Compress)" -ErrorAction Stop
                 }
             }
             $identityRequired = $true
@@ -473,23 +467,6 @@ function Build-AssignmentDefinitionAtLeaf {
                     type                   = "UserAssigned"
                     userAssignedIdentities = @{
                         $identity = @{}
-                    }
-                }
-            }
-
-            $additionalRoleAssignments = $AssignmentDefinition.additionalRoleAssignments
-            if ($additionalRoleAssignments -and $additionalRoleAssignments.Length -gt 0) {
-                foreach ($additionalRoleAssignment in $additionalRoleAssignments) {
-                    $roleDefinitionId = $additionalRoleAssignment.roleDefinitionId
-                    $roleDisplayName = "Unknown"
-                    $roleDefinitionName = ($roleDefinitionId.Split("/"))[-1]
-                    if ($RoleDefinitions.ContainsKey($roleDefinitionName)) {
-                        $roleDisplayName = $RoleDefinitions.$roleDefinitionName
-                    }
-                    $baseRoleAssignmentSpecs += @{
-                        scope            = $additionalRoleAssignment.scope
-                        roleDefinitionId = $roleDefinitionId
-                        roleDisplayName  = $roleDisplayName
                     }
                 }
             }
@@ -590,43 +567,75 @@ function Build-AssignmentDefinitionAtLeaf {
         foreach ($scopeEntry in $scopeCollection) {
 
             # Clone hashtable
-            [hashtable] $scopedAssignment = Get-DeepClone $baseAssignment -AsHashTable
-
-            # Complete processing roleDefinitions and add with metadata to hashtable
-            if ($identityRequired) {
-
-                $roleAssignmentSpecs = @()
-                $roleAssignmentSpecs += $baseRoleAssignmentSpecs
-                $roleDefinitionIds = $PolicyRoleIds.$policyDefinitionId
-                foreach ($roleDefinitionId in $roleDefinitionIds) {
-                    $roleDisplayName = "Unknown"
-                    if ($RoleDefinitions.ContainsKey($roleDefinitionId)) {
-                        $roleDisplayName = $RoleDefinitions.$roleDefinitionId
-                    }
-                    $roleAssignmentSpecs += @{
-                        scope            = $scopeEntry.scope
-                        roleDefinitionId = $roleDefinitionId
-                        roleDisplayName  = $roleDisplayName
-                    }
-                }
-                $scopedAssignment.metadata.roles = $roleAssignmentSpecs
-            }
+            [hashtable] $scopedAssignment = Get-ClonedObject $baseAssignment -AsHashTable
 
             # Add scope and if defined notScopes()
             $scope = $scopeEntry.scope
             $id = "$scope/providers/Microsoft.Authorization/policyAssignments/$($baseAssignment.name)"
             $scopedAssignment.id = $id
             $scopedAssignment.scope = $scope
-            if ($scopeEntry.notScope.Length -gt 0) {
-                $scopedAssignment.notScopes = @() + $scopeEntry.notScope
-            }
-            else {
-                $scopedAssignment.notScopes = @()
+            $notScopesList = $scopeEntry.notScopesList
+            $scopedAssignment.notScopes = $notScopesList
+
+            if ($identityRequired) {
+                # Add required roleDefinitions (required by Policy definitions)
+                $requiredRoleAssignments = [System.Collections.ArrayList]::new()
+                $policyRoleDefinitionIds = $PolicyRoleIds.$policyDefinitionId
+
+                foreach ($roleDefinitionId in $policyRoleDefinitionIds) {
+                    $roleDisplayName = "Unknown"
+                    if ($RoleDefinitions.ContainsKey($roleDefinitionId)) {
+                        $roleDisplayName = $RoleDefinitions.$roleDefinitionId
+                    }
+                    else {
+                        $null = $null
+                    }
+                    $requiredRoleAssignment = @{
+                        scope            = $scopeEntry.scope
+                        roleDefinitionId = $roleDefinitionId
+                        roleDisplayName  = $roleDisplayName
+                        description      = "Policy Assignment '$id': Role Assignment required by Policy, deployed by: '$($PacEnvironment.deployedBy)'"
+                        crossTenant      = $false
+                    }
+                    $null = $requiredRoleAssignments.Add($requiredRoleAssignment)
+                }
+                # Add required roleDefinitions from additionalRoleAssignments
+                $additionalRoleAssignments = $AssignmentDefinition.additionalRoleAssignments
+                if ($additionalRoleAssignments) {
+                    foreach ($additionalRoleAssignment in $additionalRoleAssignments) {
+                        $roleDefinitionId = $additionalRoleAssignment.roleDefinitionId
+                        $roleDisplayName = "Unknown"
+                        if ($RoleDefinitions.ContainsKey($roleDefinitionId)) {
+                            $roleDisplayName = $RoleDefinitions.$roleDefinitionId
+                        }
+                        $requiredRoleAssignment = $null
+                        if ($additionalRoleAssignment.crossTenant -eq $true) {
+                            $requiredRoleAssignment = @{
+                                scope            = $scopeEntry.scope
+                                roleDefinitionId = $roleDefinitionId
+                                roleDisplayName  = $roleDisplayName
+                                description      = "Policy Assignment '$id': additional cross tenant Role Assignment deployed by: '$($PacEnvironment.deployedBy)'"
+                                crossTenant      = $true
+                            }
+                        }
+                        else {
+                            $requiredRoleAssignment = @{
+                                scope            = $scopeEntry.scope
+                                roleDefinitionId = $roleDefinitionId
+                                roleDisplayName  = $roleDisplayName
+                                description      = "Policy Assignment '$id': additional Role Assignment deployed by: '$($PacEnvironment.deployedBy)'"
+                                crossTenant      = $false
+                            }
+                        }
+                        $null = $requiredRoleAssignments.Add($requiredRoleAssignment)
+                    }
+                }
+
+                $scopedAssignment.requiredRoleAssignments = $requiredRoleAssignments
             }
 
             # Add completed hashtable to collection
-            $assignmentsList += $scopedAssignment
-
+            $null = $assignmentsList.Add($scopedAssignment)
         }
 
         #endregion scopeCollection

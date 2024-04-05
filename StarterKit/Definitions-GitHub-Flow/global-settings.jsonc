@@ -1,0 +1,26 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/global-settings-schema.json",
+    "pacOwnerId": "11111111-2222-3333-4444-555555555555",
+    "pacEnvironments": [
+        {
+            "pacSelector": "epac-dev",
+            "cloud": "AzureCloud",
+            "tenantId": "77777777-8888-9999-1111-222222222222",
+            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/mg-epac-dev"
+        },
+        {
+            "pacSelector": "tenant",
+            "cloud": "AzureCloud",
+            "tenantId": "77777777-8888-9999-1111-222222222222",
+            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/mg-enterprise"
+        }
+    ],
+    "managedIdentityLocations": {
+        "*": "eastus2"
+    },
+    "globalNotScopes": {
+        "tenant": [
+            "/providers/Microsoft.Management/managementGroups/mg-epac-dev"
+        ]
+    }
+}

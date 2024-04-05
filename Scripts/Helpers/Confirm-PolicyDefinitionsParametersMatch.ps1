@@ -7,7 +7,7 @@ function Confirm-PolicyDefinitionsParametersMatch {
 
     $existingParameters = ConvertTo-HashTable $ExistingParametersObj
     $definedParameters = ConvertTo-HashTable $DefinedParametersObj
-    $addedParameters = Get-HashtableShallowClone $definedParameters
+    $addedParameters = Get-ClonedObject $definedParameters -AsHashTable -AsShallowClone
     foreach ($existingParameterName in $existingParameters.Keys) {
         $found = $false
         foreach ($definedParameterName in $definedParameters.Keys) {

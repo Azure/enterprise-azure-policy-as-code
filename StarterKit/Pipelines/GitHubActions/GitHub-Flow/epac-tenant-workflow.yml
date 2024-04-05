@@ -1,0 +1,54 @@
+# This pipeline is used to deploy Policies, Initiative definitions and Assignments into Azure.
+name: EPAC Tenant Workflow
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
+    paths:
+      - 'Definitions/**'
+
+env:
+  PAC_OUTPUT_FOLDER: ./Output
+  PAC_DEFINITIONS_FOLDER: ./Definitions
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  plan:
+    name: Plan tenant
+    uses: ./.github/workflows/plan.yml
+    with:
+      pacEnvironmentSelector: tenant
+      planGitHubEnvironment: TENANT-PLAN
+      PAC_OUTPUT_FOLDER: ./Output
+      PAC_DEFINITIONS_FOLDER: ./Definitions
+    secrets: inherit
+
+  deployPolicy:
+    name: Deploy tenant Policy Changes
+    needs: plan
+    if: needs.plan.outputs.deployPolicyChanges == 'yes' && github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/deploy-policy.yml
+    with:
+      pacEnvironmentSelector: tenant
+      planGitHubEnvironment: TENANT-DEPLOY-POLICY
+      PAC_INPUT_FOLDER: "$(GITHUB_WORKSPACE)/plans-tenant"
+      PAC_DEFINITIONS_FOLDER: ./Definitions
+    secrets: inherit
+
+  deployRoles:
+    name: Deploy tenant Role Changes
+    needs: plan
+    if: needs.plan.outputs.deployRoleChanges == 'yes' && github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/deploy-roles.yml
+    with:
+      pacEnvironmentSelector: tenant
+      planGitHubEnvironment: TENANT-DEPLOY-ROLES
+      PAC_INPUT_FOLDER: "$(GITHUB_WORKSPACE)/plans-tenant"
+      PAC_DEFINITIONS_FOLDER: ./Definitions
+    secrets: inherit

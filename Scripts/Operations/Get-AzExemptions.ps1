@@ -71,7 +71,7 @@ else {
 }
 Write-Information ""
 
-$scopeTable = Get-AzScopeTree -PacEnvironment $pacEnvironment
+$scopeTable = Build-ScopeTableForDeploymentRootScope -PacEnvironment $pacEnvironment
 $deployedPolicyResources = Get-AzPolicyResources -PacEnvironment $pacEnvironment -ScopeTable $scopeTable -SkipRoleAssignments
 $exemptions = $deployedPolicyResources.policyExemptions.managed
 

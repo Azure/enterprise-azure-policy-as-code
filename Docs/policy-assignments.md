@@ -1,11 +1,11 @@
 
 # Policy Assignments
 
-This chapter describes how **Policy Assignments** are handled by EPAC. To learn about how custom Policy and Policy Set definitions are managed, see the [Policies](policy-definitions.md) and [Policy Set Definitions](policy-set-definitions.md).
+This chapter describes how **Policy Assignments** are handled by EPAC. Policy Assignments are the actual assignments of Policies and Policy Sets to scopes in Azure
 
 ## Assignment JSON structure
 
-Assignment JSON is hierarchical for efficient definitions, avoiding duplication (copy/paste) of JSON. Each branch of the tree is cumulative. Each tree node must include a `nodeName` - an arbitrary string exclusively used by EPAC to display an error location. EPAC concatenates a leading `/` and the nodeName entries encountered in the tree to create a "breadcrumbs" trail; therefore, we recommend that you use `/` to help separate the concatenated `nodeName`. The following (partial and invalid) assignment tree would create this error message.
+Assignment JSON is hierarchical for efficient definitions, avoiding duplication (copy/paste) of JSON. Each branch of the tree is cumulative. Each tree node must include a `nodeName` - an arbitrary string exclusively used by EPAC to display an error location. EPAC concatenates a leading `/` and the nodeName entries encountered in the tree to create a "breadcrumbs" trail; therefore, we recommend that you use `/` to help separate the concatenated `nodeName`. The following partial and invalid assignment tree would create this error message.
 
 ```json
 {
@@ -24,6 +24,8 @@ Assignment JSON is hierarchical for efficient definitions, avoiding duplication 
 }
 ```
 
+![Assignment File Overview Diagram](Images/PaC-Assignment-Structure.png)
+
 ### JSON Schema
 
 The GitHub repo contains a JSON schema which can be used in tools such as [VS Code](https://code.visualstudio.com/Docs/languages/json#_json-schemas-and-settings) to provide code completion.
@@ -36,23 +38,19 @@ To utilize the schema add a ```$schema``` tag to the JSON file.
 }
 ```
 
-This schema is new in v7.4.x and may not be complete. Please let us know if we missed anything.
+## Key Points
 
-### Key Points
+- Every tree branch must accumulate a `definitionEntry` (or `definitionEntryList`), Assignment naming (`name` and `displayName`) and `scope` element.
+- The elements `parameters`, `overrides`, `resourceSelectors`, `notScope`, `enforcementMode`, `metadata`, `userAssignedIdentity`, `managedIdentityLocations`,`additionalRoleAssignments`and`nonComplianceMessages` are optional.
+- For Policy Sets with large numbers of included Policies you should use a spreadsheet (CSV file) to manage **effects** (parameterized or effect `overrides`), `parameters` and optional `nonComplianceMessages`. We recommend the CSV approach for Policy Sets with more than 10 included Policies.
+- EPAC continues to support deprecated elements `initiativeId`, `initiativeName` and `ignoreBranch`, Consider using their replacements `policySetId`, `policySetName` and `enforcementMode` instead.
+- Role Assignments for user-assigned Managed Identities (UAMI) are not managed by EPAC, and will not generate a `roles-plan.json` file.
+- `additionalRoleAssignments` are used when a resource required is not in the current scope. For example, a Policy Assignment that requires a Event Hub to be managed in a subscription not contained in the current management group.
 
-* Every tree branch must accumulate a `definitionEntry` (or `definitionEntryList`), Assignment naming (`name` and `displayName`) and `scope` element.
-* The elements `parameters`, `overrides`, `resourceSelectors`, `notScope`, `enforcementMode`, `metadata`, `userAssignedIdentity`, `managedIdentityLocations`,`additionalRoleAssignments`and`nonComplianceMessages` are optional.
-* For Policy Sets with large numbers of included Policies you should use a spreadsheet (CSV file) to manage **effects** (parameterized or effect `overrides`), `parameters` and optional `nonComplianceMessages`. We recommend the CSV approach for Policy Sets with more than 10 included Policies.
-* EPAC continues to support deprecated elements `initiativeId`, `initiativeName` and `ignoreBranch`, Consider using their replacements `policySetId`, `policySetName` and `enforcementMode` instead.
+> [!TIP]
+> The tree is not required to be balanced. The number of levels is not restricted; however, anything beyond 3 levels is unnecessary in real scenarios and would be difficult to read and manage as the depth increases.
 
-!!! note
-    The tree is not required to be balanced. The number of levels is not restricted; however, anything beyond 3 levels is unnecessary in real scenarios and would be difficult to read and manage as the depth increases.
-
-### Tree Structure
-
-![Assignment File Overview Diagram](Images/PaC-Assignment-Structure.png)
-
-## Assignment Naming Element
+## Assignment Element and Metadata
 
 Each Assignment is required to have a `name` which is used in it's resource id. EPAC also requires a `displayName`. The `description` is optional. For the allowed location assignment you specify the component with:
 
@@ -66,17 +64,48 @@ Each Assignment is required to have a `name` which is used in it's resource id. 
 
 Multiple `assignment` naming components in a tree branch are string concatenated for each of the three fields.
 
-!!! warning
-    Azure has a limit of 24 characters for the concatenated `name` string. EPAC displays an error if this limit is exceeded.
+> [!WARNING]
+> Azure has a limit of 24 characters for the concatenated `name` string. EPAC displays an error if this limit is exceeded.
+
+### Defining `metadata`
+
+`metadata` is sometimes used to assign categories for changes. Do NOT specify EPAC-reserved elements `roles` and `pacOwnerId`. For the final `metadata` EPAC creates the union of instances in the entire tree branch.
+
+```json
+"metadata": {
+    "category": "Security"
+}
+```
+
+**Not recommended**: Adding `assignedBy` to the `metadata` overrides the `deployedBy` value from the `global-settings.jsonc` file normally used for `assignedBy`. It defaults to `"epac/$pacOwnerId/$pacSelector"`.
+
+```json
+"metadata": {
+    "category": "Security",
+    "assignedBy": "security-team@epac/epac/00000000-0000-0000-0000-000000000000/tenant"
+}
+```
+
+### Metadata for Role Assignments
+
+Role assignments do not contain a `metadata` field. Instead, the `description` field is used to populate the `deployedBy` value. The `description` field is populated with the Policy Assignment Id, reason and `deployedBy` value. This is useful for tracking the source of the Role Assignment.
+
+Reasons is one of:
+
+- `Role Assignment required by Policy` - Policy definition(s) specify the required Role Definition Ids.
+- `additional Role Assignment` - from filed "additionalRoleAssignments" in the Policy Assignment file.
+- `additional cross tenant Role Assignment` - from filed "additionalRoleAssignments" with `crossTenant` set to `$true` in the Policy Assignment file.
 
 ## Assigning Policy Sets or Policies
 
+### Assigning a single Policy or Policy Set
+
 Each assignment assigns either a Policy or Policy Set. In EPAC this is done with a `definitionEntry` or a `definitionEntryList`. Exactly one occurrence must exist in any collated tree branch. For each entry, you need to specify one of the following:
 
-* `policyName` - custom Policy managed by EPAC. Specifying just the name allows EPAC to inject the correct definition scope.
-* `policySetName` - custom Policy Set managed by EPAC.
-* `policyId` - resource id for builtin Policy.
-* `policySetId` - resource id for builtin Policy Set.
+- `policyName` - custom Policy. Specifying just the name allows EPAC to inject the correct definition scope.
+- `policySetName` - custom Policy Set. Specifying just the name allows EPAC to inject the correct definition scope
+- `policyId` - resource id for builtin Policy.
+- `policySetId` - resource id for builtin Policy Set.
 
 `displayName` is an optional field to document the entry if the Policy name is a GUID. Builtin Policies and Policy Sets use a GUID.
 
@@ -86,6 +115,8 @@ Each assignment assigns either a Policy or Policy Set. In EPAC this is done with
     "displayName": "Use this if the Policy name is a GUID"
 },
 ```
+
+### Assigning multiple Policies or Policy Sets
 
 Using `definitionEntryList` allows you to save on copy/paste tree branches. Without it, the number of branches would need to be duplicated as many times as the list has entries.
 
@@ -128,18 +159,18 @@ In the above example one of the children (leaf node) has the following Assignmen
 
 This example generates two assignments at the "prod" leaf per scope:
 
-* /providers/Microsoft.Management/managementGroups/***Contoso-Prod***/providers/Microsoft.Authorization/policyAssignments/**pr-asb**
-  * `displayName` = "Prod Azure Security Benchmark"
-  * `description` = "Prod Environment controls enforcement with Azure Security Benchmark Initiative."
-* /providers/Microsoft.Management/managementGroups/***Contoso-Prod***/providers/Microsoft.Authorization/policyAssignments/**pr-nist-800-53-r5**
-  * `displayName` = "Prod NIST SP 800-53 Rev. 5"
-  * `description` = "Prod Environment controls enforcement with NIST SP 800-53 Rev. 5 Initiative."
+- /providers/Microsoft.Management/managementGroups/***Contoso-Prod***/providers/Microsoft.Authorization/policyAssignments/**pr-asb**
+  - `displayName` = "Prod Azure Security Benchmark"
+  - `description` = "Prod Environment controls enforcement with Azure Security Benchmark Initiative."
+- /providers/Microsoft.Management/managementGroups/***Contoso-Prod***/providers/Microsoft.Authorization/policyAssignments/**pr-nist-800-53-r5**
+  - `displayName` = "Prod NIST SP 800-53 Rev. 5"
+  - `description` = "Prod Environment controls enforcement with NIST SP 800-53 Rev. 5 Initiative."
 
 ## Assignment scopes and excluded scopes
 
 `scope` is required exactly once in each tree branch. Excluded scopes (`notScope`) are cumulative from `global-settings.json` and the entire tree branch; however, once a scope is defined `notScope` may not be defined at any child node.
 
-Both `scope` and `notScope` are specific to an [EPAC Environment using the pacSelector name](index.md#understanding-epac-environments-and-the-pacselector), e.g., `epac-dev` and `tenant`.
+Both `scope` and `notScope` are specific to an [EPAC Environment using the pacSelector name](epac-implementing.md#epac-concepts-and-environments), e.g., `epac-dev` and `tenant`.
 
 ```json
 "scope": {
@@ -153,16 +184,15 @@ Both `scope` and `notScope` are specific to an [EPAC Environment using the pacSe
 }
 ```
 
-`notScope` works the same. In addition `"*"` means all EPAC Environments which is most often used for `resourceGroupPatterns`.
+`notScope` works the same. In addition `"*"` means all EPAC Environments.
 
 ```json
 "notScope": {
     "*": [
-        "/resourceGroupPatterns/excluded-rg*"
+        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-pattern*"
     ],
     "tenant": [
-        "/providers/Microsoft.Management/managementGroups/Epac",
-        "/providers/Microsoft.Management/managementGroups/"
+        "/providers/Microsoft.Management/managementGroups/<mg-id>"
     ]
 }
 ```
@@ -184,7 +214,9 @@ You can specify them in `global-settings.jsonc` or at any node in the tree. The 
 
 ### Defining optional `additionalRoleAssignments`
 
-In some scenarios you will need `additionalRoleAssignments`; e.g., for diagnostics settings to Event Hubs, the target resource might be in a different Management Group and therefore the Managed Identity requires additional role assignments. You must specify the `additionalRoleAssignments` based on EPAC Environment or use `"*"`to use the same `additionalRoleAssignments`for all of the EPAC Environments.
+In some scenarios you will need `additionalRoleAssignments`; e.g., for diagnostics settings to Event Hubs, the target resource might be in a different Management Group and therefore the Managed Identity requires additional role assignments. You must specify the `additionalRoleAssignments` based on EPAC Environment or use `"*"`to use the same `additionalRoleAssignments`for all of the EPAC Environments.  If the pacEnvironment under deployment is specified in the additionalRoleAssignments, the `"*"` assignments will be ignored.
+
+If the additional assignment is to made to a managing tenant in the sceenario where the pacEnvironment under deployment is a manganged (lighthouse) tenant, you must specify `""crossTenant": true"` for that assignment.  Ensure all necessary ABAC permissions are in place for the executing SPN.
 
 ```json
 "additionalRoleAssignments": {
@@ -193,13 +225,26 @@ In some scenarios you will need `additionalRoleAssignments`; e.g., for diagnosti
             "roleDefinitionId": "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c",
             "scope": "/subscriptions/<id>/resourceGroups/<example>"
         }
+    ],
+    "prod": [
+        {
+            "roleDefinitionId": "/providers/microsoft.authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635",
+            "scope": "/subscriptions/<id>/resourceGroups/<example>"
+        }
+    ],
+    "lighthouse": [
+        {
+            "roleDefinitionId": "/providers/microsoft.authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f606fba81ae7",
+            "scope": "/subscriptions/945a01ac-ae61-41da-81b4-640a8441da7b",
+            "crossTenant": true
+        }
     ]
-},
+  },
 ```
 
 ### User-assigned Managed Identities
 
-Azure Policy can use a user-defined Managed Identity and EPAC allows you to use this functionality (new in version 7.0). You must specify the user-defined Managed Identity based on EPAC Environment or use `"*"` to use the same identity for all of the EPAC Environments (only possible in single tenant scenarios). Within each EPAC Environment entry, you can specify just the URI string indicating to use the same identity even if we are using a `definitionEntryList`, or in the case of a `definitionEntryList` can assign a different identity based on the definitionEntryList by specifying a matching `policyName`, `policyId`, `policySetName` or `policySetId`.
+Azure Policy can use a user-defined Managed Identity and EPAC allows you to use this functionality. You must specify the user-defined Managed Identity based on EPAC Environment or use `"*"` to use the same identity for all of the EPAC Environments (only possible in single tenant scenarios). Within each EPAC Environment entry, you can specify just the URI string indicating to use the same identity even if we are using a `definitionEntryList`, or in the case of a `definitionEntryList` can assign a different identity based on the definitionEntryList by specifying a matching `policyName`, `policyId`, `policySetName` or `policySetId`.
 
 ```json
 "userAssignedIdentity": {
@@ -219,12 +264,30 @@ Azure Policy can use a user-defined Managed Identity and EPAC allows you to use 
 }
 ```
 
-!!! note
-    The rest (below) of the node components are optional.
+</br>
 
-## Defining `parameters` with JSON
+## Defining `parameters`, `overrides` and `nonComplianceMessages`
 
-`parameters` have a simple JSON structure. You do not need the additional `value` indirection Azure requests (EPAC will inject that indirection).
+### Utilizing a CSV File to define `parameters`, `overrides` and `nonComplianceMessages`
+
+Assigning single or multiple security and compliance focused Policy Sets (Initiatives), such as Microsoft cloud security benchmark, NIST 800-53 R5, PCI, NIST 800-171, etc, with just JSON parameters becomes very complex fast. Add to this the complexity of overriding the effect if it is not surfaced as a parameter in the `Policy Set`. Finally, adding the optional `nonComplianceMessages` further increases the complexity.
+
+To address the problem of reading and maintaining hundreds or thousands of JSON lines, EPAC can use the content of a spreadsheet (CSV) to create `parameters`, `overrides` and optionally `nonComplianceMessages` for a single Policy assignment `definitionEntry` or multiple Policy definitions (`definitionEntryList`).
+
+> [!TIP]
+> This approach is best for large Policy Sets such as Azure Security Benchmark, NIST 800-53, etc. Smaller Policy Sets should still be handled with JSON `parameters`, `overrides` and `nonComplianceMessages`.
+
+Implement these steps as documented in [Managing Policy Assignment Parameters with a CSV file](policy-assignments-csv-parameters.md).
+
+- Generate the CSV file form your already deployed Assignment(s) or Policy Set(s).
+- Modify the effect and parameter columns for each type of environment types you will use.
+- Modify the Policy Assignment file to reference the CSV file and the column prefix.
+- Update the CSV file with the new effect and parameter values.
+
+### Defining `parameters` with JSON
+
+> [!WARNING]
+> `parameters` have a simplified JSON structure. You do not need the additional `value` indirection Azure requests (EPAC will inject that indirection).
 
 ```json
 "parameters": {
@@ -240,9 +303,12 @@ Azure Policy can use a user-defined Managed Identity and EPAC allows you to use 
 },
 ```
 
-Too enable `definitionEntryList`, parameters not present in the Policy or Policy Set definition are quietly ignored.
+> [!NOTE]
+> Too enable `definitionEntryList`, parameters not present in the Policy or Policy Set definition are quietly ignored.
 
-## Defining `overrides` with JSON
+## Advanced Elements
+
+### Defining `overrides` with JSON
 
 `overrides` are in the same [format as documented by Azure](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/assignment-structure#overrides-preview). They are  cumulative in each tree branch. The `selectors` element is only used for Assignments of Policy Sets. They are not valid for Assignments of a single Policy.
 
@@ -281,13 +347,13 @@ If using `definitionEntryList`, you must add the `policyName`, `policyId`, `poli
 ],
 ```
 
-## Defining `nonComplianceMessages` with JSON
+### Defining `nonComplianceMessages` with JSON
 
 Assign a non-compliance message to the assignment, or individual non-compliance messages if the assignment is for an Policy Set. This value is an array of objects - each containing a message, and in the case of an initiative a policyDefinitionReferenceId. See [this link](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/assignment-structure#non-compliance-messages) for details.
 
 If you use single `definitionEntry`, place them normally. If you use a `definitionEntryList` place them in the respective list entry.
 
-```json
+```jsonc
 "nonComplianceMessages": [
     {
         "message": "Update main message"
@@ -301,106 +367,7 @@ If you use single `definitionEntry`, place them normally. If you use a `definiti
 ],
 ```
 
-## Defining `parameters`, `overrides` and `nonComplianceMessages` with a CSV file
-
-Assigning single or multiple security and compliance focused Policy Sets (Initiatives), such as Azure Security Benchmark, NIST 800-53 r5, PCI, NIST 800-171, etc, with just JSON parameters becomes very complex fast. Add to this the complexity of overriding the effect if it is not surfaced as a parameter in the Policy Set using `overrides`. Finally, adding the optional `nonComplianceMessages` further increases the complexity.
-
-To address the problem of reading and maintaining hundreds or thousands of JSON lines, EPAC can use the content of a spreadsheet (CSV) to create `parameters`, `overrides` and optionally `nonComplianceMessages` for a single Policy assignment `definitionEntry` or multiple Policy definitions (`definitionEntryList`).
-
-!!! note
-    This approach is best for very large Policy Sets such as Azure Security Benchmark, NIST 800-53, etc. Smaller Policy Sets should still be handled with JSON `parameters`, `overrides` and `nonComplianceMessages`.
-
-Start by [generating documentation for one or more of those Policy Sets](documenting-assignments-and-policy-sets.md#policy-set-documentation), then modify the effect and parameter columns for each type of environment types you will use. In the example header below the infrastructure environments prod, test, dev, and sandbox are used as prefixes to the columns for Effect and Parameters respectively. Optionally you can add a column for `nonComplianceMessages`. If you want to switch from JSON to CSV, you can [generate this CSV file frm your already deployed Assignment(s)](documenting-assignments-and-policy-sets.md#assignment-documentation).
-
-The CSV file generated contains the following headers/columns:
-
-`name,referencePath,policyType,category,displayName,description,groupNames,policySets,allowedEffects,allowedOverrides,prodEffect,testEffect,devEffect,sandboxEffect,prodParameters,testParameters,devParameters,sandboxParameters,nonComplianceMessages`
-
-Column explanations:
-
-* `name` is the name of the policyDefinition referenced by the Policy Sets being assigned.
-* `referencePath` is only used if the Policy is used more than once in at least one of the Policy Sets to disambiguate them. The format is `<policySetName>//<policyDefinitionReferenceId>`.
-* `policyType`,`category`,`displayName`,`description`,`groupNames`,`policySets`,`allowedEffects` are optional and not used for deployment planning. They assist you in filling out the `<env>Effect` columns.
-* `<env>Effect` columns must contain one of the allowedValues or allowedOverrides values. You define which scopes define each type of environment and what short name you give the environment type to use as a column prefix.
-* `<env>Parameters` can contain additional parameters. You can also specify such parameters in JSON. EPAC will use the union of all parameters.
-* `nonComplianceMessages` column is optional. The documentation script does not generate this columns.
-
-EPAC will find the effect parameter name for each Policy in each Policy Set and use them. If no effect parameter is defined by the Policy Set, EPAC will use `overrides` to set the effect. EPAC will generate the `policyDefinitionReferenceId` for `nonComplianceMessages`.
-
-After building the spreadsheet, you must reference the CSV file and the column prefix in each tree branch. `parameterFile` can be overridden in a child node; however, it is often used once per tree branch and defined adjacent to the `'definitionEntry` or `definitionEntryList`.
-
-```json
-"parameterFile": "security-baseline-parameters.csv",
-"definitionEntryList": [
-    {
-        "policySetName": "1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
-        "displayName": "Azure Security Benchmark",
-        "assignment": {
-            "append": true,
-            "name": "asb",
-            "displayName": "Azure Security Benchmark",
-            "description": "Azure Security Benchmark Initiative. "
-        }
-    },
-    {
-        "policySetName": "179d1daa-458f-4e47-8086-2a68d0d6c38f",
-        "displayName": "NIST SP 800-53 Rev. 5",
-        "assignment": {
-            "append": true,
-            "name": "nist-800-53-r5",
-            "displayName": "NIST SP 800-53 Rev. 5",
-            "description": "NIST SP 800-53 Rev. 5 Initiative."
-        }
-    }
-],
-```
-
-In the child nodes specifying the scope(s) specify which column prefix to use for selecting the CSV columns with `parameterSelector`. The actual prefix names have no meaning; they only need to match between the JSON below and the CSV file.
-
-```json
-{
-    "nodeName": "Prod/",
-    "assignment": {
-        "name": "pr-",
-        "displayName": "Prod ",
-        "description": "Prod Environment controls enforcement with initiative "
-    },
-    "parameterSelector": "prod",
-    "scope": {
-        "epac-dev": [
-            "/providers/Microsoft.Management/managementGroups/Epac-Mg-Prod"
-        ],
-        "tenant": [
-            "/providers/Microsoft.Management/managementGroups/Contoso-Prod"
-        ]
-    }
-},
-```
-
-The element `nonComplianceMessageColumn` may appear anywhere in the tree. Definitions at a child override the previous setting. If no `nonComplianceMessageColumn` is specified, the spreadsheet is not used for the (optional) `nonComplianceMessages`.
-
-```json
-{
-    "nodeName": "Prod/",
-    "assignment": {
-        "name": "pr-",
-        "displayName": "Prod ",
-        "description": "Prod Environment controls enforcement with initiative "
-    },
-    "parameterSelector": "prod",
-    "nonComplianceMessageColumn": "nonComplianceMessages"
-    "scope": {
-        "epac-dev": [
-            "/providers/Microsoft.Management/managementGroups/Epac-Mg-Prod"
-        ],
-        "tenant": [
-            "/providers/Microsoft.Management/managementGroups/Contoso-Prod"
-        ]
-    }
-},
-```
-
-## Defining `resourceSelectors`
+### Defining `resourceSelectors`
 
 `resourceSelectors` may appear anywhere in the tree and are cumulative in any branch. [They follow the standard Azure Format](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/assignment-structure#resource-selectors-preview).
 
@@ -418,17 +385,7 @@ The element `nonComplianceMessageColumn` may appear anywhere in the tree. Defini
 ]
 ```
 
-## Defining `metadata`
-
-`metadata` is sometimes used to track tickets for changes. Do NOT specify EPAC-reserved elements `roles` and `pacOwnerId`. For the final `metadata` EPAC creates the union of instances in the entire tree branch.
-
-```json
-"metadata": {
-    "someItem": "Lorem Ipsum"
-}
-```
-
-## Defining `enforcementMode`
+### Defining `enforcementMode`
 
 `enforcementMode` is similar to the deprecated `ignoreBranch`; it deploys the assignment and sets the assignment to `Default` or `DoNotEnforce`. `DoNotEnforce` allows a what-if analysis. `enforcementMode` may appear anywhere in the tree. Definitions at a child override the previous setting.
 
@@ -440,7 +397,12 @@ The element `nonComplianceMessageColumn` may appear anywhere in the tree. Defini
 
 ### Simple Policy Assignment (Allowed Locations)
 
-In the simple case an assignment is a single assignment or with no difference in `assignment`, `parameters`, and `definitionEntry` across multiple scopes. In many scenarios "Allowed Locations" is such a simple Assignment. Such Assignments do not have child nodes, just the root node.
+In the simple case an assignment is a single node with no difference in `assignment`, `parameters`, and `definitionEntry` across multiple scopes. In many scenarios "Allowed Locations" is such a simple Assignment. Such Assignments do not have child nodes, just the root node.
+Example
+</summary>
+
+<details>
+<summary>Example</summary>
 
 ```json
 {
@@ -475,18 +437,23 @@ In the simple case an assignment is a single assignment or with no difference in
 }
 ```
 
-* `nodeName` is required for error messages; it's value is immaterial. EPAC concatenates them in the current tree branch.
-* `definitionEntry` specifies that the custom Policy Set `general-allowed-locations-policy-set` from our starter kit. `displayName` has no meaning - it is for readability and in this instance is superfluous.
-* `assignment` fields `name`, `displayName` and `description` are used when creating the assignment.
-* This assignment has no `metadata`. You don't need an empty collection. EPAC will add `pacOwnerId` and `roles` `metadata`. Do not add them manually.
-* enforcementMode is set to default - it is superfluous.
-* `parameters` are obvious. Note: you don't add the `value` layer Azure inserts - EPAC takes care of that.
-* `scope`:
-  * During Policy resource development (called `epac-dev`) the Assignment is deployed to an EPAC development Management Group `Epac-Mg-1`.
-  * During Policy prod deployments (`tenant`-wide), it is deployed to the tenant Management Group `Epac-Mg-1`.
-* No `notScope` entries are specified.
+- `nodeName` is required for error messages; it's value is immaterial. EPAC concatenates them in the current tree branch.
+- `definitionEntry` specifies that the custom Policy Set `general-allowed-locations-policy-set` from our starter kit. `displayName` has no meaning - it is for readability and in this instance is superfluous.
+- `assignment` fields `name`, `displayName` and `description` are used when creating the assignment.
+- This assignment has no `metadata`. You don't need an empty collection. EPAC will add `pacOwnerId` and `roles` `metadata`. Do not add them manually.
+- enforcementMode is set to default - it is superfluous.
+- `parameters` are obvious. Note: you don't add the `value` layer Azure inserts - EPAC takes care of that.
+- `scope`:
+  - During Policy resource development (called `epac-dev`) the Assignment is deployed to an EPAC development Management Group `Epac-Mg-1`.
+  - During Policy prod deployments (`tenant`-wide), it is deployed to the tenant Management Group `Epac-Mg-1`.
+- No `notScope` entries are specified.
 
+</details>
+
+<details>
+<summary>
 If we remove the empty and superfluous entries, we arrive at:
+</summary>
 
 ```json
 {
@@ -518,12 +485,17 @@ If we remove the empty and superfluous entries, we arrive at:
 }
 ```
 
+</details>
+
 ### Security-Focused Policy Assignment with JSON parameters
 
-* In the following example we named our root node (`nodeName`) `/security/`. Since it is only used in case of error messages produced by EPAC during planning it's actual value doesn't matter as long as it's unique.
-* We use a `definitionEntryList` to create two assignments at every leaf (six assignments total).
-* For `assignment` string concatenation we append the strings in the `definitionEntryList` to the strings in the child nodes. You can see this best when you look at the `description` string in the child  nodes. It will form a sentence when concatenated by `append`ing the `definitionEntryList` `assignment` field `description`.
-* The `parameters` specified in the children are specific to the IaC environment types and their `scope`. Note: a real assignment would define many more parameters. The set here is abbreviated since the actual set could easily exceed a hundred entries for each of the IaC environments. We'll see in the next example how to simplify large Policy Set parameters with a CSV file.
+- In the following example we named our root node (`nodeName`) `/security/`. Since it is only used in case of error messages produced by EPAC during planning it's actual value doesn't matter as long as it's unique.
+- We use a `definitionEntryList` to create two assignments at every leaf (six assignments total).
+- For `assignment` string concatenation we append the strings in the `definitionEntryList` to the strings in the child nodes. You can see this best when you look at the `description` string in the child  nodes. It will form a sentence when concatenated by `append`ing the `definitionEntryList` `assignment` field `description`.
+- The `parameters` specified in the children are specific to the IaC environment types and their `scope`. Note: a real assignment would define many more parameters. The set here is abbreviated since the actual set could easily exceed a hundred entries for each of the IaC environments. We'll see in the next example how to simplify large Policy Set parameters with a CSV file.
+
+<details>
+<summary>Example</summary>
 
 ```json
 {
@@ -628,114 +600,19 @@ If we remove the empty and superfluous entries, we arrive at:
 }
 ```
 
-### Security-Focused Policy Assignment with CSV file parameters
-
-This example is the same as the previous, except we replaced inline JSON parameters with a CSV file and use the column prefixes in the CSV file to select which parameter values we use by:
-
-* Setting the file name at the root node with
-
-  ```json
-  "parameterFile": "security-baseline-parameters.csv",
-   ```
-
-* Setting the column prefix with `parameterSelector` to `prod`, `nonprod` and `sandbox`. For example:
-
-  ```json
-  "parameterSelector": "prod",
-  ```
-
-The CSV file is explained [above](#define-assignment-parameters-with-a-csv-file). The entire file is:
-
-```json
-{
-  "nodeName": "/Security/",
-  "parameterFile": "security-baseline-parameters.csv",
-  "definitionEntryList": [
-    {
-      "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
-      "displayName": "Azure Security Benchmark",
-      "assignment": {
-        "append": true,
-        "name": "asb",
-        "displayName": "Azure Security Benchmark",
-        "description": "Azure Security Benchmark Initiative."
-      }
-    },
-    {
-      "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f",
-      "displayName": "NIST SP 800-53 Rev. 5",
-      "assignment": {
-        "append": true,
-        "name": "nist-800-53-r5",
-        "displayName": "NIST SP 800-53 Rev. 5",
-        "description": "NIST SP 800-53 Rev. 5 Initiative."
-      }
-    }
-  ],
-  "children": [
-    {
-      "nodeName": "Prod/",
-      "parameterSelector": "prod",
-      "assignment": {
-        "name": "pr-",
-        "displayName": "Prod ",
-        "description": "Prod Environment controls enforcement with "
-      },
-      "scope": {
-        "epac-dev": [
-          "/providers/Microsoft.Management/managementGroups/epac-dev-prod"
-        ],
-        "tenant": [
-          "/providers/Microsoft.Management/managementGroups/Contoso-Prod"
-        ]
-      }
-    },
-    {
-      "nodeName": "NonProd/",
-      "parameterSelector": "nonprod",
-      "assignment": {
-        "name": "np-",
-        "displayName": "NonProd ",
-        "description": "Non Prod Environment controls enforcement with "
-      },
-      "scope": {
-        "epac-dev": [
-          "/providers/Microsoft.Management/managementGroups/epac-dev-nonprod"
-        ],
-        "tenant": [
-          "/providers/Microsoft.Management/managementGroups/Contoso-nonprod"
-        ]
-      }
-    },
-    {
-      "nodeName": "Sandbox/",
-      "parameterSelector": "sandbox",
-      "assignment": {
-        "name": "sbx-",
-        "displayName": "Sandbox ",
-        "description": "Sandbox Environment controls enforcement with "
-      },
-      "scope": {
-        "epac-dev": [
-          "/providers/Microsoft.Management/managementGroups/epac-dev-sandbox"
-        ],
-        "tenant": [
-          "/providers/Microsoft.Management/managementGroups/Contoso-Sandbox"
-        ]
-      }
-    }
-  ]
-}
-```
+</details>
 
 ### Inverted Policy Assignment (Tag Inheritance and Required Tags)
 
 As mentioned above sometimes it is advantageous (to reduce the number of repetitions) to turn a definition on its head:
 
-* **Common** `parameters`, `scope`, `definitionEntryList` (with two Policies) at the root (`nodeName` is `/Tags/`).
-* Start of the `assignment` strings (`append` is defaulted to `false`). Again look at description which will be a concatenated sentence.
-* The children define the `tagName` parameter and the second part of the strings for `assignment`. The set of `parameters` is the union of the root node and the child node.
-* This creates six Assignments (number of Policies assigned times number of children).
+- **Common** `parameters`, `scope`, `definitionEntryList` (with two Policies) at the root (`nodeName` is `/Tags/`).
+- Start of the `assignment` strings (`append` is defaulted to `false`). Again look at description which will be a concatenated sentence.
+- The children define the `tagName` parameter and the second part of the strings for `assignment`. The set of `parameters` is the union of the root node and the child node.
+- This creates six Assignments (number of Policies assigned times number of children).
+
+<details>
+<summary>Example</summary>
 
 ```json
 {
@@ -812,10 +689,14 @@ As mentioned above sometimes it is advantageous (to reduce the number of repetit
   ]
 }
 ```
+</details>
 
 ### Non-Compliance Messages in a Policy Definition Assignment
 
-An example of a policy assignment for a single policy definition with a default non-compliance message.
+
+
+<details>
+<summary>An example of a policy assignment for a single policy definition with a default non-compliance message.</summary>
 
 ```json
 {
@@ -842,9 +723,14 @@ An example of a policy assignment for a single policy definition with a default 
 }
 ```
 
+</details>
+
 ### Non-Compliance Messages in a Policy Set Definition Assignment
 
+<details>
+<summary>
 An example of a policy assignment for a policy set definition with a default non-compliance message and a policy specific non-compliance message.
+</summary>
 
 ```json
 {
@@ -875,9 +761,14 @@ An example of a policy assignment for a policy set definition with a default non
 }
 ```
 
+</details>
+
 ### Non-Compliance Messages in a Policy Set Definition Assignment with a `definitionEntryList`
 
+<details>
+<summary>
 An example of how to use a non-compliance message when using a `definitionEntryList` list in the assignment.
+</summary>
 
 ```json
 {
@@ -919,3 +810,5 @@ An example of how to use a non-compliance message when using a `definitionEntryL
     }
 }
 ```
+
+</details>

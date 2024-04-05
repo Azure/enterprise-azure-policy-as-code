@@ -1,0 +1,53 @@
+variables:
+  # This pipeline is used to deploy Policies, Initiative definitions and Assignments into Azure.
+  PAC_OUTPUT_FOLDER: ./Output
+  PAC_DEFINITIONS_FOLDER: ./Definitions
+
+  # Use the plain text name of each service connection as a reference
+  tenantPlanServiceConnection: "epac-mg-prod"
+  tenantDeployServiceConnection: "epac-mg-prod"
+  tenantRolesServiceConnection: "epac-mg-prod"
+
+  # System.Debug: true
+
+# what to build trigger
+trigger:
+- releases-exemptions-only/*
+
+pr: none
+
+pool:
+  vmImage: "ubuntu-latest"
+
+stages:
+  - stage: Plan
+    displayName: "Plan prod Exemptions Only"
+    jobs:
+      - job: Plan
+        steps:
+          - template: templates/plan-exemptions-only.yml
+            parameters:
+              serviceConnection: $(planServiceConnection)
+              pacEnvironmentSelector: prod
+
+  - stage: Deploy
+    displayName: "Deploy prod Exemptions Only"
+    dependsOn: Plan
+    condition: and(not(failed()), not(canceled()), eq(dependencies.Plan.outputs['Plan.Plan.deployPolicyChanges'], 'yes'), contains(variables['Build.SourceBranch'], 'releases-exemptions-only/'))
+    variables:
+      PAC_INPUT_FOLDER: "$(Pipeline.Workspace)/plans-prod"
+      localDeployPolicyChanges: $[stageDependencies.Plan.Plan.outputs['Plan.deployPolicyChanges']]
+      localDeployRoleChanges: $[stageDependencies.Plan.Plan.outputs['Plan.deployRoleChanges']]
+    jobs:
+      - deployment: DeployPolicy
+        displayName: "Deploy Policy Changes"
+        environment: PAC-POLICY
+        condition: and(not(failed()), not(canceled()), eq(variables.localDeployPolicyChanges, 'yes'))
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: templates/deploy-policy.yml
+                  parameters:
+                    serviceConnection: $(deployPolicyServiceConnection)
+                    pacEnvironmentSelector: prod

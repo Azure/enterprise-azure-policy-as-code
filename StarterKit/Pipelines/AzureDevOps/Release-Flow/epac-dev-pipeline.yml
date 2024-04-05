@@ -1,0 +1,95 @@
+variables:
+  # This pipeline is used to deploy Policies, Initiative definitions and Assignments into Azure.
+  PAC_OUTPUT_FOLDER: ./Output
+  PAC_DEFINITIONS_FOLDER: ./Test/Pipelines/Definitions
+
+  # Use the plain text name of each service connection as a reference
+  devServiceConnection: "sc-epac-dev"
+
+# what to build trigger
+trigger:
+  branches:
+    include:
+      - feature/*
+  paths:
+    include:
+      - Definitions
+      - Pipelines
+
+pr: none
+
+pool:
+  vmImage: "ubuntu-latest"
+
+stages:
+  - stage: Plan
+    displayName: "Plan epac-dev"
+    jobs:
+      - job: Plan
+        steps:
+          - template: templates/plan.yml
+            parameters:
+              serviceConnection: $(devServiceConnection)
+              pacEnvironmentSelector: epac-dev
+
+  - stage: Deploy
+    displayName: "Deploy epac-dev"
+    dependsOn: Plan
+    condition: and(not(failed()), not(canceled()), or(eq(dependencies.Plan.outputs['Plan.Plan.deployPolicyChanges'], 'yes'), eq(dependencies.Plan.outputs['Plan.Plan.deployRoleChanges'], 'yes')))
+    variables:
+      PAC_INPUT_FOLDER: "$(Pipeline.Workspace)/plans-epac-dev"
+      localDeployPolicyChanges: $[stageDependencies.Plan.Plan.outputs['Plan.deployPolicyChanges']]
+      localDeployRoleChanges: $[stageDependencies.Plan.Plan.outputs['Plan.deployRoleChanges']]
+    jobs:
+      - deployment: DeployPolicy
+        displayName: "Deploy Policy Changes"
+        environment: PAC-DEV
+        condition: and(not(failed()), not(canceled()), eq(variables.localDeployPolicyChanges, 'yes'))
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: templates/deploy-policy.yml
+                  parameters:
+                    serviceConnection: $(devServiceConnection)
+                    pacEnvironmentSelector: epac-dev
+      - deployment: DeployRoles
+        displayName: "Deploy Role Changes"
+        dependsOn: DeployPolicy
+        environment: PAC-DEV
+        condition: and(not(failed()), not(canceled()), eq(variables.localDeployRoleChanges, 'yes'))
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: templates/deploy-roles.yml
+                  parameters:
+                    serviceConnection: $(devServiceConnection)
+                    pacEnvironmentSelector: epac-dev
+
+
+  - stage: nonprodPlan
+    displayName: "Plan nonprod"
+    dependsOn:
+    - Deploy
+    condition: and(not(failed()), not(canceled()))
+    jobs:
+      - job: Plan
+        steps:
+          - template: templates/plan.yml
+            parameters:
+              serviceConnection: $(devServiceConnection)
+              pacEnvironmentSelector: nonprod
+
+  - stage: prodPlan
+    displayName: "Plan prod"
+    dependsOn:
+    - Deploy
+    condition: and(not(failed()), not(canceled()))
+    jobs:
+      - job: Plan
+        steps:
+          - template: templates/plan.yml
+            parameters:
+              serviceConnection: $(devServiceConnection)
+              pacEnvironmentSelector: prod
