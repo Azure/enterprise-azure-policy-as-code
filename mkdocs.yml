@@ -23,8 +23,8 @@ theme:
     - content.tabs.link
     - content.code.copy
 nav:
-  - Home:
-    - Overview: index.md
+  - Home: index.md
+  - Getting Started:
     - Implementing: epac-implementing.md
     - Extracting Policy Resources: epac-extracting-policy-resources.md
     - Forking GitHub Repo: epac-forking-github-repo.md
