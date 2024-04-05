@@ -1,7 +1,8 @@
 # Desired State Management
 
-> [!CAUTION]
-> EPAC is a true desired state deployment technology. It takes possession of all Policy Resources at the `deploymentRootScope` and its children. It will delete any Policy resources not defined in the EPAC repo.
+!!! danger
+
+    EPAC is a true desired state deployment technology. It takes possession of all Policy Resources at the `deploymentRootScope` and its children. It will delete any Policy resources not defined in the EPAC repo.
 
 Desired State strategy enables you to adjust the default behavior to fit more complex scenarios, including shared responsibility scenarios. The use cases below show the archetypical use cases. For complex scenarios it is possible to combine multiple use cases.
 
@@ -56,8 +57,9 @@ After short transitioning period (weeks), it is recommended to set `desiredState
 
 ## Exclude Resource Groups
 
-> [!CAUTION]
-> **Breaking change in v10.0.0:** Starting in v10.0.0 Policy Assignments at resource groups are **managed** by EPAC. The elemenent `includeResourceGroups` has been deprecated and removed.
+!!! warning "Warning - Breaking Change in v10.0.0"
+
+    Policy Assignments at resource groups are **managed** by EPAC. The element `includeResourceGroups` has been deprecated and removed.
 
 To exclude resource groups from management by EPAC, add an `excludedScopes` array element with a wild card for the subscription and resourceGroups to `desiredState`. 
 

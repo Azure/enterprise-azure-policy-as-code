@@ -399,10 +399,6 @@ If you use single `definitionEntry`, place them normally. If you use a `definiti
 
 In the simple case an assignment is a single node with no difference in `assignment`, `parameters`, and `definitionEntry` across multiple scopes. In many scenarios "Allowed Locations" is such a simple Assignment. Such Assignments do not have child nodes, just the root node.
 Example
-</summary>
-
-<details>
-<summary>Example</summary>
 
 ```json
 {
@@ -448,13 +444,6 @@ Example
   - During Policy prod deployments (`tenant`-wide), it is deployed to the tenant Management Group `Epac-Mg-1`.
 - No `notScope` entries are specified.
 
-</details>
-
-<details>
-<summary>
-If we remove the empty and superfluous entries, we arrive at:
-</summary>
-
 ```json
 {
   "nodeName": "/root",
@@ -485,17 +474,12 @@ If we remove the empty and superfluous entries, we arrive at:
 }
 ```
 
-</details>
-
 ### Security-Focused Policy Assignment with JSON parameters
 
 - In the following example we named our root node (`nodeName`) `/security/`. Since it is only used in case of error messages produced by EPAC during planning it's actual value doesn't matter as long as it's unique.
 - We use a `definitionEntryList` to create two assignments at every leaf (six assignments total).
 - For `assignment` string concatenation we append the strings in the `definitionEntryList` to the strings in the child nodes. You can see this best when you look at the `description` string in the child  nodes. It will form a sentence when concatenated by `append`ing the `definitionEntryList` `assignment` field `description`.
 - The `parameters` specified in the children are specific to the IaC environment types and their `scope`. Note: a real assignment would define many more parameters. The set here is abbreviated since the actual set could easily exceed a hundred entries for each of the IaC environments. We'll see in the next example how to simplify large Policy Set parameters with a CSV file.
-
-<details>
-<summary>Example</summary>
 
 ```json
 {
@@ -600,8 +584,6 @@ If we remove the empty and superfluous entries, we arrive at:
 }
 ```
 
-</details>
-
 ### Inverted Policy Assignment (Tag Inheritance and Required Tags)
 
 As mentioned above sometimes it is advantageous (to reduce the number of repetitions) to turn a definition on its head:
@@ -610,9 +592,6 @@ As mentioned above sometimes it is advantageous (to reduce the number of repetit
 - Start of the `assignment` strings (`append` is defaulted to `false`). Again look at description which will be a concatenated sentence.
 - The children define the `tagName` parameter and the second part of the strings for `assignment`. The set of `parameters` is the union of the root node and the child node.
 - This creates six Assignments (number of Policies assigned times number of children).
-
-<details>
-<summary>Example</summary>
 
 ```json
 {
@@ -689,14 +668,8 @@ As mentioned above sometimes it is advantageous (to reduce the number of repetit
   ]
 }
 ```
-</details>
 
 ### Non-Compliance Messages in a Policy Definition Assignment
-
-
-
-<details>
-<summary>An example of a policy assignment for a single policy definition with a default non-compliance message.</summary>
 
 ```json
 {
@@ -723,14 +696,7 @@ As mentioned above sometimes it is advantageous (to reduce the number of repetit
 }
 ```
 
-</details>
-
 ### Non-Compliance Messages in a Policy Set Definition Assignment
-
-<details>
-<summary>
-An example of a policy assignment for a policy set definition with a default non-compliance message and a policy specific non-compliance message.
-</summary>
 
 ```json
 {
@@ -761,14 +727,7 @@ An example of a policy assignment for a policy set definition with a default non
 }
 ```
 
-</details>
-
 ### Non-Compliance Messages in a Policy Set Definition Assignment with a `definitionEntryList`
-
-<details>
-<summary>
-An example of how to use a non-compliance message when using a `definitionEntryList` list in the assignment.
-</summary>
 
 ```json
 {
@@ -810,5 +769,3 @@ An example of how to use a non-compliance message when using a `definitionEntryL
     }
 }
 ```
-
-</details>

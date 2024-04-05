@@ -54,5 +54,6 @@ nav:
     - Reference: operational-scripts-reference.md
 
 markdown_extensions:
+  - admonition
   - pymdownx.details
   - pymdownx.superfences
