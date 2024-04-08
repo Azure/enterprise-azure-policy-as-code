@@ -1,7 +1,7 @@
 New-Item .\Module\EnterprisePolicyAsCode\internal\functions -ItemType Directory -Force
 New-Item .\Module\EnterprisePolicyAsCode\functions -ItemType Directory -Force
 
-Get-ChildItem -Path .\Scripts\Helpers\*.ps1 -Recurse -File -Exclude Add-HelperScripts. | Copy-Item -Destination .\Module\EnterprisePolicyAsCode\internal\functions
+Get-ChildItem -Path .\Scripts\Helpers\*.ps1 -Recurse -File -Exclude Add-HelperScripts.ps1 | Copy-Item -Destination .\Module\EnterprisePolicyAsCode\internal\functions
 
 # Deploy Functions
 
