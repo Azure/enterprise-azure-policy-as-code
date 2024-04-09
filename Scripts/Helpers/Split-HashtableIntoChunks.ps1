@@ -25,7 +25,7 @@ function Split-HashtableIntoChunks {
         }
         [array] $chunks = [array]::CreateInstance([array], $NumberOfChunks)
         if ($NumberOfChunks -eq 1) {
-            Write-Error "Coding error: NumberOfChunks is 1" -ErrorAction Continue
+            Write-Warning "Coding warning: NumberOfChunks is 1" -WarningAction Continue
             $chunks[0] = $Table
             return , $chunks
         }
