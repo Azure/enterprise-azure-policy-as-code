@@ -10,6 +10,7 @@ function Set-AzRoleAssignmentRestMethod {
     if ($null -ne $RoleAssignment.id) {
         # update existing role assignment
         $path = "$($RoleAssignment.id)?api-version=$ApiVersion"
+        $scope = $RoleAssignment.scope
     }
     else {
         # create new role assignment
