@@ -237,6 +237,7 @@ function Get-GlobalSettings {
                 $keepDfcSecurityAssignments = $desired.keepDfcSecurityAssignments
                 if ($null -eq $keepDfcSecurityAssignments) {
                     Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector does not contain required desiredState.keepDfcSecurityAssignments field."
+                    $hasErrors = $true
                 }
                 else {
                     if ($keepDfcSecurityAssignments -is [bool]) {
@@ -248,7 +249,7 @@ function Get-GlobalSettings {
                     }
                 }
                 $excludedScopes = $desired.excludedScopes
-                if ($null -ne $excluded) {
+                if ($null -ne $excludedScopes) {
                     if ($excludedScopes -isnot [array]) {
                         Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector field desiredState.excludedScopes must be an array of strings."
                         $hasErrors = $true
@@ -307,10 +308,12 @@ function Get-GlobalSettings {
                 $deleteExpired = $desired.deleteExpiredExemptions
                 if ($null -ne $deleteExpired) {
                     Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector field desiredState.deleteExpiredExemptions is deprecated. Remove it!"
+                    $hasErrors = $true
                 }
                 $deleteOrphaned = $desired.deleteOrphanedExemptions
                 if ($null -ne $deleteOrphaned) {
                     Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector field desiredState.deleteOrphanedExemptions is deprecated. Remove it!"
+                    $hasErrors = $true
                 }
             }
 

@@ -13,8 +13,7 @@ function Split-HashtableIntoChunks {
     # split definition array into chunks
     $count = $Table.Count
     if ($count -le $MinChunkingSize) {
-        [array] $chunks = [array]::CreateInstance([array], 1)
-        $chunks[0] = $Table
+        $chunks = @( $Table )
         return , $chunks
     }
     else {
@@ -23,13 +22,12 @@ function Split-HashtableIntoChunks {
             $NumberOfChunks = [math]::Ceiling($count / $MinChunkingSize)
             $chunkingSize = [math]::Ceiling($count / $NumberOfChunks)
         }
-        [array] $chunks = [array]::CreateInstance([array], $NumberOfChunks)
         if ($NumberOfChunks -eq 1) {
-            Write-Error "Coding error: NumberOfChunks is 1" -ErrorAction Continue
-            $chunks[0] = $Table
+            $chunks = @( $Table )
             return , $chunks
         }
         else {
+            [array] $chunks = [array]::CreateInstance([array], $NumberOfChunks)
             $chunk = @{}
             $itemCount = 0
             $i = 0

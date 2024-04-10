@@ -7,21 +7,20 @@ function Set-AzRoleAssignmentRestMethod {
 
     $properties = $RoleAssignment.properties
     $path = $null
+    $scope = $RoleAssignment.scope
     if ($null -ne $RoleAssignment.id) {
         # update existing role assignment
         $path = "$($RoleAssignment.id)?api-version=$ApiVersion"
-        $scope = $RoleAssignment.scope
     }
     else {
         # create new role assignment
         $guid = New-Guid
-        $scope = $RoleAssignment.scope
         $path = "$scope/providers/Microsoft.Authorization/roleAssignments/$($guid.ToString())?api-version=$ApiVersion"
     }
     $body = @{
         properties = $RoleAssignment.properties
     }
-    Write-Information "Assignment '$($RoleAssignment.assignmentDisplayName)', principalId $($properties.principalId), role '$($RoleAssignment.roleDisplayName)' at $($RoleAssignment.scope)"
+    Write-Information "Assignment '$($RoleAssignment.assignmentDisplayName)', principalId $($properties.principalId), role '$($RoleAssignment.roleDisplayName)' at $($scope)"
 
     # Invoke the REST API
     $bodyJson = ConvertTo-Json $body -Depth 100 -Compress
@@ -36,7 +35,7 @@ function Set-AzRoleAssignmentRestMethod {
             Write-Information $errorBody.error.message
         }
         else {
-            Write-Error "Role Assignment error $($statusCode) -- $($content)" -ErrorAction Stop
+            Write-Error "Role Assignment error $($statusCode) -- $($content)" -ErrorAction Continue
         }
     }
 }

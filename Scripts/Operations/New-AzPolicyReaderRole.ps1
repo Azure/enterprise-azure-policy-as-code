@@ -72,7 +72,9 @@ $perms = @(
     "Microsoft.Authorization/roleAssignments/read",
     "Microsoft.PolicyInsights/*",
     "Microsoft.Management/register/action",
-    "Microsoft.Management/managementGroups/read"
+    "Microsoft.Management/managementGroups/read",
+    "Microsoft.Resources/subscriptions/read",
+    "Microsoft.Resources/subscriptions/resourceGroups/read"
 )
 
 $role.Actions = $perms
