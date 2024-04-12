@@ -194,17 +194,14 @@ Sync-ALZPolicies -DefinitionsRootFolder .\Definitions -CloudEnvironment AzureClo
 
 Carefully review the proposed changes before deploying them. It is best to make sure you're project is stored in source control so you can easily see which files have changed before deployment.
 
-!!! warning
+> [!WARNING]
+> If you have follow Scenario 1 above, the first time you run the `Sync-ALZPolicies` there will be many changes recorded due to formatting. Review the files completely before deploying.
 
-    If you have follow Scenario 1 above, the first time you run the `Sync-ALZPolicies` there will be many changes recorded due to formatting. Review the files completely before deploying.
+> [!WARNING]
+> Assignments deployed via the ALZ accelerators are kept in sync with the EnterprisePolicyAsCode module so ensure you have the latest PowerShell module installed before running `Sync-ALZPolicies`
 
-!!! warning
-
-    Assignments deployed via the ALZ accelerators are kept in sync with the EnterprisePolicyAsCode module so ensure you have the latest PowerShell module installed before running `Sync-ALZPolicies`
-
-!!! tip
-
-    Rename or copy the default ALZ assignment files - when you do a sync it makes it easier to compare changes. 
+> [!TIP]
+> Rename or copy the default ALZ assignment files - when you do a sync it makes it easier to compare changes. 
 
 ## Keeping up to date with GitHub Actions
 
