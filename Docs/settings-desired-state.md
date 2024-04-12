@@ -1,8 +1,7 @@
 # Desired State Management
 
-!!! danger "Caution"
-
-    EPAC is a true desired state deployment technology. It takes possession of all Policy Resources at the `deploymentRootScope` and its children. It will delete any Policy resources not defined in the EPAC repo.
+> [!CAUTION]
+> EPAC is a true desired state deployment technology. It takes possession of all Policy Resources at the `deploymentRootScope` and its children. It will delete any Policy resources not defined in the EPAC repo.
 
 Desired State strategy enables you to adjust the default behavior to fit more complex scenarios, including shared responsibility scenarios. The use cases below show the archetypical use cases. For complex scenarios it is possible to combine multiple use cases.
 
@@ -57,9 +56,8 @@ After short transitioning period (weeks), it is recommended to set `desiredState
 
 ## Exclude Resource Groups
 
-!!! warning
-
-    **Breaking Change in v10.0.0:** Policy Assignments at resource groups are **managed** by EPAC. The element `includeResourceGroups` has been deprecated and removed.
+> [!WARNING]
+> **Breaking Change in v10.0.0:** Policy Assignments at resource groups are **managed** by EPAC. The element `includeResourceGroups` has been deprecated and removed.
 
 To exclude resource groups from management by EPAC, add an `excludedScopes` array element with a wild card for the subscription and resourceGroups to `desiredState`. 
 
@@ -111,9 +109,8 @@ The hierarchical model allows a central team to manage the commonality while giv
 
 This is managed identical to use case 3.
 
-!!! danger "Caution"
-
-    Previously, it was possible for a solution at a child scope to inherit Policy definitions form EPAC-A. This feature has been removed in v10.0.0 since it was not possible to manage the dependencies between Policy and Policy Set definitions and Policy Assignments correctly.
+> [!CAUTION]
+> Previously, it was possible for a solution at a child scope to inherit Policy definitions form EPAC-A. This feature has been removed in v10.0.0 since it was not possible to manage the dependencies between Policy and Policy Set definitions and Policy Assignments correctly.
 >
 > To replicate the previous functionality, copy/replicate the custom Policy and Policy Set definitions files from EPAC-A repo to EPAC-C repo.
 

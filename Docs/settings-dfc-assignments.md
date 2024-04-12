@@ -4,9 +4,8 @@ Defender for Cloud (DFC) is a suite of Azure Security Center (ASC) capabilities 
 
 ## Defender for Cloud Assignments for Defender Plans
 
-!!! note
-
-    DfC manages the Policy Assignments for Defender Plans when a plan is enabled. EPAC v9.0.0 and later **never** manage these Policy Assignments.
+> [!NOTE]
+> DfC manages the Policy Assignments for Defender Plans when a plan is enabled. EPAC v9.0.0 and later **never** manage these Policy Assignments.
 
 ![image.png](Images/dfc-defender-plans-settings.png)
 
@@ -16,9 +15,8 @@ DfC automatically assigns `Microsoft cloud security benchmark` to each new subsc
 
 These Assignments are enabled/created at the subscription level or at management group level. Since these Policies are set to to `Audit` and you will want to set many of them to `Deny`, it is recommended that EPAC manages them at the management group level. This is the default behavior.
 
-!!! warning
-
-    EPAC behavior for Security Policy **is controlled by** the `keepDfcSecurityAssignments` in `desiredState`.
+> [!WARNING]
+> EPAC behavior for Security Policy **is controlled by** the `keepDfcSecurityAssignments` in `desiredState`.
 
 - If set to `true` or `strategy` is `ownedOnly`, EPAC will **not** remove "DfC Security Policy Assignments" created by Defender for Cloud.
 - If **omitted** or **set to `false`** and `strategy` is `full`, EPAC will remove "DfC Security Policy Assignments" created by Defender for Cloud.

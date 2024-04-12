@@ -47,9 +47,8 @@ To utilize the schema add a ```$schema``` tag to the JSON file.
 - Role Assignments for user-assigned Managed Identities (UAMI) are not managed by EPAC, and will not generate a `roles-plan.json` file.
 - `additionalRoleAssignments` are used when a resource required is not in the current scope. For example, a Policy Assignment that requires a Event Hub to be managed in a subscription not contained in the current management group.
 
-!!! tip
-
-    The tree is not required to be balanced. The number of levels is not restricted; however, anything beyond 3 levels is unnecessary in real scenarios and would be difficult to read and manage as the depth increases.
+> [!TIP]
+> The tree is not required to be balanced. The number of levels is not restricted; however, anything beyond 3 levels is unnecessary in real scenarios and would be difficult to read and manage as the depth increases.
 
 ## Assignment Element and Metadata
 
@@ -65,9 +64,8 @@ Each Assignment is required to have a `name` which is used in it's resource id. 
 
 Multiple `assignment` naming components in a tree branch are string concatenated for each of the three fields.
 
-!!! warning
-
-    Azure has a limit of 24 characters for the concatenated `name` string. EPAC displays an error if this limit is exceeded.
+> [!WARNING]
+> Azure has a limit of 24 characters for the concatenated `name` string. EPAC displays an error if this limit is exceeded.
 
 ### Defining `metadata`
 
@@ -276,9 +274,8 @@ Assigning single or multiple security and compliance focused Policy Sets (Initia
 
 To address the problem of reading and maintaining hundreds or thousands of JSON lines, EPAC can use the content of a spreadsheet (CSV) to create `parameters`, `overrides` and optionally `nonComplianceMessages` for a single Policy assignment `definitionEntry` or multiple Policy definitions (`definitionEntryList`).
 
-!!! tip
-
-    This approach is best for large Policy Sets such as Azure Security Benchmark, NIST 800-53, etc. Smaller Policy Sets should still be handled with JSON `parameters`, `overrides` and `nonComplianceMessages`.
+> [!TIP]
+> This approach is best for large Policy Sets such as Azure Security Benchmark, NIST 800-53, etc. Smaller Policy Sets should still be handled with JSON `parameters`, `overrides` and `nonComplianceMessages`.
 
 Implement these steps as documented in [Managing Policy Assignment Parameters with a CSV file](policy-assignments-csv-parameters.md).
 
@@ -289,9 +286,8 @@ Implement these steps as documented in [Managing Policy Assignment Parameters wi
 
 ### Defining `parameters` with JSON
 
-!!! warning
-
-    `parameters` have a simplified JSON structure. You do not need the additional `value` indirection Azure requests (EPAC will inject that indirection).
+> [!WARNING]
+> `parameters` have a simplified JSON structure. You do not need the additional `value` indirection Azure requests (EPAC will inject that indirection).
 
 ```json
 "parameters": {
@@ -307,9 +303,8 @@ Implement these steps as documented in [Managing Policy Assignment Parameters wi
 },
 ```
 
-!!! note
-
-    Too enable `definitionEntryList`, parameters not present in the Policy or Policy Set definition are quietly ignored.
+> [!NOTE]
+> Too enable `definitionEntryList`, parameters not present in the Policy or Policy Set definition are quietly ignored.
 
 ## Advanced Elements
 

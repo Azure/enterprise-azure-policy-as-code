@@ -46,9 +46,8 @@ This section is retained from the previous documentation to enable you to contin
 8. For role changes when the PR is approved again the same action runs - this time using the `Deploy-RolesPlan` for deployment.
 9. When complete the PR is closed and the branch containing the plan is deleted.
 
-!!! note
-
-    This is a sample method of deploying policy and role changes - feel free to modify it to suit your environment and contribute to this project if you want to share an update.
+> [!NOTE]
+> This is a sample method of deploying policy and role changes - feel free to modify it to suit your environment and contribute to this project if you want to share an update.
 
 ### Setup in GitHub -- Legacy
 

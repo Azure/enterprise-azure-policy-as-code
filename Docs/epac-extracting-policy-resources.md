@@ -2,23 +2,20 @@
 
 Script `Export-AzPolicyResources` (Operations) extracts existing Policies, Policy Sets, and Policy Assignments and Exemptions outputing them in EPAC format into subfolders in folder `$outputFolders/Definitions`. The subfolders are `policyDefinitions`, `policySetDefinitions`, `policyAssignments` and `policyExemptions`.
 
-!!! tip
-
-    The script collects information on ownership of the Policy resources into a CSV file. You can analyze this file to assist in the transition to EPAC.
+> [!TIP]
+> The script collects information on ownership of the Policy resources into a CSV file. You can analyze this file to assist in the transition to EPAC.
 
 The scripts creates a `Definitions` folder in the `OutputFolder` with the subfolders for `policyDefinitions`, `policySetDefinitions`, `policyAssignments` and `policyExemptions`.
 
-!!! tip
-
-    In a new EPAC instance these folders can be directly copied to the `Definitions` folder enabling an initial transition from a pre-EPAC to EPAC environment.
+> [!TIP]
+> In a new EPAC instance these folders can be directly copied to the `Definitions` folder enabling an initial transition from a pre-EPAC to EPAC environment.
 
 * `policyDefinitions`, `policySetDefinitions` have a subfolder based on `metadata.category`. If the definition has no `category` `metadata` they are put in a subfolder labeled `Unknown Category`. Duplicates when including child scopes are sorted into the `Duplicates` folder. Creates one file per Policy and Policy Set.
 * `policyAssignments` creates one file per unique assigned Policy or Policy Set spanning multiple Assignments.
 * `policyExemptions` creates one subfolder per EPAC environment
 
-!!! warning
-
-    The script deletes the `$outputFolders/Definitions` folder before creating a new set of files. In interactive mode it will ask for confirmation before deleting the directory.
+> [!WARNING]
+> The script deletes the `$outputFolders/Definitions` folder before creating a new set of files. In interactive mode it will ask for confirmation before deleting the directory.
 
 ## Use case 1: Interactive or non-interactive single tenant
 
