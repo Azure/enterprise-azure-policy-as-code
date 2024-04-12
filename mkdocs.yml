@@ -25,24 +25,24 @@ theme:
 nav:
   - Home: index.md
   - Getting Started:
-    - Changes in v10.0.0: changes.md
-    - Implementing: epac-implementing.md
-    - Extracting Policy Resources: epac-extracting-policy-resources.md
-    - Forking GitHub Repo: epac-forking-github-repo.md
+    - Changes in v10.0.0: start-changes.md
+    - Start Implementation: start-implementing.md
+    - Extracting Policy Resources: start-extracting-policy-resources.md
+    - Forking GitHub Repo: start-forking-github-repo.md
   - Settings and Desired State:
     - Global Settings: settings-global-setting-file.md
     - Desired State: settings-desired-state.md
     - DfC Assignments: settings-dfc-assignments.md
+  - Azure Landing Zones: 
+    - ALZ Policy Integration: integrating-with-alz.md
+    - Azure Monitor Baseline Alerts: integrating-with-alz-monitor.md
+    - Sovereign Landing Zones: integrating-with-slz.md
   - Define Policy Resources:
     - Policy Definitions: policy-definitions.md
     - Policy Set Definitions: policy-set-definitions.md
     - Policy Assignment Files: policy-assignments.md
     - CSV Assignment Parameters: policy-assignments-csv-parameters.md
     - Policy Exemptions: policy-exemptions.md
-  - Azure Landing Zones: 
-    - ALZ Policy Integration: integrating-with-alz.md
-    - Azure Monitor Baseline Alerts: integrating-with-alz-monitor.md
-    - Sovereign Landing Zones: integrating-with-slz.md
   - CI/CD Integration:
     - CI/CD Overview: ci-cd-overview.md
     - App Registrations Setup: ci-cd-app-registrations.md
