@@ -162,7 +162,7 @@ For saving the output related to ```Build-DeploymentPlans``` there is global var
 |----------|-------------|
 | `OutputFolder` | Output folder path for plan files. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER` or `./Output`. |
 | `DevOpsType` | If set, outputs variables consumable by conditions in a DevOps pipeline. Default: not set. |
-| `BuildExemptionsOnly` | If set, only builds the Exemptions plan. This useful to fast-track Exemption when utilizing [Microsoft Release Flow](#advanced-cicd-with-microsoft-release-flow) Default: not set. |
+| `BuildExemptionsOnly` | If set, only builds the Exemptions plan. This useful to fast-track Exemption when utilizing [Release Flow](#advanced-cicd-with-release-flow) Default: not set. |
 | `VirtualCores` | Number of (virtual) cores available to calculate the deployment plan. Defaults to 4. |
 
 

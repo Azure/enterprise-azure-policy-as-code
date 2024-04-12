@@ -1,7 +1,7 @@
 # Start the Enterprise Policy as Code (EPAC) Implementation
 
 > [!CAUTION]
-> EPAC is a true desired state deployment technology. It takes possession of all Policy Resources at the `deploymentRootScope` and its children. It will **delete any Policy resources not defined in the EPAC repo**. This behavior can be modified as documented in the [desired state strategy](desired-state-strategy.md) page.
+> EPAC is a true desired state deployment technology. It takes possession of all Policy Resources at the `deploymentRootScope` and its children. It will **delete any Policy resources not defined in the EPAC repo**. This behavior can be modified as documented in the [desired state strategy](settings-desired-state.md) page.
 
 ## Getting Started
 
@@ -140,7 +140,7 @@ For assignment files, this is a top level property on the assignment's root node
 EPAC can be installed in two ways:
 
 - Install the `EnterprisePolicyAsCode` module from the [PowerShell marketplace](https://www.powershellgallery.com/packages/EnterprisePolicyAsCode). This is the recommended approach documented here.
-- Copy the source code from an [EPAC GitHub repository fork](https://github.com/Azure/enterprise-azure-policy-as-code). The process is described in [Forking the GitHub Repo - an Alternate Installation Method](fork-github.md) page.
+- Copy the source code from an [EPAC GitHub repository](https://github.com/Azure/enterprise-azure-policy-as-code) fork. The process is described in [Forking the GitHub Repo - an Alternate Installation Method](start-forking-github-repo.md) page.
 
 ### Installation Steps
 
@@ -178,4 +178,4 @@ Should you encounter issues with the expected behavior of EPAC, try the followin
 
 * Run the scripts interactively.
 * [Debug the scripts in VS Code](https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/vscode/using-vscode?view=powershell-7.3).
-* Ask for help by raising a [GitHub Issue](https://github.com/Azure/enterprise-azure-policy-as-code/issues/new)
+* Ask for help by raising a [GitHub Issue](https://github.com/Azure/enterprise-azure-policy-as-code/issues)

@@ -4,7 +4,7 @@ The starter kit contains a sample pipeline to use GitHub Actions to deploy Enter
 
 We have revised our approach to GitHub Actions simplifying the process and make it easier to understand. The new approach is documented below and is included in the starter kit with v8.5 and later.
 
-The previous version is still available in the starter kit in folder `Legacy` and the [documentation is retained](#previous-cicd-workflow----legacy) after the documentation for the new approach.
+The previous version is still available in the starter kit in folder `Legacy` and the [documentation is retained](#legacy-github-cicd-workflows) at the end of this page.
 
 ## Setup in GitHub
 
@@ -28,7 +28,7 @@ For each environment, [add to the environment secrets](https://docs.github.com/e
 * [Restrict branch](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#deployment-branches-and-tags) to `main` branch for TENANT-DEPLOY-POLICY and TENANT-DEPLOY-ROLES environments.
 * Do not [allow administrators to bypass configured protection rules](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#allow-administrators-to-bypass-configured-protection-rules) for TENANT-DEPLOY-POLICY and TENANT-DEPLOY-ROLES environments.
 
-## Previous CI/CD Workflow -- Legacy
+## Legacy GitHub CI/CD Workflows
 
 This section is retained from the previous documentation to enable you to continue using the previous approach. It is recommended that you migrate to the new approach as soon as possible.
 
@@ -45,9 +45,6 @@ This section is retained from the previous documentation to enable you to contin
     * If there are role changes a label of `RoleDeployment` is added - and the reviewer is removed and re-added. This triggers another review on the pipeline which must be approved before role changes are deployed.
 8. For role changes when the PR is approved again the same action runs - this time using the `Deploy-RolesPlan` for deployment.
 9. When complete the PR is closed and the branch containing the plan is deleted.
-
-> [!NOTE]
-> This is a sample method of deploying policy and role changes - feel free to modify it to suit your environment and contribute to this project if you want to share an update.
 
 ### Setup in GitHub -- Legacy
 

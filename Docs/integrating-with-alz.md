@@ -12,7 +12,7 @@ As the policies and assignments change in main repository the base files in this
 
 EPAC can be used to manage Azure Policy deployed using ALZ Bicep or Terraform using the scenarios below. Some reasons you may want to switch to EPAC policy management include:
 
-- You have existing unmanaged policies in a brownfield environment that you want to deploy in the new ALZ environment. [Export the existing policies](extract-existing-policy-resources.md) and manage them with EPAC alongside the ALZ policy objects.
+- You have existing unmanaged policies in a brownfield environment that you want to deploy in the new ALZ environment. [Export the existing policies](start-extracting-policy-resources.md) and manage them with EPAC alongside the ALZ policy objects.
 - You have ALZ deployed in a non standard way e.g. multiple management group structures for testing, non-conventional management group structure. The default assignment structure provided by other ALZ deployment methods may not fit your strategy.
 - A team that is not responsible for infrastructure deployment e.g. a security team may want to deploy and manage policies.
 - You require features from policy not available in the ALZ deployments e.g. policy exemptions, documentation, assignment customization.
@@ -43,9 +43,9 @@ With an existing Azure Landing Zone deployment you can use EPAC's extract script
     New-EPACDefinitionFolder -DefinitionsRootFolder .\Definitions
     ```
 
-3. Update the `global-settings.json` file in the Definitions folder as described [here](definitions-and-global-settings.md#global-settings)
+3. Update the `global-settings.json` file in the Definitions folder as described [here](settings-global-setting-file.md)
 
-4. Extract the existing policies from the environment by using the extract functionality as described [here](extract-existing-policy-resources.md)
+4. Extract the existing policies from the environment by using the extract functionality as described [here](start-extracting-policy-resources.md)
 
     This will create in the `Output` folder a group of folders containing the extracted policies. Note that it extracts all policies in the environment including ones not deployed by any of the Azure Landing Zone deployments.
 
@@ -57,7 +57,7 @@ With an existing Azure Landing Zone deployment you can use EPAC's extract script
     Build-DeploymentPlans -DefinitionsRootFolder Definitions -OutputFolder Output
     ```
 
-    In a newly deployed CAF environment with no other policies the results of the plan should be similar to below - EPAC will update each policy definition, set definition and assignment with a [PacOwnerId](definitions-and-global-settings.md#global-settings)
+    In a newly deployed CAF environment with no other policies the results of the plan should be similar to below - EPAC will update each policy definition, set definition and assignment with a [PacOwnerId](settings-global-setting-file.md#uniquely-identify-deployments-with-pacownerid)
 
     ```
     ===================================================================================================

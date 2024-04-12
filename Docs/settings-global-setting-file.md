@@ -4,7 +4,7 @@
 
 `global-settings.jsonc` has following sections explained below:
 
-- `telemetryOptOut` if set to true disables the collection of usage date for the EPAC repo. The default is false. See [Usage Tracking](usage-tracking.md) for more information.
+- `telemetryOptOut` if set to true disables the collection of usage date for the EPAC repo. The default is false. See [Usage Tracking](index.md#telemetry-tracking-using-customer-usage-attribution-pid) for more information.
 - `pacOwnerId` uniquely identifies deployments from a specific repo. We recommend using a GUID.
 - `pacEnvironments` defines the EPAC environments.
 
@@ -86,9 +86,9 @@ EPAC has a concept of an environment identified by a string (unique per reposito
   - `desiredState`:  defines the desired state strategy.
     - `strategy`: see [Desired State Strategy](settings-desired-state.md).
     - `keepDfcSecurityAssignments`: see [Managing Defender for Cloud Policy Assignments](settings-dfc-assignments.md).
-  - `managedIdentityLocation`: see [DeployIfNotExists and Modify Policy Assignments need `managedIdentityLocation`](settings-global-setting-file.md#deployifnotexists-and-modify-policy)
+  - `managedIdentityLocation`: see [DeployIfNotExists and Modify Policy Assignments need `managedIdentityLocation`](#deployifnotexists-and-modify-policy-assignments-need-managedidentitylocation)
 - Optional:
-  - `globalNotScopes`: see [Excluding scopes for all Assignments with `globalNotScopes`](settings-global-setting-file.md#excluding-scopes-for-all-assignments-with-globalnotscopes).
+  - `globalNotScopes`: see [Excluding scopes for all Assignments with `globalNotScopes`](#excluding-scopes-for-all-assignments-with-globalnotscopes)
   - `deployedBy`: populates the `metadata` fields. It defaults to `epac/$pacOwnerId/$pacSelector`. We recommend to use the default.
     - Policy Definitions, Policy Set Definitions and Policy Exemptions - `metadata.deployedBy`.
     - Policy Assignments - `metadata.assignedBy` since Azure Portal displays it as 'Assigned by'.
