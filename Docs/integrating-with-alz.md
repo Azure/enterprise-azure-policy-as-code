@@ -57,7 +57,7 @@ With an existing Azure Landing Zone deployment you can use EPAC's extract script
     Build-DeploymentPlans -DefinitionsRootFolder Definitions -OutputFolder Output
     ```
 
-    In a newly deployed CAF environment with no other policies the results of the plan should be similar to below - EPAC will update each policy definition, set definition and assignment with a [PacOwnerId](settings-global-setting-file.md#uniquely-identify-deployments-with-pacownerid)
+    In a newly deployed CAF environment with no other policies the results of the plan should be similar to below - EPAC will update each policy definition, set definition and assignment with a [pacOwnerId](settings-global-setting-file.md#uniquely-identify-deployments-with-pacownerid)
 
     ```
     ===================================================================================================
