@@ -29,13 +29,12 @@ function Set-AzRoleAssignmentRestMethod {
     # Process response
     $statusCode = $response.StatusCode
     if ($statusCode -lt 200 -or $statusCode -ge 300) {
-        $content = $response.Content
         if ($statusCode -eq 409) {
-            $errorBody = $content | ConvertFrom-Json -Depth 100
-            Write-Information $errorBody.error.message
+            Write-Warning "Role assignment already exists (ignore): $($RoleAssignment.assignmentDisplayName)"
         }
         else {
-            Write-Error "Role Assignment error $($statusCode) -- $($content)" -ErrorAction Continue
+            $content = $response.Content
+            Write-Warning "Error, continue deployment: $($statusCode) -- $($content)"
         }
     }
 }

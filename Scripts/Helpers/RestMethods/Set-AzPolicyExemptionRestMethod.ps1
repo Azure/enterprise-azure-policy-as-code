@@ -39,7 +39,7 @@ function Set-AzPolicyExemptionRestMethod {
             Write-Warning "Ignoring scope locked error: $($statusCode) -- $($content)"
         }
         else {
-            Write-Error "Policy Exemption error $($statusCode) -- $($content)" -ErrorAction Continue
+            Write-Warning "Error, continue deployment: $($statusCode) -- $($content)"
         }
     }
 }
