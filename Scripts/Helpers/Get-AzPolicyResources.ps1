@@ -313,7 +313,7 @@ function Get-AzPolicyResources {
         $numberPrincipalIds = $deployedPolicyResources.numberOfPrincipleIds
         $numberPrincipalIdsWithRoleAssignments = $managedRoleAssignmentsByPrincipalId.Count
         if ($numberPrincipalIds -ne $numberPrincipalIdsWithRoleAssignments) {
-            Write-Warning "Role assignment not retrieved for every principal Id ($($numberPrincipalIds) in assignments, $($numberPrincipalIdsWithRoleAssignments) retrieved).`n    This is likely due to a missing permission for the SPN running the pipeline. Please read the pipeline documentation in EPAC.`n    In rare cases, this can happen when a previous role assignment failed." -WarningAction Continue
+            Write-Warning "Role assignment not retrived for every principal Id ($($numberPrincipalIds) in assignments, $($numberPrincipalIdsWithRoleAssignments) retrieved).`n    This is likely due to a missing permission for the SPN running the pipeline. Please read the pipeline documentation in EPAC.`n    In rare cases, this can happen when a previous role assignment failed." -WarningAction Continue
             $deployedPolicyResources.roleAssignmentsNotRetrieved = $numberPrincipalIdsWithRoleAssignments -eq 0
         }
         Write-Information "Role Assignments:"

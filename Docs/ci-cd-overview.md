@@ -39,7 +39,7 @@ New-PipelinesFromStarterKit -StarterKitFolder .\StarterKit -PipelinesFolder .\.g
 
 ## Developing Policy Resources in a Feature Branch
 
-Developing Policy resources is the dame for `GitHub Flow` and `Release Flow`. The following steps are recommended:
+Developing Policy resources is the same for `GitHub Flow` and `Release Flow`. The following steps are recommended:
 
 1. Developers create feature branches from `main` branch with a name `feature/*user-id*/*feature-name*`.
 2. Developers create or update Policy definitions, Policy Set definitions, Policy Assignment, amd Policy Exemptions files in the `Definitions` folder. Developers push changes to the feature branch.
@@ -156,12 +156,15 @@ Furthermore, it shows the consumption of the `Definitions` files by script Build
 
 Analyzes changes in Policy definition, Policy Set definition, and Policy Assignment files. It calculates a plan to apply deltas. The deployment scripts are **declarative** and **idempotent**: this means, that regardless how many times they are run, they always push all changes that were implemented in the JSON files to the Azure environment, i.e. if a JSON file is newly created/updated/deleted, the pipeline will create/update/delete the Policy and/or Policy Set and/or Policy Assignments definition in Azure. If there are no changes, the pipeline can be run any number of times, as it won't make any changes to Azure.
 
+For saving the output related to ```Build-DeploymentPlans``` there is global variable called ```$epacInfoStream``` which capture all output from the commands. If required this can be used as a PR message or to present a summary of the plan.
+
 |Parameter | Explanation |
 |----------|-------------|
 | `OutputFolder` | Output folder path for plan files. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER` or `./Output`. |
 | `DevOpsType` | If set, outputs variables consumable by conditions in a DevOps pipeline. Default: not set. |
 | `BuildExemptionsOnly` | If set, only builds the Exemptions plan. This useful to fast-track Exemption when utilizing [Microsoft Release Flow](#advanced-cicd-with-microsoft-release-flow) Default: not set. |
 | `VirtualCores` | Number of (virtual) cores available to calculate the deployment plan. Defaults to 4. |
+
 
 ### Deploy-PolicyPlan.ps1
 

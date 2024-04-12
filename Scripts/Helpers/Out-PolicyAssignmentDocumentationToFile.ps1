@@ -150,58 +150,24 @@ function Out-PolicyAssignmentDocumentationToFile {
     #region Markdown
 
     [System.Collections.Generic.List[string]] $allLines = [System.Collections.Generic.List[string]]::new()
-    [System.Collections.Generic.List[string]] $headerAndToc = [System.Collections.Generic.List[string]]::new()
-    [System.Collections.Generic.List[string]] $body = [System.Collections.Generic.List[string]]::new()
+    $null = $allLines.Add("# $title`n")
+    $null = $allLines.Add("Auto-generated Policy effect documentation across environments '$($environmentCategories -join "', '")' sorted by Policy category and Policy display name.`n")
+    $null = $allLines.Add("## Table of Contents`n")
+    $null = $allLines.Add("- [Policy Effects](#policy-effects)")
 
-    $allLines.Clear()
-    $headerAndToc.Clear()
-    $body.Clear()
+    #region Policy Effects
 
-    #region Overview
-    $null = $headerAndToc.Add("# $title $markdownOutputType`n")
-    $null = $headerAndToc.Add("Auto-generated Policy effect documentation across environments '$($environmentCategories -join "', '")' sorted by Policy category and Policy display name.`n")
-    $null = $headerAndToc.Add("## Table of contents`n")
-
-    $null = $headerAndToc.Add("- [Environments](#environments)")
-    $null = $body.Add("`n## <a id=`"environments`"></a>Environments`n")
     $addedTableHeader = ""
     $addedTableDivider = ""
     foreach ($environmentCategory in $environmentCategories) {
-        $perEnvironment = $AssignmentsByEnvironment.$environmentCategory
-        $itemList = $perEnvironment.itemList
-        $assignmentsDetails = $perEnvironment.assignmentsDetails
-        $scopes = $perEnvironment.scopes
-        $null = $body.Add("`n### **$environmentCategory environment**")
-
-        $null = $body.Add("`nScopes`n")
-        foreach ($scope in $scopes) {
-            $null = $body.Add("- $scope")
-        }
-
-        foreach ($item in $itemList) {
-            $assignmentId = $item.assignmentId
-            if ($assignmentsDetails.ContainsKey($assignmentId)) {
-                # should always be true
-                $assignmentsDetails = $assignmentsDetails.$assignmentId
-                $null = $body.Add("`nAssignment $($assignmentsDetails.assignment.displayName)`n")
-                $null = $body.Add("- PolicySet: $($assignmentsDetails.displayName)")
-                $null = $body.Add("- Type: $($assignmentsDetails.policyType)")
-                $null = $body.Add("- Category: $($assignmentsDetails.category)")
-                $null = $body.Add("- Description: $($assignmentsDetails.description)")
-            }
-        }
-
+        $null = $allLines.Add("- [Environment Category ``$environmentCategory``](#environment-category-$($environmentCategory.ToLower()))")
         # Calculate environment columns
         $addedTableHeader += " $environmentCategory |"
         $addedTableDivider += " :-----: |"
     }
-
-    #endregion Overview
-
-    $null = $headerAndToc.Add("- [Policy effects across environments](#policy-effects-across-environment)")
-    $null = $body.Add("`n<br/>`n`n## <a id='policy-effects-across-environment'></a>Policy effects across environment`n`n<br/>`n")
-    $null = $body.Add("| Category | Policy |$addedTableHeader")
-    $null = $body.Add("| :------- | :----- |$addedTableDivider")
+    $null = $allLines.Add("`n## Policy Effects`n")
+    $null = $allLines.Add("| Category | Policy |$addedTableHeader")
+    $null = $allLines.Add("| :------- | :----- |$addedTableDivider")
 
     $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
         # Build additional columns
@@ -256,10 +222,44 @@ function Out-PolicyAssignmentDocumentationToFile {
             $sortedGroupNames = $groupNames | Sort-Object -Unique
             $additionalInfoFragment += ($sortedGroupNames -join $separator)
         }
-        $null = $body.Add("| $($_.category) | **$($_.displayName)**<br/>$($_.description)$($additionalInfoFragment) | $($addedEffectColumns)")
+        $null = $allLines.Add("| $($_.category) | **$($_.displayName)**<br/>$($_.description)$($additionalInfoFragment) | $($addedEffectColumns)")
     }
-    $null = $allLines.AddRange($headerAndToc)
-    $null = $allLines.AddRange($body)
+
+    #endregion Policy Effects
+
+    #region Environment Categories
+
+    foreach ($environmentCategory in $environmentCategories) {
+        $perEnvironment = $AssignmentsByEnvironment.$environmentCategory
+        $itemList = $perEnvironment.itemList
+        $assignmentsDetails = $perEnvironment.assignmentsDetails
+        $scopes = $perEnvironment.scopes
+        $null = $allLines.Add("`n## Environment Category ``$environmentCategory``")
+
+        $null = $allLines.Add("`n### Scopes`n")
+        foreach ($scope in $scopes) {
+            $null = $allLines.Add("- $scope")
+        }
+
+        foreach ($item in $itemList) {
+            $assignmentId = $item.assignmentId
+            if ($assignmentsDetails.ContainsKey($assignmentId)) {
+                # should always be true
+                $assignmentsDetail = $assignmentsDetails.$assignmentId
+                $null = $allLines.Add("`n### Assignment: ``$($assignmentsDetail.assignment.properties.displayName)```n")
+                $null = $allLines.Add("| Property | Value |")
+                $null = $allLines.Add("| :------- | :---- |")
+                $null = $allLines.Add("| Assignment Id | $($assignmentId) |")
+                $null = $allLines.Add("| Policy Set | ``$($assignmentsDetail.displayName)`` |")
+                $null = $allLines.Add("| Policy Set Id | $($assignmentsDetail.policySetId) |")
+                $null = $allLines.Add("| Type | $($assignmentsDetail.policyType) |")
+                $null = $allLines.Add("| Category | ``$($assignmentsDetail.category)`` |")
+                $null = $allLines.Add("| Description | $($assignmentsDetail.description) |")
+            }
+        }
+    }
+
+    #endregion Environment Categories
 
     # Output file
     $outputFilePath = "$($OutputPath -replace '[/\\]$', '')/$($fileNameStem).md"

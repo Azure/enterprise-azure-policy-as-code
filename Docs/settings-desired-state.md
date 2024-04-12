@@ -57,9 +57,9 @@ After short transitioning period (weeks), it is recommended to set `desiredState
 
 ## Exclude Resource Groups
 
-!!! warning "Warning - Breaking Change in v10.0.0"
+!!! warning
 
-    Policy Assignments at resource groups are **managed** by EPAC. The element `includeResourceGroups` has been deprecated and removed.
+    **Breaking Change in v10.0.0:** Policy Assignments at resource groups are **managed** by EPAC. The element `includeResourceGroups` has been deprecated and removed.
 
 To exclude resource groups from management by EPAC, add an `excludedScopes` array element with a wild card for the subscription and resourceGroups to `desiredState`. 
 
