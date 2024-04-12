@@ -21,6 +21,6 @@ jobs:
         shell: pwsh
         run: |
           mkdir tmp
-          ./Scripts/Operations/Convert-MarkdownGitHubAlerts.ps1 -Path ./Docs -OutputPath ./tmp
+          ./Scripts/Operations/Convert-MarkdownGitHubAlerts.ps1 -InputFolder ./Docs -OutputFolder ./tmp
           Move-Item -Path ./tmp/* -Destination ./Docs -Force
       - run: mkdocs gh-deploy --force --clean --verbose
