@@ -1,4 +1,4 @@
-# Implementing Enterprise Policy as Code
+# Start the Enterprise Policy as Code (EPAC) Implementation
 
 > [!CAUTION]
 > EPAC is a true desired state deployment technology. It takes possession of all Policy Resources at the `deploymentRootScope` and its children. It will **delete any Policy resources not defined in the EPAC repo**. This behavior can be modified as documented in the [desired state strategy](desired-state-strategy.md) page.

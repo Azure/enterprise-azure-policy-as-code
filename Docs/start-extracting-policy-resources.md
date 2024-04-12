@@ -1,4 +1,4 @@
-# Extract Policy Resources
+# Start by Extracting existing Policy Resources
 
 Script `Export-AzPolicyResources` (Operations) extracts existing Policies, Policy Sets, and Policy Assignments and Exemptions outputing them in EPAC format into subfolders in folder `$outputFolders/Definitions`. The subfolders are `policyDefinitions`, `policySetDefinitions`, `policyAssignments` and `policyExemptions`.
 
