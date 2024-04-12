@@ -1,6 +1,6 @@
 # Managing Defender for Cloud Assignments
 
-Defender for Cloud (DFC) is a suite of Azure Security Center (ASC) capabilities that helps you prevent, detect, and respond to threats. It provides you with integration of Microsoft's threat protection technology and expertise. For more information, see [Azure Defender for Cloud](https://docs.microsoft.com/en-us/azure/security-center/defender-for-cloud).
+Defender for Cloud (DFC) is a suite of Azure Security Center (ASC) capabilities that helps you prevent, detect, and respond to threats. It provides you with integration of Microsoft's threat protection technology and expertise. For more information, see [Azure Defender for Cloud](https://learn.microsoft.com/en-us/azure/defender-for-cloud/).
 
 ## Defender for Cloud Assignments for Defender Plans
 

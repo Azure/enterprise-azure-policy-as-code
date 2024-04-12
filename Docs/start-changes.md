@@ -1,7 +1,7 @@
 # Changes in v10.0.0
 
 > [!CAUTION]
-> Read the [breaking changes](#breaking-changes-in-v1000) carefully and adjust your environment accordingly.
+> Read the **breaking changes** below carefully and adjust your environment accordingly.
 
 ## Breaking Changes in v10.0.0
 
