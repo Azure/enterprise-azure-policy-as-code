@@ -12,9 +12,15 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v2
         with:
           python-version: 3.x
       - run: pip install mkdocs mkdocs-material
+      - name: ConvertAlerts
+        shell: pwsh
+        run: |
+          mkdir tmp
+          ./Scripts/Operations/Convert-MarkdownGitHubAlerts.ps1 -Path ./Docs -OutputPath ./tmp
+          Move-Item -Path ./tmp/* -Destination ./Docs -Force
       - run: mkdocs gh-deploy --force --clean --verbose
