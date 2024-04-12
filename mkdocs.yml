@@ -25,6 +25,7 @@ theme:
 nav:
   - Home: index.md
   - Getting Started:
+    - Changes in v10.0.0: changes.md
     - Implementing: epac-implementing.md
     - Extracting Policy Resources: epac-extracting-policy-resources.md
     - Forking GitHub Repo: epac-forking-github-repo.md
