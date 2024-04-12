@@ -105,10 +105,11 @@ This process is used to promote code from the EPAC Development repo to the EPAC 
 5. Add PR title and create PR.
 6. Complete GitHub Review and merge PR process.
 7. Delete branch from GitHub.
-8. Go to VSCode for EPAC Release (GitHub) (ex `C:\GitRepoClones\enterprise-azure-policy-as-code`) In Source Control, select main branch. Move to Remotes and fetch, then sync changes.
-9. Move to branches, delete local branch (force delete may be required).
-10. Open terminal, type `git remote prune origin`
-11. Verify that the documents have been published to https://aka.ms/epac
+8. Go to VSCode for EPAC Release (GitHub) (`C:\GitRepoClones\enterprise-azure-policy-as-code`)
+9. In Source Control, select main branch. Move to Remotes and fetch, then sync changes.
+10. Move to branches, delete local branch (force delete may be required).
+11. Open terminal, type `git remote prune origin`
+12. Verify that the documents [have been published](https://aka.ms/epac).
 
 ### GitHub Releases
 
