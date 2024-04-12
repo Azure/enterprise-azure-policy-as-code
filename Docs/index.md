@@ -95,7 +95,7 @@ The following is the unique IDs (also known as PIDs) used in each of the modules
 
 ## Support
 
-Please raise issues via the [GitHub](https://github.com/Azure/enterprise-azure-policy-as-code/issues) repository.
+Please raise issues via the [GitHub](https://github.com/Azure/enterprise-azure-policy-as-code/issues) repository using the templates provided.
 
 ## Contributing
 
