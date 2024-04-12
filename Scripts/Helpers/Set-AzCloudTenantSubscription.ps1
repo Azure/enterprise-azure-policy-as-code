@@ -11,7 +11,7 @@ function Set-AzCloudTenantSubscription {
         Write-Information "Installing Az.ResourceGraph module"
         Install-Module Az.ResourceGraph -Force -Repository PSGallery
     }
-
+    Get-AzSubscription | Where-Object HomeTenantId -eq (Get-AzContext).Tenant | Select-Object -First 1 | set-AzContext
     $account = Get-AzContext
     if ($null -eq $account -or $account.Environment.Name -ne $Cloud -or $account.Tenant.TenantId -ne $TenantId) {
         # Wrong tenant - login to tenant
