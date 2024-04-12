@@ -18,7 +18,7 @@ Enterprise Azure Policy as Code (EPAC for short) is a number of PowerShell scrip
 - Deployments are sequenced based on the dependencies between the different Policy resources
 - Operational scripts to simplify operational tasks
 - Integration with Azure Landing Zone recommended policies
-- Starter Kit with examples
+- Starter Kit with examples.
 
 > [!CAUTION]
 > EPAC is a true desired state deployment technology. It takes possession of all Policy Resources at the `deploymentRootScope` and its children. It will **delete any Policy resources not defined in the EPAC repo**. This behavior can be modified as documented in the [desired state strategy](settings-desired-state.md) page.
