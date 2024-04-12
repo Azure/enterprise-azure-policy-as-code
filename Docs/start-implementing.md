@@ -15,7 +15,7 @@ The following steps are required to implement Enterprise Policy as Code (EPAC) i
 5. Create your [`Definitions` folder and subfolders](#create-the-definitions-folder).
 6. Populate `global-settings.jsonc` with your [environment settings](settings-global-setting-file.md) and [desired state strategy](settings-dfc-assignments.md).
 7. Populate your Definitions folder with Policy resources.
-    - [Option A:] [Extract existing Policy resources](epac-extracting-policy-resources.md) from your Azure environment.
+    - [Option A:] [Extract existing Policy resources](start-extracting-policy-resources.md) from your Azure environment.
     - [Option B:] [Integrate Azure Landing Zones (ALZ)](integrating-with-alz.md).
     - [Option C:] Utilize the [hydration kit](operational-scripts-hydration-kit.md) and `StarterKit` content.
     - [Optional] Create custom [Policy definitions](policy-definitions.md).
