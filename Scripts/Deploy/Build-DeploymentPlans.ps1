@@ -76,7 +76,7 @@ Clear-Variable -Name epacInfoStream -Scope global -Force -ErrorAction SilentlyCo
 $InformationPreference = "Continue"
 
 $pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -Interactive $Interactive
-$null = Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -Interactive $pacEnvironment.interactive
+$null = Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -Interactive $pacEnvironment.interactive -DeploymentDefaultContext $pacEnvironment.defaultContext
 
 # Telemetry
 if ($pacEnvironment.telemetryEnabled) {
@@ -177,7 +177,10 @@ elseif (!(Test-Path $policyExemptionsFolderForPacEnvironment -PathType Container
     $exemptionsAreNotManagedMessage = "Policy Exemptions folder '$policyExemptionsFolderForPacEnvironment' for PaC environment $($pacEnvironment.pacSelector) not found. Exemptions not managed by this EPAC instance."
     $exemptionsAreManaged = $false
 }
-if ($BuildExemptionsOnly) {
+$localBuildExemptionsOnly = $BuildExemptionsOnly
+# $localBuildExemptionsOnly = $true
+# $VerbosePreference = "Continue"
+if ($localBuildExemptionsOnly) {
     $null = $warningMessages.Add("Building only the Exemptions plan. Policy, Policy Set, and Assignment plans will not be built.")
     if ($exemptionsAreManaged) {
         $buildSelections.buildPolicyExemptions = $true

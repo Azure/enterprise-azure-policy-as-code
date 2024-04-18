@@ -281,7 +281,7 @@ function Build-AssignmentPlan {
                     -ReplacedAssignment $false `
                     -DeployedRoleAssignmentsByPrincipalId $deployedRoleAssignmentsByPrincipalId
                 if ($identityStatus.requiresRoleChanges) {
-                    $null = $RoleAssignments.removed.AddRange($identityStatus.added)
+                    $null = $RoleAssignments.removed.AddRange($identityStatus.removed)
                     $RoleAssignments.numberOfChanges += ($identityStatus.numberOfChanges)
                 }
                 if ($identityStatus.isUserAssigned) {

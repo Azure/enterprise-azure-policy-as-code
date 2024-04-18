@@ -26,7 +26,6 @@ function Get-CalculatedPolicyAssignmentsAndReferenceIds {
 
             #region calculate assignment for this policyAssignment and assignments for the Policy definition id
             $calculatedPolicyAssignment = @{
-                ordinal                        = $index
                 id                             = $assignmentId
                 scope                          = $assignment.scope
                 name                           = $assignment.name
@@ -106,7 +105,6 @@ function Get-CalculatedPolicyAssignmentsAndReferenceIds {
 
             #region calculated assignment for this policyAssignment AND for this policySetId
             $calculatedPolicyAssignment = @{
-                ordinal                        = $index
                 id                             = $assignmentId
                 scope                          = $assignment.scope
                 name                           = $assignment.name

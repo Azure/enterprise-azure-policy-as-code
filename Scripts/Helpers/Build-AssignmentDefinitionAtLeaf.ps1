@@ -611,7 +611,7 @@ function Build-AssignmentDefinitionAtLeaf {
                         $requiredRoleAssignment = $null
                         if ($additionalRoleAssignment.crossTenant -eq $true) {
                             $requiredRoleAssignment = @{
-                                scope            = $scopeEntry.scope
+                                scope            = $additionalRoleAssignment.scope
                                 roleDefinitionId = $roleDefinitionId
                                 roleDisplayName  = $roleDisplayName
                                 description      = "Policy Assignment '$id': additional cross tenant Role Assignment deployed by: '$($PacEnvironment.deployedBy)'"
@@ -620,7 +620,7 @@ function Build-AssignmentDefinitionAtLeaf {
                         }
                         else {
                             $requiredRoleAssignment = @{
-                                scope            = $scopeEntry.scope
+                                scope            = $additionalRoleAssignment.scope
                                 roleDefinitionId = $roleDefinitionId
                                 roleDisplayName  = $roleDisplayName
                                 description      = "Policy Assignment '$id': additional Role Assignment deployed by: '$($PacEnvironment.deployedBy)'"

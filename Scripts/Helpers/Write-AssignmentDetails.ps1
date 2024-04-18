@@ -18,7 +18,7 @@ function Write-AssignmentDetails {
         foreach ($role in $IdentityStatus.added) {
             $roleScope = $role.scope
             $roleShortScope = $roleScope -replace "/providers/Microsoft.Management", ""
-            if (!$role.crossTenant) {
+            if (!$role.properties.crossTenant) {
                 Write-Information "    add role $($role.roleDisplayName) at $($roleShortScope)"
             }
             else {
