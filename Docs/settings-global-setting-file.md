@@ -96,6 +96,8 @@ EPAC has a concept of an environment identified by a string (unique per reposito
   - `managedTenant`: Used when the `pacEnvironment` is in a lighthouse managed tenant, [see this example](#example-for-lighthouse-manged-tenant) It must contain:
     - `managingTenantId` - The tenantId of the managing tenant.
     - `managingTenantRootScope` - An array of all subscriptions that will need `additionalRoleAssignments` deployed to them.
+- `defaultContext`: In rare cases (typicaslly only when deploying to a lighthouse managed tenant) the default context (Get-azContext) of a user/SPN running a plan will  
+be set to a suscription where that user/SPN does not have sufficient priveleges.  Some checks have been built in so that in some cases when this happens EPAC is able to fix the context issue.  When it is not, a `defaultContext` subscription name must be provided.  This can be any subscription within the `deploymentRootScope`.
 
 ### DeployIfNotExists and Modify Policy Assignments need `managedIdentityLocation`
 

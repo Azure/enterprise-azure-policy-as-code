@@ -4,7 +4,8 @@ function Set-AzCloudTenantSubscription {
     param (
         [Parameter(Mandatory = $true)] [string] $Cloud,
         [Parameter(Mandatory = $true)] [string] $TenantId,
-        [Parameter(Mandatory = $true)] [bool] $Interactive
+        [Parameter(Mandatory = $true)] [bool] $Interactive,
+        [Parameter(Mandatory = $false)] [string] $DeploymentDefaultContext
     )
 
     if ($null -eq (Get-Module Az.ResourceGraph -ListAvailable)) {
@@ -12,11 +13,24 @@ function Set-AzCloudTenantSubscription {
         Install-Module Az.ResourceGraph -Force -Repository PSGallery
     }
 
+    if ([string]::IsNullOrWhitespace($DeploymentDefaultContext)) {
+        Get-AzSubscription | Where-Object HomeTenantId -eq (Get-AzContext).Tenant | Select-Object -First 1 | Set-AzContext
+    }
+    else {
+        Set-AzContext -Subscription $DeploymentDefaultContext
+    }
+
     $account = Get-AzContext
     if ($null -eq $account -or $account.Environment.Name -ne $Cloud -or $account.Tenant.TenantId -ne $TenantId) {
         # Wrong tenant - login to tenant
         if ($Interactive) {
             $null = Connect-AzAccount -Environment $Cloud -Tenant $TenantId
+            if ([string]::IsNullOrWhitespace($DeploymentDefaultContext)) {
+                Get-AzSubscription | Where-Object HomeTenantId -eq (Get-AzContext).Tenant | Select-Object -First 1 | set-AzContext
+            }
+            else {
+                Set-AzContext -Subscription $DeploymentDefaultContext
+            }
             $account = Get-AzContext
         }
         else {

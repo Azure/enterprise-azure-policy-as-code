@@ -20,6 +20,11 @@ function Set-AzRoleAssignmentRestMethod {
     $body = @{
         properties = $RoleAssignment.properties
     }
+    if ($body.properties.crossTenant -eq $true) {
+        $body.properties["delegatedManagedIdentityResourceId"] = $roleassignment.assignmentId
+    }
+
+
     Write-Information "Assignment '$($RoleAssignment.assignmentDisplayName)', principalId $($properties.principalId), role '$($RoleAssignment.roleDisplayName)' at $($scope)"
 
     # Invoke the REST API

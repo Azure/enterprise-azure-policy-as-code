@@ -142,6 +142,17 @@ function Get-GlobalSettings {
             }
             $policyDefinitionsScopes = @( $deploymentRootScope, "")
 
+            $defaultContext = $pacEnvironment.defaultContext
+            if ($null -ne $defaultContext) {
+                if ($pacEnvironment.defaultContext -isnot [string]) {
+                    Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector has an invalid defaultContext field."
+                    $hasErrors = $true
+                }
+            }
+            else {
+                $defaultContext = ""
+            }
+
             $deployedBy = "epac/$pacOwnerId/$pacSelector"
             if ($null -ne $pacEnvironment.deployedBy) {
                 $deployedBy = $pacEnvironment.deployedBy
@@ -201,6 +212,7 @@ function Get-GlobalSettings {
             $desiredState = @{
                 strategy                             = "undefined"
                 keepDfcSecurityAssignments           = $false
+                cleanupObsoleteExemptions            = $false
                 excludedScopes                       = $excludedScopesList
                 globalExcludedScopesResourceGroups   = $globalExcludedScopesResourceGroupsList
                 globalExcludedScopesSubscriptions    = $globalExcludedScopesSubscriptionsList
@@ -245,6 +257,16 @@ function Get-GlobalSettings {
                     }
                     else {
                         Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector field desiredState.keepDfcSecurityAssignments ($keepDfcSecurityAssignments) must be a boolean value."
+                        $hasErrors = $true
+                    }
+                }
+                $cleanupObsoleteExemptions = $desired.cleanupObsoleteExemptions
+                if ($null -ne $cleanupObsoleteExemptions) {
+                    if ($cleanupObsoleteExemptions -is [bool]) {
+                        $desiredState.cleanupObsoleteExemptions = $cleanupObsoleteExemptions
+                    }
+                    else {
+                        Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector field desiredState.cleanupObsoleteExemptions ($cleanupObsoleteExemptions) must be a boolean value."
                         $hasErrors = $true
                     }
                 }
@@ -326,6 +348,7 @@ function Get-GlobalSettings {
                 managingTenantId                = $managingTenantId
                 managingTenantRootScope         = $managingTenantRootScope
                 deploymentRootScope             = $deploymentRootScope
+                defaultContext                  = $defaultContext
                 policyDefinitionsScopes         = $policyDefinitionsScopes
                 desiredState                    = $desiredState
                 managedIdentityLocation         = $managedIdentityLocation
@@ -343,6 +366,7 @@ function Get-GlobalSettings {
         Write-Error "Global settings contains errors." -ErrorAction Stop
     }
 
+    $prompt = $pacEnvironmentSelectors -join ", "
     Write-Information "PAC Environments: $($prompt)"
     Write-Information "PAC Owner Id: $pacOwnerId"
     Write-Information "Definitions root folder: $DefinitionsRootFolder"

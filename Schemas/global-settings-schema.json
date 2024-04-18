@@ -48,6 +48,9 @@
                         "deploymentRootScope": {
                             "type": "string"
                         },
+                        "defaultContext": {
+                            "type": "string"
+                        },
                         "globalNotScopes": {
                             "type": "array",
                             "items": [
