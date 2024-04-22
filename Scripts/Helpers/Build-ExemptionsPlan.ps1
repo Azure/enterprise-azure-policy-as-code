@@ -888,7 +888,7 @@ function Build-ExemptionsPlan {
             #endregion process each row
             
             if ($errorInfo.hasErrors) {
-                Write-ErrorsFromErrorInfo -ErrorInfo $errorInfo
+                Write-ErrorsFromErrorInfo -ErrorInfo $errorInfo -ErrorAction Continue
                 $numberOfFilesWithErrors++
                 continue
             }

@@ -58,20 +58,35 @@ function Select-PacEnvironment {
 
     $OutputFolder = $globalSettings.outputFolder
     $InputFolder = $globalSettings.inputFolder
-    $apiVersions = @{
-        policyDefinitions    = "2023-04-01"
-        policySetDefinitions = "2023-04-01"
-        policyAssignments    = "2023-04-01"
-        policyExemptions     = "2022-07-01-preview"
-        roleAssignments      = "2022-04-01"
-    }
-    if ($pacEnvironment.cloud -eq "AzureChinaCloud") {
-        $apiVersions = @{
-            policyDefinitions    = "2021-06-01"
-            policySetDefinitions = "2021-06-01"
-            policyAssignments    = "2022-06-01"
-            policyExemptions     = "2022-07-01-preview"
-            roleAssignments      = "2022-04-01"
+    $apiVersions = @{}
+
+    $apiVersions = switch ($pacEnvironment.cloud) {
+        AzureChinaCloud {
+            @{
+                policyDefinitions    = "2021-06-01"
+                policySetDefinitions = "2021-06-01"
+                policyAssignments    = "2022-06-01"
+                policyExemptions     = "2022-07-01-preview"
+                roleAssignments      = "2022-04-01"
+            }
+        }
+        AzureUSGovernment {
+            @{
+                policyDefinitions    = "2021-06-01"
+                policySetDefinitions = "2021-06-01"
+                policyAssignments    = "2022-06-01"
+                policyExemptions     = "2022-07-01-preview"
+                roleAssignments      = "2022-04-01"
+            }
+        }
+        default {
+            @{
+                policyDefinitions    = "2023-04-01"
+                policySetDefinitions = "2023-04-01"
+                policyAssignments    = "2023-04-01"
+                policyExemptions     = "2022-07-01-preview"
+                roleAssignments      = "2022-04-01"
+            }
         }
     }
     $planFiles = @{

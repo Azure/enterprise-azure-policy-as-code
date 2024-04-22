@@ -4,10 +4,10 @@ function Write-ErrorsFromErrorInfo {
         [hashtable] $ErrorInfo
     )
     if ($ErrorInfo.hasErrors) {
-        Write-Host -ForegroundColor Red "Errors in file '$($ErrorInfo.fileName)' list of $($ErrorInfo.errorsInFile):'"
+        Write-Information "File '$($ErrorInfo.fileName)' has $($ErrorInfo.errorsInFile) errors:"
         foreach ($errorString in $ErrorInfo.errorStrings) {
-            Write-Host -ForegroundColor DarkYellow "  $errorString"
+            Write-Information "    $errorString" -InformationAction Continue
         }
-        Write-Host -ForegroundColor Red "End of errors in file '$($ErrorInfo.fileName)' list of $($ErrorInfo.errorsInFile)."
+        Write-Error "File '$($ErrorInfo.fileName)' with $($ErrorInfo.errorsInFile) errors (end of list)."
     }
 }

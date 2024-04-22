@@ -5,7 +5,7 @@
 Builds documentation from instructions in policyDocumentations folder reading the delployed Policy Resources from the EPAC envioronment.
 
 ```ps1
-Build-PolicyDocumentation [[-DefinitionsRootFolder] <String>] [[-OutputFolder] <String>] [-WindowsNewLineCells] [[-Interactive] <Boolean>] [-SuppressConfirmation] [-IncludeManualPolicies] [[-VirtualCores] <Int16>] [<CommonParameters>]
+Build-PolicyDocumentation [[-DefinitionsRootFolder] <String>] [[-OutputFolder] <String>] [-WindowsNewLineCells] [-Interactive <Boolean>] [-SuppressConfirmation] [-IncludeManualPolicies] [<CommonParameters>]
 ```
 
 ### Parameters
@@ -35,7 +35,7 @@ Suppresses prompt for confirmation to delete existing file in interactive mode
 
 Include Policies with effect Manual. Default: do not include Polcies with effect Manual.
 
-#### `-VirtualCores <Int16>`
+#### **Deprecated - DO NOT USE** -- `-VirtualCores <Int16>`
 
 Number of virtual cores to use for the operation. Default is 4.
 

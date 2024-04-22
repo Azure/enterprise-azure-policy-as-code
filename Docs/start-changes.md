@@ -130,24 +130,3 @@ Updating JSON schema to the latest [specification 2020-12](https://json-schema.o
 ### Documentation Updates
 
 Reorganized the documentation to make it easier to find information. Added a new section on how to use the starter kit and how to use the Microsoft release flow.
-
-### Code Cleanup
-
-Ongoing cleanup of code: Removed unused code and improved code quality.
-
-### Performance
-
-Multiple lengthy sections of the code have been converted to parallel execution to improve performance. The change maybe ineffective if you limit the CI/CD agent to a single vCore or use the Azure DevOps provided CI/CD agents.
-
-The scripts `Build-DeploymentPlan`, `Deploy-PolicyPlan`, and `Build-PolicyDocumentation` have a new parameter `VirtualCores` to control the number of parallel threads and allowing you to optimize your performance. The code applies the following formula to adjust the `For-Each -Parallel` throttle limits (threads) based on the number of VirtualCores.
-
-- Threads = 1 x VirtualCores for pre-processing (pure compute) Policy and Policy Set parameters during Policy Assignment plan calculations
-- Threads = 2 x VirtualCores for Policy object deployment since it executes many REST calls to the Azure resource manager and therefore spends much of its time waiting on I/O. 
-- Threads = 4 (fixed) for reading and processing Policy resources; one each for
-  - Policy definitions
-  - Policy Set definitions
-  - Policy Assignments, Role Assignments, and Role Definitions
-  - Policy Exemptions
-
-Setting VirtualCores to zero (0) disables parallel processing. The default value is 4. EPAC also uses a minimum chunk size for deployments to avoid unnecessary overhead for small number of items.
-

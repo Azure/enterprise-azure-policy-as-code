@@ -41,112 +41,94 @@ function Get-GlobalSettings {
 
     [hashtable] $pacEnvironmentDefinitions = @{}
     $pacEnvironmentSelectors = [System.Collections.ArrayList]::new()
-    $hasErrors = $false
     $pacOwnerId = $settings.pacOwnerId
+    $errorInfo = New-ErrorInfo -FileName $globalSettingsFile
     if ($null -eq $pacOwnerId) {
-        Write-Host -ForegroundColor Red "Error in global-settings.jsonc: does not contain the required pacOwnerId field. Add a pacOwnerId field with a GUID or other unique id!"
-        $hasErrors = $true
+        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: does not contain the required pacOwnerId field. Add a pacOwnerId field with a GUID or other unique id!"
     }
 
     if ($null -ne $settings.globalNotScopes) {
-        Write-Host -ForegroundColor Red "Error in global-settings.jsonc: contains a deprecated globalNotScopes field. Move the values into each pacEnvironment!"
-        $hasErrors = $true
+        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: contains a deprecated globalNotScopes field. Move the values into each pacEnvironment!"
     }
     if ($null -ne $settings.managedIdentityLocations -or $null -ne $settings.managedIdentityLocation) {
-        Write-Host -ForegroundColor Red "Error in global-settings.jsonc: contains a deprecated managedIdentityLocations field. Move the values into each pacEnvironment!"
-        $hasErrors = $true
+        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: contains a deprecated managedIdentityLocations field. Move the values into each pacEnvironment!"
     }
 
     $pacEnvironments = $settings.pacEnvironments
     if ($null -eq $pacEnvironments) {
-        Write-Host -ForegroundColor Red "Error in global-settings.jsonc: does not contain a pacEnvironments array. Add a pacEnvironments array with at least one environment!"
-        $hasErrors = $true
+        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: does not contain a pacEnvironments array. Add a pacEnvironments array with at least one environment!"
     }
     elseif ($pacEnvironments -isnot [array]) {
-        Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironments must be an array of objects."
-        $hasErrors = $true
+        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironments must be an array of objects."
     }
     elseif ($pacEnvironments.Count -eq 0) {
-        Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironments array must contain at least one environment."
-        $hasErrors = $true
+        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironments array must contain at least one environment."
     }
     else {
         foreach ($pacEnvironment in $pacEnvironments) {
 
             $pacSelector = $pacEnvironment.pacSelector
             if ($null -eq $pacSelector) {
-                Write-Host -ForegroundColor Red "Error in global-settings.jsonc: a pacEnvironments array element does not contain the required pacSelector element."
-                $hasErrors = $true
+                Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: a pacEnvironments array element does not contain the required pacSelector element."
             }
             $null = $pacEnvironmentSelectors.Add($pacSelector)
 
             $cloud = $pacEnvironment.cloud
             if ($null -eq $cloud) {
-                Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector does not define the required cloud element."
-                $hasErrors = $true
+                Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector does not define the required cloud element."
             }
 
             $tenantId = $pacEnvironment.tenantId
             if ($null -eq $tenantId) {
-                Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector does not contain required tenantId field."
-                $hasErrors = $true
+                Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector does not contain required tenantId field."
             }
 
             # Managed identity location
             $managedIdentityLocation = $pacEnvironment.managedIdentityLocation
             if ($null -eq $managedIdentityLocation) {
-                Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector does not contain required managedIdentityLocation field."
-                $hasErrors = $true
+                Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector does not contain required managedIdentityLocation field."
             }
 
             $managingTenantId = $pacEnvironment.managingTenant.managingTenantId
             $managingTenantRootScope = $pacEnvironment.managingTenant.managingTenantRootScope
             if ($null -ne $managingTenantId) {
                 if ($null -eq $pacEnvironment.managingTenant.managingTenantRootScope) {
-                    Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector element managingTenantRootScope must have a valid value when managingTenantID has a value."
-                    $hasErrors = $true
+                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector element managingTenantRootScope must have a valid value when managingTenantID has a value."
                 }
                 $objectGuid = [System.Guid]::empty
                 # Returns True if successfully parsed, otherwise returns False.
                 $isGUID = [System.Guid]::TryParse($managingTenantId, [System.Management.Automation.PSReference]$objectGuid)
                 if ($isGUID -ne $true) {
-                    Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector field managingTenant ($managingTenantId) must be a GUID."
-                    $hasErrors = $true
+                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field managingTenant ($managingTenantId) must be a GUID."
                 }
             }
             elseif ($null -ne $managingTenantRootScope) {
                 if ($null -eq $managingTenantId) {
-                    Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector element managingTenantID must be a valid GUID when managingTenantRootScope has a value."
-                    $hasErrors = $true
+                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector element managingTenantID must be a valid GUID when managingTenantRootScope has a value."
                 }
             }
 
             $defaultSubscriptionId = $pacEnvironment.defaultSubscriptionId
             if ($null -ne $defaultSubscriptionId) {
-                Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector contains a deprecated defaultSubscriptionId. Remove it!"
-                $hasErrors = $true
+                Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector contains a deprecated defaultSubscriptionId. Remove it!"
             }
             if ($null -ne $pacEnvironment.rootScope) {
-                Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector contains a deprecated rootScope. Replace rootScope with deploymentRootScope containing a fully qualified scope id!"
-                $hasErrors = $true
+                Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector contains a deprecated rootScope. Replace rootScope with deploymentRootScope containing a fully qualified scope id!"
             }
             if ($null -ne $pacEnvironment.inheritedDefinitionsScopes) {
-                Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector contains a deprecated inheritedDefinitionsScopes. To cover the use case see https://aka.ms/epac/settings-desired-state.md#use-case-4-multiple-teams-in-a-hierarchical-organization!"
-                $hasErrors = $true
+                Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector contains a deprecated inheritedDefinitionsScopes. To cover the use case see https://aka.ms/epac/settings-desired-state.md#use-case-4-multiple-teams-in-a-hierarchical-organization!"
             }
 
             $deploymentRootScope = $pacEnvironment.deploymentRootScope
             if ($null -eq $pacEnvironment.deploymentRootScope) {
-                Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector does not contain deploymentRootScope field."
-                $hasErrors = $true
+                Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector does not contain deploymentRootScope field."
             }
             $policyDefinitionsScopes = @( $deploymentRootScope, "")
 
             $defaultContext = $pacEnvironment.defaultContext
             if ($null -ne $defaultContext) {
                 if ($pacEnvironment.defaultContext -isnot [string]) {
-                    Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector has an invalid defaultContext field."
-                    $hasErrors = $true
+                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector has an invalid defaultContext field."
                 }
             }
             else {
@@ -171,20 +153,18 @@ function Get-GlobalSettings {
             $pacEnvironmentGlobalNotScopes = $pacEnvironment.globalNotScopes
             if ($null -ne $pacEnvironmentGlobalNotScopes) {
                 if ($pacEnvironmentGlobalNotScopes -isnot [array]) {
-                    Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector field globalNotScopes must be an array of strings."
-                    $hasErrors = $true
+                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field globalNotScopes must be an array of strings."
                 }
                 else {
                     foreach ($globalNotScope in $pacEnvironmentGlobalNotScopes) {
                         if ($globalNotScope -isnot [string]) {
-                            Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector field globalNotScopes must be an array of strings."
-                            $hasErrors = $true
+                            Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field globalNotScopes must be an array of strings."
                         }
                         elseif ($globalNotScope.Contains("/resourceGroupPatterns/", [System.StringComparison]::OrdinalIgnoreCase)) {
-                            Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector field globalNotScopes entry ($globalNotScope) must not contain deprecated /resourceGroupPatterns/.`n`rReplace it with excludedScopes pattern `"/subscriptions/*/resourceGroups/<pattern>`""
-                            $hasErrors = $true
+                            Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field globalNotScopes entry ($globalNotScope) must not contain deprecated /resourceGroupPatterns/.`n`r`t`tReplace it with excludedScopes pattern `"/subscriptions/*/resourceGroups/<pattern>`""
                         }
                         else {
+                            $null = $globalNotScopesList.Add($globalNotScope)
                             $null = $excludedScopesList.Add($globalNotScope)
                             if ($globalNotScope.StartsWith("/subscriptions/")) {
                                 if ($globalNotScope.Contains("/resourceGroups/", [System.StringComparison]::OrdinalIgnoreCase)) {
@@ -201,8 +181,7 @@ function Get-GlobalSettings {
                                 $null = $globalNotScopesManagementGroupsList.Add($globalNotScope)
                             }
                             else {
-                                Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector field globalNotScopes entry ($globalNotScope) must be a valid scope."
-                                $hasErrors = $true
+                                Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field globalNotScopes entry ($globalNotScope) must be a valid scope."
                             }
                         }
                     }
@@ -224,40 +203,33 @@ function Get-GlobalSettings {
             
             $desired = $pacEnvironment.desiredState
             if ($null -eq $desired) {
-                Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector does not contain required desiredState field."
-                $hasErrors = $true
+                Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector does not contain required desiredState field."
             }
             else {
                 $strategy = $desired.strategy
                 if ($null -eq $strategy) {
-                    Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector does not contain required desiredState.strategy field."
-                    $hasErrors = $true
+                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector does not contain required desiredState.strategy field."
                 }
                 else {
                     $valid = @("full", "ownedOnly")
                     if ($strategy -notin $valid) {
-                        Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector field desiredState.strategy ($strategy) must be one of $(ConvertTo-Json $valid -Compress)."
-                        $hasErrors = $true
+                        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.strategy ($strategy) must be one of $(ConvertTo-Json $valid -Compress)."
                     }
-                    $desiredState.strategy = $strategy
                 }
                 $includeResourceGroups = $desired.includeResourceGroups
                 if ($null -ne $includeResourceGroups) {
-                    Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector field desiredState.includeResourceGroups is deprecated.`n`rIf set to false, replace it with excludedScopes pattern `"/subscriptions/*/resourceGroups/*`""
-                    $hasErrors = $true
+                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.includeResourceGroups is deprecated.`n`r`t`tIf set to false, replace it with excludedScopes pattern `"/subscriptions/*/resourceGroups/*`""
                 }
                 $keepDfcSecurityAssignments = $desired.keepDfcSecurityAssignments
                 if ($null -eq $keepDfcSecurityAssignments) {
-                    Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector does not contain required desiredState.keepDfcSecurityAssignments field."
-                    $hasErrors = $true
+                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector does not contain required desiredState.keepDfcSecurityAssignments field."
                 }
                 else {
                     if ($keepDfcSecurityAssignments -is [bool]) {
                         $desiredState.keepDfcSecurityAssignments = $keepDfcSecurityAssignments
                     }
                     else {
-                        Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector field desiredState.keepDfcSecurityAssignments ($keepDfcSecurityAssignments) must be a boolean value."
-                        $hasErrors = $true
+                        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.keepDfcSecurityAssignments ($keepDfcSecurityAssignments) must be a boolean value."
                     }
                 }
                 $cleanupObsoleteExemptions = $desired.cleanupObsoleteExemptions
@@ -266,21 +238,18 @@ function Get-GlobalSettings {
                         $desiredState.cleanupObsoleteExemptions = $cleanupObsoleteExemptions
                     }
                     else {
-                        Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector field desiredState.cleanupObsoleteExemptions ($cleanupObsoleteExemptions) must be a boolean value."
-                        $hasErrors = $true
+                        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.cleanupObsoleteExemptions ($cleanupObsoleteExemptions) must be a boolean value."
                     }
                 }
                 $excludedScopes = $desired.excludedScopes
                 if ($null -ne $excludedScopes) {
                     if ($excludedScopes -isnot [array]) {
-                        Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector field desiredState.excludedScopes must be an array of strings."
-                        $hasErrors = $true
+                        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.excludedScopes must be an array of strings."
                     }
                     foreach ($excludedScope in $excludedScopes) {
                         if ($null -ne $excludedScope -and $excludedScope -is [string] -and $excludedScope -ne "") {
                             if ($excludedScope.Contains("/resourceGroupPatterns/", [System.StringComparison]::OrdinalIgnoreCase)) {
-                                Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector field desiredState.excludedScopes ($excludedScope) must not contain deprecated /resourceGroupPatterns/.`n`rReplace it with excludedScopes pattern `"/subscriptions/*/resourceGroups/<pattern>`""
-                                $hasErrors = $true
+                                Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.excludedScopes ($excludedScope) must not contain deprecated /resourceGroupPatterns/.`n`r`t`tReplace it with excludedScopes pattern `"/subscriptions/*/resourceGroups/<pattern>`""
                             }
                             else {
                                 $null = $excludedScopesList.Add($excludedScope)
@@ -296,8 +265,7 @@ function Get-GlobalSettings {
                                     $null = $globalExcludedScopesManagementGroupsList.Add($excludedScope)
                                 }
                                 else {
-                                    Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector field desiredState.excludedScopes ($excludedScope) must be a valid scope."
-                                    $hasErrors = $true
+                                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.excludedScopes ($excludedScope) must be a valid scope."
                                 }
                             }
                         }
@@ -306,36 +274,31 @@ function Get-GlobalSettings {
                 $excluded = $desired.excludedPolicyDefinitions
                 if ($null -ne $excluded) {
                     if ($excluded -isnot [array]) {
-                        Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector field desiredState.excludedPolicyDefinitions must be an array of strings."
-                        $hasErrors = $true
+                        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.excludedPolicyDefinitions must be an array of strings."
                     }
                     $desiredState.excludedPolicyDefinitions = $excluded
                 }
                 $excluded = $desired.excludedPolicySetDefinitions
                 if ($null -ne $excluded) {
                     if ($excluded -isnot [array]) {
-                        Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector field desiredState.excludedPolicySetDefinitions must be an array of strings."
-                        $hasErrors = $true
+                        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.excludedPolicySetDefinitions must be an array of strings."
                     }
                     $desiredState.excludedPolicySetDefinitions = $excluded
                 }
                 $excluded = $desired.excludedPolicyAssignments
                 if ($null -ne $excluded) {
                     if ($excluded -isnot [array]) {
-                        Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector field desiredState.excludedPolicyAssignments must be an array of strings."
-                        $hasErrors = $true
+                        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.excludedPolicyAssignments must be an array of strings."
                     }
                     $desiredState.excludedPolicyAssignments = $excluded
                 }
                 $deleteExpired = $desired.deleteExpiredExemptions
                 if ($null -ne $deleteExpired) {
-                    Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector field desiredState.deleteExpiredExemptions is deprecated. Remove it!"
-                    $hasErrors = $true
+                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.deleteExpiredExemptions is deprecated. Remove it!"
                 }
                 $deleteOrphaned = $desired.deleteOrphanedExemptions
                 if ($null -ne $deleteOrphaned) {
-                    Write-Host -ForegroundColor Red "Error in global-settings.jsonc: pacEnvironment $pacSelector field desiredState.deleteOrphanedExemptions is deprecated. Remove it!"
-                    $hasErrors = $true
+                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.deleteOrphanedExemptions is deprecated. Remove it!"
                 }
             }
 
@@ -361,10 +324,8 @@ function Get-GlobalSettings {
             $null = $pacEnvironmentDefinitions.Add($pacSelector, $pacEnvironmentDefinition)
         }
     }
-    
-    if ($hasErrors) {
-        Write-Error "Global settings contains errors." -ErrorAction Stop
-    }
+
+    Write-ErrorsFromErrorInfo -ErrorInfo $errorInfo -ErrorAction Stop
 
     $prompt = $pacEnvironmentSelectors -join ", "
     Write-Information "PAC Environments: $($prompt)"

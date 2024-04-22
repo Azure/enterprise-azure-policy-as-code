@@ -20,10 +20,6 @@
 .PARAMETER IncludeManualPolicies
     Include Policies with effect Manual. Default: do not include Polcies with effect Manual.
 
-.PARAMETER VirtualCores
-    Number of virtual cores to use for the operation. Default is 4.
-
-
 .EXAMPLE
     Build-PolicyDocumentation.ps1 -DefinitionsRootFolder "C:\PAC\Definitions" -OutputFolder "C:\PAC\Output" -Interactive
     Builds documentation from instructions in policyDocumentations folder reading the delployed Policy Resources from the EPAC envioronment.
@@ -61,9 +57,14 @@ param (
     [Parameter(Mandatory = $false, HelpMessage = "Include Policies with effect Manual. Default: do not include Polcies with effect Manual.")]
     [switch] $IncludeManualPolicies,
 
-    [Parameter(Mandatory = $false, HelpMessage = "Number of virtual cores to use for the operation. Default is 4.")]
-    [Int16] $VirtualCores = 4
+    [Parameter(HelpMessage = "Deprecated.")]
+    [Int16] $VirtualCores = 0
 )
+
+if ($VirtualCores -gt 0) {
+    Write-Warning "VirtualCores parameter is deprecated. parallel processing is no longer supported. Please remove the parameter!" -WarningAction Continue
+    $VirtualCores = 0
+}
 
 # Dot Source Helper Scripts
 . "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
@@ -206,7 +207,7 @@ foreach ($file in $files) {
                     -PacEnvironmentSelector $pacEnvironmentSelector `
                     -PacEnvironment $pacEnvironment `
                     -CachedPolicyResourceDetails $cachedPolicyResourceDetails `
-                    -VirtualCores $VirtualCores
+                    -VirtualCores 4
                 $policySetDetails = $policyResourceDetails.policySets
 
                 # Calculate itemList
@@ -284,7 +285,7 @@ foreach ($file in $files) {
                     -PacEnvironmentSelector $currentPacEnvironmentSelector `
                     -PacEnvironment $pacEnvironment `
                     -CachedPolicyResourceDetails $cachedPolicyResourceDetails `
-                    -VirtualCores $VirtualCores
+                    -VirtualCores 4
 
                 # Retrieve assignments and process information or retrieve from cache is assignment previously processed
                 $assignmentArray = $environmentCategoryEntry.representativeAssignments

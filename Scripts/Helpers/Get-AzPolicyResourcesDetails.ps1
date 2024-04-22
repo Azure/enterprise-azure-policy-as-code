@@ -14,14 +14,12 @@ function Get-AzPolicyResourcesDetails {
     else {
         # New root scope found
         $scopeTable = Build-ScopeTableForDeploymentRootScope -PacEnvironment $PacEnvironment
-        $NoParallelProcessing = $VirtualCores -eq 0
         # $NoParallelProcessing = $true
         $deployed = Get-AzPolicyResources `
             -PacEnvironment $PacEnvironment `
             -ScopeTable $scopeTable `
             -SkipRoleAssignments `
-            -SkipExemptions `
-            -NoParallelProcessing:$NoParallelProcessing
+            -SkipExemptions
 
         $policyResourceDetails = Convert-PolicyResourcesToDetails `
             -AllPolicyDefinitions $deployed.policydefinitions.all `

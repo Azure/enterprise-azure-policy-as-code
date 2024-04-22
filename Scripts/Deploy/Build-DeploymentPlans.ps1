@@ -19,9 +19,6 @@
 .PARAMETER DevOpsType
     If set, outputs variables consumable by conditions in a DevOps pipeline. Valid values are '', 'ado' and 'gitlab'.
 
-.PARAMETER VirtualCores
-    Number of virtual cores available to calculate the deployment plan. Defaults to 4.
-
 .EXAMPLE
     .\Build-DeploymentPlans.ps1 -PacEnvironmentSelector "dev"
 
@@ -58,13 +55,17 @@ param (
     [ValidateSet("ado", "gitlab", "")]
     [string] $DevOpsType = "",
 
-    [Parameter(HelpMessage = "Number of virtual cores available to calculate the deployment plan. Defaults to 4. A value of 0 disables parallel processing.")]
-    [Int16] $VirtualCores = 4
-
+    [Parameter(HelpMessage = "Deprecated.")]
+    [Int16] $VirtualCores = 0
 )
 
 $PSDefaultParameterValues = @{
     "Write-Information:InformationVariable" = "+global:epacInfoStream"
+}
+
+if ($VirtualCores -gt 0) {
+    Write-Warning "VirtualCores parameter is deprecated. parallel processing is no longer supported. Please remove the parameter!" -WarningAction Continue
+    $VirtualCores = 0
 }
 
 Clear-Variable -Name epacInfoStream -Scope global -Force -ErrorAction SilentlyContinue
@@ -240,14 +241,11 @@ if ($buildSelections.buildAny) {
     $scopeTable = Build-ScopeTableForDeploymentRootScope -PacEnvironment $pacEnvironment
     $skipExemptions = -not $buildSelections.buildPolicyExemptions
     $skipRoleAssignments = -not $buildSelections.buildPolicyAssignments
-    $NoParallelProcessing = $VirtualCores -eq 0
-    # $NoParallelProcessing = $true # for debugging, disable parallel processing
     $deployedPolicyResources = Get-AzPolicyResources `
         -PacEnvironment $pacEnvironment `
         -ScopeTable $scopeTable `
         -SkipExemptions:$skipExemptions `
-        -SkipRoleAssignments:$skipRoleAssignments `
-        -NoParallelProcessing:$NoParallelProcessing
+        -SkipRoleAssignments:$skipRoleAssignments
 
     # Calculate roleDefinitionIds for built-in and inherited Policies
     $readOnlyPolicyDefinitions = $deployedPolicyResources.policydefinitions.readOnly
@@ -318,7 +316,7 @@ if ($buildSelections.buildAny) {
     $combinedPolicyDetails = Convert-PolicyResourcesToDetails `
         -AllPolicyDefinitions $allDefinitions.policydefinitions `
         -AllPolicySetDefinitions $allDefinitions.policysetdefinitions `
-        -VirtualCores $VirtualCores
+        -VirtualCores 4
 
     # Populate allAssignments
     $deployedPolicyAssignments = $deployedPolicyResources.policyassignments.managed

@@ -136,7 +136,7 @@ function Build-AssignmentPlan {
                 $metadataMatches, $changePacOwnerId = Confirm-MetadataMatches `
                     -ExistingMetadataObj $deployedPolicyAssignmentProperties.metadata `
                     -DefinedMetadataObj $metadata
-                $enforcementModeMatches = $enforcementMode -eq $deployedPolicyAssignmentProperties.EnforcementMode
+                $enforcementModeMatches = $enforcementMode -eq $deployedPolicyAssignmentProperties.enforcementMode
                 $nonComplianceMessagesMatches = Confirm-ObjectValueEqualityDeep `
                     $deployedPolicyAssignmentProperties.nonComplianceMessages `
                     $nonComplianceMessages
