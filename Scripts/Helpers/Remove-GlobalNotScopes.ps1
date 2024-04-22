@@ -4,7 +4,7 @@ function Remove-GlobalNotScopes {
         $AssignmentNotScopes,
         $GlobalNotScopes
     )
-    if ($null -ne $AssignmentNotScopes -or $AssignmentNotScopes.Count -eq 0) {
+    if ($null -eq $AssignmentNotScopes -or $AssignmentNotScopes.Count -eq 0) {
         $null
     }
     elseif ($GlobalNotScopes.Count -eq 0) {
