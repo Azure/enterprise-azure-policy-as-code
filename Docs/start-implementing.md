@@ -46,7 +46,7 @@ EPAC defines environments identified by a string (unique per repository) called 
 - `rootDefinitionScope` - scope for custom Policy and Policy Set definition deployment.
 - [Optional] Define the following items:
   - `globalNotScopes` - used to exclude scopes from Policy Assignments.
-  - `managedIdentityLocations` - used for the location for created Managed Identities.
+  - `managedIdentityLocation` - used for the location for created Managed Identities.
   - `desiredState` - desired state strategy and details for Policy resources.
   - `managedTenant` - used for environments that are in a lighthouse managed tenant.
 
