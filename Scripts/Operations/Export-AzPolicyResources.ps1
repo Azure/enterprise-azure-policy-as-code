@@ -696,9 +696,8 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
 
             $scope = $policyAssignment.resourceIdParts.scope
             $notScopes = Remove-GlobalNotScopes `
-                -AssignmentNotScopes $policyAssignment.notScopes `
+                -AssignmentNotScopes $policyAssignment.properties.notScopes `
                 -GlobalNotScopes $pacEnvironment.globalNotScopes
-
             $additionalRoleAssignments = [System.Collections.ArrayList]::new()
             foreach ($role in $roles) {
                 if ($scope -ne $role.scope) {
