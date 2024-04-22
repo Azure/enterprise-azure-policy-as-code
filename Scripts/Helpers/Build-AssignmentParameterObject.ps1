@@ -12,7 +12,7 @@ function Build-AssignmentParameterObject {
                 $assignmentParameterValue = $AssignmentParameters.$parameterName
                 if ($null -eq $assignmentParameterValue) {
                     # Incorrect case last chance to match
-                    $assignmentParameterValue = $AssignmentParameters.Keys | Where-Object { $_.ToLower() -eq $parameterName.ToLower() } | ForEach-Object { $AssignmentParameters.$_ }
+                    $assignmentParameterValue = $AssignmentParameters.Keys | Where-Object { $_ -eq $parameterName } | ForEach-Object { $AssignmentParameters.$_ }
                 }
                 $parameterDefinition = $ParametersInPolicyDefinition.$parameterName
                 $defaultValue = $parameterDefinition.defaultValue

@@ -10,22 +10,10 @@ function Get-ClonedObject {
 
     $clone = $InputObject
     if ($AsHashTable) {
+        # only support deep cloning to hashtable
         if ($null -ne $InputObject) {
-            if ($AsShallowClone) {
-                if ($InputObject -is [psobject] -and $InputObject -isnot [System.ValueType]) {
-                    $clone = [ordered]@{}
-                    foreach ($property in $InputObject.PSObject.Properties) {
-                        $null = $clone.Add($property.Name, $property.Value)
-                    }
-                }
-                elseif ($InputObject -is [System.ICloneable]) {
-                    $clone = $InputObject.Clone()
-                }
-            }
-            else {
-                $json = ConvertTo-Json $InputObject -Depth 100 -Compress
-                $clone = ConvertFrom-Json $json -NoEnumerate -Depth 100 -AsHashTable
-            }
+            $json = ConvertTo-Json $InputObject -Depth 100 -Compress
+            $clone = ConvertFrom-Json $json -NoEnumerate -Depth 100 -AsHashTable
         }
         else {
             $clone = @{}

@@ -7,10 +7,10 @@ function Add-ErrorMessage {
     )
     
     if ($EntryNumber -ne -1) {
-        $null = $ErrorInfo.errorStrings.Add("  $($EntryNumber): $ErrorString")
+        $null = $ErrorInfo.errorStrings.Add("$($EntryNumber): $ErrorString")
     }
     else {
-        $null = $ErrorInfo.errorStrings.Add("  $ErrorString")
+        $null = $ErrorInfo.errorStrings.Add("$ErrorString")
     }
     $ErrorInfo.errorsInFile++
     $ErrorInfo.hasErrors = $true

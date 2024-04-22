@@ -16,9 +16,6 @@
 .PARAMETER Interactive
     Use switch to indicate interactive use
 
-.PARAMETER VirtualCores
-    Number of virtual cores available to deploy Policy objects in parallel. Defaults to 4.
-
 .EXAMPLE
     Deploy-PolicyPlan.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\git\policy-as-code\Definitions" -InputFolder "C:\git\policy-as-code\Output" -Interactive
     Deploys Policy resources from a plan file.
@@ -49,9 +46,14 @@ param (
     [Parameter(HelpMessage = "Use switch to indicate interactive use")]
     [switch] $Interactive,
 
-    [Parameter(HelpMessage = "Number of virtual cores available to deploy Policy objects in parallel. Defaults to 4.")]
-    [Int16] $VirtualCores = 4
+    [Parameter(HelpMessage = "Deprecated.")]
+    [Int16] $VirtualCores = 0
 )
+
+if ($VirtualCores -gt 0) {
+    Write-Warning "VirtualCores parameter is deprecated. parallel processing is no longer supported. Please remove the parameter!" -WarningAction Continue
+    $VirtualCores = 0
+}
 
 $PSDefaultParameterValues = @{
     "Write-Information:InformationVariable" = "+global:epacInfoStream"
@@ -65,7 +67,6 @@ Clear-Variable -Name epacInfoStream -Scope global -Force -ErrorAction SilentlyCo
 $InformationPreference = "Continue"
 $pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -InputFolder $InputFolder -Interactive $Interactive
 $null = Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -Interactive $pacEnvironment.interactive -DeploymentDefaultContext $pacEnvironment.defaultContext
-$throttleLimit = $VirtualCores * 2
 
 # Telemetry
 if ($pacEnvironment.telemetryEnabled) {
@@ -101,28 +102,10 @@ else {
         Write-Information "==================================================================================================="
         Write-Information "Delete orphaned, deleted, expired and replaced Exemptions ($($table.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
-        $chunks = Split-HashtableIntoChunks -Table $table -NumberOfChunks $throttleLimit -MinChunkingSize 10
-        if ($chunks.psbase.Count -eq 1) {
-            $chunk = $chunks[0]
-            foreach ($id in $chunk.Keys) {
-                $entry = $chunk.$id
-                Write-Information "$($entry.displayName) - $($id)"
-                Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policyExemptions
-            }
-        }
-        else {
-            $funcRemoveAzResourceByIdRestMethod = ${function:Remove-AzResourceByIdRestMethod}.ToString()
-            $chunks | ForEach-Object -ThrottleLimit $throttleLimit -Parallel {
-                if ($null -eq ${function:Remove-AzResourceByIdRestMethod}) {
-                    ${function:Remove-AzResourceByIdRestMethod} = $using:funcRemoveAzResourceByIdRestMethod
-                }
-                $pacEnvironment = $using:pacEnvironment
-                foreach ($id in $_.Keys) {
-                    $entry = $_.$id
-                    Write-Information "$($entry.displayName) - $($id)"
-                    Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policyExemptions
-                }
-            }
+        foreach ($id in $table.Keys) {
+            $entry = $table.$id
+            Write-Information "$($entry.displayName) - $($id)"
+            Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policyExemptions
         }
     }
 
@@ -133,28 +116,10 @@ else {
         Write-Information "==================================================================================================="
         Write-Information "Delete removed and replaced Assignments ($($table.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
-        $chunks = Split-HashtableIntoChunks -Table $table -NumberOfChunks $throttleLimit -MinChunkingSize 10
-        if ($chunks.psbase.Count -eq 1) {
-            $chunk = $chunks[0]
-            foreach ($id in $chunk.Keys) {
-                $entry = $chunk.$id
-                Write-Information "$($entry.displayName) - $($id)"
-                Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policyAssignments
-            }
-        }
-        else {
-            $funcRemoveAzResourceByIdRestMethod = ${function:Remove-AzResourceByIdRestMethod}.ToString()
-            $chunks | ForEach-Object -ThrottleLimit $throttleLimit -Parallel {
-                if ($null -eq ${function:Remove-AzResourceByIdRestMethod}) {
-                    ${function:Remove-AzResourceByIdRestMethod} = $using:funcRemoveAzResourceByIdRestMethod
-                }
-                $pacEnvironment = $using:pacEnvironment
-                foreach ($id in $_.Keys) {
-                    $entry = $_.$id
-                    Write-Information "$($entry.displayName) - $($id)"
-                    Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policyAssignments
-                }
-            }
+        foreach ($id in $table.Keys) {
+            $entry = $table.$id
+            Write-Information "$($entry.displayName) - $($id)"
+            Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policyAssignments
         }
     }
 
@@ -165,28 +130,10 @@ else {
         Write-Information "==================================================================================================="
         Write-Information "Delete removed and replaced Policy Sets ($($table.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
-        $chunks = Split-HashtableIntoChunks -Table $table -NumberOfChunks $throttleLimit -MinChunkingSize 10
-        if ($chunks.psbase.Count -eq 1) {
-            $chunk = $chunks[0]
-            foreach ($id in $chunk.Keys) {
-                $entry = $chunk.$id
-                Write-Information "$($entry.displayName) - $($id)"
-                Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policySetDefinitions
-            }
-        }
-        else {
-            $funcRemoveAzResourceByIdRestMethod = ${function:Remove-AzResourceByIdRestMethod}.ToString()
-            $chunks | ForEach-Object -ThrottleLimit $throttleLimit -Parallel {
-                if ($null -eq ${function:Remove-AzResourceByIdRestMethod}) {
-                    ${function:Remove-AzResourceByIdRestMethod} = $using:funcRemoveAzResourceByIdRestMethod
-                }
-                $pacEnvironment = $using:pacEnvironment
-                foreach ($id in $_.Keys) {
-                    $entry = $_.$id
-                    Write-Information "$($entry.displayName) - $($id)"
-                    Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policySetDefinitions
-                }
-            }
+        foreach ($id in $table.Keys) {
+            $entry = $table.$id
+            Write-Information "$($entry.displayName) - $($id)"
+            Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policySetDefinitions
         }
     }
 
@@ -196,28 +143,10 @@ else {
         Write-Information "==================================================================================================="
         Write-Information "Delete replaced Policies ($($table.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
-        $chunks = Split-HashtableIntoChunks -Table $table -NumberOfChunks $throttleLimit -MinChunkingSize 10
-        if ($chunks.psbase.Count -eq 1) {
-            $chunk = $chunks[0]
-            foreach ($id in $chunk.Keys) {
-                $entry = $chunk.$id
-                Write-Information "$($entry.displayName) - $($id)"
-                Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policyDefinitions
-            }
-        }
-        else {
-            $funcRemoveAzResourceByIdRestMethod = ${function:Remove-AzResourceByIdRestMethod}.ToString()
-            $chunks | ForEach-Object -ThrottleLimit $throttleLimit -Parallel {
-                if ($null -eq ${function:Remove-AzResourceByIdRestMethod}) {
-                    ${function:Remove-AzResourceByIdRestMethod} = $using:funcRemoveAzResourceByIdRestMethod
-                }
-                $pacEnvironment = $using:pacEnvironment
-                foreach ($id in $_.Keys) {
-                    $entry = $_.$id
-                    Write-Information "$($entry.displayName) - $($id)"
-                    Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policyDefinitions
-                }
-            }
+        foreach ($id in $table.Keys) {
+            $entry = $table.$id
+            Write-Information "$($entry.displayName) - $($id)"
+            Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policyDefinitions
         }
     }
 
@@ -231,28 +160,9 @@ else {
         Write-Information "==================================================================================================="
         Write-Information "Create and update Policies ($($table.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
-        $chunks = Split-HashtableIntoChunks -Table $table -NumberOfChunks $throttleLimit -MinChunkingSize 10
-        if ($chunks.psbase.Count -eq 1) {
-            $chunk = $chunks[0]
-            foreach ($id in $chunk.Keys) {
-                $entry = $chunk.$id
-                Set-AzPolicyDefinitionRestMethod -Definition $entry -ApiVersion $pacEnvironment.apiVersions.policyDefinitions
-            }
-        }
-        else {
-            $funcSetAzPolicyDefinitionRestMethod = ${function:Set-AzPolicyDefinitionRestMethod}.ToString()
-            $funcRemoveNullFields = ${function:Remove-NullFields}.ToString()
-            $chunks | ForEach-Object -ThrottleLimit $throttleLimit -Parallel {
-                if ($null -eq ${function:Set-AzPolicyDefinitionRestMethod}) {
-                    ${function:Set-AzPolicyDefinitionRestMethod} = $using:funcSetAzPolicyDefinitionRestMethod
-                    ${function:Remove-NullFields} = $using:funcRemoveNullFields
-                }
-                $pacEnvironment = $using:pacEnvironment
-                foreach ($id in $_.Keys) {
-                    $entry = $_.$id
-                    Set-AzPolicyDefinitionRestMethod -Definition $entry -ApiVersion $pacEnvironment.apiVersions.policyDefinitions
-                }
-            }
+        foreach ($id in $table.Keys) {
+            $entry = $table.$id
+            Set-AzPolicyDefinitionRestMethod -Definition $entry -ApiVersion $pacEnvironment.apiVersions.policyDefinitions
         }
     }
 
@@ -264,28 +174,9 @@ else {
         Write-Information "==================================================================================================="
         Write-Information "Create and update Policy Sets ($($table.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
-        $chunks = Split-HashtableIntoChunks -Table $table -NumberOfChunks $throttleLimit -MinChunkingSize 10
-        if ($chunks.psbase.Count -eq 1) {
-            $chunk = $chunks[0]
-            foreach ($id in $chunk.Keys) {
-                $entry = $chunk.$id
-                Set-AzPolicySetDefinitionRestMethod -Definition $entry -ApiVersion $pacEnvironment.apiVersions.policySetDefinitions
-            }
-        }
-        else {
-            $funcSetAzPolicySetDefinitionRestMethod = ${function:Set-AzPolicySetDefinitionRestMethod}.ToString()
-            $funcRemoveNullFields = ${function:Remove-NullFields}.ToString()
-            $chunks | ForEach-Object -ThrottleLimit $throttleLimit -Parallel {
-                if ($null -eq ${function:Set-AzPolicySetDefinitionRestMethod}) {
-                    ${function:Set-AzPolicySetDefinitionRestMethod} = $using:funcSetAzPolicySetDefinitionRestMethod
-                    ${function:Remove-NullFields} = $using:funcRemoveNullFields
-                }
-                $pacEnvironment = $using:pacEnvironment
-                foreach ($id in $_.Keys) {
-                    $entry = $_.$id
-                    Set-AzPolicySetDefinitionRestMethod -Definition $entry -ApiVersion $pacEnvironment.apiVersions.policySetDefinitions
-                }
-            }
+        foreach ($id in $table.Keys) {
+            $entry = $table.$id
+            Set-AzPolicySetDefinitionRestMethod -Definition $entry -ApiVersion $pacEnvironment.apiVersions.policySetDefinitions
         }
     }
 
@@ -296,28 +187,10 @@ else {
         Write-Information "==================================================================================================="
         Write-Information "Delete Policies ($($table.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
-        $chunks = Split-HashtableIntoChunks -Table $table -NumberOfChunks $throttleLimit -MinChunkingSize 10
-        if ($chunks.psbase.Count -eq 1) {
-            $chunk = $chunks[0]
-            foreach ($id in $chunk.Keys) {
-                $entry = $chunk.$id
-                Write-Information $entry.displayName
-                Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policyDefinitions
-            }
-        }
-        else {
-            $funcRemoveAzResourceByIdRestMethod = ${function:Remove-AzResourceByIdRestMethod}.ToString()
-            $chunks | ForEach-Object -ThrottleLimit $throttleLimit -Parallel {
-                if ($null -eq ${function:Remove-AzResourceByIdRestMethod}) {
-                    ${function:Remove-AzResourceByIdRestMethod} = $using:funcRemoveAzResourceByIdRestMethod
-                }
-                $pacEnvironment = $using:pacEnvironment
-                foreach ($id in $_.Keys) {
-                    $entry = $_.$id
-                    Write-Information "$($entry.displayName) - $($id)"
-                    Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policyDefinitions
-                }
-            }
+        foreach ($id in $table.Keys) {
+            $entry = $table.$id
+            Write-Information $entry.displayName
+            Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policyDefinitions
         }
     }
 
@@ -329,28 +202,9 @@ else {
         Write-Information "==================================================================================================="
         Write-Information "Create and update Assignments ($($table.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
-        $chunks = Split-HashtableIntoChunks -Table $table -NumberOfChunks $throttleLimit -MinChunkingSize 10
-        if ($chunks.psbase.Count -eq 1) {
-            $chunk = $chunks[0]
-            foreach ($id in $chunk.Keys) {
-                $entry = $chunk.$id
-                Set-AzPolicyAssignmentRestMethod -Assignment $entry -ApiVersion $pacEnvironment.apiVersions.policyAssignments
-            }
-        }
-        else {
-            $funcSetAzPolicyAssignmentRestMethod = ${function:Set-AzPolicyAssignmentRestMethod}.ToString()
-            $funcGetDeepClone = ${function:Get-ClonedObject}.ToString()
-            $chunks | ForEach-Object -ThrottleLimit $throttleLimit -Parallel {
-                if ($null -eq ${function:Set-AzPolicyAssignmentRestMethod}) {
-                    ${function:Set-AzPolicyAssignmentRestMethod} = $using:funcSetAzPolicyAssignmentRestMethod
-                    ${function:Get-ClonedObject} = $using:funcGetDeepClone
-                }
-                $pacEnvironment = $using:pacEnvironment
-                foreach ($id in $_.Keys) {
-                    $entry = $_.$id
-                    Set-AzPolicyAssignmentRestMethod -Assignment $entry -ApiVersion $pacEnvironment.apiVersions.policyAssignments
-                }
-            }
+        foreach ($id in $table.Keys) {
+            $entry = $table.$id
+            Set-AzPolicyAssignmentRestMethod -Assignment $entry -ApiVersion $pacEnvironment.apiVersions.policyAssignments
         }
     }
 
@@ -362,28 +216,9 @@ else {
         Write-Information "==================================================================================================="
         Write-Information "Create and update Exemptions ($($table.psbase.Count))"
         Write-Information "---------------------------------------------------------------------------------------------------"
-        $chunks = Split-HashtableIntoChunks -Table $table -NumberOfChunks $throttleLimit -MinChunkingSize 10
-        if ($chunks.psbase.Count -eq 1) {
-            $chunk = $chunks[0]
-            foreach ($exemptionId in $chunk.Keys) {
-                $entry = $chunk.$exemptionId
-                Set-AzPolicyExemptionRestMethod -ExemptionObj $entry -ApiVersion $pacEnvironment.apiVersions.policyExemptions
-            }
-        }
-        else {
-            $funcSetAzPolicyExemptionRestMethod = ${function:Set-AzPolicyExemptionRestMethod}.ToString()
-            $funcRemoveNullFields = ${function:Remove-NullFields}.ToString()
-            $chunks | ForEach-Object -ThrottleLimit $throttleLimit -Parallel {
-                if ($null -eq ${function:Set-AzPolicyExemptionRestMethod}) {
-                    ${function:Set-AzPolicyExemptionRestMethod} = $using:funcSetAzPolicyExemptionRestMethod
-                    ${function:Remove-NullFields} = $using:funcRemoveNullFields
-                }
-                $pacEnvironment = $using:pacEnvironment
-                foreach ($exemptionId in $_.Keys) {
-                    $entry = $_.$exemptionId
-                    Set-AzPolicyExemptionRestMethod -ExemptionObj $entry -ApiVersion $pacEnvironment.apiVersions.policyExemptions
-                }
-            }
+        foreach ($exemptionId in $table.Keys) {
+            $entry = $table.$exemptionId
+            Set-AzPolicyExemptionRestMethod -ExemptionObj $entry -ApiVersion $pacEnvironment.apiVersions.policyExemptions
         }
     }
     Write-Information ""

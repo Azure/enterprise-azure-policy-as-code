@@ -7,52 +7,44 @@ function Confirm-ParametersDefinitionMatch {
     $match = $true
     $incompatible = $false
 
-    $existingParameters = ConvertTo-HashTable $ExistingParametersObj
-    $definedParameters = ConvertTo-HashTable $DefinedParametersObj
-    $addedParameters = Get-ClonedObject $definedParameters -AsHashTable -AsShallowClone
+    $existingParameters = Get-ClonedObject $ExistingParametersObj -AsHashTable
+    $definedParameters = Get-ClonedObject $DefinedParametersObj -AsHashTable
+    $addedParameters = Get-ClonedObject $definedParameters -AsHashTable
     foreach ($existingParameterName in $existingParameters.Keys) {
-        if ($definedParameters.Keys -contains $existingParameterName) {
-            # Remove key from $addedParameters
-            $addedParameters.Remove($existingParameterName)
+        # ignore paramer name case
+        $definedParameterNameArray = $definedParameters.Keys -eq $existingParameterName
+        if ($definedParameterNameArray.Count -gt 0) {
+            # found a matching parameter name (case insensitive)
+            $definedParameterName = $definedParameterNameArray[0]
+            $addedParameters.Remove($definedParameterName)
             $existing = $existingParameters.$existingParameterName
-            $defined = $definedParameters.$existingParameterName
-
-            # Analyze parameter defaultValue
-            $thisMatch = Confirm-ObjectValueEqualityDeep $existing.defaultValue $defined.defaultValue
-            if (!$thisMatch) {
-                $match = $false
-                if ($null -eq $defined.defaultValue) {
-                    $incompatible = $true
-                    break
-                }
+            $defined = $definedParameters.$definedParameterName
+            $thisMatch = Confirm-ObjectValueEqualityDeep $existing $defined
+            if ($thisMatch) {
+                continue
             }
+            $match = $false
 
-            # Analyze parameter allowedValues
-            $thisMatch = Confirm-ObjectValueEqualityDeep $existing.allowedValues $defined.allowedValues
-            if (!$thisMatch) {
-                $match = $false
-                if ($null -eq $defined.defaultValue) {
-                    $incompatible = $true
-                    break
-                }
-            }
-
-            # Analyze type
+            # analyze parameter type
             if ($existing.type -ne $defined.type) {
                 $match = $false
                 $incompatible = $true
                 break
             }
 
+            # analyze parameter metadata strongType
             $existingMetadata = $existing.metadata
             $definedMetadata = $defined.metadata
-            $thisMatch = Confirm-ObjectValueEqualityDeep $existingMetadata $definedMetadata
+            if ($existingMetadata.strongType -ne $definedMetadata.strongType) {
+                $incompatible = $true
+                break
+            }
+
+            # analyze parameter allowedValues
+            $thisMatch = Confirm-ObjectValueEqualityDeep $existing.allowedValues $defined.allowedValues
             if (!$thisMatch) {
-                $match = $false
-                if ($existingMetadata.strongType -ne $definedMetadata.strongType) {
-                    $incompatible = $true
-                    break
-                }
+                $incompatible = $true
+                break
             }
         }
         else {
@@ -62,9 +54,10 @@ function Confirm-ParametersDefinitionMatch {
             break
         }
     }
-    if ((-not $incompatible) -and ($addedParameters.psbase.Count -gt 0)) {
+    
+    if ($match -and !$incompatible -and ($addedParameters.psbase.Count -gt 0)) {
         $match = $false
-        # If no defaultValue, added parameter makes it incompatible requiring a delete followed by a new.
+        # added parameter without defaultValue is and incompatible change
         foreach ($addedParameterName in $addedParameters.Keys) {
             $added = $addedParameters.$addedParameterName
             if ($null -eq $added.defaultValue) {
@@ -72,6 +65,10 @@ function Confirm-ParametersDefinitionMatch {
                 break
             }
         }
+    }
+
+    if (!$match) {
+        Write-Verbose "Parameters definition mismatch detected, incompatible: $incompatible"
     }
 
     return $match, $incompatible

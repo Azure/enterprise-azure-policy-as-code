@@ -516,6 +516,10 @@ function Build-AssignmentDefinitionAtLeaf {
 
         $parameterObject = $null
         $parametersInPolicyDefinition = @{}
+        if ($displayName -eq "Allowed Locations") {
+            $null = $null
+        }
+
         if ($isPolicySet) {
             $parametersInPolicyDefinition = $policySetDetails.parameters
             if ($useCsv) {

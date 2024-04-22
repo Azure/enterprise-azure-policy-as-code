@@ -8,13 +8,11 @@ function Confirm-ObjectValueEqualityDeep {
         $Object2
     )
 
-
-    if ($Object1 -eq $Object2) {
-        # $Object1 and $Object2 are equal (includes both $null)
-        return $true
-    }
-    elseif ($null -eq $Object1 -or $null -eq $Object2) {
-        # $Object1 and $Object2 are not equal, but one of them is $null
+    if ($null -eq $Object1 -or $null -eq $Object2) {
+        if ($Object1 -eq $Object2) {
+            # $Object1 and $Object2 are both $null
+            return $true
+        }
         if ($null -eq $Object1) {
             # $Object1 is $null, swap $Object1 and $Object2 to ensure that Object1 (the old Object2) is not $null and Object2 (the old Object1) is $null (setting it to $null is ommited because it is not used in the subsequent code)
             $Object1 = $Object2
@@ -26,7 +24,7 @@ function Confirm-ObjectValueEqualityDeep {
             return $Object1.Count -eq 0
         }
         elseif ($Object1 -is [string]) {
-            # $Object1 is a string, if it is empty or only conatins whitespace treat it as $null and therefore equal to Object2
+            # $Object1 is a string, if it is empty or only contains whitespace treat it as $null and therefore equal to Object2
             return [string]::IsNullOrWhiteSpace($Object1)
         }
         else {
@@ -54,7 +52,7 @@ function Confirm-ObjectValueEqualityDeep {
                     $foundMatch = $false
                     for ($i = 0; $i -lt $object2List.Count; $i++) {
                         $item2 = $object2List[$i]
-                        if ($item1 -eq $item2 -or (Confirm-ObjectValueEqualityDeep $item1 $item2)) {
+                        if (Confirm-ObjectValueEqualityDeep $item1 $item2) {
                             # if either the array item values are equal or a deep inspection shows equal, continue to the next item by:
                             #   1. Setting $foundMatch to $true
                             #   2. Remove the matching item from the Object2 list, therefore reducing the computing complexity of the next iteration
@@ -73,23 +71,30 @@ function Confirm-ObjectValueEqualityDeep {
                 return $true
             }
         }
+        elseif ($Object1 -eq $Object2) {
+            # $Object1 and $Object2 are the same object; not correct for a list (IList)
+            # therefore check fo a list be first
+            # @("S") -eq @("T","S","N") is an empty array => false  if used in an if
+            # @("T","S","N") -eq @("S") is @("S")         => true if used in an if
+            return $true
+        }
         elseif ($Object1 -is [datetime] -or $Object2 -is [datetime]) {
             # $Object1 or $Object2 is a DateTime
             # Note: this must be done prior to the next test, since [DateTime] is a [System.ValueType]
             $dateString1 = $Object1
             $dateString2 = $Object2
-            if ($typeName1 -eq "DateTime") {
+            if ($typeName1 -is [datetime]) {
                 $dateString1 = $Object1.ToString("yyyy-MM-dd")
             }
-            if ($typeName2 -eq "DateTime") {
+            if ($typeName2 -is [datetime]) {
                 $dateString2 = $Object2.ToString("yyyy-MM-dd")
             }
             return $dateString1 -eq $dateString2
         }
-        elseif ($Object1 -is [string] -or $Object2 -is [string] -or $Object1 -is [System.ValueType] -or $Object2 -is [System.ValueType]) {
-            # Will have caused $true by the first "if" statement if they match
-            # Note: this must be done prior to the next test, since [string and [System.ValueType] are both [PSCustomObject] (PSCustomObject is PowerShells version of [object])
-            return $false
+        elseif ($Object1 -is [string] -or $Object2 -is [string]) {
+            # Will have caused $true by the second "if" statement if they match
+            # Note: this must be done prior to the next test, since [string and [System.ValueType]
+            #       are both [PSCustomObject] (PSCustomObject is PowerShells version of [object])
         }
         elseif (($Object1 -is [System.Collections.IDictionary] -or $Object1 -is [psobject]) `
                 -and ($Object2 -is [System.Collections.IDictionary] -or $Object2 -is [psobject])) {
@@ -109,8 +114,8 @@ function Confirm-ObjectValueEqualityDeep {
             else {
                 $normalizedKeys2 = $Object2.PSObject.Properties.Name
             }
-            $key1IsNotArray = $normalizedKeys1 -isnot [array]
-            $key2IsNotArray = $normalizedKeys2 -isnot [array]
+            $key1IsNotArray = $normalizedKeys1 -isnot [System.Collections.ICollection]
+            $key2IsNotArray = $normalizedKeys2 -isnot [System.Collections.ICollection]
             if ($key1IsNotArray) {
                 $normalizedKeys1 = @($normalizedKeys1)
             }
@@ -123,7 +128,7 @@ function Confirm-ObjectValueEqualityDeep {
                 # if there are no keys, return true
                 return $true
             }
-            if ($uniqueKeys -isnot [array]) {
+            if ($uniqueKeys -isnot [System.Collections.ICollection]) {
                 $uniqueKeys = @($uniqueKeys)
             }
 
@@ -132,7 +137,7 @@ function Confirm-ObjectValueEqualityDeep {
                 $item1 = $Object1.$key
                 $item2 = $Object2.$key
 
-                if ($item1 -eq $item2 -or (Confirm-ObjectValueEqualityDeep $item1 $item2)) {
+                if (Confirm-ObjectValueEqualityDeep $item1 $item2) {
                     # if either the property values are equal or a deep inspection shows equal, continue to the next property
                 }
                 else {
@@ -144,7 +149,6 @@ function Confirm-ObjectValueEqualityDeep {
             return $true
         }
         else {
-            # equality of other types handled in the then clause of the outer else clause
             return $false
         }
     }

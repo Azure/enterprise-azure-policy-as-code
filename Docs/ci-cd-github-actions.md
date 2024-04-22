@@ -19,7 +19,7 @@ You will need one [GitHub deployment environment](https://docs.github.com/en/act
 | TENANT-DEPLOY-POLICY | Deploy Policy resources for `tenant` | ci-cd-root-policy-contributor |
 | TENANT-DEPLOY-ROLES | Deploy Roles for `tenant` | ci-cd-root-user-assignments |
 
-For each environment, [add to the environment secrets](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#environment-secrets) for the tenant id, client id and client secret for the SPN. The secrets must be named `AZURE_TENANT_ID`, `AZURE_CLIENT_ID` and `AZURE_CLIENT_SECRET` respectively.
+For each environment, [add to the environment secrets](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#environment-secrets) for the tenant id, client id and client secret for the SPN. The secrets must be named `TENANT_ID`, `CLIENT_ID` and `CLIENT_SECRET` respectively.
 
 ### Hardening each Environment
 
