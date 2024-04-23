@@ -33,10 +33,10 @@ function Confirm-PolicyResourceExclusions {
         if ($null -ne $PolicyResourceTable) {
             $PolicyResourceTable.counters.excluded += 1
         }
-        if ($resourceIdParts.kind -eq "policyAssignments") {
-            $excludedScope = $ExcludedScopesTable.$scope
-            $null = $null
-        }
+        # if ($resourceIdParts.kind -eq "policyAssignments") {
+        #     $excludedScope = $ExcludedScopesTable.$scope
+        #     $null = $null
+        # }
         return $false, $resourceIdParts
     }
     foreach ($testExcludedId in $ExcludedIds) {
