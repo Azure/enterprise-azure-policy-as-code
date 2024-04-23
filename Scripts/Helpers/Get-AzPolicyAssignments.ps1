@@ -47,8 +47,7 @@ function Get-AzPolicyAssignments {
                         $principalId = $policyResource.identity.principalId
                     }
                     else {
-                        $userAssignedIdentityId = $policyResource.identity.userAssignedIdentities.PSObject.Properties.Name
-                        $principalId = $policyResource.identity.userAssignedIdentities.$userAssignedIdentityId.principalId
+                        $principalId = $policyResource.identity.userAssignedIdentities.Values.principalId
                     }
                     $uniquePrincipalIds[$principalId] = $true
                     $policyResourcesTable.counters.withIdentity += 1
