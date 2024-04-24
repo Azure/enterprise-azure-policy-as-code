@@ -48,7 +48,7 @@ function Build-AssignmentDefinitionAtLeaf {
     $nonComplianceMessages = $AssignmentDefinition.nonComplianceMessages
     $hasPolicySets = $AssignmentDefinition.hasPolicySets
     $perEntryNonComplianceMessages = $AssignmentDefinition.perEntryNonComplianceMessages
-
+    $flatPolicyList = $AssignmentDefinition.flatPolicyList
     $thisPacOwnerId = $PacEnvironment.pacOwnerId
 
     #endregion cache frequently used fields
@@ -516,10 +516,6 @@ function Build-AssignmentDefinitionAtLeaf {
 
         $parameterObject = $null
         $parametersInPolicyDefinition = @{}
-        if ($displayName -eq "Allowed Locations") {
-            $null = $null
-        }
-
         if ($isPolicySet) {
             $parametersInPolicyDefinition = $policySetDetails.parameters
             if ($useCsv) {
@@ -591,9 +587,9 @@ function Build-AssignmentDefinitionAtLeaf {
                     if ($RoleDefinitions.ContainsKey($roleDefinitionId)) {
                         $roleDisplayName = $RoleDefinitions.$roleDefinitionId
                     }
-                    else {
-                        $null = $null
-                    }
+                    # else {
+                    #     $null = $null
+                    # }
                     $requiredRoleAssignment = @{
                         scope            = $scopeEntry.scope
                         roleDefinitionId = $roleDefinitionId
