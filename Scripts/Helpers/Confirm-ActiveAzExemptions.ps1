@@ -47,7 +47,7 @@ function Confirm-ActiveAzExemptions {
             $metadata = $null
         }
 
-        $exemptionObj = [pscustomobject][ordered]@{
+        $exemptionObj = [ordered]@{
             name                         = $name
             displayName                  = $exemption.displayName
             description                  = $exemption.description

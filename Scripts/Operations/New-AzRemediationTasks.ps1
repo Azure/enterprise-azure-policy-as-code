@@ -242,7 +242,7 @@ else {
         Write-Verbose "Parameters: $($parameters | ConvertTo-Json -Depth 99)"
         if ($WhatIfPreference) {
             Write-Information "`tWhatIf: Remediation Task would have been created."
-            $newPolicyRemediationTask = [PSCustomObject]@{
+            $newPolicyRemediationTask = [ordered]@{
                 Name               = $parameters.Name
                 Id                 = $parameters.Name
                 PolicyAssignmentId = $_.PolicyAssignmentId
@@ -257,7 +257,7 @@ else {
 
             if ($null -eq $newPolicyRemediationTask) {
                 Write-Information "`tRemediation Task could not be created."
-                $failedPolicyRemediationTask = [PSCustomObject]@{
+                $failedPolicyRemediationTask = [ordered]@{
                     Name               = $parameters.Name
                     Id                 = "Not created"
                     PolicyAssignmentId = $_.PolicyAssignmentId
@@ -334,7 +334,7 @@ else {
                     }
                     elseif ($remediationTaskState -eq 'Failed') {
                         Write-Information "`tRemediation Task '$($runningPolicyRemediationTask.Name)' failed."
-                        $failedPolicyRemediationTask = [PSCustomObject]@{
+                        $failedPolicyRemediationTask = [ordered]@{
                             Name               = $runningPolicyRemediationTask.Name
                             Id                 = $runningPolicyRemediationTask.Id
                             PolicyAssignmentId = $runningPolicyRemediationTask.PolicyAssignmentId

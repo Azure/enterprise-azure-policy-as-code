@@ -15,7 +15,7 @@ function Merge-AssignmentParametersEx {
     $nonComplianceMessageColumn = $ParameterInstructions.nonComplianceMessageColumn
 
     #region parameters column
-    $parameters = Get-ClonedObject $BaseAssignment.parameters -AsHashTable
+    $parameters = Get-DeepCloneAsOrderedHashtable $BaseAssignment.parameters
     foreach ($row in $csvParameterArray) {
         if ($row.flatPolicyEntryKey) {
             $parametersColumnCell = $row[$parametersColumn]

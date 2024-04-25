@@ -3,9 +3,9 @@ function Get-DeploymentPlan {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, HelpMessage = "Plan input filename.")]
-        [string]$PlanFile,
+        [string] $PlanFile,
 
-        [switch] $AsHashtable
+        [switch] $AsHashTable
     )
 
     $plan = $null
@@ -14,7 +14,7 @@ function Get-DeploymentPlan {
         $Json = Get-Content -Path $PlanFile -Raw -ErrorAction Stop
         
         try {
-            $plan = $Json | ConvertFrom-Json -AsHashTable:$AsHashtable
+            $plan = $Json | ConvertFrom-Json -AsHashTable:$AsHashTable
         }
         catch {
             Write-Error "Assignment JSON file '$($PlanFile)' is not valid." -ErrorAction Stop

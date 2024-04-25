@@ -1,8 +1,8 @@
 function Set-AzPolicyExemptionRestMethod {
     [CmdletBinding()]
     param (
-        [PSCustomObject] $ExemptionObj,
-        [string] $ApiVersion
+        $ExemptionObj,
+        $ApiVersion
     )
 
     # Write log info

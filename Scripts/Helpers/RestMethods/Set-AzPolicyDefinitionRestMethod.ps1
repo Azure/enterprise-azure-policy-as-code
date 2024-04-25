@@ -1,8 +1,8 @@
 function Set-AzPolicyDefinitionRestMethod {
     [CmdletBinding()]
     param (
-        [PSCustomObject] $DefinitionObj,
-        [string] $ApiVersion
+        $DefinitionObj,
+        $ApiVersion
     )
 
     # Write log info

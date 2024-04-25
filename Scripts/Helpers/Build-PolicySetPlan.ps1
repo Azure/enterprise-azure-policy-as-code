@@ -26,7 +26,7 @@ function Build-PolicySetPlan {
     }
 
     $managedDefinitions = $DeployedDefinitions.managed
-    $deleteCandidates = Get-ClonedObject $managedDefinitions -AsHashTable -AsShallowClone
+    $deleteCandidates = $managedDefinitions.Clone()
     $deploymentRootScope = $PacEnvironment.deploymentRootScope
     $policyDefinitionsScopes = $PacEnvironment.policyDefinitionsScopes
     $duplicateDefinitionTracking = @{}
@@ -35,6 +35,7 @@ function Build-PolicySetPlan {
     foreach ($file in $definitionFiles) {
         $Json = Get-Content -Path $file.FullName -Raw -ErrorAction Stop
 
+        $definitionObject = $null
         try {
             $definitionObject = $Json | ConvertFrom-Json -Depth 100
         }
@@ -47,7 +48,7 @@ function Build-PolicySetPlan {
         $id = "$deploymentRootScope/providers/Microsoft.Authorization/policySetDefinitions/$name"
         $displayName = $definitionProperties.displayName
         $description = $definitionProperties.description
-        $metadata = Get-ClonedObject $definitionProperties.metadata -AsHashTable
+        $metadata = Get-DeepCloneAsOrderedHashtable $definitionProperties.metadata
         # $version = $definitionProperties.version
         $parameters = $definitionProperties.parameters
         $policyDefinitions = $definitionProperties.policyDefinitions
@@ -79,8 +80,14 @@ function Build-PolicySetPlan {
         if ($null -eq $displayName) {
             Write-Error "Policy Set '$name' from file '$($file.Name)' requires a displayName" -ErrorAction Stop
         }
-        if ($null -eq $policyDefinitions -or $policyDefinitions.Count -eq 0) {
-            Write-Error "Policy Set '$displayName' from file '$($file.Name)' requires a policyDefinitions array with at least one entry" -ErrorAction Stop
+        if ($null -eq $policyDefinitions) {
+            Write-Error "Policy Set '$displayName' from file '$($file.Name)' requires a policyDefinitions entry; it is null. Did you misspell policyDefinitions (it is case sensitive)?" -ErrorAction Stop
+        }
+        elseif ($policyDefinitions -isnot [System.Collections.IList]) {
+            Write-Error "Policy Set '$displayName' from file '$($file.Name)' requires a policyDefinitions array; it is not an array." -ErrorAction Stop
+        }
+        elseif ($policyDefinitions.Count -eq 0) {
+            Write-Error "Policy Set '$displayName' from file '$($file.Name)' requires a policyDefinitions array with at least one entry; it has zero entries." -ErrorAction Stop
         }
         if ($duplicateDefinitionTracking.ContainsKey($id)) {
             Write-Error "Duplicate Policy Set with name '$($name)' in '$($duplicateDefinitionTracking[$id])' and '$($file.FullName)'" -ErrorAction Stop

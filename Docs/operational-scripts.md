@@ -4,7 +4,7 @@ The scripts are detailed in the [reference page](operational-scripts-reference.m
 
 ## Batch Creation of Remediation Tasks
 
-The script `Create-AzRemediationTasks` creates remediation tasks for all non-compliant resources for EPAC environments in the `global-settings.jsonc` file.
+The script `New-AzRemediationTasks` creates remediation tasks for all non-compliant resources for EPAC environments in the `global-settings.jsonc` file.
 
 This script executes all remediation tasks in a Policy as Code environment specified with parameter `PacEnvironmentSelector`. The script will interactively prompt for the value if the parameter is not supplied. The script will recurse the Management Group structure and subscriptions from the defined starting point.
 
@@ -34,7 +34,7 @@ The Hydration Kit is a set of scripts that can be used to deploy an EPAC environ
 
 ## CI/CD Helpers
 
-The scripts `Create-AzureDevOpsBug` and `Create-GitHubIssue` create a Bug or Issue when there are one or multiple failed Remediation Tasks.
+The scripts `New-AzureDevOpsBug` and `New-GitHubIssue` create a Bug or Issue when there are one or multiple failed Remediation Tasks.
 
 ## Non-compliance Reports
 

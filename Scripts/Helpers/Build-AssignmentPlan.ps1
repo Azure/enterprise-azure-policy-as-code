@@ -35,7 +35,7 @@ function Build-AssignmentPlan {
     # Cache role assognments and definitions
     $deployedPolicyAssignments = $deployedPolicyResources.policyassignments.managed
     $deployedRoleAssignmentsByPrincipalId = $DeployedPolicyResources.roleAssignmentsByPrincipalId
-    $deleteCandidates = Get-ClonedObject $deployedPolicyAssignments -AsHashTable -AsShallowClone
+    $deleteCandidates = $deployedPolicyAssignments.Clone()
     $roleDefinitions = $DeployedPolicyResources.roleDefinitions
 
     # Process each assignment file
@@ -50,8 +50,9 @@ function Build-AssignmentPlan {
         }
 
         # Write-Information ""
+        $assignmentObject = $null
         try {
-            $assignmentObject = $Json | ConvertFrom-Json -AsHashtable
+            $assignmentObject = $Json | ConvertFrom-Json -Depth 100 -AsHashtable
         }
         catch {
             Write-Error "Assignment JSON file '$($assignmentFile.FullName)' is not valid." -ErrorAction Stop
@@ -187,6 +188,9 @@ function Build-AssignmentPlan {
                         if ($replacedDefinition) {
                             $changesStrings += "replacedDefinition"
                         }
+                        $changesStrings += ($identityStatus.changedIdentityStrings)
+                    }
+                    elseif ($identityStatus.requiresRoleChanges) {
                         $changesStrings += ($identityStatus.changedIdentityStrings)
                     }
 

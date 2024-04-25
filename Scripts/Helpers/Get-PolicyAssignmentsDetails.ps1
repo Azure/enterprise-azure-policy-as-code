@@ -36,7 +36,7 @@ function Get-PolicyAssignmentsDetails {
             if ($policySetId.Contains("policySetDefinition", [StringComparison]::InvariantCultureIgnoreCase)) {
                 # PolicySet
                 if ($policySetsDetails.ContainsKey($policySetId)) {
-                    $combinedDetail = Get-ClonedObject $policySetsDetails.$policySetId -AsHashTable
+                    $combinedDetail = Get-DeepCloneAsOrderedHashtable $policySetsDetails.$policySetId
                     $combinedDetail.assignmentId = $assignmentId
                     $combinedDetail.assignment = $assignment
                     $combinedDetail.policySetId = $policySetId

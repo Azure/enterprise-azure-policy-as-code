@@ -35,10 +35,9 @@ function Get-AzPolicyOrSetDefinitions {
     }
 
     $policyResources = Search-AzGraphAllItems -Query $query -ProgressItemName $progressItemName
-    foreach ($policyResourceRaw in $policyResources) {
-        $resourceTenantId = $policyResourceRaw.tenantId
+    foreach ($policyResource in $policyResources) {
+        $resourceTenantId = $policyResource.tenantId
         if ($resourceTenantId -in @($null, "", $environmentTenantId)) {
-            $policyResource = Get-ClonedObject $policyResourceRaw -AsHashTable -AsShallowClone
             $id = $policyResource.id
             $testId = $id
             $included, $resourceIdParts = Confirm-PolicyResourceExclusions `

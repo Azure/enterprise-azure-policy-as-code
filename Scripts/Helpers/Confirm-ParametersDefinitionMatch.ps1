@@ -1,15 +1,28 @@
 function Confirm-ParametersDefinitionMatch {
     [CmdletBinding()]
     param(
-        [PSCustomObject] $ExistingParametersObj,
-        [PSCustomObject] $DefinedParametersObj
+        $ExistingParametersObj,
+        $DefinedParametersObj
     )
     $match = $true
     $incompatible = $false
 
-    $existingParameters = Get-ClonedObject $ExistingParametersObj -AsHashTable
-    $definedParameters = Get-ClonedObject $DefinedParametersObj -AsHashTable
-    $addedParameters = Get-ClonedObject $definedParameters -AsHashTable
+    $addedParameters = @{}
+    if ($null -eq $ExistingParametersObj) {
+        $existingParameters = @{}
+    }
+    else {
+        $existingParameters = Get-DeepCloneAsOrderedHashtable $ExistingParametersObj
+    }
+    if ($null -eq $DefinedParametersObj) {
+        $definedParameters = @{}
+    }
+    else {
+        $definedParameters = Get-DeepCloneAsOrderedHashtable $DefinedParametersObj
+        foreach ($definedParameterName in $definedParameters.Keys) {
+            $addedParameters.Add($definedParameterName, $definedParameters.$definedParameterName)
+        }
+    }
     foreach ($existingParameterName in $existingParameters.Keys) {
         # ignore paramer name case
         $definedParameterNameArray = $definedParameters.Keys -eq $existingParameterName
@@ -27,7 +40,6 @@ function Confirm-ParametersDefinitionMatch {
 
             # analyze parameter type
             if ($existing.type -ne $defined.type) {
-                $match = $false
                 $incompatible = $true
                 break
             }

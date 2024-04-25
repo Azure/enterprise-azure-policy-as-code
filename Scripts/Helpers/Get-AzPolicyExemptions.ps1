@@ -58,10 +58,9 @@ function Get-AzPolicyExemptions {
     $policyResourcesTable = $DeployedPolicyResources.policyexemptions
     $policyExemptionsCounters = $policyResourcesTable.counters
 
-    foreach ($policyResourceRaw in $policyResources) {
-        $resourceTenantId = $policyResourceRaw.tenantId
+    foreach ($policyResource in $policyResources) {
+        $resourceTenantId = $policyResource.tenantId
         if ($resourceTenantId -in @($null, "", $environmentTenantId)) {
-            $policyResource = Get-ClonedObject $policyResourceRaw -AsHashTable -AsShallowClone
             $properties = Get-PolicyResourceProperties $policyResource
 
             $id = $policyResource.id
@@ -113,7 +112,7 @@ function Get-AzPolicyExemptions {
                 }
                 $resourceSelectors = $properties.resourceSelectors
                 $assignmentScopeValidation = $properties.assignmentScopeValidation
-                $pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -PolicyResource $policyResourceRaw -ManagedByCounters $policyExemptionsCounters.managedBy
+                $pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -PolicyResource $policyResource -ManagedByCounters $policyExemptionsCounters.managedBy
                 $status = "active"
                 $expiresInDays = [Int32]::MaxValue
                 if ($expiresOn) {

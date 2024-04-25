@@ -107,21 +107,20 @@ function Confirm-ObjectValueEqualityDeep {
             }
             else {
                 $normalizedKeys1 = $Object1.PSObject.Properties.Name
+                if ($normalizedKeys1 -isnot [System.Collections.ICollection]) {
+                    $normalizedKeys1 = @($normalizedKeys1)
+                }
             }
             if ($Object2 -is [System.Collections.IDictionary]) {
                 $normalizedKeys2 = $Object2.Keys
             }
             else {
                 $normalizedKeys2 = $Object2.PSObject.Properties.Name
+                if ($normalizedKeys2 -isnot [System.Collections.ICollection]) {
+                    $normalizedKeys2 = @($normalizedKeys2)
+                }
             }
-            $key1IsNotArray = $normalizedKeys1 -isnot [System.Collections.ICollection]
-            $key2IsNotArray = $normalizedKeys2 -isnot [System.Collections.ICollection]
-            if ($key1IsNotArray) {
-                $normalizedKeys1 = @($normalizedKeys1)
-            }
-            if ($key2IsNotArray) {
-                $normalizedKeys2 = @($normalizedKeys2)
-            }
+
             $allKeys = $normalizedKeys1 + $normalizedKeys2
             $uniqueKeys = $allKeys | Sort-Object -Unique
             if ($null -eq $uniqueKeys) {
@@ -135,13 +134,27 @@ function Confirm-ObjectValueEqualityDeep {
             # iterate and recurse
             foreach ($key in $uniqueKeys) {
                 $item1 = $Object1.$key
-                $item2 = $Object2.$key
-
-                if (Confirm-ObjectValueEqualityDeep $item1 $item2) {
-                    # if either the property values are equal or a deep inspection shows equal, continue to the next property
+                if ($null -eq $item1) {
+                    # property missing
+                    $key1Array = $normalizedKeys1 -eq $key
+                    if ($key1Array.Count -gt 0) {
+                        # found a matching key (case insensitive)
+                        $key1 = $key1Array[0]
+                        $item1 = $Object1.$key1
+                    }
                 }
-                else {
-                    # if the property values are not equal and a deep inspection does not show equal, return false
+                $item2 = $Object2.$key
+                if ($null -eq $item2) {
+                    # property missing
+                    $key2Array = $normalizedKeys2 -eq $key
+                    if ($key2Array.Count -gt 0) {
+                        # found a matching key (case insensitive)
+                        $key2 = $key2Array[0]
+                        $item2 = $Object2.$key2
+                    }
+                }
+                $match = Confirm-ObjectValueEqualityDeep $item1 $item2
+                if (!$match) {
                     return $false
                 }
             }

@@ -23,5 +23,6 @@ function Search-AzGraphAllItems {
     if ($count % $ProgressIncrement -ne 0) {
         Write-Information "Retrieved $($count) $ProgressItemName"
     }
-    Write-Output $data -NoEnumerate
+    $dataClone = Get-DeepCloneAsOrderedHashtable -InputObject $data
+    Write-Output $dataClone -NoEnumerate
 }

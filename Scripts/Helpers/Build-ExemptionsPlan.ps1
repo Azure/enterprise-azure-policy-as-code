@@ -3,14 +3,14 @@ function Build-ExemptionsPlan {
     param (
         [string] $ExemptionsRootFolder,
         [string] $ExemptionsAreNotManagedMessage,
-        [hashtable] $PacEnvironment,
+        $PacEnvironment,
         $ScopeTable,
-        [hashtable] $AllDefinitions,
-        [hashtable] $AllAssignments,
-        [hashtable] $CombinedPolicyDetails,
-        [hashtable] $Assignments,
-        [hashtable] $DeployedExemptions,
-        [hashtable] $Exemptions
+        $AllDefinitions,
+        $AllAssignments,
+        $CombinedPolicyDetails,
+        $Assignments,
+        $DeployedExemptions,
+        $Exemptions
     )
 
     Write-Information "==================================================================================================="
@@ -25,7 +25,7 @@ function Build-ExemptionsPlan {
 
     $uniqueIds = @{}
     $deployedManagedExemptions = $DeployedExemptions.managed
-    $deleteCandidates = Get-ClonedObject $deployedManagedExemptions -AsHashTable -AsShallowClone
+    $deleteCandidates = $deployedManagedExemptions.Clone()
     $replacedAssignments = $Assignments.replace
     $numberOfFilesWithErrors = 0
     $desiredState = $PacEnvironment.desiredState
@@ -65,7 +65,7 @@ function Build-ExemptionsPlan {
             Write-Information "Processing file '$($fullName)'"
             Write-Information "---------------------------------------------------------------------------------------------------"
             $errorInfo = New-ErrorInfo -FileName $fullName
-            $exemptionsArray = @()
+            $exemptionsArray = [System.Collections.ArrayList]::new()
             $isCsvFile = $false
             if ($extension -eq ".json" -or $extension -eq ".jsonc") {
                 $content = Get-Content -Path $fullName -Raw -ErrorAction Stop
@@ -79,7 +79,7 @@ function Build-ExemptionsPlan {
                 if ($null -ne $jsonObj) {
                     $jsonExemptions = $jsonObj.exemptions
                     if ($null -ne $jsonExemptions -and $jsonExemptions.Count -gt 0) {
-                        $exemptionsArray += $jsonExemptions
+                        $null = $exemptionsArray.AddRange($jsonExemptions)
                     }
                 }
             }
@@ -87,8 +87,13 @@ function Build-ExemptionsPlan {
                 $isCsvFile = $true
                 $content = Get-Content -Path $fullName -Raw -ErrorAction Stop
                 $xlsExemptions = ($content | ConvertFrom-Csv -ErrorAction Stop)
-                if ($xlsExemptions.Count -gt 0) {
-                    $exemptionsArray += $xlsExemptions
+                if ($null -ne $xlsExemptions) {
+                    if ($xlsExemptions -isnot [array]) {
+                        $xlsExemptions = @($xlsExemptions)
+                    }
+                    if ($xlsExemptions.Count -gt 0) {
+                        $null = $exemptionsArray.AddRange($xlsExemptions)
+                    }
                 }
             }
             #endregion read each file
@@ -178,7 +183,7 @@ function Build-ExemptionsPlan {
                     $step1 = $policyDefinitionReferenceIds
                     if (-not [string]::IsNullOrWhiteSpace($step1)) {
                         $step2 = $step1.Trim()
-                        $step3 = $step2 -split ":"
+                        $step3 = $step2 -split "&"
                         foreach ($item in $step3) {
                             $step4 = $item.Trim()
                             if ($step4.Length -gt 0) {
@@ -505,6 +510,7 @@ function Build-ExemptionsPlan {
                             $splits = $currentScope -split "/"
                             $trimmedScope = $splits[0..4] -join "/"
                             if ($validateScope) {
+                                $thisResourceIdExists = $false
                                 if ($resourceIdsExist.ContainsKey($currentScope)) {
                                     $thisResourceIdExists = $resourceIdsExist.$currentScope
                                 }
@@ -533,7 +539,7 @@ function Build-ExemptionsPlan {
                     $uniqueAssignmentNames = @{}
                     if ($null -ne $policyAssignmentId -and !$validateScope) {
                         $calculatedPolicyAssignment = $calculatedPolicyAssignments[0]
-                        $clonedCalculatedPolicyAssignment = Get-ClonedObject $calculatedPolicyAssignment -AsShallowClone
+                        $clonedCalculatedPolicyAssignment = $calculatedPolicyAssignment.Clone()
                         $null = $filteredPolicyAssignments.Add($clonedCalculatedPolicyAssignment)
                     }
                     else {
@@ -566,7 +572,7 @@ function Build-ExemptionsPlan {
                                             $listOfAssignmentsWithSameName = [System.Collections.ArrayList]::new()
                                             $null = $uniqueAssignmentNames.Add($calculatedPolicyAssignment.name, $listOfAssignmentsWithSameName)
                                         }
-                                        $clonedCalculatedPolicyAssignment = Get-ClonedObject $calculatedPolicyAssignment -AsShallowClone
+                                        $clonedCalculatedPolicyAssignment = $calculatedPolicyAssignment.Clone()
                                         $null = $listOfAssignmentsWithSameName.Add($clonedCalculatedPolicyAssignment)
                                         $null = $filteredPolicyAssignments.Add($clonedCalculatedPolicyAssignment)
                                     }
@@ -719,8 +725,7 @@ function Build-ExemptionsPlan {
                             ordinalString        = $ordinalString
                         }
                         $epacMetadata += $epacMetadataDefinitionSpecification
-                        $clonedMetadata = $null
-                        $clonedMetadata = Get-ClonedObject $metadata -AsShallowClone
+                        $clonedMetadata = Get-DeepCloneAsOrderedHashtable $metadata
                         $clonedMetadata.pacOwnerId = $PacEnvironment.pacOwnerId
                         $clonedMetadata.epacMetadata = $epacMetadata
                         if (!$clonedMetadata.ContainsKey("deployedBy")) {

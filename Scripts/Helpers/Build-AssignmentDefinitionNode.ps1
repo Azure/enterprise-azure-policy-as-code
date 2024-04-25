@@ -14,7 +14,7 @@ function Build-AssignmentDefinitionNode {
     )
 
     # Each tree branch needs a private copy
-    $definition = Get-ClonedObject -InputObject $AssignmentDefinition
+    $definition = Get-DeepCloneAsOrderedHashtable -InputObject $AssignmentDefinition
     $pacSelector = $PacEnvironment.pacSelector
 
     #region nodeName (required)
@@ -157,7 +157,8 @@ function Build-AssignmentDefinitionNode {
     if ($DefinitionNode.metadata) {
         # merge metadata
         $metadata = $definition.metadata
-        $merge = Get-ClonedObject $DefinitionNode.metadata -AsHashTable
+        $merge = Get-DeepCloneAsOrderedHashtable $DefinitionNode.metadata
+
         foreach ($key in $merge.Keys) {
             $metadata[$key] = $merge.$key
         }
@@ -170,7 +171,7 @@ function Build-AssignmentDefinitionNode {
         $addedParameters = $DefinitionNode.parameters
         foreach ($parameterName in $addedParameters.Keys) {
             $rawParameterValue = $addedParameters.$parameterName
-            $parameterValue = Get-ClonedObject $rawParameterValue -AsHashTable
+            $parameterValue = Get-DeepCloneAsOrderedHashtable $rawParameterValue
             $allParameters[$parameterName] = $parameterValue
         }
     }
@@ -189,7 +190,7 @@ function Build-AssignmentDefinitionNode {
             $fullName = $ParameterFilesCsv.$parameterFileName
             $content = Get-Content -Path $fullName -Raw -ErrorAction Stop
             $xlsArray = @() + ($content | ConvertFrom-Csv -ErrorAction Stop)
-            $csvParameterArray = Get-ClonedObject $xlsArray -AsHashTable
+            $csvParameterArray = Get-DeepCloneAsOrderedHashtable $xlsArray
             $definition.parameterFileName = $parameterFileName
             $definition.csvParameterArray = $csvParameterArray
             $definition.csvRowsValidated = $false
