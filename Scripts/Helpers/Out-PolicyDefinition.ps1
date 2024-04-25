@@ -63,7 +63,7 @@ function Out-PolicyDefinition {
 
     # Write the content
     Remove-NullFields $Definition
-    $outDefinition = [PSCustomObject]@{'$schema' = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json" }
+    $outDefinition = [ordered]@{'$schema' = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json" }
     
     # update schema if policy set
     if ($Definition.properties.policyDefinitions) {

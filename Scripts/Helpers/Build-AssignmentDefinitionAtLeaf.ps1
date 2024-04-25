@@ -164,7 +164,7 @@ function Build-AssignmentDefinitionAtLeaf {
             continue
         }
         $enforcementMode = $AssignmentDefinition.enforcementMode
-        $metadata = Get-ClonedObject $AssignmentDefinition.metadata -AsHashTable
+        $metadata = Get-DeepCloneAsOrderedHashtable $AssignmentDefinition.metadata
         if ($metadata.ContainsKey("pacOwnerId")) {
             Write-Error "    Leaf Node $($nodeName): metadata.pacOwnerId ($($metadata.pacOwnerId)) may not be set explicitly; it is reserved for EPAC usage."
             $hasErrors = $true
@@ -567,7 +567,7 @@ function Build-AssignmentDefinitionAtLeaf {
         foreach ($scopeEntry in $scopeCollection) {
 
             # Clone hashtable
-            [hashtable] $scopedAssignment = Get-ClonedObject $baseAssignment -AsHashTable
+            [hashtable] $scopedAssignment = Get-DeepCloneAsOrderedHashtable $baseAssignment
 
             # Add scope and if defined notScopes()
             $scope = $scopeEntry.scope

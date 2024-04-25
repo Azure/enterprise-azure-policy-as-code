@@ -446,16 +446,16 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
             #     }
             # }
 
-            $definition = [PSCustomObject]@{
+            $definition = [ordered]@{
                 name       = $name
-                properties = [PSCustomObject]@{
+                properties = [ordered]@{
                     displayName = $properties.displayName
                     description = $properties.description
                     mode        = $properties.mode
                     metadata    = $metadata
                     version     = $version
                     parameters  = $properties.parameters
-                    policyRule  = [PSCustomObject]@{
+                    policyRule  = [ordered]@{
                         if   = $properties.policyRule.if
                         then = $properties.policyRule.then
                     }
@@ -543,20 +543,20 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
             # }
 
             # Adjust policyDefinitions for EPAC
-            $policyDefinitionsIn = Get-ClonedObject $properties.policyDefinitions -AsHashTable
+            $policyDefinitionsIn = $properties.policyDefinitions
             $policyDefinitionsOut = [System.Collections.ArrayList]::new()
             foreach ($policyDefinitionIn in $policyDefinitionsIn) {
                 $parts = Split-AzPolicyResourceId -Id $policyDefinitionIn.policyDefinitionId
                 $policyDefinitionOut = $null
                 if ($parts.scopeType -eq "builtin") {
-                    $policyDefinitionOut = [PSCustomObject]@{
+                    $policyDefinitionOut = [ordered]@{
                         policyDefinitionReferenceId = $policyDefinitionIn.policyDefinitionReferenceId
                         policyDefinitionId          = $policyDefinitionIn.policyDefinitionId
                         parameters                  = $policyDefinitionIn.parameters
                     }
                 }
                 else {
-                    $policyDefinitionOut = [PSCustomObject]@{
+                    $policyDefinitionOut = [ordered]@{
                         policyDefinitionReferenceId = $policyDefinitionIn.policyDefinitionReferenceId
                         policyDefinitionName        = $parts.name
                         parameters                  = $policyDefinitionIn.parameters
@@ -572,9 +572,9 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
                 $null = $policyDefinitionsOut.Add($policyDefinitionOut)
             }
 
-            $definition = [PSCustomObject]@{
+            $definition = [ordered]@{
                 name       = $policySetDefinition.name
-                properties = [PSCustomObject]@{
+                properties = [ordered]@{
                     displayName            = $properties.displayName
                     description            = $properties.description
                     metadata               = $metadata
@@ -733,7 +733,7 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
 
             $parameters = @{}
             if ($null -ne $properties.parameters -and $properties.parameters.psbase.Count -gt 0) {
-                $parametersClone = Get-ClonedObject $properties.parameters -AsHashTable
+                $parametersClone = Get-DeepCloneAsOrderedHashtable $properties.parameters
                 foreach ($parameterName in $parametersClone.Keys) {
                     $parameterValue = $parametersClone.$parameterName
                     $parameters[$parameterName] = $parameterValue.value

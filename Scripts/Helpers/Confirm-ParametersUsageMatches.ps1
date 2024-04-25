@@ -21,14 +21,17 @@ function Confirm-ParametersUsageMatches {
         return $false
     }
     foreach ($existingParameterName in $existingParameters.Keys) {
-        $definedParameterNameArray = $definedParameters.Keys -eq $existingParameterName
-        if ($definedParameterNameArray.Count -eq 0) {
-            # No matching parameter name found (case insensitive)
-            return $false
-        }
-        $definedParameterName = $definedParameterNameArray[0]
         $existingParameter = $existingParameters.$existingParameterName
-        $definedParameter = $definedParameters.$definedParameterName
+        $definedParameter = $definedParameters.$existingParameterName
+        if ($null -eq $definedParameter) {
+            $definedParameterNameArray = $definedParameters.Keys -eq $existingParameterName
+            if ($definedParameterNameArray.Count -eq 0) {
+                # No matching parameter name found (case insensitive)
+                return $false
+            }
+            $definedParameterName = $definedParameterNameArray[0]
+            $definedParameter = $definedParameters.$definedParameterName
+        }
 
         $existingParameterValue = $existingParameter
         if ($null -ne $existingParameterValue.value) {

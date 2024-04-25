@@ -5,28 +5,28 @@ function Confirm-PolicyDefinitionsParametersMatch {
         $DefinedParametersObj
     )
 
-    $existingParameters = ConvertTo-HashTable $ExistingParametersObj
-    $definedParameters = ConvertTo-HashTable $DefinedParametersObj
-    $addedParameters = Get-ClonedObject $definedParameters -AsHashTable -AsShallowClone
-    foreach ($existingParameterName in $existingParameters.Keys) {
-        $found = $false
-        foreach ($definedParameterName in $definedParameters.Keys) {
-            if ($definedParameterName -eq $existingParameterName) {
-                # remove key from $addedParameters
-                $addedParameters.Remove($definedParameterName)
+    if ($null -eq $ExistingParametersObj) {
+        $ExistingParametersObj = @{}
+    }
+    if ($null -eq $DefinedParametersObj) {
+        $DefinedParametersObj = @{}
+    }
+    $addedParameters = $DefinedParametersObj.Clone()
+    foreach ($existingParameterName in $ExistingParametersObj.Keys) {
+        $definedParameterNameArray = $DefinedParametersObj.Keys -eq $existingParameterName
+        if ($definedParameterNameArray.Count -gt 0) {
+            # remove key from $addedParameters
+            $addedParameters.Remove($definedParameterName)
 
-                # analyze parameter
-                $existing = $existingParameters.$existingParameterName
-                $defined = $definedParameters.$definedParameterName
-                $match = Confirm-ObjectValueEqualityDeep $existing $defined
-                if (!$match) {
-                    return $false
-                }
-                $found = $true
-                break
+            # analyze parameter
+            $existing = $ExistingParametersObj.$existingParameterName
+            $defined = $DefinedParametersObj.$definedParameterName
+            $match = Confirm-ObjectValueEqualityDeep $existing $defined
+            if (!$match) {
+                return $false
             }
         }
-        if (!$found) {
+        else {
             # parameter deleted
             return $false
         }

@@ -41,7 +41,7 @@ foreach ($function in (Get-ChildItem "$ModuleRoot\internal\functions" -Recurse -
 
 foreach ($function in (Get-ChildItem "$ModuleRoot\functions" -Recurse -File -Filter "*.ps1")) {
 	. Import-ModuleFile -Path $function.FullName
-	Export-ModuleMember $function.BaseName -Verbose
+	Export-ModuleMember $function.BaseName
 }
 #endregion Load functions
 

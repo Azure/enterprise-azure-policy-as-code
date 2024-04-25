@@ -1,8 +1,8 @@
 function Set-AzPolicyAssignmentRestMethod {
     [CmdletBinding()]
     param (
-        [PSCustomObject] $AssignmentObj,
-        [string] $ApiVersion
+        $AssignmentObj,
+        $ApiVersion
     )
 
     # Write log info
@@ -11,7 +11,7 @@ function Set-AzPolicyAssignmentRestMethod {
     Write-Information "$displayName - $id"
 
     # Fix parameters to the weird way assignments uses JSON
-    $parametersTemp = Get-ClonedObject $AssignmentObj.parameters -AsHashTable
+    $parametersTemp = Get-DeepCloneAsOrderedHashtable $AssignmentObj.parameters
     $parameters = @{}
     foreach ($parameterName in $parametersTemp.Keys) {
         $value = $parametersTemp.$parameterName
