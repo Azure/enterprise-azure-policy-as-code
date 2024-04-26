@@ -39,12 +39,12 @@ Include Policies with effect Manual. Default: do not include Polcies with effect
 
 Number of virtual cores to use for the operation. Default is 4.
 
-## Script `Create-AzRemediationTasks`
+## Script `New-AzRemediationTasks`
 
-The Create-AzRemediationTasks PowerShell creates remediation tasks for all non-compliant resources in the current AAD tenant. If one or multiple remediation tasks fail, their respective objects are added to a PowerShell variable that is outputted for later use in the Azure DevOps Pipeline.
+The New-AzRemediationTasks PowerShell creates remediation tasks for all non-compliant resources in the current AAD tenant. If one or multiple remediation tasks fail, their respective objects are added to a PowerShell variable that is outputted for later use in the Azure DevOps Pipeline.
 
 ```ps1
-Create-AzRemediationTasks [[-PacEnvironmentSelector] <String>] [-DefinitionsRootFolder <String>] [-Interactive <Boolean>] [-OnlyCheckManagedAssignments] [-PolicyDefinitionFilter <String[]>] [-PolicySetDefinitionFilter <String[]>] [-PolicyAssignmentFilter <String[]>] [-PolicyEffectFilter <String[]>] [-NoWait] [-WhatIf] [-Confirm] [<CommonParameters>]
+New-AzRemediationTasks [[-PacEnvironmentSelector] <String>] [-DefinitionsRootFolder <String>] [-Interactive <Boolean>] [-OnlyCheckManagedAssignments] [-PolicyDefinitionFilter <String[]>] [-PolicySetDefinitionFilter <String[]>] [-PolicyAssignmentFilter <String[]>] [-PolicyEffectFilter <String[]>] [-NoWait] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Parameters
@@ -89,12 +89,12 @@ Filter by Policy effect (array).
 
 #### `-Confirm [<SwitchParameter>]`
 
-## Script `Create-AzureDevOpsBug`
+## Script `New-AzureDevOpsBug`
 
 Creates a Bug on the current Iteration of a team when one or multiple Remediation Tasks failed. The Bug is formatted as an HTML table and contains information on the name and Url properties. As a result, the team can easily locate and resolve the Remediation Tasks that failed.
 
 ```ps1
-Create-AzureDevOpsBug [-FailedPolicyRemediationTasksJsonString] <String> [-ModuleName] <String> [-OrganizationName] <String> [-ProjectName] <String> [-PersonalAccessToken] <String> [-TeamName] <String> [<CommonParameters>]
+New-AzureDevOpsBug [-FailedPolicyRemediationTasksJsonString] <String> [-ModuleName] <String> [-OrganizationName] <String> [-ProjectName] <String> [-PersonalAccessToken] <String> [-TeamName] <String> [<CommonParameters>]
 ```
 
 ### Parameters
@@ -123,12 +123,12 @@ Specifies the Personal Access Token that is used for authentication purposes. Ma
 
 Specifies the name of the Azure DevOps team.
 
-## Script `Create-GitHubIssue`
+## Script `New-GitHubIssue`
 
 Creates an Issue in a GitHub Repository that is located under a GitHub Organization when one or multiple Remediation Tasks failed. The Bug is formatted as an HTML table and contains information on the name and Url properties. As a result, the team can easily locate and resolve the Remediation Tasks that failed.
 
 ```ps1
-Create-GitHubIssue [-FailedPolicyRemediationTasksJsonString] <String> [-OrganizationName] <String> [-RepositoryName] <String> [-PersonalAccessToken] <String> [<CommonParameters>]
+New-GitHubIssue [-FailedPolicyRemediationTasksJsonString] <String> [-OrganizationName] <String> [-RepositoryName] <String> [-PersonalAccessToken] <String> [<CommonParameters>]
 ```
 
 ### Parameters

@@ -3,7 +3,7 @@
   This PowerShell script creates a Bug when there are one or multiple failed Remediation Tasks.
 
   .DESCRIPTION
-  The Create-AzureDevOpsBug.ps1 PowerShell script creates a Bug on the current Iteration of a team when one or
+  The New-AzureDevOpsBug.ps1 PowerShell script creates a Bug on the current Iteration of a team when one or
   multiple Remediation Tasks failed. The Bug is formatted as an HTML table and contains information on the name
   and Url properties. As a result, the team can easily locate and resolve the Remediation Tasks that failed.
 
@@ -26,7 +26,7 @@
   Specifies the name of the Azure DevOps team.
 
   .EXAMPLE
-  Create-AzureDevOpsBug.ps1 `
+  New-AzureDevOpsBug.ps1 `
     -FailedPolicyRemediationTasksJsonString '<JSON string>'`
     -ModuleName 'VSTeam' `
     -OrganizationName 'bavanben' `

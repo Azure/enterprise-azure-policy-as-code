@@ -28,7 +28,8 @@ EPAC uses a set of Entra ID App Registrations (Service Principals). To build the
                     "Microsoft.Authorization/roleAssignments/read",
                     "Microsoft.PolicyInsights/*",
                     "Microsoft.Management/register/action",
-                    "Microsoft.Management/managementGroups/read"
+                    "Microsoft.Management/managementGroups/read",
+                    "Microsoft.Resources/subscriptions/resourceGroups/read"
                 ],
                 "notActions": [],
                 "dataActions": [],

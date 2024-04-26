@@ -87,7 +87,7 @@ The following is the unique IDs (also known as PIDs) used in each of the modules
 | `Deploy-PolicyPlan` | `fe9ff1e8-5521-4b9d-ab1d-84e15447565e` |
 | `Deploy-RolesPlan` | `cf031290-b7d4-48ef-9ff5-4dcd7bff8c6c` |
 | `Build-PolicyDocumentation` | `2dc29bae-2448-4d7f-b911-418421e83900` |
-| `Create-AzRemediationTasks` | `6f4dcbef-f6e2-4c29-ba2a-eef748d88157` |
+| `New-AzRemediationTasks` | `6f4dcbef-f6e2-4c29-ba2a-eef748d88157` |
 | `Export-AzPolicyResources` | `dc5b73fd-e93c-40ca-8fef-976762d1d30` |
 | `Export-NonComplianceReports` | `f464b017-898b-4156-9da5-af932831fa2f` |
 | `Get-AzExemptions` | `3f02e7d5-1cf5-490a-a95c-3d49f0673093` |
