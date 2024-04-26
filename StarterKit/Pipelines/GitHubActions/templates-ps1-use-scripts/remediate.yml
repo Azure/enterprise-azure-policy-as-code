@@ -37,5 +37,5 @@ jobs:
       - name: PolicyRemediation
         uses: azure/powershell@v2
         with:
-          inlineScript: 'Scripts/Operations/Create-AzRemediationTasks.ps1 -PacEnvironmentSelector ${{ env.pacEnvironmentSelector }} -OnlyCheckManagedAssignments -Interactive $false -InformationAction Continue'
+          inlineScript: 'Scripts/Operations/New-AzRemediationTasks.ps1 -PacEnvironmentSelector ${{ env.pacEnvironmentSelector }} -OnlyCheckManagedAssignments -Interactive $false -InformationAction Continue'
           azPSVersion: "latest"

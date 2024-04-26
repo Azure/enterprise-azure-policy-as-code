@@ -3,7 +3,7 @@
   This PowerShell script creates an Issue when there are one or multiple failed Remediation Tasks.
 
   .DESCRIPTION
-  The Create-GitHubIssue.ps1 PowerShell script creates an Issue in a GitHub Repository that is located under
+  The New-GitHubIssue.ps1 PowerShell script creates an Issue in a GitHub Repository that is located under
   a GitHub Organization when one or multiple Remediation Tasks failed. The Bug is formatted as an HTML table
   and contains information on the name and Url properties. As a result, the team can easily locate and resolve
   the Remediation Tasks that failed.
@@ -21,7 +21,7 @@
   Specifies the Personal Access Token that is used for authentication purposes.
 
   .EXAMPLE
-  Create-GitHubIssue.ps1 `
+  New-GitHubIssue.ps1 `
     -FailedPolicyRemediationTasksJsonString '<JSON string>'`
     -OrganizationName 'basvanbennekommsft' `
     -RepositoryName 'Blog-Posts' `
@@ -31,7 +31,7 @@
   None.
 
   .OUTPUTS
-  The Create-GitHubIssue.ps1 PowerShell script outputs multiple string values for logging purposes.
+  The New-GitHubIssue.ps1 PowerShell script outputs multiple string values for logging purposes.
 #>
 
 [CmdLetBinding()]

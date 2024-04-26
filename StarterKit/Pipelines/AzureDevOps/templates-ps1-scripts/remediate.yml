@@ -13,6 +13,6 @@ steps:
       azureSubscription: ${{ parameters.serviceConnection }}
       azurePowerShellVersion: LatestVersion
       pwsh: true
-      ScriptPath: "Scripts/Operations/Create-AzRemediationTasks.ps1"
+      ScriptPath: "Scripts/Operations/New-AzRemediationTasks.ps1"
       ScriptArguments:
         -PacEnvironmentSelector ${{ parameters.pacEnvironmentSelector }} -OnlyCheckManagedAssignments -Interactive $false -InformationAction Continue

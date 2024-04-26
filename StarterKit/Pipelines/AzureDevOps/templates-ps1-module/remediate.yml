@@ -18,4 +18,4 @@ steps:
       pwsh: true
       ScriptType: InlineScript
       Inline: |
-        Create-AzRemediationTasks -PacEnvironmentSelector ${{ parameters.pacEnvironmentSelector }} -OnlyCheckManagedAssignments -Interactive $false -InformationAction Continue
+        New-AzRemediationTasks -PacEnvironmentSelector ${{ parameters.pacEnvironmentSelector }} -OnlyCheckManagedAssignments -Interactive $false -InformationAction Continue
