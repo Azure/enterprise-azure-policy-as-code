@@ -8,12 +8,18 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v4
-      - shell: pwsh
+      - name: Build and publish
+        shell: pwsh
         env:
           APIKEY: ${{ secrets.APIKEY }}
           TAG_NAME: ${{ github.event.release.tag_name }}
         run: |
-          .\Module\build.ps1
-          Publish-Module -Path .\Module\EnterprisePolicyAsCode -NuGetApiKey $env:APIKEY -Verbose
+          # Install required modules specified in module manifest
+          Microsoft.PowerShell.PSResourceGet\Install-PSResource -Name 'Az.Accounts','Az.ResourceGraph' `
+            -Repository 'PSGallery' -TrustRepository -Scope 'CurrentUser' -SkipDependencyCheck
+          # Build
+          & '.\Module\build.ps1'
+          # Publish
+          PowerShellGet\Publish-Module -Path '.\Module\EnterprisePolicyAsCode' -NuGetApiKey $env:APIKEY -Verbose
