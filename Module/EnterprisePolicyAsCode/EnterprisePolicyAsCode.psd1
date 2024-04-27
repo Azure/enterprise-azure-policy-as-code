@@ -24,7 +24,7 @@
 	PowerShellVersion = '7.0'
 
 	# Functions to export from this module
-	FunctionsToExport = @("Build-DeploymentPlans","Build-PolicyDocumentation","Convert-MarkdownGitHubAlerts","Deploy-PolicyPlan","Deploy-RolesPlan","Export-AzPolicyResources","Export-NonComplianceReports","Get-AzExemptions","Get-AzPolicyAliasOutputCSV","New-AzPolicyReaderRole","New-AzRemediationTasks","New-AzureDevOpsBug","New-EPACDefinitionFolder","New-EPACGlobalSettings","New-EPACPolicyAssignmentDefinition","New-EPACPolicyDefinition","New-GitHubIssue","New-PipelinesFromStarterKit","Remove-AzPolicyExemptionEpac","Set-AzPolicyExemptionEpac","Sync-ALZPolicies")
+	FunctionsToExport = ''
 
 	# Cmdlets to export from this module
 	CmdletsToExport   = ''
