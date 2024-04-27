@@ -16,7 +16,7 @@ jobs:
           APIKEY: ${{ secrets.APIKEY }}
           TAG_NAME: ${{ github.event.release.tag_name }}
         run: |
-          # Install required modules specified in module manifest
+          # Install required modules specified in module manifest, for Publish-Module and Test-ModuleManifest to succeed
           Microsoft.PowerShell.PSResourceGet\Install-PSResource -Name 'Az.Accounts','Az.ResourceGraph' `
             -Repository 'PSGallery' -TrustRepository -Scope 'CurrentUser' -SkipDependencyCheck
           # Build
