@@ -15,5 +15,6 @@ jobs:
           APIKEY: ${{ secrets.APIKEY }}
           TAG_NAME: ${{ github.event.release.tag_name }}
         run: |
+          Install-Module Az.ResourceGraph -Force
           .\Module\build.ps1
           Publish-Module -Path .\Module\EnterprisePolicyAsCode -NuGetApiKey $env:APIKEY -Verbose
