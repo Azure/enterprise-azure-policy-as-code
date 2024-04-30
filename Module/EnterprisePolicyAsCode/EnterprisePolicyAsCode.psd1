@@ -38,7 +38,7 @@
 	RequiredModules   = @(
 		@{
 			ModuleName    = 'Az.Accounts'
-			ModuleVersion = '2.15.1'
+			ModuleVersion = '2.19.0'
 		},
 		@{
 			ModuleName    = 'Az.ResourceGraph'
