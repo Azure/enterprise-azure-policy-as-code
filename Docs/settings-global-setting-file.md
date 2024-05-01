@@ -89,6 +89,8 @@ EPAC has a concept of an environment identified by a string (unique per reposito
   - `managedIdentityLocation`: see [DeployIfNotExists and Modify Policy Assignments need `managedIdentityLocation`](#deployifnotexists-and-modify-policy-assignments-need-managedidentitylocation)
 - Optional:
   - `globalNotScopes`: see [Excluding scopes for all Assignments with `globalNotScopes`](#excluding-scopes-for-all-assignments-with-globalnotscopes)
+  - `skipResourceValidationForExemptions`: disables checking the resource existence for Policy Exemptions. Default is false. This can be useful if you have a massive amount of exemptions and the validation is taking too long.
+  - `doNotDisableDeprecatedPolicies`: **NOT YET IMPLEMENTED**: Planed feature will automatically set effect for deprecated Policies to "Disabled" when using the CSV file. This setting can be used to override that behavior by setting it to `true`. Default is `false`.
   - `deployedBy`: populates the `metadata` fields. It defaults to `epac/$pacOwnerId/$pacSelector`. We recommend to use the default.
     - Policy Definitions, Policy Set Definitions and Policy Exemptions - `metadata.deployedBy`.
     - Policy Assignments - `metadata.assignedBy` since Azure Portal displays it as 'Assigned by'.
@@ -96,8 +98,8 @@ EPAC has a concept of an environment identified by a string (unique per reposito
   - `managedTenant`: Used when the `pacEnvironment` is in a lighthouse managed tenant, [see this example](#example-for-lighthouse-manged-tenant) It must contain:
     - `managingTenantId` - The tenantId of the managing tenant.
     - `managingTenantRootScope` - An array of all subscriptions that will need `additionalRoleAssignments` deployed to them.
-- `defaultContext`: In rare cases (typicaslly only when deploying to a lighthouse managed tenant) the default context (Get-azContext) of a user/SPN running a plan will  
-be set to a suscription where that user/SPN does not have sufficient priveleges.  Some checks have been built in so that in some cases when this happens EPAC is able to fix the context issue.  When it is not, a `defaultContext` subscription name must be provided.  This can be any subscription within the `deploymentRootScope`.
+- `defaultContext`: In rare cases (typically only when deploying to a lighthouse managed tenant) the default context (Get-azContext) of a user/SPN running a plan will  
+be set to a subscription where that user/SPN does not have sufficient privileges.  Some checks have been built in so that in some cases when this happens EPAC is able to fix the context issue.  When it is not, a `defaultContext` subscription name must be provided.  This can be any subscription within the `deploymentRootScope`.
 
 ### DeployIfNotExists and Modify Policy Assignments need `managedIdentityLocation`
 

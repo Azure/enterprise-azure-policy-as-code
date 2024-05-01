@@ -44,16 +44,8 @@ param (
     [string] $InputFolder,
 
     [Parameter(HelpMessage = "Use switch to indicate interactive use")]
-    [switch] $Interactive,
-
-    [Parameter(HelpMessage = "Deprecated.")]
-    [Int16] $VirtualCores = 0
+    [switch] $Interactive
 )
-
-if ($VirtualCores -gt 0) {
-    Write-Warning "VirtualCores parameter is deprecated. parallel processing is no longer supported. Please remove the parameter!" -WarningAction Continue
-    $VirtualCores = 0
-}
 
 $PSDefaultParameterValues = @{
     "Write-Information:InformationVariable" = "+global:epacInfoStream"

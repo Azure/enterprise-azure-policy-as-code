@@ -119,6 +119,25 @@ function Convert-PolicyToDetails {
         $null = $parameterDefinitions.Add($parameterName, $parameterDefinition)
     }
 
+    $isDeprecated = $false
+    $version = "0.0.0"
+    if ($displayName.Contains("deprecated", [StringComparison]::InvariantCultureIgnoreCase) -or `
+            $description.Contains("deprecated", [StringComparison]::InvariantCultureIgnoreCase)) {
+        $isDeprecated = $true
+    }
+    else {
+        if ($properties.metadata -and $properties.metadata.version) {
+            $version = $properties.metadata.version
+            if ($version.Contains("deprecated", [StringComparison]::InvariantCultureIgnoreCase)) {
+                $isDeprecated = $true
+            }
+        }
+        $version = $properties.version
+        if ($version -and $version.Contains("deprecated", [StringComparison]::InvariantCultureIgnoreCase)) {
+            $isDeprecated = $true
+        }
+    }
+
     $name = $PolicyDefinition.name
     $policyDetail = @{
         id                     = $PolicyId
@@ -127,6 +146,8 @@ function Convert-PolicyToDetails {
         description            = $description
         policyType             = $properties.policyType
         category               = $category
+        version                = $version
+        isDeprecated           = $isDeprecated
         effectParameterName    = $effectParameterName
         effectValue            = $effectValue
         effectDefault          = $effectDefault

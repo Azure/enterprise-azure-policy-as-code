@@ -8,11 +8,6 @@ function Set-AzCloudTenantSubscription {
         [Parameter(Mandatory = $false)] [string] $DeploymentDefaultContext
     )
 
-    if ($null -eq (Get-Module Az.ResourceGraph -ListAvailable)) {
-        Write-Information "Installing Az.ResourceGraph module"
-        Install-Module Az.ResourceGraph -Force -Repository PSGallery
-    }
-
     if ([string]::IsNullOrWhitespace($DeploymentDefaultContext)) {
         Get-AzSubscription | Where-Object HomeTenantId -eq (Get-AzContext).Tenant | Select-Object -First 1 | Set-AzContext
     }

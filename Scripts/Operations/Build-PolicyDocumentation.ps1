@@ -55,16 +55,8 @@ param (
     [switch] $SuppressConfirmation,
 
     [Parameter(Mandatory = $false, HelpMessage = "Include Policies with effect Manual. Default: do not include Polcies with effect Manual.")]
-    [switch] $IncludeManualPolicies,
-
-    [Parameter(HelpMessage = "Deprecated.")]
-    [Int16] $VirtualCores = 0
+    [switch] $IncludeManualPolicies
 )
-
-if ($VirtualCores -gt 0) {
-    Write-Warning "VirtualCores parameter is deprecated. parallel processing is no longer supported. Please remove the parameter!" -WarningAction Continue
-    $VirtualCores = 0
-}
 
 # Dot Source Helper Scripts
 . "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
@@ -206,8 +198,7 @@ foreach ($file in $files) {
                 $policyResourceDetails = Get-AzPolicyResourcesDetails `
                     -PacEnvironmentSelector $pacEnvironmentSelector `
                     -PacEnvironment $pacEnvironment `
-                    -CachedPolicyResourceDetails $cachedPolicyResourceDetails `
-                    -VirtualCores 4
+                    -CachedPolicyResourceDetails $cachedPolicyResourceDetails
                 $policySetDetails = $policyResourceDetails.policySets
 
                 # Calculate itemList
@@ -284,8 +275,7 @@ foreach ($file in $files) {
                 $policyResourceDetails = Get-AzPolicyResourcesDetails `
                     -PacEnvironmentSelector $currentPacEnvironmentSelector `
                     -PacEnvironment $pacEnvironment `
-                    -CachedPolicyResourceDetails $cachedPolicyResourceDetails `
-                    -VirtualCores 4
+                    -CachedPolicyResourceDetails $cachedPolicyResourceDetails
 
                 # Retrieve assignments and process information or retrieve from cache is assignment previously processed
                 $assignmentArray = $environmentCategoryEntry.representativeAssignments

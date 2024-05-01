@@ -65,7 +65,7 @@ EPAC injects `deployedBy` into the `metadata` section. This is a string that ide
 The following properties can be used to specify the Policy or Policies to be exempted.
 
 > [!CAUTION]
-> `assignmentScopeValidation` value `DoNotValidate` only works reliably for Option **B**. It may work for Option **A** and **C** in some cases, but it is not recommended. EPAC cannot gracefully handle this and display a specific error message. Instead, it will display a generic error message with the following text `"Exemption entry $($entryNumber): No assignments found for scope $($currentScope), skipping entry."`.
+> `assignmentScopeValidation` value `DoNotValidate` only works for Option **B**. It may work for Option **A** and **C** in some cases, but it is not recommended. EPAC cannot gracefully handle this and display a specific error message. Instead, it will display a generic error message with the following text `"Exemption entry $($entryNumber): No assignments found for scope $($currentScope), skipping entry."`.
 
 ### Option **A**: Policy definition Ids or Names
 

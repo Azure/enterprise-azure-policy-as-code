@@ -3,8 +3,7 @@ function Get-AzPolicyResourcesDetails {
     param (
         [string] $PacEnvironmentSelector,
         [hashtable] $PacEnvironment,
-        [hashtable] $CachedPolicyResourceDetails,
-        [Int16] $VirtualCores
+        [hashtable] $CachedPolicyResourceDetails
     )
 
     $policyResourceDetails = $null
@@ -23,8 +22,7 @@ function Get-AzPolicyResourcesDetails {
 
         $policyResourceDetails = Convert-PolicyResourcesToDetails `
             -AllPolicyDefinitions $deployed.policydefinitions.all `
-            -AllPolicySetDefinitions $deployed.policysetdefinitions.all `
-            -VirtualCores $VirtualCores
+            -AllPolicySetDefinitions $deployed.policysetdefinitions.all
         $null = $policyResourceDetails.policyAssignments = $deployed.policyassignments.managed
         $null = $CachedPolicyResourceDetails.Add($PacEnvironmentSelector, $policyResourceDetails)
     }

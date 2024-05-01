@@ -2,8 +2,7 @@ function Convert-PolicyResourcesToDetails {
     [CmdletBinding()]
     param (
         [hashtable] $AllPolicyDefinitions,
-        [hashtable] $AllPolicySetDefinitions,
-        [Int16] $VirtualCores
+        [hashtable] $AllPolicySetDefinitions
     )
 
     Write-Information "==================================================================================================="
@@ -12,9 +11,10 @@ function Convert-PolicyResourcesToDetails {
 
     # Convert Policy Definitions to Details
     $policyDetails = @{}
-    if ($VirtualCores -gt 1) {
+    $virtualCores = 4
+    if ($virtualCores -gt 1) {
         # maybe parallel processing
-        $throttleLimit = $VirtualCores
+        $throttleLimit = $virtualCores
         $chunks = Split-HashtableIntoChunks -Table $AllPolicyDefinitions -NumberOfChunks $throttleLimit
         if ($chunks.Count -le 1) {
             $chunks = $null
@@ -70,9 +70,9 @@ function Convert-PolicyResourcesToDetails {
 
     # Convert Policy Set Definitions to Details
     $policySetDetails = @{}
-    if ($VirtualCores -gt 1) {
+    if ($virtualCores -gt 1) {
         # maybe parallel processing
-        $throttleLimit = $VirtualCores
+        $throttleLimit = $virtualCores
         $chunks = Split-HashtableIntoChunks -Table $AllPolicySetDefinitions -NumberOfChunks $throttleLimit
         if ($chunks.Count -le 1) {
             $chunks = $null

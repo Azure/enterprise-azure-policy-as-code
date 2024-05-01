@@ -53,19 +53,11 @@ param (
 
     [Parameter(HelpMessage = "If set, outputs variables consumable by conditions in a DevOps pipeline.")]
     [ValidateSet("ado", "gitlab", "")]
-    [string] $DevOpsType = "",
-
-    [Parameter(HelpMessage = "Deprecated.")]
-    [Int16] $VirtualCores = 0
+    [string] $DevOpsType = ""
 )
 
 $PSDefaultParameterValues = @{
     "Write-Information:InformationVariable" = "+global:epacInfoStream"
-}
-
-if ($VirtualCores -gt 0) {
-    Write-Warning "VirtualCores parameter is deprecated. parallel processing is no longer supported. Please remove the parameter!" -WarningAction Continue
-    $VirtualCores = 0
 }
 
 Clear-Variable -Name epacInfoStream -Scope global -Force -ErrorAction SilentlyContinue
@@ -315,8 +307,7 @@ if ($buildSelections.buildAny) {
     # Convert Policy and PolicySetDefinition to detailed Info
     $combinedPolicyDetails = Convert-PolicyResourcesToDetails `
         -AllPolicyDefinitions $allDefinitions.policydefinitions `
-        -AllPolicySetDefinitions $allDefinitions.policysetdefinitions `
-        -VirtualCores 4
+        -AllPolicySetDefinitions $allDefinitions.policysetdefinitions
 
     # Populate allAssignments
     $deployedPolicyAssignments = $deployedPolicyResources.policyassignments.managed
