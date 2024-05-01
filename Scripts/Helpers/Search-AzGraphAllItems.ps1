@@ -6,23 +6,77 @@ function Search-AzGraphAllItems {
         $ProgressIncrement = 1000
     )
 
-    [System.Collections.ArrayList] $data = [System.Collections.ArrayList]::new()
     # Search-AzGraph can only return a maximum of 1000 items. Without the -First it will only return 100 items
-    $result = Search-AzGraph $Query -First 1000 @ScopeSplat
-    $null = $data.AddRange($result.Data)
-    while ($null -ne $result.SkipToken) {
-        # More data available, SkipToken will allow the next query in this loop to continue where the last invocation ended
-        $count = $data.Count
-        if ($count % $ProgressIncrement -eq 0) {
-            Write-Information "Retrieved $count $ProgressItemName"
+    $body = @{
+        query = $Query
+        # options = @{
+        #     "`$top"  = 1000
+        #     "`$skip" = 0
+        # }
+    }
+    if ($ScopeSplat.ManagementGroup) {
+        $body.managementGroups = @($ScopeSplat.ManagementGroup)
+    }
+    elseif ($ScopeSplat.Subscription) {
+        $body.subscriptions = @($ScopeSplat.Subscription)
+    }
+    elseif ($ScopeSplat.ManagementGroups) {
+        $body.managementGroups = $ScopeSplat.ManagementGroups
+    }
+    elseif ($ScopeSplat.Subscriptions) {
+        $body.subscriptions = $ScopeSplat.Subscriptions
+    }
+
+    [System.Collections.ArrayList] $data = [System.Collections.ArrayList]::new()
+
+    $bodyJson = $body | ConvertTo-Json -Depth 100
+    $response = Invoke-AzRestMethod -Method POST `
+        -Path "/providers/Microsoft.ResourceGraph/resources?api-version=2022-10-01" `
+        -Payload $bodyJson
+    $statusCode = $response.StatusCode
+    $content = $response.Content
+    if ($statusCode -lt 200 -or $statusCode -ge 300) {
+        Write-Error "Search-AzGraph REST error for '$Scope' $($statusCode) -- $($content)" -ErrorAction Stop
+    }
+    $result = $content | ConvertFrom-Json -Depth 100 -AsHashtable
+    $count = $result.count
+
+    if ($count -gt 0) {
+        $null = $data.AddRange($result.data)
+        if ($data.count % $ProgressIncrement -eq 0) {
+            Write-Information "Retrieved $($data.count) $ProgressItemName"
         }
-        $result = Search-AzGraph $Query -First 1000 -SkipToken $result.SkipToken @ScopeSplat
-        $null = $data.AddRange($result.Data)
+        while ($result.ContainsKey("`$skipToken")) {
+            # More data available, $skipToken will allow the next query in this loop to continue where the last invocation ended
+            $body.options = @{ "`$skipToken" = $result["`$skipToken"] }
+            $bodyJson = $body | ConvertTo-Json -Depth 100
+            $response = Invoke-AzRestMethod -Method POST `
+                -Path "/providers/Microsoft.ResourceGraph/resources?api-version=2022-10-01" `
+                -Payload $bodyJson
+            $statusCode = $response.StatusCode
+            $content = $response.Content
+            if ($statusCode -lt 200 -or $statusCode -ge 300) {
+                Write-Error "Search-AzGraph REST error for '$Scope' $($statusCode) -- $($content)" -ErrorAction Stop
+            }
+            $result = $content | ConvertFrom-Json -Depth 100 -AsHashtable
+            $count = $result.count
+            if ($count -gt 0) {
+                $null = $data.AddRange($result.data)
+                if ($data.count % $ProgressIncrement -eq 0) {
+                    Write-Information "Retrieved $($data.count) $ProgressItemName"
+                }
+            }
+            else {
+                break
+            }
+        }
+        $count = $data.Count
+        if ($count % $ProgressIncrement -ne 0) {
+            Write-Information "Retrieved $($count) $ProgressItemName"
+        }
     }
-    $count = $data.Count
-    if ($count % $ProgressIncrement -ne 0) {
-        Write-Information "Retrieved $($count) $ProgressItemName"
+    else {
+        Write-Information "No $ProgressItemName found"
     }
-    $dataClone = Get-DeepCloneAsOrderedHashtable -InputObject $data
-    Write-Output $dataClone -NoEnumerate
+    Write-Output $data -NoEnumerate
 }

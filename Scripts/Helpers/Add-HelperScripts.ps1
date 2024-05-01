@@ -104,6 +104,7 @@
 
 . "$PSScriptRoot/RestMethods/Get-AzPolicyAssignmentRestMethod.ps1"
 . "$PSScriptRoot/RestMethods/Get-AzPolicyExemptionsRestMethod.ps1"
+. "$PSScriptRoot/RestMethods/Get-AzResourceListRestMethod.ps1"
 . "$PSScriptRoot/RestMethods/Get-AzRoleAssignmentsRestMethod.ps1"
 . "$PSScriptRoot/RestMethods/Get-AzRoleDefinitionsRestMethod.ps1"
 . "$PSScriptRoot/RestMethods/Remove-AzResourceByIdRestMethod.ps1"   

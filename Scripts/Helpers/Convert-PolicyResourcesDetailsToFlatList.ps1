@@ -94,6 +94,8 @@ function Convert-PolicyResourcesDetailsToFlatList {
                     description            = $policyInPolicySetInfo.description
                     policyType             = $policyInPolicySetInfo.policyType
                     category               = $policyInPolicySetInfo.category
+                    version                = $policyInPolicySetInfo.version
+                    isDeprecated           = $policyInPolicySetInfo.isDeprecated
                     effectDefault          = $effectDefault
                     effectValue            = $effectValue
                     ordinal                = 99

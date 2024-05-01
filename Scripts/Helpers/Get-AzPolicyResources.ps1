@@ -143,27 +143,6 @@ function Get-AzPolicyResources {
         }
     }
 
-    Write-Information "Processing Exemptions for orphaned assignments"
-    if (-not $skipExemptionsLocal) {
-        $policyExemptionsCounters = $deployedPolicyResources.policyexemptions.counters
-        $managedPolicyExemptionsTable = $deployedPolicyResources.policyexemptions.managed
-        $managedPolicyAssignmentsTable = $deployedPolicyResources.policyassignments.managed
-        # change exemption status if exemption orphaned (policyAssignment with policyAssignmentId does not exist)
-        foreach ($policyResource in $managedPolicyExemptionsTable.Values) {
-            if ($policyResource.assignmentScopeValidation -eq "Default") {
-                $assignmentId = $policyResource.policyAssignmentId
-                $assignmentScopeValidation = $policyResource.assignmentScopeValidation
-                if ($assignmentScopeValidation -eq "Default") {
-                    if (-not $managedPolicyAssignmentsTable.ContainsKey($assignmentId)) {
-                        $policyResource.status = "orphaned-assignment"
-                        $policyExemptionsCounters.orphaned += 1
-                        continue
-                    }
-                }
-            }
-        }
-    }
-
     Write-Information ""
     Write-Information "==================================================================================================="
     Write-Information "Policy Resources found for EPAC environment '$($PacEnvironment.pacSelector)' at root scope $($deploymentRootScope -replace '/providers/Microsoft.Management', '')"
@@ -216,7 +195,6 @@ function Get-AzPolicyResources {
         Write-Information "        This PaC  = $($managedBy.thisPaC)"
         Write-Information "        Other PaC = $($managedBy.otherPaC)"
         Write-Information "        Unknown   = $($managedBy.unknown)"
-        Write-Information "    Orphaned      = $($counters.orphaned)"
         Write-Information "    Expired       = $($counters.expired)"
         Write-Information "    Excluded      = $($counters.excluded)"
     }

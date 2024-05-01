@@ -1,0 +1,123 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json",
+    "name": "5cc2cbfc-e306-4ec6-a141-eea3c79bb2ae",
+    "type": "Microsoft.Authorization/policyDefinitions",
+    "properties": {
+        "displayName": "Inherit Tag from Resource Group with dynamic notScope",
+        "policyType": "Custom",
+        "description": "Resources inherit a tag from the resource group. It allows for resource groups and resource types to be excluded from this.",
+        "mode": "Indexed",
+        "metadata": {
+            "version": "1.0.1",
+            "category": "Tags"
+        },
+        "parameters": {
+            "effect": {
+                "type": "string",
+                "metadata": {
+                    "displayName": "Effect",
+                    "description": "Enable or disable the execution of the policy"
+                },
+                "allowedValues": [
+                    "Disabled",
+                    "Audit",
+                    "Deny",
+                    "Modify"
+                ],
+                "defaultValue": "Modify"
+            },
+            "tagName": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Tag Name",
+                    "description": "Name of the tag, such as 'environment'"
+                }
+            },
+            "excludedRG": {
+                "type": "Array",
+                "metadata": {
+                    "displayName": "Excluded Resource Groups",
+                    "description": "This array contains all excluded RGs from this policy"
+                },
+                "defaultValue": [
+                    "synapseworkspace-managedrg-*",
+                    "databricks*",
+                    "managed-rg-*",
+                    "LogAnalyticsDefaultR*",
+                    "DefaultResourceGroup*",
+                    "NetworkWatcherRG*",
+                    "Orca-Security*"
+                ]
+            },
+            "excludedResourceTypes": {
+                "type": "Array",
+                "metadata": {
+                    "displayName": "Excluded Resource Types",
+                    "description": "Exclude certain resource types from this policy"
+                },
+                "defaultValue": [
+                    "Microsoft.Network/firewallPolicies",
+                    "Microsoft.Media/mediaservices/liveevents",
+                    "Microsoft.Sql/virtualclusters",
+                    "Microsoft.Logic/integrationServiceEnvironments/managedApis",
+                    "Microsoft.ManagedIdentity/userAssignedIdentities",
+                    "microsoft.sql/servers/databases",
+                    "microsoft.sql/managedinstances/databases",
+                    "microsoft.compute/virtualmachines/extensions",
+                    "Microsoft.OperationsManagement/solutions"
+                ]
+            }
+        },
+        "policyRule": {
+            "if": {
+                "allOf": [
+                    {
+                        "count": {
+                            "value": "[parameters('excludedResourceTypes')]",
+                            "name": "excludedResourceTypes",
+                            "where": {
+                                "field": "type",
+                                "like": "[current('excludedResourceTypes')]"
+                            }
+                        },
+                        "equals": 0
+                    },
+                    {
+                        "field": "[concat('tags[', parameters('tagName'), ']')]",
+                        "notEquals": "[resourceGroup().tags[parameters('tagName')]]"
+                    },
+                    {
+                        "value": "[resourceGroup().tags[parameters('tagName')]]",
+                        "notEquals": ""
+                    },
+                    {
+                        "count": {
+                            "value": "[parameters('excludedRG')]",
+                            "name": "excludedRG",
+                            "where": {
+                                "value": "[resourceGroup().name]",
+                                "like": "[current('excludedRG')]"
+                            }
+                        },
+                        "equals": 0
+                    }
+                ]
+            },
+            "then": {
+                "effect": "[parameters('effect')]",
+                "details": {
+                    "roleDefinitionIds": [
+                        "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+                    ],
+                    "operations": [
+                        {
+                            "operation": "addOrReplace",
+                            "field": "[concat('tags[', parameters('tagName'), ']')]",
+                            "value": "[resourceGroup().tags[parameters('tagName')]]"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}
