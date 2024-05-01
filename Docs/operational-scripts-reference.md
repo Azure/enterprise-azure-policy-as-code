@@ -35,10 +35,6 @@ Suppresses prompt for confirmation to delete existing file in interactive mode
 
 Include Policies with effect Manual. Default: do not include Polcies with effect Manual.
 
-#### **Deprecated - DO NOT USE** -- `-VirtualCores <Int16>`
-
-Number of virtual cores to use for the operation. Default is 4.
-
 ## Script `New-AzRemediationTasks`
 
 The New-AzRemediationTasks PowerShell creates remediation tasks for all non-compliant resources in the current AAD tenant. If one or multiple remediation tasks fail, their respective objects are added to a PowerShell variable that is outputted for later use in the Azure DevOps Pipeline.

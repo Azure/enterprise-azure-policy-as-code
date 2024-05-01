@@ -6,30 +6,36 @@
             "pacSelector": "epac-dev",
             "cloud": "AzureCloud",
             "tenantId": "77777777-8888-9999-1111-222222222222",
-            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/mg-epac-dev"
+            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/mg-epac-dev",
+            "desiredState": {
+                "strategy": "full",
+                "keepDfcSecurityAssignments": false
+            }
         },
         {
             "pacSelector": "nonprod",
             "cloud": "AzureCloud",
             "tenantId": "77777777-8888-9999-1111-222222222222",
-            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/mg-nonprod"
+            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/mg-nonprod",
+            "desiredState": {
+                "strategy": "full",
+                "keepDfcSecurityAssignments": false
+            }
         },
         {
-            "pacSelector": "tenant",
+            "pacSelector": "prod",
             "cloud": "AzureCloud",
             "tenantId": "77777777-8888-9999-1111-222222222222",
-            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/mg-enterprise"
+            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/mg-enterprise",
+            "managedIdentityLocation": "eastus2",
+            "desiredState": {
+                "strategy": "full",
+                "keepDfcSecurityAssignments": false
+            },
+            "globalNotScopes": [
+                "/providers/Microsoft.Management/managementGroups/mg-nonprod",
+                "/providers/Microsoft.Management/managementGroups/mg-epac-dev"
+            ]
         }
-    ],
-    "managedIdentityLocations": {
-        "*": "eastus2"
-    },
-    "globalNotScopes": {
-        "nonprod": [
-            "/providers/Microsoft.Management/managementGroups/mg-epac-dev"
-        ],
-        "tenant": [
-            "/providers/Microsoft.Management/managementGroups/mg-nonprod"
-        ]
-    }
+    ]
 }

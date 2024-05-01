@@ -14,7 +14,6 @@ function Get-AzPolicyExemptions {
     $policyResources = [System.Collections.ArrayList]::new()
     $ProgressItemName = "Policy Exemptions"
     $now = Get-Date -AsUTC
-    $resourceIdsExist = @{}
     if ($PacEnvironment.cloud -eq "AzureChinaCloud") {
         # if ($PacEnvironment.cloud -ne "AzureChinaCloud") {
         # test china cloud in normal environment
@@ -128,33 +127,6 @@ function Get-AzPolicyExemptions {
                     }
                     elseif ($expiresInDays -lt 15) {
                         $status = "active-expiring-within-15-days"
-                    }
-                }
-                $isIndividualResource = $true
-                if ($scope.StartsWith("/providers/Microsoft.Management/management")) {
-                    $isIndividualResource = $false
-                }
-                elseif ($scope.Contains("/providers/")) {
-                    $isIndividualResource = $true
-                }
-                else {
-                    # subscription, resourceGroup
-                    $isIndividualResource = $false
-                }
-                if ($isIndividualResource) {
-                    $thisResourceIdExists = $false
-                    if ($resourceIdsExist.ContainsKey($scope)) {
-                        $thisResourceIdExists = $resourceIdsExist.$scope
-                    }
-                    else {
-                        $resource = Get-AzResource -ResourceId $scope -ErrorAction SilentlyContinue
-                        $thisResourceIdExists = $null -ne $resource
-                        $resourceIdsExist[$scope] = $thisResourceIdExists
-                    }
-                    if (-not $thisResourceIdExists) {
-                        $policyResource.status = "orphaned-resource"
-                        $policyExemptionsCounters.orphaned += 1
-                        Write-Information "Policy Exemption $id is orphaned (resource $scope does not exist)"
                     }
                 }
 

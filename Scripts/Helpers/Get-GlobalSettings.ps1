@@ -187,6 +187,16 @@ function Get-GlobalSettings {
                     }
                 }
             }
+            $skipResourceValidationForExemptions = $false
+            $skipResourceValidationForExemptionsRaw = $pacEnvironment.skipResourceValidationForExemptions
+            if ($skipResourceValidationForExemptionsRaw) {
+                $skipResourceValidationForExemptions = $true
+            }
+            $doNotDisableDeprecatedPolicies = $false
+            $doNotDisableDeprecatedPoliciesRaw = $pacEnvironment.doNotDisableDeprecatedPolicies
+            if ($doNotDisableDeprecatedPoliciesRaw) {
+                $doNotDisableDeprecatedPolicies = $true
+            }
 
             $desiredState = @{
                 strategy                             = "undefined"
@@ -303,22 +313,24 @@ function Get-GlobalSettings {
             }
 
             $pacEnvironmentDefinition = @{
-                pacSelector                     = $pacSelector
-                pacOwnerId                      = $pacOwnerId
-                deployedBy                      = $deployedBy
-                cloud                           = $cloud
-                tenantId                        = $tenantId
-                managingTenantId                = $managingTenantId
-                managingTenantRootScope         = $managingTenantRootScope
-                deploymentRootScope             = $deploymentRootScope
-                defaultContext                  = $defaultContext
-                policyDefinitionsScopes         = $policyDefinitionsScopes
-                desiredState                    = $desiredState
-                managedIdentityLocation         = $managedIdentityLocation
-                globalNotScopes                 = $globalNotScopesList.ToArray()
-                globalNotScopesResourceGroups   = $globalNotScopesResourceGroupsList.ToArray()
-                globalNotScopesSubscriptions    = $globalNotScopesSubscriptionsList.ToArray()
-                globalNotScopesManagementGroups = $globalNotScopesManagementGroupsList.ToArray()
+                pacSelector                         = $pacSelector
+                pacOwnerId                          = $pacOwnerId
+                deployedBy                          = $deployedBy
+                cloud                               = $cloud
+                tenantId                            = $tenantId
+                managingTenantId                    = $managingTenantId
+                managingTenantRootScope             = $managingTenantRootScope
+                deploymentRootScope                 = $deploymentRootScope
+                defaultContext                      = $defaultContext
+                policyDefinitionsScopes             = $policyDefinitionsScopes
+                skipResourceValidationForExemptions = $skipResourceValidationForExemptions
+                doNotDisableDeprecatedPolicies      = $doNotDisableDeprecatedPolicies
+                desiredState                        = $desiredState
+                managedIdentityLocation             = $managedIdentityLocation
+                globalNotScopes                     = $globalNotScopesList.ToArray()
+                globalNotScopesResourceGroups       = $globalNotScopesResourceGroupsList.ToArray()
+                globalNotScopesSubscriptions        = $globalNotScopesSubscriptionsList.ToArray()
+                globalNotScopesManagementGroups     = $globalNotScopesManagementGroupsList.ToArray()
             }
 
             $null = $pacEnvironmentDefinitions.Add($pacSelector, $pacEnvironmentDefinition)
