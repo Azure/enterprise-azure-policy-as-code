@@ -4,7 +4,7 @@
 .DESCRIPTION
     Exports a policy assignment from Azure to a local file in the EPAC format
 .EXAMPLE
-    New-EPACPolicyAssignmentDefinition.ps1 -PolicyDefinitionId "/providers/Microsoft.Management/managementGroups/epac/providers/Microsoft.Authorization/policyDefinitions/Append-KV-SoftDelete" -OutputFolder .\
+    New-EpacPolicyAssignmentDefinition.ps1 -PolicyDefinitionId "/providers/Microsoft.Management/managementGroups/epac/providers/Microsoft.Authorization/policyDefinitions/Append-KV-SoftDelete" -OutputFolder .\
 
     Export the Policy to the current folder.
 #>

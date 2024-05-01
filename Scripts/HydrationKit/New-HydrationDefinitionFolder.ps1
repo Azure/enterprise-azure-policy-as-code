@@ -4,13 +4,15 @@
 .DESCRIPTION
     Creates a definitions folder with the correct folder structure and blank global settings file.
 .EXAMPLE
-    New-EPACDefinitionFolder -DefinitionsRootFolder = "Definitions"
+    New-HydrationDefinitionFolder -DefinitionsRootFolder = "Definitions"
 
     Scaffold a definitions folder called "Definitions"
 #>
-[CmdletBinding()]
 
+[CmdletBinding()]
 Param ([string]$DefinitionsRootFolder = "Definitions")
+
+New-Alias -Name 'New-EPACDefinitionsFolder' -Value 'New-HydrationDefinitionFolder'
 
 if (!(Test-Path $DefinitionsRootFolder)) {
     New-Item -ItemType Directory -Name $DefinitionsRootFolder

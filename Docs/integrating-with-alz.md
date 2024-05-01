@@ -18,7 +18,8 @@ EPAC can be used to manage Azure Policy deployed using ALZ Bicep or Terraform us
 - You require features from policy not available in the ALZ deployments e.g. policy exemptions, documentation, assignment customization.
 - Non-compliance reporting and remediation task management.
 
-Instructions are provided below for integrating with Bicep and Terraform deployments. 
+Instructions are provided below for integrating with Bicep and Terraform deployments.
+
 ## Scenarios
 
 There are two scenarios for integrating EPAC with ALZ.
@@ -40,7 +41,7 @@ With an existing Azure Landing Zone deployment you can use EPAC's extract script
 2. Create a new policy definition folder structure using the command below.
 
     ```ps1
-    New-EPACDefinitionFolder -DefinitionsRootFolder .\Definitions
+    New-HydrationDefinitionFolder -DefinitionsRootFolder .\Definitions
     ```
 
 3. Update the `global-settings.json` file in the Definitions folder as described [here](settings-global-setting-file.md)
@@ -103,10 +104,13 @@ With an existing Azure Landing Zone deployment you can use EPAC's extract script
 If you have deployed the Azure Landing Zone accelerator using Bicep or Terraform - they support incremental updates as new features are released. If you are going to use EPAC to manage policies in the environment then follow the steps below depending on which tool you have used to do the landing zone deployment.
 
 ### Bicep
+
 - Do not deploy the policy modules when upgrading the Azure Landing Zones. Use the process [below](integrating-with-alz.md#keeping-up-to-date-with-changes-manually) to keep in sync with changes to ALZ policies.
 
 ### Terraform
+
 - You must override the built-in management group archetypes to tell the Terraform module not to deploy policies. Sample files to replace the built-in archetypes are available in a repository [here](https://github.com/anwather/epac-removetf)
+
 ## Scenario 2 - ALZ Policy Deployment with EPAC
 
 To deploy the ALZ policies using EPAC follow the steps below.
@@ -121,7 +125,7 @@ To deploy the ALZ policies using EPAC follow the steps below.
 2. Create a new policy definition folder structure using the command below.
 
     ```ps1
-    New-EPACDefinitionFolder -DefinitionsRootFolder .\Definitions
+    New-HydrationDefinitionFolder -DefinitionsRootFolder .\Definitions
     ```
 
 3. Update the `global-settings.json` file in the Definitions folder as described [here](definitions-and-global-settings.md#global-settings)
@@ -201,7 +205,7 @@ Carefully review the proposed changes before deploying them. It is best to make 
 > Assignments deployed via the ALZ accelerators are kept in sync with the EnterprisePolicyAsCode module so ensure you have the latest PowerShell module installed before running `Sync-ALZPolicies`
 
 > [!TIP]
-> Rename or copy the default ALZ assignment files - when you do a sync it makes it easier to compare changes. 
+> Rename or copy the default ALZ assignment files - when you do a sync it makes it easier to compare changes.
 
 ## Keeping up to date with GitHub Actions
 

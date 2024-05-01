@@ -12,13 +12,13 @@
     The Azure tenant ID for the solution ((Get-AzContext).Tenant)
 
 .PARAMETER DefinitionsRootFolder
-    The folder path to where the New-EPACDefinitionsFolder command created the definitions root folder (C:\definitions\)
+    The folder path to where the New-EpacDefinitionsFolder command created the definitions root folder (C:\definitions\)
 
 .PARAMETER DeploymentRootScope
     The root management group to export definitions and assignments (/providers/Microsoft.Management/managementGroups/)
 
 .EXAMPLE
-    .\New-EPACGlobalSettings.ps1 -ManagedIdentityLocation NorthCentralUS -TenantId 00000000-0000-0000-0000-000000000000 -DefinitionsRootFolder C:\definitions\ -DeploymentRootScope /providers/Microsoft.Management/managementGroups/mgroup1
+    .\New-EpacGlobalSettings.ps1 -ManagedIdentityLocation NorthCentralUS -TenantId 00000000-0000-0000-0000-000000000000 -DefinitionsRootFolder C:\definitions\ -DeploymentRootScope /providers/Microsoft.Management/managementGroups/mgroup1
 
 #>
 [CmdletBinding()]
@@ -29,7 +29,7 @@ param (
     [Parameter(Mandatory = $true, Position = 1, HelpMessage = "The Azure tenant ID for the solution ((Get-AzContext).Tenant)")]
     [string]$TenantId,
 
-    [Parameter(Mandatory = $true, Position = 2, HelpMessage = "The folder path to where the New-EPACDefinitionsFolder command created the definitions root folder (C:\definitions\)")]
+    [Parameter(Mandatory = $true, Position = 2, HelpMessage = "The folder path to where the New-EpacDefinitionsFolder command created the definitions root folder (C:\definitions\)")]
     [string]$DefinitionsRootFolder,
 
     [Parameter(Mandatory = $true, Position = 3, HelpMessage = "The root management group to export definitions and assignments (/providers/Microsoft.Management/managementGroups/)")]

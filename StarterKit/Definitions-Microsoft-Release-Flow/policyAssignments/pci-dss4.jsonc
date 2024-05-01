@@ -29,6 +29,23 @@
                     "/providers/Microsoft.Management/managementGroups/mg-prod"
                 ]
             }
+        },
+        {
+            "nodeName": "Nonprod/",
+            "assignment": {
+                "name": "tst-",
+                "displayName": "Nonprod ",
+                "description": "Nonprod Environment controls enforcement with "
+            },
+            "parameterSelector": "nonprod",
+            "scope": {
+                "epac-dev": [
+                    "/providers/Microsoft.Management/managementGroups/epac-dev-nonprod"
+                ],
+                "tenant": [
+                    "/providers/Microsoft.Management/managementGroups/mg-nonprod"
+                ]
+            }
         }
     ]
 }

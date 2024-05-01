@@ -25,34 +25,35 @@ theme:
 nav:
   - Home: index.md
   - Getting Started:
-    - Changes in v10.0.0: start-changes.md
-    - Start Implementation: start-implementing.md
-    - Extracting Policy Resources: start-extracting-policy-resources.md
-    - Forking GitHub Repo: start-forking-github-repo.md
+      - Changes in v10.0.0: start-changes.md
+      - Start Implementation: start-implementing.md
+      - Extracting Policy Resources: start-extracting-policy-resources.md
+      - Hydration Kit: start-hydration-kit.md
+      - Forking GitHub Repo: start-forking-github-repo.md
   - Settings and Desired State:
-    - Global Settings: settings-global-setting-file.md
-    - Desired State: settings-desired-state.md
-    - DfC Assignments: settings-dfc-assignments.md
-  - Azure Landing Zones: 
-    - ALZ Policy Integration: integrating-with-alz.md
-    - Azure Monitor Baseline Alerts: integrating-with-alz-monitor.md
-    - Sovereign Landing Zones: integrating-with-slz.md
+      - Global Settings: settings-global-setting-file.md
+      - Desired State: settings-desired-state.md
+      - DfC Assignments: settings-dfc-assignments.md
+  - Azure Landing Zones:
+      - ALZ Policy Integration: integrating-with-alz.md
+      - Azure Monitor Baseline Alerts: integrating-with-alz-monitor.md
+      - Sovereign Landing Zones: integrating-with-slz.md
   - Define Policy Resources:
-    - Policy Definitions: policy-definitions.md
-    - Policy Set Definitions: policy-set-definitions.md
-    - Policy Assignment Files: policy-assignments.md
-    - CSV Assignment Parameters: policy-assignments-csv-parameters.md
-    - Policy Exemptions: policy-exemptions.md
+      - Policy Definitions: policy-definitions.md
+      - Policy Set Definitions: policy-set-definitions.md
+      - Policy Assignment Files: policy-assignments.md
+      - CSV Assignment Parameters: policy-assignments-csv-parameters.md
+      - Policy Exemptions: policy-exemptions.md
   - CI/CD Integration:
-    - CI/CD Overview: ci-cd-overview.md
-    - App Registrations Setup: ci-cd-app-registrations.md
-    - Azure DevOps Pipelines: ci-cd-ado-pipelines.md
-    - GitHub Actions: ci-cd-github-actions.md
+      - CI/CD Overview: ci-cd-overview.md
+      - App Registrations Setup: ci-cd-app-registrations.md
+      - Azure DevOps Pipelines: ci-cd-ado-pipelines.md
+      - GitHub Actions: ci-cd-github-actions.md
   - Operational Scripts:
-    - Scripts Overview: operational-scripts.md
-    - Documenting Policy: operational-scripts-documenting-policy.md
-    - Hydration Kit: operational-scripts-hydration-kit.md
-    - Reference: operational-scripts-reference.md
+      - Scripts Overview: operational-scripts.md
+      - Documenting Policy: operational-scripts-documenting-policy.md
+      - Hydration Kit: operational-scripts-hydration-kit.md
+      - Reference: operational-scripts-reference.md
 
 markdown_extensions:
   - admonition

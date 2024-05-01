@@ -16,7 +16,6 @@ Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_
 
 #### `-OutputFolder <String>`
 
-
 Output Folder. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER or './Outputs'.
 
 #### `-WindowsNewLineCells [<SwitchParameter>]`
@@ -49,7 +48,7 @@ New-AzRemediationTasks [[-PacEnvironmentSelector] <String>] [-DefinitionsRootFol
 
 Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.
 
-#### ` -DefinitionsRootFolder <String>`
+#### `-DefinitionsRootFolder <String>`
 
 Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
 
@@ -79,9 +78,7 @@ Filter by Policy effect (array).
 
 #### `-NoWait [<SwitchParameter>]`
 
-
 #### `-WhatIf [<SwitchParameter>]`
-
 
 #### `-Confirm [<SwitchParameter>]`
 
@@ -143,7 +140,6 @@ Specifies the name of the GitHub Repository.
 
 #### `-PersonalAccessToken <String>`
 
-
 ## Script `Export-AzPolicyResources`
 
 Exports Azure Policy resources in EPAC format or raw format. It also generates documentation for the exported resources (can be suppressed with `-SuppressDocumentation`).
@@ -154,7 +150,7 @@ Export-AzPolicyResources [[-DefinitionsRootFolder] <String>] [[-OutputFolder] <S
 
 ### Parameters
 
-#### ` -DefinitionsRootFolder <String>`
+#### `-DefinitionsRootFolder <String>`
 
         Definitions folder path. Defaults to environment variable $env:PAC_DEFINITIONS_FOLDER or './Definitions'.
 
@@ -208,6 +204,7 @@ Suppress output generation in EPAC format.
 #### `-PSRuleIgnoreFullScope [<SwitchParameter>]`
 
 Ignore full scope for PsRule Extraction
+
 ## Script `Export-NonComplianceReports`
 
 Exports Non-Compliance Reports in CSV format
@@ -222,7 +219,7 @@ Export-NonComplianceReports [[-PacEnvironmentSelector] <String>] [-DefinitionsRo
 
 Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.
 
-#### ` -DefinitionsRootFolder <String>`
+#### `-DefinitionsRootFolder <String>`
 
         Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
 
@@ -280,7 +277,7 @@ Get-AzExemptions [[-PacEnvironmentSelector] <String>] [-DefinitionsRootFolder <S
 
 Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.
 
-#### ` -DefinitionsRootFolder <String>`
+#### `-DefinitionsRootFolder <String>`
 
 Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
 
@@ -314,7 +311,7 @@ Get-AzMissingTags [[-PacEnvironmentSelector] <String>] [-DefinitionsRootFolder <
 
 Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.
 
-#### ` -DefinitionsRootFolder <String>`
+#### `-DefinitionsRootFolder <String>`
 
 Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
 
@@ -348,7 +345,7 @@ New-AzPolicyReaderRole [[-PacEnvironmentSelector] <String>] [-DefinitionsRootFol
 
 Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.
 
-#### ` -DefinitionsRootFolder <String>`
+#### `-DefinitionsRootFolder <String>`
 
     Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
 
@@ -356,31 +353,30 @@ Defines which Policy as Code (PAC) environment we are using, if omitted, the scr
 
 Set to false if used non-interactive
 
-## Script `New-EPACDefinitionFolder`
+## Script `New-HydrationDefinitionFolder`
 
 Creates a definitions folder with the correct folder structure and blank global settings file.
 
 ```ps1
-New-EPACDefinitionFolder [[-DefinitionsRootFolder] <String>] [<CommonParameters>]
+New-HydrationDefinitionFolder [[-DefinitionsRootFolder] <String>] [<CommonParameters>]
 ```
 
 ### Description
 
 Creates a definitions folder with the correct folder structure and blank global settings file.
 
-
 ### Parameters
 
-#### ` -DefinitionsRootFolder <String>`
+#### `-DefinitionsRootFolder <String>`
 
 The folder path to create the definitions root folder (./Definitions)
 
-## Script `New-EPACGlobalSettings`
+## Script `New-EpacGlobalSettings`
 
 Creates a global-settings.jsonc file with a new guid, managed identity location and tenant information
 
 ```ps1
-New-EPACGlobalSettings [-ManagedIdentityLocation] <String> [-TenantId] <String> [-DefinitionsRootFolder] <String> [-DeploymentRootScope] <String> [<CommonParameters>]
+New-EpacGlobalSettings [-ManagedIdentityLocation] <String> [-TenantId] <String> [-DefinitionsRootFolder] <String> [-DeploymentRootScope] <String> [<CommonParameters>]
 ```
 
 ### Parameters
@@ -393,20 +389,20 @@ The Azure location to store the managed identities (Get-AzLocation|Select Locati
 
 The Azure tenant id
 
-#### ` -DefinitionsRootFolder <String>`
+#### `-DefinitionsRootFolder <String>`
 
-The folder path to where the New-EPACDefinitionsFolder command created the definitions root folder (C:\definitions\)
+The folder path to where the New-EpacDefinitionsFolder command created the definitions root folder (C:\definitions\)
 
 #### `-DeploymentRootScope <String>`
 
 The root management group to export definitions and assignments (/providers/Microsoft.Management/managementGroups/)
 
-## Script `New-EPACPolicyAssignmentDefinition`
+## Script `New-EpacPolicyAssignmentDefinition`
 
 Exports a policy assignment from Azure to a local file in the EPAC format.
 
 ```ps1
-New-EPACPolicyAssignmentDefinition [-PolicyAssignmentId] <String> [[-OutputFolder] <String>] [<CommonParameters>]
+New-EpacPolicyAssignmentDefinition [-PolicyAssignmentId] <String> [[-OutputFolder] <String>] [<CommonParameters>]
 ```
 
 ### Parameters
@@ -419,12 +415,12 @@ The policy assignment id
 
 The folder path for the Policy Assignment.
 
-## Script `New-EPACPolicyDefinition`
+## Script `New-EpacPolicyDefinition`
 
 Exports a Policy definition from Azure to a local file in the EPAC format
 
 ```ps1
-New-EPACPolicyDefinition [-PolicyDefinitionId] <String> [[-OutputFolder] <String>] [<CommonParameters>]
+New-EpacPolicyDefinition [-PolicyDefinitionId] <String> [[-OutputFolder] <String>] [<CommonParameters>]
 ```
 
 ### Parameters
