@@ -33,6 +33,16 @@ $functionNames | Foreach-Object {
     "}" | Add-Content ".\Module\EnterprisePolicyAsCode\functions\$_.ps1" -Force
 }
 
+# Hydration Kit
+
+$functionNames = (Get-ChildItem .\Scripts\HydrationKit\* -File -Include *.ps1).BaseName
+
+$functionNames | Foreach-Object {
+    "function $_ {" | Set-Content ".\Module\EnterprisePolicyAsCode\functions\$_.ps1" -Force
+    Get-Content .\Scripts\HydrationKit\$_.ps1 | Where-Object { $_ -notmatch "^#Requires" } | Add-Content ".\Module\EnterprisePolicyAsCode\functions\$_.ps1" -Force
+    "}" | Add-Content ".\Module\EnterprisePolicyAsCode\functions\$_.ps1" -Force
+}
+
 Copy-Item -Path .\Scripts\CloudAdoptionFramework\policyAssignments -Destination .\Module\EnterprisePolicyAsCode -Force -Recurse
 
 (Get-Content -Path .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1) -replace "FunctionsToExport = ''", "FunctionsToExport = @($((gci -Path .\Module\EnterprisePolicyAsCode\functions | Select-Object -ExpandProperty BaseName) | Join-String -Separator "," -DoubleQuote))" | Set-Content .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1

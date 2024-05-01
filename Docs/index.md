@@ -41,6 +41,7 @@ EPAC is designed for medium and large organizations with a larger number of Poli
 - [GitHub Repo](https://github.com/Azure/enterprise-azure-policy-as-code)
 - [GitHub Issues](https://github.com/Azure/enterprise-azure-policy-as-code/issues)
 - [Starter Kit](https://github.com/Azure/enterprise-azure-policy-as-code/tree/main/StarterKit)
+- [Hydration Kit](start-hydration-kit.md)
 - [Enterprise Policy as Code PowerShell Module](https://www.powershellgallery.com/packages/EnterprisePolicyAsCode)
 - [Azure Enterprise Policy as Code – A New Approach](https://techcommunity.microsoft.com/t5/core-infrastructure-and-security/azure-enterprise-policy-as-code-a-new-approach/ba-p/3607843)
 - [Azure Enterprise Policy as Code – Azure Landing Zones Integration](https://techcommunity.microsoft.com/t5/core-infrastructure-and-security/azure-enterprise-policy-as-code-azure-landing-zones-integration/ba-p/3642784)

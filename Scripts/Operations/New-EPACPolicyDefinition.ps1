@@ -4,7 +4,7 @@
 .DESCRIPTION
     Exports a Policy definition from Azure to a local file in the EPAC format
 .EXAMPLE
-    New-EPACPolicyDefinition.ps1 -PolicyDefinitionId "/providers/Microsoft.Management/managementGroups/epac/providers/Microsoft.Authorization/policyDefinitions/Append-KV-SoftDelete" -OutputFolder .\
+    New-EpacPolicyDefinition.ps1 -PolicyDefinitionId "/providers/Microsoft.Management/managementGroups/epac/providers/Microsoft.Authorization/policyDefinitions/Append-KV-SoftDelete" -OutputFolder .\
 
     Export the Policy definition to the current folder.
 #>

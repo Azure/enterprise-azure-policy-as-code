@@ -134,7 +134,6 @@ For assignment files, this is a top level property on the assignment's root node
 ],
 ```
 
-
 ## Install Powershell and EPAC
 
 EPAC can be installed in two ways:
@@ -146,6 +145,7 @@ EPAC can be installed in two ways:
 
 1. [Install PowerShell 7.4 or later](https://github.com/PowerShell/PowerShell/releases).
 2. Install the Az PowerShell modules and Enterprise Policy as Code module.
+
 ```ps1
     Install-Module Az -Scope CurrentUser
     Install-Module EnterprisePolicyAsCode -Scope CurrentUser
@@ -160,7 +160,7 @@ Many scripts use parameters for input and output folders. They default to the cu
 - Define the Azure environment(s) in file `global-settings.jsonc`
 - Create custom Policies (optional) in folder `policyDefinitions`
 - Create custom Policy Sets (optional) in folder `policySetDefinitions`
--  efine the Policy Assignments in folder `policyAssignments`
+- efine the Policy Assignments in folder `policyAssignments`
 - Define the Policy Exemptions (optional) in folder `policyExemptions`
 - Define Documentation in folder `policyDocumentations]`
 
@@ -169,13 +169,13 @@ Many scripts use parameters for input and output folders. They default to the cu
 Create a new EPAC `Definitions` folder with a number of subfolder and a `global-settings.jsonc` file
 
 ```ps1
-New-EPACDefinitionFolder -DefinitionsRootFolder Definitions
+New-HydrationDefinitionFolder -DefinitionsRootFolder Definitions
 ```
 
 ## Debug EPAC issues
 
 Should you encounter issues with the expected behavior of EPAC, try the following:
 
-* Run the scripts interactively.
-* [Debug the scripts in VS Code](https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/vscode/using-vscode?view=powershell-7.3).
-* Ask for help by raising a [GitHub Issue](https://github.com/Azure/enterprise-azure-policy-as-code/issues)
+- Run the scripts interactively.
+- [Debug the scripts in VS Code](https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/vscode/using-vscode?view=powershell-7.3).
+- Ask for help by raising a [GitHub Issue](https://github.com/Azure/enterprise-azure-policy-as-code/issues)
