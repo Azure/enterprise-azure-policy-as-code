@@ -168,11 +168,6 @@ function Build-ExemptionsPlan {
                                 Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "assignmentReferenceId '$assignmentReferenceId' of unknown type" -EntryNumber $entryNumber
                             }
                         }
-                        else {
-                            if (-not $AllAssignments.ContainsKey($policyAssignmentId)) {
-                                Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "assignmentReferenceId '$policyAssignmentId' not found in current root scope $($PacEnvironment.deploymentRootScope)" -EntryNumber $entryNumber
-                            }
-                        }
                     }
                     else {
                         Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "exactly one of the columns policyAssignmentId or assignmentReferenceId must have a non-empty cell" -EntryNumber $entryNumber
@@ -306,6 +301,8 @@ function Build-ExemptionsPlan {
                 }
                 $validateScope = $assignmentScopeValidation -eq "Default"
                 $unValidatedPolicyAssignment = $false
+                $calculatedPolicyAssignments = @()
+                $epacMetadataDefinitionSpecification = @{}
                 if (!$validateScope) {
                     if ($null -eq $policyAssignmentId) {
                         Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "DoNotValidate (assignmentScopeValidation) is only valid when policyAssignmentId is specified." -EntryNumber $entryNumber
@@ -331,11 +328,17 @@ function Build-ExemptionsPlan {
                     }
                 }
                 else {
-                    $epacMetadataDefinitionSpecification = @{}
                     if ($null -ne $policyAssignmentId) {
                         $epacMetadataDefinitionSpecification.policyAssignmentId = $policyAssignmentId
-                        if (-not $AllAssignments.ContainsKey($policyAssignmentId)) {
-                            Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "policyAssignmentId '$assignmentReferenceId' not found in current root scope $($PacEnvironment.deploymentRootScope)" -EntryNumber $entryNumber
+                        if ($AllAssignments.ContainsKey($policyAssignmentId)) {
+                            $calculatedPolicyAssignments = $byAssignmentIdCalculatedAssignments.$policyAssignmentId
+                            if ($null -eq $calculatedPolicyAssignments -or $calculatedPolicyAssignments.Count -eq 0) {
+                                $calculatedPolicyAssignments = @()
+                                Write-Warning "Row $($entryNumber): No assignment found for policyAssignmentId '$policyAssignmentId', skipping row"
+                            }
+                        }
+                        else {
+                            Write-Warning "Row $($entryNumber): policyAssignmentId '$policyAssignmentId' not found in current root scope $($PacEnvironment.deploymentRootScope), skipping row"
                         }
                     }
                     elseif ($null -ne $policyDefinitionName) {
@@ -344,8 +347,15 @@ function Build-ExemptionsPlan {
                             -Name $policyDefinitionName `
                             -PolicyDefinitionsScopes $PacEnvironment.policyDefinitionsScopes `
                             -AllDefinitions $AllDefinitions.policydefinitions
-                        if ($null -eq $policyDefinitionId) {
-                            Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "policyDefinitionName '$($row.policyDefinitionName)' not found in current EPAC environment '$($PacEnvironment.pacSelector)'" -EntryNumber $entryNumber
+                        if ($null -ne $policyDefinitionId) {
+                            Write-Warning "Row $($entryNumber): policyDefinitionName '$policyDefinitionName' not found in current root scope $($PacEnvironment.deploymentRootScope), skipping row"
+                        }
+                        else {
+                            $calculatedPolicyAssignments = $byPolicyIdCalculatedAssignments.$policyDefinitionId
+                            if ($null -eq $calculatedPolicyAssignments -or $calculatedPolicyAssignments.Count -eq 0) {
+                                $calculatedPolicyAssignments = @()
+                                Write-Warning "Row $($entryNumber): No assignments found for policyDefinitionName '$policyDefinitionName', skipping row"
+                            }
                         }
                     }
                     elseif ($null -ne $policyDefinitionId) {
@@ -354,48 +364,50 @@ function Build-ExemptionsPlan {
                             -Id $policyDefinitionId `
                             -PolicyDefinitionsScopes $PacEnvironment.policyDefinitionsScopes `
                             -AllDefinitions $AllDefinitions.policydefinitions
-                        if ($null -eq $policyDefinitionId) {
-                            Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "policyDefinitionId '$($row.policyDefinitionId)' not found in current EPAC environment '$($PacEnvironment.pacSelector)'" -EntryNumber $entryNumber
+                        if ($null -ne $policyDefinitionId) {
+                            $calculatedPolicyAssignments = @()
+                            Write-Warning "Row $($entryNumber): policyDefinitionId '$($epacMetadataDefinitionSpecification.policyDefinitionId)' not found in current root scope $($PacEnvironment.deploymentRootScope), skipping row"
+                        }
+                        else {
+                            $calculatedPolicyAssignments = $byPolicyIdCalculatedAssignments.$policyDefinitionId
+                            if ($null -eq $calculatedPolicyAssignments -or $calculatedPolicyAssignments.Count -eq 0) {
+                                $calculatedPolicyAssignments = @()
+                                Write-Warning "Row $($entryNumber): No assignments found for policyDefinitionId '$($epacMetadataDefinitionSpecification.policyDefinitionId)', skipping row"
+                            }
                         }
                     }
                     elseif ($null -ne $policySetDefinitionName) {
                         $epacMetadataDefinitionSpecification.policySetDefinitionName = $policySetDefinitionName
                         $policySetDefinitionId = Confirm-PolicySetDefinitionUsedExists `
                             -Name $policySetDefinitionName `
-                            -PolicySetDefinitionsScopes $PacEnvironment.policySetDefinitionsScopes `
+                            -PolicyDefinitionsScopes $PacEnvironment.policyDefinitionsScopes `
                             -AllDefinitions $AllDefinitions.policysetdefinitions
-                        if ($null -eq $policySetDefinitionId) {
-                            Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "policySetDefinitionName '$($row.policySetDefinitionName)' not found in current EPAC environment '$($PacEnvironment.pacSelector)'" -EntryNumber $entryNumber
+                        if ($null -ne $policySetDefinitionId) {
+                            Write-Warning "Row $($entryNumber): policySetDefinitionName '$policySetDefinitionName' not found in current root scope $($PacEnvironment.deploymentRootScope), skipping row"
+                        }
+                        else {
+                            $calculatedPolicyAssignments = $byPolicySetIdCalculatedAssignments.$policySetDefinitionId
+                            if ($null -eq $calculatedPolicyAssignments -or $calculatedPolicyAssignments.Count -eq 0) {
+                                $calculatedPolicyAssignments = @()
+                                Write-Warning "Row $($entryNumber): No assignments found for policySetDefinitionName '$policySetDefinitionName', skipping row"
+                            }
                         }
                     }
                     elseif ($null -ne $policySetDefinitionId) {
                         $epacMetadataDefinitionSpecification.policySetDefinitionId = $policySetDefinitionId
                         $policySetDefinitionId = Confirm-PolicySetDefinitionUsedExists `
                             -Id $policySetDefinitionId `
-                            -PolicySetDefinitionsScopes $PacEnvironment.policySetDefinitionsScopes `
+                            -PolicyDefinitionsScopes $PacEnvironment.policyDefinitionsScopes `
                             -AllDefinitions $AllDefinitions.policysetdefinitions
-                        if ($null -eq $policySetDefinitionId) {
-                            Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "policySetDefinitionId '$($row.policySetDefinitionId)' not found in current EPAC environment '$($PacEnvironment.pacSelector)'" -EntryNumber $entryNumber
+                        if ($null -ne $policySetDefinitionId) {
+                            Write-Warning "Row $($entryNumber): policySetDefinitionId '$($epacMetadataDefinitionSpecification.policySetDefinitionId)' not found in current root scope $($PacEnvironment.deploymentRootScope), skipping row"
                         }
-                    }
-                    
-                    $calculatedPolicyAssignments = $null
-                    if ($null -ne $policyDefinitionId) {
-                        $calculatedPolicyAssignments = $byPolicyIdCalculatedAssignments.$policyDefinitionId
-                        if ($null -eq $calculatedPolicyAssignments -or $calculatedPolicyAssignments.Count -eq 0) {
-                            Write-Warning "Row $($entryNumber): No assignments found for policyDefinitionId '$policyDefinitionId', skipping row"
-                        }
-                    }
-                    elseif ($null -ne $policySetDefinitionId) {
-                        $calculatedPolicyAssignments = $byPolicySetIdCalculatedAssignments.$policySetDefinitionId
-                        if ($null -eq $calculatedPolicyAssignments -or $calculatedPolicyAssignments.Count -eq 0) {
-                            Write-Warning "Row $($entryNumber): No assignments found for policySetDefinitionId '$policySetDefinitionId', skipping row"
-                        }
-                    }
-                    elseif ($null -ne $policyAssignmentId) {
-                        $calculatedPolicyAssignments = $byAssignmentIdCalculatedAssignments.$policyAssignmentId
-                        if ($null -eq $calculatedPolicyAssignments -or $calculatedPolicyAssignments.Count -eq 0) {
-                            Write-Warning "Row $($entryNumber): No assignment found for policyAssignmentId '$policyAssignmentId', skipping row"
+                        else {
+                            $calculatedPolicyAssignments = $byPolicySetIdCalculatedAssignments.$policySetDefinitionId
+                            if ($null -eq $calculatedPolicyAssignments -or $calculatedPolicyAssignments.Count -eq 0) {
+                                $calculatedPolicyAssignments = @()
+                                Write-Warning "Row $($entryNumber): No assignments found for policySetDefinitionId '$($epacMetadataDefinitionSpecification.policySetDefinitionId)', skipping row"
+                            }
                         }
                     }
                 }
@@ -510,7 +522,7 @@ function Build-ExemptionsPlan {
                                 Write-Warning "Exemption entry $($entryNumber): Exemption '$name' in definitions expired today."
                             }
                             else {
-                                Write-Warning "Exemption entry $($entryNumber): Exemption '$name' in definitions expired $(-$daysUntilExpired) days ago."
+                                Write-Warning "Exemption entry $($entryNumber): Exemption '$name' in definitions expired $( - $daysUntilExpired) days ago."
                             }
                         }
                         elseif ($daysUntilExpired -le 15) {
@@ -590,7 +602,7 @@ function Build-ExemptionsPlan {
                         $clonedCalculatedPolicyAssignment = $calculatedPolicyAssignment.Clone()
                         $null = $filteredPolicyAssignments.Add($clonedCalculatedPolicyAssignment)
                     }
-                    else {
+                    elseif ($null -ne $calculatedPolicyAssignments -and $calculatedPolicyAssignments.Count -gt 0) {
                         foreach ($calculatedPolicyAssignment in $calculatedPolicyAssignments) {
                             $policyAssignmentScope = $calculatedPolicyAssignment.scope
                             $assignmentScopeDetails = $ScopeTable.$policyAssignmentScope
@@ -645,14 +657,19 @@ function Build-ExemptionsPlan {
                                 }
                             }
                         }
+                        if ($filteredPolicyAssignments.Count -eq 0) {
+                            Write-Warning "Exemption entry $($entryNumber): No assignments found for exemption scope $($currentScope), skipping entry."
+                            continue
+                        }
                     }
-                    if ($filteredPolicyAssignments.Count -eq 0) {
-                        Write-Warning "Exemption entry $($entryNumber): No assignments found for scope $($currentScope), skipping entry."
+                    else {
+                        # warning was already displayed
+                        continue
                     }
                     #endregion filter assignments in the current scope tree or are not in excluded scopes
 
-                    $isPolicyDefinitionSpecified = $null -ne $policyDefinitionId
                     #region process each assignment (or multiple assignments)
+                    $isPolicyDefinitionSpecified = $null -ne $policyDefinitionId
                     foreach ($calculatedPolicyAssignment in $filteredPolicyAssignments) {
                         $policyAssignmentId = $calculatedPolicyAssignment.id
                         $policyAssignmentName = $calculatedPolicyAssignment.name
@@ -907,7 +924,7 @@ function Build-ExemptionsPlan {
                                     if (!$resourceSelectorsMatches) {
                                         $changesStrings += "resourceSelectors"
                                     }
-                                    $changesString = $changesStrings -join ","
+                                    $changesString = $changesStrings -join ", "
                                     if ($reasonStrings.Count -gt 0) {
                                         $reasonString = "$($reasonStrings -join ", "), $changesString"
                                         Write-Verbose "Skip update ($reasonString): '$($exemptionDisplayName)' at scope '$($currentScope)'"
@@ -986,7 +1003,7 @@ function Build-ExemptionsPlan {
                 }
             }
             Default {
-                throw "Code bug: pacOwner must be one of @('thisPac','otherPac','unknownOwner')"
+                throw "Code bug: pacOwner must be one of @('thisPac', 'otherPac', 'unknownOwner')"
             }
         }
         if ($shallDelete) {

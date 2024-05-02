@@ -7,6 +7,9 @@ function Confirm-MetadataMatches {
 
     $match = $false
     $changePacOwnerId = $false
+    if ($null -eq $ExistingMetadataObj) {
+        return $false, $true
+    }
     $existingMetadata =  Get-DeepCloneAsOrderedHashtable $ExistingMetadataObj
     $definedMetadata = Get-DeepCloneAsOrderedHashtable $DefinedMetadataObj
 

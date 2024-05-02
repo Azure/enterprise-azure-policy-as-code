@@ -7,9 +7,17 @@ function Add-SelectedPacArray {
         [Parameter(Mandatory = $true)]
         [string] $PacSelector,
 
-        [System.Collections.ArrayList] $OutputArrayList
+        [Parameter(Mandatory = $false)]
+        $ExistingList = $null
     )
 
+    $OutputArrayList = [System.Collections.ArrayList]::new()
+    if ($null -ne $ExistingList) {
+        if ($ExistingList -isnot [System.Collections.IList]) {
+            throw "ExistingList must be of type System.Collections.IList"
+        }
+        $null = $OutputArrayList.AddRange($ExistingList)
+    }
     $array = $InputObject.$PacSelector
     if ($null -ne $array) {
         if ($array -isnot [array]) {
@@ -25,4 +33,5 @@ function Add-SelectedPacArray {
         }
         $null = $OutputArrayList.AddRange($array)
     }
+    Write-Output $OutputArrayList -NoEnumerate
 }
