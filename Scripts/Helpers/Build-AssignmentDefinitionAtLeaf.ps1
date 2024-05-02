@@ -590,7 +590,7 @@ function Build-AssignmentDefinitionAtLeaf {
                     #     $null = $null
                     # }
                     $requiredRoleAssignment = @{
-                        scope            = $scopeEntry.scope
+                        scope            = $scope
                         roleDefinitionId = $roleDefinitionId
                         roleDisplayName  = $roleDisplayName
                         description      = "Policy Assignment '$id': Role Assignment required by Policy, deployed by: '$($PacEnvironment.deployedBy)'"
@@ -603,6 +603,7 @@ function Build-AssignmentDefinitionAtLeaf {
                 if ($additionalRoleAssignments) {
                     foreach ($additionalRoleAssignment in $additionalRoleAssignments) {
                         $roleDefinitionId = $additionalRoleAssignment.roleDefinitionId
+                        $roleAssignmentScope = $additionalRoleAssignment.scope
                         $roleDisplayName = "Unknown"
                         if ($RoleDefinitions.ContainsKey($roleDefinitionId)) {
                             $roleDisplayName = $RoleDefinitions.$roleDefinitionId
@@ -610,7 +611,7 @@ function Build-AssignmentDefinitionAtLeaf {
                         $requiredRoleAssignment = $null
                         if ($additionalRoleAssignment.crossTenant -eq $true) {
                             $requiredRoleAssignment = @{
-                                scope            = $additionalRoleAssignment.scope
+                                scope            = $roleAssignmentScope
                                 roleDefinitionId = $roleDefinitionId
                                 roleDisplayName  = $roleDisplayName
                                 description      = "Policy Assignment '$id': additional cross tenant Role Assignment deployed by: '$($PacEnvironment.deployedBy)'"
@@ -619,7 +620,7 @@ function Build-AssignmentDefinitionAtLeaf {
                         }
                         else {
                             $requiredRoleAssignment = @{
-                                scope            = $additionalRoleAssignment.scope
+                                scope            = $roleAssignmentScope
                                 roleDefinitionId = $roleDefinitionId
                                 roleDisplayName  = $roleDisplayName
                                 description      = "Policy Assignment '$id': additional Role Assignment deployed by: '$($PacEnvironment.deployedBy)'"

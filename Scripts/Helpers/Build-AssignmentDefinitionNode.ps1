@@ -313,15 +313,14 @@ function Build-AssignmentDefinitionNode {
         # may define notScope or notScopes
         $definitionNotScopesList = $definition.notScopesList
         if ($DefinitionNode.notScope) {
-            Add-SelectedPacArray -InputObject $DefinitionNode.notScope -PacSelector $pacSelector -OutputArrayList $definitionNotScopesList
+            $definition.notScopesList = Add-SelectedPacArray -InputObject $DefinitionNode.notScope -PacSelector $pacSelector -ExistingList $definitionNotScopesList
         }
         if ($DefinitionNode.notScopes) {
-            Add-SelectedPacArray -InputObject $DefinitionNode.notScopes -PacSelector $pacSelector -OutputArrayList $definitionNotScopesList
+            $definition.notScopesList = Add-SelectedPacArray -InputObject $DefinitionNode.notScopes -PacSelector $pacSelector -ExistingList $definitionNotScopesList
         }
         if ($DefinitionNode.scope) {
             ## Found a scope list - process scope notScopes
-            $scopeList = [System.Collections.ArrayList]::new()
-            Add-SelectedPacArray -InputObject $DefinitionNode.scope -PacSelector $pacSelector -OutputArrayList $scopeList
+            $scopeList = Add-SelectedPacArray -InputObject $DefinitionNode.scope -PacSelector $pacSelector
             if ($scopeList.Count -eq 0) {
                 # This branch does not have a scope for this assignment's pacSelector; ignore branch
                 $definition.hasOnlyNotSelectedEnvironments = $true
@@ -384,7 +383,7 @@ function Build-AssignmentDefinitionNode {
     #region identity and additionalRoleAssignments (optional, specific to an EPAC environment)
     if ($DefinitionNode.additionalRoleAssignments) {
         # Process additional permissions needed to execute remediations; for example permissions to log to Event Hub, Storage Account or Log Analytics
-        Add-SelectedPacArray -InputObject $DefinitionNode.additionalRoleAssignments -PacSelector $pacSelector -OutputArrayList $definition.additionalRoleAssignments
+        $definition.additionalRoleAssignments = Add-SelectedPacArray -InputObject $DefinitionNode.additionalRoleAssignments -PacSelector $pacSelector -ExistingList $definition.additionalRoleAssignments
     }
 
     if ($DefinitionNode.managedIdentityLocations) {
