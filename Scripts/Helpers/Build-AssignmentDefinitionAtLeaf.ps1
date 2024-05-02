@@ -390,7 +390,6 @@ function Build-AssignmentDefinitionAtLeaf {
 
         #region identity (location, user-assigned, additionalRoleAssignments)
 
-        $roleDefinitionIds = $null
         $identityRequired = $false
         $managedIdentityLocation = $null
         $identitySpec = $null

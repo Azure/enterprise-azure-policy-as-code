@@ -93,12 +93,7 @@ function Build-ScopeTableForDeploymentRootScope {
     #region process subscriptions and/or management groups
     $scopeDetails = $null
     if ($null -ne $deploymentRootScopeSubscriptionId) {
-        try {
-            $subscription = Get-AzSubscription -SubscriptionId $deploymentRootScopeSubscriptionId -TenantId $tenantId
-        }
-        catch {
-            Write-Error "You do not have sufficient permissions over the default context.  Please set the 'defaultContext' parameter for this pacSelector in the globalSettings file.  This is usually only an issue when a Lighthouse tenant is being deployed to."
-        }
+        $subscription = Get-AzSubscription -SubscriptionId $deploymentRootScopeSubscriptionId -TenantId $tenantId -ErrorAction Stop
         $subscriptionId = $subscription.Id
         $scopeDetails = Build-ScopeTableForSubscription `
             -SubscriptionId $subscriptionId `
@@ -108,12 +103,7 @@ function Build-ScopeTableForDeploymentRootScope {
             -ScopeTable $scopeTable
     }
     else {
-        try {
-            $managementGroup = Get-AzManagementGroup -GroupName $deploymentRootScopeManagementGroupName -Expand -Recurse
-        }
-        catch {
-            Write-Error "You do not have sufficient permissions over the default context.  Please set the 'defaultContext' parameter for this pacSelector in the globalSettings file"
-        }
+        $managementGroup = Get-AzManagementGroup -GroupName $deploymentRootScopeManagementGroupName -Expand -Recurse -ErrorAction Stop
         $scopeDetails = Build-ScopeTableForManagementGroup `
             -ManagementGroup $managementGroup `
             -ResourceGroupsBySubscriptionId $resourceGroupsBySubscriptionId `
