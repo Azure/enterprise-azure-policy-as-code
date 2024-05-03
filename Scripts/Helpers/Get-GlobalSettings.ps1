@@ -268,7 +268,7 @@ function Get-GlobalSettings {
                                         $null = $globalExcludedScopesResourceGroupsList.Add($excludedScope)
                                     }
                                     else {
-                                        $null = $globalNotScopesSubscriptionsList.Add($excludedScope)
+                                        $null = $globalExcludedScopesSubscriptionsList.Add($excludedScope)
                                     }
                                 }
                                 elseif ($excludedScope.StartsWith("/providers/Microsoft.Management/managementGroups/")) {

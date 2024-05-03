@@ -42,7 +42,7 @@ function Build-ScopeTableForSubscription {
         }
         if (!$IsExcluded) {
             # optimized
-            foreach ($globalExcludedScope in $PacEnvironment.globalExcludedScopesSubscriptions) {
+            foreach ($globalExcludedScope in $PacEnvironment.desiredState.globalExcludedScopesSubscriptions) {
                 if ($subscriptionResourceId -like $globalExcludedScope) {
                     $IsExcluded = $true
                     break
