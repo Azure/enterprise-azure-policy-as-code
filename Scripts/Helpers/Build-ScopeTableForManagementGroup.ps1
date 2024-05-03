@@ -41,7 +41,7 @@ function Build-ScopeTableForManagementGroup {
         }
         if (!$IsExcluded) {
             # optimized
-            foreach ($globalExcludedScope in $PacEnvironment.globalExcludedScopesManagementGroups) {
+            foreach ($globalExcludedScope in $PacEnvironment.desiredState.globalExcludedScopesManagementGroups) {
                 if ($managementGroupId -like $globalExcludedScope) {
                     $IsExcluded = $true
                     break
