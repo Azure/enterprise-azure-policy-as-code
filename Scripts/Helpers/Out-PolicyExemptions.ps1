@@ -102,7 +102,7 @@ function Out-PolicyExemptions {
     #endregion Transformations
 
     Write-Information ""
-    $selectedExemptions = $policyExemptions.Values
+    $selectedExemptions = $Exemptions.Values
     $numberOfExemptions = $selectedExemptions.Count
     if ($ActiveExemptionsOnly) {
 
