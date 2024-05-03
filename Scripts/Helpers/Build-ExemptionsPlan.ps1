@@ -347,7 +347,7 @@ function Build-ExemptionsPlan {
                             -Name $policyDefinitionName `
                             -PolicyDefinitionsScopes $PacEnvironment.policyDefinitionsScopes `
                             -AllDefinitions $AllDefinitions.policydefinitions
-                        if ($null -ne $policyDefinitionId) {
+                        if ($null -eq $policyDefinitionId) {
                             Write-Warning "Row $($entryNumber): policyDefinitionName '$policyDefinitionName' not found in current root scope $($PacEnvironment.deploymentRootScope), skipping row"
                         }
                         else {
@@ -364,7 +364,7 @@ function Build-ExemptionsPlan {
                             -Id $policyDefinitionId `
                             -PolicyDefinitionsScopes $PacEnvironment.policyDefinitionsScopes `
                             -AllDefinitions $AllDefinitions.policydefinitions
-                        if ($null -ne $policyDefinitionId) {
+                        if ($null -eq $policyDefinitionId) {
                             $calculatedPolicyAssignments = @()
                             Write-Warning "Row $($entryNumber): policyDefinitionId '$($epacMetadataDefinitionSpecification.policyDefinitionId)' not found in current root scope $($PacEnvironment.deploymentRootScope), skipping row"
                         }
@@ -382,7 +382,7 @@ function Build-ExemptionsPlan {
                             -Name $policySetDefinitionName `
                             -PolicyDefinitionsScopes $PacEnvironment.policyDefinitionsScopes `
                             -AllDefinitions $AllDefinitions.policysetdefinitions
-                        if ($null -ne $policySetDefinitionId) {
+                        if ($null -eq $policySetDefinitionId) {
                             Write-Warning "Row $($entryNumber): policySetDefinitionName '$policySetDefinitionName' not found in current root scope $($PacEnvironment.deploymentRootScope), skipping row"
                         }
                         else {
@@ -399,7 +399,7 @@ function Build-ExemptionsPlan {
                             -Id $policySetDefinitionId `
                             -PolicyDefinitionsScopes $PacEnvironment.policyDefinitionsScopes `
                             -AllDefinitions $AllDefinitions.policysetdefinitions
-                        if ($null -ne $policySetDefinitionId) {
+                        if ($null -eq $policySetDefinitionId) {
                             Write-Warning "Row $($entryNumber): policySetDefinitionId '$($epacMetadataDefinitionSpecification.policySetDefinitionId)' not found in current root scope $($PacEnvironment.deploymentRootScope), skipping row"
                         }
                         else {
