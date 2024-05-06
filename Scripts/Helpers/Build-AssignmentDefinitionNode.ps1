@@ -311,12 +311,12 @@ function Build-AssignmentDefinitionNode {
     }
     else {
         # may define notScope or notScopes
-        $definitionNotScopesList = $definition.notScopesList
         if ($DefinitionNode.notScope) {
-            $definition.notScopesList = Add-SelectedPacArray -InputObject $DefinitionNode.notScope -PacSelector $pacSelector -ExistingList $definitionNotScopesList
+            Write-Warning "    Node $($nodeName): notScope is legacy, consider using notScopes instead."
+            $definition.notScopesList = Add-SelectedPacArray -InputObject $DefinitionNode.notScope -PacSelector $pacSelector -ExistingList $definition.notScopesList
         }
         if ($DefinitionNode.notScopes) {
-            $definition.notScopesList = Add-SelectedPacArray -InputObject $DefinitionNode.notScopes -PacSelector $pacSelector -ExistingList $definitionNotScopesList
+            $definition.notScopesList = Add-SelectedPacArray -InputObject $DefinitionNode.notScopes -PacSelector $pacSelector -ExistingList $definition.notScopesList
         }
         if ($DefinitionNode.scope) {
             ## Found a scope list - process scope notScopes
@@ -343,7 +343,7 @@ function Build-AssignmentDefinitionNode {
                     $thisScopeChildren = $thisScopeDetails.childrenTable
                     $thisScopeGlobalNotScopeList = $thisScopeDetails.notScopesList
                     $thisScopeGlobalNotScopeTable = $thisScopeDetails.notScopesTable
-                    foreach ($notScope in $definitionNotScopesList) {
+                    foreach ($notScope in $definition.notScopesList) {
                         if (-not $thisScopeGlobalNotScopeTable.ContainsKey($notScope)) {
                             if ($thisScopeChildren.ContainsKey($notScope)) {
                                 $null = $thisNotScopeList.Add($notScope)
@@ -354,9 +354,6 @@ function Build-AssignmentDefinitionNode {
                                         $null = $thisNotScopeList.Add($scopeChildId)
                                     }
                                 }
-                            }
-                            else {
-                                continue
                             }
                         }
                     }
