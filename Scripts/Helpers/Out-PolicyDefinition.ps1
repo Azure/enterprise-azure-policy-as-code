@@ -69,7 +69,9 @@ function Out-PolicyDefinition {
     if ($Definition.properties.policyDefinitions) {
         $outDefinition.'$schema' = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-set-definition-schema.json" 
     }
-    $Definition.psobject.Properties.ForEach{ ($outDefinition).psobject.Properties.Add($_, $true) }
+    foreach ($key in $Definition.SyncRoot.Keys) {
+        $outDefinition[$key] = $Definition.SyncRoot[$key]
+    }
     $json = ConvertTo-Json $outDefinition -Depth 100
     $null = New-Item $fullPath -Force -ItemType File -Value $json
 }
