@@ -19,7 +19,7 @@ function Set-AzPolicyDefinitionRestMethod {
         parameters  = $DefinitionObj.parameters
         policyRule  = $DefinitionObj.policyRule
     }
-    Remove-NullFields $properties
+    # Remove-NullFields $properties - issue 619
     $definition = @{
         properties = $properties
     }
