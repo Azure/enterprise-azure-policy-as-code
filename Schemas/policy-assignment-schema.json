@@ -270,7 +270,7 @@
                 }
             }
         },
-        "notScopes": {
+        "notScope": {
             "type": "object",
             "properties": {
                 "patternProperties": {

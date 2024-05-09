@@ -187,7 +187,7 @@ Both `scope` and `notScope` are specific to an [EPAC Environment using the pacSe
 `notScope` works the same. In addition `"*"` means all EPAC Environments.
 
 ```json
-"notScopes": {
+"notScope": {
     "*": [
         "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-pattern*"
     ],
