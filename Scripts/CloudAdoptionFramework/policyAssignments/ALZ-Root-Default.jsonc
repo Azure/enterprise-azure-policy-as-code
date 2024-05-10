@@ -11,8 +11,7 @@
         "logAnalytics_1": "", // Replace with your central Log Analytics workspace ID
         "emailSecurityContact": "", // Security contact email address for Microsoft Defender for Cloud
         "ascExportResourceGroupName": "mdfc-export", // Resource group to export Microsoft Defender for Cloud data to
-        "ascExportResourceGroupLocation": "", // Location of the resource group to export Microsoft Defender for Cloud data to
-        "dcrResourceId": "" // Resource Id for the DCR for Azure Monitor - see https://github.com/Azure/Enterprise-Scale/blob/main/eslzArm/resourceGroupTemplates/dataCollectionRule.json
+        "ascExportResourceGroupLocation": "" // Location of the resource group to export Microsoft Defender for Cloud data to
     },
     "children": [
         {
@@ -26,7 +25,7 @@
                         "description": "Microsoft Cloud Security Benchmark policy initiative"
                     },
                     "definitionEntry": {
-                        "policySetName": "1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
                         "displayName": "Microsoft Cloud Security Benchmark"
                     },
                     "parameters": {},
@@ -48,20 +47,20 @@
                         "displayName": "Microsoft Defender For Cloud"
                     },
                     "parameters": {
-                        "enableAscForServers": "DeployIfNotExists", // Adjust parameter values to control Microsoft Defender for Cloud configuration DeployIfNotExists/DeployIfNotExists
-                        "enableAscForSql": "DeployIfNotExists",
-                        "enableAscForAppServices": "DeployIfNotExists",
-                        "enableAscForStorage": "DeployIfNotExists",
-                        "enableAscForContainers": "DeployIfNotExists",
-                        "enableAscForKeyVault": "DeployIfNotExists",
-                        "enableAscForSqlOnVm": "DeployIfNotExists",
-                        "enableAscForArm": "DeployIfNotExists",
-                        "enableAscForDns": "DeployIfNotExists",
-                        "enableAscForOssDb": "DeployIfNotExists",
-                        "enableAscForCosmosDbs": "DeployIfNotExists",
-                        "enableAscForServersVulnerabilityAssessments": "DeployIfNotExists",
-                        "enableAscForApis": "DeployIfNotExists",
-                        "enableAscForCspm": "DeployIfNotExists",
+                        "enableAscForServers": "Disabled", // Adjust parameter values to control Microsoft Defender for Cloud configuration Disabled/Disabled
+                        "enableAscForSql": "Disabled",
+                        "enableAscForAppServices": "Disabled",
+                        "enableAscForStorage": "Disabled",
+                        "enableAscForContainers": "Disabled",
+                        "enableAscForKeyVault": "Disabled",
+                        "enableAscForSqlOnVm": "Disabled",
+                        "enableAscForArm": "Disabled",
+                        "enableAscForDns": "Disabled",
+                        "enableAscForOssDb": "Disabled",
+                        "enableAscForCosmosDbs": "Disabled",
+                        "enableAscForServersVulnerabilityAssessments": "Disabled",
+                        "enableAscForApis": "Disabled",
+                        "enableAscForCspm": "Disabled",
                         "vulnerabilityAssessmentProvider": "mdeTvm"
                     },
                     "nonComplianceMessages": [
@@ -78,7 +77,7 @@
                         "description": "Deploy Microsoft Defender for Endpoint agent on applicable images."
                     },
                     "definitionEntry": {
-                        "policySetName": "e20d08c5-6d64-656d-6465-ce9e37fd0ebc",
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/e20d08c5-6d64-656d-6465-ce9e37fd0ebc",
                         "displayName": "Microsoft Defender for Endpoint agent"
                     },
                     "parameters": {
@@ -101,7 +100,7 @@
                         "description": "Enable Advanced Threat Protection on your non-Basic tier open-source relational databases to detect anomalous activities indicating unusual and potentially harmful attempts to access or exploit databases. See https://aka.ms/AzDforOpenSourceDBsDocu."
                     },
                     "definitionEntry": {
-                        "policySetName": "e77fc0b3-f7e9-4c58-bc13-cb753ed8e46e",
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/e77fc0b3-f7e9-4c58-bc13-cb753ed8e46e",
                         "displayName": "Microsoft Defender for Endpoint open-source relational databases"
                     },
                     "nonComplianceMessages": [
@@ -118,7 +117,7 @@
                         "description": "Enable Azure Defender on your SQL Servers and SQL Managed Instances to detect anomalous activities indicating unusual and potentially harmful attempts to access or exploit databases."
                     },
                     "definitionEntry": {
-                        "policySetName": "9cb3cc7a-b39b-4b82-bc89-e5a5d9ff7b97",
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/9cb3cc7a-b39b-4b82-bc89-e5a5d9ff7b97",
                         "displayName": "Microsoft Defender for SQL Servers and SQL Managed Instances"
                     },
                     "nonComplianceMessages": [
@@ -157,7 +156,7 @@
                         "description": "Deploys the diagnostic settings for Azure Activity to stream subscriptions audit logs to a Log Analytics workspace to monitor subscription-level events"
                     },
                     "definitionEntry": {
-                        "policyName": "2465583e-4e78-4c15-b6be-a36cbc7c8b0f",
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/2465583e-4e78-4c15-b6be-a36cbc7c8b0f",
                         "displayName": "Activity Logs"
                     },
                     "parameters": {},
@@ -191,46 +190,6 @@
             "nodeName": "Compute/",
             "children": [
                 {
-                    "nodeName": "VMMonitoring",
-                    "assignment": {
-                        "name": "Deploy-VM-Monitoring",
-                        "displayName": "Enable Azure Monitor for VMs",
-                        "description": "Enable Azure Monitor for the virtual machines (VMs) in the specified scope (management group, subscription or resource group). Takes Log Analytics workspace as parameter."
-                    },
-                    "definitionEntry": {
-                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/924bfe3a-762f-40e7-86dd-5c8b95eb09e6",
-                        "displayName": "VM Monitoring"
-                    },
-                    "parameters": {
-                        "bringYourOwnUserAssignedManagedIdentity": false
-                    },
-                    "nonComplianceMessages": [
-                        {
-                            "message": "Azure Monitor must be enabled for Virtual Machines."
-                        }
-                    ]
-                },
-                {
-                    "nodeName": "VMSSMonitoring",
-                    "assignment": {
-                        "name": "Deploy-VMSS-Monitoring",
-                        "displayName": "Enable Azure Monitor for Virtual Machine Scale Sets",
-                        "description": "Enable Azure Monitor for the Virtual Machine Scale Sets in the specified scope (Management group, Subscription or resource group). Takes Log Analytics workspace as parameter. Note: if your scale set upgradePolicy is set to Manual, you need to apply the extension to the all VMs in the set by calling upgrade on them. In CLI this would be az vmss update-instances."
-                    },
-                    "definitionEntry": {
-                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/f5bf694c-cca7-4033-b883-3a23327d5485",
-                        "displayName": "VMSS Monitoring"
-                    },
-                    "parameters": {
-                        "bringYourOwnUserAssignedManagedIdentity": false
-                    },
-                    "nonComplianceMessages": [
-                        {
-                            "message": "Azure Monitor must be enabled for Virtual Machine Scale Sets."
-                        }
-                    ]
-                },
-                {
                     "nodeName": "DenyUnmanagedDisk",
                     "assignment": {
                         "name": "Deny-UnmanagedDisk",
@@ -238,7 +197,7 @@
                         "description": "Deny virtual machines that do not use managed disk. It checks the managed disk property on virtual machine OS Disk fields."
                     },
                     "definitionEntry": {
-                        "policyName": "06a78e20-9358-41c9-923c-fb736d382a4d",
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/06a78e20-9358-41c9-923c-fb736d382a4d",
                         "displayName": "Unmanaged Disks"
                     },
                     "nonComplianceMessages": [
