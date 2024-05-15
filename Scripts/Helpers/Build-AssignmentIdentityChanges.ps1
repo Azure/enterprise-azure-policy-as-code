@@ -27,7 +27,7 @@ function Build-AssignmentIdentityChanges {
     if ($hasExistingIdentity) { 
         $existingIdentityType = $existingIdentity.type 
         if ($existingIdentityType -eq "UserAssigned") { 
-            $existingUserAssignedIdentity = ($existingIdentity.userAssignedIdentities | get-member)[-1].Name 
+            $existingUserAssignedIdentity = $existingUserAssignedIdentity = $existingIdentity.userAssignedIdentities.Keys[0]
         } 
         if ($existingIdentityType -eq "UserAssigned") { 
             $existingPrincipalId = $existingIdentity.userAssignedIdentities.$existingUserAssignedIdentity.principalId 
