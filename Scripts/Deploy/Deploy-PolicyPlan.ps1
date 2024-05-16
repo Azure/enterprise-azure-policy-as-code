@@ -63,7 +63,7 @@ $null = Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pa
 # Telemetry
 if ($pacEnvironment.telemetryEnabled) {
     Write-Information "Telemetry is enabled"
-    [Microsoft.Azure.Common.Authentication.AzureSession]::ClientFactory.AddUserAgent("pid-fe9ff1e8-5521-4b9d-ab1d-84e15447565e") 
+    Submit-EPACTelemetry -Cuapid "pid-fe9ff1e8-5521-4b9d-ab1d-84e15447565e" -DeploymentRootScope $pacEnvironment.deploymentRootScope
 }
 else {
     Write-Information "Telemetry is disabled"

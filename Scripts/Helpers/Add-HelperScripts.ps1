@@ -93,9 +93,12 @@
 . "$PSScriptRoot/Set-ExportNodeAncestors.ps1"
 . "$PSScriptRoot/Set-UniqueRoleAssignmentScopes.ps1"
 
+
 . "$PSScriptRoot/Split-ArrayIntoChunks.ps1"
 . "$PSScriptRoot/Split-AzPolicyResourceId.ps1"
 . "$PSScriptRoot/Split-HashtableIntoChunks.ps1"
+
+. "$PSScriptRoot/Submit-EPACTelemetry.ps1"
 
 . "$PSScriptRoot/Switch-PacEnvironment.ps1"
 
