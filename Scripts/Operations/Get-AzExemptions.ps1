@@ -64,7 +64,7 @@ $policyExemptionsFolder = "$($pacEnvironment.outputFolder)/policyExemptions"
 # Telemetry
 if ($pacEnvironment.telemetryEnabled) {
     Write-Information "Telemetry is enabled"
-    [Microsoft.Azure.Common.Authentication.AzureSession]::ClientFactory.AddUserAgent("pid-3f02e7d5-1cf5-490a-a95c-3d49f0673093") 
+    Submit-EPACTelemetry -Cuapid "pid-3f02e7d5-1cf5-490a-a95c-3d49f0673093" -DeploymentRootScope $pacEnvironment.deploymentRootScope
 }
 else {
     Write-Information "Telemetry is disabled"

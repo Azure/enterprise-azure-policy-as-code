@@ -20,6 +20,19 @@ if ($DefinitionsRootFolder -eq "") {
     }
 }
 
+try {
+    $telemetryEnabled = (Get-Content $DefinitionsRootFolder/global-settings.jsonc | ConvertFrom-Json).telemetryOptOut
+    $deploymentRootScope = (Get-Content $DefinitionsRootFolder/global-settings.jsonc | ConvertFrom-Json).pacEnvironments[0]
+    if (!($telemetryEnabled)) {
+        Write-Information "Telemetry is enabled"
+        Submit-EPACTelemetry -Cuapid "pid-a5e82cd0-9dda-417b-948c-68ec81596c32" -DeploymentRootScope $deploymentRootScope
+    }
+    else {
+        Write-Information "Telemetry is disabled"
+    }
+}
+catch {}
+
 New-Item -Path "$DefinitionsRootFolder\policyDefinitions" -ItemType Directory -Force -ErrorAction SilentlyContinue
 New-Item -Path "$DefinitionsRootFolder\policyDefinitions\ALZ" -ItemType Directory -Force -ErrorAction SilentlyContinue
 New-Item -Path "$DefinitionsRootFolder\policySetDefinitions" -ItemType Directory -Force -ErrorAction SilentlyContinue

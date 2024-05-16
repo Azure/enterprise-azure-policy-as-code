@@ -140,7 +140,7 @@ $invalidChars += (":[]()$".ToCharArray())
 # Telemetry
 if ($globalSettings.telemetryEnabled) {
     Write-Information "Telemetry is enabled"
-    [Microsoft.Azure.Common.Authentication.AzureSession]::ClientFactory.AddUserAgent("pid-dc5b73fd-e93c-40ca-8fef-976762d1d30") 
+    Submit-EPACTelemetry -Cuapid "pid-dc5b73fd-e93c-40ca-8fef-976762d1d30" -DeploymentRootScope $pacEnvironment.deploymentRootScope
 }
 else {
     Write-Information "Telemetry is disabled"
