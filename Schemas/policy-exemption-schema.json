@@ -32,16 +32,16 @@
                         "policyDefinitionReferenceIds": {
                             "type": "array"
                         },
-                        "policyId": {
+                        "policyDefinitionId": {
                             "type": "string"
                         },
-                        "policyName": {
+                        "policyDefinitionName": {
                             "type": "string"
                         },
-                        "policySetId": {
+                        "policySetDefinitionId": {
                             "type": "string"
                         },
-                        "policySetName": {
+                        "policySetDefinitionName": {
                             "type": "string"
                         },
                         "resourceSelectors": {
@@ -63,22 +63,22 @@
                         },
                         {
                             "required": [
-                                "policyId"
+                                "policyDefinitionId"
                             ]
                         },
                         {
                             "required": [
-                                "policyName"
+                                "policyDefinitionName"
                             ]
                         },
                         {
                             "required": [
-                                "policySetId"
+                                "policySetDefinitionId"
                             ]
                         },
                         {
                             "required": [
-                                "policySetName"
+                                "policySetDefinitionName"
                             ]
                         }
                     ],
