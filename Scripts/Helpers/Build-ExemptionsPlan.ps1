@@ -999,7 +999,7 @@ function Build-ExemptionsPlan {
                 }
                 else {
                     $shallDelete = $false
-                    $reason = "unknownOwner, strategy=owwnedOnly, status=$status"
+                    $reason = "unknownOwner, strategy=ownedOnly, status=$status"
                 }
             }
             Default {
