@@ -225,6 +225,7 @@ function Get-GlobalSettings {
                     if ($strategy -notin $valid) {
                         Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.strategy ($strategy) must be one of $(ConvertTo-Json $valid -Compress)."
                     }
+                    $desiredState.strategy = $strategy
                 }
                 $includeResourceGroups = $desired.includeResourceGroups
                 if ($null -ne $includeResourceGroups) {
