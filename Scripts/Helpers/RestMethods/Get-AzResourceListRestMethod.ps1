@@ -20,5 +20,13 @@ function Get-AzResourceListRestMethod {
 
     $content = $response.Content
     $resources = $content | ConvertFrom-Json -Depth 100 -AsHashtable
+    $nextLink = ($response.Content | ConvertFrom-Json -Depth 100 -AsHashtable).nextLink
+    while ($null -ne $nextLink) {
+      $appendURL = (([uri]$nextlink).Query -split '&')[-1]
+      $response = Invoke-AzRestMethod -Path ($path + '&' + $appendURL)  -Method GET
+      $resources.value += ($response.Content | ConvertFrom-Json -Depth 100 -AsHashtable).value
+      $nextLink = ($response.Content | ConvertFrom-Json -Depth 100 -AsHashtable).nextLink
+   }
+  
     Write-Output $resources.value -NoEnumerate
 }
