@@ -11,7 +11,7 @@
     "parameters": {
         "userAssignedManagedIdentityName": "", // Replace with the name of the user assigned managed identity
         "userAssignedIdentityName": "", // Replace with the name of the user assigned managed identity
-        "bringYourOwnUserAssignedManagedIdentity": "true",
+        "bringYourOwnUserAssignedManagedIdentity": true,
         "enableProcessesAndDependencies": true,
         "userAssignedManagedIdentityResourceGroup": "", //Replace with the name of the resource group where the user assigned managed identity is deployed
         "identityResourceGroup": "", // Replace with the name of the resource group where the user assigned managed identity is deployed
