@@ -8,7 +8,7 @@ steps:
   - checkout: self
   - pwsh: |
       Install-Module EnterprisePolicyAsCode -Force
-      Install-Module Az.ResourceGraph -Force
+      
   - task: AzurePowerShell@5
     name: PolicyRemediation
     displayName: Policy Remediation
