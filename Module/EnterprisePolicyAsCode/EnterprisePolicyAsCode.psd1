@@ -35,16 +35,16 @@
 	# Aliases to export from this module
 	AliasesToExport   = ''
 
-	RequiredModules   = @(
-		@{
-			ModuleName    = 'Az.Accounts'
-			ModuleVersion = '2.19.0'
-		},
-		@{
-			ModuleName    = 'Az.ResourceGraph'
-			ModuleVersion = '0.13.0'
-		}
-	)
+	# RequiredModules   = @(
+	# 	@{
+	# 		ModuleName    = 'Az.Accounts'
+	# 		ModuleVersion = '2.19.0'
+	# 	},
+	# 	@{
+	# 		ModuleName    = 'Az.ResourceGraph'
+	# 		ModuleVersion = '0.13.0'
+	# 	}
+	# )
 	
 	# List of all files packaged with this module
 	FileList          = @()
