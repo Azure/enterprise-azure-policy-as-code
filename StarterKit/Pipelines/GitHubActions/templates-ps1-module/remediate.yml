@@ -30,7 +30,7 @@ jobs:
         uses: Azure/powershell@v2
         with:
           inlineScript: |
-            Install-Module Az.ResourceGraph -Force
+            
             Install-Module EnterprisePolicyAsCode -Force
           azPSVersion: "latest"
 

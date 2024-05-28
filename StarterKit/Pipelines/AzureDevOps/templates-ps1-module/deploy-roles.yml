@@ -10,7 +10,7 @@ steps:
     artifact: "plans-${{ parameters.pacEnvironmentSelector }}"
   - pwsh: |
       Install-Module EnterprisePolicyAsCode -Force
-      Install-Module Az.ResourceGraph -Force
+      
   - task: AzurePowerShell@5
     name: Deploy
     displayName: Deploy Roles
