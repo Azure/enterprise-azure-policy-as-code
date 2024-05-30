@@ -77,10 +77,10 @@
 . "$PSScriptRoot/New-ExportNode.ps1"
 
 . "$PSScriptRoot/Out-PolicyAssignmentFile.ps1"
-. "$PSScriptRoot/Out-PolicyAssignmentDocumentationToFile.ps1"
+. "$PSScriptRoot/Out-DocumentationForPolicyAssignments.ps1"
 . "$PSScriptRoot/Out-PolicyDefinition.ps1"
 . "$PSScriptRoot/Out-PolicyExemptions.ps1"
-. "$PSScriptRoot/Out-PolicySetsDocumentationToFile.ps1"
+. "$PSScriptRoot/Out-DocumentationForPolicySets.ps1"
 
 . "$PSScriptRoot/Remove-NullFields.ps1"
 . "$PSScriptRoot/Remove-GlobalNotScopes.ps1"

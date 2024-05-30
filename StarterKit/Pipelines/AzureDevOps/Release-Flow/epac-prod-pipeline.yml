@@ -4,7 +4,7 @@ variables:
   PAC_DEFINITIONS_FOLDER: ./Definitions
 
   # Use the plain text name of each service connection as a reference
-  planServiceConnection: "sc-epac-tenant-plan"
+  planServiceConnection: "sc-epac-plan"
   deployServiceConnection: "sc-epac-prod-deploy"
   rolesServiceConnection: "sc-epac-prod-roles"
 
@@ -22,21 +22,21 @@ pool:
 
 stages:
   - stage: Plan
-    displayName: "Plan prod"
+    displayName: "Plan ${{ variables.pacEnvironmentSelector }}"
     jobs:
       - job: Plan
         steps:
           - template: templates/plan.yml
             parameters:
               serviceConnection: $(planServiceConnection)
-              pacEnvironmentSelector: prod
+              pacEnvironmentSelector: ${{ variables.pacEnvironmentSelector }}
 
   - stage: Deploy
-    displayName: "Deploy prod"
+    displayName: "Deploy ${{ variables.pacEnvironmentSelector }}"
     dependsOn: Plan
-    condition: and(not(failed()), not(canceled()), or(eq(dependencies.Plan.outputs['Plan.Plan.deployPolicyChanges'], 'yes'), eq(dependencies.Plan.outputs['Plan.Plan.deployRoleChanges'], 'yes')), contains(variables['Build.SourceBranch'], 'releases-prod/')
+    condition: and(not(failed()), not(canceled()), or(eq(dependencies.Plan.outputs['Plan.Plan.deployPolicyChanges'], 'yes'), eq(dependencies.Plan.outputs['Plan.Plan.deployRoleChanges'], 'yes')), contains(variables['Build.SourceBranch'], 'releases-prod/'))
     variables:
-      PAC_INPUT_FOLDER: "$(Pipeline.Workspace)/plans-prod"
+      PAC_INPUT_FOLDER: "$(Pipeline.Workspace)/plans-${{ variables.pacEnvironmentSelector }}"
       localDeployPolicyChanges: $[stageDependencies.Plan.Plan.outputs['Plan.deployPolicyChanges']]
       localDeployRoleChanges: $[stageDependencies.Plan.Plan.outputs['Plan.deployRoleChanges']]
     jobs:
@@ -50,8 +50,8 @@ stages:
               steps:
                 - template: templates/deploy-policy.yml
                   parameters:
-                    serviceConnection: $(deployPolicyServiceConnection)
-                    pacEnvironmentSelector: prod
+                    serviceConnection: $(deployServiceConnection)
+                    pacEnvironmentSelector: ${{ variables.pacEnvironmentSelector }}
       - deployment: DeployRoles
         displayName: "Deploy Role Changes"
         dependsOn: DeployPolicy
@@ -63,6 +63,6 @@ stages:
               steps:
                 - template: templates/deploy-roles.yml
                   parameters:
-                    serviceConnection: $(deployRolesServiceConnection)
-                    pacEnvironmentSelector: prod
+                    serviceConnection: $(rolesServiceConnection)
+                    pacEnvironmentSelector: ${{ variables.pacEnvironmentSelector }}
 

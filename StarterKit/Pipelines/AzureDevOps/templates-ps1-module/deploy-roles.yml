@@ -10,7 +10,6 @@ steps:
     artifact: "plans-${{ parameters.pacEnvironmentSelector }}"
   - pwsh: |
       Install-Module EnterprisePolicyAsCode -Force
-      
   - task: AzurePowerShell@5
     name: Deploy
     displayName: Deploy Roles

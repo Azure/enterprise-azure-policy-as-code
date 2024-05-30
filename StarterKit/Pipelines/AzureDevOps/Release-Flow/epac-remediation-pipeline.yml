@@ -1,3 +1,11 @@
+parameters:
+  - name: pacEnvironmentsToRemediate
+    type: object
+    default:
+      - epac-dev
+      - nonprod
+      - prod
+
 variables:
   # This pipeline is used to auto remdiate Azure policy that are non-compliant.
   PAC_OUTPUT_FOLDER: ./Output
@@ -25,36 +33,15 @@ schedules:
   always: true    
 
 stages:
-  - stage: epacDev
-    dependsOn: []
-    displayName: "Remediate epac-dev environment"
-    jobs:
-      - job: remediation
-        displayName: "Remediation Job"
-        steps:
-          - template: templates/remediate.yml
-            parameters:
-              serviceConnection: $(remediationServiceConnection)
-              pacEnvironmentSelector: epac-dev
-
-  - stage: nonprod
-    dependsOn: []
-    displayName: "Remediation nonprod environment"
-    jobs:
-      - job: remediation
-        steps:
-          - template: templates/remediate.yml
-            parameters:
-              serviceConnection: $(remediationServiceConnection)
-              pacEnvironmentSelector: nonprod
-
-  - stage: prod
-    dependsOn: []
-    displayName: "Remediation prod environment"
-    jobs:
-      - job: remediation
-        steps:
-          - template: templates/remediate.yml
-            parameters:
-              serviceConnection: $(remediationServiceConnection)
-              pacEnvironmentSelector: prod
+  - ${{ each pacEnvironment in parameters.pacEnvironmentsToRemediate }}:
+    - stage: Remediate${{ pacEnvironment }}
+      dependsOn: []
+      displayName: "Remediate ${{ pacEnvironment }} environment"
+      jobs:
+        - job: remediation
+          displayName: "Remediation Job"
+          steps:
+            - template: templates/remediate.yml
+              parameters:
+                serviceConnection: $(remediationServiceConnection)
+                pacEnvironmentSelector: ${{ pacEnvironment }}

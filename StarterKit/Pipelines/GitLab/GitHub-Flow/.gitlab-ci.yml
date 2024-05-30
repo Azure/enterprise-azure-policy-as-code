@@ -1,0 +1,77 @@
+# Example pipeline for deploying policies and roles using Federated Login
+# The variables $AZURE_TENANT_ID and $AZURE_CLIENT_ID are set in the GitLab CI/CD settings
+
+image: mcr.microsoft.com/powershell:latest
+
+stages:
+- plan
+- deployPolicies
+- deployRoles
+
+variables:
+  PAC_OUTPUT_FOLDER: ./Output
+  PAC_DEFINITIONS_FOLDER: ./Definitions
+  ENVIRONMENT: "EPAC-PROD"
+
+plan:
+  stage: plan
+  id_tokens:
+    GITLAB_OIDC_TOKEN:
+      aud: api://AzureADTokenExchange
+  script:
+    - |
+      pwsh -c '
+      Install-Module -Name Az.Accounts -Force;
+      Install-Module -Name EnterprisePolicyAsCode -Force;
+      Install-Module -Name Az.ResourceGraph -Force;
+      Install-Module -Name Az.Resources -Force -AllowClobber;'
+    - pwsh -c "Connect-AzAccount -Tenant $AZURE_TENANT_ID -ApplicationId $AZURE_CLIENT_ID -FederatedToken $GITLAB_OIDC_TOKEN > \$null 2>&1"
+    - pwsh -c "Build-DeploymentPlans -PacEnvironmentSelector $ENVIRONMENT -DefinitionsRootFolder Definitions -devOpsType gitlab -outputFolder $PAC_OUTPUT_FOLDER"
+  artifacts:
+    paths:
+      - $PAC_OUTPUT_FOLDER
+
+deployPolicies:
+  stage: deployPolicies
+  id_tokens:
+    GITLAB_OIDC_TOKEN:
+      aud: api://AzureADTokenExchange
+  dependencies:
+    - plan
+  script:
+    - |
+      if [ ! -f "./Output/plans-$ENVIRONMENT/policy-plan.json" ]; then
+        echo "File not found, skipping the job."
+        exit 0
+      fi
+    - |
+      pwsh -c '
+      Install-Module -Name Az.Accounts -Force;
+      Install-Module -Name EnterprisePolicyAsCode -Force;
+      Install-Module -Name Az.ResourceGraph -Force;
+      Install-Module -Name Az.Resources -Force -AllowClobber;'
+    - pwsh -c "Connect-AzAccount -Tenant $AZURE_TENANT_ID -ApplicationId $AZURE_CLIENT_ID -FederatedToken $GITLAB_OIDC_TOKEN > \$null 2>&1"
+    - pwsh -c "Deploy-PolicyPlan -PacEnvironmentSelector $ENVIRONMENT -DefinitionsRootFolder Definitions -inputFolder $PAC_OUTPUT_FOLDER"
+
+
+deployRoles:
+  stage: deployRoles
+  id_tokens:
+    GITLAB_OIDC_TOKEN:
+      aud: api://AzureADTokenExchange
+  dependencies:
+    - plan
+  script:
+    - |
+      if [ ! -f "./Output/plans-$ENVIRONMENT/roles-plan.json" ]; then
+        echo "File not found, skipping the job."
+        exit 0
+      fi
+    - |
+      pwsh -c '
+      Install-Module -Name Az.Accounts -Force;
+      Install-Module -Name EnterprisePolicyAsCode -Force;
+      Install-Module -Name Az.ResourceGraph -Force;
+      Install-Module -Name Az.Resources -Force -AllowClobber;'
+    - pwsh -c "Connect-AzAccount -Tenant $AZURE_TENANT_ID -ApplicationId $AZURE_CLIENT_ID -FederatedToken $GITLAB_OIDC_TOKEN > \$null 2>&1"
+    - pwsh -c "Deploy-RolesPlan -PacEnvironmentSelector $ENVIRONMENT -DefinitionsRootFolder Definitions -inputFolder $PAC_OUTPUT_FOLDER"

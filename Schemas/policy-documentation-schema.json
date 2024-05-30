@@ -79,6 +79,15 @@
                                 },
                                 "title": {
                                     "type": "string"
+                                },
+                                "addMarkdownAdoWikiToc": {
+                                    "type": "boolean"
+                                },
+                                "noMarkdownInTableLineBreaks": {
+                                    "type": "boolean"
+                                },
+                                "includeComplianceGroupNamesInMarkdown": {
+                                    "type": "boolean"
                                 }
                             },
                             "required": [
