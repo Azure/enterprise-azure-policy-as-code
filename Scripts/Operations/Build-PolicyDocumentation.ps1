@@ -181,7 +181,6 @@ foreach ($file in $files) {
                 if (-not $policySets -or $policySets.Count -eq 0) {
                     Write-Error "documentPolicySet entry does not specify required policySets array entry." -ErrorAction Stop
                 }
-                $environmentColumnsInCsv = $documentPolicySetEntry.environmentColumnsInCsv
 
                 # Load pacEnvironment if not already loaded
                 if (-not $cachedPolicyResourceDetails.ContainsKey($pacEnvironmentSelector)) {
@@ -237,11 +236,10 @@ foreach ($file in $files) {
                     -Details $policySetDetails
 
                 # Print documentation
-                Out-PolicySetsDocumentationToFile `
+                Out-DocumentationForPolicySets `
                     -OutputPath $outputPath `
-                    -FileNameStem $fileNameStem `
                     -WindowsNewLineCells:$WindowsNewLineCells `
-                    -Title $title `
+                    -DocumentationSpecification $documentPolicySetEntry `
                     -ItemList $itemList `
                     -EnvironmentColumnsInCsv $environmentColumnsInCsv `
                     -PolicySetDetails $policySetDetails `
@@ -309,13 +307,13 @@ foreach ($file in $files) {
                 if ($null -ne $documentationType) {
                     Write-Information "Field documentationType ($($documentationType)) is deprecated"
                 }
-                Out-PolicyAssignmentDocumentationToFile `
+                Out-DocumentationForPolicyAssignments `
                     -OutputPath $outputPath `
                     -WindowsNewLineCells:$WindowsNewLineCells `
                     -DocumentationSpecification $documentationSpecification `
                     -AssignmentsByEnvironment $assignmentsByEnvironment `
                     -IncludeManualPolicies:$IncludeManualPolicies
-                # Out-PolicyAssignmentDocumentationToFile `
+                # Out-DocumentationForPolicyAssignments `
                 #     -OutputPath $outputPath `
                 #     -WindowsNewLineCells:$true `
                 #     -DocumentationSpecification $documentationSpecification `

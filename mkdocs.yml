@@ -47,6 +47,7 @@ nav:
   - CI/CD Integration:
       - CI/CD Overview: ci-cd-overview.md
       - App Registrations Setup: ci-cd-app-registrations.md
+      - Branching Flows: ci-cd-branching-flows.md
       - Azure DevOps Pipelines: ci-cd-ado-pipelines.md
       - GitHub Actions: ci-cd-github-actions.md
   - Operational Scripts:

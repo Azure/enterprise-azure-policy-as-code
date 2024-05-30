@@ -4,7 +4,11 @@ variables:
   PAC_DEFINITIONS_FOLDER: ./Definitions
 
   # Use the plain text name of each service connection as a reference
+  planServiceConnection: "sc-epac-plan"
   devServiceConnection: "sc-epac-dev"
+  
+  # set the environment selector
+  pacEnvironmentSelector: epac-dev
 
 # what to build trigger
 trigger:
@@ -23,21 +27,21 @@ pool:
 
 stages:
   - stage: Plan
-    displayName: "Plan epac-dev"
+    displayName: "Plan ${{ variables.pacEnvironmentSelector }}"
     jobs:
       - job: Plan
         steps:
           - template: templates/plan.yml
             parameters:
-              serviceConnection: $(devServiceConnection)
-              pacEnvironmentSelector: epac-dev
+              serviceConnection: $(planServiceConnection)
+              pacEnvironmentSelector: ${{ variables.pacEnvironmentSelector }}
 
   - stage: Deploy
-    displayName: "Deploy epac-dev"
+    displayName: "Deploy ${{ variables.pacEnvironmentSelector }}"
     dependsOn: Plan
     condition: and(not(failed()), not(canceled()), or(eq(dependencies.Plan.outputs['Plan.Plan.deployPolicyChanges'], 'yes'), eq(dependencies.Plan.outputs['Plan.Plan.deployRoleChanges'], 'yes')))
     variables:
-      PAC_INPUT_FOLDER: "$(Pipeline.Workspace)/plans-epac-dev"
+      PAC_INPUT_FOLDER: "$(Pipeline.Workspace)/plans-${{ variables.pacEnvironmentSelector }}"
       localDeployPolicyChanges: $[stageDependencies.Plan.Plan.outputs['Plan.deployPolicyChanges']]
       localDeployRoleChanges: $[stageDependencies.Plan.Plan.outputs['Plan.deployRoleChanges']]
     jobs:
@@ -52,7 +56,7 @@ stages:
                 - template: templates/deploy-policy.yml
                   parameters:
                     serviceConnection: $(devServiceConnection)
-                    pacEnvironmentSelector: epac-dev
+                    pacEnvironmentSelector: ${{ variables.pacEnvironmentSelector }}
       - deployment: DeployRoles
         displayName: "Deploy Role Changes"
         dependsOn: DeployPolicy
@@ -65,7 +69,7 @@ stages:
                 - template: templates/deploy-roles.yml
                   parameters:
                     serviceConnection: $(devServiceConnection)
-                    pacEnvironmentSelector: epac-dev
+                    pacEnvironmentSelector: ${{ variables.pacEnvironmentSelector }}
 
   - stage: tenantPlan
     displayName: "Plan tenant"
@@ -77,5 +81,5 @@ stages:
         steps:
           - template: templates/plan.yml
             parameters:
-              serviceConnection: $(devServiceConnection)
+              serviceConnection: $(planServiceConnection)
               pacEnvironmentSelector: tenant

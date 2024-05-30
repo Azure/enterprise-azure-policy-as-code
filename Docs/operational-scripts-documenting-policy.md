@@ -132,6 +132,28 @@ Each file must contain one or both documentation topics. This example file in th
 }
 ```
 
+## Modifying the Markdown Output
+
+Markdown processors vary slightly. This shipt has settings to tune the output to match the Markdown processor you are using.
+
+Azure DevOps Wikis (and maybe others) recognize `[[_TOC_]]` to insert a table of contents. Setting to `addMarkdownAdoWikiToc` to true enables generating the table of content.
+
+```jsonc
+"addMarkdownAdoWikiToc": true, // default is false, set to true to add markdown ADO Wiki TOC
+```
+
+SharePoint (and maybe others) do not recognize embedded HTML, such as line braeks (`<br/>`) within a Markdown table. Setting `noMarkdownInTableLineBreaks` to true emits commas instead of the HTML tag.
+
+```jsonc
+"noMarkdownInTableLineBreaks": true, // default is false, set to true to remove markdown in table line breaks
+```
+
+Policy definition group names are not included in Markdown to reduce clutter. You can include a column by setting `includeComplianceGroupNamesInMarkdown` to true,
+
+```jsonc
+"includeComplianceGroupNamesInMarkdown": true, // default is false, set to true to include compliance group names
+```
+
 ## Assignment Documentation
 
 ### Element `environmentCategories`

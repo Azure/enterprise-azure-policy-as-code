@@ -1,4 +1,4 @@
-function Out-PolicyAssignmentDocumentationToFile {
+function Out-DocumentationForPolicyAssignments {
     [CmdletBinding()]
     param (
         [string] $OutputPath,
@@ -42,6 +42,8 @@ function Out-PolicyAssignmentDocumentationToFile {
 
             $flatPolicyEntry = $flatPolicyList.$policyTableId
             $isEffectParameterized = $flatPolicyEntry.isEffectParameterized
+            $policyDisplayName = $flatPolicyEntry.displayName -replace "\n\r", " " -replace "\n", " " -replace "\r", " "
+            $policyDescription = $flatPolicyEntry.description -replace "\n\r", " " -replace "\n", " " -replace "\r", " "
             $effectValue = "Unknown"
             if ($null -ne $flatPolicyEntry.effectValue) {
                 $effectValue = $flatPolicyEntry.effectValue
@@ -64,8 +66,8 @@ function Out-PolicyAssignmentDocumentationToFile {
                         policyTableId          = $policyTableId
                         name                   = $flatPolicyEntry.name
                         referencePath          = $flatPolicyEntry.ReferencePath
-                        displayName            = $flatPolicyEntry.displayName
-                        description            = $flatPolicyEntry.description
+                        displayName            = $policyDisplayName
+                        description            = $policyDescription
                         policyType             = $flatPolicyEntry.policyType
                         category               = $flatPolicyEntry.category
                         isEffectParameterized  = $isEffectParameterized
@@ -120,12 +122,14 @@ function Out-PolicyAssignmentDocumentationToFile {
                 foreach ($shortName in $flatPolicyEntryPolicySetList.Keys) {
                     $policySetInfo = $flatPolicyEntryPolicySetList.$shortName
                     if (-not $policySetList.ContainsKey($shortName)) {
+                        $policySetDisplayName = $policySetInfo.displayName -replace "\n\r", " " -replace "\n", " " -replace "\r", " "
+                        $policySetDescription = $policySetInfo.description -replace "\n\r", " " -replace "\n", " " -replace "\r", " "
                         $policySetEntry = @{
                             shortName              = $shortName
                             id                     = $policySetInfo.id
                             name                   = $policySetInfo.name
-                            displayName            = $policySetInfo.displayName
-                            description            = $policySetInfo.description
+                            displayName            = $policySetDisplayName
+                            description            = $policySetDescription
                             policyType             = $policySetInfo.policyType
                             effectParameterName    = $policySetInfo.effectParameterName
                             effectDefault          = $policySetInfo.effectDefault
@@ -151,81 +155,10 @@ function Out-PolicyAssignmentDocumentationToFile {
 
     [System.Collections.Generic.List[string]] $allLines = [System.Collections.Generic.List[string]]::new()
     $null = $allLines.Add("# $title`n")
-    $null = $allLines.Add("Auto-generated Policy effect documentation across environments '$($environmentCategories -join "', '")' sorted by Policy category and Policy display name.`n")
-    $null = $allLines.Add("## Table of Contents`n")
-    $null = $allLines.Add("- [Policy Effects](#policy-effects)")
-
-    #region Policy Effects
-
-    $addedTableHeader = ""
-    $addedTableDivider = ""
-    foreach ($environmentCategory in $environmentCategories) {
-        $null = $allLines.Add("- [Environment Category ``$environmentCategory``](#environment-category-$($environmentCategory.ToLower()))")
-        # Calculate environment columns
-        $addedTableHeader += " $environmentCategory |"
-        $addedTableDivider += " :-----: |"
+    $null = $allLines.Add("Auto-generated Policy effect documentation across environments '$($environmentCategories -join "', '")' sorted by Policy category and Policy display name.")
+    if ($DocumentationSpecification.addMarkdownAdoWikiToc) {
+        $null = $allLines.Add("`n[[_TOC_]]")
     }
-    $null = $allLines.Add("`n## Policy Effects`n")
-    $null = $allLines.Add("| Category | Policy |$addedTableHeader")
-    $null = $allLines.Add("| :------- | :----- |$addedTableDivider")
-
-    $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
-        # Build additional columns
-        $addedEffectColumns = ""
-        $environmentList = $_.environmentList
-        $additionalInfoFragment = ""
-        foreach ($environmentCategory in $environmentCategories) {
-            if ($environmentList.ContainsKey($environmentCategory)) {
-                $environmentCategoryValues = $environmentList.$environmentCategory
-                $effectValue = $environmentCategoryValues.effectValue
-                $effectAllowedValues = $_.effectAllowedValues
-                $text = Convert-EffectToMarkdownString `
-                    -Effect $effectValue `
-                    -AllowedValues $effectAllowedValues.Keys
-                $addedEffectColumns += " $text |"
-
-                # $parameters = $environmentCategoryValues.parameters
-                # $hasParameters = $false
-                # if ($null -ne $parameters -and $parameters.psbase.Count -gt 0) {
-                #     foreach ($parameterName in $parameters.Keys) {
-                #         $parameter = $parameters.$parameterName
-                #         if (-not $parameter.isEffect) {
-                #             $hasParameters = $true
-                #             break
-                #         }
-                #     }
-                # }
-
-                # $additionalInfoFragment += "<br/>***$($environmentCategory)*** *environment:*"
-                # $policySetList = $environmentCategoryValues.policySetList
-                # foreach ($shortName in $policySetList.Keys) {
-                #     $perPolicySet = $policySetList.$shortName
-                #     # $policySetDisplayName = $perPolicySet.displayName
-                #     $effectString = $perPolicySet.effectString
-                #     $additionalInfoFragment += "<br/>&nbsp;&nbsp;&nbsp;&nbsp;$($shortName): ``$($effectString)``"
-                # }
-
-                # if ($hasParameters) {
-                #     $text = Convert-ParametersToString -Parameters $parameters -OutputType "markdownAssignment"
-                #     $additionalInfoFragment += $text
-                # }
-            }
-            else {
-                $addedEffectColumns += " |"
-            }
-
-        }
-        $groupNames = $_.groupNames
-        if ($groupNames.Count -gt 0) {
-            $separator = "<br/>&nbsp;&nbsp;&nbsp;&nbsp;"
-            $additionalInfoFragment += "<br/>*Compliance:*$separator"
-            $sortedGroupNames = $groupNames | Sort-Object -Unique
-            $additionalInfoFragment += ($sortedGroupNames -join $separator)
-        }
-        $null = $allLines.Add("| $($_.category) | **$($_.displayName)**<br/>$($_.description)$($additionalInfoFragment) | $($addedEffectColumns)")
-    }
-
-    #endregion Policy Effects
 
     #region Environment Categories
 
@@ -260,6 +193,130 @@ function Out-PolicyAssignmentDocumentationToFile {
     }
 
     #endregion Environment Categories
+
+    #region Policy Effects
+
+    $addedTableHeader = ""
+    $addedTableDivider = ""
+    foreach ($environmentCategory in $environmentCategories) {
+        # Calculate environment columns
+        $addedTableHeader += " $environmentCategory |"
+        $addedTableDivider += " :-----: |"
+    }
+
+    if ($DocumentationSpecification.includeComplianceGroupNamesInMarkdown) {
+        $null = $allLines.Add("`n## Policy Effects by Policy`n")
+        $null = $allLines.Add("| Category | Policy | Compliance |$addedTableHeader")
+        $null = $allLines.Add("| :------- | :----- | :--------- |$addedTableDivider")
+    }
+    else {
+        $null = $allLines.Add("`n## Policy Effects by Policy`n")
+        $null = $allLines.Add("| Category | Policy |$addedTableHeader")
+        $null = $allLines.Add("| :------- | :----- |$addedTableDivider")
+    }
+    
+    $inTableAfterDisplayNameBreak = "<br/>"
+    $inTableBreak = "<br/>"
+    if ($DocumentationSpecification.noMarkdownInTableLineBreaks) {
+        $inTableAfterDisplayNameBreak = ": "
+        $inTableBreak = ", "
+    }
+
+    $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
+        # Build additional columns
+        $addedEffectColumns = ""
+        $environmentList = $_.environmentList
+        foreach ($environmentCategory in $environmentCategories) {
+            if ($environmentList.ContainsKey($environmentCategory)) {
+                $environmentCategoryValues = $environmentList.$environmentCategory
+                $effectValue = $environmentCategoryValues.effectValue
+                $effectAllowedValues = $_.effectAllowedValues
+                $text = Convert-EffectToMarkdownString `
+                    -Effect $effectValue `
+                    -AllowedValues $effectAllowedValues.Keys `
+                    -InTableBreak $inTableBreak
+                $addedEffectColumns += " $text |"
+            }
+            else {
+                $addedEffectColumns += " |"
+            }
+
+        }
+        $groupNamesText = ""
+        if ($DocumentationSpecification.includeComplianceGroupNamesInMarkdown) {
+            $groupNames = $_.groupNames
+            if ($groupNames.Count -gt 0) {
+                $sortedGroupNames = $groupNames | Sort-Object -Unique
+                $groupNamesText = "| $($sortedGroupNames -join $inTableBreak) "
+            }
+            else {
+                $groupNamesText = "| "
+            }
+        }
+        $null = $allLines.Add("| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) $($groupNamesText)|$($addedEffectColumns)")
+    }
+
+    #endregion Policy Effects
+
+    #region Parameters
+
+    $null = $allLines.Add("`n## Policy Parameters by Policy`n")
+    $null = $allLines.Add("| Category | Policy |$addedTableHeader")
+    $null = $allLines.Add("| :------- | :----- |$addedTableDivider")
+
+    $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
+        # Build additional columns
+        $addedParametersColumns = ""
+        $environmentList = $_.environmentList
+        $hasParameters = $false
+        foreach ($environmentCategory in $environmentCategories) {
+            if ($environmentList.ContainsKey($environmentCategory)) {
+                $environmentCategoryValues = $environmentList.$environmentCategory
+                $text = ""
+                $parameters = $environmentCategoryValues.parameters
+                $notFirst = $false
+                foreach ($parameterName in $parameters.Keys) {
+                    $parameter = $parameters.$parameterName
+                    if (-not $parameter.isEffect) {
+                        $hasParameters = $true
+                        $value = $parameter.value
+                        if ($notFirst) {
+                            $text += $inTableBreak
+                        }
+                        else {
+                            $notFirst = $true
+                        }
+                        if ($null -eq $value) {
+                            $value = $parameter.defaultValue
+                            if ($null -eq $value) {
+                                $value = "null"
+                            }
+                        }
+                        if ($value -is [string]) {
+                            $text += "$($parameterName) = **```"$value`"``**"
+                        }
+                        else {
+                            $json = ConvertTo-Json $value -Depth 100 -Compress
+                            $jsonTruncated = $json
+                            if ($json.length -gt 40) {
+                                $jsonTruncated = $json.substring(0, 37) + "..."
+                            }
+                            $text += "$($parameterName) = **``$jsonTruncated``**"
+                        }
+                    }
+                }
+                $addedParametersColumns += " $text |"
+            }
+            else {
+                $addedParametersColumns += " |"
+            }
+        }
+        if ($hasParameters) {
+            $null = $allLines.Add("| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) |$($addedParametersColumns)")
+        }
+    }
+
+    #endregion Parameters
 
     # Output file
     $outputFilePath = "$($OutputPath -replace '[/\\]$', '')/$($fileNameStem).md"
