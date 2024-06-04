@@ -33,6 +33,6 @@ jobs:
     with:
       pacEnvironmentSelector: prod
       planGitHubEnvironment: PROD-DEPLOY-POLICY
-      PAC_INPUT_FOLDER: "$(GITHUB_WORKSPACE)/plans-prod"
+      PAC_INPUT_FOLDER: ./Output
       PAC_DEFINITIONS_FOLDER: ./Definitions
     secrets: inherit
