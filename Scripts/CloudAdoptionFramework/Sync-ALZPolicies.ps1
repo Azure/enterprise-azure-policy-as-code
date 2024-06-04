@@ -43,7 +43,8 @@ New-Item -Path "$DefinitionsRootFolder\policyAssignments\ALZ" -ItemType Director
 . "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
 
 $defaultPolicyURIs = @(
-    'https://raw.githubusercontent.com/Azure/Enterprise-Scale/main/eslzArm/managementGroupTemplates/policyDefinitions/policies.json'
+    'https://raw.githubusercontent.com/Azure/Enterprise-Scale/main/eslzArm/managementGroupTemplates/policyDefinitions/policies.json',
+    'https://raw.githubusercontent.com/Azure/Enterprise-Scale/main/eslzArm/managementGroupTemplates/policyDefinitions/initiatives.json'
 )
 
 foreach ($policyUri in $defaultPolicyURIs) {
