@@ -80,14 +80,23 @@
                                 "title": {
                                     "type": "string"
                                 },
-                                "addMarkdownAdoWikiToc": {
+                                "markdownAddToc": {
                                     "type": "boolean"
                                 },
-                                "noMarkdownInTableLineBreaks": {
+                                "markdownAdoWiki": {
                                     "type": "boolean"
                                 },
-                                "includeComplianceGroupNamesInMarkdown": {
+                                "markdownNoEmbeddedHtml": {
                                     "type": "boolean"
+                                },
+                                "markdownIncludeComplianceGroupNames": {
+                                    "type": "boolean"
+                                },
+                                "markdownSuppressParameterSection": {
+                                    "type": "boolean"
+                                },
+                                "markdownMaxParameterLength": {
+                                    "type": "integer"
                                 }
                             },
                             "required": [
@@ -149,6 +158,24 @@
                                     "type": "string"
                                 }
                             ]
+                        },
+                        "markdownAddToc": {
+                            "type": "boolean"
+                        },
+                        "markdownAdoWiki": {
+                            "type": "boolean"
+                        },
+                        "markdownNoEmbeddedHtml": {
+                            "type": "boolean"
+                        },
+                        "markdownIncludeComplianceGroupNames": {
+                            "type": "boolean"
+                        },
+                        "markdownSuppressParameterSection": {
+                            "type": "boolean"
+                        },
+                        "markdownMaxParameterLength": {
+                            "type": "integer"
                         }
                     },
                     "required": [
