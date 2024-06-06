@@ -10,7 +10,8 @@ function Build-ExemptionsPlan {
         $CombinedPolicyDetails,
         $Assignments,
         $DeployedExemptions,
-        $Exemptions
+        $Exemptions,
+        [switch]$SkipNotScopedExemptions
     )
 
     Write-Information "==================================================================================================="
@@ -618,8 +619,15 @@ function Build-ExemptionsPlan {
                                 if ($includeAssignment) {
                                     foreach ($notScope in $calculatedPolicyAssignment.notScopes) {
                                         if ($trimmedScope -eq $notScope -or $parentTable.ContainsKey($notScope)) {
-                                            $includeAssignment = $false
-                                            break
+                                            if ($SkipNotScopedExemptions) {
+                                                $includeAssignment = $true
+                                                break
+                                            }
+                                            else {
+                                                $includeAssignment = $false
+                                                break
+                                            }
+                                            
                                         }
                                     }
                                     if ($includeAssignment) {

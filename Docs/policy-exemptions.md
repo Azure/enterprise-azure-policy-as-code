@@ -361,3 +361,9 @@ Legacy column `policyAssignmentId` is still supported for backward compatibility
 - Column `policyDefinitionReferenceIds` must be an ampersand separated list containing any of the following:
   - Empty to exempt all Policies in the Policy Set
   - One of the [options as detailed above](#specifying-policydefinitionreferenceids)
+
+## Moving from Excluded Scopes to Exemptions
+
+If you are moving from using excluded scopes to the use of exemptions the by default EPAC will not deploy new exemptions that are part of an assignment excluded scopes. As well as this - EPAC will delete any exemption if finds that is deployed to an excluded scope.
+
+You can override this behavior by using the switch ```-SkipNotScopedExemptions``` when you call ```Build-DeploymentPlans```.

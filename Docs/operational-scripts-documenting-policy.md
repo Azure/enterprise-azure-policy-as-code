@@ -136,22 +136,45 @@ Each file must contain one or both documentation topics. This example file in th
 
 Markdown processors vary slightly. This shipt has settings to tune the output to match the Markdown processor you are using.
 
-Azure DevOps Wikis (and maybe others) recognize `[[_TOC_]]` to insert a table of contents. Setting to `addMarkdownAdoWikiToc` to true enables generating the table of content.
+### Azure DevOps Wiki Markdown
+
+- Some Markdown processors (including Azure DevOps Wikis) recognize `[[_TOC_]]` to insert a table of contents. Setting to `markdownAddToc` to `true` enables generating the table of content.
+- Azure DevOps Wikis do not need a heading (title) at level 1. It needs the subheadings at level 1 instead. Setting `markdownAdoWiki` to true enables formatting the headings for Azure DevOps Wiki and generating the table of content (implicitly sets `markdownAddToc` to `true`).
 
 ```jsonc
-"addMarkdownAdoWikiToc": true, // default is false, set to true to add markdown ADO Wiki TOC
+"markdownAddToc": true, // default is false, set to true to add a table of contents
 ```
 
-SharePoint (and maybe others) do not recognize embedded HTML, such as line braeks (`<br/>`) within a Markdown table. Setting `noMarkdownInTableLineBreaks` to true emits commas instead of the HTML tag.
-
 ```jsonc
-"noMarkdownInTableLineBreaks": true, // default is false, set to true to remove markdown in table line breaks
+"markdownAdoWiki": true, // default is false, set to true to format headings for Azure DevOps Wiki and generate a table of contents
 ```
 
-Policy definition group names are not included in Markdown to reduce clutter. You can include a column by setting `includeComplianceGroupNamesInMarkdown` to true,
+### Embedded HTML in Markdown Tables
+
+EPAC uses embedded HTML to format Markdown tables. Some Markdown processors, such as SharePoint, do not recognize embedded HTML. Setting `markdownNoEmbeddedHtml` to `true` emits commas `, ` instead of the HTML tag `<br/>`.
 
 ```jsonc
-"includeComplianceGroupNamesInMarkdown": true, // default is false, set to true to include compliance group names
+"markdownNoEmbeddedHtml": true, // default is false, set to true to remove embedded HTML in Markdown tables
+```
+
+### Improve Markdown Readability
+
+Policy definition group names are not included in Markdown to reduce clutter. You can include a column by setting `markdownIncludeComplianceGroupNames` to `true`,
+
+```jsonc
+"markdownIncludeComplianceGroupNames": true, // default is false, set to true to include compliance group names
+```
+
+In some markdown processors very long parameter name break the display. You can set `markdownSuppressParameterSection` to true to completely suppress the parameter section in the Markdown output.
+
+```jsonc
+"markdownSuppressParameterSection": true, // default is false, set to true to suppress the parameter section in the Markdown output
+```
+
+Alternatively, you can set `markdownMaxParameterLength` to a maximum length. EPAC will truncate the name at that length and append an ellipsis. The default is 40 characters. The minimum is 16 characters.
+
+```jsonc
+"markdownMaxParameterLength": 42, // default is 42
 ```
 
 ## Assignment Documentation

@@ -344,11 +344,18 @@ function Build-AssignmentDefinitionNode {
                     $thisScopeGlobalNotScopeList = $thisScopeDetails.notScopesList
                     $thisScopeGlobalNotScopeTable = $thisScopeDetails.notScopesTable
                     foreach ($notScope in $definition.notScopesList) {
-                        if (-not $thisScopeGlobalNotScopeTable.ContainsKey($notScope)) {
-                            if ($thisScopeChildren.ContainsKey($notScope)) {
+                        $individualResource = $false
+                        $notScopeTrimmed = $notScope
+                        $splits = $notScope -split "/"
+                        if ($splits.Count -gt 5) {
+                            $individualResource = $true
+                            $notScopeTrimmed = $splits[0..4] -join "/"
+                        }
+                        if (-not $thisScopeGlobalNotScopeTable.ContainsKey($notScopeTrimmed)) {
+                            if ($thisScopeChildren.ContainsKey($notScopeTrimmed)) {
                                 $null = $thisNotScopeList.Add($notScope)
                             }
-                            elseif ($notScope.Contains("*")) {
+                            elseif (!$individualResource -and $notScope.Contains("*")) {
                                 foreach ($scopeChildId in $thisScopeChildren.Keys) {
                                     if ($scopeChildId -like $notScope) {
                                         $null = $thisNotScopeList.Add($scopeChildId)

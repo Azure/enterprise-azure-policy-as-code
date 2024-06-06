@@ -154,11 +154,27 @@ function Out-DocumentationForPolicyAssignments {
     #region Markdown
 
     [System.Collections.Generic.List[string]] $allLines = [System.Collections.Generic.List[string]]::new()
-    $null = $allLines.Add("# $title`n")
-    $null = $allLines.Add("Auto-generated Policy effect documentation across environments '$($environmentCategories -join "', '")' sorted by Policy category and Policy display name.")
-    if ($DocumentationSpecification.addMarkdownAdoWikiToc) {
-        $null = $allLines.Add("`n[[_TOC_]]")
+    $leadingHeadingHashtag = "#"
+    if ($DocumentationSpecification.markdownAdoWiki) {
+        $leadingHeadingHashtag = ""
+        $null = $allLines.Add("[[_TOC_]]`n")
     }
+    else {
+        $null = $allLines.Add("# $title`n")
+        if ($DocumentationSpecification.markdownAddToc) {
+            $null = $allLines.Add("[[_TOC_]]`n")
+        }
+    }
+    $null = $allLines.Add("Auto-generated Policy effect documentation across environments '$($environmentCategories -join "', '")' sorted by Policy category and Policy display name.")
+
+    $inTableAfterDisplayNameBreak = "<br/>"
+    $inTableBreak = "<br/>"
+    if ($DocumentationSpecification.markdownNoEmbeddedHtml) {
+        $inTableAfterDisplayNameBreak = ": "
+        $inTableBreak = ", "
+    }
+
+
 
     #region Environment Categories
 
@@ -167,9 +183,9 @@ function Out-DocumentationForPolicyAssignments {
         $itemList = $perEnvironment.itemList
         $assignmentsDetails = $perEnvironment.assignmentsDetails
         $scopes = $perEnvironment.scopes
-        $null = $allLines.Add("`n## Environment Category ``$environmentCategory``")
+        $null = $allLines.Add("`n$leadingHeadingHashtag# Environment Category ``$environmentCategory``")
 
-        $null = $allLines.Add("`n### Scopes`n")
+        $null = $allLines.Add("`n$leadingHeadingHashtag## Scopes`n")
         foreach ($scope in $scopes) {
             $null = $allLines.Add("- $scope")
         }
@@ -179,7 +195,7 @@ function Out-DocumentationForPolicyAssignments {
             if ($assignmentsDetails.ContainsKey($assignmentId)) {
                 # should always be true
                 $assignmentsDetail = $assignmentsDetails.$assignmentId
-                $null = $allLines.Add("`n### Assignment: ``$($assignmentsDetail.assignment.properties.displayName)```n")
+                $null = $allLines.Add("`n$leadingHeadingHashtag## Assignment: ``$($assignmentsDetail.assignment.properties.displayName)```n")
                 $null = $allLines.Add("| Property | Value |")
                 $null = $allLines.Add("| :------- | :---- |")
                 $null = $allLines.Add("| Assignment Id | $($assignmentId) |")
@@ -204,24 +220,17 @@ function Out-DocumentationForPolicyAssignments {
         $addedTableDivider += " :-----: |"
     }
 
-    if ($DocumentationSpecification.includeComplianceGroupNamesInMarkdown) {
-        $null = $allLines.Add("`n## Policy Effects by Policy`n")
-        $null = $allLines.Add("| Category | Policy | Compliance |$addedTableHeader")
-        $null = $allLines.Add("| :------- | :----- | :--------- |$addedTableDivider")
+    if ($DocumentationSpecification.markdownIncludeComplianceGroupNames) {
+        $null = $allLines.Add("`n$leadingHeadingHashtag# Policy Effects by Policy`n")
+        $null = $allLines.Add("| Category | Policy | Group Names |$addedTableHeader")
+        $null = $allLines.Add("| :------- | :----- | :---------- |$addedTableDivider")
     }
     else {
-        $null = $allLines.Add("`n## Policy Effects by Policy`n")
+        $null = $allLines.Add("`n$leadingHeadingHashtag# Policy Effects by Policy`n")
         $null = $allLines.Add("| Category | Policy |$addedTableHeader")
         $null = $allLines.Add("| :------- | :----- |$addedTableDivider")
     }
     
-    $inTableAfterDisplayNameBreak = "<br/>"
-    $inTableBreak = "<br/>"
-    if ($DocumentationSpecification.noMarkdownInTableLineBreaks) {
-        $inTableAfterDisplayNameBreak = ": "
-        $inTableBreak = ", "
-    }
-
     $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
         # Build additional columns
         $addedEffectColumns = ""
@@ -243,7 +252,7 @@ function Out-DocumentationForPolicyAssignments {
 
         }
         $groupNamesText = ""
-        if ($DocumentationSpecification.includeComplianceGroupNamesInMarkdown) {
+        if ($DocumentationSpecification.markdownIncludeComplianceGroupNames) {
             $groupNames = $_.groupNames
             if ($groupNames.Count -gt 0) {
                 $sortedGroupNames = $groupNames | Sort-Object -Unique
@@ -260,59 +269,74 @@ function Out-DocumentationForPolicyAssignments {
 
     #region Parameters
 
-    $null = $allLines.Add("`n## Policy Parameters by Policy`n")
-    $null = $allLines.Add("| Category | Policy |$addedTableHeader")
-    $null = $allLines.Add("| :------- | :----- |$addedTableDivider")
+    if ($DocumentationSpecification.markdownSuppressParameterSection) {
+        Write-Verbose "Suppressing Parameters section in Markdown"
+    }
+    else {
+        $null = $allLines.Add("`n$leadingHeadingHashtag# Policy Parameters by Policy`n")
+        $null = $allLines.Add("| Category | Policy |$addedTableHeader")
+        $null = $allLines.Add("| :------- | :----- |$addedTableDivider")
 
-    $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
-        # Build additional columns
-        $addedParametersColumns = ""
-        $environmentList = $_.environmentList
-        $hasParameters = $false
-        foreach ($environmentCategory in $environmentCategories) {
-            if ($environmentList.ContainsKey($environmentCategory)) {
-                $environmentCategoryValues = $environmentList.$environmentCategory
-                $text = ""
-                $parameters = $environmentCategoryValues.parameters
-                $notFirst = $false
-                foreach ($parameterName in $parameters.Keys) {
-                    $parameter = $parameters.$parameterName
-                    if (-not $parameter.isEffect) {
-                        $hasParameters = $true
-                        $value = $parameter.value
-                        if ($notFirst) {
-                            $text += $inTableBreak
-                        }
-                        else {
-                            $notFirst = $true
-                        }
-                        if ($null -eq $value) {
-                            $value = $parameter.defaultValue
+        $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
+            # Build additional columns
+            $addedParametersColumns = ""
+            $environmentList = $_.environmentList
+            $hasParameters = $false
+            foreach ($environmentCategory in $environmentCategories) {
+                if ($environmentList.ContainsKey($environmentCategory)) {
+                    $environmentCategoryValues = $environmentList.$environmentCategory
+                    $text = ""
+                    $parameters = $environmentCategoryValues.parameters
+                    $notFirst = $false
+                    foreach ($parameterName in $parameters.Keys) {
+                        $parameter = $parameters.$parameterName
+                        if (-not $parameter.isEffect) {
+                            $hasParameters = $true
+                            $markdownMaxParameterLength = 42
+                            if ($DocumentationSpecification.markdownMaxParameterLength) {
+                                $markdownMaxParameterLength = $DocumentationSpecification.markdownMaxParameterLength
+                                if ($markdownMaxParameterLength -lt 16) {
+                                    Write-Error "markdownMaxParameterLength must be at least 16; it is $markdownMaxParameterLength" -ErrorAction Stop
+                                }
+                            }
+                            if ($parameterName.length -gt $markdownMaxParameterLength) {
+                                $parameterName = $parameterName.substring(0, $markdownMaxParameterLength - 3) + "..."
+                            }
+                            $value = $parameter.value
+                            if ($notFirst) {
+                                $text += $inTableBreak
+                            }
+                            else {
+                                $notFirst = $true
+                            }
                             if ($null -eq $value) {
-                                $value = "null"
+                                $value = $parameter.defaultValue
+                                if ($null -eq $value) {
+                                    $value = "null"
+                                }
                             }
-                        }
-                        if ($value -is [string]) {
-                            $text += "$($parameterName) = **```"$value`"``**"
-                        }
-                        else {
-                            $json = ConvertTo-Json $value -Depth 100 -Compress
-                            $jsonTruncated = $json
-                            if ($json.length -gt 40) {
-                                $jsonTruncated = $json.substring(0, 37) + "..."
+                            $valueString = ""
+                            if ($value -is [string]) {
+                                $valueString = $value
                             }
-                            $text += "$($parameterName) = **``$jsonTruncated``**"
+                            else {
+                                $valueString = ConvertTo-Json $value -Depth 100 -Compress
+                            }
+                            if ($valueString.length -gt $markdownMaxParameterLength) {
+                                $valueString = $valueString.substring(0, $markdownMaxParameterLength - 3) + "..."
+                            }
+                            $text += "$($parameterName) = **``$valueString``**"
                         }
                     }
+                    $addedParametersColumns += " $text |"
                 }
-                $addedParametersColumns += " $text |"
+                else {
+                    $addedParametersColumns += " |"
+                }
             }
-            else {
-                $addedParametersColumns += " |"
+            if ($hasParameters) {
+                $null = $allLines.Add("| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) |$($addedParametersColumns)")
             }
-        }
-        if ($hasParameters) {
-            $null = $allLines.Add("| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) |$($addedParametersColumns)")
         }
     }
 

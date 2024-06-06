@@ -53,7 +53,9 @@ param (
 
     [Parameter(HelpMessage = "If set, outputs variables consumable by conditions in a DevOps pipeline.")]
     [ValidateSet("ado", "gitlab", "")]
-    [string] $DevOpsType = ""
+    [string] $DevOpsType = "",
+
+    [switch]$SkipNotScopedExemptions
 )
 
 $PSDefaultParameterValues = @{
@@ -332,17 +334,33 @@ if ($buildSelections.buildAny) {
 
     if ($buildSelections.buildPolicyExemptions) {
         # Process Exemption JSON files
-        Build-ExemptionsPlan `
-            -ExemptionsRootFolder $policyExemptionsFolderForPacEnvironment `
-            -ExemptionsAreNotManagedMessage $exemptionsAreNotManagedMessage `
-            -PacEnvironment $pacEnvironment `
-            -ScopeTable $scopeTable `
-            -AllDefinitions $allDefinitions `
-            -AllAssignments $allAssignments `
-            -CombinedPolicyDetails $combinedPolicyDetails `
-            -Assignments $assignments `
-            -DeployedExemptions $deployedPolicyResources.policyExemptions `
-            -Exemptions $exemptions
+        if ($SkipNotScopedExemptions) {
+            Build-ExemptionsPlan `
+                -ExemptionsRootFolder $policyExemptionsFolderForPacEnvironment `
+                -ExemptionsAreNotManagedMessage $exemptionsAreNotManagedMessage `
+                -PacEnvironment $pacEnvironment `
+                -ScopeTable $scopeTable `
+                -AllDefinitions $allDefinitions `
+                -AllAssignments $allAssignments `
+                -CombinedPolicyDetails $combinedPolicyDetails `
+                -Assignments $assignments `
+                -DeployedExemptions $deployedPolicyResources.policyExemptions `
+                -Exemptions $exemptions `
+                -SkipNotScopedExemptions
+        }
+        else {
+            Build-ExemptionsPlan `
+                -ExemptionsRootFolder $policyExemptionsFolderForPacEnvironment `
+                -ExemptionsAreNotManagedMessage $exemptionsAreNotManagedMessage `
+                -PacEnvironment $pacEnvironment `
+                -ScopeTable $scopeTable `
+                -AllDefinitions $allDefinitions `
+                -AllAssignments $allAssignments `
+                -CombinedPolicyDetails $combinedPolicyDetails `
+                -Assignments $assignments `
+                -DeployedExemptions $deployedPolicyResources.policyExemptions `
+                -Exemptions $exemptions
+        }
     }
 
     Write-Information "==================================================================================================="
