@@ -221,10 +221,10 @@ if ($Mode -ne 'exportFromRawFiles') {
             if ($Mode -eq 'psrule') {
                 $newScopeTable = @{}
                 foreach ($scope in $scopeTable.GetEnumerator()) {
-                    if ($scope.Value.childrenList.ContainsKey($pacEnvironmentOriginalScope)) {
+                    if ($scope.Value.parentTable.ContainsKey($pacEnvironmentOriginalScope)) {
                         $newObj = $scope.Value | Select-Object -ExcludeProperty childrenList
                         $children = @{}
-                        $scope.Value.childrenList.GetEnumerator() | Where-Object Key -eq $pacEnvironmentOriginalScope | ForEach-Object {
+                        $scope.Value.parentTable.GetEnumerator() | Where-Object Key -eq $pacEnvironmentOriginalScope | ForEach-Object {
                             $children.Add($_.Key, $_.Value)
                         }
                         Add-Member -InputObject $newObj -MemberType NoteProperty -Name childrenList -Value $children
@@ -288,18 +288,18 @@ if ($Mode -ne 'exportFromRawFiles') {
                 Sku                = $policy.Value.Sku
                 PolicyAssignmentId = $policy.Value.ResourceId
                 Properties         = @{
-                    Scope                 = $policy.Value.Properties.Scope
-                    NotScope              = $policy.Value.Properties.NotScope
-                    DisplayName           = $policy.Value.Properties.DisplayName
-                    Description           = $policy.Value.Properties.Description
-                    Metadata              = $policy.Value.Properties.Metadata
-                    EnforcementMode       = switch ($policy.Value.Properties.EnforcementMode) {
+                    Scope                 = $policy.Value.properties.scope
+                    NotScope              = $policy.Value.properties.notScopes
+                    DisplayName           = $policy.Value.properties.displayName
+                    Description           = $policy.Value.properties.description
+                    Metadata              = $policy.Value.properties.metadata
+                    EnforcementMode       = switch ($policy.Value.properties.enforcementMode) {
                         0 { "Default" }
                         1 { "DoNotEnforce" }
                     }
-                    PolicyDefinitionId    = $policy.Value.Properties.PolicyDefinitionId
-                    Parameters            = $policy.Value.Properties.Parameters
-                    NonComplianceMessages = $policy.Value.Properties.NonComplianceMessages
+                    PolicyDefinitionId    = $policy.Value.properties.policyDefinitionId
+                    Parameters            = $policy.Value.properties.parameters
+                    NonComplianceMessages = $policy.Value.properties.nonComplianceMessages
                 }
             }
     

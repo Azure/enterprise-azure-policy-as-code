@@ -33,6 +33,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: plans-${{ inputs.pacEnvironmentSelector }}
+          path: ${{ inputs.PAC_INPUT_FOLDER }}
 
       - name: Install Required Modules
         uses: Azure/powershell@v2

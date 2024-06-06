@@ -28,24 +28,28 @@ function Confirm-PolicyResourceExclusions {
         }
         return $false, $resourceIdParts
     }
-    if ($ExcludedScopesTable.ContainsKey($scope)) {
-        Write-Verbose "Excluded scope '$scope', resource '$($ResourceId)'"
-        if ($null -ne $PolicyResourceTable) {
-            $PolicyResourceTable.counters.excluded += 1
-        }
-        # if ($resourceIdParts.kind -eq "policyAssignments") {
-        #     $excludedScope = $ExcludedScopesTable.$scope
-        #     $null = $null
-        # }
-        return $false, $resourceIdParts
-    }
-    foreach ($testExcludedId in $ExcludedIds) {
-        if ($TestId -like $testExcludedId) {
-            Write-Verbose "Excluded id '$($ResourceId)'"
+    if ($null -ne $ExcludedScopesTable) {
+        if ($ExcludedScopesTable.ContainsKey($scope)) {
+            Write-Verbose "Excluded scope '$scope', resource '$($ResourceId)'"
             if ($null -ne $PolicyResourceTable) {
                 $PolicyResourceTable.counters.excluded += 1
             }
+            # if ($resourceIdParts.kind -eq "policyAssignments") {
+            #     $excludedScope = $ExcludedScopesTable.$scope
+            #     $null = $null
+            # }
             return $false, $resourceIdParts
+        }
+    }
+    if ($null -ne $ExcludedIds) {
+        foreach ($testExcludedId in $ExcludedIds) {
+            if ($TestId -like $testExcludedId) {
+                Write-Verbose "Excluded id '$($ResourceId)'"
+                if ($null -ne $PolicyResourceTable) {
+                    $PolicyResourceTable.counters.excluded += 1
+                }
+                return $false, $resourceIdParts
+            }
         }
     }
     return $true, $resourceIdParts

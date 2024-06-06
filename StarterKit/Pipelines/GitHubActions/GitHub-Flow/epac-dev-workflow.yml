@@ -37,7 +37,7 @@ jobs:
     with:
       pacEnvironmentSelector: epac-dev
       planGitHubEnvironment: PAC-DEV
-      PAC_INPUT_FOLDER: "$(GITHUB_WORKSPACE)/plans-epac-dev"
+      PAC_INPUT_FOLDER: ./Output
       PAC_DEFINITIONS_FOLDER: ./Definitions
     secrets: inherit
 
@@ -49,7 +49,7 @@ jobs:
     with:
       pacEnvironmentSelector: epac-dev
       planGitHubEnvironment: PAC-DEV
-      PAC_INPUT_FOLDER: "$(GITHUB_WORKSPACE)/plans-epac-dev"
+      PAC_INPUT_FOLDER: ./Output
       PAC_DEFINITIONS_FOLDER: ./Definitions
     secrets: inherit
 
