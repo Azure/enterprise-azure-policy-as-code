@@ -33,7 +33,7 @@ jobs:
     with:
       pacEnvironmentSelector: nonprod
       planGitHubEnvironment: NONPROD-DEPLOY-POLICY
-      PAC_INPUT_FOLDER: "$(GITHUB_WORKSPACE)/plans-nonprod"
+      PAC_INPUT_FOLDER: ./Output
       PAC_DEFINITIONS_FOLDER: ./Definitions
     secrets: inherit
 
@@ -45,6 +45,6 @@ jobs:
     with:
       pacEnvironmentSelector: nonprod
       planGitHubEnvironment: NONPROD-DEPLOY-ROLES
-      PAC_INPUT_FOLDER: "$(GITHUB_WORKSPACE)/plans-nonprod"
+      PAC_INPUT_FOLDER: ./Output
       PAC_DEFINITIONS_FOLDER: ./Definitions
     secrets: inherit
