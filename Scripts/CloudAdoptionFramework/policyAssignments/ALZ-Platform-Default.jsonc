@@ -15,7 +15,8 @@
         "enableProcessesAndDependencies": true,
         "userAssignedManagedIdentityResourceGroup": "", //Replace with the name of the resource group where the user assigned managed identity is deployed
         "identityResourceGroup": "", // Replace with the name of the resource group where the user assigned managed identity is deployed
-        "scopeToSupportedImages": false
+        "scopeToSupportedImages": false,
+        "resourceName": "" // Replace with the name of the user assigned managed identity
     },
     "children": [
         {
@@ -134,6 +135,22 @@
                     },
                     "parameters": {
                         "dcrResourceId": "" // Resource Id for the deployed DCR - see https://github.com/Azure/Enterprise-Scale/blob/main/eslzArm/resourceGroupTemplates/dataCollectionRule-VmInsights.json
+                    }
+                },
+                {
+                    "nodeName": "UAMIAMA",
+                    "assignment": {
+                        "name": "DenyAction-DeleteUAMIAMA",
+                        "displayName": "Do not allow deletion of the User Assigned Managed Identity used by AMA",
+                        "description": "This policy provides a safeguard against accidental removal of the User Assigned Managed Identity used by AMA by blocking delete calls using deny action effect."
+                    },
+                    "definitionEntry": {
+                        "policyName": "DenyAction-DeleteResources",
+                        "displayName": "Do not allow deletion of specified resource and resource type"
+                    },
+                    "parameters": {
+                        "resourceType": "Microsoft.ManagedIdentity/userAssignedIdentities",
+                        "effect": "DenyAction"
                     }
                 }
             ]

@@ -28,7 +28,7 @@ function Out-PolicyExemptions {
         label      = "policyDefinitionReferenceIds"
         expression = {
             if ($_.policyDefinitionReferenceIds) {
-            ($_.policyDefinitionReferenceIds -join ",").ToString()
+            ($_.policyDefinitionReferenceIds -join "&").ToString()
             }
             else {
                 ''

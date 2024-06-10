@@ -111,6 +111,7 @@ function Build-AssignmentPlan {
             $metadata = $assignment.metadata
             $parameters = $assignment.parameters
             $policyDefinitionId = $assignment.policyDefinitionId
+            $definitionVersion = $assignment.definitionVersion
             $scope = $assignment.scope
             $notScopes = $assignment.notScopes
             $enforcementMode = $assignment.enforcementMode
@@ -125,6 +126,10 @@ function Build-AssignmentPlan {
 
                 $replacedDefinition = $ReplaceDefinitions.ContainsKey($policyDefinitionId)
                 $changedPolicyDefinitionId = $policyDefinitionId -ne $deployedPolicyAssignmentProperties.policyDefinitionId
+                $definitionVersionMatches = $true
+                if ($definitionVersion) {
+                    $definitionVersionMatches = $definitionVersion -eq $deployedPolicyAssignmentProperties.definitionVersion
+                }
                 $displayNameMatches = $displayName -eq $deployedPolicyAssignmentProperties.displayName
                 $descriptionMatches = $description -eq $deployedPolicyAssignmentProperties.description
                 $notScopesMatch = Confirm-ObjectValueEqualityDeep `
@@ -163,9 +168,8 @@ function Build-AssignmentPlan {
                 }
 
                 # Check if Policy assignment in Azure is the same as in the JSON file
-
                 $changesStrings = @()
-                $match = $displayNameMatches -and $descriptionMatches -and $parametersMatch -and $metadataMatches -and !$changePacOwnerId `
+                $match = $displayNameMatches -and $descriptionMatches -and $parametersMatch -and $metadataMatches -and $definitionVersionMatches -and !$changePacOwnerId `
                     -and $enforcementModeMatches -and $notScopesMatch -and $nonComplianceMessagesMatches -and $overridesMatch -and $resourceSelectorsMatch -and !$identityStatus.replaced
                 if ($match) {
                     # no Assignment properties changed
@@ -205,6 +209,9 @@ function Build-AssignmentPlan {
                     }
                     if (!$metadataMatches) {
                         $changesStrings += "metadata"
+                    }
+                    if (!$definitionVersionMatches) {
+                        $changesStrings += "definitionVersion"
                     }
                     if (!$parametersMatch) {
                         $changesStrings += "parameters"

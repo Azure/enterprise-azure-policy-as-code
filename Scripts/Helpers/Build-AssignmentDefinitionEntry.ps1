@@ -74,9 +74,9 @@ function Build-AssignmentDefinitionEntry {
             }
         }
 
-        # if ($null -ne $definitionVersion) {
-        #     $normalizedEntry.definitionVersion = $definitionVersion
-        # }
+        if ($definitionVersion) {
+            $normalizedEntry.definitionVersion = $definitionVersion
+        }
 
         if ($null -ne $displayName) {
             $normalizedEntry.displayName = $DefinitionEntry.displayName

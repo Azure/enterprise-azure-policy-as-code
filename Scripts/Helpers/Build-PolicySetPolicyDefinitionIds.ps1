@@ -79,6 +79,9 @@ function Build-PolicySetPolicyDefinitionIds {
                 if ($null -ne $policyDefinition.groupNames) {
                     $modifiedPolicyDefinition.Add("groupNames", $policyDefinition.groupNames)
                 }
+                if ($null -ne $policyDefinition.definitionVersion) {
+                    $modifiedPolicyDefinition.Add("definitionVersion", $policyDefinition.definitionVersion)
+                }
                 $null = $policyDefinitionsFinal.Add($modifiedPolicyDefinition)
             }
             else {

@@ -43,6 +43,7 @@ function Out-DocumentationForPolicySets {
     #region Policy Set List
     $addedTableHeader = ""
     $addedTableDivider = ""
+    $addedTableDividerParameters = ""
     $null = $allLines.Add("`n$leadingHeadingHashtag# Policy Set (Initiative) List`n")
     foreach ($item in $ItemList) {
         $shortName = $item.shortName
@@ -57,7 +58,8 @@ function Out-DocumentationForPolicySets {
         $null = $allLines.Add("$($policySetDescription)`n")
 
         $addedTableHeader += " $shortName |"
-        $addedTableDivider += " :-------- |"
+        $addedTableDivider += " :-------: |"
+        $addedTableDividerParameters += " :------- |"
     }
     #endregion Policy Set List
 
@@ -134,7 +136,7 @@ function Out-DocumentationForPolicySets {
     else {
         $null = $allLines.Add("`n$leadingHeadingHashtag# Policy Parameters by Policy`n")
         $null = $allLines.Add("| Category | Policy |$addedTableHeader")
-        $null = $allLines.Add("| :------- | :----- |$addedTableDivider")
+        $null = $allLines.Add("| :------- | :----- |$addedTableDividerParameters")
 
         $FlatPolicyList.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
             $policySetList = $_.policySetList

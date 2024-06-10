@@ -26,6 +26,9 @@
                 "policySetName": {
                     "type": "string"
                 },
+                "definitionVersion": {
+                    "type": "string"
+                },
                 "displayName": {
                     "type": "string"
                 },
@@ -72,6 +75,9 @@
                             "type": "string"
                         },
                         "policySetName": {
+                            "type": "string"
+                        },
+                        "definitionVersion": {
                             "type": "string"
                         },
                         "displayName": {

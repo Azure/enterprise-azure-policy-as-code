@@ -49,7 +49,6 @@ function Build-PolicySetPlan {
         $displayName = $definitionProperties.displayName
         $description = $definitionProperties.description
         $metadata = Get-DeepCloneAsOrderedHashtable $definitionProperties.metadata
-        # $version = $definitionProperties.version
         $parameters = $definitionProperties.parameters
         $policyDefinitions = $definitionProperties.policyDefinitions
         $policyDefinitionGroups = $definitionProperties.policyDefinitionGroups
@@ -119,6 +118,9 @@ function Build-PolicySetPlan {
                     # Covered this use of a group name
                     $usedPolicyGroupDefinitions.Remove($groupName)
                 }
+                else {
+                    Write-Error "$($displayName): PolicyDefinitionGroup '$groupName' not found in policyDefinitionGroups." -ErrorAction Stop
+                }
                 if (!$policyDefinitionGroupsHashTable.ContainsKey($groupName)) {
                     # Ignore duplicates
                     $policyDefinitionGroupsHashTable.Add($groupName, $_)
@@ -184,7 +186,6 @@ function Build-PolicySetPlan {
             displayName            = $displayName
             description            = $description
             metadata               = $metadata
-            # version                = $version
             parameters             = $parameters
             policyDefinitions      = $policyDefinitionsFinal
             policyDefinitionGroups = $policyDefinitionGroupsFinal
@@ -206,8 +207,6 @@ function Build-PolicySetPlan {
             $metadataMatches, $changePacOwnerId = Confirm-MetadataMatches `
                 -ExistingMetadataObj $deployedDefinition.metadata `
                 -DefinedMetadataObj $metadata
-            # $versionMatches = $version -eq $deployedDefinition.version
-            $versionMatches = $true
             $parametersMatch, $incompatible = Confirm-ParametersDefinitionMatch `
                 -ExistingParametersObj $deployedDefinition.parameters `
                 -DefinedParametersObj $parameters
@@ -228,7 +227,7 @@ function Build-PolicySetPlan {
                     break
                 }
             }
-            if (!$containsReplacedPolicy -and $displayNameMatches -and $descriptionMatches -and $metadataMatches -and $versionMatches -and !$changePacOwnerId -and $parametersMatch -and $policyDefinitionsMatch -and $policyDefinitionGroupsMatch) {
+            if (!$containsReplacedPolicy -and $displayNameMatches -and $descriptionMatches -and $metadataMatches -and !$changePacOwnerId -and $parametersMatch -and $policyDefinitionsMatch -and $policyDefinitionGroupsMatch) {
                 # Write-Information "Unchanged '$($displayName)'"
                 $Definitions.numberUnchanged++
             }
@@ -252,9 +251,6 @@ function Build-PolicySetPlan {
                 }
                 if (!$metadataMatches) {
                     $changesStrings += "metadata"
-                }
-                if (!$versionMatches) {
-                    $changesStrings += "version"
                 }
                 if (!$parametersMatch -and !$incompatible) {
                     $changesStrings += "param"

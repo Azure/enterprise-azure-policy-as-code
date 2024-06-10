@@ -78,6 +78,7 @@ function Out-DocumentationForPolicyAssignments {
                         groupNames             = [System.Collections.ArrayList]::new()
                         policySetList          = @{}
                         policySetEffectStrings = $flatPolicyEntry.policySetEffectStrings
+                        isReferencePathMatch   = $false
                     }
                     $null = $flatPolicyListAcrossEnvironments.Add($policyTableId, $flatPolicyEntryAcrossEnvironments)
                 }
@@ -149,6 +150,40 @@ function Out-DocumentationForPolicyAssignments {
         }
     }
 
+    #region Review Duplicates
+
+    # Iterate over each key-value pair in the hashtable
+    foreach ($policyDef in $flatPolicyListAcrossEnvironments.Keys) {
+        # Skip if policy is BuiltIn
+        if ($flatPolicyListAcrossEnvironments[$policyDef].policyType -ne "BuiltIn") {
+            # Compare the current key's value with every other key's value
+            foreach ($policyDefCompare in $flatPolicyListAcrossEnvironments.Keys) {
+                # Skip the comparison if it's the same key or the compare def is a BuiltIn
+                if ($policyDef -ne $policyDefCompare -and $flatPolicyListAcrossEnvironments[$policyDefCompare].policyType -ne "BuiltIn") {
+                    # Check if already been tagged as a match to another referencePathId
+                    if ($flatPolicyListAcrossEnvironments[$policyDef].isReferencePathMatch -eq $false) {
+                        # Check if the referencePath values match
+                        if ($flatPolicyListAcrossEnvironments[$policyDef].referencePath -eq $flatPolicyListAcrossEnvironments[$policyDefCompare].referencePath) {
+                            # Check if the Policy Assignment Display Name values match
+                            if ($flatPolicyListAcrossEnvironments[$policyDef].displayName -eq $flatPolicyListAcrossEnvironments[$policyDefCompare].displayName) {
+                                # Set variable for isReferencePatMatch to true
+                                $flatPolicyListAcrossEnvironments[$policyDefCompare].isReferencePathMatch = $true
+                                # Find which env category is missing, add it to $policyDef
+                                foreach ($env in $flatPolicyListAcrossEnvironments[$policyDefCompare].environmentList.keys) {
+                                    if (-not $flatPolicyListAcrossEnvironments[$policyDef].environmentList.ContainsKey($env)) {
+                                        # Copy envrionemnt from match to original key
+                                        $flatPolicyListAcrossEnvironments[$policyDef].environmentList[$env] = $flatPolicyListAcrossEnvironments[$policyDefCompare].environmentList[$env]
+                                    }
+                                }
+                                break
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     #endregion Combine per environment flat lists into a single flat list ($flatPolicyListAcrossEnvironments)
 
     #region Markdown
@@ -214,10 +249,12 @@ function Out-DocumentationForPolicyAssignments {
 
     $addedTableHeader = ""
     $addedTableDivider = ""
+    $addedTableDividerParameters = ""
     foreach ($environmentCategory in $environmentCategories) {
         # Calculate environment columns
         $addedTableHeader += " $environmentCategory |"
         $addedTableDivider += " :-----: |"
+        $addedTableDividerParameters += " :----- |"
     }
 
     if ($DocumentationSpecification.markdownIncludeComplianceGroupNames) {
@@ -232,37 +269,40 @@ function Out-DocumentationForPolicyAssignments {
     }
     
     $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
-        # Build additional columns
-        $addedEffectColumns = ""
-        $environmentList = $_.environmentList
-        foreach ($environmentCategory in $environmentCategories) {
-            if ($environmentList.ContainsKey($environmentCategory)) {
-                $environmentCategoryValues = $environmentList.$environmentCategory
-                $effectValue = $environmentCategoryValues.effectValue
-                $effectAllowedValues = $_.effectAllowedValues
-                $text = Convert-EffectToMarkdownString `
-                    -Effect $effectValue `
-                    -AllowedValues $effectAllowedValues.Keys `
-                    -InTableBreak $inTableBreak
-                $addedEffectColumns += " $text |"
-            }
-            else {
-                $addedEffectColumns += " |"
-            }
+        # If statement to skip over duplicates
+        if ( $true -ne $_.isReferencePathMatch) {
+            # Build additional columns
+            $addedEffectColumns = ""
+            $environmentList = $_.environmentList
+            foreach ($environmentCategory in $environmentCategories) {
+                if ($environmentList.ContainsKey($environmentCategory)) {
+                    $environmentCategoryValues = $environmentList.$environmentCategory
+                    $effectValue = $environmentCategoryValues.effectValue
+                    $effectAllowedValues = $_.effectAllowedValues
+                    $text = Convert-EffectToMarkdownString `
+                        -Effect $effectValue `
+                        -AllowedValues $effectAllowedValues.Keys `
+                        -InTableBreak $inTableBreak
+                    $addedEffectColumns += " $text |"
+                }
+                else {
+                    $addedEffectColumns += " |"
+                }
 
-        }
-        $groupNamesText = ""
-        if ($DocumentationSpecification.markdownIncludeComplianceGroupNames) {
-            $groupNames = $_.groupNames
-            if ($groupNames.Count -gt 0) {
-                $sortedGroupNames = $groupNames | Sort-Object -Unique
-                $groupNamesText = "| $($sortedGroupNames -join $inTableBreak) "
             }
-            else {
-                $groupNamesText = "| "
+            $groupNamesText = ""
+            if ($DocumentationSpecification.markdownIncludeComplianceGroupNames) {
+                $groupNames = $_.groupNames
+                if ($groupNames.Count -gt 0) {
+                    $sortedGroupNames = $groupNames | Sort-Object -Unique
+                    $groupNamesText = "| $($sortedGroupNames -join $inTableBreak) "
+                }
+                else {
+                    $groupNamesText = "| "
+                }
             }
+            $null = $allLines.Add("| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) $($groupNamesText)|$($addedEffectColumns)")
         }
-        $null = $allLines.Add("| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) $($groupNamesText)|$($addedEffectColumns)")
     }
 
     #endregion Policy Effects
@@ -275,67 +315,91 @@ function Out-DocumentationForPolicyAssignments {
     else {
         $null = $allLines.Add("`n$leadingHeadingHashtag# Policy Parameters by Policy`n")
         $null = $allLines.Add("| Category | Policy |$addedTableHeader")
-        $null = $allLines.Add("| :------- | :----- |$addedTableDivider")
+        $null = $allLines.Add("| :------- | :----- |$addedTableDividerParameters")
 
         $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
-            # Build additional columns
-            $addedParametersColumns = ""
-            $environmentList = $_.environmentList
-            $hasParameters = $false
-            foreach ($environmentCategory in $environmentCategories) {
-                if ($environmentList.ContainsKey($environmentCategory)) {
-                    $environmentCategoryValues = $environmentList.$environmentCategory
-                    $text = ""
-                    $parameters = $environmentCategoryValues.parameters
-                    $notFirst = $false
-                    foreach ($parameterName in $parameters.Keys) {
-                        $parameter = $parameters.$parameterName
-                        if (-not $parameter.isEffect) {
-                            $hasParameters = $true
-                            $markdownMaxParameterLength = 42
-                            if ($DocumentationSpecification.markdownMaxParameterLength) {
-                                $markdownMaxParameterLength = $DocumentationSpecification.markdownMaxParameterLength
-                                if ($markdownMaxParameterLength -lt 16) {
-                                    Write-Error "markdownMaxParameterLength must be at least 16; it is $markdownMaxParameterLength" -ErrorAction Stop
+            # If statement to skip over duplicates
+            if ( $true -ne $_.isReferencePathMatch) {
+                # Build additional columns
+                $addedParametersColumns = ""
+                $environmentList = $_.environmentList
+                $hasParameters = $false
+                foreach ($environmentCategory in $environmentCategories) {
+                    if ($environmentList.ContainsKey($environmentCategory)) {
+                        $environmentCategoryValues = $environmentList.$environmentCategory
+                        $text = ""
+                        $parameters = $environmentCategoryValues.parameters
+                        $notFirst = $false
+                        foreach ($parameterName in $parameters.Keys) {
+                            $parameter = $parameters.$parameterName
+                            if (-not $parameter.isEffect) {
+                                $hasParameters = $true
+                                $markdownMaxParameterLength = 42
+                                if ($DocumentationSpecification.markdownMaxParameterLength) {
+                                    $markdownMaxParameterLength = $DocumentationSpecification.markdownMaxParameterLength
+                                    if ($markdownMaxParameterLength -lt 16) {
+                                        Write-Error "markdownMaxParameterLength must be at least 16; it is $markdownMaxParameterLength" -ErrorAction Stop
+                                    }
                                 }
-                            }
-                            if ($parameterName.length -gt $markdownMaxParameterLength) {
-                                $parameterName = $parameterName.substring(0, $markdownMaxParameterLength - 3) + "..."
-                            }
-                            $value = $parameter.value
-                            if ($notFirst) {
-                                $text += $inTableBreak
-                            }
-                            else {
-                                $notFirst = $true
-                            }
-                            if ($null -eq $value) {
-                                $value = $parameter.defaultValue
+                                if ($parameterName.length -gt $markdownMaxParameterLength) {
+                                    $parameterName = $parameterName.substring(0, $markdownMaxParameterLength - 3) + "..."
+                                }
+                                # Check for null parameter
+                                if ($null -eq $parameter.value) {
+                                    # Parse through all assignments
+                                    foreach ($assignment in $AssignmentsByEnvironment[$environmentCategory]["assignmentsDetails"].keys) {
+                                        # For each policy definitions, look to see if it matches the current policy definition that has a parameter set to null
+                                        foreach ($definition in $AssignmentsByEnvironment[$environmentCategory]["assignmentsDetails"][$assignment].policyDefinitions) {
+                                            if ($definition.id -eq $_.policyTableId) {
+                                                # Once a match is found, search all keys (which are parameter names) and see it matches the parameter we are looking for
+                                                foreach ($key in $AssignmentsByEnvironment[$environmentCategory]["assignmentsDetails"][$assignment]["parameters"].keys) {
+                                                    if ($key -eq $parameterName) {
+                                                        # Use the key value over the $parameterName value due to possible case-sensitivity issues.
+                                                        $value = $AssignmentsByEnvironment[$environmentCategory]["assignmentsDetails"][$assignment]["parameters"][$key].defaultValue
+                                                        break
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                else {
+                                    $value = $parameter.value
+                                }
+                                if ($notFirst) {
+                                    $text += $inTableBreak
+                                }
+                                else {
+                                    $notFirst = $true
+                                }
                                 if ($null -eq $value) {
-                                    $value = "null"
+                                    $value = $parameter.defaultValue
+                                    if ($null -eq $value) {
+                                        $value = "null"
+                                    }
                                 }
+                                $valueString = ""
+                                if ($value -is [string]) {
+                                    $valueString = $value
+                                }
+                                else {
+                                    $valueString = ConvertTo-Json $value -Depth 100 -Compress
+                                }
+                                if ($valueString.length -gt $markdownMaxParameterLength) {
+                                    $valueString = $valueString.substring(0, $markdownMaxParameterLength - 3) + "..."
+                                }
+                                $text += "$($parameterName) = **``$valueString``**"
                             }
-                            $valueString = ""
-                            if ($value -is [string]) {
-                                $valueString = $value
-                            }
-                            else {
-                                $valueString = ConvertTo-Json $value -Depth 100 -Compress
-                            }
-                            if ($valueString.length -gt $markdownMaxParameterLength) {
-                                $valueString = $valueString.substring(0, $markdownMaxParameterLength - 3) + "..."
-                            }
-                            $text += "$($parameterName) = **``$valueString``**"
                         }
+                        $addedParametersColumns += " $text |"
                     }
-                    $addedParametersColumns += " $text |"
+                    else {
+                        $addedParametersColumns += " |"
+                    }
                 }
-                else {
-                    $addedParametersColumns += " |"
+                if ($hasParameters) {
+                    $null = $allLines.Add("| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) |$($addedParametersColumns)")
                 }
-            }
-            if ($hasParameters) {
-                $null = $allLines.Add("| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) |$($addedParametersColumns)")
             }
         }
     }
@@ -377,65 +441,68 @@ function Out-DocumentationForPolicyAssignments {
 
     # Process the table
     $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
-        # Initialize row - with empty strings
-        $rowObj = [ordered]@{}
-        foreach ($key in $columnHeaders) {
-            $null = $rowObj.Add($key, "")
-        }
-
-        # Cache loop values
-        # $effectAllowedValues = $_.effectAllowedValues
-        # $groupNames = $_.groupNames
-        # $policySetEffectStrings = $_.policySetEffectStrings
-        $effectAllowedValues = $_.effectAllowedValues
-        $isEffectParameterized = $_.isEffectParameterized
-        $effectAllowedOverrides = $_.effectAllowedOverrides
-        $groupNames = $_.groupNames
-        $effectDefault = $_.effectDefault
-        $policySetEffectStrings = $_.policySetEffectStrings
-
-        # Build common columns
-        $rowObj.name = $_.name
-        $rowObj.referencePath = $_.referencePath
-        $rowObj.policyType = $_.policyType
-        $rowObj.category = $_.category
-        $rowObj.displayName = $_.displayName
-        $rowObj.description = $_.description
-        $groupNames = $_.groupNames
-        if ($groupNames.Count -gt 0) {
-            $sortedGroupNameList = $groupNames | Sort-Object -Unique
-            $rowObj.groupNames = $sortedGroupNameList -join $inCellSeparator3
-        }
-        if ($policySetEffectStrings.Count -gt 0) {
-            $rowObj.policySets = $policySetEffectStrings -join $inCellSeparator3
-        }
-        $rowObj.allowedEffects = Convert-AllowedEffectsToCsvString `
-            -DefaultEffect $effectDefault `
-            -IsEffectParameterized $isEffectParameterized `
-            -EffectAllowedValues $effectAllowedValues.Keys `
-            -EffectAllowedOverrides $effectAllowedOverrides `
-            -InCellSeparator1 $inCellSeparator1 `
-            -InCellSeparator2 $inCellSeparator2
-
-        $environmentList = $_.environmentList
-        # Build environmentCategory columns
-        foreach ($environmentCategory in $environmentCategories) {
-            if ($environmentList.ContainsKey($environmentCategory)) {
-                $perEnvironment = $environmentList.$environmentCategory
-                if ($null -ne $perEnvironment.effectValue) {
-                    $rowObj["$($environmentCategory)Effect"] = Convert-EffectToCsvString $perEnvironment.effectValue
-                }
-                else {
-                    $rowObj["$($environmentCategory)Effect"] = Convert-EffectToCsvString $_.effectDefault
-                }
-
-                $text = Convert-ParametersToString -Parameters $perEnvironment.parameters -OutputType "csvValues"
-                $rowObj["$($environmentCategory)Parameters"] = $text
+        # If statement to skip over duplicates
+        if ( $true -ne $_.isReferencePathMatch) {
+            # Initialize row - with empty strings
+            $rowObj = [ordered]@{}
+            foreach ($key in $columnHeaders) {
+                $null = $rowObj.Add($key, "")
             }
-        }
 
-        # Add row to spreadsheet
-        $null = $allRows.Add($rowObj)
+            # Cache loop values
+            # $effectAllowedValues = $_.effectAllowedValues
+            # $groupNames = $_.groupNames
+            # $policySetEffectStrings = $_.policySetEffectStrings
+            $effectAllowedValues = $_.effectAllowedValues
+            $isEffectParameterized = $_.isEffectParameterized
+            $effectAllowedOverrides = $_.effectAllowedOverrides
+            $groupNames = $_.groupNames
+            $effectDefault = $_.effectDefault
+            $policySetEffectStrings = $_.policySetEffectStrings
+
+            # Build common columns
+            $rowObj.name = $_.name
+            $rowObj.referencePath = $_.referencePath
+            $rowObj.policyType = $_.policyType
+            $rowObj.category = $_.category
+            $rowObj.displayName = $_.displayName
+            $rowObj.description = $_.description
+            $groupNames = $_.groupNames
+            if ($groupNames.Count -gt 0) {
+                $sortedGroupNameList = $groupNames | Sort-Object -Unique
+                $rowObj.groupNames = $sortedGroupNameList -join $inCellSeparator3
+            }
+            if ($policySetEffectStrings.Count -gt 0) {
+                $rowObj.policySets = $policySetEffectStrings -join $inCellSeparator3
+            }
+            $rowObj.allowedEffects = Convert-AllowedEffectsToCsvString `
+                -DefaultEffect $effectDefault `
+                -IsEffectParameterized $isEffectParameterized `
+                -EffectAllowedValues $effectAllowedValues.Keys `
+                -EffectAllowedOverrides $effectAllowedOverrides `
+                -InCellSeparator1 $inCellSeparator1 `
+                -InCellSeparator2 $inCellSeparator2
+
+            $environmentList = $_.environmentList
+            # Build environmentCategory columns
+            foreach ($environmentCategory in $environmentCategories) {
+                if ($environmentList.ContainsKey($environmentCategory)) {
+                    $perEnvironment = $environmentList.$environmentCategory
+                    if ($null -ne $perEnvironment.effectValue) {
+                        $rowObj["$($environmentCategory)Effect"] = Convert-EffectToCsvString $perEnvironment.effectValue
+                    }
+                    else {
+                        $rowObj["$($environmentCategory)Effect"] = Convert-EffectToCsvString $_.effectDefault
+                    }
+
+                    $text = Convert-ParametersToString -Parameters $perEnvironment.parameters -OutputType "csvValues"
+                    $rowObj["$($environmentCategory)Parameters"] = $text
+                }
+            }
+
+            # Add row to spreadsheet
+            $null = $allRows.Add($rowObj)
+        }
     }
 
     # Output file

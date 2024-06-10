@@ -78,6 +78,9 @@
                                 "policyDefinitionReferenceId": {
                                     "type": "string"
                                 },
+                                "definitionVersion": {
+                                    "type": "string"
+                                },
                                 "parameters": {
                                     "type": "object"
                                 },
