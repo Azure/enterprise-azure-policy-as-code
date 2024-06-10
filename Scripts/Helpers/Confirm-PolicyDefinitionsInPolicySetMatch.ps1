@@ -38,6 +38,13 @@ function Confirm-PolicyDefinitionsInPolicySetMatch {
             if (!$policyDefinitionIdMatches) {
                 return $false
             }
+            if ($null -ne $item2.definitionVersion) {
+                # ignore aut-generated definitionVersion, only compare if Policy definition entry has a definitionVersion
+                $definitionVersionMatches = $item1.definitionVersion -eq $item2.definitionVersion
+                if (!$definitionVersionMatches) {
+                    return $false
+                }
+            }
             $groupNames1 = $item1.groupNames
             $groupNames2 = $item2.groupNames
             if ($null -eq $groupNames1 -and $null -eq $groupNames2 -and $i -eq $Object1.Count) {

@@ -434,17 +434,8 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
 
             # Collect Policy Properties
             $metadata = Get-CustomMetadata $rawMetadata -Remove "pacOwnerId"
-            $version = $properties.version
             $id = $policyDefinition.id
             $name = $policyDefinition.name
-            # if ($null -eq $version) {
-            #     if ($metadata.version) {
-            #         $version = $metadata.version
-            #     }
-            #     else {
-            #         $version = 1.0.0
-            #     }
-            # }
 
             $definition = [ordered]@{
                 name       = $name
@@ -453,7 +444,6 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
                     description = $properties.description
                     mode        = $properties.mode
                     metadata    = $metadata
-                    version     = $version
                     parameters  = $properties.parameters
                     policyRule  = [ordered]@{
                         if   = $properties.policyRule.if
@@ -532,15 +522,6 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
 
             # Collect Policy Set Properties
             $metadata = Get-CustomMetadata $rawMetadata -Remove "pacOwnerId"
-            $version = $properties.version
-            # if ($null -eq $version) {
-            #     if ($metadata.version) {
-            #         $version = $metadata.version
-            #     }
-            #     else {
-            #         $version = 1.0.0
-            #     }
-            # }
 
             # Adjust policyDefinitions for EPAC
             $policyDefinitionsIn = $properties.policyDefinitions
@@ -578,7 +559,6 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
                     displayName            = $properties.displayName
                     description            = $properties.description
                     metadata               = $metadata
-                    version                = $version
                     parameters             = $properties.parameters
                     policyDefinitions      = $policyDefinitionsOut.ToArray()
                     policyDefinitionGroups = $properties.policyDefinitionGroups

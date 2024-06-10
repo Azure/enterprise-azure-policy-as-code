@@ -54,7 +54,6 @@ function Build-PolicyPlan {
         $displayName = $definitionProperties.displayName
         $description = $definitionProperties.description
         $metadata = Get-DeepCloneAsOrderedHashtable $definitionProperties.metadata
-        # $version = $definitionProperties.version
         $mode = $definitionProperties.mode
         $parameters = $definitionProperties.parameters
         $policyRule = $definitionProperties.policyRule
@@ -116,7 +115,6 @@ function Build-PolicyPlan {
             description = $description
             mode        = $mode
             metadata    = $metadata
-            # version     = $version
             parameters  = $parameters
             policyRule  = $policyRule
         }
@@ -138,8 +136,6 @@ function Build-PolicyPlan {
             $metadataMatches, $changePacOwnerId = Confirm-MetadataMatches `
                 -ExistingMetadataObj $deployedDefinitionProperties.metadata `
                 -DefinedMetadataObj $metadata
-            # $versionMatches = $version -eq $deployedDefinitionProperties.version
-            $versionMatches = $true
             $parametersMatch, $incompatible = Confirm-ParametersDefinitionMatch `
                 -ExistingParametersObj $deployedDefinitionProperties.parameters `
                 -DefinedParametersObj $parameters
@@ -148,7 +144,7 @@ function Build-PolicyPlan {
                 $policyRule
 
             # Update Policy in Azure if necessary
-            if ($displayNameMatches -and $descriptionMatches -and $modeMatches -and $metadataMatches -and !$changePacOwnerId -and $versionMatches -and $parametersMatch -and $policyRuleMatches) {
+            if ($displayNameMatches -and $descriptionMatches -and $modeMatches -and $metadataMatches -and !$changePacOwnerId -and $parametersMatch -and $policyRuleMatches) {
                 # Write-Information "Unchanged '$($displayName)'"
                 $definitionsUnchanged++
             }
@@ -171,9 +167,6 @@ function Build-PolicyPlan {
                 }
                 if (!$metadataMatches) {
                     $changesStrings += "metadata"
-                }
-                if (!$versionMatches) {
-                    $changesStrings += "version"
                 }
                 if (!$parametersMatch -and !$incompatible) {
                     $changesStrings += "param"
