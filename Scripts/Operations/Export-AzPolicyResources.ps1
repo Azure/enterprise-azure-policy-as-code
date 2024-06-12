@@ -548,7 +548,7 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
                 }
                 $groupNames = $policyDefinitionIn.groupNames
                 if ($null -ne $groupNames -and $groupNames.Count -gt 0) {
-                    Add-Member -InputObject $policyDefinitionOut -TypeName "NoteProperty" -NotePropertyName "groupNames" -NotePropertyValue $groupNames
+                    $policyDefinitionOut.Add("groupNames", $groupNames)
                 }
                 $null = $policyDefinitionsOut.Add($policyDefinitionOut)
             }

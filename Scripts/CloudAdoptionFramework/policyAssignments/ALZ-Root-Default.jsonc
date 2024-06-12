@@ -55,13 +55,10 @@
                         "enableAscForKeyVault": "Disabled",
                         "enableAscForSqlOnVm": "Disabled",
                         "enableAscForArm": "Disabled",
-                        "enableAscForDns": "Disabled",
                         "enableAscForOssDb": "Disabled",
                         "enableAscForCosmosDbs": "Disabled",
                         "enableAscForServersVulnerabilityAssessments": "Disabled",
-                        "enableAscForApis": "Disabled",
-                        "enableAscForCspm": "Disabled",
-                        "vulnerabilityAssessmentProvider": "mdeTvm"
+                        "enableAscForCspm": "Disabled"
                     },
                     "nonComplianceMessages": [
                         {
