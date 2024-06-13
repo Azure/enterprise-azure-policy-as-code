@@ -14,7 +14,7 @@ Param(
 )
 
 # Verify release exists
-$GithubReleaseTag = Invoke-RestMethod -Method Get -Uri 'https://api.github.com/repos/Azure/Enterprise-Scale/releases/$GithubRelease' -ErrorAction Stop | Select-Object -ExpandProperty tag_name
+$GithubReleaseTag = Invoke-RestMethod -Method Get -Uri "https://api.github.com/repos/Azure/Enterprise-Scale/releases/$GithubRelease" -ErrorAction Stop | Select-Object -ExpandProperty tag_name
 $defaultPolicyURIs = @(
     "https://raw.githubusercontent.com/Azure/Enterprise-Scale/$GithubReleaseTag/eslzArm/managementGroupTemplates/policyDefinitions/policies.json",
     "https://raw.githubusercontent.com/Azure/Enterprise-Scale/$GithubReleaseTag/eslzArm/managementGroupTemplates/policyDefinitions/initiatives.json"
