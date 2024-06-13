@@ -1,9 +1,23 @@
 #Requires -PSEdition Core
 
 Param(
-    [Parameter(Mandatory = $true)] [string] $DefinitionsRootFolder,
+    [Parameter(Mandatory = $true)]
+    [string] $DefinitionsRootFolder,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateScript({ ($_ -eq 'latest') -or ($_.StartsWith("tag/"))}, ErrorMessage = "Allowed values are 'latest' and 'tag/TAG_NAME'")]
+    [string] $GithubRelease = 'latest',
+
+    [Parameter(Mandatory = $false)]
     [ValidateSet('AzureCloud', 'AzureChinaCloud', 'AzureUSGovernment')]
     [string] $CloudEnvironment = 'AzureCloud'
+)
+
+# Verify release exists
+$GithubReleaseTag = Invoke-RestMethod -Method Get -Uri 'https://api.github.com/repos/Azure/Enterprise-Scale/releases/$GithubRelease' -ErrorAction Stop | Select-Object -ExpandProperty tag_name
+$defaultPolicyURIs = @(
+    "https://raw.githubusercontent.com/Azure/Enterprise-Scale/$GithubReleaseTag/eslzArm/managementGroupTemplates/policyDefinitions/policies.json",
+    "https://raw.githubusercontent.com/Azure/Enterprise-Scale/$GithubReleaseTag/eslzArm/managementGroupTemplates/policyDefinitions/initiatives.json"
 )
 
 if ($DefinitionsRootFolder -eq "") {
@@ -41,11 +55,6 @@ New-Item -Path "$DefinitionsRootFolder\policyAssignments" -ItemType Directory -F
 New-Item -Path "$DefinitionsRootFolder\policyAssignments\ALZ" -ItemType Directory -Force -ErrorAction SilentlyContinue
 
 . "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
-
-$defaultPolicyURIs = @(
-    'https://raw.githubusercontent.com/Azure/Enterprise-Scale/main/eslzArm/managementGroupTemplates/policyDefinitions/policies.json',
-    'https://raw.githubusercontent.com/Azure/Enterprise-Scale/main/eslzArm/managementGroupTemplates/policyDefinitions/initiatives.json'
-)
 
 foreach ($policyUri in $defaultPolicyURIs) {
     $rawContent = (Invoke-WebRequest -Uri $policyUri).Content | ConvertFrom-Json
