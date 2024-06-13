@@ -160,7 +160,7 @@ Many scripts use parameters for input and output folders. They default to the cu
 - Define the Azure environment(s) in file `global-settings.jsonc`
 - Create custom Policies (optional) in folder `policyDefinitions`
 - Create custom Policy Sets (optional) in folder `policySetDefinitions`
-- efine the Policy Assignments in folder `policyAssignments`
+- Define the Policy Assignments in folder `policyAssignments`
 - Define the Policy Exemptions (optional) in folder `policyExemptions`
 - Define Documentation in folder `policyDocumentations]`
 
