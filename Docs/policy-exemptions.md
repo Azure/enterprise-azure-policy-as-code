@@ -242,7 +242,7 @@ It is best to explain the details with examples. They are based on JSON files, b
               "displayName": "Descriptive name displayed on portal",
               "description": "More details",
               "exemptionCategory": "Waiver",
-              "scope": [
+              "scopes": [
                   "/subscriptions/11111111-2222-3333-4444-555555555555",
                   "/subscriptions/11111111-2222-3333-4444-555555555556/resourceGroups/resourceGroupName1",
               ],
@@ -272,7 +272,7 @@ It is best to explain the details with examples. They are based on JSON files, b
               "displayName": "Descriptive name displayed on portal",
               "description": "More details",
               "exemptionCategory": "Waiver",
-              "scope": [
+              "scopes": [
                   "humanReadableName:/subscriptions/11111111-2222-3333-4444-555555555555",
                   "/subscriptions/11111111-2222-3333-4444-555555555556/resourceGroups/resourceGroupName1",
               ],
