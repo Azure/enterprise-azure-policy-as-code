@@ -564,7 +564,12 @@ function Build-ExemptionsPlan {
                                     $resourceIds = @{}
                                     foreach ($resource in $resources) {
                                         $resourceId = $resource.id
-                                        $resourceIds.Add($resourceId, $resource)
+                                        if (!$resourceIds.ContainsKey($resourceId)) {
+                                            $resourceIds.Add($resourceId, $resource)
+                                        }
+                                        else {
+                                            Write-Debug -Message "Resource '$resourceId' already exists in the resourceIds hashtable."
+                                        }
                                         if ($resourceId -eq $currentScope) {
                                             $resourceStatus = "individualResourceExists"
                                         }
