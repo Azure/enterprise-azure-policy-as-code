@@ -33,18 +33,16 @@ function Set-AzRoleAssignmentRestMethod {
 
     # Process response
     $statusCode = $response.StatusCode
-    if ($statusCode -lt 200 -or $statusCode -ge 300) {
-        if ($statusCode -eq 409) {
-            if ($response.content -match "ScopeLocked") {
-                Write-Warning "Scope at $($RoleAssignment.scope) is locked, cannot update role assignment"
-            }
-            else {
-                Write-Warning "Role assignment already exists (ignore): $($RoleAssignment.assignmentDisplayName)"
-            }     
+    if ($statusCode -eq 409) {
+        if ($response.content -match "ScopeLocked") {
+            Write-Warning "Scope at $($RoleAssignment.scope) is locked, cannot update role assignment"
         }
         else {
-            $content = $response.Content
-            Write-Warning "Error, continue deployment: $($statusCode) -- $($content)"
-        }
+            Write-Warning "Role assignment already exists (ignore): $($RoleAssignment.assignmentDisplayName)"
+        }     
+    }
+    else {
+        $content = $response.Content
+        Write-Warning "Error, continue deployment: $($statusCode) -- $($content)"
     }
 }
