@@ -111,15 +111,19 @@ function Build-PolicySetPlan {
         # Process policyDefinitionGroups
         $policyDefinitionGroupsHashTable = @{}
         if ($null -ne $policyDefinitionGroups) {
-            # Check for group defined as policyDefinitionGroups but not used in policies and add them to a new object
-            # Add each group to the object as Azure allows non used groups
-            $policyDefinitionGroups | ForEach-Object {
-                $policyDefinitionGroupsHashTable.Add($_.name, $_)
-            }
-            # Now check each used group defined by policyDefinitions to make sure that it exists in the policyDefinitionGroups as this causes an error when deploying
-            $usedPolicyGroupDefinitions.Keys | ForEach-Object {
-                if (!$policyDefinitionGroupsHashTable.ContainsKey($_)) {
-                    Write-Error "$($displayName): PolicyDefinitionGroup '$_' not found in policyDefinitionGroups." -ErrorAction Stop
+            # Explicitly defined policyDefinitionGroups
+            $null = $policyDefinitionGroups | ForEach-Object {
+                $groupName = $_.name
+                if ($usedPolicyGroupDefinitions.ContainsKey($groupName)) {
+                    # Covered this use of a group name
+                    $usedPolicyGroupDefinitions.Remove($groupName)
+                }
+                else {
+                    Write-Error "$($displayName): PolicyDefinitionGroup '$groupName' not found in policyDefinitionGroups." -ErrorAction Stop
+                }
+                if (!$policyDefinitionGroupsHashTable.ContainsKey($groupName)) {
+                    # Ignore duplicates
+                    $policyDefinitionGroupsHashTable.Add($groupName, $_)
                 }
             }
         }
