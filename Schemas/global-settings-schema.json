@@ -72,6 +72,9 @@
                                 "keepDfcSecurityAssignments": {
                                     "type": "boolean"
                                 },
+                                "doNotDisableDeprecatedPolicies": {
+                                    "type": "boolean"
+                                },
                                 "excludedScopes": {
                                     "type": "array",
                                     "items": [

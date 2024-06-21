@@ -14,11 +14,13 @@ Desired State strategy enables you to adjust the default behavior to fit more co
     - `full`: EPAC manages all Policy resources in the `deploymentRootScope` and its children. EPAC deletes any Policy resources not defined in the EPAC repo.
     - `ownedOnly`: EPAC manages only Policy resources defined in the EPAC repo. EPAC does not delete any Policy resources not defined in the EPAC repo.
   - `keepDfcSecurityAssignments`: It is recommended that Security and Compliance Initiatives are managed at management group levels with EPAC. Please read [Managing Defender for Cloud Assignments](settings-dfc-assignments.md).
+
 - Optional:
   - `excludedScopes`: An array of scopes to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
   - `excludedPolicyDefinitions`: An array of Policy Definitions to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
   - `excludedPolicySetDefinitions`: An array of Policy Set Definitions to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
   - `excludedPolicyAssignments`: An array of Policy Assignments to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
+  - `doNotDisableDeprecatedPolicies`: Automatically set deprecated policies' policy effect to "Disabled"
 
 The following example shows the `desiredState` element with all properties set:
 
@@ -26,6 +28,7 @@ The following example shows the `desiredState` element with all properties set:
 "desiredState": {
     "strategy": "full",
     "keepDfcSecurityAssignments": false,
+    "doNotDisableDeprecatedPolicies": false,
     "excludedScopes": [],
     "excludedPolicyDefinitions": [],
     "excludedPolicySetDefinitions": [],
@@ -148,6 +151,8 @@ You can exclude any combination of `excludedScopes`, `excludedPolicyDefinitions`
 ```json
 "desiredState": {
     "strategy": "full",
+    "keepDfcSecurityAssignments": false,
+    "doNotDisableDeprecatedPolicies": false,
     "excludedScopes": [ // Management Groups, Subscriptions, Resource Groups
         "/providers/Microsoft.Management/managementGroups/mg-policy-as-code/childScope"
     ],

@@ -5,7 +5,8 @@ function Out-DocumentationForPolicyAssignments {
         [switch] $WindowsNewLineCells,
         $DocumentationSpecification,
         [hashtable] $AssignmentsByEnvironment,
-        [switch] $IncludeManualPolicies
+        [switch] $IncludeManualPolicies,
+        [bool] $doNotDisableDeprecatedPolicies
     )
 
     [string] $fileNameStem = $DocumentationSpecification.fileNameStem
@@ -150,6 +151,13 @@ function Out-DocumentationForPolicyAssignments {
         }
     }
 
+    #region Process Deprecated
+    $deprecatedHash = @{}
+    foreach ($key in $CombinedPolicyDetails.policies.keys) {
+        if ($true -eq $CombinedPolicyDetails.policies.$key.isDeprecated) {
+            $deprecatedHash[$CombinedPolicyDetails.policies.$key.name] = $CombinedPolicyDetails.policies.$key
+        }
+    }
     #region Review Duplicates
 
     # Iterate over each key-value pair in the hashtable
@@ -441,67 +449,69 @@ function Out-DocumentationForPolicyAssignments {
 
     # Process the table
     $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
-        # If statement to skip over duplicates
+        # If statement to skip over duplicates and ensure not to include Deprecated Policies
         if ( $true -ne $_.isReferencePathMatch) {
-            # Initialize row - with empty strings
-            $rowObj = [ordered]@{}
-            foreach ($key in $columnHeaders) {
-                $null = $rowObj.Add($key, "")
-            }
-
-            # Cache loop values
-            # $effectAllowedValues = $_.effectAllowedValues
-            # $groupNames = $_.groupNames
-            # $policySetEffectStrings = $_.policySetEffectStrings
-            $effectAllowedValues = $_.effectAllowedValues
-            $isEffectParameterized = $_.isEffectParameterized
-            $effectAllowedOverrides = $_.effectAllowedOverrides
-            $groupNames = $_.groupNames
-            $effectDefault = $_.effectDefault
-            $policySetEffectStrings = $_.policySetEffectStrings
-
-            # Build common columns
-            $rowObj.name = $_.name
-            $rowObj.referencePath = $_.referencePath
-            $rowObj.policyType = $_.policyType
-            $rowObj.category = $_.category
-            $rowObj.displayName = $_.displayName
-            $rowObj.description = $_.description
-            $groupNames = $_.groupNames
-            if ($groupNames.Count -gt 0) {
-                $sortedGroupNameList = $groupNames | Sort-Object -Unique
-                $rowObj.groupNames = $sortedGroupNameList -join $inCellSeparator3
-            }
-            if ($policySetEffectStrings.Count -gt 0) {
-                $rowObj.policySets = $policySetEffectStrings -join $inCellSeparator3
-            }
-            $rowObj.allowedEffects = Convert-AllowedEffectsToCsvString `
-                -DefaultEffect $effectDefault `
-                -IsEffectParameterized $isEffectParameterized `
-                -EffectAllowedValues $effectAllowedValues.Keys `
-                -EffectAllowedOverrides $effectAllowedOverrides `
-                -InCellSeparator1 $inCellSeparator1 `
-                -InCellSeparator2 $inCellSeparator2
-
-            $environmentList = $_.environmentList
-            # Build environmentCategory columns
-            foreach ($environmentCategory in $environmentCategories) {
-                if ($environmentList.ContainsKey($environmentCategory)) {
-                    $perEnvironment = $environmentList.$environmentCategory
-                    if ($null -ne $perEnvironment.effectValue) {
-                        $rowObj["$($environmentCategory)Effect"] = Convert-EffectToCsvString $perEnvironment.effectValue
-                    }
-                    else {
-                        $rowObj["$($environmentCategory)Effect"] = Convert-EffectToCsvString $_.effectDefault
-                    }
-
-                    $text = Convert-ParametersToString -Parameters $perEnvironment.parameters -OutputType "csvValues"
-                    $rowObj["$($environmentCategory)Parameters"] = $text
+            if (!$deprecatedHash.ContainsKey($_.name) -or $doNotDisableDeprecatedPolicies) {
+                # Initialize row - with empty strings
+                $rowObj = [ordered]@{}
+                foreach ($key in $columnHeaders) {
+                    $null = $rowObj.Add($key, "")
                 }
-            }
 
-            # Add row to spreadsheet
-            $null = $allRows.Add($rowObj)
+                # Cache loop values
+                # $effectAllowedValues = $_.effectAllowedValues
+                # $groupNames = $_.groupNames
+                # $policySetEffectStrings = $_.policySetEffectStrings
+                $effectAllowedValues = $_.effectAllowedValues
+                $isEffectParameterized = $_.isEffectParameterized
+                $effectAllowedOverrides = $_.effectAllowedOverrides
+                $groupNames = $_.groupNames
+                $effectDefault = $_.effectDefault
+                $policySetEffectStrings = $_.policySetEffectStrings
+
+                # Build common columns
+                $rowObj.name = $_.name
+                $rowObj.referencePath = $_.referencePath
+                $rowObj.policyType = $_.policyType
+                $rowObj.category = $_.category
+                $rowObj.displayName = $_.displayName
+                $rowObj.description = $_.description
+                $groupNames = $_.groupNames
+                if ($groupNames.Count -gt 0) {
+                    $sortedGroupNameList = $groupNames | Sort-Object -Unique
+                    $rowObj.groupNames = $sortedGroupNameList -join $inCellSeparator3
+                }
+                if ($policySetEffectStrings.Count -gt 0) {
+                    $rowObj.policySets = $policySetEffectStrings -join $inCellSeparator3
+                }
+                $rowObj.allowedEffects = Convert-AllowedEffectsToCsvString `
+                    -DefaultEffect $effectDefault `
+                    -IsEffectParameterized $isEffectParameterized `
+                    -EffectAllowedValues $effectAllowedValues.Keys `
+                    -EffectAllowedOverrides $effectAllowedOverrides `
+                    -InCellSeparator1 $inCellSeparator1 `
+                    -InCellSeparator2 $inCellSeparator2
+
+                $environmentList = $_.environmentList
+                # Build environmentCategory columns
+                foreach ($environmentCategory in $environmentCategories) {
+                    if ($environmentList.ContainsKey($environmentCategory)) {
+                        $perEnvironment = $environmentList.$environmentCategory
+                        if ($null -ne $perEnvironment.effectValue) {
+                            $rowObj["$($environmentCategory)Effect"] = Convert-EffectToCsvString $perEnvironment.effectValue
+                        }
+                        else {
+                            $rowObj["$($environmentCategory)Effect"] = Convert-EffectToCsvString $_.effectDefault
+                        }
+
+                        $text = Convert-ParametersToString -Parameters $perEnvironment.parameters -OutputType "csvValues"
+                        $rowObj["$($environmentCategory)Parameters"] = $text
+                    }
+                }
+
+                # Add row to spreadsheet
+                $null = $allRows.Add($rowObj)
+            }
         }
     }
 
