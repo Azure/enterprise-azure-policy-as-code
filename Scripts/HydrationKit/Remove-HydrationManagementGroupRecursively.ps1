@@ -1,3 +1,4 @@
+
 <#
 .SYNOPSIS
     Removes a Management Group and all of its children recursively.
@@ -13,30 +14,47 @@
 [CmdletBinding()]
 param (
     [Parameter(Mandatory = $true)]
-    $Hierarchy
-)
+    $HierarchyRootGroupName
+        
+) 
+
 $InformationPreference = "Continue"
-# $hierarchy = Get-AzManagementGroup -GroupName $Hierarchy -Expand -Recurse
-foreach ($child in $Hierarchy.Children) {
-    if ($child.Type -eq "Microsoft.Management/managementGroups") {
-        # Error action included because timeouts happen frequently, but mean nothing. Rather than have responses cause concern, we simply suppress the error.
-        if ($child.Children) {
-            Write-Information "    Removing child objects of $($child.Name) -- $($child.Children.Name -join ", ")..."
-            Remove-HydrationManagementGroupRecursively $child
-        }
-        if ($(Get-AzManagementGroup -GroupName $($child.Name) -ErrorAction SilentlyContinue)) {
-            Write-Information "    Removing $($child.Name)..."
-            $remMg = Remove-AzManagementGroup -GroupName $($child.Name)
-        }
-        else {
-            Write-Information "    $($child.Name) has already been removed..."
+$fullHierarchy = Get-AzManagementGroupRestMethod -GroupId $HierarchyRootGroupName -Expand  -Recurse 
+Write-Debug "Starting Outer Loop"
+Remove-HydrationChildHierarchy -ChildHierarchy $fullHierarchy.properties.children
+Write-Debug "Leaving Outer Loop"
+# Test to ensure deletes were completed
+if ($(Get-AzManagementGroupRestMethod -GroupId $HierarchyRootGroupName -Expand  -Recurse).properties.children.count -gt 0) {
+    Write-Error "Child Deletions Failed, rerun script."
+}
+# Delete the root group
+do {
+    try {
+        $null = Get-AzManagementGroupRestMethod -GroupId $HierarchyRootGroupName -ErrorAction SilentlyContinue
+    }
+    catch {
+        if ($_.Exception.Message -match "NotFound") {
+            Write-Information "    $HierarchyRootGroupName confirmed to be removed..."
+            $complete = $true
         }
     }
-}
-if ($(Get-AzManagementGroup -GroupName $Hierarchy.Name -ErrorAction SilentlyContinue)) {
-    Write-Information "    Removing $($Hierarchy.Name)..."
-    $remMg = Remove-AzManagementGroup -GroupName $($Hierarchy.Name)
-}
-else {
-    Write-Information "    $($Hierarchy.Name) has already been removed..."
-}
+    if (!($true -eq $complete)) {
+        Write-Information "    Removing $HierarchyRootGroupName..."
+        $null = Remove-AzManagementGroup -GroupName $HierarchyRootGroupName
+        try {
+            $null = Get-AzManagementGroupRestMethod -GroupId $HierarchyRootGroupName -ErrorAction SilentlyContinue
+        }
+        catch {
+            if ($_.Exception.Message -match "NotFound") {
+                Write-Information "    $HierarchyRootGroupName confirmed to be removed..."
+                $complete = $true
+            }
+        }
+        if (!($complete -eq $true)) {
+            Write-Information "    $HierarchyRootGroupName generated an error during deletion, retrying $(6-$i) more times..."
+            $complete = $false
+            $i++
+        }
+    }
+}until($true -eq $complete -or $i -eq 6)
+

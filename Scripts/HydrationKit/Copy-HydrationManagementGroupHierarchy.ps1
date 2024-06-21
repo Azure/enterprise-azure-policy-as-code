@@ -46,15 +46,17 @@ $InformationPreference = "Continue"
 if (!($Suffix) -and !($Prefix)) {
     Write-Error "You must modify the name with either a Suffix, a Prefix, or both in order to replicate within the current tenant without naming collision errors."
 }
-$destParent = Get-AzManagementGroup -GroupName $DestinationParentGroupName -ErrorAction SilentlyContinue
-if (!(Get-AzManagementGroup -GroupName $DestinationParentGroupName)) {
-    Write-Information "Destination Management Group $DestinationParentGroupName was not found."
+try {
+    $null = $destParent = Get-AzManagementGroupRestMethod -GroupID $DestinationParentGroupName -ErrorAction SilentlyContinue
+}
+catch {
+    Write-Information $_.Exception.Message
     Write-Error "Cannot continue, a valid `$DestinationParentGroupName must be specified to tell the cmdlet where to anchor your new hierarchy."
     return
 }
 Write-Information "Beginning Duplication to $DestinationParentGroupName..."
-$hierarchy = Get-AzManagementGroup -GroupName $SourceGroupName -Expand -Recurse
+$hierarchy = Get-AzManagementGroupRestMethod -GroupID $SourceGroupName -Expand  -Recurse 
 Write-Information "    Creating $(-join($Prefix,$hierarchy.Name,$Suffix))..."
 # Error action included because timeouts happen frequently, but mean nothing. Rather than have responses cause concern, we simply suppress the error.
-$createdMg = New-AzManagementGroup -GroupName $( -join ($Prefix, $hierarchy.Name, $Suffix)) -DisplayName $( -join ($Prefix, $hierarchy.DisplayName, $Suffix)) -ParentId $destParent.Id -ErrorAction SilentlyContinue
+$createdMg = New-AzManagementGroup -GroupName $( -join ($Prefix, $hierarchy.Name, $Suffix)) -DisplayName $( -join ($Prefix, $hierarchy.properties.displayName, $Suffix)) -ParentId $destParent.Id -ErrorAction SilentlyContinue
 New-HydrationManagementGroupChildren -Hierarchy $hierarchy -Prefix $Prefix -Suffix $Suffix

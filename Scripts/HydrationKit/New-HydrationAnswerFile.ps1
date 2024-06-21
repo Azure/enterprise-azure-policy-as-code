@@ -107,7 +107,7 @@ Clear-Variable repeat
 Write-Information "`nResult Verified for variable $($tenantEntry.pacSelector), which will be used to identify the deployment to this Tenant.`n"
 
 # Define intermediateRootGroupName
-$tenantRootObject = Get-AzManagementGroup -GroupName $tenantEntry.tenantId -recurse -expand
+$tenantRootObject = Get-AzManagementGroupRestMethod -GroupId $tenantEntry.tenantId -recurse  -expand 
 $tenantChildrenString = $tenantRootObject.Children.Name -join ", "
 do {
     Write-Host "`n################################################################################"
@@ -123,7 +123,7 @@ do {
         
     $tenantEntry.intermediateRootGroupName = Read-Host "What is the ID of your Intermediate Management Group Root?"
     $repeat = $true
-    $test = Get-AzManagementGroup -GroupName $tenantEntry.intermediateRootGroupName
+    $test = Get-AzManagementGroupRestMethod -GroupId $tenantEntry.intermediateRootGroupName
 }until($null -ne $test)
 Clear-Variable repeat
 Write-Information "`nResult Verified for variable intermediateRootGroupName: $($tenantEntry.intermediateRootGroupName)`n"
@@ -139,7 +139,7 @@ do {
     Write-Host "Recommendation: $($tenantEntry.intermediateRootGroupName)"
     $tenantEntry.initialPolicyScope = Read-Host "What is the ID of the Management Group for this PacSelector?"
     $repeat = $true
-    $test = Get-AzManagementGroup -GroupName $tenantEntry.intermediateRootGroupName -ErrorAction SilentlyContinue
+    $test = Get-AzManagementGroupRestMethod -GroupID $tenantEntry.intermediateRootGroupName -ErrorAction SilentlyContinue
 }until($null -ne $test)
 Clear-Variable repeat
 Clear-Variable test
@@ -164,7 +164,7 @@ do {
     Write-Host "Recommendation: $($returnData.initialTenantId)"
     $returnData.epacParentGroupName = Read-Host "What is the ID of the Management Group that you would like to use?"
     $repeat = $true
-    $test = Get-AzManagementGroup -GroupName $returnData.epacParentGroupName -ErrorAction SilentlyContinue
+    $test = Get-AzManagementGroupRestMethod -GroupId $returnData.epacParentGroupName -ErrorAction SilentlyContinue
 }until($null -ne $test)
 Clear-Variable repeat
 Clear-Variable test
