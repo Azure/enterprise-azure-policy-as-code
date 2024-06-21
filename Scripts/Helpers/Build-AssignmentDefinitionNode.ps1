@@ -153,6 +153,14 @@ function Build-AssignmentDefinitionNode {
     }
     #endregion definitionEntry or definitionEntryList (required exactly once per branch)
 
+    #region Process Deprecated
+    $deprecatedHash = @{}
+    foreach ($key in $CombinedPolicyDetails.policies.keys) {
+        if ($true -eq $CombinedPolicyDetails.policies.$key.isDeprecated) {
+            $deprecatedHash[$CombinedPolicyDetails.policies.$key.name] = $CombinedPolicyDetails.policies.$key
+        }
+    }
+
     #region metadata
     if ($DefinitionNode.metadata) {
         # merge metadata
@@ -166,13 +174,36 @@ function Build-AssignmentDefinitionNode {
     #endregion metadata
 
     #region parameters in JSON; parameters defined at a deeper level override previous parameters (union operator)
+    
+    # create parameter Hash to Policy Def
+    $parameterHash = @{}
+    foreach ($key in $flatPolicyList.keys) {
+        foreach ($paramKey in $flatPolicyList.$key.parameters.keys) {
+            $parameterHash.$paramKey = $flatPolicyList.$key
+        }
+    }
+
+    $deprecatedInJSON = [System.Collections.ArrayList]::new()
     if ($DefinitionNode.parameters) {
         $allParameters = $definition.parameters
         $addedParameters = $DefinitionNode.parameters
         foreach ($parameterName in $addedParameters.Keys) {
             $rawParameterValue = $addedParameters.$parameterName
+            $currentParameterHash = $parameterHash.$parameterName
+            if ($deprecatedHash.ContainsKey($($currentParameterHash.name)) -and $currentParameterHash.parameters.$parameterName.isEffect) {
+                $null = $deprecatedInJSON.Add("Assignment: '$($assignment.name)' with Parameter: '$parameterName' ($($currentParameterHash))")
+                if (!$PacEnvironment.desiredState.doNotDisableDeprecatedPolicies) {
+                    $rawParameterValue = "Disabled"
+                }
+            }
             $parameterValue = Get-DeepCloneAsOrderedHashtable $rawParameterValue
-            $allParameters[$parameterName] = $parameterValue
+            $allParameters.$parameterName = $parameterValue
+        }
+    }
+    if ($deprecatedInJSON.Count -gt 0) {
+        Write-Warning "Node $($nodeName): Assignment contains JSON effect parameter for Policies that has been deprecated in the Policy Sets. Update Policy Sets."
+        foreach ($deprecated in $deprecatedInJSON) {
+            Write-Information "    $($deprecated)"
         }
     }
     #endregion parameters in JSON; parameters defined at a deeper level override previous parameters (union operator)
@@ -184,6 +215,7 @@ function Build-AssignmentDefinitionNode {
         $definition.effectColumn = "$($parameterSelector)Effect"
         $definition.parametersColumn = "$($parameterSelector)Parameters"
     }
+    $deprecatedInCSV = [System.Collections.ArrayList]::new()
     if ($DefinitionNode.parameterFile) {
         $parameterFileName = $DefinitionNode.parameterFile
         if ($ParameterFilesCsv.ContainsKey($parameterFileName)) {
@@ -191,6 +223,28 @@ function Build-AssignmentDefinitionNode {
             $content = Get-Content -Path $fullName -Raw -ErrorAction Stop
             $xlsArray = @() + ($content | ConvertFrom-Csv -ErrorAction Stop)
             $csvParameterArray = Get-DeepCloneAsOrderedHashtable $xlsArray
+            # Replace CSV effect with Disabled if Deprecated
+            foreach ($entry in $csvParameterArray) {
+                # If policy in csv is found to be deprecated
+                if ($deprecatedHash.ContainsKey($entry.name)) {
+                    # For each child in the assignment
+                    foreach ($child in $DefinitionNode.children) {
+                        # If that child is using a parameterSelector with the CSV
+                        if ($child.ContainsKey('parameterSelector')) {
+                            $key = "$($child.parameterSelector)" + "Effect"
+                            # If the parameter is not set to Disabled already
+                            if ($entry.$key -ne "Disabled") {
+                                if (!$PacEnvironment.desiredState.doNotDisableDeprecatedPolicies) {
+                                    $entry.$key = 'Disabled'
+                                }
+                                $null = $deprecatedInCSV.Add("$($entry.displayName) ($($entry.name))")
+                            }
+                        }
+                    }
+                    break
+                }
+            }
+            
             $definition.parameterFileName = $parameterFileName
             $definition.csvParameterArray = $csvParameterArray
             $definition.csvRowsValidated = $false
@@ -270,6 +324,12 @@ function Build-AssignmentDefinitionNode {
             Write-Warning "Node $($nodeName): CSV parameterFile '$parameterFileName' is missing rows for Policies included in the Policy Sets. Regenerate the CSV file."
             foreach ($missing in $missingInCsv) {
                 Write-Information "    $($missing)"
+            }
+        }
+        if ($deprecatedInCSV.Count -gt 0) {
+            Write-Warning "Node $($nodeName): CSV parameterFile '$parameterFileName' contains rows for Policies that have been deprecated in the Policy Sets. Update Policy Sets."
+            foreach ($deprecated in $deprecatedInCSV) {
+                Write-Information "    $($deprecated)"
             }
         }
     }
