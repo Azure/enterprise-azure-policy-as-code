@@ -190,10 +190,12 @@ function Build-AssignmentDefinitionNode {
         foreach ($parameterName in $addedParameters.Keys) {
             $rawParameterValue = $addedParameters.$parameterName
             $currentParameterHash = $parameterHash.$parameterName
-            if ($deprecatedHash.ContainsKey($($currentParameterHash.name)) -and $currentParameterHash.parameters.$parameterName.isEffect) {
-                $null = $deprecatedInJSON.Add("Assignment: '$($assignment.name)' with Parameter: '$parameterName' ($($currentParameterHash))")
-                if (!$PacEnvironment.desiredState.doNotDisableDeprecatedPolicies) {
-                    $rawParameterValue = "Disabled"
+            if ($null -ne $currentParameterHash.name) {
+                if ($deprecatedHash.ContainsKey($($currentParameterHash.name)) -and $currentParameterHash.parameters.$parameterName.isEffect) {
+                    $null = $deprecatedInJSON.Add("Assignment: '$($assignment.name)' with Parameter: '$parameterName' ($($currentParameterHash))")
+                    if (!$PacEnvironment.desiredState.doNotDisableDeprecatedPolicies) {
+                        $rawParameterValue = "Disabled"
+                    }
                 }
             }
             $parameterValue = Get-DeepCloneAsOrderedHashtable $rawParameterValue
