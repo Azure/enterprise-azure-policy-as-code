@@ -206,9 +206,10 @@ if ($Mode -ne 'exportFromRawFiles') {
 
     foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
 
-        $pacEnvironment = $pacEnvironments.$pacSelector
+        # $pacEnvironment = $pacEnvironments.$pacSelector
 
         if ($InputPacSelector -eq $pacSelector -or $InputPacSelector -eq '*') {
+            $pacEnvironment = Select-PacEnvironment $pacSelector -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -Interactive $Interactive
             $null = Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -Interactive $Interactive
             if ($Mode -eq 'psrule' -and $PSRuleIgnoreFullScope -eq $false) {
                 $pacEnvironmentOriginalScope = $pacEnvironment.deploymentRootScope
