@@ -697,11 +697,21 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
             }
             if ($identityType -eq "UserAssigned") {
                 $userAssignedIdentities = $policyAssignment.identity.userAssignedIdentities
-                $identityProperty = $userAssignedIdentities.psobject.Properties
-                $identity = $identityProperty.Name
-                $identityEntry = @{
-                    userAssigned = $identity
-                    location     = $location
+                # $identityProperty = $userAssignedIdentities.psobject.Properties
+                $identity = $userAssignedIdentities.GetEnumerator().Name
+                if ($identity.Count -gt 1) {
+                    $identityEntry = $identity | ForEach-Object {
+                        @{
+                            userAssigned = $PSItem
+                            location     = $location
+                        }
+                    }
+                }
+                else {
+                    $identityEntry = @{
+                        userAssigned = $identity
+                        location     = $location
+                    }
                 }
             }
             elseif ($identityType -eq "SystemAssigned") {
