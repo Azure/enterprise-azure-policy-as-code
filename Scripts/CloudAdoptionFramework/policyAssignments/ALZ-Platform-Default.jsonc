@@ -6,17 +6,17 @@
             "/providers/Microsoft.Management/managementGroups/platform"
         ]
     },
-    // Ensure that this whole file is review for parameters and ensure DCRs, managed identities, and log anaytics workspace are deployed
+    // Ensure that this whole file is reviewed for parameters and ensure DCRs, managed identities, and log anaytics workspace are deployed
     // Sources for the DCRs which need to be deployed are in the individual assignment parameter comments
     "parameters": {
-        "userAssignedManagedIdentityName": "", // Replace with the name of the user assigned managed identity
-        "userAssignedIdentityName": "", // Replace with the name of the user assigned managed identity
+        "userAssignedManagedIdentityName": "", // Replace with the name of the user assigned managed identity to deploy
+        "userAssignedIdentityName": "", // Replace with the name of the user assigned managed identity to deploy
         "bringYourOwnUserAssignedManagedIdentity": true,
         "enableProcessesAndDependencies": true,
-        "userAssignedManagedIdentityResourceGroup": "", //Replace with the name of the resource group where the user assigned managed identity is deployed
-        "identityResourceGroup": "", // Replace with the name of the resource group where the user assigned managed identity is deployed
+        "userAssignedManagedIdentityResourceGroup": "", //Replace with the name of the resource group where the user assigned managed identity is to be deployed
+        "identityResourceGroup": "", // Replace with the name of the resource group where the user assigned managed identity is to be deployed
         "scopeToSupportedImages": false,
-        "resourceName": "" // Replace with the name of the user assigned managed identity
+        "resourceName": "" // Replace with the name of the user assigned managed identity to deploy
     },
     "children": [
         {
