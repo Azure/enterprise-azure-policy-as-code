@@ -81,10 +81,10 @@ function Find-AzNonCompliantResources {
                 $assignmentPacOwner = $assignment.pacOwner
                 $process = $false
                 if ($OnlyCheckManagedAssignments -and $assignmentPacOwner -ne "otherPaC" -and $assignmentPacOwner -ne "unknownOwner") {
-                    # owned by the PaC solution of auto-created by Defender for Cloud (DfC)
+                    # owned by the PaC solution or auto-created by Defender for Cloud (DfC)
                     $process = $true
                 }
-                else {
+                elseif (!$OnlyCheckManagedAssignments) {
                     $process = $true
                 }
                 if ($process) {
