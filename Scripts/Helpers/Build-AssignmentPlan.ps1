@@ -10,7 +10,8 @@ function Build-AssignmentPlan {
         [hashtable] $AllAssignments,
         [hashtable] $ReplaceDefinitions,
         [hashtable] $PolicyRoleIds,
-        [hashtable] $CombinedPolicyDetails
+        [hashtable] $CombinedPolicyDetails,
+        [hashtable] $DeprecatedHash
     )
 
     Write-Information "==================================================================================================="
@@ -94,7 +95,8 @@ function Build-AssignmentPlan {
             -AssignmentDefinition $rootAssignmentDefinition `
             -CombinedPolicyDetails $CombinedPolicyDetails `
             -PolicyRoleIds $PolicyRoleIds `
-            -RoleDefinitions $roleDefinitions
+            -RoleDefinitions $roleDefinitions `
+            -DeprecatedHash $DeprecatedHash
 
         if ($hasErrors) {
             Write-Error "Assignment definitions content errors" -ErrorAction Stop

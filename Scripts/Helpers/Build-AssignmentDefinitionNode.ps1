@@ -8,7 +8,8 @@ function Build-AssignmentDefinitionNode {
         [hashtable] $AssignmentDefinition, # Collected values in tree branch
         [hashtable] $CombinedPolicyDetails,
         [hashtable] $PolicyRoleIds,
-        [hashtable] $RoleDefinitions
+        [hashtable] $RoleDefinitions,
+        [hashtable] $DeprecatedHash
 
         # Returns a list os completed assignmentValues
     )
@@ -153,14 +154,6 @@ function Build-AssignmentDefinitionNode {
     }
     #endregion definitionEntry or definitionEntryList (required exactly once per branch)
 
-    #region Process Deprecated
-    $deprecatedHash = @{}
-    foreach ($key in $CombinedPolicyDetails.policies.keys) {
-        if ($true -eq $CombinedPolicyDetails.policies.$key.isDeprecated) {
-            $deprecatedHash[$CombinedPolicyDetails.policies.$key.name] = $CombinedPolicyDetails.policies.$key
-        }
-    }
-
     #region metadata
     if ($DefinitionNode.metadata) {
         # merge metadata
@@ -191,7 +184,7 @@ function Build-AssignmentDefinitionNode {
             $rawParameterValue = $addedParameters.$parameterName
             $currentParameterHash = $parameterHash.$parameterName
             if ($null -ne $currentParameterHash.name) {
-                if ($deprecatedHash.ContainsKey($($currentParameterHash.name)) -and $currentParameterHash.parameters.$parameterName.isEffect) {
+                if ($DeprecatedHash.ContainsKey($($currentParameterHash.name)) -and $currentParameterHash.parameters.$parameterName.isEffect) {
                     $null = $deprecatedInJSON.Add("Assignment: '$($assignment.name)' with Parameter: '$parameterName' ($($currentParameterHash))")
                     if (!$PacEnvironment.desiredState.doNotDisableDeprecatedPolicies) {
                         $rawParameterValue = "Disabled"
@@ -228,7 +221,7 @@ function Build-AssignmentDefinitionNode {
             # Replace CSV effect with Disabled if Deprecated
             foreach ($entry in $csvParameterArray) {
                 # If policy in csv is found to be deprecated
-                if ($deprecatedHash.ContainsKey($entry.name)) {
+                if ($DeprecatedHash.ContainsKey($entry.name)) {
                     # For each child in the assignment
                     foreach ($child in $DefinitionNode.children) {
                         # If that child is using a parameterSelector with the CSV
@@ -478,7 +471,8 @@ function Build-AssignmentDefinitionNode {
                 -AssignmentDefinition $definition `
                 -CombinedPolicyDetails $CombinedPolicyDetails `
                 -PolicyRoleIds $PolicyRoleIds `
-                -RoleDefinitions $RoleDefinitions
+                -RoleDefinitions $RoleDefinitions `
+                -DeprecatedHash $DeprecatedHash
 
             if ($hasErrorsLocal) {
                 $hasErrors = $true
