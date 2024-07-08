@@ -192,11 +192,6 @@ function Get-GlobalSettings {
             if ($skipResourceValidationForExemptionsRaw) {
                 $skipResourceValidationForExemptions = $true
             }
-            $doNotDisableDeprecatedPolicies = $false
-            $doNotDisableDeprecatedPoliciesRaw = $pacEnvironment.doNotDisableDeprecatedPolicies
-            if ($doNotDisableDeprecatedPoliciesRaw) {
-                $doNotDisableDeprecatedPolicies = $true
-            }
 
             $desiredState = @{
                 strategy                             = "undefined"
@@ -320,6 +315,9 @@ function Get-GlobalSettings {
                     else {
                         Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.doNotDisableDeprecatedPolicies ($doNotDisableDeprecatedPolicies) must be a boolean value."
                     }
+                }
+                else {
+                    $doNotDisableDeprecatedPolicies = $false
                 }
             }
 

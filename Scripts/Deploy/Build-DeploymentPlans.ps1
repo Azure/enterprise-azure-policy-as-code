@@ -317,6 +317,14 @@ if ($buildSelections.buildAny) {
         $allAssignments[$id] = $deployedPolicyAssignments.$id
     }
 
+    #region Process Deprecated
+    $deprecatedHash = @{}
+    foreach ($key in $combinedPolicyDetails.policies.keys) {
+        if ($combinedPolicyDetails.policies.$key.isDeprecated) {
+            $deprecatedHash[$combinedPolicyDetails.policies.$key.name] = $combinedPolicyDetails.policies.$key
+        }
+    }
+
     if ($buildSelections.buildPolicyAssignments) {
         # Process Assignment JSON files
         Build-AssignmentPlan `
@@ -329,7 +337,8 @@ if ($buildSelections.buildAny) {
             -AllAssignments $allAssignments `
             -ReplaceDefinitions $replaceDefinitions `
             -PolicyRoleIds $policyRoleIds `
-            -CombinedPolicyDetails $combinedPolicyDetails
+            -CombinedPolicyDetails $combinedPolicyDetails `
+            -DeprecatedHash $deprecatedHash
     }
 
     if ($buildSelections.buildPolicyExemptions) {

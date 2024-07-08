@@ -299,9 +299,7 @@ foreach ($file in $files) {
                     }
                 )
             }
-            
             # Build documents
-            $doNotDisableDeprecatedPolicies = $pacEnvironments[$($globalSettings.pacEnvironmentPrompt)].'doNotDisableDeprecatedPolicies'
             $documentationSpecifications = $documentAssignments.documentationSpecifications
             foreach ($documentationSpecification in $documentationSpecifications) {
                 $documentationType = $documentationSpecification.type
@@ -314,7 +312,7 @@ foreach ($file in $files) {
                     -DocumentationSpecification $documentationSpecification `
                     -AssignmentsByEnvironment $assignmentsByEnvironment `
                     -IncludeManualPolicies:$IncludeManualPolicies `
-                    -doNotDisableDeprecatedPolicies:$doNotDisableDeprecatedPolicies
+                    -PacEnvironments $pacEnvironments
                 # Out-DocumentationForPolicyAssignments `
                 #     -OutputPath $outputPath `
                 #     -WindowsNewLineCells:$true `
