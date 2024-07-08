@@ -22,7 +22,8 @@
             "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/mg-Epac-Dev",
             "desiredState": {
                 "strategy": "full",
-                "keepDfcSecurityAssignments": false
+                "keepDfcSecurityAssignments": false,
+                "doNotDisableDeprecatedPolicies": false
             },
             "managedIdentityLocation": "eastus2"
         },
@@ -33,7 +34,8 @@
             "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/mg-Enterprise",
             "desiredState": {
                 "strategy": "full",
-                "keepDfcSecurityAssignments": false
+                "keepDfcSecurityAssignments": false,
+                "doNotDisableDeprecatedPolicies": false
             },
             "managedIdentityLocation": "eastus2",
             "globalNotScopes": [
@@ -146,7 +148,8 @@ Resource Group patterns allow us to exclude "special" managed Resource Groups. T
             "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/PAC-Heinrich-Dev",
             "desiredState": {
                 "strategy": "full",
-                "keepDfcSecurityAssignments": false
+                "keepDfcSecurityAssignments": false,
+                "doNotDisableDeprecatedPolicies": false
             },
             "mangedIdentityLocation": "eastus2"
         },
@@ -157,7 +160,8 @@ Resource Group patterns allow us to exclude "special" managed Resource Groups. T
             "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/Contoso-Root",
             "desiredState": {
                 "strategy": "full",
-                "keepDfcSecurityAssignments": false
+                "keepDfcSecurityAssignments": false,
+                "doNotDisableDeprecatedPolicies": false
             },
             "globalNotScopes": [
                 "/providers/Microsoft.Management/managementGroups/PAC-Heinrich-Dev"
@@ -178,7 +182,8 @@ Resource Group patterns allow us to exclude "special" managed Resource Groups. T
             "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/Contoso-Root",
             "desiredState": {
                 "strategy": "full",
-                "keepDfcSecurityAssignments": false
+                "keepDfcSecurityAssignments": false,
+                "doNotDisableDeprecatedPolicies": false
             },
             "managedIdentityLocation": "eastus2"
         }

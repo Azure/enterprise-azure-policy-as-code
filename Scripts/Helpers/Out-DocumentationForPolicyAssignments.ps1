@@ -5,7 +5,8 @@ function Out-DocumentationForPolicyAssignments {
         [switch] $WindowsNewLineCells,
         $DocumentationSpecification,
         [hashtable] $AssignmentsByEnvironment,
-        [switch] $IncludeManualPolicies
+        [switch] $IncludeManualPolicies,
+        [hashtable] $PacEnvironments
     )
 
     [string] $fileNameStem = $DocumentationSpecification.fileNameStem
@@ -150,6 +151,13 @@ function Out-DocumentationForPolicyAssignments {
         }
     }
 
+    #region Process Deprecated
+    $deprecatedHash = @{}
+    foreach ($key in $policyResourceDetails.policies.keys) {
+        if ($true -eq $policyResourceDetails.policies.$key.isDeprecated) {
+            $deprecatedHash[$policyResourceDetails.policies.$key.name] = $policyResourceDetails.policies.$key
+        }
+    }
     #region Review Duplicates
 
     # Iterate over each key-value pair in the hashtable
@@ -278,6 +286,9 @@ function Out-DocumentationForPolicyAssignments {
                 if ($environmentList.ContainsKey($environmentCategory)) {
                     $environmentCategoryValues = $environmentList.$environmentCategory
                     $effectValue = $environmentCategoryValues.effectValue
+                    if ($effectValue.StartsWith("[if(contains(parameters('resourceTypeList')")) {
+                        $effectValue = "SetByParameter"
+                    }
                     $effectAllowedValues = $_.effectAllowedValues
                     $text = Convert-EffectToMarkdownString `
                         -Effect $effectValue `
@@ -441,7 +452,7 @@ function Out-DocumentationForPolicyAssignments {
 
     # Process the table
     $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
-        # If statement to skip over duplicates
+        # If statement to skip over duplicates and ensure not to include Deprecated Policies
         if ( $true -ne $_.isReferencePathMatch) {
             # Initialize row - with empty strings
             $rowObj = [ordered]@{}
@@ -485,23 +496,34 @@ function Out-DocumentationForPolicyAssignments {
 
             $environmentList = $_.environmentList
             # Build environmentCategory columns
+            $doNotSkip = $false
             foreach ($environmentCategory in $environmentCategories) {
                 if ($environmentList.ContainsKey($environmentCategory)) {
                     $perEnvironment = $environmentList.$environmentCategory
-                    if ($null -ne $perEnvironment.effectValue) {
-                        $rowObj["$($environmentCategory)Effect"] = Convert-EffectToCsvString $perEnvironment.effectValue
-                    }
-                    else {
-                        $rowObj["$($environmentCategory)Effect"] = Convert-EffectToCsvString $_.effectDefault
-                    }
 
-                    $text = Convert-ParametersToString -Parameters $perEnvironment.parameters -OutputType "csvValues"
-                    $rowObj["$($environmentCategory)Parameters"] = $text
+                    # Valide doNotDisableDeprecatedPolicies for env
+                    $envPacSelector = $AssignmentsByEnvironment."$($perEnvironment.environmentCategory)".pacEnvironmentSelector
+                    $doNotDisableDeprecatedPolicies = $PacEnvironments.$envPacSelector.doNotDisableDeprecatedPolicies
+
+                    if (!$deprecatedHash.ContainsKey($_.name) -or $doNotDisableDeprecatedPolicies) {
+                        if ($null -ne $perEnvironment.effectValue) {
+                            $rowObj["$($environmentCategory)Effect"] = Convert-EffectToCsvString $perEnvironment.effectValue
+                        }
+                        else {
+                            $rowObj["$($environmentCategory)Effect"] = Convert-EffectToCsvString $_.effectDefault
+                        }
+
+                        $text = Convert-ParametersToString -Parameters $perEnvironment.parameters -OutputType "csvValues"
+                        $rowObj["$($environmentCategory)Parameters"] = $text
+                        $doNotSkip = $true
+                    }
                 }
             }
 
             # Add row to spreadsheet
-            $null = $allRows.Add($rowObj)
+            if ($doNotSkip) {
+                $null = $allRows.Add($rowObj)
+            }
         }
     }
 

@@ -103,7 +103,7 @@ function Build-ScopeTableForDeploymentRootScope {
             -ScopeTable $scopeTable
     }
     else {
-        $managementGroup = Get-AzManagementGroup -GroupName $deploymentRootScopeManagementGroupName -Expand -Recurse -ErrorAction Stop
+        $managementGroup = Get-AzManagementGroupRestMethod -GroupId $deploymentRootScopeManagementGroupName -Expand  -Recurse  -ErrorAction Stop
         $scopeDetails = Build-ScopeTableForManagementGroup `
             -ManagementGroup $managementGroup `
             -ResourceGroupsBySubscriptionId $resourceGroupsBySubscriptionId `

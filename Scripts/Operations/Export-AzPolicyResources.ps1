@@ -206,9 +206,10 @@ if ($Mode -ne 'exportFromRawFiles') {
 
     foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
 
-        $pacEnvironment = $pacEnvironments.$pacSelector
+        # $pacEnvironment = $pacEnvironments.$pacSelector
 
         if ($InputPacSelector -eq $pacSelector -or $InputPacSelector -eq '*') {
+            $pacEnvironment = Select-PacEnvironment $pacSelector -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -Interactive $Interactive
             $null = Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -Interactive $Interactive
             if ($Mode -eq 'psrule' -and $PSRuleIgnoreFullScope -eq $false) {
                 $pacEnvironmentOriginalScope = $pacEnvironment.deploymentRootScope
@@ -697,11 +698,21 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
             }
             if ($identityType -eq "UserAssigned") {
                 $userAssignedIdentities = $policyAssignment.identity.userAssignedIdentities
-                $identityProperty = $userAssignedIdentities.psobject.Properties
-                $identity = $identityProperty.Name
-                $identityEntry = @{
-                    userAssigned = $identity
-                    location     = $location
+                # $identityProperty = $userAssignedIdentities.psobject.Properties
+                $identity = $userAssignedIdentities.GetEnumerator().Name
+                if ($identity.Count -gt 1) {
+                    $identityEntry = $identity | ForEach-Object {
+                        @{
+                            userAssigned = $PSItem
+                            location     = $location
+                        }
+                    }
+                }
+                else {
+                    $identityEntry = @{
+                        userAssigned = $identity
+                        location     = $location
+                    }
                 }
             }
             elseif ($identityType -eq "SystemAssigned") {

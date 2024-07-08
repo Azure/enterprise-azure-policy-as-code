@@ -299,7 +299,6 @@ foreach ($file in $files) {
                     }
                 )
             }
-
             # Build documents
             $documentationSpecifications = $documentAssignments.documentationSpecifications
             foreach ($documentationSpecification in $documentationSpecifications) {
@@ -312,7 +311,8 @@ foreach ($file in $files) {
                     -WindowsNewLineCells:$WindowsNewLineCells `
                     -DocumentationSpecification $documentationSpecification `
                     -AssignmentsByEnvironment $assignmentsByEnvironment `
-                    -IncludeManualPolicies:$IncludeManualPolicies
+                    -IncludeManualPolicies:$IncludeManualPolicies `
+                    -PacEnvironments $pacEnvironments
                 # Out-DocumentationForPolicyAssignments `
                 #     -OutputPath $outputPath `
                 #     -WindowsNewLineCells:$true `

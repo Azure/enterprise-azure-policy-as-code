@@ -192,11 +192,6 @@ function Get-GlobalSettings {
             if ($skipResourceValidationForExemptionsRaw) {
                 $skipResourceValidationForExemptions = $true
             }
-            $doNotDisableDeprecatedPolicies = $false
-            $doNotDisableDeprecatedPoliciesRaw = $pacEnvironment.doNotDisableDeprecatedPolicies
-            if ($doNotDisableDeprecatedPoliciesRaw) {
-                $doNotDisableDeprecatedPolicies = $true
-            }
 
             $desiredState = @{
                 strategy                             = "undefined"
@@ -209,6 +204,7 @@ function Get-GlobalSettings {
                 excludedPolicyDefinitions            = @()
                 excludedPolicySetDefinitions         = @()
                 excludedPolicyAssignments            = @()
+                doNotDisableDeprecatedPolicies       = $false
             }
             
             $desired = $pacEnvironment.desiredState
@@ -310,6 +306,18 @@ function Get-GlobalSettings {
                 $deleteOrphaned = $desired.deleteOrphanedExemptions
                 if ($null -ne $deleteOrphaned) {
                     Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.deleteOrphanedExemptions is deprecated. Remove it!"
+                }
+                $doNotDisableDeprecatedPolicies = $desired.doNotDisableDeprecatedPolicies
+                if ($null -ne $doNotDisableDeprecatedPolicies) {
+                    if ($doNotDisableDeprecatedPolicies -is [bool]) {
+                        $desiredState.doNotDisableDeprecatedPolicies = $doNotDisableDeprecatedPolicies
+                    }
+                    else {
+                        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.doNotDisableDeprecatedPolicies ($doNotDisableDeprecatedPolicies) must be a boolean value."
+                    }
+                }
+                else {
+                    $doNotDisableDeprecatedPolicies = $false
                 }
             }
 
