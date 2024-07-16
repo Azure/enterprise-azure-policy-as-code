@@ -24,7 +24,7 @@ function Get-AzPolicyExemptions {
             $scopeInformation = $ScopeTable.$scopeId
             if ($scopeInformation.type -ne "microsoft.resources/subscriptions/resourceGroups" -and $scopeId -ne "root") {
                 $exemptionsLocal = @()
-                if ($scopeInformation.type -eq "microsoft.resources/subscriptions") {
+                if ($scopeInformation.type -ne "Microsoft.Management/managementGroups") {
                     $exemptionsLocal = Get-AzPolicyExemptionsRestMethod -Scope $scopeId -ApiVersion $PacEnvironment.apiVersions.policyExemptions
                 }
                 elseif ($scopeInformation.type -eq "Microsoft.Management/managementGroups") {
