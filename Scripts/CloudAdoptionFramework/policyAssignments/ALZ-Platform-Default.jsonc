@@ -6,7 +6,7 @@
             "/providers/Microsoft.Management/managementGroups/platform"
         ]
     },
-    // Ensure that this whole file is review for parameters and ensure DCRs, managed identities, and log anaytics workspace are deployed
+    // Ensure that this whole file is reviewed for parameters and ensure DCRs, managed identities, and log analytics workspace are deployed
     // Sources for the DCRs which need to be deployed are in the individual assignment parameter comments
     "parameters": {
         "userAssignedManagedIdentityName": "", // Replace with the name of the user assigned managed identity
