@@ -35,9 +35,10 @@ To utilize the schema add a ```$schema``` tag to the JSON file.
 ## Defining Exemptions
 
 > [!TIP]
-> In v10.0.0, exemptions can be defined by specifying the Policy definition Ids or Names instead of Policy Assignment Ids. This significantly reduces the complexity of defining exemptions for Policy Sets with overlapping Policy definitions.
+> In v10.0.0, exemptions can be defined by specifying the Policy definition Ids or Names instead of Policy Assignment Ids. This significantly reduces the complexity of defining exemptions for Policy Sets with overlapping Policy definitions. 
 
 Each exemption must define the following properties:
+
 - `name` - unique name, we recommend a short human readable name.
 - `displayName` - descriptive name displayed on portal.
 - `exemptionCategory` - `Waiver` or `Mitigated`.

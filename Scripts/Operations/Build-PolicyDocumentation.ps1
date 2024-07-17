@@ -71,6 +71,13 @@ $outputPath = "$($globalSettings.outputFolder)/policy-documentation"
 if (-not (Test-Path $outputPath)) {
     New-Item $outputPath -Force -ItemType directory
 }
+$outputPathServices = "$($globalSettings.outputFolder)/policy-documentation/services"
+if (-not (Test-Path $outputPathServices)) {
+    New-Item $outputPathServices -Force -ItemType directory
+}
+else {
+    Get-ChildItem -Path $outputPathServices -File | Remove-Item
+}
 
 # Telemetry
 if ($globalSettings.telemetryEnabled) {
@@ -248,8 +255,16 @@ foreach ($file in $files) {
             }
         }
 
+        # Set documentAllEnabled to false if does not exist
+        if ($null -eq $documentationSpec.documentAssignments.documentAllAssignments.enabled) {
+            $documentAllEnabled = $false
+        }
+        else {
+            $documentAllEnabled = $documentationSpec.documentAssignments.documentAllAssignments.enabled 
+        }
+
         # Process instructions to document Assignments
-        if ($documentationSpec.documentAssignments) {
+        if ($documentationSpec.documentAssignments -and !$documentAllEnabled) {
             $documentAssignments = $documentationSpec.documentAssignments
             $environmentCategories = $documentAssignments.environmentCategories
 
@@ -308,6 +323,7 @@ foreach ($file in $files) {
                 }
                 Out-DocumentationForPolicyAssignments `
                     -OutputPath $outputPath `
+                    -OutputPathServices $outputPathServices `
                     -WindowsNewLineCells:$WindowsNewLineCells `
                     -DocumentationSpecification $documentationSpecification `
                     -AssignmentsByEnvironment $assignmentsByEnvironment `
@@ -321,5 +337,164 @@ foreach ($file in $files) {
             }
         }
 
+        if ($documentationSpec.documentAssignments -and $documentAllEnabled) {
+            # Load pacEnvironment
+            $pacEnvironmentSelector = $documentationSpec.documentAssignments.documentAllAssignments.pacEnvironment
+            $pacEnvironment = Switch-PacEnvironment `
+                -PacEnvironmentSelector $pacEnvironmentSelector `
+                -PacEnvironments $pacEnvironments `
+                -Interactive $Interactive
+
+            # Retrieve Policies and PolicySets for current pacEnvironment from cache or from Azure
+            $policyResourceDetails = Get-AzPolicyResourcesDetails `
+                -PacEnvironmentSelector $pacEnvironmentSelector `
+                -PacEnvironment $pacEnvironment `
+                -CachedPolicyResourceDetails $cachedPolicyResourceDetails `
+                -CollectAllPolicies
+
+            # Create artificial Environment Categories based on Assignment Scope
+            $environmentCategories = @()
+            foreach ($key in $policyResourceDetails.policyAssignments.keys) {
+                if ($environmentCategories.environmentCategory -notContains ($policyResourceDetails.policyAssignments.$key.scopeDisplayName)) {
+                    $environmentCategories += New-Object PSObject -Property @{
+                        pacEnvironment            = $pacEnvironmentSelector
+                        environmentCategory       = $policyResourceDetails.policyAssignments.$key.scopeDisplayName
+                        scopes                    = @($policyResourceDetails.policyAssignments.$key.scopeType + ": " + $policyResourceDetails.policyAssignments.$key.scopeDisplayName)
+                        representativeAssignments = @()
+                        scopeid                   = $policyResourceDetails.policyAssignments.$key.scope
+                    }
+                }
+            }
+            
+            # Assignment by environmentCategory
+            foreach ($environment in $environmentCategories) {
+                foreach ($key in $policyResourceDetails.policyAssignments.keys) {
+                    # Validate the categories match to the populate with an assignment
+                    if ($environment.environmentCategory -eq $policyResourceDetails.policyAssignments.$key.scopeDisplayName) {   
+                        # Validate it is not in our list of skipAssignments
+                        if ($key -notin $documentationSpec.documentAssignments.documentAllAssignments.skipPolicyAssignments) {
+                            $defID = $policyResourceDetails.policyAssignments.$key.properties.policyDefinitionId
+                            # Validate it is not in our list of skipPolicyDefinitions
+                            if ($defID -notin $documentationSpec.documentAssignments.documentAllAssignments.skipPolicyDefinitions) {
+                                $suffix = [guid]::NewGuid().Guid.split("-")[0]
+                                $environment.representativeAssignments += New-Object PSObject -Property @{
+                                    shortName = $policyResourceDetails.policyAssignments.$key.name + "_" + $suffix
+                                    id        = $policyResourceDetails.policyAssignments.$key.id
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            # Set overrideEnvironemntCategory to false if does not exist
+            if ($null -eq $documentationSpec.documentAssignments.documentAllAssignments.overrideEnvironemntCategory) {
+                $overrideEnvironemntCategory = ""
+            }
+            else {
+                $overrideEnvironemntCategory = $documentationSpec.documentAssignments.documentAllAssignments.overrideEnvironemntCategory 
+            }
+
+            # Update overrideEnvironemntCategory where applicable
+            if (!$overrideEnvironemntCategory -eq "") {
+                foreach ($environment in $environmentCategories) {
+                    foreach ($category in $overrideEnvironemntCategory.PSObject.Properties) {
+                        if ($environment.scopeid -in $category.Value) {
+                            $environment.environmentCategory = $category.Name
+                        }
+                    }
+                }
+                $tempEnvironmentCategory = @()
+                foreach ($envCategory in $environmentCategories) {
+                    if ($envCategory.environmentCategory -notin $tempEnvironmentCategory.environmentCategory) {
+                        $tempEnvironmentCategory += New-Object PSObject -Property @{
+                            pacEnvironment            = $envCategory.pacEnvironment
+                            environmentCategory       = $envCategory.environmentCategory
+                            scopes                    = $envCategory.scopes
+                            representativeAssignments = $envCategory.representativeAssignments
+                            scopeid                   = $envCategory.scopeid
+                        }
+                    }
+                    else {
+                        $tempEnvironmentCategory | Where-Object { $_.environmentCategory -eq $envCategory.environmentCategory } | ForEach-Object { $_.scopes += $envCategory.scopes }
+                        $tempEnvironmentCategory | Where-Object { $_.environmentCategory -eq $envCategory.environmentCategory } | ForEach-Object { $_.representativeAssignments += $envCategory.representativeAssignments }
+                        $tempEnvironmentCategory | Where-Object { $_.environmentCategory -eq $envCategory.environmentCategory } | ForEach-Object { $_.scopeid = "Multiple" }
+                    }
+                }
+
+                $environmentCategories = $tempEnvironmentCategory
+            }
+
+            $documentAssignments = $documentationSpec.documentAssignments
+            # Check if the member already exists
+            if ($documentAssignments | Get-Member -Name "environmentCategories" -MemberType NoteProperty) {
+                $documentAssignments.environmentCategories = $environmentCategories
+            }
+            else {
+                $documentAssignments | Add-Member -MemberType NoteProperty -Name "environmentCategories" -Value $environmentCategories
+            }
+
+            $envCategoriesArray = @()
+            foreach ($category in $environmentCategories.environmentCategory) {
+                $envCategoriesArray += $category
+            }
+
+            $tempDocumentationSpecifications = @()
+            $tempDocumentationSpecifications += New-Object PSObject -Property @{
+                fileNameStem          = $documentAssignments.documentationSpecifications.fileNameStem
+                environmentCategories = $envCategoriesArray
+                title                 = $documentAssignments.documentationSpecifications.title
+                markdownAdoWiki       = $documentAssignments.documentationSpecifications.markdownAdoWiki
+            }
+
+            $documentAssignments.documentationSpecifications = $tempDocumentationSpecifications
+
+            [hashtable] $assignmentsByEnvironment = @{}
+            foreach ($environmentCategoryEntry in $environmentCategories) {
+                if (-not $environmentCategoryEntry.pacEnvironment) {
+                    Write-Error "JSON document does not contain the required 'pacEnvironment' element." -ErrorAction Stop
+                }
+
+                # Retrieve assignments and process information or retrieve from cache is assignment previously processed
+                $assignmentArray = $environmentCategoryEntry.representativeAssignments
+
+                $itemList, $assignmentsDetails = Get-PolicyAssignmentsDetails `
+                    -PacEnvironmentSelector $currentPacEnvironmentSelector `
+                    -AssignmentArray $assignmentArray `
+                    -PolicyResourceDetails $policyResourceDetails `
+                    -CachedAssignmentsDetails $cachedAssignmentsDetails
+
+                # Flatten Policy lists in Assignments and reconcile the most restrictive effect for each Policy
+                $flatPolicyList = Convert-PolicyResourcesDetailsToFlatList `
+                    -ItemList $itemList `
+                    -Details $assignmentsDetails
+
+                # Store results of processing and flattening for use in document generation
+                $null = $assignmentsByEnvironment.Add($environmentCategoryEntry.environmentCategory, @{
+                        pacEnvironmentSelector = $currentPacEnvironmentSelector
+                        scopes                 = $environmentCategoryEntry.scopes
+                        itemList               = $itemList
+                        assignmentsDetails     = $assignmentsDetails
+                        flatPolicyList         = $flatPolicyList
+                    }
+                )
+            }
+            # Build documents
+            $documentationSpecifications = $documentAssignments.documentationSpecifications
+            foreach ($documentationSpecification in $documentationSpecifications) {
+                $documentationType = $documentationSpecification.type
+                if ($null -ne $documentationType) {
+                    Write-Information "Field documentationType ($($documentationType)) is deprecated"
+                }
+                Out-DocumentationForPolicyAssignments `
+                    -OutputPath $outputPath `
+                    -OutputPathServices $outputPathServices `
+                    -WindowsNewLineCells:$WindowsNewLineCells `
+                    -DocumentationSpecification $documentationSpecification `
+                    -AssignmentsByEnvironment $assignmentsByEnvironment `
+                    -IncludeManualPolicies:$IncludeManualPolicies `
+                    -PacEnvironments $pacEnvironments
+            }
+        }
     }
 }

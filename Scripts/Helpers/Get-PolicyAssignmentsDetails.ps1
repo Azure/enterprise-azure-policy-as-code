@@ -28,6 +28,7 @@ function Get-PolicyAssignmentsDetails {
         else {
             $allAssignments = $PolicyResourceDetails.policyassignments
             $policySetsDetails = $PolicyResourceDetails.policySets
+            $policiesDetails = $PolicyResourceDetails.policies
             if (!$allAssignments.ContainsKey($assignmentId)) {
                 Write-Error "Assignment '$assignmentId' does not exist or is not managed by EPAC." -ErrorAction Stop
             }
@@ -45,16 +46,31 @@ function Get-PolicyAssignmentsDetails {
                 else {
                     Write-Error "Assignment '$assignmentId' uses an unknown Policy Set '$($policySetId)'. This should not be possible!" -ErrorAction Stop
                 }
+                
+                $entry = @{
+                    shortName    = $shortName
+                    itemId       = $assignmentId
+                    assignmentId = $assignmentId
+                    policySetId  = $policySetId
+                }
+            }
+            elseif ($policySetId.Contains("policyDefinitions", [StringComparison]::InvariantCultureIgnoreCase)) {
+                $combinedDetail = Get-DeepCloneAsOrderedHashtable $policiesDetails.$policySetId
+                $combinedDetail.assignmentId = $assignmentId
+                $combinedDetail.assignment = $assignment
+                $combinedDetail.policyDefinitionId = $policySetId
+                $null = $assignmentsDetailsHt.Add($assignmentId, $combinedDetail)
+                $entry = @{
+                    shortName          = $shortName
+                    itemId             = $assignmentId
+                    assignmentId       = $assignmentId
+                    policyDefinitionId = $policySetId
+                    policySetId        = "N/A"
+                }
             }
             else {
-                Write-Error "Assignment '$assignmentId' must be an Policy Set assignment (not a Policy assignment)." -ErrorAction Stop
+                Write-Error "Assignment '$assignmentId' is not a Policy Set or Policy Definition. This should not be possible!" -ErrorAction Stop
             }
-        }
-        $entry = @{
-            shortName    = $shortName
-            itemId       = $assignmentId
-            assignmentId = $assignmentId
-            policySetId  = $policySetId
         }
         $null = $assignmentPolicySetArray.Add($entry)
 

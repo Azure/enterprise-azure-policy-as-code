@@ -57,7 +57,7 @@ function Find-AzNonCompliantResources {
         $query = "policyresources | where type == `"microsoft.policyinsights/policystates`" and properties.complianceState == `"NonCompliant`"$($effectFilter)"
     }
     else {
-        $query = "policyresources | where type == `"microsoft.policyinsights/policystates`" and properties.complianceState <> `"Compliant`"$($effectFilter)"
+        $query = "policyresources | where type == `"microsoft.policyinsights/policystates`""
     }
     Write-Information "Az Graph Query: '$query'"
     $result = @() + (Search-AzGraphAllItems -Query $query -ProgressItemName "Policy compliance records")

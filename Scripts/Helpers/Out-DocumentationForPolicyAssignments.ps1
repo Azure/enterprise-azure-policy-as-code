@@ -2,6 +2,7 @@ function Out-DocumentationForPolicyAssignments {
     [CmdletBinding()]
     param (
         [string] $OutputPath,
+        [string] $OutputPathServices,
         [switch] $WindowsNewLineCells,
         $DocumentationSpecification,
         [hashtable] $AssignmentsByEnvironment,
@@ -197,6 +198,7 @@ function Out-DocumentationForPolicyAssignments {
     #region Markdown
 
     [System.Collections.Generic.List[string]] $allLines = [System.Collections.Generic.List[string]]::new()
+    [System.Collections.Generic.List[string]] $assignmentsByCategoryHeader = [System.Collections.Generic.List[string]]::new()
     $leadingHeadingHashtag = "#"
     if ($DocumentationSpecification.markdownAdoWiki) {
         $leadingHeadingHashtag = ""
@@ -236,17 +238,29 @@ function Out-DocumentationForPolicyAssignments {
         foreach ($item in $itemList) {
             $assignmentId = $item.assignmentId
             if ($assignmentsDetails.ContainsKey($assignmentId)) {
-                # should always be true
                 $assignmentsDetail = $assignmentsDetails.$assignmentId
-                $null = $allLines.Add("`n$leadingHeadingHashtag## Assignment: ``$($assignmentsDetail.assignment.properties.displayName)```n")
-                $null = $allLines.Add("| Property | Value |")
-                $null = $allLines.Add("| :------- | :---- |")
-                $null = $allLines.Add("| Assignment Id | $($assignmentId) |")
-                $null = $allLines.Add("| Policy Set | ``$($assignmentsDetail.displayName)`` |")
-                $null = $allLines.Add("| Policy Set Id | $($assignmentsDetail.policySetId) |")
-                $null = $allLines.Add("| Type | $($assignmentsDetail.policyType) |")
-                $null = $allLines.Add("| Category | ``$($assignmentsDetail.category)`` |")
-                $null = $allLines.Add("| Description | $($assignmentsDetail.description) |")
+                if ($assignmentsDetail.policySetId) {
+                    $null = $allLines.Add("`n$leadingHeadingHashtag## Assignment: ``$($assignmentsDetail.assignment.properties.displayName)```n")
+                    $null = $allLines.Add("| Property | Value |")
+                    $null = $allLines.Add("| :------- | :---- |")
+                    $null = $allLines.Add("| Assignment Id | $($assignmentId) |")
+                    $null = $allLines.Add("| Policy Set | ``$($assignmentsDetail.displayName)`` |")
+                    $null = $allLines.Add("| Policy Set Id | $($assignmentsDetail.policySetId) |")
+                    $null = $allLines.Add("| Type | $($assignmentsDetail.policyType) |")
+                    $null = $allLines.Add("| Category | ``$($assignmentsDetail.category)`` |")
+                    $null = $allLines.Add("| Description | $($assignmentsDetail.description) |")  
+                }
+                if (!$assignmentsDetail.policySetId -and $assignmentsDetail.policyDefinitionId) {
+                    $null = $allLines.Add("`n$leadingHeadingHashtag## Assignment: ``$($assignmentsDetail.assignment.properties.displayName)```n")
+                    $null = $allLines.Add("| Property | Value |")
+                    $null = $allLines.Add("| :------- | :---- |")
+                    $null = $allLines.Add("| Assignment Id | $($assignmentId) |")
+                    $null = $allLines.Add("| Policy | ``$($assignmentsDetail.displayName)`` |")
+                    $null = $allLines.Add("| Policy Definition Id | $($assignmentsDetail.policyDefinitionId) |")
+                    $null = $allLines.Add("| Type | $($assignmentsDetail.policyType) |")
+                    $null = $allLines.Add("| Category | ``$($assignmentsDetail.category)`` |")
+                    $null = $allLines.Add("| Description | $($assignmentsDetail.description) |")  
+                }
             }
         }
     }
@@ -254,6 +268,9 @@ function Out-DocumentationForPolicyAssignments {
     #endregion Environment Categories
 
     #region Policy Effects
+
+    # Initialize Hashtable to hold sub pages
+    $assignmentsByCategory = @{}
 
     $addedTableHeader = ""
     $addedTableDivider = ""
@@ -269,11 +286,17 @@ function Out-DocumentationForPolicyAssignments {
         $null = $allLines.Add("`n$leadingHeadingHashtag# Policy Effects by Policy`n")
         $null = $allLines.Add("| Category | Policy | Group Names |$addedTableHeader")
         $null = $allLines.Add("| :------- | :----- | :---------- |$addedTableDivider")
+        $null = $assignmentsByCategoryHeader.Add("`n$leadingHeadingHashtag# Security Controls by Policy`n")
+        $null = $assignmentsByCategoryHeader.Add("| Category | Policy | Group Names |$addedTableHeader")
+        $null = $assignmentsByCategoryHeader.Add("| :------- | :----- | :---------- |$addedTableDivider")
     }
     else {
         $null = $allLines.Add("`n$leadingHeadingHashtag# Policy Effects by Policy`n")
         $null = $allLines.Add("| Category | Policy |$addedTableHeader")
         $null = $allLines.Add("| :------- | :----- |$addedTableDivider")
+        $null = $assignmentsByCategoryHeader.Add("`n$leadingHeadingHashtag# Security Controls by Policy`n")
+        $null = $assignmentsByCategoryHeader.Add("| Category | Policy |$addedTableHeader")
+        $null = $assignmentsByCategoryHeader.Add("| :------- | :----- |$addedTableDivider")
     }
     
     $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
@@ -312,10 +335,19 @@ function Out-DocumentationForPolicyAssignments {
                     $groupNamesText = "| "
                 }
             }
+            # Add to Main Markdown
             $null = $allLines.Add("| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) $($groupNamesText)|$($addedEffectColumns)")
+            # Add to sub-page markdown
+            if ($assignmentsByCategory.ContainsKey($_.category)) {   
+                $assignmentsByCategory[$_.category].subLines += "| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) $($groupNamesText)|$($addedEffectColumns)"
+            }
+            else {
+                $assignmentsByCategory[$_.category] = @{}
+                $assignmentsByCategory[$_.category].subLines = $assignmentsByCategoryHeader
+                $assignmentsByCategory[$_.category].subLines += "| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) $($groupNamesText)|$($addedEffectColumns)"
+            }
         }
     }
-
     #endregion Policy Effects
 
     #region Parameters
@@ -409,7 +441,17 @@ function Out-DocumentationForPolicyAssignments {
                     }
                 }
                 if ($hasParameters) {
+                    # Add to main markdown
                     $null = $allLines.Add("| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) |$($addedParametersColumns)")
+                    # Add to sub-page markdown
+                    if ($assignmentsByCategory.ContainsKey($_.category)) {   
+                        $assignmentsByCategory[$_.category].subLines += "| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) |$($addedParametersColumns)"
+                    }
+                    else {
+                        $assignmentsByCategory[$_.category] = @{}
+                        $assignmentsByCategory[$_.category].subLines = $assignmentsByCategoryHeader
+                        $assignmentsByCategory[$_.category].subLines += "| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) |$($addedParametersColumns)"
+                    }
                 }
             }
         }
@@ -420,6 +462,13 @@ function Out-DocumentationForPolicyAssignments {
     # Output file
     $outputFilePath = "$($OutputPath -replace '[/\\]$', '')/$($fileNameStem).md"
     $allLines | Out-File $outputFilePath -Force
+
+    # Output file
+    foreach ($key in $assignmentsByCategory.keys | Sort-Object) {
+        $fileName = $key -replace ' ', '-'
+        $outputFilePath = "$($OutputPathServices -replace '[/\\]$', '')/$($fileName).md"
+        $assignmentsByCategory[$key].subLines | Out-File $outputFilePath -Force
+    }
 
     #endregion Markdown
 
