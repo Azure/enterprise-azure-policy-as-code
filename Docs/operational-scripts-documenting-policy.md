@@ -21,9 +21,79 @@ To utilize the schema add a ```$schema``` tag to the JSON file.
 
 This schema is new in v7.4.x and may not be complete. Please let us know if we missed anything.
 
+## Example Documentation Specification File using 'documentAllAssignments'
 
+Each file must contain one or both documentation topics. This example file in the StarterKit has both topics. Element `pacEnvironment` references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the custom Policies and Policy Sets are deployed.
 
-## Example Documentation Specification File
+* [`documentAssignments`](#assignment-documentation)
+* [`documentPolicySets`](#policy-set-documentation)
+
+```json
+{
+    "documentAssignments": {
+        "documentAllAssignments": [
+            {
+                "enabled": true,
+                "pacEnvironment": "EPAC-Prod",
+                "skipPolicyAssignments": [],
+                "skipPolicyDefinitions": [
+                    "/providers/microsoft.authorization/policysetdefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8" // Azure Security Benchmark v3
+                ],
+                "overrideEnvironmentCategory": {
+                    "DEV": [ // Any name will suffice - will be header of column, grouping the scopes within the array
+                        "/providers/Microsoft.Management/managementGroups/DEV-1",
+                        "/providers/Microsoft.Management/managementGroups/DEV-2"
+                    ],
+                    "PROD": [
+                        "/providers/Microsoft.Management/managementGroups/PROD-1",
+                        "/providers/Microsoft.Management/managementGroups/PROD-2"
+                    ]
+                }
+            }
+        ],
+        "documentationSpecifications": [
+            {
+                "fileNameStem": "contoso-policy-effects-across-environments",
+                "environmentCategories": [], // when using 'documentAllAssignments', this value will be overwritten
+                "title": "Contoso Policy effects"
+            }
+        ]
+    },
+    "documentPolicySets": [
+        {
+            "pacEnvironment": "tenant",
+            "fileNameStem": "contoso-compliance-policy-sets",
+            "title": "Document interesting Policy Sets",
+            "policySets": [
+                {
+                    "shortName": "ASB",
+                    "id": "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8" // Azure Security Benchmark v3
+                },
+                {
+                    "shortName": "NIST 800-171",
+                    "id": "/providers/Microsoft.Authorization/policySetDefinitions/03055927-78bd-4236-86c0-f36125a10dc9" // NIST SP 800-171 Rev. 2
+                },
+                {
+                    "shortName": "NIST 800-53",
+                    "id": "/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f" // NIST SP 800-53 Rev. 5
+                },
+                {
+                    "shortName": "ORG",
+                    "id": "/providers/Microsoft.Management/managementGroups/Contoso-Root/providers/Microsoft.Authorization/policySetDefinitions/org-security-benchmark" // Organization Security Benchmark for Custom Policies
+                }
+            ],
+            "environmentColumnsInCsv": [
+                "prod",
+                "test",
+                "dev",
+                "lab"
+            ]
+        }
+    ]
+}
+```
+
+## Example Documentation Specification File using 'environmentCategories'
 
 Each file must contain one or both documentation topics. This example file in the StarterKit has both topics. Element `pacEnvironment` references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the custom Policies and Policy Sets are deployed.
 
@@ -179,7 +249,31 @@ Alternatively, you can set `markdownMaxParameterLength` to a maximum length. EPA
 
 ## Assignment Documentation
 
-### Element `environmentCategories`
+### OPTION 1: Element `documentAllAssignments`
+
+Best used when **all** Policy Assignments need to be documented.
+
+When enabled, this section lists all Policy Assignments across all scopes where Policy is directly assigned. In many organizations, the same Policies and effects are applied to multiple Management Groups and even Azure tenants with the parameters consistent, therefore there is an option to group scopes by environment category.
+
+`documentAllAssignments` entry specifies:
+
+* `enabled`: setting this value to "true" will enable the use of 'documentAllAssignments' and will overwrite 'environmentCategories' if the section exists within the file.
+* `pacEnvironment`: references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the Policies and Policy Sets are deployed.
+* `skipPolicyAssignments`: list of Policy Assignment ID's used to define Policy Assinments that do not want to included in the output.
+* `skipPolicyDefinitions`: list of Policy Definition and Policy Set ID's used to define Policy Assinments that do not want to included in the output.
+* `overrideEnvironmentCategory`: list of custom defined Environment Categories that will overwrite the auto-generated values. By default, all Policy Assignment scopes are treated as an individual "Environment Category", therefore leverage this section to override these Environemnt Categories and create custom groupings. (For an example see [`Example Documentation Specification File using 'documentAllAssignments'`](#Example-Documentation-Specification-File-using-documentAllAssignments))
+
+### Element `documentationSpecifications`
+
+Each entry in the array defines a set of outputs:
+
+* `fileNameStem`: the file name stem used to construct the filenames.
+* `environmentCategories` listed as effect columns.
+* `title`: Heading 1 text for Markdown.
+
+### OPTION 2: Element `environmentCategories`
+
+Best used when specific Policy Assignments need to be documented.
 
 For any given environment category, such as `prod`, `test`, `dev`, this section lists Policy Assignments which are representative for those environments. In many organizations, the same Policies and effects are applied to multiple Management Groups and even Azure tenants with the parameters consistent by environment category.
 
@@ -242,6 +336,8 @@ Each entry in the array defines a set of outputs:
 * `<fileNameStem>-full.md`: This Markdown file is intended for security personel requiring more details about the Assignments and Policies. It displays the same information as the summary plus the additional details equivalent to `<fileNameStem>-full.csv`. The Policies are sorted by `category` and ``displayName`. Each`environmentCategory` column shows the current enforcement level in bold. If the value is fixed, the value is also in italics. If it is parametrized, the other allowed values are shown in italics. The additional details are:
   * Group Names
   * Effects per `environmentCategory` and Policy Set with additional details on the origin of the effect.
+
+* `Folder: services`: Individual Markdown files generated off of the main Policy Assignment Markdown file. These files are based on each "Service Category" and can be used as sub-pages with Azure DevOps Wiki pages.
 
 ## Policy Set Documentation
 
