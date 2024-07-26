@@ -41,5 +41,9 @@ function Set-AzPolicyExemptionRestMethod {
         else {
             Write-Warning "Error, continue deployment: $($statusCode) -- $($content)"
         }
+        if ($statusCode -eq 404) {
+            Write-Warning "Please verify Policy Exemptions are valid"
+            exit 1
+        }
     }
 }

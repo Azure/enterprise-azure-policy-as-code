@@ -65,7 +65,7 @@ Each Assignment is required to have a `name` which is used in it's resource id. 
 Multiple `assignment` naming components in a tree branch are string concatenated for each of the three fields.
 
 > [!WARNING]
-> Azure has a limit of 24 characters for the concatenated `name` string. EPAC displays an error if this limit is exceeded.
+> Azure has a limit of 24 characters for the concatenated `name` string. EPAC displays an error if this limit is exceeded. Azure also has a limit of 128 characters for `displayName` and 512 characters for `description` (For additioanl information see [Assignment Structure: Display name and description](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/assignment-structure#display-name-and-description)).
 
 ### Defining `metadata`
 
