@@ -121,7 +121,7 @@
                 {
                     "required": [
                         "documentAllAssignments",
-                        "documentPolicySets"
+                        "documentationSpecifications"
                     ]
                 }
             ]
