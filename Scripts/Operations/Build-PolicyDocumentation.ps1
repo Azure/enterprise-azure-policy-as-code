@@ -387,18 +387,18 @@ foreach ($file in $files) {
                 }
             }
 
-            # Set overrideEnvironemntCategory to false if does not exist
-            if ($null -eq $documentationSpec.documentAssignments.documentAllAssignments.overrideEnvironemntCategory) {
-                $overrideEnvironemntCategory = ""
+            # Set overrideEnvironmentCategory to false if does not exist
+            if ($null -eq $documentationSpec.documentAssignments.documentAllAssignments.overrideEnvironmentCategory) {
+                $overrideEnvironmentCategory = ""
             }
             else {
-                $overrideEnvironemntCategory = $documentationSpec.documentAssignments.documentAllAssignments.overrideEnvironemntCategory 
+                $overrideEnvironmentCategory = $documentationSpec.documentAssignments.documentAllAssignments.overrideEnvironmentCategory 
             }
 
             # Update overrideEnvironemntCategory where applicable
-            if (!$overrideEnvironemntCategory -eq "") {
+            if (!$overrideEnvironmentCategory -eq "") {
                 foreach ($environment in $environmentCategories) {
-                    foreach ($category in $overrideEnvironemntCategory.PSObject.Properties) {
+                    foreach ($category in $overrideEnvironmentCategory.PSObject.Properties) {
                         if ($environment.scopeid -in $category.Value) {
                             $environment.environmentCategory = $category.Name
                         }
@@ -424,6 +424,11 @@ foreach ($file in $files) {
 
                 $environmentCategories = $tempEnvironmentCategory
             }
+
+            # Logic to move Tenant Root group to the first entry / column on Markdown
+            $tenantRootCategory = $environmentCategories | Where-Object { $_.environmentCategory -eq "Tenant Root Group" }
+            $environmentCategories = $environmentCategories | Where-Object { $_.environmentCategory -ne "Tenant Root Group" }
+            $environmentCategories = , $tenantRootCategory + $environmentCategories
 
             $documentAssignments = $documentationSpec.documentAssignments
             # Check if the member already exists

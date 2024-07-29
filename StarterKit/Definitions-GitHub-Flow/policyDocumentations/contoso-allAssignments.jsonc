@@ -1,40 +1,24 @@
 {
     "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-documentation-schema.json",
     "documentAssignments": {
-        "environmentCategories": [
+        "documentAllAssignments": [
             {
-                "pacEnvironment": "tenant",
-                "environmentCategory": "prod",
-                "scopes": [
-                    "Management Group: Contoso-Prod"
+                "enabled": true,
+                "pacEnvironment": "EPAC-Prod",
+                "skipPolicyAssignments": [],
+                "skipPolicyDefinitions": [
+                    "/providers/microsoft.authorization/policysetdefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8" // Azure Security Benchmark v3
                 ],
-                "representativeAssignments": [
-                    {
-                        "shortName": "ASB",
-                        "id": "/providers/Microsoft.Management/managementGroups/mg-prod/providers/Microsoft.Authorization/policyAssignments/pr-asb"
-                    },
-                    {
-                        "shortName": "NIST-800-53",
-                        "id": "/providers/Microsoft.Management/managementGroups/mg-prod/providers/Microsoft.Authorization/policyAssignments/pr-nist-800-53-r5"
-                    }
-                ]
-            },
-            {
-                "pacEnvironment": "tenant",
-                "environmentCategory": "nonprod",
-                "scopes": [
-                    "Management Group: Contoso-NonProd"
-                ],
-                "representativeAssignments": [
-                    {
-                        "shortName": "ASB",
-                        "id": "/providers/Microsoft.Management/managementGroups/mg-nonprod/providers/Microsoft.Authorization/policyAssignments/np-asb"
-                    },
-                    {
-                        "shortName": "NIST-800-53",
-                        "id": "/providers/Microsoft.Management/managementGroups/mg-nonprod/providers/Microsoft.Authorization/policyAssignments/np-nist-800-53-r5"
-                    }
-                ]
+                "overrideEnvironmentCategory": {
+                    "DEV": [ // Any name will suffice - will be header of column, grouping the scopes within the array
+                        "/providers/Microsoft.Management/managementGroups/DEV-1",
+                        "/providers/Microsoft.Management/managementGroups/DEV-2"
+                    ],
+                    "PROD": [
+                        "/providers/Microsoft.Management/managementGroups/PROD-1",
+                        "/providers/Microsoft.Management/managementGroups/PROD-2"
+                    ]
+                }
             }
         ],
         "documentationSpecifications": [
@@ -47,26 +31,5 @@
                 "title": "Contoso Policy effects"
             }
         ]
-    },
-    "documentPolicySets": [
-        {
-            "pacEnvironment": "epac-dev",
-            "fileNameStem": "contoso-compliance-initiatives",
-            "title": "Document Initiatives",
-            "policySets": [
-                {
-                    "shortName": "ASB",
-                    "id": "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8"
-                },
-                {
-                    "shortName": "NIST-800-53",
-                    "id": "/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f"
-                }
-            ],
-            "environmentColumnsInCsv": [
-                "prod",
-                "nonprod"
-            ]
-        }
-    ]
+    }
 }

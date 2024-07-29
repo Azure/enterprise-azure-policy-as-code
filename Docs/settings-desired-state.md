@@ -20,7 +20,7 @@ Desired State strategy enables you to adjust the default behavior to fit more co
   - `excludedPolicyDefinitions`: An array of Policy Definitions to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
   - `excludedPolicySetDefinitions`: An array of Policy Set Definitions to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
   - `excludedPolicyAssignments`: An array of Policy Assignments to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
-  - `doNotDisableDeprecatedPolicies`: Automatically set deprecated policies' policy effect to "Disabled"
+  - `doNotDisableDeprecatedPolicies`: Automatically set deprecated policies' policy effect to "Disabled". This setting can be used to override that behavior by setting it to `true`. Default is `false`.
 
 The following example shows the `desiredState` element with all properties set:
 
