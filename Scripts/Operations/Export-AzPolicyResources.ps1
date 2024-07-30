@@ -410,11 +410,11 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
             }
             if ($null -ne $rawMetadata.updatedBy) {
                 $rowObj.principalId = $rawMetadata.updatedBy
-                $rowObj.lastChange = if ($rawMetadata.createdOn) { ($rawMetadata.createdOn).ToString("s") } else { "n/a" }
+                $rowObj.lastChange = if ($null -ne $rawMetadata.createdOn) { ($rawMetadata.createdOn).ToString("s") } else { "n/a" }
             }
             else {
                 $rowObj.principalId = $rawMetadata.createdBy
-                $rowObj.lastChange = if ($rawMetadata.createdOn) { ($rawMetadata.createdOn).ToString("s") } else { "n/a" }
+                $rowObj.lastChange = if ($null -ne $rawMetadata.createdOn) { ($rawMetadata.createdOn).ToString("s") } else { "n/a" }
             }
             if ($null -ne $rawMetadata.category) {
                 $rowObj.category = $rawMetadata.category
@@ -498,11 +498,11 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
             }
             if ($null -ne $rawMetadata.updatedBy) {
                 $rowObj.principalId = $rawMetadata.updatedBy
-                $rowObj.lastChange = if ($rawMetadata.createdOn) { ($rawMetadata.createdOn).ToString("s") } else { "n/a" }
+                $rowObj.lastChange = if ($null -ne $rawMetadata.createdOn) { ($rawMetadata.createdOn).ToString("s") } else { "n/a" }
             }
             else {
                 $rowObj.principalId = $rawMetadata.createdBy
-                $rowObj.lastChange = if ($rawMetadata.createdOn) { ($rawMetadata.createdOn).ToString("s") } else { "n/a" }
+                $rowObj.lastChange = if ($null -ne $rawMetadata.createdOn) { ($rawMetadata.createdOn).ToString("s") } else { "n/a" }
             }
             if ($null -ne $rawMetadata.category) {
                 $rowObj.category = $rawMetadata.category
@@ -623,11 +623,11 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
             }
             if ($null -ne $rawMetadata.updatedBy) {
                 $rowObj.principalId = $rawMetadata.updatedBy
-                $rowObj.lastChange = if ($rawMetadata.createdOn) { ($rawMetadata.createdOn).ToString("s") } else { "n/a" }
+                $rowObj.lastChange = if ($null -ne $rawMetadata.createdOn) { ($rawMetadata.createdOn).ToString("s") } else { "n/a" }
             }
             else {
                 $rowObj.principalId = $rawMetadata.createdBy
-                $rowObj.lastChange = if ($rawMetadata.createdOn) { ($rawMetadata.createdOn).ToString("s") } else { "n/a" }
+                $rowObj.lastChange = if ($null -ne $rawMetadata.createdOn) { ($rawMetadata.createdOn).ToString("s") } else { "n/a" }
             }
             if ($null -ne $rawMetadata.category) {
                 $rowObj.category = $rawMetadata.category
