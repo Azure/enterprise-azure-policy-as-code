@@ -74,9 +74,6 @@ function Get-AzPolicyExemptions {
                 -ExcludedIds $excludedPolicyResources `
                 -PolicyResourceTable $policyResourcesTable
             if ($included) {
-                $scope = $resourceIdParts.scope
-                $policyResource.resourceIdParts = $resourceIdParts
-                $policyResource.scope = $scope
                 $displayName = $properties.displayName
                 if ($null -ne $displayName -and $displayName -eq "") {
                     $displayName = $null

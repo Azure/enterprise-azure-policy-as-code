@@ -427,8 +427,10 @@ foreach ($file in $files) {
 
             # Logic to move Tenant Root group to the first entry / column on Markdown
             $tenantRootCategory = $environmentCategories | Where-Object { $_.environmentCategory -eq "Tenant Root Group" }
-            $environmentCategories = $environmentCategories | Where-Object { $_.environmentCategory -ne "Tenant Root Group" }
-            $environmentCategories = , $tenantRootCategory + $environmentCategories
+            if ($null -ne $tenantRootCategory) {
+                $environmentCategories = $environmentCategories | Where-Object { $_.environmentCategory -ne "Tenant Root Group" }
+                $environmentCategories = , $tenantRootCategory + $environmentCategories
+            }
 
             $documentAssignments = $documentationSpec.documentAssignments
             # Check if the member already exists
