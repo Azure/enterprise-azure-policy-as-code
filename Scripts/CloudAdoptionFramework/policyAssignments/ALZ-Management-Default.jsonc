@@ -9,9 +9,9 @@
     "parameters": {
         "workspaceRegion": "", // Replace with your primary region
         "automationRegion": "", // Replace with your primary region
-        "rgName": "alz-mgmt", // Replace with a unique resource group name
-        "automationAccountName": "alz-aauto", // Replace with an automation account name
-        "workspaceName": "alz-law" // Replace with a Log Analytics workspace name
+        "rgName": "", // Replace with a unique resource group name
+        "automationAccountName": "", // Replace with an automation account name
+        "workspaceName": "" // Replace with a Log Analytics workspace name
     },
     "children": [
         {

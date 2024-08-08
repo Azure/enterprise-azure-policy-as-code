@@ -94,7 +94,7 @@
                         "azureAcrPrivateDnsZoneId": "--DNSZonePrefix--privatelink.azurecr.io",
                         "azureEventHubNamespacePrivateDnsZoneId": "--DNSZonePrefix--privatelink.servicebus.windows.net",
                         "azureMachineLearningWorkspacePrivateDnsZoneId": "--DNSZonePrefix--privatelink.api.azureml.ms",
-                        "azureMachineLearningWorkspaceSecondPrivateDnsZoneId" : "--DNSZonePrefix--privatelink.notebooks.azure.net",
+                        "azureMachineLearningWorkspaceSecondPrivateDnsZoneId": "--DNSZonePrefix--privatelink.notebooks.azure.net",
                         "azureServiceBusNamespacePrivateDnsZoneId": "--DNSZonePrefix--privatelink.servicebus.windows.net",
                         "azureCognitiveSearchPrivateDnsZoneId": "--DNSZonePrefix--privatelink.search.windows.net",
                         "azureBotServicePrivateDnsZoneId": "--DNSZonePrefix--privatelink.directline.botframework.com",
@@ -150,7 +150,8 @@
                         "displayName": "Deny the deployment of vWAN/ER/VPN gateway resources"
                     },
                     "definitionEntry": {
-                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/6c112d4e-5bc7-47ae-a041-ea2d9dccd749"
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/6c112d4e-5bc7-47ae-a041-ea2d9dccd749",
+                        "displayName": "Not allowed resource types"
                     },
                     "parameters": {
                         "listOfResourceTypesNotAllowed": [
@@ -183,8 +184,9 @@
                     },
                     "parameters": {
                         // Replace the ---location--- with the location of the Private Link Private DNS Zone resource
+                        // Replace the ---short-code-location--- with the location short code of the Private Link Private DNS Zone resource e.g. "ae" for Australia East
                         "privateLinkDnsZones": [
-                            "privatelink.ae.backup.windowsazure.com",
+                            "privatelink.---short-code-location---.backup.windowsazure.com",
                             "privatelink.---location---.azmk8s.io",
                             "privatelink.---location---.batch.azure.com",
                             "privatelink.---location---.kusto.windows.net",
@@ -202,6 +204,7 @@
                             "privatelink.azuredatabricks.net",
                             "privatelink.azurehdinsight.net",
                             "privatelink.azurehealthcareapis.com",
+                            "privatelink.azureiotcentral.com",
                             "privatelink.azurestaticapps.net",
                             "privatelink.azuresynapse.net",
                             "privatelink.azurewebsites.net",
@@ -217,8 +220,10 @@
                             "privatelink.digitaltwins.azure.net",
                             "privatelink.directline.botframework.com",
                             "privatelink.documents.azure.com",
+                            "privatelink.dp.kubernetesconfiguration.azure.com",
                             "privatelink.eventgrid.azure.net",
                             "privatelink.file.core.windows.net",
+                            "privatelink.grafana.azure.com",
                             "privatelink.gremlin.cosmos.azure.com",
                             "privatelink.guestconfiguration.azure.com",
                             "privatelink.his.arc.azure.com",
@@ -251,7 +256,9 @@
                             "privatelink.token.botframework.com",
                             "privatelink.vaultcore.azure.net",
                             "privatelink.web.core.windows.net",
-                            "privatelink.webpubsub.azure.com"
+                            "privatelink.webpubsub.azure.com",
+                            "privatelink.wvd.microsoft.com",
+                            "privatelink-global.wvd.microsoft.com"
                         ]
                     },
                     "nonComplianceMessages": [

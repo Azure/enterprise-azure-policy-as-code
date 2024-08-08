@@ -433,6 +433,24 @@
                     "message": "Recommended guardrails must be enforced for Virtual Desktop"
                 }
             ]
+        },
+        {
+            "nodeName": "CMK",
+            "assignment": {
+                "name": "Enforce-Encrypt-CMK",
+                "displayName": "Enforce recommended guardrails for Customer Managed Keys",
+                "description": "This initiative assignment enables additional ALZ guardrails for Customer Managed Keys."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Encryption-CMK",
+                "displayName": "Deny or Audit resources without Encryption with a customer-managed key (CMK)",
+                "nonComplianceMessages": [
+                    {
+                        "policyDefinitionReferenceId": null,
+                        "message": "Recommended guardrails must be enforced for Customer Managed Keys."
+                    }
+                ]
+            }
         }
     ]
 }

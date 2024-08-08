@@ -6,11 +6,14 @@
             "/providers/Microsoft.Management/managementGroups/connectivity"
         ]
     },
+    "parameters": {
+        "ddosPlan": "" // Replace with DDOS plan Id
+    },
     "children": [
         {
             "nodeName": "Networking",
             "assignment": {
-                "name": "Enable-DDoS-VNET",
+                "name": "Enable-DDoS-VNET-Con",
                 "displayName": "Virtual networks should be protected by Azure DDoS Network Protection",
                 "description": "Protect your virtual networks against volumetric and protocol attacks with Azure DDoS Network Protection. For more information, visit https://aka.ms/ddosprotectiondocs."
             },
@@ -19,8 +22,7 @@
                 "displayName": "Enable DDOS"
             },
             "parameters": {
-                "effect": "Modify",
-                "ddosPlan": "null"
+                "effect": "Modify"
             },
             "nonComplianceMessages": [
                 {
