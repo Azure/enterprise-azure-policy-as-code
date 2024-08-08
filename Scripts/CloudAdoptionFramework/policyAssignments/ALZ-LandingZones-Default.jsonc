@@ -9,14 +9,12 @@
     "parameters": {
         // The policies deployed at this scope deploy a managed identity - which is then used in the monitoring policies - you can use the same identity for the monitoring policies deployed at the platform level.
         "logAnalyticsWorkspaceId": "", // Replace with your central Log Analytics workspace ID
-        "userAssignedManagedIdentityName": "", // Replace with the name of the user assigned managed identity to deploy
-        "userAssignedIdentityName": "", // Replace with the name of the user assigned managed identity to deploy
+        "userAssignedIdentityResourceId": "", // Replace with the resource Id of the user assigned managed identity
         "bringYourOwnUserAssignedManagedIdentity": true,
         "enableProcessesAndDependencies": true,
-        "userAssignedManagedIdentityResourceGroup": "", //Replace with the name of the resource group where the user assigned managed identity is deployed
-        "identityResourceGroup": "", // Replace with the name of the resource group where the user assigned managed identity is to be deployed
+        "restrictBringYourOwnUserAssignedIdentityToSubscription": false,
         "scopeToSupportedImages": false,
-        "builtInIdentityResourceGroupLocation": "australiaeast"
+        "ddosPlan": "" // Replace with DDOS plan Id
     },
     "children": [
         {
@@ -115,7 +113,7 @@
                 {
                     "nodeName": "EnableDDOS",
                     "assignment": {
-                        "name": "Enable-DDoS-VNET",
+                        "name": "Enable-DDoS-VNET-LZ",
                         "displayName": "Virtual networks should be protected by Azure DDoS Network Protection",
                         "description": "Protect your virtual networks against volumetric and protocol attacks with Azure DDoS Network Protection. For more information, visit https://aka.ms/ddosprotectiondocs."
                     },
@@ -124,8 +122,7 @@
                         "displayName": "Audit DDOS Landing Zones"
                     },
                     "parameters": {
-                        "effect": "Modify",
-                        "ddosPlan": "null"
+                        "effect": "Modify"
                     },
                     "nonComplianceMessages": [
                         {
@@ -213,10 +210,7 @@
                         "policyId": "/providers/Microsoft.Authorization/policyDefinitions/98d0b9f8-fd90-49c9-88e2-d3baf3b0dd86",
                         "displayName": "Deploy VM Backup"
                     },
-                    "parameters": {
-                        "exclusionTagName": "",
-                        "exclusionTagValue": []
-                    },
+                    "parameters": {},
                     "nonComplianceMessages": [
                         {
                             "message": "Backup on virtual machines without a given tag must be configured to a new recovery services vault with a default policy."
@@ -231,7 +225,7 @@
                 {
                     "nodeName": "GuardRails",
                     "assignment": {
-                        "name": "Enforce-GR-KeyVault",
+                        "name": "Enforce-GR-KeyVault-LZ",
                         "displayName": "Enforce recommended guardrails for Azure Key Vault",
                         "description": "This initiative assignment enables recommended ALZ guardrails for Azure Key Vault."
                     },
@@ -253,13 +247,13 @@
                 {
                     "nodeName": "TLS",
                     "assignment": {
-                        "name": "Enforce-TLS-SSL",
+                        "name": "Enforce-TLS-SSL-H224",
                         "displayName": "Deny or Deploy and append TLS requirements and SSL enforcement on resources without Encryption in transit",
                         "description": "Choose either Deploy if not exist and append in combination with audit or Select Deny in the Policy effect. Deny polices shift left. Deploy if not exist and append enforce but can be changed, and because missing exsistense condition require then the combination of Audit."
                     },
                     "definitionEntry": {
-                        "policySetName": "Enforce-EncryptTransit",
-                        "displayName": "Enforce Encrypt Transit"
+                        "policySetName": "Enforce-EncryptTransit_20240509",
+                        "displayName": "Deny or Deploy and append TLS requirements and SSL enforcement on resources without Encryption in transit"
                     },
                     "nonComplianceMessages": [
                         {
@@ -304,12 +298,12 @@
                 {
                     "nodeName": "DefenderSQL",
                     "assignment": {
-                        "name": "Deploy-MDFC-DefenSQL-AMA",
+                        "name": "Deploy-MDFC-SQL-AMA-LZ",
                         "displayName": "Configure SQL VMs and Arc-enabled SQL Servers to install Microsoft Defender for SQL and AMA with a user-defined LA workspace",
                         "description": "Microsoft Defender for SQL collects events from the agents and uses them to provide security alerts and tailored hardening tasks (recommendations). Creates a resource group and a Data Collection Rule in the same region as the user-defined Log Analytics workspace."
                     },
                     "definitionEntry": {
-                        "policySetName": "Deploy-MDFC-DefenderSQL-AMA",
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/de01d381-bae9-4670-8870-786f89f49e26",
                         "displayName": "Configure SQL VMs and Arc-enabled SQL Servers to install Microsoft Defender for SQL and AMA with a user-defined LA workspace",
                         "nonComplianceMessages": [
                             {
@@ -319,11 +313,11 @@
                         ]
                     },
                     "parameters": {
-                        "dcrResourceGroup": "", // Resource group for the DCR
-                        "dcrId": "", // Resource Id for the deployed DCR - see https://github.com/Azure/Enterprise-Scale/blob/main/eslzArm/resourceGroupTemplates/dataCollectionRule-DefenderSQL.json
+                        "dcrResourceId": "", // Resource Id for the deployed DCR - see https://github.com/Azure/Enterprise-Scale/blob/main/eslzArm/resourceGroupTemplates/dataCollectionRule-DefenderSQL.json
                         "userWorkspaceResourceId": "", //Log analytics workspace Id
                         "workspaceRegion": "", // Log analytics workspace region
-                        "dcrName": "" // DCR Name
+                        "enableCollectionOfSqlQueriesForSecurityResearch": "false",
+                        "bringYourOwnDcr": true // Ensure the DCR is deployed
                     }
                 },
                 {
@@ -351,7 +345,7 @@
                 {
                     "nodeName": "UpdateManager",
                     "assignment": {
-                        "name": "Enable-AUM-CheckUpdates",
+                        "name": "Enable-AUM-Updates-LZ",
                         "displayName": "Configure periodic checking for missing system updates on azure virtual machines and Arc-enabled virtual machines.",
                         "description": "Configure auto-assessment (every 24 hours) for OS updates. You can control the scope of assignment according to machine subscription, resource group, location or tag. Learn more about this for Windows: https://aka.ms/computevm-windowspatchassessmentmode, for Linux: https://aka.ms/computevm-linuxpatchassessmentmode."
                     },
@@ -366,113 +360,11 @@
                         ]
                     },
                     "parameters": {
-                        "locations": [
-                            "asia",
-                            "asiapacific",
-                            "australia",
-                            "australiacentral",
-                            "australiacentral2",
-                            "australiaeast",
-                            "australiasoutheast",
-                            "brazil",
-                            "brazilsouth",
-                            "brazilsoutheast",
-                            "brazilus",
-                            "canada",
-                            "canadacentral",
-                            "canadaeast",
-                            "centralindia",
-                            "centralus",
-                            "centralusstage",
-                            "eastasia",
-                            "eastasiastage",
-                            "eastus",
-                            "eastusstage",
-                            "eastus2",
-                            "eastus2stage",
-                            "europe",
-                            "france",
-                            "francecentral",
-                            "francesouth",
-                            "germany",
-                            "germanynorth",
-                            "germanywestcentral",
-                            "global",
-                            "india",
-                            "israelcentral",
-                            "italynorth",
-                            "japan",
-                            "japaneast",
-                            "japanwest",
-                            "jioindiacentral",
-                            "jioindiawest",
-                            "korea",
-                            "koreacentral",
-                            "koreasouth",
-                            "northcentralus",
-                            "northcentralusstage",
-                            "northeurope",
-                            "norway",
-                            "norwayeast",
-                            "norwaywest",
-                            "polandcentral",
-                            "qatarcentral",
-                            "singapore",
-                            "southafrica",
-                            "southafricanorth",
-                            "southafricawest",
-                            "southcentralus",
-                            "southcentralusstage",
-                            "southindia",
-                            "southeastasia",
-                            "southeastasiastage",
-                            "sweden",
-                            "swedencentral",
-                            "switzerland",
-                            "switzerlandnorth",
-                            "switzerlandwest",
-                            "uaecentral",
-                            "uaenorth",
-                            "uksouth",
-                            "ukwest",
-                            "uae",
-                            "uk",
-                            "unitedstates",
-                            "unitedstateseuap",
-                            "westcentralus",
-                            "westeurope",
-                            "westindia",
-                            "westus",
-                            "westusstage",
-                            "westus2",
-                            "westus2stage",
-                            "westus3"
-                        ]
+                        "tagValues": {},
+                        "locations": [],
+                        "tagOperator": "Any",
+                        "assessmentMode": "AutomaticByPlatform"
                     }
-                }
-            ]
-        },
-        {
-            "nodeName": "ManagedIdentity",
-            "children": [
-                {
-                    "nodeName": "UAMI",
-                    "assignment": {
-                        "name": "Deploy-UAMI-VMInsights",
-                        "displayName": "Deploy User Assigned Managed Identity for VM Insights",
-                        "description": "Deploy User Assigned Managed Identity for VM Insights"
-                    },
-                    "definitionEntry": {
-                        "policyName": "Deploy-UserAssignedManagedIdentity-VMInsights",
-                        "displayName": "Deploy User Assigned Managed Identity for VM Insights",
-                        "nonComplianceMessages": [
-                            {
-                                "policyDefinitionReferenceId": null,
-                                "message": "User Assigned Identity must be created for VM Insights."
-                            }
-                        ]
-                    },
-                    "parameters": {}
                 }
             ]
         },
@@ -608,6 +500,29 @@
                     },
                     "parameters": {
                         "dcrResourceId": "" // Resource Id for the deployed DCR - see https://github.com/Azure/Enterprise-Scale/blob/main/eslzArm/resourceGroupTemplates/dataCollectionRule-CT.json
+                    }
+                }
+            ]
+        },
+        {
+            "nodeName": "Backup",
+            "children": [
+                {
+                    "nodeName": "ASR",
+                    "assignment": {
+                        "name": "Enforce-ASR-LZ",
+                        "displayName": "Enforce enhanced recovery and backup policies",
+                        "description": "This initiative assignment enables recommended ALZ guardrails for Azure Recovery Services."
+                    },
+                    "definitionEntry": {
+                        "policySetName": "Enforce-Backup",
+                        "displayName": "Enforce enhanced recovery and backup policies",
+                        "nonComplianceMessages": [
+                            {
+                                "policyDefinitionReferenceId": null,
+                                "message": "Recommended guardrails must be enforced for Azure Recovery Services (Backup and Site Recovery)."
+                            }
+                        ]
                     }
                 }
             ]

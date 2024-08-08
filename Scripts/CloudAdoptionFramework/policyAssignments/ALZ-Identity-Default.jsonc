@@ -19,7 +19,7 @@
                     },
                     "definitionEntry": {
                         "policyId": "/providers/Microsoft.Authorization/policyDefinitions/6c112d4e-5bc7-47ae-a041-ea2d9dccd749",
-                        "displayName": "Deny Public IP"
+                        "displayName": "Not allowed resource types"
                     },
                     "parameters": {
                         "listOfResourceTypesNotAllowed": [
@@ -83,10 +83,7 @@
                         "policyId": "/providers/Microsoft.Authorization/policyDefinitions/98d0b9f8-fd90-49c9-88e2-d3baf3b0dd86",
                         "displayName": "Deploy VM Backup"
                     },
-                    "parameters": {
-                        "exclusionTagName": "",
-                        "exclusionTagValue": []
-                    },
+                    "parameters": {},
                     "nonComplianceMessages": [
                         {
                             "message": "Backup on virtual machines without a given tag must be configured to a new recovery services vault with a default policy."
