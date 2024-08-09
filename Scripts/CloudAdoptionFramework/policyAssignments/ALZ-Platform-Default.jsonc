@@ -62,7 +62,7 @@
                         "dcrResourceId": "", // Resource Id for the deployed DCR - see https://github.com/Azure/Enterprise-Scale/blob/main/eslzArm/resourceGroupTemplates/dataCollectionRule-DefenderSQL.json
                         "userWorkspaceResourceId": "", //Log analytics workspace Id
                         "workspaceRegion": "", // Log analytics workspace region
-                        "enableCollectionOfSqlQueriesForSecurityResearch": "false",
+                        "enableCollectionOfSqlQueriesForSecurityResearch": false,
                         "bringYourOwnDcr": true // Ensure the DCR is deployed
                     }
                 },
