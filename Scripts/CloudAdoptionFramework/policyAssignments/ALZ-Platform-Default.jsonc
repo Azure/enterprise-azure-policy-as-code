@@ -146,8 +146,9 @@
                         "displayName": "Do not allow deletion of specified resource and resource type"
                     },
                     "parameters": {
+                        "effect": "DenyAction",
                         "resourceType": "Microsoft.ManagedIdentity/userAssignedIdentities",
-                        "effect": "DenyAction"
+                        "resourceName": "" // Resource name for the user-assigned managed identity
                     }
                 }
             ]
