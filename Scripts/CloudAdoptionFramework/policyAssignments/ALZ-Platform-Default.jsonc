@@ -65,23 +65,6 @@
                         "enableCollectionOfSqlQueriesForSecurityResearch": false,
                         "bringYourOwnDcr": true // Ensure the DCR is deployed
                     }
-                },
-                {
-                    "nodeName": "UAMI",
-                    "assignment": {
-                        "name": "DenyAction-DeleteUAMIAMA",
-                        "displayName": "Do not allow deletion of the User Assigned Managed Identity used by AMA",
-                        "description": "This policy provides a safeguard against accidental removal of the User Assigned Managed Identity used by AMA by blocking delete calls using deny action effect."
-                    },
-                    "definitionEntry": {
-                        "policyName": "DenyAction-DeleteResources",
-                        "displayName": "Do not allow deletion of specified resource and resource type"
-                    },
-                    "parameters": {
-                        "effect": "DenyAction",
-                        "resourceType": "Microsoft.ManagedIdentity/userAssignedIdentities",
-                        "resourceName": "" // Resource name for the user-assigned managed identity
-                    }
                 }
             ]
         },
