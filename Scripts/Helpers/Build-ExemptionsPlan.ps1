@@ -525,6 +525,7 @@ function Build-ExemptionsPlan {
                             else {
                                 Write-Warning "Exemption entry $($entryNumber): Exemption '$name' in definitions expired $( - $daysUntilExpired) days ago."
                             }
+                            $Exemptions.numberOfExpired++
                         }
                         elseif ($daysUntilExpired -le 15) {
                             Write-Warning "Exemption entry $($entryNumber): Exemption '$name' in definitions expires in $daysUntilExpired days."
@@ -578,6 +579,7 @@ function Build-ExemptionsPlan {
                                 }
                                 if ($resourceStatus -eq "individualResourceDoesNotExists") {
                                     Write-Warning "Row $($entryNumber): Resource '$currentScope' does not exist, skipping entry."
+                                    $Exemptions.numberOfOrphans++
                                 }
                             }
                             else {
@@ -672,6 +674,7 @@ function Build-ExemptionsPlan {
                         }
                         if ($filteredPolicyAssignments.Count -eq 0) {
                             Write-Warning "Exemption entry $($entryNumber): No assignments found for exemption scope $($currentScope), skipping entry."
+                            $Exemptions.numberOfOrphans++
                             continue
                         }
                     }
