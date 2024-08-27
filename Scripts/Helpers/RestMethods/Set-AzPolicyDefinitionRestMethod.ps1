@@ -32,6 +32,6 @@ function Set-AzPolicyDefinitionRestMethod {
     $statusCode = $response.StatusCode
     if ($statusCode -lt 200 -or $statusCode -ge 300) {
         $content = $response.Content
-        Write-Error "Policy definition error $($statusCode) -- $($content)" -ErrorAction Stop
+        Write-Error "Definition error $($statusCode) -- $($DefinitionObj.displayName) --$($content)" -ErrorAction Stop
     }
 }

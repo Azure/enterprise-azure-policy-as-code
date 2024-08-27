@@ -57,6 +57,6 @@ function Set-AzPolicyAssignmentRestMethod {
     if ($statusCode -ge 300 -or $statusCode -lt 200) {
         $content = $response.Content
         Write-Information "assignment: $assignmentJson"
-        Write-Error "Assignment error $($statusCode) -- $($content)" -ErrorAction Stop
+        Write-Error "Definition error $($statusCode) -- $($AssignmentObj.displayName) --$($content)" -ErrorAction Stop
     }
 }
