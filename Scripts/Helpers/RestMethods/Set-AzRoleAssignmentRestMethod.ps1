@@ -46,5 +46,8 @@ function Set-AzRoleAssignmentRestMethod {
             $content = $response.Content
             Write-Warning "Error, continue deployment: $($statusCode) -- $($content)"
         }
+        if ($statusCode -eq 403 -and $response.content -match "does not have authorization to perform action") {
+            Write-Error "Error, Permissions Issue. Please review permissions for service principal at scope $($RoleAssignment.scope)"
+        }
     }
 }

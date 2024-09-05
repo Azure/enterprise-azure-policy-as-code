@@ -7,7 +7,8 @@ function Out-DocumentationForPolicyAssignments {
         $DocumentationSpecification,
         [hashtable] $AssignmentsByEnvironment,
         [switch] $IncludeManualPolicies,
-        [hashtable] $PacEnvironments
+        [hashtable] $PacEnvironments,
+        [string] $WikiClonePat
     )
 
     [string] $fileNameStem = $DocumentationSpecification.fileNameStem
@@ -587,5 +588,46 @@ function Out-DocumentationForPolicyAssignments {
     }
 
     #endregion csv
-
+    
+    #region PushToWiki
+    if ($DocumentationSpecification.markdownAdoWikiConfig) {
+        if ($WikiClonePat -eq "") {
+            Write-Error "PAT Token not found! Please pass as parameter 'WikiClonePat'!"
+            Exit 1
+        }
+        Write-Information "Attempting push to Azure DevOps Wiki"
+        # Clone down wiki
+        git clone "https://$($WikiClonePat):x-oauth-basic@$($DocumentationSpecification.markdownAdoWikiConfig.adoOrganization).visualstudio.com/$($DocumentationSpecification.markdownAdoWikiConfig.adoProject)/_git/$($DocumentationSpecification.markdownAdoWikiConfig.adoWiki).wiki"
+        # Move into folder
+        Set-Location -Path "$($DocumentationSpecification.markdownAdoWikiConfig.adoWiki).wiki"
+        $branch = git branch
+        $branch = $branch.split(" ")[1]
+        # Copy main markdown file into wiki
+        Copy-Item -Path "../$OutputPath/$($DocumentationSpecification.fileNameStem).md"
+        # Configure dummy email and user (required)
+        git config user.email "epac-wiki@example.com"
+        git config user.name "EPAC Wiki"
+        # Add changes to commit
+        git add .
+        # Check if a folder exist that holds the sub pages
+        if (-not (Test-Path -Path "$($DocumentationSpecification.fileNameStem)")) {
+            # Create folder if does not exist
+            New-Item -Path "$($DocumentationSpecification.fileNameStem)" -ItemType Directory
+        }
+        # Copy all individual services markdown files
+        $services = Get-ChildItem -Path "../$OutputPathServices"
+        # Move into folder
+        Set-Location -Path "$($DocumentationSpecification.fileNameStem)"
+        # Remove files that currently exist in file to ensure fresh updates
+        Get-ChildItem -Path . -File | Remove-Item
+        # Copy over new individual services markdown files
+        foreach ($file in $services) {
+            Copy-Item $file .
+        }
+        # Commit and push up to Wiki
+        git add .
+        git commit -m "Update wiki with the latest markdown files"
+        git push origin "$branch"
+        Set-Location "../../"
+    }
 }
