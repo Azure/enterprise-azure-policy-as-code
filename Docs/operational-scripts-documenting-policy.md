@@ -55,7 +55,15 @@ Each file must contain one or both documentation topics. This example file in th
             {
                 "fileNameStem": "contoso-policy-effects-across-environments",
                 "environmentCategories": [], // when using 'documentAllAssignments', this value will be overwritten
-                "title": "Contoso Policy effects"
+                "title": "Contoso Policy effects",
+                "markdownAdoWiki": true,
+                "markdownAdoWikiConfig": [
+                    {
+                        "adoOrganization": "MyOrganization",
+                        "adoProject": "EPAC",
+                        "adoWiki": "EPAC"
+                    }
+                ]
             }
         ]
     },
@@ -154,20 +162,28 @@ Each file must contain one or both documentation topics. This example file in th
                         "id": "/providers/Microsoft.Management/managementGroups/Contoso-Dev/providers/Microsoft.Authorization/policyAssignments/prod-org"
                     }
                 ]
-            },
-        ],
-        "documentationSpecifications": [
-            {
-                "fileNameStem": "contoso-policy-effects-across-environments",
-                "environmentCategories": [
-                    "prod",
-                    "test",
-                    "dev"
-                ],
-                "title": "Contoso Policy effects"
             }
         ]
     },
+    "documentationSpecifications": [
+        {
+            "fileNameStem": "contoso-policy-effects-across-environments",
+            "environmentCategories": [
+                "prod",
+                "test",
+                "dev"
+            ],
+            "title": "Contoso Policy effects",
+            "markdownAdoWiki": true,
+            "markdownAdoWikiConfig": [
+                {
+                    "adoOrganization": "MyOrganization",
+                    "adoProject": "EPAC",
+                    "adoWiki": "EPAC"
+                }
+            ]
+        }
+    ],
     "documentPolicySets": [
         {
             "pacEnvironment": "tenant",
@@ -218,6 +234,31 @@ Markdown processors vary slightly. This shipt has settings to tune the output to
 ```jsonc
 "markdownAdoWiki": true, // default is false, set to true to format headings for Azure DevOps Wiki and generate a table of contents
 ```
+
+### Automating Azure DevOps Wiki Markdown
+
+- EPAC can be used to automate the population of your Azure DevOps Wiki pages with the generated markdown files. To do this, you must call "Build-PolicyDocumentation" with the parameter "WikiClonePat". The value of the parameter should be the name of the Personal Access Token (PAT) set in your pipeline variable. Example:
+
+```
+Build-PolicyDocumentation.ps1 -WikiClonePat $(WikiClonePat)
+```
+- This PAT only requires "Read & write" permissions for "Code", as it will modify and push these markdown files to your Wiki. For more information please see ["Azure DevOps: Use personal access tokens"](https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows)
+- In order for your EPAC to reach your Wiki, you must configure the "markdownAdoWikiConfig" property within your policyDeocumention file.
+  - **adoOrganization**: Name of your ADO Organization
+  - **adoProject**: Name of your ADO Project
+  - **adoWiki**: Name of your Wiki (If Wiki was not manually set up, it will be created for you based on the name given here)
+
+```jsonc
+"markdownAdoWikiConfig": [
+                    {
+                        "adoOrganization": "MyOrganization",
+                        "adoProject": "EPAC",
+                        "adoWiki": "EPAC"
+                    }
+                ]
+```
+
+- For a full implementation using an example pipeline, please see ["EPAC GitHub: epac-dev-pipeline-with-adowiki.yml"](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/StarterKit/Pipelines/GitHubActions/GitHub-Flow-With-ADOWiki/epac-dev-pipeline-with-adowiki.yml)
 
 ### Embedded HTML in Markdown Tables
 

@@ -44,7 +44,15 @@
                     "prod",
                     "nonprod"
                 ],
-                "title": "Contoso Policy effects"
+                "title": "Contoso Policy effects",
+                "markdownAdoWiki": true,
+                "markdownAdoWikiConfig": [
+                    {
+                        "adoOrganization": "MyOrganization",
+                        "adoProject": "EPAC",
+                        "adoWiki": "EPAC"
+                    }
+                ]
             }
         ]
     },

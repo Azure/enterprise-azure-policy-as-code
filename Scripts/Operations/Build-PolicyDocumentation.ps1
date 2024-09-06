@@ -55,7 +55,10 @@ param (
     [switch] $SuppressConfirmation,
 
     [Parameter(Mandatory = $false, HelpMessage = "Include Policies with effect Manual. Default: do not include Polcies with effect Manual.")]
-    [switch] $IncludeManualPolicies
+    [switch] $IncludeManualPolicies,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Include if using a PAT token for pushing to ADO Wiki.")]
+    [string] $WikiClonePat
 )
 
 # Dot Source Helper Scripts
@@ -452,6 +455,7 @@ foreach ($file in $files) {
                 environmentCategories = $envCategoriesArray
                 title                 = $documentAssignments.documentationSpecifications.title
                 markdownAdoWiki       = $documentAssignments.documentationSpecifications.markdownAdoWiki
+                markdownAdoWikiConfig = if ($null -ne $documentAssignments.documentationSpecifications.markdownAdoWikiConfig) { $documentAssignments.documentationSpecifications.markdownAdoWikiConfig }else { $null }
             }
 
             $documentAssignments.documentationSpecifications = $tempDocumentationSpecifications
@@ -500,7 +504,8 @@ foreach ($file in $files) {
                     -DocumentationSpecification $documentationSpecification `
                     -AssignmentsByEnvironment $assignmentsByEnvironment `
                     -IncludeManualPolicies:$IncludeManualPolicies `
-                    -PacEnvironments $pacEnvironments
+                    -PacEnvironments $pacEnvironments `
+                    -WikiClonePat $WikiClonePat
             }
         }
     }
