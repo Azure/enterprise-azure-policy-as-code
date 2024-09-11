@@ -58,7 +58,10 @@ param (
     [switch] $IncludeManualPolicies,
 
     [Parameter(Mandatory = $false, HelpMessage = "Include if using a PAT token for pushing to ADO Wiki.")]
-    [string] $WikiClonePat
+    [string] $WikiClonePat,
+
+    [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
+    [string] $pacSelector
 )
 
 # Dot Source Helper Scripts
@@ -258,16 +261,8 @@ foreach ($file in $files) {
             }
         }
 
-        # Set documentAllEnabled to false if does not exist
-        if ($null -eq $documentationSpec.documentAssignments.documentAllAssignments.enabled) {
-            $documentAllEnabled = $false
-        }
-        else {
-            $documentAllEnabled = $documentationSpec.documentAssignments.documentAllAssignments.enabled 
-        }
-
         # Process instructions to document Assignments
-        if ($documentationSpec.documentAssignments -and !$documentAllEnabled) {
+        if ($documentationSpec.documentAssignments -and !$documentationSpec.documentAssignments.documentAllAssignments) {
             $documentAssignments = $documentationSpec.documentAssignments
             $environmentCategories = $documentAssignments.environmentCategories
 
@@ -340,9 +335,25 @@ foreach ($file in $files) {
             }
         }
 
-        if ($documentationSpec.documentAssignments -and $documentAllEnabled) {
-            # Load pacEnvironment
+        if ($documentationSpec.documentAssignments -and $documentationSpec.documentAssignments.documentAllAssignments) {
+            # Load pacEnvironments from policy documentations folder
             $pacEnvironmentSelector = $documentationSpec.documentAssignments.documentAllAssignments.pacEnvironment
+
+            # Check to see if PacSelector was passed as a parameter
+            if ($pacSelector) {
+                $pacEnvironmentSelector = $pacSelector
+                $pacSelectorDocumentAllAssignments = $documentationSpec.documentAssignments.documentAllAssignments | Where-Object { $_.pacEnvironment -eq "$pacSelector" }
+                $documentationSpec.documentAssignments.documentAllAssignments = $pacSelectorDocumentAllAssignments
+
+                if ($null -eq $documentationSpec.documentAssignments.documentAllAssignments) {
+                    Write-Error "Provided PacSelector '$pacSelector' not found in $($file.Name)!" -ErrorAction Stop
+                }
+            }
+
+            # Check to see if PacSelector was not passed as a parameter but there are multiple pacEnvironments configured within documentAllAssignments
+            if ($pacEnvironmentSelector.count -gt 1 -and $pacSelector -eq "") {
+                Write-Error "Multiple 'pacEnvironments' found in $($file.Name) - Please provide parameter -PacSelector to specify the documentation needed to be created" -ErrorAction Stop
+            }
             $pacEnvironment = Switch-PacEnvironment `
                 -PacEnvironmentSelector $pacEnvironmentSelector `
                 -PacEnvironments $pacEnvironments `
@@ -493,6 +504,11 @@ foreach ($file in $files) {
             # Build documents
             $documentationSpecifications = $documentAssignments.documentationSpecifications
             foreach ($documentationSpecification in $documentationSpecifications) {
+                # Check to see if naming contains prefix for file name
+                if ($documentationSpec.documentAssignments.documentAllAssignments.fileNameStemPrefix) {
+                    $documentationSpecification.fileNameStem = $documentationSpec.documentAssignments.documentAllAssignments.fileNameStemPrefix + "-" + $documentationSpecification.fileNameStem
+                }
+
                 $documentationType = $documentationSpecification.type
                 if ($null -ne $documentationType) {
                     Write-Information "Field documentationType ($($documentationType)) is deprecated"

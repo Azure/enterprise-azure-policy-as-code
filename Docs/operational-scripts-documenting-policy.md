@@ -33,8 +33,8 @@ Each file must contain one or both documentation topics. This example file in th
     "documentAssignments": {
         "documentAllAssignments": [
             {
-                "enabled": true,
                 "pacEnvironment": "EPAC-Prod",
+                "fileNameStemPrefix": "Production",
                 "skipPolicyAssignments": [],
                 "skipPolicyDefinitions": [
                     "/providers/microsoft.authorization/policysetdefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8" // Azure Security Benchmark v3
@@ -298,8 +298,8 @@ When enabled, this section lists all Policy Assignments across all scopes where 
 
 `documentAllAssignments` entry specifies:
 
-* `enabled`: setting this value to "true" will enable the use of 'documentAllAssignments' and will overwrite 'environmentCategories' if the section exists within the file.
 * `pacEnvironment`: references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the Policies and Policy Sets are deployed.
+* `fileNameStemPrefix`: add a prefix to the fileNameStem set in "documentationSpecifications". Usefull when needing to avoid overwriting of files.
 * `skipPolicyAssignments`: list of Policy Assignment ID's used to define Policy Assinments that do not want to included in the output.
 * `skipPolicyDefinitions`: list of Policy Definition and Policy Set ID's used to define Policy Assinments that do not want to included in the output.
 * `overrideEnvironmentCategory`: list of custom defined Environment Categories that will overwrite the auto-generated values. By default, all Policy Assignment scopes are treated as an individual "Environment Category", therefore leverage this section to override these Environemnt Categories and create custom groupings. (For an example see [`Example Documentation Specification File using 'documentAllAssignments'`](#Example-Documentation-Specification-File-using-documentAllAssignments))
