@@ -1,0 +1,26 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
+    "nodeName": "/Loc/",
+    "assignment": {
+        "name": "allowed-locations",
+        "displayName": "Allowed Locations",
+        "description": "Sets the allowed locations"
+    },
+    "definitionEntry": {
+        "policySetName": "e14e5d7c-9551-4ae2-b8fa-b5d6b9b3c677",
+        "displayName": "Allowed Locations Initiative"
+    },
+    "parameters": {
+        "AllowedLocations": [
+            "eastus2"
+        ]
+    },
+    "scope": {
+        "epac-dev": [
+            "/providers/Microsoft.Management/managementGroups/mg-epac-dev"
+        ],
+        "tenant": [
+            "/providers/Microsoft.Management/managementGroups/mg-enterprise"
+        ]
+    }
+}

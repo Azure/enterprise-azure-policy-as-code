@@ -72,7 +72,7 @@ The following Service Principals & Role assignments would be created to support 
 
 Credentials will need to be created for each Service Principal to be used in the CI/CD process. Traditionally, this is accomplished by creating a Client Secret on the associated Entra ID Application, and providing the CI/CD tool with the Application's ID and Secret. Secrets present an automation challenge as they need to be managed, secured, and rotated as they eventually expire. To solve this, some tools, including Azure DevOps, now support the use of Federated Credentials as described below.
 
-### Alternative: `Azure Federated Identity Credentials` 
+### Azure Federated Identity Credentials
 
 Federated identity credentials are a new type of credential that enables workload identity federation for software workloads. Workload identity federation allows you to access Microsoft Entra protected resources without needing to manage secrets (for supported scenarios).
 

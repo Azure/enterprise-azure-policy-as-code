@@ -1,8 +1,9 @@
 # Github Actions
 
-The starter kit contains a sample pipeline to use GitHub Actions to deploy Enterprise Policy as Code. It features a review process and is driven by pull requests and approvals.
+This page covers the specifics for the GitHub Actions pipelines created by using the Starter Kit. Pipelines can be further customized based on requirements. We have revised our approach to GitHub Actions simplifying the process and make it easier to understand. The new approach is documented below and is included in the starter kit with v8.5 and later.
 
-We have revised our approach to GitHub Actions simplifying the process and make it easier to understand. The new approach is documented below and is included in the starter kit with v8.5 and later.
+> [!Note]
+> To find all examples of GitHub Actions Pipelines, please visit [StarterKit/Pipelines/GitHubActions](https://github.com/Azure/enterprise-azure-policy-as-code/tree/main/StarterKit/Pipelines/AzureDevOps).
 
 The previous version is still available in the starter kit in folder `Legacy` and the [documentation is retained](#legacy-github-cicd-workflows) at the end of this page.
 

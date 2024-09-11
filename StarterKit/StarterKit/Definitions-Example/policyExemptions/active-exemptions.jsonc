@@ -1,0 +1,15 @@
+{
+    "exemptions": [
+        {
+            "name": "short-name",
+            "displayName": "Descriptive name displayed on portal",
+            "description": "More details",
+            "exemptionCategory": "Waiver",
+            "scopes": [
+                "/subscriptions/11111111-2222-3333-4444-555555555555",
+                "/subscriptions/11111111-2222-3333-4444-555555555556/resourceGroups/resourceGroupName1",
+            ],
+            "policyDefinitionId": "/providers/microsoft.authorization/policyDefinitions/00000000-0000-0000-0000-000000000000",
+        }
+    ]
+}
