@@ -1,0 +1,31 @@
+{
+    "documentAssignments": {
+        "documentAllAssignments": [
+            {
+                "enabled": true,
+                "pacEnvironment": "EPAC-PROD",
+                "fileNameStemPrefix": "Production",
+                "skipPolicyAssignments": [],
+                "skipPolicyDefinitions": [
+                    "/providers/microsoft.authorization/policysetdefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8" // Azure Security Benchmark v3
+                ],
+                "overrideEnvironmentCategory": {}
+            }
+        ],
+        "documentationSpecifications": [
+            {
+                "fileNameStem": "Azure-Policy-Assignments",
+                "environmentCategories": [],
+                "title": "Current list of Azure Policies deployed",
+                "markdownAdoWiki": true,
+                "markdownAdoWikiConfig": [
+                    {
+                        "adoOrganization": "EPAC",
+                        "adoProject": "EPAC",
+                        "adoWiki": "EPAC"
+                    }
+                ]
+            }
+        ]
+    }
+}

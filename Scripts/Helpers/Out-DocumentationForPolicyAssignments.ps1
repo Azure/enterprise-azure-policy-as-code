@@ -462,7 +462,7 @@ function Out-DocumentationForPolicyAssignments {
 
     # Output file
     $outputFilePath = "$($OutputPath -replace '[/\\]$', '')/$($fileNameStem).md"
-    $allLines | Out-File $outputFilePath -Force
+    $allLines | Out-File "$outputFilePath" -Force
 
     # Output file
     foreach ($key in $assignmentsByCategory.keys | Sort-Object) {
@@ -590,11 +590,7 @@ function Out-DocumentationForPolicyAssignments {
     #endregion csv
     
     #region PushToWiki
-    if ($DocumentationSpecification.markdownAdoWikiConfig) {
-        if ($WikiClonePat -eq "") {
-            Write-Error "PAT Token not found! Please pass as parameter 'WikiClonePat'!"
-            Exit 1
-        }
+    if ($WikiClonePat) {
         Write-Information "Attempting push to Azure DevOps Wiki"
         # Clone down wiki
         git clone "https://$($WikiClonePat):x-oauth-basic@$($DocumentationSpecification.markdownAdoWikiConfig.adoOrganization).visualstudio.com/$($DocumentationSpecification.markdownAdoWikiConfig.adoProject)/_git/$($DocumentationSpecification.markdownAdoWikiConfig.adoWiki).wiki"
