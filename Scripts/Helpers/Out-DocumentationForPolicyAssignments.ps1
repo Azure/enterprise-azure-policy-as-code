@@ -429,6 +429,9 @@ function Out-DocumentationForPolicyAssignments {
                                 else {
                                     $valueString = ConvertTo-Json $value -Depth 100 -Compress
                                 }
+                                if ($valueString -match '","') {
+                                    $valueString = $valueString -replace '","', '", "'
+                                }
                                 if ($valueString.length -gt $markdownMaxParameterLength) {
                                     $valueString = $valueString.substring(0, $markdownMaxParameterLength - 3) + "..."
                                 }

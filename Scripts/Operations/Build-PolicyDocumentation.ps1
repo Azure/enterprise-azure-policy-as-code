@@ -462,11 +462,12 @@ foreach ($file in $files) {
 
             $tempDocumentationSpecifications = @()
             $tempDocumentationSpecifications += New-Object PSObject -Property @{
-                fileNameStem          = $documentAssignments.documentationSpecifications.fileNameStem
-                environmentCategories = $envCategoriesArray
-                title                 = $documentAssignments.documentationSpecifications.title
-                markdownAdoWiki       = $documentAssignments.documentationSpecifications.markdownAdoWiki
-                markdownAdoWikiConfig = if ($null -ne $documentAssignments.documentationSpecifications.markdownAdoWikiConfig) { $documentAssignments.documentationSpecifications.markdownAdoWikiConfig }else { $null }
+                fileNameStem               = $documentAssignments.documentationSpecifications.fileNameStem
+                environmentCategories      = $envCategoriesArray
+                title                      = $documentAssignments.documentationSpecifications.title
+                markdownAdoWiki            = $documentAssignments.documentationSpecifications.markdownAdoWiki
+                markdownAdoWikiConfig      = if ($null -ne $documentAssignments.documentationSpecifications.markdownAdoWikiConfig) { $documentAssignments.documentationSpecifications.markdownAdoWikiConfig }else { $null }
+                markdownMaxParameterLength = if ($null -ne $documentAssignments.documentationSpecifications.markdownMaxParameterLength) { $documentAssignments.documentationSpecifications.markdownMaxParameterLength }else { $null }
             }
 
             $documentAssignments.documentationSpecifications = $tempDocumentationSpecifications
