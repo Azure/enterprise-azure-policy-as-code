@@ -19,15 +19,18 @@ The provided Azure DevOps pipelines utilize the template functionality to create
 
 If utilizing the GitHub flow branching strategy, three pipeline files are created
 
-  - [epac-dev-pipeline](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/StarterKit/Pipelines/AzureDevOps/GitHub-Flow/epac-dev-pipeline.yml)
-  - [epac-tenant-pipeline](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/StarterKit/Pipelines/AzureDevOps/GitHub-Flow/epac-tenant-pipeline.yml)
-  - [epac-remediation-pipeline](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/StarterKit/Pipelines/AzureDevOps/GitHub-Flow/epac-remediation-pipeline.yml)
+- [epac-dev-pipeline](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/StarterKit/Pipelines/AzureDevOps/GitHub-Flow/epac-dev-pipeline.yml)
+- [epac-tenant-pipeline](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/StarterKit/Pipelines/AzureDevOps/GitHub-Flow/epac-tenant-pipeline.yml)
+- [epac-remediation-pipeline](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/StarterKit/Pipelines/AzureDevOps/GitHub-Flow/epac-remediation-pipeline.yml)
 
 ### epac-dev-pipeline
+
 This represents the Develop Policy Resources in a Feature Branch flow as described in [Branching Flows](ci-cd-branching-flows.md/#develop-policy-resources-in-a-feature-branch). In general, The EPAC-Dev pipeline is configured to run when any change is pushed to a `feature/*` branch. It runs across three (3) stages: Plan, Deploy & Tenant Plan.
 
 ### epac-tenant-pipeline
+
 This represents the Simplified `GitHub Flow` for Deployment as described in [Branching Flows](ci-cd-branching-flows.md/#simplified-`github-flow`-for-deployment). In general, The epac-tenant-pipeline is configured to run when any change is pushed to main and runs across three (3) stages: Plan, Deploy Policy & Deploy Roles. The Deploy stages utilize [Azure DevOps environments](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/environments?view=azure-devops) to configure approval gates
 
 ### epac-remediation-pipeline
+
 This pipeline runs on a schedule to automatically start remediation tasks for each environment.

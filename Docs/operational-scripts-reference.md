@@ -2,7 +2,7 @@
 
 ## Script `Build-PolicyDocumentation`
 
-Builds documentation from instructions in policyDocumentations folder reading the delployed Policy Resources from the EPAC envioronment.
+Builds documentation from instructions in policyDocumentations folder reading the deployed Policy Resources from the EPAC environment.
 
 ```ps1
 Build-PolicyDocumentation [[-DefinitionsRootFolder] <String>] [[-OutputFolder] <String>] [-WindowsNewLineCells] [-Interactive <Boolean>] [-SuppressConfirmation] [-IncludeManualPolicies] [<CommonParameters>]
@@ -32,7 +32,7 @@ Suppresses prompt for confirmation to delete existing file in interactive mode
 
 #### `-IncludeManualPolicies [<SwitchParameter>]`
 
-Include Policies with effect Manual. Default: do not include Polcies with effect Manual.
+Include Policies with effect Manual. Default: do not include Policies with effect Manual.
 
 ## Script `New-AzRemediationTasks`
 

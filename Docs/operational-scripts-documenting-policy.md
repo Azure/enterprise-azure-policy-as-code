@@ -57,6 +57,9 @@ Each file must contain one or both documentation topics. This example file in th
                 "environmentCategories": [], // when using 'documentAllAssignments', this value will be overwritten
                 "title": "Contoso Policy effects",
                 "markdownAdoWiki": true,
+                "markdownIncludeComplianceGroupNames": true,
+                "markdownSuppressParameterSection": false,
+                "markdownMaxParameterLength": 42, //default is 42
                 "markdownAdoWikiConfig": [
                     {
                         "adoOrganization": "MyOrganization",
@@ -175,6 +178,9 @@ Each file must contain one or both documentation topics. This example file in th
             ],
             "title": "Contoso Policy effects",
             "markdownAdoWiki": true,
+            "markdownIncludeComplianceGroupNames": true,
+            "markdownSuppressParameterSection": false,
+            "markdownMaxParameterLength": 42, //default is 42
             "markdownAdoWikiConfig": [
                 {
                     "adoOrganization": "MyOrganization",
@@ -224,8 +230,8 @@ Markdown processors vary slightly. This shipt has settings to tune the output to
 
 ### Azure DevOps Wiki Markdown
 
-- Some Markdown processors (including Azure DevOps Wikis) recognize `[[_TOC_]]` to insert a table of contents. Setting to `markdownAddToc` to `true` enables generating the table of content.
-- Azure DevOps Wikis do not need a heading (title) at level 1. It needs the subheadings at level 1 instead. Setting `markdownAdoWiki` to true enables formatting the headings for Azure DevOps Wiki and generating the table of content (implicitly sets `markdownAddToc` to `true`).
+* Some Markdown processors (including Azure DevOps Wikis) recognize `[[_TOC_]]` to insert a table of contents. Setting to `markdownAddToc` to `true` enables generating the table of content.
+* Azure DevOps Wikis do not need a heading (title) at level 1. It needs the subheadings at level 1 instead. Setting `markdownAdoWiki` to true enables formatting the headings for Azure DevOps Wiki and generating the table of content (implicitly sets `markdownAddToc` to `true`).
 
 ```jsonc
 "markdownAddToc": true, // default is false, set to true to add a table of contents
@@ -237,16 +243,18 @@ Markdown processors vary slightly. This shipt has settings to tune the output to
 
 ### Automating Azure DevOps Wiki Markdown
 
-- EPAC can be used to automate the population of your Azure DevOps Wiki pages with the generated markdown files. To do this, you must call "Build-PolicyDocumentation" with the parameter "WikiClonePat". The value of the parameter should be the name of the Personal Access Token (PAT) set in your pipeline variable. Example:
+* EPAC can be used to automate the population of your Azure DevOps Wiki pages with the generated markdown files. To do this, you must call "Build-PolicyDocumentation" with the parameter "WikiClonePat". The value of the parameter should be the name of the Personal Access Token (PAT) set in your pipeline variable. Example:
 
 ```
 Build-PolicyDocumentation.ps1 -WikiClonePat $(WikiClonePat)
 ```
-- This PAT only requires "Read & write" permissions for "Code", as it will modify and push these markdown files to your Wiki. For more information please see ["Azure DevOps: Use personal access tokens"](https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows)
-- In order for your EPAC to reach your Wiki, you must configure the "markdownAdoWikiConfig" property within your policyDeocumention file.
-  - **adoOrganization**: Name of your ADO Organization
-  - **adoProject**: Name of your ADO Project
-  - **adoWiki**: Name of your Wiki (If Wiki was not manually set up, it will be created for you based on the name given here)
+
+* This PAT only requires "Read & write" permissions for "Code", as it will modify and push these markdown files to your Wiki. For more information please see ["Azure DevOps: Use personal access tokens"](https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows)
+
+* In order for your EPAC to reach your Wiki, you must configure the "markdownAdoWikiConfig" property within your policy documentation file.
+  * **adoOrganization**: Name of your ADO Organization
+  * **adoProject**: Name of your ADO Project
+  * **adoWiki**: Name of your Wiki (If Wiki was not manually set up, it will be created for you based on the name given here)
 
 ```jsonc
 "markdownAdoWikiConfig": [
@@ -258,11 +266,11 @@ Build-PolicyDocumentation.ps1 -WikiClonePat $(WikiClonePat)
                 ]
 ```
 
-- For a full implementation using an example pipeline, please see ["EPAC GitHub: epac-dev-pipeline-with-adowiki.yml"](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/StarterKit/Pipelines/GitHubActions/GitHub-Flow-With-ADOWiki/epac-dev-pipeline-with-adowiki.yml)
+* For a full implementation using an example pipeline, please see ["EPAC GitHub: epac-dev-pipeline-with-adowiki.yml"](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/StarterKit/Pipelines/GitHubActions/GitHub-Flow-With-ADOWiki/epac-dev-pipeline-with-adowiki.yml)
 
 ### Embedded HTML in Markdown Tables
 
-EPAC uses embedded HTML to format Markdown tables. Some Markdown processors, such as SharePoint, do not recognize embedded HTML. Setting `markdownNoEmbeddedHtml` to `true` emits commas `, ` instead of the HTML tag `<br/>`.
+EPAC uses embedded HTML to format Markdown tables. Some Markdown processors, such as SharePoint, do not recognize embedded HTML. Setting `markdownNoEmbeddedHtml` to `true` emits commas `,` instead of the HTML tag `<br/>`.
 
 ```jsonc
 "markdownNoEmbeddedHtml": true, // default is false, set to true to remove embedded HTML in Markdown tables
@@ -282,7 +290,7 @@ In some markdown processors very long parameter name break the display. You can 
 "markdownSuppressParameterSection": true, // default is false, set to true to suppress the parameter section in the Markdown output
 ```
 
-Alternatively, you can set `markdownMaxParameterLength` to a maximum length. EPAC will truncate the name at that length and append an ellipsis. The default is 40 characters. The minimum is 16 characters.
+Alternatively, you can set `markdownMaxParameterLength` to a maximum length. EPAC will truncate the name at that length and append an ellipsis. The default is 42 characters. The minimum is 16 characters.
 
 ```jsonc
 "markdownMaxParameterLength": 42, // default is 42
@@ -299,10 +307,10 @@ When enabled, this section lists all Policy Assignments across all scopes where 
 `documentAllAssignments` entry specifies:
 
 * `pacEnvironment`: references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the Policies and Policy Sets are deployed.
-* `fileNameStemPrefix`: add a prefix to the fileNameStem set in "documentationSpecifications". Usefull when needing to avoid overwriting of files.
-* `skipPolicyAssignments`: list of Policy Assignment ID's used to define Policy Assinments that do not want to included in the output.
-* `skipPolicyDefinitions`: list of Policy Definition and Policy Set ID's used to define Policy Assinments that do not want to included in the output.
-* `overrideEnvironmentCategory`: list of custom defined Environment Categories that will overwrite the auto-generated values. By default, all Policy Assignment scopes are treated as an individual "Environment Category", therefore leverage this section to override these Environemnt Categories and create custom groupings. (For an example see [`Example Documentation Specification File using 'documentAllAssignments'`](#Example-Documentation-Specification-File-using-documentAllAssignments))
+* `fileNameStemPrefix`: add a prefix to the fileNameStem set in "documentationSpecifications". Useful when needing to avoid overwriting of files.
+* `skipPolicyAssignments`: list of Policy Assignment ID's used to define Policy Assignments that do not want to included in the output.
+* `skipPolicyDefinitions`: list of Policy Definition and Policy Set ID's used to define Policy Assignments that do not want to included in the output.
+* `overrideEnvironmentCategory`: list of custom defined Environment Categories that will overwrite the auto-generated values. By default, all Policy Assignment scopes are treated as an individual "Environment Category", therefore leverage this section to override these Environment Categories and create custom groupings. (For an example see [`Example Documentation Specification File using 'documentAllAssignments'`](#example-documentation-specification-file-using-documentallassignments))
 
 ### Element `documentationSpecifications`
 
@@ -374,7 +382,7 @@ Each entry in the array defines a set of outputs:
 
 * `<fileNameStem>-summary.md`: This Markdown file is intended for developers for a quick overview of the effects and parameters in place for each `environmentCategory`. It does not provide details about the individual Initiatives assigned. It is equivalent to `<fileNameStem>-parameters.csv`. The Policies are sorted by `category` and ``displayName`. Each`environmentCategory` column shows the current enforcement level in bold. If the value is fixed, the value is also in italics. If it is parametrized, the other allowed values are shown in italics.
 
-* `<fileNameStem>-full.md`: This Markdown file is intended for security personel requiring more details about the Assignments and Policies. It displays the same information as the summary plus the additional details equivalent to `<fileNameStem>-full.csv`. The Policies are sorted by `category` and ``displayName`. Each`environmentCategory` column shows the current enforcement level in bold. If the value is fixed, the value is also in italics. If it is parametrized, the other allowed values are shown in italics. The additional details are:
+* `<fileNameStem>-full.md`: This Markdown file is intended for security teams requiring more details about the Assignments and Policies. It displays the same information as the summary plus the additional details equivalent to `<fileNameStem>-full.csv`. The Policies are sorted by `category` and ``displayName`. Each`environmentCategory` column shows the current enforcement level in bold. If the value is fixed, the value is also in italics. If it is parametrized, the other allowed values are shown in italics. The additional details are:
   * Group Names
   * Effects per `environmentCategory` and Policy Set with additional details on the origin of the effect.
 

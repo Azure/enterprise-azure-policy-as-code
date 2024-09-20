@@ -1,6 +1,6 @@
 # Forking the GitHub Repo - an Alternate Installation Method
 
-Instead of installing `EnterprisePolicyAsCode` from the PowerShell Gallery, you can clone the GitHub repository and use the scripts described below to install the script source code. This is useful, if your organization has overly restrictive policies on installing PowerShell modules from the PowerShell Gallery. It can also be usefule if you want to contribute EPAC source code to the project.
+Instead of installing `EnterprisePolicyAsCode` from the PowerShell Gallery, you can clone the GitHub repository and use the scripts described below to install the script source code. This is useful, if your organization has overly restrictive policies on installing PowerShell modules from the PowerShell Gallery. It can also be useful if you want to contribute EPAC source code to the project.
 
 ## Setting up your Repo
 
@@ -51,10 +51,10 @@ The repo contains script to synchronize directories in both directions: `Sync-Re
 
 Assumptions:
 
-- You have completed PR in for EPAC Development in ADO and are ready to release to public GitHub EPAC project.
-- You are using known local path names for EPAC Development repo and GitHub repo, for example:
-  - EPAC Development local repo: `C:\GitRepoClones\epac-development`
-  - EPAC GitHub local repo: `C:\GitRepoClones\enterprise-azure-policy-as-code`
+* You have completed PR in for EPAC Development in ADO and are ready to release to public GitHub EPAC project.
+* You are using known local path names for EPAC Development repo and GitHub repo, for example:
+  * EPAC Development local repo: `C:\GitRepoClones\epac-development`
+  * EPAC GitHub local repo: `C:\GitRepoClones\enterprise-azure-policy-as-code`
 
 ### Sync-FromGH.ps1 and Sync-ToGH.ps1
 
@@ -115,7 +115,7 @@ This process is used to promote code from the EPAC Development repo to the EPAC 
 
 This is a guide on how to release a new version of the project - including automated PowerShell module publish. It is used by the EPAC maintainers only.
 
-1. Navigate to https://github.com/Azure/enterprise-azure-policy-as-code/releases
+1. Navigate to <https://github.com/Azure/enterprise-azure-policy-as-code/releases>
 2. Click on **Draft a new release**
 3. Click on **Choose a tag** and enter in the new release version - it should be in the format "v(major).(minor).(build)" i.e. v7.3.4 **Don't forget the v**
 4. When prompted click on **Create new tag: vX.X.X on publish**
