@@ -808,11 +808,34 @@ function Build-ExemptionsPlan {
                             ordinalString        = $ordinalString
                         }
                         $epacMetadata += $epacMetadataDefinitionSpecification
+
+                        # Create a new ordered hash table
+                        $orderedEpacMetadata = [ordered]@{}
+
+                        # Get the properties of the original object and sort them alphabetically
+                        $sortedKeys = $epacMetadata.Keys | Sort-Object
+
+                        # Add the sorted properties to the new ordered hash table
+                        foreach ($key in $sortedKeys) {
+                            $orderedEpacMetadata[$key] = $epacMetadata[$key]
+                        }
+
                         $clonedMetadata = Get-DeepCloneAsOrderedHashtable $metadata
                         $clonedMetadata.pacOwnerId = $PacEnvironment.pacOwnerId
-                        $clonedMetadata.epacMetadata = $epacMetadata
+                        $clonedMetadata.epacMetadata = $orderedEpacMetadata
                         if (!$clonedMetadata.ContainsKey("deployedBy")) {
                             $clonedMetadata.deployedBy = $PacEnvironment.deployedBy
+                        }
+
+                        # Create a new ordered hash table
+                        $orderedClonedMetadata = [ordered]@{}
+
+                        # Get the properties of the original object and sort them alphabetically
+                        $clonedSortedKeys = $clonedMetadata.Keys | Sort-Object
+                        
+                        # Add the sorted properties to the new ordered hash table
+                        foreach ($key in $clonedSortedKeys) {
+                            $orderedClonedMetadata[$key] = $clonedMetadata[$key]
                         }
                         #endregion metadata
 
@@ -833,7 +856,7 @@ function Build-ExemptionsPlan {
                             assignmentScopeValidation    = $assignmentScopeValidation
                             policyDefinitionReferenceIds = $policyDefinitionReferenceIdsAugmented
                             resourceSelectors            = $resourceSelectors
-                            metadata                     = $clonedMetadata
+                            metadata                     = $orderedClonedMetadata
                             expired                      = $expired
                             scopeIsValid                 = $scopeIsValid
                         }
