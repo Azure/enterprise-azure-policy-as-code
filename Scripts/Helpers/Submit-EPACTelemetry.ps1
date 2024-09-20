@@ -15,4 +15,8 @@ function Submit-EPACTelemetry {
         $subscriptionId = $DeploymentRootScope.Split("/")[-1]
         Invoke-AzRestMethod -Uri "https://management.azure.com/subscriptions/$($subscriptionId)/providers/Microsoft.Resources/deployments/$($Cuapid)?api-version=2021-04-01" -Method $method -ErrorAction SilentlyContinue -AsJob | Out-Null
     }
+    else {
+        $subscriptionId = (Get-AzContext).Subscription.Id
+        Invoke-AzRestMethod -Uri "https://management.azure.com/subscriptions/$($subscriptionId)/providers/Microsoft.Resources/deployments/$($Cuapid)?api-version=2021-04-01" -Method $method -ErrorAction SilentlyContinue -AsJob | Out-Null
+    }
 }
