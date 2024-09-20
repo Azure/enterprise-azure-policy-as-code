@@ -216,7 +216,7 @@ You can specify them in `global-settings.jsonc` or at any node in the tree. The 
 
 In some scenarios you will need `additionalRoleAssignments`; e.g., for diagnostics settings to Event Hubs, the target resource might be in a different Management Group and therefore the Managed Identity requires additional role assignments. You must specify the `additionalRoleAssignments` based on EPAC Environment or use `"*"`to use the same `additionalRoleAssignments`for all of the EPAC Environments.  If the pacEnvironment under deployment is specified in the additionalRoleAssignments, the `"*"` assignments will be ignored.
 
-If the additional assignment is to made to a managing tenant in the sceenario where the pacEnvironment under deployment is a manganged (lighthouse) tenant, you must specify `""crossTenant": true"` for that assignment.  Ensure all necessary ABAC permissions are in place for the executing SPN.
+If the additional assignment is to made to a managing tenant in the scenario where the pacEnvironment under deployment is a managed (Azure Lighthouse) tenant, you must specify `""crossTenant": true"` for that assignment.  Ensure all necessary ABAC permissions are in place for the executing SPN.
 
 ```json
 "additionalRoleAssignments": {

@@ -36,6 +36,26 @@ The Hydration Kit is a set of scripts that can be used to deploy an EPAC environ
 
 The scripts `New-AzureDevOpsBug` and `New-GitHubIssue` create a Bug or Issue when there are one or multiple failed Remediation Tasks.
 
+
+## Export from AzAdvertizer
+
+The script `Export-AzAdvertizer.ps1` creates for you the policyAssignments, policyDefinitions, and policySetDefinitions based on the provided URL in an Output folder under 'ALZ-Export'.
+
+Parameters:
+- **AzAdvertizerUrl**: Mandatory url of the policy or policy set from AzAdvertizer.
+
+- **OutputFolder**: Output Folder. Defaults to the path 'Output'.
+    
+- **AutoCreateParameters**: Automatically create parameters for Azure Policy Sets and Assginment Files.
+
+- **UseBuiltIn**: Default to using builtin policies rather than local versions.
+
+- **Scope**: Used to set scope value on each assignment file.
+
+- **PacSelector**: Used to set PacEnvironment for each assignment file.
+
+- **OverwriteOutput**: Used to Overwrite the contents of the output folder with each run. Helpful when running consecutively.
+
 ## Non-compliance Reports
 
 `Export-NonComplianceReports` exports non-compliance reports for EPAC environments . It outputs the reports in the `$OutputFolders/non-compliance-reports` folder.

@@ -22,6 +22,34 @@ function Out-PolicyExemptions {
         $null = New-Item $outputPath -Force -ItemType directory
     }
 
+    
+    #region Sort Metadata and epacMetaData
+    $exemptionskeys = $Exemptions.Keys
+    foreach ($key in $exemptionskeys) {
+        # Create a new ordered hash table
+        $orderedMetadata = [ordered]@{}
+        # Get the properties of the original object and sort them alphabetically
+        $metadataKeys = $Exemptions.$($key).metadata.Keys | Sort-Object
+        # Add the sorted properties to the new ordered hash table
+        foreach ($metadataKey in $metadataKeys) {
+            $orderedMetadata.$metadataKey = $Exemptions.$($key).metadata.$metadataKey
+        }
+        $Exemptions.$($key).metadata = $orderedMetadata
+    }
+
+    $exemptionskeys = $Exemptions.Keys
+    foreach ($key in $exemptionskeys) {
+        # Create a new ordered hash table
+        $orderedEpacMetadata = [ordered]@{}
+        # Get the properties of the original object and sort them alphabetically
+        $epacMetadataKeys = $Exemptions.$($key).metadata.epacMetadata.Keys | Sort-Object
+        # Add the sorted properties to the new ordered hash table
+        foreach ($epacMetadataKey in $epacMetadataKeys) {
+            $orderedEpacMetadata.$epacMetadataKey = $Exemptions.$($key).metadata.epacMetadata.$epacMetadataKey
+        }
+        $Exemptions.$($key).metadata.epacMetadata = $orderedEpacMetadata
+    }
+
     #region Transformations
 
     $policyDefinitionReferenceIdsTransform = @{

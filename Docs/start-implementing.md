@@ -10,11 +10,11 @@ The following steps are required to implement Enterprise Policy as Code (EPAC) i
 1. Understand [concepts and environments](#epac-concepts-and-environments).
 2. Determine [desired state strategy](settings-desired-state.md).
 3. How to handle [Defender for Cloud Policy Assignments](settings-dfc-assignments.md).
-7. Design your [CI/CD process](ci-cd-overview.md).
-4. Install [Powershell and EPAC](#install-powershell-and-epac).
-5. Create your [`Definitions` folder and subfolders](#create-the-definitions-folder).
-6. Populate `global-settings.jsonc` with your [environment settings](settings-global-setting-file.md) and [desired state strategy](settings-dfc-assignments.md).
-7. Populate your Definitions folder with Policy resources. (For a folder structure example, please see [StarterKit/Definitions-Common](https://github.com/Azure/enterprise-azure-policy-as-code/tree/main/StarterKit/Definitions-Common))
+4. Design your [CI/CD process](ci-cd-overview.md).
+5. Install [Powershell and EPAC](#install-powershell-and-epac).
+6. Create your [`Definitions` folder and subfolders](#create-the-definitions-folder).
+7. Populate `global-settings.jsonc` with your [environment settings](settings-global-setting-file.md) and [desired state strategy](settings-dfc-assignments.md).
+8. Populate your Definitions folder with Policy resources. (For a folder structure example, please see [StarterKit/Definitions-Common](https://github.com/Azure/enterprise-azure-policy-as-code/tree/main/StarterKit/Definitions-Common))
     - [Option A:] [Extract existing Policy resources](start-extracting-policy-resources.md) from your Azure environment.
     - [Option B:] [Integrate Azure Landing Zones (ALZ)](integrating-with-alz.md).
     - [Option C:] Utilize the [hydration kit](operational-scripts-hydration-kit.md) and `StarterKit` content.
@@ -22,8 +22,8 @@ The following steps are required to implement Enterprise Policy as Code (EPAC) i
     - [Optional] Create custom [Policy Set definitions](policy-set-definitions.md).
     - Create your [Policy Assignments](policy-assignments.md).
     - [Optional] Manage [Policy Exemptions](policy-exemptions.md).
-8. Implement your [CI/CD pipelines](ci-cd-overview.md).
-8. Operate your environment with the provided [operational scripts](operational-scripts.md).
+9. Implement your [CI/CD pipelines](ci-cd-overview.md).
+10. Operate your environment with the provided [operational scripts](operational-scripts.md).
 
 ## EPAC Concepts and Environments
 
