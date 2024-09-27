@@ -150,7 +150,7 @@ Many scripts use parameters for input and output folders. They default to the cu
 - Create custom Policy Sets (optional) in folder `policySetDefinitions`
 - Define the Policy Assignments in folder `policyAssignments`
 - Define the Policy Exemptions (optional) in folder `policyExemptions`
-- Define Documentation in folder `policyDocumentations]`
+- Define Documentation in folder `policyDocumentations`
 
 ### Create the Definitions folder
 
