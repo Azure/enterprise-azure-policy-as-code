@@ -196,7 +196,14 @@ function Build-AssignmentDefinitionAtLeaf {
         }
         foreach ($nonComplianceMessageRaw in $nonComplianceMessagesList) {
             if ($null -eq $nonComplianceMessageRaw.message -or $nonComplianceMessageRaw.message -eq "") {
-                Write-Error "    Leaf Node $($nodeName): each nonComplianceMessage must conatin a message string: $($nonComplianceMessageRaw | ConvertTo-Json -Depth 100 -Compress)"
+                Write-Error "    Leaf Node $($nodeName): each nonComplianceMessage must contain a message string: $($nonComplianceMessageRaw | ConvertTo-Json -Depth 100 -Compress)"
+                $hasErrors = $true
+            }
+        }
+
+        foreach ($referenceId in $nonComplianceMessagesList.policyDefinitionReferenceId) {
+            if ($referenceId -notin $CombinedPolicyDetails.policySets[$definitionEntry.policyDefinitionId].policyDefinitions.policyDefinitionReferenceId) {
+                Write-Error "   Reference Id $referenceId in nonComplianceMessages is not found in the policy definition: $($definitionEntry.policyDefinitionId)"
                 $hasErrors = $true
             }
         }

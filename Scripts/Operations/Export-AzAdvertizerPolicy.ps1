@@ -44,7 +44,7 @@ param (
     [string] $OutputFolder,
 
     [Parameter(Mandatory = $false, HelpMessage = "Automatically create parameters for Azure Policy Sets and Assginment Files")]
-    [bool] $AutoCreateParameters = $false,
+    [bool] $AutoCreateParameters = $true,
 
     [Parameter(Mandatory = $false, HelpMessage = "Default to using builtin policies rather than local versions")]
     [bool] $UseBuiltIn = $true,
@@ -61,31 +61,38 @@ param (
 
 #region Policy
 
-# Determine if PolicySet or Policy Assignment
-if ($AzAdvertizerUrl -match "azpolicyadvertizer") {
-    $policyType = "policyDefinitions"
+# Validate session with Azure exists
+if (-not (Get-AzContext)) {
+    $null = Connect-AzAccount
 }
-elseif ($AzAdvertizerUrl -match "azpolicyinitiativesadvertizer") {
-    $policyType = "policySetDefinitions"
-}
-else {
-    Write-Error "AzAdvertizerUrl is not referencing Policy or Policy Initiative"
-}
-
-# Pull Built-In Policies and Policy Sets
-$builtInPolicies = Get-AzPolicyDefinition -Builtin
-$builtInPolicyNames = $builtInPolicies.name
-$builtInPolicySets = Get-AzPolicySetDefinition -Builtin
-$builtInPolicySetNames = $builtInPolicySets.name
 
 # Pull HTML
 try {
     $restResponse = Invoke-RestMethod -Uri "$AzAdvertizerUrl" -Method Get
 }
 catch {
-    if ($_.Exception.Response.StatusCode -eq 404) {
-        Write-Error "Error 404: Not Found." -ErrorAction Stop
+    if ($_.Exception.Response.StatusCode -lt 200 -or $_.Exception.Response.StatusCode -ge 300) {
+        Write-Error "Error gathering Policy Information, please validate AzAdvertizerUrl is valid." -ErrorAction Stop
     }
+}
+
+# Determine if PolicySet or Policy Assignment
+if ($AzAdvertizerUrl -match "azpolicyadvertizer") {
+    $policyType = "policyDefinitions"
+    # Pull Built-In Policies and Policy Sets
+    $builtInPolicies = Get-AzPolicyDefinition -Builtin
+    $builtInPolicyNames = $builtInPolicies.name
+}
+elseif ($AzAdvertizerUrl -match "azpolicyinitiativesadvertizer") {
+    $policyType = "policySetDefinitions"
+    # Pull Built-In Policies and Policy Sets
+    $builtInPolicies = Get-AzPolicyDefinition -Builtin
+    $builtInPolicyNames = $builtInPolicies.name
+    $builtInPolicySets = Get-AzPolicySetDefinition -Builtin
+    $builtInPolicySetNames = $builtInPolicySets.name
+}
+else {
+    Write-Error "AzAdvertizerUrl is not referencing Policy or Policy Initiative"
 }
 
 # Parse HTML response to find copyEPACDef
@@ -133,16 +140,11 @@ if ($OutputFolder -eq "") {
     $OutputFolder = "Output"
 }
 if ($OverwriteOutput) {
-    if (Test-Path -Path "$OutputFolder/ALZ-Export/policyDefinitions") {
-        Get-ChildItem -Path "$OutputFolder/ALZ-Export/policyDefinitions" -File | Remove-Item
-    }
-    if (Test-Path -Path "$OutputFolder/ALZ-Export/policyAssignments") {
-        Get-ChildItem -Path "$OutputFolder/ALZ-Export/policyAssignments" -File | Remove-Item
-    }
-    if (Test-Path -Path "$OutputFolder/ALZ-Export/policySetDefinitions") {
-        Get-ChildItem -Path "$OutputFolder/ALZ-Export/policySetDefinitions" -File | Remove-Item
+    if (Test-Path -Path "$OutputFolder/ALZ-Export") {
+        Remove-Item -Path "$OutputFolder/ALZ-Export" -Recurse -Force
     }
 }
+
 # Export File
 if ($policyType -eq "policyDefinitions") {
     if ($UseBuiltIn -and $builtInPolicyNames -contains $policyName) {
@@ -317,7 +319,7 @@ if ($AutoCreateParameters) {
     if ($UseBuiltIn) {
         if ($policyType -eq "policySetDefinitions" -and $builtInPolicySetNames -contains $policyName) {
             $policyObject = $builtInPolicySets | Where-Object { $_.Name -eq $policyName }
-            $policySetParameters = $policyObject.properties.parameters
+            $policySetParameters = $policyObject.parameter
             $parameterNames = $policySetParameters | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name
             foreach ($parameter in $parameterNames) {
                 $defaultEffect = ""
@@ -332,15 +334,15 @@ if ($AutoCreateParameters) {
         }
         elseif ($policyType -eq "policyDefinitions" -and $builtInPolicyNames -contains $policyName) {
             $policyObject = $builtInPolicies | Where-Object { $_.Name -eq $policyName }
-            $policyParameters = $policyObject.properties.parameters
+            $policyParameters = $policyObject.parameter
             $parameterNames = $policyParameters | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name
             foreach ($parameter in $parameterNames) {
                 $defaultEffect = ""
-                if ($null -eq $($policySetParameters).$($parameter).defaultValue) {
+                if ($null -eq $($policyParameters).$($parameter).defaultValue) {
                     Write-Warning "Default Value not found for '$parameter' in PolicySet '$policyName'" -InformationAction Continue
                 }
                 else {
-                    $defaultEffect = $($policySetParameters).$($parameter).defaultValue
+                    $defaultEffect = $($policyParameters).$($parameter).defaultValue
                 }
                 $assignmentObject.children.parameters | Add-Member -MemberType NoteProperty -Name "$parameter" -Value $defaultEffect
             }
