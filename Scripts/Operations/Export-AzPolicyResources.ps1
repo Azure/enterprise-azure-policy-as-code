@@ -3,9 +3,7 @@
 Exports Azure Policy resources in EPAC format or raw format.
 
 .DESCRIPTION
-Exports Azure Policy resources in EPAC format or raw format. It has 4 operating modes - see -Mode parameter for details.
-It also generates documentation for the exported resources (can be suppressed with -SuppressDocumentation).
-To just generate EPAC formatted Definitions without generating documentation files, use -supressEpacOutput.
+Exports Azure Policy resources in EPAC format or raw format. It has 5 operating modes - see -Mode parameter for details.
 
 .PARAMETER DefinitionsRootFolder
 Definitions folder path. Defaults to environment variable $env:PAC_DEFINITIONS_FOLDER or './Definitions'.
@@ -39,9 +37,6 @@ Operating mode:
 .PARAMETER InputPacSelector
 Limits the collection to one EPAC environment, useful for non-interactive use in a multi-tenant scenario, especially with -Mode 'collectRawFile'.
 The default is '*' which will execute all EPAC-Environments.
-
-.PARAMETER SuppressDocumentation
-Suppress documentation generation.
 
 .PARAMETER SuppressEpacOutput
 Suppress output generation in EPAC format.
@@ -103,8 +98,8 @@ param (
     ")]
     [string] $InputPacSelector = '*',
 
-    [Parameter(Mandatory = $false, HelpMessage = "Suppress documentation generation")]
-    [switch] $SuppressDocumentation,
+    # [Parameter(Mandatory = $false, HelpMessage = "Suppress documentation generation")]
+    # [switch] $SuppressDocumentation,
 
     [Parameter(Mandatory = $false, HelpMessage = "Suppress output generation in EPAC format")]
     [switch] $SuppressEpacOutput,
