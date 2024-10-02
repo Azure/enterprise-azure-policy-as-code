@@ -287,7 +287,7 @@ function Out-DocumentationForPolicyAssignments {
         $null = $allLines.Add("`n$leadingHeadingHashtag# Policy Effects by Policy`n")
         $null = $allLines.Add("| Category | Policy | Group Names |$addedTableHeader")
         $null = $allLines.Add("| :------- | :----- | :---------- |$addedTableDivider")
-        $null = $assignmentsByCategoryHeader.Add("`n$leadingHeadingHashtag# Security Controls by Policy`n")
+        $null = $assignmentsByCategoryHeader.Add("`n$leadingHeadingHashtag# Policy Effects by Policy`n")
         $null = $assignmentsByCategoryHeader.Add("| Category | Policy | Group Names |$addedTableHeader")
         $null = $assignmentsByCategoryHeader.Add("| :------- | :----- | :---------- |$addedTableDivider")
     }
@@ -295,7 +295,7 @@ function Out-DocumentationForPolicyAssignments {
         $null = $allLines.Add("`n$leadingHeadingHashtag# Policy Effects by Policy`n")
         $null = $allLines.Add("| Category | Policy |$addedTableHeader")
         $null = $allLines.Add("| :------- | :----- |$addedTableDivider")
-        $null = $assignmentsByCategoryHeader.Add("`n$leadingHeadingHashtag# Security Controls by Policy`n")
+        $null = $assignmentsByCategoryHeader.Add("`n$leadingHeadingHashtag# Policy Effects by Policy`n")
         $null = $assignmentsByCategoryHeader.Add("| Category | Policy |$addedTableHeader")
         $null = $assignmentsByCategoryHeader.Add("| :------- | :----- |$addedTableDivider")
     }
@@ -448,10 +448,21 @@ function Out-DocumentationForPolicyAssignments {
                     # Add to main markdown
                     $null = $allLines.Add("| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) |$($addedParametersColumns)")
                     # Add to sub-page markdown
-                    if ($assignmentsByCategory.ContainsKey($_.category)) {   
-                        $assignmentsByCategory[$_.category].subLines += "| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) |$($addedParametersColumns)"
+                    if ($assignmentsByCategory.ContainsKey($_.category)) {
+                        if ($assignmentsByCategory[$_.category].subLines -match "Policy Parameters by Policy") {
+                            $assignmentsByCategory[$_.category].subLines += "| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) |$($addedParametersColumns)"
+                        }
+                        else {
+                            $null = $assignmentsByCategory[$_.category].subLines += "`n$leadingHeadingHashtag# Policy Parameters by Policy`n"
+                            $null = $assignmentsByCategory[$_.category].subLines += "| Category | Policy |$addedTableHeader"
+                            $null = $assignmentsByCategory[$_.category].subLines += "| :------- | :----- |$addedTableDividerParameters"
+                            $assignmentsByCategory[$_.category].subLines += "| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) |$($addedParametersColumns)"
+                        }
                     }
                     else {
+                        $null = $assignmentsByCategory[$_.category].subLines += "`n$leadingHeadingHashtag# Policy Parameters by Policy`n"
+                        $null = $assignmentsByCategory[$_.category].subLines += "| Category | Policy |$addedTableHeader"
+                        $null = $assignmentsByCategory[$_.category].subLines += "| :------- | :----- |$addedTableDividerParameters"
                         $assignmentsByCategory[$_.category] = @{}
                         $assignmentsByCategory[$_.category].subLines = $assignmentsByCategoryHeader
                         $assignmentsByCategory[$_.category].subLines += "| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) |$($addedParametersColumns)"
