@@ -18,7 +18,7 @@
 .EXAMPLE
     Copy-HydrationManagementGroupHierarchy -SourceGroupName "IntermediateRoot" -DestinationParentGroupName "11111111-1111-1111-1111-111111111111" -Prefix "EpacDev-"
 
-    This will copy the hierarchy from "IntermediateRoot" to the tenant root "11111111-1111-1111-1111-111111111111", using "EpacDev-InternmediateRoot" as the new Intermediate Root for this environment.
+    This will copy the hierarchy from "IntermediateRoot" to the tenant root "11111111-1111-1111-1111-111111111111", using "EpacDev-IntermediateRoot" as the new Intermediate Root for this environment.
     
 .LINK
     https://aka.ms/epac

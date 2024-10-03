@@ -46,7 +46,7 @@ Parameters:
 
 * **OutputFolder**: Output Folder. Defaults to the path 'Output'.
 
-* **AutoCreateParameters**: Automatically create parameters for Azure Policy Sets and Assginment Files.
+* **AutoCreateParameters**: Automatically create parameters for Azure Policy Sets and Assignment Files.
 
 * **UseBuiltIn**: Default to using builtin policies rather than local versions.
 

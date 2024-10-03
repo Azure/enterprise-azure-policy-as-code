@@ -260,7 +260,7 @@ function Convert-PolicyResourcesDetailsToFlatList {
                     }
                     else {
                         $null = $parametersAlreadyCovered.Add($parameterName, $true)
-                        $parameter.multiUse = $false # Redo multi-use based on sorted liist of Policies
+                        $parameter.multiUse = $false # Redo multi-use based on sorted list of Policies
 
                         $parameterValue = $null
                         if ($null -ne $assignmentId) {

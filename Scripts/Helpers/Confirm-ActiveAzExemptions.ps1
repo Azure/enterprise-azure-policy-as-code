@@ -80,7 +80,7 @@ function Confirm-ActiveAzExemptions {
         all           = $allExemptions
         active        = $activeExemptions
         expiresInDays = $expiringExemptions # Subset of active
-        orphaned      = $orphanedExemptions # Orpahned trumps expired
+        orphaned      = $orphanedExemptions # Orphaned trumps expired
         expired       = $expiredExemptions
     }
 

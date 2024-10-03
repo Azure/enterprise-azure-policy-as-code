@@ -9,7 +9,7 @@
     Output Folder. Defaults to the path 'Output'.
     
 .PARAMETER AutoCreateParameters
-    Automatically create parameters for Azure Policy Sets and Assginment Files.
+    Automatically create parameters for Azure Policy Sets and Assignment Files.
 
 .PARAMETER UseBuiltIn    
     Default to using builtin policies rather than local versions.
@@ -29,7 +29,7 @@
 
 .EXAMPLE
     "./Out-AzAdvertizerPolicy.ps1" -AzAdvertizerUrl "https://www.azadvertizer.net/azpolicyinitiativesadvertizer/Deny-PublicPaaSEndpoints.html" -PacSelector "EPAC-Prod" -Scope "/providers/Microsoft.Management/managementGroups/4fb849a3-3ff3-4362-af8e-45174cd753dd" 
-    Retrieves Policy from AzAdvertizer, sets the PacSelector in the assginment files to "EPAC-Prod" and the scope to the managmenet group path provided.
+    Retrieves Policy from AzAdvertizer, sets the PacSelector in the assignment files to "EPAC-Prod" and the scope to the management group path provided.
 
 .LINK
     https://azure.github.io/enterprise-azure-policy-as-code/policy-exemptions/
@@ -43,7 +43,7 @@ param (
     [Parameter(Mandatory = $false, HelpMessage = "Output Folder. Defaults to the path 'Output'")]
     [string] $OutputFolder,
 
-    [Parameter(Mandatory = $false, HelpMessage = "Automatically create parameters for Azure Policy Sets and Assginment Files")]
+    [Parameter(Mandatory = $false, HelpMessage = "Automatically create parameters for Azure Policy Sets and Assignment Files")]
     [bool] $AutoCreateParameters = $true,
 
     [Parameter(Mandatory = $false, HelpMessage = "Default to using builtin policies rather than local versions")]

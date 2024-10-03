@@ -105,7 +105,7 @@ function Build-ScopeTableForSubscription {
     }
     #endregion augment resource groups scope details
 
-    #region augemnt this parents scope's details with this subscription's details
+    #region augment this parents scope's details with this subscription's details
     if ($null -ne $ParentScopeDetails) {
         $parentScopeChildrenTable = $ParentScopeDetails.childrenTable
         $parentScopeResourceGroupsTable = $ParentScopeDetails.resourceGroupsTable
@@ -131,7 +131,7 @@ function Build-ScopeTableForSubscription {
             $null = $parentScopeExcludedScopesTable.Add($excludedScope, $excludedScopesTable.$excludedScope)
         }
     }
-    #endregion augemnt this parents scope's details with this subscription's details
+    #endregion augment this parents scope's details with this subscription's details
 
     return $scopeDetails
 }

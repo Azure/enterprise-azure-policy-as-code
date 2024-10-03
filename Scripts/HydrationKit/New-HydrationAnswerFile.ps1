@@ -86,7 +86,7 @@ Write-Host "We show your target tenant to be $($returnData.initialTenantId), whi
 Write-Host "     This information was taken from Get-AzContext.`n`n"
 $response = Read-Host "If this is incorrect, please type 'N' to leave the script. `nOtherwise press enter to continue."
 if ($response -eq "N") {
-    Write-Warnig "You have chosen to exit the script. If your connection information was incorrect, use Connect-AzAccount with the TenantId and SubscriptionId options to specify the connection you desire."
+    Write-Warning "You have chosen to exit the script. If your connection information was incorrect, use Connect-AzAccount with the TenantId and SubscriptionId options to specify the connection you desire."
     return
 }
 Write-Host "`nYou have chosen to continue."
@@ -95,9 +95,9 @@ Write-Information "`nGathering supporting information for script processing...`n
 ## PacSelector
 do {
     Write-Host "`n################################################################################"
-    if ($repeat) { Write-Host "The value `'$($tenantEntry.pacSelector)`' is an invalid selection for PacSelector. Please use only alpha-neumeric characters, dashes, and underscores." }
+    if ($repeat) { Write-Host "The value `'$($tenantEntry.pacSelector)`' is an invalid selection for PacSelector. Please use only alpha-numeric characters, dashes, and underscores." }
     Write-Host "We must choose a unique string to identify the deployment environment to be governed by EPAC where your deployed resources reside.`n"
-    Write-Host "Please choose a name for the PacSelector. Only alpha-neumeric characters, dashes, and underscores are permitted."
+    Write-Host "Please choose a name for the PacSelector. Only alpha-numeric characters, dashes, and underscores are permitted."
     Write-Host "This is the name that will be used to identify the unique PacSelector in Global Settings under which settings for this deployment will be grouped for use in policy orchestration by EPAC.`n"
     Write-Host "Recommendation: 'tenant01'"
     $repeat = $true
@@ -133,7 +133,7 @@ Write-Information "`nResult Verified for variable intermediateRootGroupName: $($
 do {
     Write-Host "`n################################################################################"
     if ($repeat) { Write-Host "Please choose an existing Management Group ID. $($tenantEntry.initialPolicyScope) could not be located within the current Tenant.`n" }
-    Write-Host "We must choose a Management Group that will recieve initial assignments intended for Management Groups in the $($tenantEntry.pacSelector) PacSelector."
+    Write-Host "We must choose a Management Group that will receive initial assignments intended for Management Groups in the $($tenantEntry.pacSelector) PacSelector."
     Write-Host "    - This can be any Management Group inside of $($tenantEntry.intermediateRootGroupName), but initial deployments are intended to audit the environment"
     Write-Host "    and are generally applied at the top level of the PacSelector.`n"
     Write-Host "Recommendation: $($tenantEntry.intermediateRootGroupName)"
@@ -258,7 +258,7 @@ do {
         #TESTREM: $returnData.pacOwnerId = Read-Host "Please provide a PacOwnerId, we recommend that it include a unique GUID."
         $returnData.pacOwnerId = Read-Host "What would you like to use as the pacOwnerId?"
         if (!($returnData.pacOwnerId -match '^[a-zA-Z0-9_-]+$')) {
-            Write-Warning "Invalid characters detected. Please use only alpha-neumeric characters, dashes, and underscores."
+            Write-Warning "Invalid characters detected. Please use only alpha-numeric characters, dashes, and underscores."
             $repeat = $true
         }
         else {
@@ -280,7 +280,7 @@ do {
     if ($repeat) { Write-Host "Please choose one of the following platforms: $($acceptablePlatforms -join ", ")." }
     Write-Host "We must choose a DevOps Platform to use for deployment of policies using EPAC.`n"
     Write-Host "This will populate pipelines for supported types, but will not modify the configuration of your deployment environment at this time."
-    Write-Host "If your deployment tool is not among those listed, you can choose 'other' and create your own, or choose one of the supported platforms to recieve pipelines to start from.1n"
+    Write-Host "If your deployment tool is not among those listed, you can choose 'other' and create your own, or choose one of the supported platforms to receive pipelines to start from.1n"
     Write-Host "Valid choices: $($acceptablePlatforms -join ", ").`n"
     $returnData.platform = Read-Host "What DevOps Platform will you be using to run EPAC?"
     $repeat = $true

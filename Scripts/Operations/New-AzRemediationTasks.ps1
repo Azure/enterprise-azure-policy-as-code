@@ -130,7 +130,7 @@ $rawNonCompliantList, $deployedPolicyResources, $scopeTable = Find-AzNonComplian
     -PolicyEffectFilter $policyEffectFilter
 
 Write-Information "==================================================================================================="
-Write-Information "Collating non-compliant resources by Assignment Id and (if Policy Set) policyDefintionReferenceId"
+Write-Information "Collating non-compliant resources by Assignment Id and (if Policy Set) policyDefinitionReferenceId"
 Write-Information "==================================================================================================="
 
 
@@ -230,7 +230,7 @@ else {
     $created = 0
     $failedToCreate = 0
     $failed = 0
-    $succeded = 0
+    $succeeded = 0
     $collatedByAssignmentId.Values | Sort-Object { $_.policyAssignmentId }, { $_.category }, { $_.policyName } | ForEach-Object {
         if ($_.policyDefinitionReferenceId) {
             Write-Information "'$($_.shortScope)/$($_.policyAssignmentName)|$($_.policyDefinitionReferenceId)': $($_.resourceCount) resources, '$($_.policyDefinitionName)', $($_.policyDefinitionAction)"
@@ -250,7 +250,7 @@ else {
             }
             # $null = $runningPolicyRemediationTasks.Add($newPolicyRemediationTask)
             $created++
-            $succeded++
+            $succeeded++
         }
         else {
             $newPolicyRemediationTask = Start-AzPolicyRemediation @parameters -ErrorAction SilentlyContinue -WhatIf:$WhatIfPreference
@@ -268,7 +268,7 @@ else {
             }
             elseif ($newPolicyRemediationTask.ProvisioningState -eq 'Succeeded') {
                 Write-Information "`tRemediation Task succeeded immediately."
-                $succeded++
+                $succeeded++
                 $created++
             }
             elseif ($newPolicyRemediationTask.ProvisioningState -eq 'Failed') {
@@ -319,7 +319,7 @@ else {
                     $remediationTaskState = "WhatIf - Succeeded"
                     Write-Information "`tWhatIf: Remediation Task '$($runningPolicyRemediationTask.Name)' might have succeeded."
                     $taskDone = $true
-                    $succeded++
+                    $succeeded++
                 }
                 else {
                     Write-Verbose "`tChecking the provisioning state of the '$($runningPolicyRemediationTask.Name)' Remediation Task"
@@ -330,7 +330,7 @@ else {
                     if ($remediationTaskState -eq 'Succeeded') {
                         Write-Information "`tRemediation Task '$($runningPolicyRemediationTask.Name)' succeeded."
                         $taskDone = $true
-                        $succeded++
+                        $succeeded++
                     }
                     elseif ($remediationTaskState -eq 'Failed') {
                         Write-Information "`tRemediation Task '$($runningPolicyRemediationTask.Name)' failed."
@@ -369,7 +369,7 @@ else {
         Write-Information "==================================================================================================="
         Write-Information "WhatIf: $needed needed"
         Write-Information "WhatIf: $created created"
-        Write-Information "WhatIf: $succeded succeded"
+        Write-Information "WhatIf: $succeeded succeeded"
     }
     else {
         Write-Information "==================================================================================================="
@@ -381,7 +381,7 @@ else {
             Write-Information "$failedToCreate failed to create"
         }
         Write-Information "$created created"
-        Write-Information "$succeded succeded"
+        Write-Information "$succeeded succeeded"
         if ($failed -gt 0) {
             Write-Information "$failed failed"
             if (-not $Interactive) {

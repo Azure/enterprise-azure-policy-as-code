@@ -176,9 +176,9 @@ if ($answers.useCurrent) {
         }
     }
     $exportFolder = Join-Path $output "Export" "Definitions"
-    $updatedAssignmtentsFolder = Join-Path $output "UpdatedAssignments"
-    if (!(Test-Path $updatedAssignmtentsFolder)) {
-        $null = New-Item -ItemType Directory -Path $updatedAssignmtentsFolder -Force
+    $updatedAssignmentsFolder = Join-Path $output "UpdatedAssignments"
+    if (!(Test-Path $updatedAssignmentsFolder)) {
+        $null = New-Item -ItemType Directory -Path $updatedAssignmentsFolder -Force
     }
     $exportedAssignments = (Get-ChildItem $(Join-Path $exportFolder "policyAssignments") -File "*.jsonc").FullName
     $SourcePacSelector = ($answers.environments.values | Where-Object { $_.intermediateRootGroupName -eq $answers.epacSourceGroupName }).pacSelector
@@ -186,7 +186,7 @@ if ($answers.useCurrent) {
     foreach ($assignment in $exportedAssignments) {
         New-HydrationAssignmentPacSelector -SourcePacSelector $SourcePacSelector -NewPacSelector $NewPacSelector -MGHierarchyPrefix $answers.epacPrefix -MGHierarchySuffix $answers.epacSuffix -Definitions $exportFolder -Output $output -ErrorAction Stop
     }
-    Copy-Item -Path $($updatedAssignmtentsFolder + '/*') -Destination $(Join-Path $definitions "policyAssignments") -Recurse -Force
+    Copy-Item -Path $($updatedAssignmentsFolder + '/*') -Destination $(Join-Path $definitions "policyAssignments") -Recurse -Force
 }
 ## Build EPAC MG Structure
 Write-Information "`n################################################################################"
