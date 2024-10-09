@@ -22,7 +22,7 @@ function Confirm-PolicyResourceExclusions {
         return $true, $resourceIdParts
     }
     if (-not $ScopeTable.ContainsKey($scope)) {
-        Write-Verbose "Unmanged scope '$scope', resource '$($ResourceId)'"
+        Write-Verbose "Unmanaged scope '$scope', resource '$($ResourceId)'"
         if ($null -ne $PolicyResourceTable) {
             $PolicyResourceTable.counters.unmanagedScopes += 1
         }

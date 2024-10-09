@@ -183,11 +183,11 @@ else {
 
     $fullDetailsList = [System.Collections.ArrayList]::new()
 
-    # determine the seperator and encoding to use based on the WindowsNewLineCells parameter
-    $seperator = ","
+    # determine the separator and encoding to use based on the WindowsNewLineCells parameter
+    $separator = ","
     $encoding = "utf8NoBOM"
     if ($windowsNewLineCells) {
-        $seperator = ",`r`n"
+        $separator = ",`r`n"
         $encoding = "utf8BOM"
     }
 
@@ -280,7 +280,7 @@ else {
         #endregion retrieve and augment the entry properties
 
         #region create full details list hash table
-        $groupNames = $policyDefinitionGroupNames -join $seperator
+        $groupNames = $policyDefinitionGroupNames -join $separator
         $fullDetails = @{
             assignmentName      = $policyAssignmentName
             assignmentScope     = $policyAssignmentScope
@@ -601,9 +601,9 @@ else {
     Write-Information "Writing summary by Policy to $summaryCsvPath"
     $sortedSummaryList = $summaryListByPolicy | Sort-Object { $_.category }, { $_.policyDefinitionName } | ForEach-Object {
         $groupNamesHashtable = $_.groupNames
-        $summaryGroupNames = $groupNamesHashtable.Keys -join $seperator
+        $summaryGroupNames = $groupNamesHashtable.Keys -join $separator
         $assignmentsHashtable = $_.assignments
-        $assignments = $assignmentsHashtable.Keys -join $seperator
+        $assignments = $assignmentsHashtable.Keys -join $separator
         $normalizedSummary = [ordered]@{
             "Category"       = $_.category
             "Policy Name"    = $_.policyName
@@ -654,12 +654,12 @@ else {
 
     #region simplified details by Policy CSV
     $detailsCsvPath = Join-Path $pacEnvironment.outputFolder "non-compliance-report" "details-by-policy.csv"
-    Write-Information "Writing simplfied details by Policy to $detailsCsvPath"
+    Write-Information "Writing simplified details by Policy to $detailsCsvPath"
     $sortedDetailsList = $detailsListByPolicy | Sort-Object { $_.category }, { $_.policyName }, { $_.resourceId } | ForEach-Object {
         $assignmentsHashtable = $_.assignments
-        $assignments = $assignmentsHashtable.Keys -join $seperator
+        $assignments = $assignmentsHashtable.Keys -join $separator
         $groupNamesHashtable = $_.groupNames
-        $detailsGroupNames = $groupNamesHashtable.Keys -join $seperator
+        $detailsGroupNames = $groupNamesHashtable.Keys -join $separator
         $normalizedDetails = [ordered]@{
             "Category"           = $_.category
             "Policy Name"        = $_.policyName
@@ -685,7 +685,7 @@ else {
 
     #region simplified details by Resource Id CSV
     $detailsCsvPath = Join-Path $pacEnvironment.outputFolder "non-compliance-report" "details-by-resource.csv"
-    Write-Information "Writing simplfied details by Resource Id to $detailsCsvPath"
+    Write-Information "Writing simplified details by Resource Id to $detailsCsvPath"
     $sortedDetailsList = $detailsListByResource | Sort-Object { $_.resourceId }, { $_.category }, { $_.policyName } | ForEach-Object {
         $normalizedDetails = [ordered]@{
             "Resource Id"        = $_.resourceId
@@ -717,7 +717,7 @@ else {
     Write-Information "Writing full details by Assignment to $detailsCsvPath"
     $sortedDetailsList = $fullDetailsList | Sort-Object { $_.assignmentName }, { $_.assignmentScope }, { $_.category }, { $_.policyName }, { $_.referenceId }, { $_.resourceId } | ForEach-Object {
         $groupNamesHashtable = $_.groupNames
-        $detailsGroupNames = $groupNamesHashtable.Keys -join $seperator
+        $detailsGroupNames = $groupNamesHashtable.Keys -join $separator
         $normalizedDetails = [ordered]@{
             "Assignment Name"    = $_.assignmentName
             "Assignment Scope"   = $_.assignmentScope

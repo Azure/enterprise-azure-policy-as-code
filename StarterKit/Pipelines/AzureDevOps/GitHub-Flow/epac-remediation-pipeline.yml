@@ -6,7 +6,7 @@ parameters:
       - tenant
 
 variables:
-  # This pipeline is used to auto remdiate Azure policy that are non-compliant.
+  # This pipeline is used to auto remediate Azure policy that are non-compliant.
   PAC_OUTPUT_FOLDER: ./Output
   PAC_DEFINITIONS_FOLDER: ./Definitions
 

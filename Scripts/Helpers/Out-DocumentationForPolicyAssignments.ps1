@@ -34,7 +34,7 @@ function Out-DocumentationForPolicyAssignments {
     $flatPolicyListAcrossEnvironments = @{}
     foreach ($environmentCategory in $environmentCategories) {
         if (-not $AssignmentsByEnvironment.ContainsKey($environmentCategory)) {
-            # Should never happen (programing bug)
+            # Should never happen (programming bug)
             Write-Error "Unknown environmentCategory '$environmentCategory' encountered - bug in EPAC PowerShell code" -ErrorAction Stop
         }
 
@@ -181,7 +181,7 @@ function Out-DocumentationForPolicyAssignments {
                                 # Find which env category is missing, add it to $policyDef
                                 foreach ($env in $flatPolicyListAcrossEnvironments[$policyDefCompare].environmentList.keys) {
                                     if (-not $flatPolicyListAcrossEnvironments[$policyDef].environmentList.ContainsKey($env)) {
-                                        # Copy envrionemnt from match to original key
+                                        # Copy environment from match to original key
                                         $flatPolicyListAcrossEnvironments[$policyDef].environmentList[$env] = $flatPolicyListAcrossEnvironments[$policyDefCompare].environmentList[$env]
                                     }
                                 }
@@ -565,7 +565,7 @@ function Out-DocumentationForPolicyAssignments {
                 if ($environmentList.ContainsKey($environmentCategory)) {
                     $perEnvironment = $environmentList.$environmentCategory
 
-                    # Valide doNotDisableDeprecatedPolicies for env
+                    # Validate doNotDisableDeprecatedPolicies for env
                     $envPacSelector = $AssignmentsByEnvironment."$($perEnvironment.environmentCategory)".pacEnvironmentSelector
                     $doNotDisableDeprecatedPolicies = $PacEnvironments.$envPacSelector.doNotDisableDeprecatedPolicies
 

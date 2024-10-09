@@ -159,7 +159,7 @@ function Build-AssignmentDefinitionAtLeaf {
             continue
         }
         elseif (-not (Confirm-ValidPolicyResourceName -Name $name)) {
-            Write-Error "    Leaf Node $($nodeName): Assignment name '$name' contains invalid charachters <>*%&:?.+/ or ends with a space."
+            Write-Error "    Leaf Node $($nodeName): Assignment name '$name' contains invalid characters <>*%&:?.+/ or ends with a space."
             $hasErrors = $true
             continue
         }

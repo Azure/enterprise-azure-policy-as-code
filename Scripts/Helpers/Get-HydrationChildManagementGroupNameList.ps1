@@ -1,4 +1,4 @@
-function Get-HydrrationChildManagementGroupNameList {
+function Get-HydrationChildManagementGroupNameList {
     <#
     .SYNOPSIS
         This function retrieves a list of all child management groups of a given management group.

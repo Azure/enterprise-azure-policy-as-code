@@ -14,7 +14,7 @@ function Confirm-ObjectValueEqualityDeep {
             return $true
         }
         if ($null -eq $Object1) {
-            # $Object1 is $null, swap $Object1 and $Object2 to ensure that Object1 (the old Object2) is not $null and Object2 (the old Object1) is $null (setting it to $null is ommited because it is not used in the subsequent code)
+            # $Object1 is $null, swap $Object1 and $Object2 to ensure that Object1 (the old Object2) is not $null and Object2 (the old Object1) is $null (setting it to $null is omitted because it is not used in the subsequent code)
             $Object1 = $Object2
             $Object2 = $null
         }

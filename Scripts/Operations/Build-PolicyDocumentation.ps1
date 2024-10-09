@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS 
-    Builds documentation from instructions in policyDocumentations folder reading the delployed Policy Resources from the EPAC envioronment.   
+    Builds documentation from instructions in policyDocumentations folder reading the deployed Policy Resources from the EPAC environment.   
 
 .PARAMETER DefinitionsRootFolder
     Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
@@ -18,19 +18,19 @@
     Suppresses prompt for confirmation to delete existing file in interactive mode
 
 .PARAMETER IncludeManualPolicies
-    Include Policies with effect Manual. Default: do not include Polcies with effect Manual.
+    Include Policies with effect Manual. Default: do not include Policies with effect Manual.
 
 .EXAMPLE
     Build-PolicyDocumentation.ps1 -DefinitionsRootFolder "C:\PAC\Definitions" -OutputFolder "C:\PAC\Output" -Interactive
-    Builds documentation from instructions in policyDocumentations folder reading the delployed Policy Resources from the EPAC envioronment.
+    Builds documentation from instructions in policyDocumentations folder reading the deployed Policy Resources from the EPAC environment.
 
 .EXAMPLE
     Build-PolicyDocumentation.ps1 -Interactive
-    Builds documentation from instructions in policyDocumentations folder reading the delployed Policy Resources from the EPAC envioronment. The script prompts for the PAC environment and uses the default definitions and output folders.
+    Builds documentation from instructions in policyDocumentations folder reading the deployed Policy Resources from the EPAC environment. The script prompts for the PAC environment and uses the default definitions and output folders.
 
 .EXAMPLE
     Build-PolicyDocumentation.ps1 -DefinitionsRootFolder "C:\PAC\Definitions" -OutputFolder "C:\PAC\Output" -Interactive -SuppressConfirmation
-    Builds documentation from instructions in policyDocumentations folder reading the delployed Policy Resources from the EPAC envioronment. The script prompts for the PAC environment and uses the default definitions and output folders. It suppresses prompt for confirmation to delete existing file in interactive mode.
+    Builds documentation from instructions in policyDocumentations folder reading the deployed Policy Resources from the EPAC environment. The script prompts for the PAC environment and uses the default definitions and output folders. It suppresses prompt for confirmation to delete existing file in interactive mode.
 
 .LINK
     https://azure.github.io/enterprise-azure-policy-as-code/#deployment-scripts
@@ -54,7 +54,7 @@ param (
     [Parameter(Mandatory = $false, HelpMessage = "Suppresses prompt for confirmation of each file in interactive mode")]
     [switch] $SuppressConfirmation,
 
-    [Parameter(Mandatory = $false, HelpMessage = "Include Policies with effect Manual. Default: do not include Polcies with effect Manual.")]
+    [Parameter(Mandatory = $false, HelpMessage = "Include Policies with effect Manual. Default: do not include Policies with effect Manual.")]
     [switch] $IncludeManualPolicies,
 
     [Parameter(Mandatory = $false, HelpMessage = "Include if using a PAT token for pushing to ADO Wiki.")]
@@ -409,7 +409,7 @@ foreach ($file in $files) {
                 $overrideEnvironmentCategory = $documentationSpec.documentAssignments.documentAllAssignments.overrideEnvironmentCategory 
             }
 
-            # Update overrideEnvironemntCategory where applicable
+            # Update overrideEnvironmentCategory where applicable
             if (!$overrideEnvironmentCategory -eq "") {
                 foreach ($environment in $environmentCategories) {
                     foreach ($category in $overrideEnvironmentCategory.PSObject.Properties) {

@@ -37,7 +37,7 @@ param (
 )
 $InformationPreference = "Continue"
 $mgLists = [ordered]@{
-    $DestinationRootName = @("Platform", "LandingZones", "Decomissioned", "Sandbox")
+    $DestinationRootName = @("Platform", "LandingZones", "Decommissioned", "Sandbox")
     Platform             = @("Identity", "Management", "Connectivity")
     LandingZones         = @("Corp", "Online")
 }

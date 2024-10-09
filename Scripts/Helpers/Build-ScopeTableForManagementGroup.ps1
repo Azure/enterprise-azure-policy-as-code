@@ -118,7 +118,7 @@ function Build-ScopeTableForManagementGroup {
     }
     #endregion recurse down the tree
 
-    #region augment this parents scope's details with this mangement group's details
+    #region augment this parents scope's details with this management group's details
     if ($null -ne $ParentScopeDetails) {
         $parentScopeChildrenTable = $ParentScopeDetails.childrenTable
         $parentScopeResourceGroupsTable = $ParentScopeDetails.resourceGroupsTable
@@ -144,7 +144,7 @@ function Build-ScopeTableForManagementGroup {
             $null = $parentScopeExcludedScopesTable.Add($excludedScope, $excludedScopesTable.$excludedScope)
         }
     }
-    #endregion augment this parents scope's details with this mangement group's details
+    #endregion augment this parents scope's details with this management group's details
 
     return $scopeDetails
 }

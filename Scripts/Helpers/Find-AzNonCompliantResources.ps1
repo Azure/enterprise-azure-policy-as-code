@@ -13,7 +13,7 @@ function Find-AzNonCompliantResources {
     )
     
     Write-Information "==================================================================================================="
-    Write-Information "Retrieve Policy Commpliance List"
+    Write-Information "Retrieve Policy Compliance List"
     Write-Information "==================================================================================================="
     $effectFilter = ""
     if ($PolicyEffectFilter -and $ExcludeManualPolicyEffect) {

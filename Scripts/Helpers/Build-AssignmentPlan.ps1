@@ -33,7 +33,7 @@ function Build-AssignmentPlan {
         Write-Warning "No Policy Assignment files found! Deleting any Policy Assignments."
     }
 
-    # Cache role assognments and definitions
+    # Cache role assignments and definitions
     $deployedPolicyAssignments = $deployedPolicyResources.policyassignments.managed
     $deployedRoleAssignmentsByPrincipalId = $DeployedPolicyResources.roleAssignmentsByPrincipalId
     $deleteCandidates = $deployedPolicyAssignments.Clone()
@@ -330,12 +330,12 @@ function Build-AssignmentPlan {
                     }
                     otherPaC {
                         if ($VerbosePreference -eq "Continue") {
-                            Write-AssignmentDetails -DisplayName $displayName -Scope $shortScope -Prefix "Skipping delete (owened by other PaC):" -IdentityStatus $identityStatus
+                            Write-AssignmentDetails -DisplayName $displayName -Scope $shortScope -Prefix "Skipping delete (owned by other PaC):" -IdentityStatus $identityStatus
                         }
                     }
                     unknownOwner {
                         if ($VerbosePreference -eq "Continue") {
-                            Write-AssignmentDetails -DisplayName $displayName -Scope $shortScope -Prefix "Skipping delete owmed by unknown (strategy $strategy):" -IdentityStatus $identityStatus
+                            Write-AssignmentDetails -DisplayName $displayName -Scope $shortScope -Prefix "Skipping delete owned by unknown (strategy $strategy):" -IdentityStatus $identityStatus
                         }
                     }
                     managedByDfcSecurityPolicies {

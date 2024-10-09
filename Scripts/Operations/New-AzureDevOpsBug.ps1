@@ -78,7 +78,7 @@ else {
     Write-Output "`The '$($ModuleName)' PowerShell module is not yet imported"
     try {
       Import-Module $ModuleName -Force
-      Write-Output "The '$($ModuleName)' PowerShell module has been imported succesfully"
+      Write-Output "The '$($ModuleName)' PowerShell module has been imported successfully"
     }
     catch {
       Write-Error $_
@@ -89,7 +89,7 @@ else {
     try {
       Install-Module -Name $ModuleName -Force
       Import-Module $ModuleName -Force
-      Write-Output "The '$($ModuleName)' PowerShell module has been installed and imported succesfully"
+      Write-Output "The '$($ModuleName)' PowerShell module has been installed and imported successfully"
     }
     catch {
       Write-Error $_
@@ -103,7 +103,7 @@ Write-Output "`nAuthenticate to the '$($ProjectName)' Project located in the '$(
 try {
   Set-VSTeamAccount -Account $OrganizationName -PersonalAccessToken $PersonalAccessToken
   Set-VSTeamDefaultProject -Project $ProjectName
-  Write-Output "Succesfully authenticated to the '$($ProjectName)' Project located in the '$($OrganizationName)' Organization"
+  Write-Output "Successfully authenticated to the '$($ProjectName)' Project located in the '$($OrganizationName)' Organization"
 }
 catch {
   Write-Error $_
@@ -120,7 +120,7 @@ try {
   }
   $uri = "https://dev.azure.com/{0}/{1}/{2}/_apis/work/teamsettings/iterations?api-version=5.1" -f $OrganizationName, $ProjectName, $TeamName
   $iterationPaths = (Invoke-RestMethod -Method Get -Headers $headers -Uri $uri).value
-  Write-Output "Succesfully retrieved the Iterations Paths of the '$($TeamName)' team"
+  Write-Output "Successfully retrieved the Iterations Paths of the '$($TeamName)' team"
 }
 catch {
   Write-Error $_
@@ -160,7 +160,7 @@ Write-Verbose "Add the HTML table to the Repro Steps of the Bug"
 $ReproSteps = @"
 $htmlTable
 "@
-Write-Output "Succesfully created the HTML table that will be included in the Bug"
+Write-Output "Successfully created the HTML table that will be included in the Bug"
 #endregion
 
 #region Create a Bug on the current Iteration of the team
@@ -180,7 +180,7 @@ try {
     'IterationPath'    = $currentIterationPath.path
   }
   Add-VSTeamWorkItem @workItemParams | Out-Null
-  Write-Output "Succesfully created a Bug on the '$($currentIterationPath.name)' Iteration of the '$($TeamName)' team"
+  Write-Output "Successfully created a Bug on the '$($currentIterationPath.name)' Iteration of the '$($TeamName)' team"
 }
 catch {
   Write-Error $_
