@@ -1,0 +1,2498 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://azure.github.io/enterprise-azure-policy-as-code/policy-exemptions/">
+      
+      
+        <link rel="prev" href="../policy-assignments-csv-parameters/">
+      
+      
+        <link rel="next" href="../ci-cd-overview/">
+      
+      
+      <link rel="icon" href="../Images/10316-icon-service-Policy.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.39">
+    
+    
+      
+        <title>Policy Exemptions - Enterprise Policy As Code (EPAC)</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.8c3ca2c6.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#policy-exemptions" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Enterprise Policy As Code (EPAC)" class="md-header__button md-logo" aria-label="Enterprise Policy As Code (EPAC)" data-md-component="logo">
+      
+  <img src="../Images/10316-icon-service-Policy.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Enterprise Policy As Code (EPAC)
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Policy Exemptions
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Azure/enterprise-azure-policy-as-code" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../start-changes/" class="md-tabs__link">
+          
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../settings-global-setting-file/" class="md-tabs__link">
+          
+  
+    
+  
+  Settings and Desired State
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../integrating-with-alz/" class="md-tabs__link">
+          
+  
+    
+  
+  Azure Landing Zones
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../policy-definitions/" class="md-tabs__link">
+          
+  
+    
+  
+  Define Policy Resources
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../ci-cd-overview/" class="md-tabs__link">
+          
+  
+    
+  
+  CI/CD Integration
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../operational-scripts/" class="md-tabs__link">
+          
+  
+    
+  
+  Operational Scripts
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Enterprise Policy As Code (EPAC)" class="md-nav__button md-logo" aria-label="Enterprise Policy As Code (EPAC)" data-md-component="logo">
+      
+  <img src="../Images/10316-icon-service-Policy.svg" alt="logo">
+
+    </a>
+    Enterprise Policy As Code (EPAC)
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Azure/enterprise-azure-policy-as-code" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start-changes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Changes in v10.0.0
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start-implementing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Start Implementation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start-extracting-policy-resources/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Extracting Policy Resources
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start-hydration-kit/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hydration Kit
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start-forking-github-repo/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Forking GitHub Repo
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Settings and Desired State
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Settings and Desired State
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../settings-global-setting-file/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Global Settings
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../settings-desired-state/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Desired State
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../settings-dfc-assignments/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DfC Assignments
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Azure Landing Zones
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Azure Landing Zones
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrating-with-alz/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ALZ Policy Integration
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrating-with-alz-monitor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Azure Monitor Baseline Alerts
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrating-with-slz/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Sovereign Landing Zones
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Define Policy Resources
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Define Policy Resources
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policy-definitions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Policy Definitions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policy-set-definitions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Policy Set Definitions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policy-assignments/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Policy Assignment Files
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policy-assignments-csv-parameters/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CSV Assignment Parameters
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Policy Exemptions
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Policy Exemptions
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#exemption-folder-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exemption Folder Structure
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#json-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      JSON Schema
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defining-exemptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining Exemptions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Defining Exemptions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      Metadata
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#specifying-policy-or-policies-to-be-exempted" class="md-nav__link">
+    <span class="md-ellipsis">
+      Specifying Policy or Policies to be Exempted
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Specifying Policy or Policies to be Exempted">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#option-a-policy-definition-ids-or-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option A: Policy definition Ids or Names
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-b-policy-assignment-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option B: Policy Assignment Id
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-c-policy-set-definition-ids-or-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option C: Policy Set definition Ids or Names
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#specifying-policydefinitionreferenceids" class="md-nav__link">
+    <span class="md-ellipsis">
+      Specifying policyDefinitionReferenceIds
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defining-the-scope-with-scope-or-scopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining the Scope with scope or scopes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Defining the Scope with scope or scopes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scope-defines-a-single-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      scope defines a single scope
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scopes-defines-multiple-scopes-in-a-single-entry" class="md-nav__link">
+    <span class="md-ellipsis">
+      scopes Defines multiple Scopes in a single Entry
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#combining-policy-definitions-at-multiple-scopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Combining Policy Definitions at multiple Scopes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Combining Policy Definitions at multiple Scopes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-with-policydefinition-and-scopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example with policyDefinition and scopes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example with policyDefinition and scopes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#definition-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      Definition file:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generated-fields-for-each-assignment-with-the-policy-specified" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generated fields for each assignment with the Policy specified:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-with-policydefinition-scopes-and-a-human-readable-name" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example with policyDefinition, scopes and a human readable name
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example with policyDefinition, scopes and a human readable name">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#definition-file_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Definition file:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generated-fields-for-each-assignment-with-the-policy-specified_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generated fields for each assignment with the Policy specified:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-with-policydefinition-and-a-single-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example with policyDefinition and a single scope
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example with policyDefinition and a single scope">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#definition-file_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Definition file:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generated-fields-for-the-assignment-with-the-policy-specified" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generated fields for the assignment with the Policy specified:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-with-policyassignmentid-and-scopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example with policyAssignmentId and scopes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example with policyAssignmentId and scopes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#definition-file_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Definition file:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generated-fields-for-this-assignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generated fields for this assignment:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-with-policyassignmentid-scopes-and-a-human-readable-name" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example with policyAssignmentId, scopes and a human readable name
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example with policyAssignmentId, scopes and a human readable name">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#definition-file_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Definition file:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generated-fields-for-this-assignment_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generated fields for this assignment:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-with-policyassignmentid-and-a-single-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example with policyAssignmentId and a single scope
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example with policyAssignmentId and a single scope">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#definition-file_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Definition file:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generated-fields-for-this-assignment_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generated fields for this assignment:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#csv-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      CSV Format
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CSV Format">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regular-columns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Regular Columns
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-a-columns-policy-definition-ids-or-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option A columns: Policy definition Ids or Names
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-b-columns-policy-assignment-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option B columns: Policy Assignment Id
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-c-columns-policy-set-definition-ids-or-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option C columns: Policy Set definition Ids or Names
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#moving-from-excluded-scopes-to-exemptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Moving from Excluded Scopes to Exemptions
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    CI/CD Integration
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            CI/CD Integration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CI/CD Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-app-registrations/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    App Registrations Setup
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-branching-flows/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Branching Flows
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-ado-pipelines/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Azure DevOps Pipelines
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-github-actions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    GitHub Actions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Operational Scripts
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Operational Scripts
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operational-scripts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Scripts Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operational-scripts-documenting-policy/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Documenting Policy
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operational-scripts-hydration-kit/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Hydration Kit
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operational-scripts-reference/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Reference
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#exemption-folder-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exemption Folder Structure
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#json-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      JSON Schema
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defining-exemptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining Exemptions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Defining Exemptions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      Metadata
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#specifying-policy-or-policies-to-be-exempted" class="md-nav__link">
+    <span class="md-ellipsis">
+      Specifying Policy or Policies to be Exempted
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Specifying Policy or Policies to be Exempted">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#option-a-policy-definition-ids-or-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option A: Policy definition Ids or Names
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-b-policy-assignment-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option B: Policy Assignment Id
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-c-policy-set-definition-ids-or-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option C: Policy Set definition Ids or Names
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#specifying-policydefinitionreferenceids" class="md-nav__link">
+    <span class="md-ellipsis">
+      Specifying policyDefinitionReferenceIds
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defining-the-scope-with-scope-or-scopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining the Scope with scope or scopes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Defining the Scope with scope or scopes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scope-defines-a-single-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      scope defines a single scope
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scopes-defines-multiple-scopes-in-a-single-entry" class="md-nav__link">
+    <span class="md-ellipsis">
+      scopes Defines multiple Scopes in a single Entry
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#combining-policy-definitions-at-multiple-scopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Combining Policy Definitions at multiple Scopes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Combining Policy Definitions at multiple Scopes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-with-policydefinition-and-scopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example with policyDefinition and scopes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example with policyDefinition and scopes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#definition-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      Definition file:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generated-fields-for-each-assignment-with-the-policy-specified" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generated fields for each assignment with the Policy specified:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-with-policydefinition-scopes-and-a-human-readable-name" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example with policyDefinition, scopes and a human readable name
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example with policyDefinition, scopes and a human readable name">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#definition-file_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Definition file:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generated-fields-for-each-assignment-with-the-policy-specified_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generated fields for each assignment with the Policy specified:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-with-policydefinition-and-a-single-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example with policyDefinition and a single scope
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example with policyDefinition and a single scope">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#definition-file_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Definition file:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generated-fields-for-the-assignment-with-the-policy-specified" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generated fields for the assignment with the Policy specified:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-with-policyassignmentid-and-scopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example with policyAssignmentId and scopes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example with policyAssignmentId and scopes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#definition-file_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Definition file:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generated-fields-for-this-assignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generated fields for this assignment:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-with-policyassignmentid-scopes-and-a-human-readable-name" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example with policyAssignmentId, scopes and a human readable name
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example with policyAssignmentId, scopes and a human readable name">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#definition-file_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      Definition file:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generated-fields-for-this-assignment_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generated fields for this assignment:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-with-policyassignmentid-and-a-single-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example with policyAssignmentId and a single scope
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example with policyAssignmentId and a single scope">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#definition-file_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      Definition file:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generated-fields-for-this-assignment_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generated fields for this assignment:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#csv-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      CSV Format
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CSV Format">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regular-columns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Regular Columns
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-a-columns-policy-definition-ids-or-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option A columns: Policy definition Ids or Names
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-b-columns-policy-assignment-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option B columns: Policy Assignment Id
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-c-columns-policy-set-definition-ids-or-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      Option C columns: Policy Set definition Ids or Names
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#moving-from-excluded-scopes-to-exemptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Moving from Excluded Scopes to Exemptions
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="policy-exemptions">Policy Exemptions</h1>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>The changes implementing <a href="#option-a-policy-definition-ids-or-names">Option <strong>A</strong> below</a> makes JSON files easier to read than CSV files. We recommend using <strong>Policy definition Ids or Names</strong> for new exemptions and <strong>JSON</strong> files  instead of CSV files. Of course, CSV files are still supported. You may even mix and match the two formats in the same folder.</p>
+</div>
+<h2 id="exemption-folder-structure">Exemption Folder Structure</h2>
+<p>Exemptions can be defined as JSON or CSV files (we recommend that you use CSV files). The names of the definition files don't matter. If multiple files exists in a folder, the lists from all the files are added together.</p>
+<p>The pacEnvironment (see global-settings.jsonc) is represented with a folder structure under the folder policyExemptions, such as epac-dev, tenant, ... A missing folder indicates that the pacEnvironment's Exemptions are not managed by this solution. To extract existing exemptions, the operations script Get-AzExemptions.ps1 can be used to generate JSON and CSV files. The output may be used to start the Exemption definitions. This same output is also created when <a href="epac-extracting-policy-resources.md">Extract existing Policy Resources from an Environment</a>.</p>
+<p>A typical folder structure might look like this:</p>
+<div class="highlight"><pre><span></span><code>Definitions
+  policyExemptions
+    epac-dev
+      &lt;name&gt;.csv of &lt;name&gt;.json
+    tenant
+      &lt;name&gt;.csv of &lt;name&gt;.json
+</code></pre></div>
+<h2 id="json-schema">JSON Schema</h2>
+<p>The GitHub repo contains a JSON schema which can be used in tools such as <a href="https://code.visualstudio.com/Docs/languages/json#_json-schemas-and-settings">VS Code</a> to provide code completion.</p>
+<p>To utilize the schema add a <code>$schema</code> tag to the JSON file.</p>
+<div class="highlight"><pre><span></span><code>{
+  &quot;$schema&quot;: &quot;https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-exemption-schema.json&quot;
+}
+</code></pre></div>
+<h2 id="defining-exemptions">Defining Exemptions</h2>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>In v10.0.0, exemptions can be defined by specifying the Policy definition Ids or Names instead of Policy Assignment Ids. This significantly reduces the complexity of defining exemptions for Policy Sets with overlapping Policy definitions. </p>
+</div>
+<p>Each exemption must define the following properties:</p>
+<ul>
+<li><code>name</code> - unique name, we recommend a short human readable name.</li>
+<li><code>displayName</code> - descriptive name displayed on portal.</li>
+<li><code>exemptionCategory</code> - <code>Waiver</code> or <code>Mitigated</code>.</li>
+<li>Item to exempt; one of the following:</li>
+<li><code>policyDefinitionId</code>, or <code>policyDefinitionName</code> - exempts the Policy definition in all applicable Policy Assignments.</li>
+<li><code>policySetDefinitionId</code>, or <code>policySetDefinitionName</code> - exempts all Policies in the Policy Set, or a subset if <code>policyDefinitionsReferenceIds</code> are specified.</li>
+<li><code>policyAssignmentId</code>to be exempted. For Assignments of a Policy Set, you may add <code>policyDefinitionReferenceIds</code> to exempt specific Policies within the Policy Set.</li>
+<li><code>scope</code> or <code>scopes</code> - Management Group, subscription, Resource Group or resource.</li>
+<li>Optional</li>
+<li><code>expiresOn</code> - empty or expiry date.</li>
+<li><code>assignmentScopeValidation</code> - <code>Default</code> or <code>DoNotValidate</code></li>
+<li><code>resourceSelectors</code> - valid JSON (see JSON format below)</li>
+<li><code>metadata</code> - valid JSON (see JSON format below)</li>
+</ul>
+<h3 id="metadata">Metadata</h3>
+<p>You can use <code>metadata</code> for additional information.</p>
+<p>EPAC injects <code>deployedBy</code> into the <code>metadata</code> section. This is a string that identifies the deployment source. It defaults to <code>epac/$pacOwnerId/$pacSelector</code>. You can override this value in <code>global-settings.jsonc</code></p>
+<p><strong>Not recommended:</strong> Adding <code>deployedBy</code> to the <code>metadata</code> section in the Policy definition file will override the value for this Exemption only from <code>global-settings.jsonc</code> or default value.</p>
+<h2 id="specifying-policy-or-policies-to-be-exempted">Specifying Policy or Policies to be Exempted</h2>
+<p>The following properties can be used to specify the Policy or Policies to be exempted.</p>
+<div class="admonition danger">
+<p class="admonition-title">Caution</p>
+<p><code>assignmentScopeValidation</code> value <code>DoNotValidate</code> only works for Option <strong>B</strong>. It may work for Option <strong>A</strong> and <strong>C</strong> in some cases, but it is not recommended. EPAC cannot gracefully handle this and display a specific error message. Instead, it will display a generic error message with the following text <code>"Exemption entry $($entryNumber): No assignments found for scope $($currentScope), skipping entry."</code>.</p>
+</div>
+<h3 id="option-a-policy-definition-ids-or-names">Option <strong>A</strong>: Policy definition Ids or Names</h3>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>We recommend using this option for new exemptions, except when exempting multiple Policies in a Policy Set.</p>
+</div>
+<p>It creates one exemption per Assignment containing the Policy definition (direct or indirect through a Policy Sets). <code>policyDefinitionReferenceIds</code> must be empty (omitted). This is the simplest and most readable way to define exemptions. Specify one of the following:</p>
+<ul>
+<li><code>policyDefinitionId</code> for built-in Policy definitions in the form <code>"/providers/Microsoft.Authorization/policyDefinitions/00000000-0000-0000-0000-000000000000"</code>.</li>
+<li><code>policyDefinitionName</code> for custom Policy definitions. In CSV files specify the cell in <code>assignmentReferenceId</code> as <code>"policyDefinitions/{{policyDefinitionName}}"</code>.</li>
+</ul>
+<h3 id="option-b-policy-assignment-id">Option <strong>B</strong>: Policy Assignment Id</h3>
+<p>It creates one exemption for the specified Policy Assignment. This is the traditional way of defining an Exemption. It is still useful for exempting multiple Policies in an assigned Policy Set with one exemption. Specify the following:</p>
+<ul>
+<li><code>policyAssignmentId</code> for the Policy Assignment in the form <code>/providers/Microsoft.Management/managementGroups/{{managementGroupId}}/providers/Microsoft.Authorization/policyAssignments/{{policyAssignmentName}}</code>.</li>
+<li>Optionally, for Policy Set Assignments only, <code>policyDefinitionReferenceIds</code> containing an array of <a href="#specifying-policydefinitionreferenceids">strings as detailed below</a>.</li>
+</ul>
+<p>In CSV files, the column <code>policyAssignmentId</code> is still supported for backward compatibility for <strong>Option B</strong> only.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>We recommend using the column <code>assignmentReferenceId</code> for every options, including option <strong>B</strong>.</p>
+</div>
+<h3 id="option-c-policy-set-definition-ids-or-names">Option <strong>C</strong>: Policy Set definition Ids or Names</h3>
+<p>It creates one exemption per Assignment assigning the Policy Set definition. It is useful for exempting multiple Policies in a Policy Set with one exemption. Specify the following:</p>
+<ul>
+<li><code>policySetDefinitionId</code> for built-in Policy Set definitions in the form <code>"/providers/Microsoft.Authorization/policySetDefinitions/00000000-0000-0000-0000-000000000000"</code>.</li>
+<li><code>policySetDefinitionName</code> for custom Policy Set definitions. In CSV files specify the cell in <code>assignmentReferenceId</code> as <code>"policySetDefinitions/{{policySetDefinitionName}}"</code>.</li>
+<li>Optionally, for Policy Set Assignments only, <code>policyDefinitionReferenceIds</code> containing an array of <a href="#specifying-policydefinitionreferenceids">strings as detailed below</a>.</li>
+</ul>
+<p>In CSV files use the column <code>assignmentReferenceId</code>, and optionally <code>policyDefinitionReferenceIds</code>.</p>
+<h3 id="specifying-policydefinitionreferenceids">Specifying <code>policyDefinitionReferenceIds</code></h3>
+<p><code>policyDefinitionReferenceIds</code> is used to exempt specific Policies within a Policy Set. It is only used explicitly with <code>policyAssignmentId</code> and <code>policySetDefinitionId</code> or <code>policySetDefinitionName</code>. For <code>policyDefinitionId</code> and <code>policyDefinitionName</code>, it is calculated by EPAC and should be empty.</p>
+<p><code>policyDefinitionReferenceIds</code> is an array of strings. Each string can be one of the following:</p>
+<ul>
+<li><code>policyDefinitionReferenceId</code> as specified in the Policy Set definition.</li>
+<li><code>policyDefinitionId</code> for built-in Policy definitions in the form <code>"/providers/Microsoft.Authorization/policyDefinitions/00000000-0000-0000-0000-000000000000"</code>.</li>
+<li><code>policyDefinitionName</code> for custom Policy definitions in the form <code>"policyDefinitions/{{policyDefinitionName}}"</code>.</li>
+</ul>
+<p>In CSV files, <code>policyDefinitionReferenceIds</code> is a list of ampersand <code>&amp;</code> separated strings. In JSON files, it is an array of strings.</p>
+<h2 id="defining-the-scope-with-scope-or-scopes">Defining the Scope with <code>scope</code> or <code>scopes</code></h2>
+<p>The <code>scope</code> property is used to define a single scope. The <code>scopes</code> property is used to define multiple scopes. <code>scopes</code> was introduced in v10.1.0.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Using a <code>scopes</code> array creates nicely concatenated values for <code>displayName</code> and <code>description</code> for single scope. We recommend to <strong>always</strong> use <code>scopes</code>. You can suppress the concatenation by adding a colon <code>:</code> at the beginning of each string before the scope.</p>
+</div>
+<h3 id="scope-defines-a-single-scope"><code>scope</code> defines a single scope</h3>
+<p>It is unchanged from previous versions.</p>
+<h3 id="scopes-defines-multiple-scopes-in-a-single-entry"><code>scopes</code> Defines multiple Scopes in a single Entry</h3>
+<p>A list of Management Groups, subscriptions, Resource Groups or resource Ids. In CSV files it is a list separated by an ampersand <code>&amp;</code>. In JSON files it is an array of strings.</p>
+<p>The last part of the scope is used as a postfix in the exemption <code>displayName</code> and <code>description</code> to make it easier to identify the scope. This behavior can be overridden by:</p>
+<ul>
+<li>Adding a human readable name followed by a colon <code>:</code> before the scope: <code>humanReadableName:/subscriptions/11111111-2222-3333-4444-555555555555</code>.</li>
+<li>Adding just a colon <code>:</code> before the scope to suppress the concatenation: <code>:/subscriptions/11111111-2222-3333-4444-555555555555</code>.</li>
+</ul>
+<p>In CSV files, the <code>scope</code> column is still supported for backward compatibility. We recommend using the <code>scopes</code> column for all new exemptions. <code>scopes</code> is a list of ampersand <code>&amp;</code> separated strings.</p>
+<p>In JSON files, <code>scope</code> is a string and <code>scopes</code> is an array of strings.</p>
+<h2 id="combining-policy-definitions-at-multiple-scopes">Combining Policy Definitions at multiple Scopes</h2>
+<p>When using <strong>Option A</strong> or <strong>Option C</strong>  and/or <code>scopes</code>, EPAC needs to generate concatenated values for <code>name</code>, <code>displayName</code>, and <code>description</code> to ensure uniqueness and readability.</p>
+<ul>
+<li><code>name</code> is generated by concatenating the <code>name</code> with a dash <code>-</code> and the Assignment <code>name</code> (the last part of the <code>policyAssignmentId</code>).</li>
+<li><code>displayName</code> and <code>description</code> are generated by concatenating the <code>displayName</code> and <code>description</code> with a a space dash space (<code>-</code>), the last part of the scope, or the human readable name before the colon <code>:</code> (if using <code>scopes</code>).</li>
+</ul>
+<p>It is best to explain the details with examples. They are based on JSON files, but the same principles apply to CSV files.</p>
+<h3 id="example-with-policydefinition-and-scopes">Example with <code>policyDefinition</code> and <code>scopes</code></h3>
+<h4 id="definition-file">Definition file:</h4>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;exemptions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;short-name&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Descriptive name displayed on portal&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;More details&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;exemptionCategory&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Waiver&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;scopes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                  </span><span class="s2">&quot;/subscriptions/11111111-2222-3333-4444-555555555555&quot;</span><span class="p">,</span>
+<span class="w">                  </span><span class="s2">&quot;/subscriptions/11111111-2222-3333-4444-555555555556/resourceGroups/resourceGroupName1&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="p">],</span>
+<span class="w">              </span><span class="nt">&quot;policyDefinitionId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/providers/microsoft.authorization/policyDefinitions/00000000-0000-0000-0000-000000000000&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+</code></pre></div>
+<h4 id="generated-fields-for-each-assignment-with-the-policy-specified">Generated fields for each assignment with the Policy specified:</h4>
+<ul>
+<li><code>name</code> is the same for all the scopes: "short-name-assignmentName"</li>
+<li><code>displayName</code>: "Descriptive name displayed on portal - 11111111-2222-3333-4444-555555555555 - assignmentName"</li>
+<li><code>displayName</code>: "Descriptive name displayed on portal - resourceGroupName1 - assignmentName"</li>
+<li><code>description</code>: "More details - 11111111-2222-3333-4444-555555555555 - assignmentName"</li>
+<li><code>description</code>: "More details - resourceGroupName1 - assignmentName"</li>
+</ul>
+<h3 id="example-with-policydefinition-scopes-and-a-human-readable-name">Example with <code>policyDefinition</code>, <code>scopes</code> and a human readable name</h3>
+<h4 id="definition-file_1">Definition file:</h4>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;exemptions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;short-name&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Descriptive name displayed on portal&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;More details&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;exemptionCategory&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Waiver&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;scopes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                  </span><span class="s2">&quot;humanReadableName:/subscriptions/11111111-2222-3333-4444-555555555555&quot;</span><span class="p">,</span>
+<span class="w">                  </span><span class="s2">&quot;/subscriptions/11111111-2222-3333-4444-555555555556/resourceGroups/resourceGroupName1&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="p">],</span>
+<span class="w">              </span><span class="nt">&quot;policyDefinitionId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/providers/microsoft.authorization/policyDefinitions/00000000-0000-0000-0000-000000000000&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+</code></pre></div>
+<h4 id="generated-fields-for-each-assignment-with-the-policy-specified_1">Generated fields for each assignment with the Policy specified:</h4>
+<ul>
+<li><code>name</code> is the same for all the scopes: "short-name-assignmentName"</li>
+<li><code>displayName</code>: "Descriptive name displayed on portal - humanReadableName - assignmentName - humanReadableName"</li>
+<li><code>displayName</code>: "Descriptive name displayed on portal - resourceGroupName1 - assignmentName "</li>
+<li><code>description</code>: "More details - humanReadableName - assignmentName"</li>
+<li><code>description</code>: "More details - resourceGroupName1 - assignmentName"</li>
+</ul>
+<h3 id="example-with-policydefinition-and-a-single-scope">Example with <code>policyDefinition</code> and a single <code>scope</code></h3>
+<h4 id="definition-file_2">Definition file:</h4>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;exemptions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;short-name&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Descriptive name displayed on portal&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;More details&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;exemptionCategory&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Waiver&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/subscriptions/11111111-2222-3333-4444-555555555555/resourceGroups/resourceGroupName1&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;policyDefinitionId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/providers/microsoft.authorization/policyDefinitions/00000000-0000-0000-0000-000000000000&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+</code></pre></div>
+<h4 id="generated-fields-for-the-assignment-with-the-policy-specified">Generated fields for the assignment with the Policy specified:</h4>
+<ul>
+<li><code>name</code>: "short-name-assignmentName" </li>
+<li><code>displayName</code>: "Descriptive name displayed on portal - assignmentName"</li>
+<li><code>description</code>: "More details - assignmentName"</li>
+</ul>
+<h3 id="example-with-policyassignmentid-and-scopes">Example with <code>policyAssignmentId</code> and <code>scopes</code></h3>
+<h4 id="definition-file_3">Definition file:</h4>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;exemptions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;short-name&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Descriptive name displayed on portal&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;More details&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;exemptionCategory&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Waiver&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;scopes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                  </span><span class="s2">&quot;/subscriptions/11111111-2222-3333-4444-555555555555&quot;</span><span class="p">,</span>
+<span class="w">                  </span><span class="s2">&quot;/subscriptions/11111111-2222-3333-4444-555555555556/resourceGroups/resourceGroupName1&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="p">],</span>
+<span class="w">              </span><span class="nt">&quot;policyAssignmentId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/{{managementGroupId}}/providers/Microsoft.Authorization/policyAssignments/{{policyAssignmentName}}&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+</code></pre></div>
+<h4 id="generated-fields-for-this-assignment">Generated fields for this assignment:</h4>
+<ul>
+<li><code>name</code>: "short-name"</li>
+<li><code>displayName</code>: "Descriptive name displayed on portal - 11111111-2222-3333-4444-555555555555</li>
+<li><code>displayName</code>: "Descriptive name displayed on portal - resourceGroupName1"</li>
+<li><code>description</code>: "More details - 11111111-2222-3333-4444-555555555555"</li>
+<li><code>description</code>: "More details - resourceGroupName1"</li>
+</ul>
+<h3 id="example-with-policyassignmentid-scopes-and-a-human-readable-name">Example with <code>policyAssignmentId</code>, <code>scopes</code> and a human readable name</h3>
+<h4 id="definition-file_4">Definition file:</h4>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;exemptions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;short-name&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Descriptive name displayed on portal&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;More details&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;exemptionCategory&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Waiver&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;scopes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                  </span><span class="s2">&quot;humanReadableName:/subscriptions/11111111-2222-3333-4444-555555555555&quot;</span><span class="p">,</span>
+<span class="w">                  </span><span class="s2">&quot;/subscriptions/11111111-2222-3333-4444-555555555556/resourceGroups/resourceGroupName1&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="p">],</span>
+<span class="w">              </span><span class="nt">&quot;policyAssignmentId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/{{managementGroupId}}/providers/Microsoft.Authorization/policyAssignments/{{policyAssignmentName}}&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+</code></pre></div>
+<h4 id="generated-fields-for-this-assignment_1">Generated fields for this assignment:</h4>
+<ul>
+<li><code>name</code>: "short-name"</li>
+<li><code>displayName</code>: "Descriptive name displayed on portal - humanReadableName"</li>
+<li><code>displayName</code>: "Descriptive name displayed on portal - resourceGroupName1"</li>
+<li><code>description</code>: "More details - humanReadableName"</li>
+<li><code>description</code>: "More details - resourceGroupName1"</li>
+</ul>
+<h3 id="example-with-policyassignmentid-and-a-single-scope">Example with <code>policyAssignmentId</code> and a single <code>scope</code></h3>
+<h4 id="definition-file_5">Definition file:</h4>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;exemptions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;short-name&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Descriptive name displayed on portal&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;More details&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;exemptionCategory&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Waiver&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/subscriptions/11111111-2222-3333-4444-555555555555/resourceGroups/resourceGroupName1&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;policyAssignmentId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/{{managementGroupId}}/providers/Microsoft.Authorization/policyAssignments/{{policyAssignmentName}}&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+</code></pre></div>
+<h4 id="generated-fields-for-this-assignment_2">Generated fields for this assignment:</h4>
+<ul>
+<li><code>name</code>: "short-name"</li>
+<li><code>displayName</code>: "Descriptive name displayed on portal"</li>
+<li><code>description</code>: "More details"</li>
+</ul>
+<h2 id="csv-format">CSV Format</h2>
+<p>The columns must have the headers as described below. The order of the columns is not important.</p>
+<h3 id="regular-columns">Regular Columns</h3>
+<ul>
+<li><code>name</code> - unique name, we recommend a GUID.</li>
+<li><code>displayName</code> - descriptive name displayed on portal.</li>
+<li><code>exemptionCategory</code> - <code>Waiver</code> or <code>Mitigated</code>.</li>
+<li><code>scope</code> - individual Management Group, subscription, Resource Group or resource.</li>
+<li><code>scopes</code> - list of ampersand <code>&amp;</code> separated Management Groups, subscriptions, Resource Groups or resource Ids. Ampersand is used instead of commas since it is not a valid character in a scope name and therefore doesn't conflict.</li>
+<li>Optional</li>
+<li><code>expiresOn</code> - empty or expiry date.</li>
+<li><code>policyDefinitionReferenceIds</code> - list of ampersand <code>&amp;</code> separated <a href="#specifying-policydefinitionreferenceids">strings as defined above</a>.</li>
+<li><code>assignmentScopeValidation</code> - <code>Default</code> or <code>DoNotValidate</code></li>
+<li><code>resourceSelectors</code> - valid JSON (see JSON format below)</li>
+<li><code>metadata</code> - valid JSON (see JSON format below)</li>
+</ul>
+<div class="admonition danger">
+<p class="admonition-title">Caution</p>
+<p>Breaking change: v10.1.0 replaced the usual comma in <code>policyDefinitionReferenceIds</code> with an ampersand <code>&amp;</code> to avoid conflicts with the scope Ids. You must replace in-cell commas with ampersands.</p>
+</div>
+<h3 id="option-a-columns-policy-definition-ids-or-names">Option <strong>A</strong> columns: Policy definition Ids or Names</h3>
+<ul>
+<li>Column <code>assignmentReferenceId</code> must be formatted:</li>
+<li>For Built-in Policy definition: <code>/providers/Microsoft.Authorization/policyDefinitions/00000000-0000-0000-0000-000000000000</code></li>
+<li>For Custom Policy definition: <code>policyDefinitions/{{policyDefinitionName}}</code></li>
+<li>Column <code>policyDefinitionReferenceIds</code> must be empty</li>
+</ul>
+<h3 id="option-b-columns-policy-assignment-id">Option <strong>B</strong> columns: Policy Assignment Id</h3>
+<ul>
+<li>Column <code>assignmentReferenceId</code> must be a Policy Assignment Id:</li>
+<li><code>/providers/Microsoft.Management/managementGroups/{{managementGroupId}}/providers/Microsoft.Authorization/policyAssignments/{{policyAssignmentName}}</code></li>
+<li>Column <code>policyDefinitionReferenceIds</code> must be an ampersand separated list containing any of the following:</li>
+<li>Empty for Policy Assignment of a single Policy, or to exempt the scope from every Policy in the assigned Policy Set</li>
+<li>One of the <a href="#specifying-policydefinitionreferenceids">options as detailed above</a></li>
+</ul>
+<p>Legacy column <code>policyAssignmentId</code> is still supported for backward compatibility for <strong>Option B</strong> only.</p>
+<h3 id="option-c-columns-policy-set-definition-ids-or-names">Option <strong>C</strong> columns: Policy Set definition Ids or Names</h3>
+<ul>
+<li>Column <code>assignmentReferenceId</code> must be a Policy Set definition Id or Name</li>
+<li>Built-in Policy Set definition: <code>/providers/Microsoft.Authorization/policySetDefinitions/00000000-0000-0000-0000-000000000000</code></li>
+<li>Custom Policy Set definition: <code>policySetDefinitions/{{policySetDefinitionName}}</code></li>
+<li>Column <code>policyDefinitionReferenceIds</code> must be an ampersand separated list containing any of the following:</li>
+<li>Empty to exempt all Policies in the Policy Set</li>
+<li>One of the <a href="#specifying-policydefinitionreferenceids">options as detailed above</a></li>
+</ul>
+<h2 id="moving-from-excluded-scopes-to-exemptions">Moving from Excluded Scopes to Exemptions</h2>
+<p>If you are moving from using excluded scopes to the use of exemptions the by default EPAC will not deploy new exemptions that are part of an assignment excluded scopes. As well as this - EPAC will delete any exemption if finds that is deployed to an excluded scope.</p>
+<p>You can override this behavior by using the switch <code>-SkipNotScopedExemptions</code> when you call <code>Build-DeploymentPlans</code>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.indexes", {"navigation.sections": {"level": 1}}, "navigation.tabs", "navigation.tabs.sticky", "content.code.annotate", "content.tabs.link", "content.code.copy"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.525ec568.min.js"></script>
+      
+    
+  </body>
+</html>
