@@ -109,7 +109,7 @@ function Export-AssignmentNode {
                         }
                     }
                     if ($notScopesValue.Count -gt 0) {
-                        $null = $AssignmentNode.Add("notScope", $notScopesValue)
+                        $null = $AssignmentNode.Add("notScopes", $notScopesValue)
                     }
                     break
                 }
