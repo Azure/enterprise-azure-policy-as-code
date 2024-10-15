@@ -56,9 +56,12 @@ jobs:
   nonprodPlan:
     name: Plan nonprod
     needs: [deployPolicy, deployRoles]
+    if: |
+      always()
+      && !contains(needs.*.result,'failure')    
     uses: ./.github/workflows/plan.yml
     with:
-      pacEnvironmentSelector: nonnprod
+      pacEnvironmentSelector: nonprod
       planGitHubEnvironment: NONPROD-PLAN
       PAC_OUTPUT_FOLDER: ./Output
       PAC_DEFINITIONS_FOLDER: ./Definitions
@@ -67,6 +70,9 @@ jobs:
   prodPlan:
     name: Plan prod
     needs: [deployPolicy, deployRoles]
+    if: |
+      always()
+      && !contains(needs.*.result,'failure')
     uses: ./.github/workflows/plan.yml
     with:
       pacEnvironmentSelector: prod

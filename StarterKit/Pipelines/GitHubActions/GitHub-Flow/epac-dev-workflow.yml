@@ -56,6 +56,9 @@ jobs:
   tenantPlan:
     name: Plan tenant
     needs: [deployPolicy, deployRoles]
+    if: |
+      always()
+      && !contains(needs.*.result,'failure')        
     uses: ./.github/workflows/plan.yml
     with:
       pacEnvironmentSelector: tenant
