@@ -44,12 +44,7 @@ function Build-ScopeTableForDeploymentRootScope {
     foreach ($resourceGroup in $resourceGroups) {
         $subscriptionId = $resourceGroup.subscriptionId
         $id = $resourceGroup.id
-        if ($PacEnvironment.desiredState.excludeSubscriptions) {
-            $isExcluded = $true
-        }
-        else {
-            $isExcluded = $false
-        }
+        $isExcluded = $false
         $isInGlobalNotScope = $false
         foreach ($globalNotScope in $PacEnvironment.globalNotScopesResourceGroups) {
             if ($id -like $globalNotScope) {

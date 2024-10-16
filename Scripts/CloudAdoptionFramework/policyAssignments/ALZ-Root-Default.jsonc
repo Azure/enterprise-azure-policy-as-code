@@ -11,8 +11,7 @@
         "logAnalytics_1": "", // Replace with your central Log Analytics workspace ID
         "emailSecurityContact": "", // Security contact email address for Microsoft Defender for Cloud
         "ascExportResourceGroupName": "asc-export", // Resource group to export Microsoft Defender for Cloud data to
-        "ascExportResourceGroupLocation": "", // Location of the resource group to export Microsoft Defender for Cloud data to
-        "createResourceGroup": "true" // A new resource group will be created if set to true for ascExportResourceGroupName
+        "ascExportResourceGroupLocation": "" // Location of the resource group to export Microsoft Defender for Cloud data to
     },
     "children": [
         {
@@ -242,7 +241,7 @@
                     "nonComplianceMessages": [
                         {
                             "policyDefinitionReferenceId": null,
-                            "message": "Trusted Launch must be used on supported virtual machines for enhanced security."
+                            "message": "Trust Launch must be used on supported virtual machines for enhanced security."
                         }
                     ]
                 }

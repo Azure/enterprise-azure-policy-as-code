@@ -27,9 +27,6 @@ function Build-ScopeTableForSubscription {
 
     #region build scope details
     $thisNotScope = $null
-    if ($PacEnvironment.desiredState.excludeSubscriptions) {
-        $IsExcluded = $true
-    }
     if ($null -ne $ParentScopeDetails) {
         # the root node is never not in scope or excluded
         if (!$IsInGlobalNotScope) {

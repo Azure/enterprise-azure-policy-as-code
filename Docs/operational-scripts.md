@@ -38,17 +38,11 @@ The scripts `New-AzureDevOpsBug` and `New-GitHubIssue` create a Bug or Issue whe
 
 ## Export from AzAdvertizer
 
-The script `Export-PolicyToEPAC.ps1` creates for you the policyAssignments, policyDefinitions, and policySetDefinitions based on the provided URL in an Output folder under 'ALZ-Export'.
+The script `Export-AzAdvertizerPolicy.ps1` creates for you the policyAssignments, policyDefinitions, and policySetDefinitions based on the provided URL in an Output folder under 'ALZ-Export'.
 
 Parameters:
 
-* **PolicyDefinitionId**: Mandatory url of the policy or policy set from AzAdvertizer.
-
-* **PolicySetDefinitionId**: Mandatory url of the policy or policy set from AzAdvertizer.
-
-* **ALZPolicyDefinitionId**: Mandatory url of the policy or policy set from AzAdvertizer.
-
-* **ALZPolicySetDefinitionId**: Mandatory url of the policy or policy set from AzAdvertizer.
+* **AzAdvertizerUrl**: Mandatory url of the policy or policy set from AzAdvertizer.
 
 * **OutputFolder**: Output Folder. Defaults to the path 'Output'.
 

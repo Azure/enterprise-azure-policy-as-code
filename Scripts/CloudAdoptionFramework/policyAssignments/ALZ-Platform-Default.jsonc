@@ -272,30 +272,6 @@
                     }
                 }
             ]
-        },
-        {
-            "nodeName": "Networking",
-            "children": [
-                {
-                    "nodeName": "Subnets",
-                    "assignment": {
-                        "name": "Enforce-Snet-Private-PLT",
-                        "displayName": "Subnets should be private",
-                        "description": "Ensure your subnets are secure by default by preventing default outbound access. For more information go to https://aka.ms/defaultoutboundaccessretirement"
-                    },
-                    "definitionEntry": {
-                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/7bca8353-aa3b-429b-904a-9229c4385837",
-                        "displayName": "Subnets should be private",
-                        "nonComplianceMessages": [
-                            {
-                                "policyDefinitionReferenceId": null,
-                                "message": "Subnets should be private."
-                            }
-                        ]
-                    },
-                    "enforcementMode": "DoNotEnforce"
-                }
-            ]
         }
     ]
 }

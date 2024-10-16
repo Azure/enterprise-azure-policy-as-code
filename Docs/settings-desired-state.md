@@ -21,7 +21,6 @@ Desired State strategy enables you to adjust the default behavior to fit more co
   - `excludedPolicySetDefinitions`: An array of Policy Set Definitions to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
   - `excludedPolicyAssignments`: An array of Policy Assignments to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
   - `doNotDisableDeprecatedPolicies`: Automatically set deprecated policies' policy effect to "Disabled". This setting can be used to override that behavior by setting it to `true`. Default is `false`.
-  - `excludeSubscriptions`: Exclude all subscription under the deployment root scope. Designed for environments containing many frequently updated subscriptions that are not requiring management and where using ```excludedScopes``` would be impractical to maintain. If resource groups are added ```excludedScopes``` they will be ignored as this setting will take precedence. It will not effect excluded management group scopes. Default is `false`
 
 The following example shows the `desiredState` element with all properties set:
 
@@ -40,6 +39,7 @@ The following example shows the `desiredState` element with all properties set:
 ## Transitioning to EPAC
 
 While transitioning to EPAC, existing Policy resources may need to be kept. Setting `desiredState` to `ownedOnly` allows EPAC to remove its own resources while preserving instances requiring (temporary) preservation.
+
 
 ```json
 "desiredState": {
@@ -62,7 +62,7 @@ After short transitioning period (weeks), it is recommended to set `desiredState
 > [!WARNING]
 > **Breaking Change in v10.0.0:** Policy Assignments at resource groups are **managed** by EPAC. The element `includeResourceGroups` has been deprecated and removed.
 
-To exclude resource groups from management by EPAC, add an `excludedScopes` array element with a wild card for the subscription and resourceGroups to `desiredState`.
+To exclude resource groups from management by EPAC, add an `excludedScopes` array element with a wild card for the subscription and resourceGroups to `desiredState`. 
 
 ```json
 "desiredState": {
@@ -90,8 +90,8 @@ In some organizations the lifecycle of different parts may be managed separately
 
 EPAC only manages items with a directory in the `Definitions` folder. Therefore, you can use the same `pacOwnerId` from two repos and remove the folders to separate them. In this example:
 
-- Repo1: `Definitions` contains `policyDefinitions`, `policySetDefinitions` and `policyAssignments` folders.
-- Repo2: `Definitions` contains `policyExemptions` folder.
+* Repo1: `Definitions` contains `policyDefinitions`, `policySetDefinitions` and `policyAssignments` folders.
+* Repo2: `Definitions` contains `policyExemptions` folder.
 
 Policy resource that would be defined in the folder. It is important to remove the folders. GitHub repos remove empty folder automatically.
 

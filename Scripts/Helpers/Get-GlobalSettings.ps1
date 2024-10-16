@@ -204,7 +204,6 @@ function Get-GlobalSettings {
                 excludedPolicyDefinitions            = @()
                 excludedPolicySetDefinitions         = @()
                 excludedPolicyAssignments            = @()
-                excludeSubscriptions                 = $false
                 doNotDisableDeprecatedPolicies       = $false
             }
             
@@ -261,7 +260,7 @@ function Get-GlobalSettings {
                             }
                             else {
                                 $null = $excludedScopesList.Add($excludedScope)
-                                if ($excludedScope.StartsWith("/subscriptions/") -and $desired.excludeSubscriptions -eq $false) {
+                                if ($excludedScope.StartsWith("/subscriptions/")) {
                                     if ($excludedScope.Contains("/resourceGroups/", [System.StringComparison]::OrdinalIgnoreCase)) {
                                         $null = $globalExcludedScopesResourceGroupsList.Add($excludedScope)
                                     }
@@ -299,9 +298,6 @@ function Get-GlobalSettings {
                         Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.excludedPolicyAssignments must be an array of strings."
                     }
                     $desiredState.excludedPolicyAssignments = $excluded
-                }
-                if ($desired.excludeSubscriptions) {
-                    $desiredState.excludeSubscriptions = $true
                 }
                 $deleteExpired = $desired.deleteExpiredExemptions
                 if ($null -ne $deleteExpired) {
