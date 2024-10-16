@@ -128,7 +128,7 @@ To deploy the ALZ policies using EPAC follow the steps below.
     New-HydrationDefinitionFolder -DefinitionsRootFolder .\Definitions
     ```
 
-3. Update the `global-settings.json` file in the Definitions folder as described [here](definitions-and-global-settings.md)
+3. Update the `global-settings.json` file in the Definitions folder as described [here](settings-global-setting-file.md)
 
 4. Synchronize the policies from the upstream repository. You should ensure that you are running the latest version of the EPAC module before running this script each time.
 
