@@ -58,18 +58,6 @@
                         "policyId": "/providers/Microsoft.Authorization/policyDefinitions/1a5b4dca-0b6f-4cf5-907c-56316bc1bf3d",
                         "displayName": "AKS HTTPS Access"
                     }
-                },
-                {
-                    "nodeName": "Security",
-                    "assignment": {
-                        "name": "Deploy-AKS-Policy",
-                        "displayName": "Deploy Azure Policy Add-on to Azure Kubernetes Service clusters",
-                        "description": "Use Azure Policy Add-on to manage and report on the compliance state of your Azure Kubernetes Service (AKS) clusters. For more information, see https://aka.ms/akspolicydoc."
-                    },
-                    "definitionEntry": {
-                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/a8eff44f-8c92-45c3-a3fb-9880802d67a7",
-                        "displayName": "Deploy AKS Policy"
-                    }
                 }
             ]
         },
@@ -146,6 +134,25 @@
                             "message": "Web Application Firewall (WAF) must be enabled for Application Gateway."
                         }
                     ]
+                },
+                {
+                    "nodeName": "Subnets",
+                    "assignment": {
+                        "name": "Enforce-Snet-Private-LZ",
+                        "displayName": "Subnets should be private",
+                        "description": "Ensure your subnets are secure by default by preventing default outbound access. For more information go to https://aka.ms/defaultoutboundaccessretirement"
+                    },
+                    "definitionEntry": {
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/7bca8353-aa3b-429b-904a-9229c4385837",
+                        "displayName": "Subnets should be private",
+                        "nonComplianceMessages": [
+                            {
+                                "policyDefinitionReferenceId": null,
+                                "message": "Subnets should be private."
+                            }
+                        ]
+                    },
+                    "enforcementMode": "DoNotEnforce"
                 }
             ]
         },

@@ -61,6 +61,23 @@
             ]
         },
         {
+            "nodeName": "BotServices",
+            "assignment": {
+                "name": "Enforce-GR-BotService",
+                "displayName": "Enforce recommended guardrails for Bot Service",
+                "description": "This initiative assignment enables additional ALZ guardrails for Bot Service."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-BotService",
+                "displayName": "Enforce recommended guardrails for Bot Service"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for Bot Service."
+                }
+            ]
+        },
+        {
             "nodeName": "CogServ",
             "assignment": {
                 "name": "Enforce-GR-CogServ",
