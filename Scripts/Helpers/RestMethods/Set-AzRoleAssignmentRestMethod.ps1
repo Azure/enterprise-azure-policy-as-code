@@ -42,12 +42,15 @@ function Set-AzRoleAssignmentRestMethod {
                 Write-Warning "Role assignment already exists (ignore): $($RoleAssignment.assignmentDisplayName)"
             }     
         }
+        elseif ($statusCode -eq 403 -and $response.content -match "does not have authorization to perform action") {
+            Write-Error "Error, Permissions Issue. Please review permissions for service principal at scope $($RoleAssignment.scope) -- $($response.content)"
+        }
+        elseif ($statusCode -eq 403 -and $response.content -match "has an authorization with ABAC condition that is not fulfilled to perform action") {
+            Write-Error "Error, ABAC Permissions Issue. Please review permissions for service principal at scope $($RoleAssignment.scope) -- $($response.content)"
+        }
         else {
             $content = $response.Content
             Write-Warning "Error, continue deployment: $($statusCode) -- $($content)"
-        }
-        if ($statusCode -eq 403 -and $response.content -match "does not have authorization to perform action") {
-            Write-Error "Error, Permissions Issue. Please review permissions for service principal at scope $($RoleAssignment.scope)"
         }
     }
 }
