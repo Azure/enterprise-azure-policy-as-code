@@ -86,7 +86,10 @@ EPAC has a concept of an environment identified by a string (unique per reposito
   - `pacSelector`: the logical name of the EPAC environment.
   - `cloud`: select cloud environments.
   - `tenantId`: enables multi-tenant scenarios.
-  - `deploymentRootScope`: the deployment scope for Policy and Policy Set definitions. Policy Assignments can only defined at this scope and child scopes (recursive).
+  - `deploymentRootScope`: the deployment scope for Policy and Policy Set definitions. Policy Assignments can only defined at this scope and child scopes (recursive). The format for each scope level is as follows:
+    - Management Group: `/providers/Microsoft.Management/managementGroups/{management-group-name}`
+    - Subscription: `/subscriptions/{subscription-id}`
+    - Resource Group: `/subscriptions/{subscription-id}/resourceGroups/{resource-group-name}`
   - `desiredState`:  defines the desired state strategy.
     - `strategy`: see [Desired State Strategy](settings-desired-state.md).
     - `keepDfcSecurityAssignments`: see [Managing Defender for Cloud Policy Assignments](settings-dfc-assignments.md).
