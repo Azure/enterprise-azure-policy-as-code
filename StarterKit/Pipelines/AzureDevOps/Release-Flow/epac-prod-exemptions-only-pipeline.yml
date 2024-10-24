@@ -6,7 +6,6 @@ variables:
   # Use the plain text name of each service connection as a reference
   planServiceConnection: "sc-epac-plan"
   deployServiceConnection: "sc-epac-prod-deploy"
-  rolesServiceConnection: "sc-epac-prod-roles"
 
   # set the environment selector
   pacEnvironmentSelector: prod
@@ -40,7 +39,6 @@ stages:
     variables:
       PAC_INPUT_FOLDER: "$(Pipeline.Workspace)/plans-${{ variables.pacEnvironmentSelector }}"
       localDeployPolicyChanges: $[stageDependencies.Plan.Plan.outputs['Plan.deployPolicyChanges']]
-      localDeployRoleChanges: $[stageDependencies.Plan.Plan.outputs['Plan.deployRoleChanges']]
     jobs:
       - deployment: DeployPolicy
         displayName: "Deploy Policy Changes"
