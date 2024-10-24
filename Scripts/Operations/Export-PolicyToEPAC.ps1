@@ -93,16 +93,22 @@ Write-Information "" -InformationAction Continue
 
 #region PolicyDefinition
 if ($PolicyDefinitionId) {
+    # Check proper formatting
+    if ($PolicyDefinitionId -notmatch "/providers/") {
+        Write-Error "Policy Definition ID '$($PolicyDefinitionId)' does not match expected format. Example format expected: '/providers/Microsoft.Authorization/policyDefinitions/f0e5abd0-2554-4736-b7c0-4ffef23475ef'"
+        exit 1
+    }
+
     # Pull Built-In Policies
     $builtInPolicies = Get-AzPolicyDefinition -Builtin
     $builtInPolicyNames = $builtInPolicies.name
 
     # Create Policy Definition File
-    if ($PolicySetDefinitionId -match "/") {
-        $policyName = $PolicySetDefinitionId.split("/")[-1]
+    if ($PolicyDefinitionId -match "/") {
+        $policyName = $PolicyDefinitionId.split("/")[-1]
     }
     else {
-        $policyName = $PolicySetDefinitionId
+        $policyName = $PolicyDefinitionId
     }
 
     try {
@@ -112,7 +118,8 @@ if ($PolicyDefinitionId) {
         $policyResponse = Get-AzPolicyDefinition -Id "/providers/Microsoft.Authorization/policyDefinitions/$PolicyDefinitionId" | Select-Object -Property *
     }
     if ($null -eq $policyResponse) {
-        Write-Error "Policy Definition Not Found!"
+        Write-Error "Policy Definition ID '$($PolicyDefinitionId)' Not Found!"
+        exit 1
     }
 
     $policyType = "policyDefinitions"
@@ -168,6 +175,11 @@ if ($PolicyDefinitionId) {
 }
 #region PolicySetDefinition
 elseif ($PolicySetDefinitionId) {
+    # Check proper formatting
+    if ($PolicySetDefinitionId -notmatch "/providers/") {
+        Write-Error "Policy Set Definition ID '$($PolicySetDefinitionId)' does not match expected format. Example format expected: '/providers/Microsoft.Authorization/policySetDefinitions/e20d08c5-6d64-656d-6465-ce9e37fd0ebc'"
+        exit 1
+    }
     # Pull Built-In Policies and Policy Sets
     $builtInPolicies = Get-AzPolicyDefinition -Builtin
     $builtInPolicyNames = $builtInPolicies.name
@@ -189,7 +201,8 @@ elseif ($PolicySetDefinitionId) {
         $policyResponse = Get-AzPolicySetDefinition -Id "/providers/Microsoft.Authorization/policySetDefinitions/$PolicySetDefinitionId" | Select-Object -Property *
     }
     if ($null -eq $policyResponse) {
-        Write-Error "Policy Definition Not Found!"
+        Write-Error "Policy Set Definition ID '$($PolicySetDefinitionId)' Not Found!"
+        exit 1
     }
 
     $policyType = "policySetDefinitions"
@@ -206,6 +219,12 @@ elseif ($PolicySetDefinitionId) {
             "parameters"                  = $tempParam
             "groupNames"                  = "$($policyDef.groupNames)"
         }
+        if ( $orderedPolicyDefinitions.definitionVersion -eq "") {
+            $orderedPolicyDefinitions.Remove('definitionVersion')
+        }
+        if ( $orderedPolicyDefinitions.groupNames -eq "") {
+            $orderedPolicyDefinitions.Remove('groupNames')
+        }
         $policyDefinitionArray += $orderedPolicyDefinitions
     }
     $orderedPolicy = [ordered]@{
@@ -216,6 +235,9 @@ elseif ($PolicySetDefinitionId) {
         "parameters"             = $policyResponse.parameter
         "policyDefinitions"      = $policyDefinitionArray
         "policyDefinitionGroups" = $policyResponse.PolicyDefinitionGroup
+    }
+    if ( $null -eq $orderedPolicy.policyDefinitionGroups) {
+        $orderedPolicy.Remove('policyDefinitionGroups')
     }
     $policyObject = [ordered]@{
         "`$schema"   = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-set-definition-schema.json"
@@ -356,6 +378,10 @@ elseif ($ALZPolicyDefinitionId) {
     $policyName = $ALZPolicyDefinitionId
     $policyType = "policyDefinitions"
     $policyResponse = $alzHash[$ALZPolicyDefinitionId]
+    if ($null -eq $policyResponse) {
+        Write-Error "ALZ Policy Definition ID '$($ALZPolicyDefinitionId)' Not Found!"
+        exit 1
+    }
     $policyDisplayName = $policyResponse.displayName
     $policyDescription = $policyResponse.description
     $policyBuiltInType = $policyResponse.policyType
@@ -469,6 +495,10 @@ elseif ($ALZPolicySetDefinitionId) {
     $policyName = $ALZPolicySetDefinitionId
     $policyType = "policySetDefinitions"
     $policyResponse = $alzSetHash[$ALZPolicySetDefinitionId]
+    if ($null -eq $policyResponse) {
+        Write-Error "ALZ Policy Set Definition ID '$($ALZPolicySetDefinitionId)' Not Found!"
+        exit 1
+    }
     $policyDisplayName = $policyResponse.displayName
     $policyDescription = $policyResponse.description
     $policyBuiltInType = $policyResponse.policyType
@@ -482,6 +512,12 @@ elseif ($ALZPolicySetDefinitionId) {
             "parameters"                  = $tempParam
             "groupNames"                  = "$($policyDef.groupNames)"
         }
+        if ( $orderedPolicyDefinitions.definitionVersion -eq "") {
+            $orderedPolicyDefinitions.Remove('definitionVersion')
+        }
+        if ( $orderedPolicyDefinitions.groupNames -eq "") {
+            $orderedPolicyDefinitions.Remove('groupNames')
+        }
         $policyDefinitionArray += $orderedPolicyDefinitions
     }
     $orderedPolicy = [ordered]@{
@@ -492,6 +528,9 @@ elseif ($ALZPolicySetDefinitionId) {
         "parameters"             = $policyResponse.parameters
         "policyDefinitions"      = $policyDefinitionArray
         "policyDefinitionGroups" = $policyResponse.PolicyDefinitionGroups
+    }
+    if ( $null -eq $orderedPolicy.policyDefinitionGroups) {
+        $orderedPolicy.Remove('policyDefinitionGroups')
     }
     $policyObject = [ordered]@{
         "`$schema"   = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-set-definition-schema.json"
@@ -611,7 +650,7 @@ elseif ($ALZPolicySetDefinitionId) {
     }
 }
 else {
-    Write-Error "Export-PolicyToEPAC requires at least one of the following: PolicyDefinitionId, PolicySetDefinitionId!"
+    Write-Error "Export-PolicyToEPAC requires at least one of the following: PolicyDefinitionId, PolicySetDefinitionId, ALZPolicyDefinitionId or ALZPolicySetDefinitionId!"
 }
 
 
