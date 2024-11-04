@@ -1,7 +1,7 @@
 name: Sync ALZ Policy Objects
 
 env:
-  REVIEWER: anwather # Change this to your GitHub username
+  REVIEWER: Rod-Welsh # Change this to your GitHub username
   DefinitionsRootFolder: Definitions # Change this to the folder where your policy definitions are stored
 
 on:
