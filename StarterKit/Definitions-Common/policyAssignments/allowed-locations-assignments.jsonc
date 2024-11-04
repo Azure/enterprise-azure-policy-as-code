@@ -12,7 +12,7 @@
     },
     "parameters": {
         "AllowedLocations": [
-            "eastus2"
+            "australiaeast", "australiasoutheast"
         ]
     },
     "scope": {
