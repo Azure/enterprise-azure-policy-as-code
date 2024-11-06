@@ -20,7 +20,7 @@ Output Folder. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER or './Ou
 
 #### `-WindowsNewLineCells [<SwitchParameter>]`
 
-Formats CSV multi-object cells to use new lines and saves it as UTF-8 with BOM - works only fro Excel in Windows. Default uses commas to separate array elements within a cell
+Formats CSV multi-object cells to use new lines and saves it as UTF-8 with BOM - works only for Excel in Windows. Default uses commas to separate array elements within a cell
 
 #### `-Interactive <Boolean>`
 
@@ -28,7 +28,7 @@ Set to false if used non-interactive
 
 #### `-SuppressConfirmation [<SwitchParameter>]`
 
-Suppresses prompt for confirmation to delete existing file in interactive mode
+Suppresses prompt for confirmation to delete an existing file in interactive mode
 
 #### `-IncludeManualPolicies [<SwitchParameter>]`
 
@@ -77,14 +77,17 @@ Filter by Policy Assignment names (array) or ids (array).
 Filter by Policy effect (array).
 
 #### `-NoWait [<SwitchParameter>]`
+Indicates that the script should not wait for the remediation tasks to complete.
 
 #### `-WhatIf [<SwitchParameter>]`
+Simulates the actions of the command without actually performing them. Useful for testing.
 
 #### `-Confirm [<SwitchParameter>]`
+Prompts for confirmation before executing the command.
 
 ## Script `New-AzureDevOpsBug`
 
-Creates a Bug on the current Iteration of a team when one or multiple Remediation Tasks failed. The Bug is formatted as an HTML table and contains information on the name and Url properties. As a result, the team can easily locate and resolve the Remediation Tasks that failed.
+Creates a Bug on the current Iteration of a team when one or multiple Remediation Tasks fail. The Bug is formatted as an HTML table and contains information on the name and URL properties. As a result, the team can easily locate and resolve the Remediation Tasks that failed.
 
 ```ps1
 New-AzureDevOpsBug [-FailedPolicyRemediationTasksJsonString] <String> [-ModuleName] <String> [-OrganizationName] <String> [-ProjectName] <String> [-PersonalAccessToken] <String> [-TeamName] <String> [<CommonParameters>]
@@ -118,7 +121,7 @@ Specifies the name of the Azure DevOps team.
 
 ## Script `New-GitHubIssue`
 
-Creates an Issue in a GitHub Repository that is located under a GitHub Organization when one or multiple Remediation Tasks failed. The Bug is formatted as an HTML table and contains information on the name and Url properties. As a result, the team can easily locate and resolve the Remediation Tasks that failed.
+Creates an Issue in a GitHub Repository that is located under a GitHub Organization when one or multiple Remediation Tasks fail. The Bug is formatted as an HTML table and contains information on the name and URL properties. As a result, the team can easily locate and resolve the Remediation Tasks that failed.
 
 ```ps1
 New-GitHubIssue [-FailedPolicyRemediationTasksJsonString] <String> [-OrganizationName] <String> [-RepositoryName] <String> [-PersonalAccessToken] <String> [<CommonParameters>]
@@ -182,10 +185,10 @@ File extension type for the output files. Defaults to '.jsonc'.
 
 Operating mode:
 
-- `export` exports EPAC environments in EPAC format, should be used with -Interactive $true in a multi-tenant scenario, or use with an inputPacSelector to limit the scope to one EPAC environment.
+- `export` exports EPAC environments in EPAC format, which should be used with -Interactive $true in a multi-tenant scenario, or used with an inputPacSelector to limit the scope to one EPAC environment.
 - `collectRawFile` exports the raw data only; Often used with 'inputPacSelector' when running non-interactive in a multi-tenant scenario to collect the raw data once per tenant into a file named after the EPAC environment
 - `exportFromRawFiles` reads the files generated with one or more runs of b) and outputs the files the same as normal 'export'.
-- `exportRawToPipeline` exports EPAC environments in EPAC format, should be used with `-Interactive` $true in a multi-tenant scenario, or use with an inputPacSelector to limit the scope to one EPAC environment.
+- `exportRawToPipeline` exports EPAC environments in EPAC format, which should be used with `-Interactive` $true in a multi-tenant scenario, or used with an inputPacSelector to limit the scope to one EPAC environment.
 - `psrule` exports EPAC environment into a file which can be used to create policy rules for PSRule for Azure
 
 #### `-InputPacSelector <String>`
@@ -291,7 +294,7 @@ Set to false if used non-interactive
 
 #### `-FileExtension <String>`
 
-File extension type for the output files. Valid values are json and jsonc. Defaults to json.
+File extension type for the output files. Valid values are json or jsonc. The default output file is json.
 
 #### `-ActiveExemptionsOnly [<SwitchParameter>]`
 
@@ -333,7 +336,7 @@ Get-AzPolicyAliasOutputCSV [<CommonParameters>]
 
 ## Script `New-AzPolicyReaderRole`
 
-Creates a custom role 'Policy Reader' that provides read access to all Policy resources for the purpose of planning the EPAC deployments.
+Creates a custom role 'Policy Reader' that provides read access to all Policy resources to plan the EPAC deployments.
 
 ```ps1
 New-AzPolicyReaderRole [[-PacEnvironmentSelector] <String>] [-DefinitionsRootFolder <String>] [-Interactive <Boolean>] [<CommonParameters>]
@@ -373,7 +376,7 @@ The folder path to create the definitions root folder (./Definitions)
 
 ## Script `New-EpacGlobalSettings`
 
-Creates a global-settings.jsonc file with a new guid, managed identity location and tenant information
+Creates a global-settings.jsonc file with a new GUID, managed identity location and tenant information
 
 ```ps1
 New-EpacGlobalSettings [-ManagedIdentityLocation] <String> [-TenantId] <String> [-DefinitionsRootFolder] <String> [-DeploymentRootScope] <String> [<CommonParameters>]
