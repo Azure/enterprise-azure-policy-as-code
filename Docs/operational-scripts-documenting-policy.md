@@ -2,10 +2,10 @@
 
 ## Overview
 
-The Documentation feature provides reports on Policy Assignments deployed within an environment, and comparisons of Policy Assignments and Sets of Policy Set definitions for considering differences in policies and effects.  Output is generated as Markdown (`.md`), and Excel (`.csv`) files. with script [`./Scripts/Operations/Build-PolicyDocumentation`](operational-scripts-reference.md#script-build-policydocumentation) It retrieves its instruction from the JSON files in this folder; the names of the definition JSON files don't matter as the script reads any file in the folder with a `.json` and `.jsonc` extension.
+The Documentation feature provides reports on Policy Assignments deployed within an environment, and comparisons of Policy Assignments and Sets of Policy Set definitions for considering differences in policies and effects.  Output is generated as Markdown (`.md`), and Excel (`.csv`) files using the script [`./Scripts/Operations/Build-PolicyDocumentation`](operational-scripts-reference.md#script-build-policydocumentation) It retrieves its instruction from the JSON files in this folder; the names of the definition JSON files don't matter as the script reads any file in the folder with a `.json` or `.jsonc` extension.
 
-* Read and process Policy Assignments which are representative of an environment category, such as prod, test, dev, and sandbox. It generates Markdown (`.md`), and Excel (`.csv`) files.
-* Read and process Policy Sets to compare them for Policy and effect overlap. It generates Markdown (`.md`), Excel (`.csv`) files, and JSON file (`.jsonc`).
+* Policy Assignments: Read and process Policy Assignments which are representative of an environment category, such as prod, test, dev, and sandbox. It generates Markdown (`.md`), and Excel (`.csv`) files.
+* Policy Sets: Read and process Policy Sets to compare them for Policy and effect overlap. It generates Markdown (`.md`), Excel (`.csv`) files, and JSON file (`.jsonc`).
 
 ## JSON Schema
 
@@ -23,7 +23,7 @@ This schema is new in v7.4.x and may not be complete. Please let us know if we m
 
 ## Example Documentation Specification File using 'documentAllAssignments'
 
-Each file must contain one or both documentation topics. This example file in the StarterKit has both topics. Element `pacEnvironment` references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the custom Policies and Policy Sets are deployed.
+Each file must contain one or both documentation topics. This example file in the StarterKit has both topics. The element `pacEnvironment` references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the custom Policies and Policy Sets are deployed.
 
 * [`documentAssignments`](#assignment-documentation)
 * [`documentPolicySets`](#policy-set-documentation)
@@ -106,7 +106,7 @@ Each file must contain one or both documentation topics. This example file in th
 
 ## Example Documentation Specification File using 'environmentCategories'
 
-Each file must contain one or both documentation topics. This example file in the StarterKit has both topics. Element `pacEnvironment` references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the custom Policies and Policy Sets are deployed.
+Each file must contain one or both documentation topics. This example file in the StarterKit has both topics. The element `pacEnvironment` references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the custom Policies and Policy Sets are deployed.
 
 * [`documentAssignments`](#assignment-documentation)
 * [`documentPolicySets`](#policy-set-documentation)
@@ -226,12 +226,12 @@ Each file must contain one or both documentation topics. This example file in th
 
 ## Modifying the Markdown Output
 
-Markdown processors vary slightly. This shipt has settings to tune the output to match the Markdown processor you are using.
+Markdown processors vary slightly. This script has settings to tune the output to match the Markdown processor you are using.
 
 ### Azure DevOps Wiki Markdown
 
-* Some Markdown processors (including Azure DevOps Wikis) recognize `[[_TOC_]]` to insert a table of contents. Setting to `markdownAddToc` to `true` enables generating the table of content.
-* Azure DevOps Wikis do not need a heading (title) at level 1. It needs the subheadings at level 1 instead. Setting `markdownAdoWiki` to true enables formatting the headings for Azure DevOps Wiki and generating the table of content (implicitly sets `markdownAddToc` to `true`).
+* Some Markdown processors (including Azure DevOps Wikis) recognize `[[_TOC_]]` to insert a table of contents. Setting to `markdownAddToc` to `true` enables generating the table of contents.
+* Azure DevOps Wikis do not need a heading (title) at level 1. It needs the subheadings at level 1 instead. Setting `markdownAdoWiki` to true enables formatting the headings for Azure DevOps Wiki and generating the table of contents (implicitly sets `markdownAddToc` to `true`).
 
 ```jsonc
 "markdownAddToc": true, // default is false, set to true to add a table of contents
@@ -243,15 +243,15 @@ Markdown processors vary slightly. This shipt has settings to tune the output to
 
 ### Automating Azure DevOps Wiki Markdown
 
-* EPAC can be used to automate the population of your Azure DevOps Wiki pages with the generated markdown files. To do this, you must call "Build-PolicyDocumentation" with the parameter "WikiClonePat". The value of the parameter should be the name of the Personal Access Token (PAT) set in your pipeline variable. Example:
+* EPAC can be used to automate the population of your Azure DevOps Wiki pages with the generated markdown files. To do this, you must call "Build-PolicyDocumentation" with the parameter "WikiClonePat". The parameter's value should be the name of the Personal Access Token (PAT) set in your pipeline variable. Example:
 
 ```
 Build-PolicyDocumentation.ps1 -WikiClonePat $(WikiClonePat)
 ```
 
-* This PAT only requires "Read & write" permissions for "Code", as it will modify and push these markdown files to your Wiki. For more information please see ["Azure DevOps: Use personal access tokens"](https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows)
+* This PAT only requires "Read & write" permissions for "Code", as it will modify and push these markdown files to your Wiki. For more information, please see ["Azure DevOps: Use personal access tokens"](https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows)
 
-* In order for your EPAC to reach your Wiki, you must configure the "markdownAdoWikiConfig" property within your policy documentation file.
+* To ensure your EPAC reaches your Wiki, you must configure the "markdownAdoWikiConfig" property within your policy documentation file.
   * **adoOrganization**: Name of your ADO Organization
   * **adoProject**: Name of your ADO Project
   * **adoWiki**: Name of your Wiki (If Wiki was not manually set up, it will be created for you based on the name given here)
@@ -284,7 +284,7 @@ Policy definition group names are not included in Markdown to reduce clutter. Yo
 "markdownIncludeComplianceGroupNames": true, // default is false, set to true to include compliance group names
 ```
 
-In some markdown processors very long parameter name break the display. You can set `markdownSuppressParameterSection` to true to completely suppress the parameter section in the Markdown output.
+In some markdown processors, very long parameter names break the display. You can set `markdownSuppressParameterSection` to true to completely suppress the parameter section in the Markdown output.
 
 ```jsonc
 "markdownSuppressParameterSection": true, // default is false, set to true to suppress the parameter section in the Markdown output
@@ -307,10 +307,10 @@ When enabled, this section lists all Policy Assignments across all scopes where 
 `documentAllAssignments` entry specifies:
 
 * `pacEnvironment`: references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the Policies and Policy Sets are deployed.
-* `fileNameStemPrefix`: add a prefix to the fileNameStem set in "documentationSpecifications". Useful when needing to avoid overwriting of files.
-* `skipPolicyAssignments`: list of Policy Assignment ID's used to define Policy Assignments that do not want to included in the output.
-* `skipPolicyDefinitions`: list of Policy Definition and Policy Set ID's used to define Policy Assignments that do not want to included in the output.
-* `overrideEnvironmentCategory`: list of custom defined Environment Categories that will overwrite the auto-generated values. By default, all Policy Assignment scopes are treated as an individual "Environment Category", therefore leverage this section to override these Environment Categories and create custom groupings. (For an example see [`Example Documentation Specification File using 'documentAllAssignments'`](#example-documentation-specification-file-using-documentallassignments))
+* `fileNameStemPrefix`: add a prefix to the fileNameStem set in "documentationSpecifications". Useful when needing to avoid overwriting files.
+* `skipPolicyAssignments`: list of Policy Assignment ID's used to define Policy Assignments that do not want to be included in the output.
+* `skipPolicyDefinitions`: list of Policy Definition and Policy Set ID's used to define Policy Assignments that do not want to be included in the output.
+* `overrideEnvironmentCategory`: list of custom-defined Environment Categories that will overwrite the auto-generated values. By default, all Policy Assignment scopes are treated as an individual "Environment Category", therefore leverage this section to override these Environment Categories and create custom groupings. (For an example see [`Example Documentation Specification File using 'documentAllAssignments'`](#example-documentation-specification-file-using-documentallassignments))
 
 ### Element `documentationSpecifications`
 
@@ -324,7 +324,7 @@ Each entry in the array defines a set of outputs:
 
 Best used when specific Policy Assignments need to be documented.
 
-For any given environment category, such as `prod`, `test`, `dev`, this section lists Policy Assignments which are representative for those environments. In many organizations, the same Policies and effects are applied to multiple Management Groups and even Azure tenants with the parameters consistent by environment category.
+For any given environment category, such as `prod`, `test`, `dev`, this section lists Policy Assignments which are representative of those environments. In many organizations, the same Policies and effects are applied to multiple Management Groups and even Azure tenants with the parameters consistent by environment category.
 
 Each `environmentCategories` entry specifies:
 
@@ -348,25 +348,25 @@ Each entry in the array defines a set of outputs:
     | Column | Description |
     | :----- | :---------- |
     | `name` | Policy name (must be unique - a GUID for built-in Policies)
-    | `referencePath` | Disambiguate Policies included multiple times in an Policy Set definition with different `referenceId`s. It is blank if not needed or formatted as `<policy-set.name>\\<referenceId>`.
+    | `referencePath` | Disambiguate Policies included multiple times in a Policy Set definition with different `referenceId`s. It is blank if not needed or formatted as `<policy-set.name>\\<referenceId>`.
     | `category` | Policy `category` from Policy `metadata`.
     | `displayName` |
     | `description` |
     | `groupNames` | Union of (compliance Policy Sets) `groupNames` for this Policy.
-    | `allowedEffects` | List of allowed Policy `effect`s. **Note:** Some Policy Sets may have hard coded the effect which is not represented here.
+    | `allowedEffects` | List of allowed Policy `effect`s. **Note:** Some Policy Sets may have hardcoded the effect which is not represented here.
     | `<environmentCategory>_Effect` | One column per `environmentCategory` listing the highest enforcement level across the Policy Sets assigned in this environment category.
     | `<environmentCategory>_Parameters` | One column per `environmentCategory` listing the parameters (JSON - excluding the effect parameter) for this Policy and `environmentCategory`.
-    | `<environmentCategory>-`<br/>`<policy-set-short name>-Effect` | Detailed effect per `environmentCategory` **and** Policy Set. The next table shows examples for the different pattern for this value. An actual document will reflect the actual value in your environment.
+    | `<environmentCategory>-`<br/>`<policy-set-short name>-Effect` | Detailed effect per `environmentCategory` **and** Policy Set. The next table shows examples of the different patterns for this value. An actual document will reflect the actual value in your environment.
     | `<policy-set-short name>-ParameterDefinitions` | Parameter definitions (JSON) per Policy Set containing this Policy.
 
-    Examples for effects:
+    Examples of effects:
 
     | Value | Description |
     | :---- | :---------- |
-    | `Deny (assignment: secretsExpirationSetEffect)` | Effect is `Deny` specified in a user defined value for parameter `secretsExpirationSetEffect`
+    | `Deny (assignment: secretsExpirationSetEffect)` | Effect is `Deny` specified in a user-defined value for parameter `secretsExpirationSetEffect`
     | `Audit (default: useRbacRulesMonitoringEffect)` | Effect is `Audit` default value for Policy Set parameter `useRbacRulesMonitoringEffect`.
-    | `Audit (Initiative Fixed)` | Effect is parameterized in Policy definition. Policy Set definition is setting it to a fixed value of `Audit`.
-    | `Audit (Policy Default)` | Effect is parameterized in Policy definition with default value of `Audit`. The Policy Set definition does not override or surface this value.
+    | `Audit (Initiative Fixed)` | Effect is parameterized in the Policy definition. Policy Set definition is setting it to a fixed value of `Audit`.
+    | `Audit (Policy Default)` | Effect is parameterized in Policy definition with a default value of `Audit`. The Policy Set definition does not override or surface this value.
     | `Modify (Policy Fixed)` | Effect is **not** parameterized in Policy definition. It is set to a fixed value of `Modify`.
 
 * `<fileNameStem>-parameters.csv`: This file is intended **for a future enhancement** to EPAC which will allow the effect values and parameter values to be specified in a spreadsheet instead of JSON. This file is generated to make it usable as the starting list, or to round-trip the values. It lists Policies across environments and Initiatives sorted by `category` and ``displayName`. Columns (see above for descriptions):
@@ -380,9 +380,9 @@ Each entry in the array defines a set of outputs:
   * `<environmentCategory>_Effect`
   * `<environmentCategory>_Parameters`
 
-* `<fileNameStem>-summary.md`: This Markdown file is intended for developers for a quick overview of the effects and parameters in place for each `environmentCategory`. It does not provide details about the individual Initiatives assigned. It is equivalent to `<fileNameStem>-parameters.csv`. The Policies are sorted by `category` and ``displayName`. Each`environmentCategory` column shows the current enforcement level in bold. If the value is fixed, the value is also in italics. If it is parametrized, the other allowed values are shown in italics.
+* `<fileNameStem>-summary.md`: This Markdown file is intended for developers for a quick overview of the effects and parameters in place for each `environmentCategory`. It does not provide details about the individual Initiatives assigned. It is equivalent to `<fileNameStem>-parameters.csv`. The Policies are sorted by `category` and `displayName`. Each `environmentCategory` column shows the current enforcement level in bold. If the value is fixed, the value is also in italics. If it is parametrized, the other allowed values are shown in italics.
 
-* `<fileNameStem>-full.md`: This Markdown file is intended for security teams requiring more details about the Assignments and Policies. It displays the same information as the summary plus the additional details equivalent to `<fileNameStem>-full.csv`. The Policies are sorted by `category` and ``displayName`. Each`environmentCategory` column shows the current enforcement level in bold. If the value is fixed, the value is also in italics. If it is parametrized, the other allowed values are shown in italics. The additional details are:
+* `<fileNameStem>-full.md`: This Markdown file is intended for security teams requiring more details about the Assignments and Policies. It displays the same information as the summary plus the additional details equivalent to `<fileNameStem>-full.csv`. The Policies are sorted by `category` and `displayName`. Each `environmentCategory` column shows the current enforcement level in bold. If the value is fixed, the value is also in italics. If it is parametrized, the other allowed values are shown in italics. The additional details are:
   * Group Names
   * Effects per `environmentCategory` and Policy Set with additional details on the origin of the effect.
 
