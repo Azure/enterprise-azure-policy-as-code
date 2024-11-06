@@ -12,7 +12,7 @@ To address the problem of reading and maintaining hundreds or thousands of JSON 
 
 ### From a list of Policy Sets
 
-[Generating documentation for one or more Policy Sets](operational-scripts-documenting-policy.md#policy-set-documentation), then modify the effect and parameter columns for each type of environment types you will use.
+[Generating documentation for one or more Policy Sets](operational-scripts-documenting-policy.md#policy-set-documentation), then modify the effect and parameter columns for each environment type you will use.
 
 ### From a list of deployed Policy Assignments
 
@@ -29,7 +29,7 @@ The CSV file generated contains the following headers/columns:
 * `policyType`,`category`,`displayName`,`description`,`groupNames`,`policySets`,`allowedEffects` are optional and not used for deployment planning. They assist you in filling out the `<env>Effect` columns. The CSV file is sorted alphabetically by `category` and `displayName`.
 * `<env>Effect` columns must contain one of the allowedValues or allowedOverrides values. You define which scopes define each type of environment and what short name you give the environment type to use as a column prefix.
 * `<env>Parameters` can contain additional parameters. You can also specify such parameters in JSON. EPAC will use the union of all parameters.
-* `nonComplianceMessages` column is optional. The documentation script does not generate this columns.
+* `nonComplianceMessages` column is optional. The documentation script does not generate this column.
 
 > [!NOTE]
 > Additional columns are allowed and ignored by EPAC.
@@ -119,11 +119,11 @@ For the next Policy Set in the `definitionEntryList` that contains the same Poli
 
 ## Updating the CSV File
 
-Policy Set definitions for builtin or custom Policy Sets are sometimes updated. When this happens, the CSV file must be updated to reflect the changes. EPAC display a Warning  when this happens.
+Policy Set definitions for built-in or custom Policy Sets are sometimes updated. When this happens, the CSV file must be updated to reflect the changes. EPAC displays a Warning  when this happens.
 
 ### Policy Removed (Policy from Row in the CSV File is not used in any Policy Set)
 
-If a Policy is removed from every Policy Sets, remove the row from the spreadsheet or regenerate the CSV file from the deployed Policy Assignments.
+If a Policy is removed from every Policy Set, remove the row from the spreadsheet or regenerate the CSV file from the deployed Policy Assignments.
 
 ### Policy Added (Policy Entry is missing in the CSV file)
 
