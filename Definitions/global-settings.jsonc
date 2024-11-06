@@ -1,35 +1,3 @@
 {
-    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/global-settings-schema.json",
-    "pacOwnerId": "c7e56ed6-b250-4538-8b4b-264e2af55fad",
-    "pacEnvironments": [
-        {
-            "pacSelector": "epac-dev",
-            "cloud": "AzureCloud",
-            "tenantId": "12ba85d3-62c8-4651-b698-e82c9e975f71",
-            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/mg-welsh-org-epac",
-            "desiredState": {
-                "strategy": "full",
-                "keepDfcSecurityAssignments": false,
-                "doNotDisableDeprecatedPolicies": false
-            },
-            "skipResourceValidationForExemptions": false,
-            "managedIdentityLocation": "australiaeast"
-        },
-        {
-            "pacSelector": "tenant",
-            "cloud": "AzureCloud",
-            "tenantId": "12ba85d3-62c8-4651-b698-e82c9e975f71",
-            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/mg-welsh-org-prd",
-            "desiredState": {
-                "strategy": "full",
-                "keepDfcSecurityAssignments": false,
-                "doNotDisableDeprecatedPolicies": false
-            },
-            "skipResourceValidationForExemptions": false,
-            "managedIdentityLocation": "australiaeast",
-            "globalNotScopes": [
-                "/providers/Microsoft.Management/managementGroups/mg-Epac-Dev"
-            ]
-        }
-    ]
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/global-settings-schema.json"
 }
