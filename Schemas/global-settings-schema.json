@@ -113,6 +113,9 @@
                                             "type": "string"
                                         }
                                     ]
+                                },
+                                "excludeSubscriptions": {
+                                    "type": "boolean"
                                 }
                             },
                             "additionalProperties": false,
