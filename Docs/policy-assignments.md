@@ -1,7 +1,7 @@
 
 # Policy Assignments
 
-This chapter describes how **Policy Assignments** are handled by EPAC. Policy Assignments are the actual assignments of Policies and Policy Sets to scopes in Azure
+This chapter describes how **Policy Assignments** are handled by EPAC. Policy Assignments are the actual assignments of Policies and Policy Sets to scopes in Azure.
 
 ## Assignment JSON structure
 
@@ -38,6 +38,10 @@ To utilize the schema add a ```$schema``` tag to the JSON file.
 }
 ```
 
+## Policy Assignment File Folder Structure Guidelines
+
+In any EPAC deployment you will have a number of assignment files. When a deployment plan is built EPAC does a recursive search for all the files in the `policyAssignments` folder. This means that you are free to use any folder structure you think is appropriate to help organise the files. For example if you have a multi-tenant or multi-environment setup you might choose to create folders representing each tenant or environment and then store the assignment files for each environment in that folder.
+
 ## Key Points
 
 - Every tree branch must accumulate a `definitionEntry` (or `definitionEntryList`), Assignment naming (`name` and `displayName`) and `scope` element.
@@ -52,7 +56,7 @@ To utilize the schema add a ```$schema``` tag to the JSON file.
 
 ## Assignment Element and Metadata
 
-Each Assignment is required to have a `name` which is used in it's resource id. EPAC also requires a `displayName`. The `description` is optional. For the allowed location assignment you specify the component with:
+Each Assignment is required to have a `name` which is used in its resource Id. EPAC also requires a `displayName`. The `description` is optional. For the allowed location assignment you specify the component with:
 
 ```json
 "assignment": {
@@ -199,7 +203,7 @@ Both `scope` and `notScopes` are specific to an [EPAC Environment using the pacS
 
 ## Managed Identities and role assignments
 
-Policies with a `DeployIfNotExists` or `Modify` effect need a Managed Identity (MI) and role assignments to execute remediation task. EPAC calculates the necessary role assignments based on the `roleDefinitionIds` in the Policy definition. By default EPAC uses a system-assigned Manged Identity. The team maintaining EPAC recommend system-assigned identities; however, your organization may have role assignment reasons to use user-assigned Managed Identities.
+Policies with a `DeployIfNotExists` or `Modify` effect need a Managed Identity (MI) and role assignments to execute remediation tasks. EPAC calculates the necessary role assignments based on the `roleDefinitionIds` in the policy definition. By default EPAC uses a system-assigned Managed Identity. The team maintaining EPAC recommend using system-assigned identities; however, your organization may have role assignment reasons to use user-assigned Managed Identities.
 
 ### Defining `managedIdentityLocations`
 
@@ -270,24 +274,24 @@ Azure Policy can use a user-defined Managed Identity and EPAC allows you to use 
 
 ### Utilizing a CSV File to define `parameters`, `overrides` and `nonComplianceMessages`
 
-Assigning single or multiple security and compliance focused Policy Sets (Initiatives), such as Microsoft cloud security benchmark, NIST 800-53 R5, PCI, NIST 800-171, etc, with just JSON parameters becomes very complex fast. Add to this the complexity of overriding the effect if it is not surfaced as a parameter in the `Policy Set`. Finally, adding the optional `nonComplianceMessages` further increases the complexity.
+Assigning single or multiple security and compliance focused Policy Sets (Initiatives), such as Microsoft Cloud Security Benchmark, NIST 800-53 R5, PCI, NIST 800-171, etc, with just JSON parameters becomes very complex. Add to this the complexity of overriding the effect if it is not surfaced as a parameter in the `Policy Set`. Finally, adding the optional `nonComplianceMessages` further increases the complexity.
 
-To address the problem of reading and maintaining hundreds or thousands of JSON lines, EPAC can use the content of a spreadsheet (CSV) to create `parameters`, `overrides` and optionally `nonComplianceMessages` for a single Policy assignment `definitionEntry` or multiple Policy definitions (`definitionEntryList`).
+To address the problem of reading and maintaining hundreds or thousands of JSON lines, EPAC can use the content of a CSV file to create `parameters`, `overrides` and optionally `nonComplianceMessages` for a single Policy assignment `definitionEntry` or multiple Policy definitions (`definitionEntryList`).
 
 > [!TIP]
 > This approach is best for large Policy Sets such as Azure Security Benchmark, NIST 800-53, etc. Smaller Policy Sets should still be handled with JSON `parameters`, `overrides` and `nonComplianceMessages`.
 
 Implement these steps as documented in [Managing Policy Assignment Parameters with a CSV file](policy-assignments-csv-parameters.md).
 
-- Generate the CSV file form your already deployed Assignment(s) or Policy Set(s).
-- Modify the effect and parameter columns for each type of environment types you will use.
+- Generate the CSV file from your already deployed Assignment(s) or Policy Set(s).
+- Modify the effect and parameter columns for each type of environment type you will use.
 - Modify the Policy Assignment file to reference the CSV file and the column prefix.
 - Update the CSV file with the new effect and parameter values.
 
 ### Defining `parameters` with JSON
 
 > [!WARNING]
-> `parameters` have a simplified JSON structure. You do not need the additional `value` indirection Azure requests (EPAC will inject that indirection).
+> `parameters` have a simplified JSON structure. You do not need the additional `value` indirection that Azure requests (EPAC will inject that indirection).
 
 ```json
 "parameters": {
@@ -304,7 +308,7 @@ Implement these steps as documented in [Managing Policy Assignment Parameters wi
 ```
 
 > [!NOTE]
-> Too enable `definitionEntryList`, parameters not present in the Policy or Policy Set definition are quietly ignored.
+> To enable `definitionEntryList`, parameters not present in the Policy or Policy Set definition are quietly ignored.
 
 ## Advanced Elements
 
@@ -433,7 +437,7 @@ Example
 }
 ```
 
-- `nodeName` is required for error messages; it's value is immaterial. EPAC concatenates them in the current tree branch.
+- `nodeName` is required for error messages; its value is immaterial. EPAC concatenates them in the current tree branch.
 - `definitionEntry` specifies that the custom Policy Set `general-allowed-locations-policy-set` from our starter kit. `displayName` has no meaning - it is for readability and in this instance is superfluous.
 - `assignment` fields `name`, `displayName` and `description` are used when creating the assignment.
 - This assignment has no `metadata`. You don't need an empty collection. EPAC will add `pacOwnerId` and `roles` `metadata`. Do not add them manually.
@@ -444,39 +448,9 @@ Example
   - During Policy prod deployments (`tenant`-wide), it is deployed to the tenant Management Group `Epac-Mg-1`.
 - No `notScope` entries are specified.
 
-```json
-{
-  "nodeName": "/root",
-  "definitionEntry": {
-    "policySetName": "general-allowed-locations-policy-set"
-  },
-  "assignment": {
-    "name": "allowed-locations",
-    "displayName": "Allowed Locations",
-    "description": "Sets the allowed locations"
-  },
-  "parameters": {
-    "AllowedLocations": [
-      "centralus",
-      "eastus",
-      "eastus2",
-      "southcentralus"
-    ]
-  },
-  "scope": {
-    "epac-dev": [
-      "/providers/Microsoft.Management/managementGroups/Epac-Mg-1"
-    ],
-    "tenant": [
-      "/providers/Microsoft.Management/managementGroups/c"
-    ]
-  }
-}
-```
-
 ### Security-Focused Policy Assignment with JSON parameters
 
-- In the following example we named our root node (`nodeName`) `/security/`. Since it is only used in case of error messages produced by EPAC during planning it's actual value doesn't matter as long as it's unique.
+- In the following example we named our root node (`nodeName`) `/security/`. Since it is only used in case of error messages produced by EPAC during planning its actual value doesn't matter as long as its unique.
 - We use a `definitionEntryList` to create two assignments at every leaf (six assignments total).
 - For `assignment` string concatenation we append the strings in the `definitionEntryList` to the strings in the child nodes. You can see this best when you look at the `description` string in the child  nodes. It will form a sentence when concatenated by `append`ing the `definitionEntryList` `assignment` field `description`.
 - The `parameters` specified in the children are specific to the IaC environment types and their `scope`. Note: a real assignment would define many more parameters. The set here is abbreviated since the actual set could easily exceed a hundred entries for each of the IaC environments. We'll see in the next example how to simplify large Policy Set parameters with a CSV file.
