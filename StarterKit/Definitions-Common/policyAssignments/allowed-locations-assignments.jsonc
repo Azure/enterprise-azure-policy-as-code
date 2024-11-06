@@ -17,10 +17,10 @@
     },
     "scope": {
         "epac-dev": [
-            "/providers/Microsoft.Management/managementGroups/mg-epac-dev"
+            "/providers/Microsoft.Management/managementGroups/mg-welsh-org-epac"
         ],
         "tenant": [
-            "/providers/Microsoft.Management/managementGroups/mg-enterprise"
+            "/providers/Microsoft.Management/managementGroups/mg-welsh-org-prd"
         ]
     }
 }
