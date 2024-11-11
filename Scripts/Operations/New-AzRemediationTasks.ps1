@@ -385,7 +385,6 @@ else {
         if ($failed -gt 0) {
             Write-Information "$failed failed"
         }
-
         if (($failed -gt 0) -or ($failedToCreate -gt 0)) {
             if (-not $Interactive) {
                 $failedPolicyRemediationTasksJsonString = $failedPolicyRemediationTasks | ConvertTo-Json -Depth 10 -Compress
