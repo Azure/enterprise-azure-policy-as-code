@@ -384,6 +384,9 @@ else {
         Write-Information "$succeeded succeeded"
         if ($failed -gt 0) {
             Write-Information "$failed failed"
+        }
+
+        if (($failed -gt 0) -or ($failedToCreate -gt 0)) {
             if (-not $Interactive) {
                 $failedPolicyRemediationTasksJsonString = $failedPolicyRemediationTasks | ConvertTo-Json -Depth 10 -Compress
                 Write-Output "##vso[task.setvariable variable=failedPolicyRemediationTasksJsonString;isOutput=true]$($failedPolicyRemediationTasksJsonString)"
