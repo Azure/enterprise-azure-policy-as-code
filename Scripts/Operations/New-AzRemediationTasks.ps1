@@ -385,13 +385,6 @@ else {
         if ($failed -gt 0) {
             Write-Information "$failed failed"
         }
-        if (($failed -gt 0) -or ($failedToCreate -gt 0)) {
-            if (-not $Interactive) {
-                $failedPolicyRemediationTasksJsonString = $failedPolicyRemediationTasks | ConvertTo-Json -Depth 10 -Compress
-                Write-Output "##vso[task.setvariable variable=failedPolicyRemediationTasksJsonString;isOutput=true]$($failedPolicyRemediationTasksJsonString)"
-                $createWorkItem = $true
-            }
-        }
         if ($canceled -gt 0) {
             Write-Information "$canceled canceled"
         }
@@ -399,6 +392,12 @@ else {
             Write-Information "$stillRunning still running after $checkForMinutes minutes"
         }
         if (-not $Interactive) {
+            if (($failed -gt 0) -or ($failedToCreate -gt 0)) {
+                $failedPolicyRemediationTasksJsonString = $failedPolicyRemediationTasks | ConvertTo-Json -Depth 10 -Compress
+                Write-Output "##vso[task.setvariable variable=failedPolicyRemediationTasksJsonString;isOutput=true]$($failedPolicyRemediationTasksJsonString)"
+                $createWorkItem = $true
+            } 
+              
             Write-Output "##vso[task.setvariable variable=createWorkItem;isOutput=true]$($createWorkItem)"
         }
     }
