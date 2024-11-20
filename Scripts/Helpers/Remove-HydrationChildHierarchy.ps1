@@ -9,14 +9,14 @@ function Remove-HydrationChildHierarchy {
             # Error action included because timeouts happen frequently, but mean nothing. Rather than have responses cause concern, we simply suppress the error.
             if ($child.children) {
                 Write-Information "    Removing child objects of $($child.Name) -- $($child.children.Name -join ", ")..."
-                try {
-                    Write-Debug "Starting Inner Loop"
-                    $null = Remove-HydrationChildHierarchy -ChildHierarchy $child.children #-erroraction silentlycontinue
-                    Write-Debug "Leaving Inner Loop"
-                }
-                catch {
-                    write-error $_
-                }
+                # try {
+                Write-Debug "Starting Inner Loop"
+                $null = Remove-HydrationChildHierarchy -ChildHierarchy $child.children -ErrorAction SilentlyContinue # Error was meaningless
+                Write-Debug "Leaving Inner Loop"
+                # }
+                # catch {
+                #     write-error $_
+                # }
             }
             do {
                 Write-Information "    Removing $($child.Name)..."

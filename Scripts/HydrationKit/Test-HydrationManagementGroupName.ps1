@@ -20,20 +20,20 @@ The function uses the Select-String cmdlet to match the Management Group name ag
 https://aka.ms/epac
 https://github.com/Azure/enterprise-azure-policy-as-code/tree/main/Docs/start-hydration-kit.md
 #>
-
-[CmdletBinding()]
-param(
-    [Parameter(Mandatory = $true)]
-    [string]
-    $ManagementGroupName
-)
-# $isValid = $ManagementGroupName | Select-String -Pattern '^[^\/\?#]*$' -Quiet
-$isValid = $ManagementGroupName | Select-String -Pattern "^[a-zA-Z0-9\-_\.\(\)]+$" -Quiet
-if ($isValid -and $ManagementGroupName.Length -le 90) {
-    Write-Debug "Management Group `"$ManagementGroupName `" name is valid."
-    return $true
-}
-else {
-    Write-Debug "Management Group `"$ManagementGroupName `" name is invalid."
-    return $false
+function Test-HydrationManagementGroupName {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true, HelpMessage = "The name of the Management Group to be validated.")]
+        [string]
+        $ManagementGroupName
+    )
+    $isValid = $ManagementGroupName | Select-String -Pattern "^[a-zA-Z0-9\-_\.\(\)]+$" -Quiet
+    if ($isValid -and $ManagementGroupName.Length -le 90) {
+        Write-Debug "Management Group `"$ManagementGroupName `" name is valid."
+        return $true
+    }
+    else {
+        Write-Debug "Management Group `"$ManagementGroupName `" name is invalid."
+        return $false
+    }
 }

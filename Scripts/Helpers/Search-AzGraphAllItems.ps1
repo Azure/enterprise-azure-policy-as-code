@@ -30,9 +30,24 @@ function Search-AzGraphAllItems {
     [System.Collections.ArrayList] $data = [System.Collections.ArrayList]::new()
 
     $bodyJson = $body | ConvertTo-Json -Depth 100
-    $response = Invoke-AzRestMethod -Method POST `
-        -Path "/providers/Microsoft.ResourceGraph/resources?api-version=2022-10-01" `
-        -Payload $bodyJson
+    $dsi = 1
+    do {
+        try {
+            $response = Invoke-AzRestMethod -Method POST `
+                -Path "/providers/Microsoft.ResourceGraph/resources?api-version=2022-10-01" `
+                -Payload $bodyJson
+        }
+        catch {
+            Write-Warning "Recovering Data Stream Error: $_"
+            $dsi++
+        }
+    }until($dsi -eq 5 -or ($response.StatusCode -ge 200 -and $response.StatusCode -lt 300))
+    if ($dsi -eq 5) {
+        Write-Error "Failed to recover data stream after 5 attempts, information may be incomplete. Consider exiting running the script again."
+    }
+    elseif ($dsi -gt 1) {
+        Write-Information "Data Stream recovered after $dsi attempts"
+    }
     $statusCode = $response.StatusCode
     $content = $response.Content
     if ($statusCode -lt 200 -or $statusCode -ge 300) {
