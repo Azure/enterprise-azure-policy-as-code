@@ -1,0 +1,374 @@
+{
+    // "template_meaningful_name": {
+    //     "loopId": "main|optional[Name]",
+    //     "questionIncrement": 1,
+    //     "displayText": "The title at the top of the screen",
+    //     "bodyHeader": "State reason data is gathered, what the significance is",
+    //     "bodyText": "OPTIONAL: More information that is needed to provide context.""dataRequest": "State what should be answered",
+    //     "links": "OPTIONAL: Provide any unique guidance that should be highlighted.",
+    //     "inputType": "optionList", // Use of optionList will trigger a standardized read/return UI leveraging the menuOptions property below. If not optionList, must be a valid data type in PowerShell. 
+    //     "menuOptions": [ // OPTIONAL: Only required if inputType is optionList
+    //         "Yes",
+    //         "No"
+    //     ],
+    //     "breakResponse": "No", // OPTIONAL: If a certain response should trigger a script break, useful for things that provide an option to continue.
+    //     "breakMessage": "OPTIONAL: What will be stated if break is invoked by choice made",
+    //     "allowNull": false, // Some items are not required, so we will allow a null value. Unless allowNull is set to true, blanks will cause a repeat of the prompt screen. 
+    //     "allowMultiple": false, // Some items, such as pacSelector and assignment choices, may require multiple entires. This will allow the loop to build a hashtable of responses using outputVariableName as the key.
+    // },
+    "confirmPrimaryTenant": {
+        "outputVariableName": "initialTenantId",
+        "loopId": "initial",
+        "questionIncrement": 1,
+        "displayText": "Azure Connection Validation",
+        "bodyHeader": "The primary tenant must be specified in order to determine where the deployment should take place, and where the EPAC Development environment should be created.",
+        "dataRequest": "Please confirm the tenant identified below is the primary tenant that you wish to interact with.",
+        "links": [],
+        "inputType": "optionList",
+        "menuOptions": {
+            "Yes": "The tenant GUID specified is correct.",
+            "No": "This is not the correct tenant GUID, I wish to quit and reconnect to the desired Azure Tenant."
+        }
+    },
+    "definePacOwnerId": {
+        "outputVariableName": "pacOwnerId",
+        "loopId": "initial",
+        "questionIncrement": 2,
+        "displayText": "Define Primary pacOwnerId",
+        "bodyHeader": "Define the pacOwnerId for the Main Tenant Intermediate Root Management Group",
+        "bodyText": "The pacOwnerId is the Id applied to policy objects deployed by EPAC to identify the source repo for the policy. This enables decentralized policy management, such as a situation where one repo might be managed by a Security team and another by an Operations team. While these can be combined into one repo, this is not always preferred.",
+        "dataRequest": "Please input a pacOwnerId for this EPAC instance, or leave blank to generate a random GUID...",
+        "links": [
+            "https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/settings-global-setting-file.md"
+        ],
+        "inputType": "string",
+        "allowNull": true // Default to guid generation if null
+    },
+    "createIntermediateRootHierarchy": {
+        "outputVariableName": "createMainCaf3Hierarchy",
+        "loopId": "initial",
+        "questionIncrement": 3,
+        "displayText": "Create CAF3 Hierarchy in Main Tenant",
+        "bodyHeader": "Determine whether to create a custom hierarchy, or use the Caf3Hierarchy for the Tenant Intermediate Root Management Group. If this is chosen, a Caf3Hierarchy will be created under the Intermediate Root.",
+        "bodyText": "The Cloud Adoption Framework version 3 Hierarchy based recommendation for Azure Landing Zones is what Microsoft recommends for use within the Intermediate Root to help improve policy deployment efficiency. Unless the organization has a well-considered alternative, it is recommended that this be deployed even if it will not be used immediately in order to provide a destination to use in the migration planning process.",
+        "dataRequest": "Please confirm the decision to create the Caf3Hierarchy in the primary tenant...",
+        "links": [
+            "https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/design-area/resource-org-management-groups#management-groups-in-the-azure-landing-zone-accelerator-and-alz-bicep-repository"
+        ],
+        "inputType": "optionList",
+        "menuOptions": {
+            "Yes": "Create the recommended hierarchy, which will be the root of a new pacSelector.",
+            "No": "Do not create the recommended hierarchy. This should only be chosen if the organization has a well considered hierarchical alternative."
+        }
+    },
+    "createIntermediateRoot": {
+        "outputVariableName": "createMainIntermediateRoot",
+        "loopId": "optionalCreatePrimaryIntermediateRoot",
+        "questionIncrement": 1,
+        "displayText": "Create Intermediate Root in Primary Tenant",
+        "bodyHeader": "Decide if the Hydration Kit should create the Tenant Intermediate Root group in the primary tenant.",
+        "bodyText": "The Cloud Adoption Framework version 3 Hierarchy based recommendation for Azure Landing Zones includes a Tenant Intermediate Root that should be treated as the Tenant Root for operational purposes. This is what Microsoft recommends for use to assist in a Least Privilege model. Choose No if you wish to define an alternate Hierarchy.",
+        "links": [
+            "https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/design-area/resource-org-management-groups#management-groups-in-the-azure-landing-zone-accelerator-and-alz-bicep-repository"
+        ],
+        "dataRequest": "Please confirm the decision to create the Tenant Intermediate Root in the primary tenant...",
+        "inputType": "optionList",
+        "menuOptions": {
+            "Yes": "Create the specified intermediate root, which will be the root of a new pacSelector.",
+            "No": "Do not create the specified intermediate root, which will cause the script to exit after the interview process completes as this was the choice specified to initiate the deployment. These decisions are mutually exclusive, review the plan."
+        }
+    },
+    "prefixCaf3Hierarchy": {
+        "outputVariableName": "mainCaf3Prefix",
+        "loopId": "optionalCreateMainCaf3Hierarchy",
+        "questionIncrement": 1,
+        "displayText": "Modify Names for CAF3 Hierarchy in Primary Tenant - Prefix",
+        "bodyHeader": "Add a prefix to apply to Management Groups created in the Main Tenant Intermediate Root Management Group hierarchy.",
+        "bodyText": "In order to prevent naming collisions, a prefix and/or suffix can be specified in order to help ensure a unique name value. For Example, a prefix of 'New' would result in the 'Sandbox' Managment Group being updated to 'NewSandbox'",
+        "dataRequest": "Please input a prefix for the Caf3Hierarchy that will be created in the primary tenant intermediate root group...",
+        "links": [
+            "https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/design-area/resource-org-management-groups#management-groups-in-the-azure-landing-zone-accelerator-and-alz-bicep-repository"
+        ],
+        "inputType": "string",
+        "allowNull": true
+    },
+    "suffixCaf3Hierarchy": {
+        "outputVariableName": "mainCaf3Suffix",
+        "loopId": "optionalCreateMainCaf3Hierarchy",
+        "questionIncrement": 2,
+        "displayText": "Modify Names for CAF3 Hierarchy in Primary Tenant - Suffix",
+        "bodyHeader": "If desired, add a suffix to apply to Management Groups created in the Main Tenant Intermediate Root Management Group hierarchy.",
+        "bodyText": "In order to prevent naming collisions, a prefix and/or suffix can be specified in order to help ensure a unique name value. For Example, a suffix of 'Caf' would result in the 'SandboxCaf' Managment Group being updated to 'Sandbox-epac'",
+        "dataRequest": "Please input a suffix for the Caf3Hierarchy that will be created in the primary tenant intermediate root group...",
+        "links": [
+            "https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/design-area/resource-org-management-groups#management-groups-in-the-azure-landing-zone-accelerator-and-alz-bicep-repository"
+        ],
+        "inputType": "string",
+        "allowNull": true
+    },
+    "confirmMainRootName": { // Todo: Set default in evaluation of loop return
+        "outputVariableName": "mainTenantMainPacSelectorName",
+        "loopId": "corePacSelectors",
+        "questionIncrement": 1,
+        "displayText": "PacSelector for Main Tenant",
+        "bodyHeader": "Choose PacSelector Name for Main Tenant Intermediate Root Management Group",
+        "bodyText": "This PacSelector will be used by EPAC in the Global Settings file to identify the Main Tenant Intermediate Root Management Group and its children. This will be cloned for testing during the DevOps deployment testing.",
+        "dataRequest": "Please input a string value for the name of the Main Tenant Intermediate Root PacSelector, or simply press enter to accept the default value -- tenant01",
+        "links": [
+            "https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/settings-global-setting-file.md"
+        ],
+        "inputType": "string",
+        "allowNull": true
+    },
+    "confirmEpacParent": {
+        "outputVariableName": "epacParent",
+        "loopId": "corePacSelectors",
+        "questionIncrement": 2,
+        "displayText": "Parent for EPAC Development pacSelector",
+        "bodyHeader": "Choose Parent for EPAC copy of the Tenant Intermediate Root Management Group",
+        "bodyText": "This will be the parent for the EPAC copy of the Tenant Intermediate Root Management Group. This will be used to create a copy of the Tenant Intermediate Root Management Group for testing purposes, and SHOULD NOT be that copy of the Tenant Intermediate Root, but the Management Group it will be placed in. It is strongly recommended that the organization accept the default value.",
+        "dataRequest": "Please input a string value for the name of the Management Group in which this hierarchy should be created, or simply press enter to accept the default value -- Tenant Root",
+        "links": [
+            "https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/design-area/resource-org-management-groups#management-groups-in-the-azure-landing-zone-accelerator-and-alz-bicep-repository",
+            "https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/settings-global-setting-file.md",
+            "https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/ci-cd-branching-flows.md"
+        ],
+        "inputType": "string",
+        "allowNull": true
+    },
+    "confirmDefaultManagedIdLocation": { // Don't forget to write the dynamic informatino into the UI to show which locations are available.
+        // Next release, add a copy of this to the additional tenant loop, and to the additional pacSelector loop.
+        "outputVariableName": "managedIdAssignmentLocation",
+        "loopId": "corePacSelectors",
+        "questionIncrement": 3,
+        "displayText": "Choose Managed ID Location",
+        "bodyHeader": "Managed ID Location for Main Tenant Intermediate Root Management Group and EPAC Management Group",
+        "bodyText": "All Deploy if Not Exist and Modify policies require a Managed Identity to be part of the definition of the policy in order to affect change within Azure. The Deploy-RolesPlan stage of the EPAC process will deploy the service principals required for those policies identified for deployment in the Build-DeploymentPlan stage of EPAC deployment. A list of available locations has been generated based on your current active connection.",
+        "dataRequest": "Please choose a location for the Managed Identity to be created using short name (no spaces) format...",
+        "links": [
+            "https://learn.microsoft.com/en-us/azure/governance/policy/concepts/effect-deploy-if-not-exists",
+            "https://learn.microsoft.com/en-us/azure/governance/policy/concepts/effect-modify",
+            "https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview",
+            "https://learn.microsoft.com/en-us/azure/governance/policy/how-to/remediate-resources?tabs=azure-portal"
+        ],
+        "inputType": "string"
+    },
+    "confirmEpacPrefix": { // Set logic to repeat if both are null
+        "outputVariableName": "epacPrefix",
+        "loopId": "epacModifier",
+        "questionIncrement": 1,
+        "displayText": "Modify Names for EPAC Environment - Prefix",
+        "bodyHeader": "Add a prefix to apply to Management Groups created to mimic the Main Tenant Intermediate Root Management Group hierarchy",
+        "bodyText": "This management group hierarchy will be used to test deployments for the Main Tenant Intermediate Root Management Group hierarchy. In order to prevent naming collisions, a prefix and/or suffix can be specified in order to help ensure a unique name value.For Example, a prefix of 'epac-' would result in the 'Sandbox' Managment Group being updated to 'epac-Sandbox'",
+        "dataRequest": "Please input a prefix for the EPAC Hierarchy that will be created to support pipeline operations...",
+        "links": [
+            "https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/design-area/resource-org-management-groups#management-groups-in-the-azure-landing-zone-accelerator-and-alz-bicep-repository",
+            "https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/ci-cd-ado-pipelines.md",
+            "https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/ci-cd-branching-flows.md"
+        ],
+        "inputType": "string",
+        "allowNull": true
+    },
+    "confirmEpacSuffix": {
+        "outputVariableName": "epacSuffix",
+        "loopId": "epacModifier",
+        "questionIncrement": 2,
+        "displayText": "Modify Names for EPAC Environment - Suffix",
+        "bodyHeader": "Choose a suffix and/or prefix to apply to the EPAC Development Management Group hierarchy",
+        "bodyText": "This management group hierarchy will be used to test deployments for the Main Tenant Intermediate Root Management Group hierarchy. In order to prevent naming collisions, a prefix and/or suffix MUST be specified in order to help ensure a unique name value. For Example, a suffix of '-epacdev' would result in the 'Sandbox' Managment Group being updated to 'Sandbox-epacdev' in the EPAC development envirnoment.",
+        "dataRequest": "Please input a suffix for the EPAC Hierarchy that will be created to support pipeline operations...",
+        "links": [
+            "https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/design-area/resource-org-management-groups#management-groups-in-the-azure-landing-zone-accelerator-and-alz-bicep-repository",
+            "https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/ci-cd-ado-pipelines.md",
+            "https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/ci-cd-branching-flows.md"
+        ],
+        "inputType": "string",
+        "allowNull": true
+    },
+    "importExistingPolicies": {
+        "outputVariableName": "importExistingPolicies",
+        "loopId": "policyDecisions",
+        "questionIncrement": 1,
+        "displayText": "Decision - Import Existing Policies",
+        "bodyHeader": "Decide if existing policies should be imported to EPAC for the Main Tenant Intermediate Root Management Group.",
+        "bodyText": "If selected, EPAC will export the policy objects assigned within the scope of the Main Tenant Intermediate Root Management Group and define assignments in EPAC for them, using the newly defined pacOwnerId to identify it as being managed by EPAC. This is an important step in enabling EPAC based policy deployment to move from 'ownedOnly' to 'full'.",
+        "dataRequest": "Please choose Yes or No to indicate if existing policies should be imported to EPAC...",
+        "links": [
+            "https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/settings-desired-state.md",
+            "https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/policy-assignments.md",
+            "https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/policy-exemptions.md",
+            "https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/policy-set-definitions.md",
+            "https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/policy-set-definitions.md"
+        ],
+        "inputType": "optionList",
+        "menuOptions": {
+            "Yes": "Import existing policies within the defined scope for EPAC management.",
+            "No": "Do not import the existing polcies for the defined scope, this will be completed at a later time."
+        }
+    },
+    "importPci": {
+        // TODO: Add logic for additional pacSelectors in next release
+        // TODO: Add loop with each of these policies that requests assignment(s) for each pacSelector
+        // TODO: This will be $questionList = $questions.policy and $questions.generalPolicyAssignmentQuestions, questions.policy is always first increment in loop.
+        "outputVariableName": "importPciDssPolicies",
+        "loopId": "policyDecisions",
+        "questionIncrement": 2,
+        "displayText": "Decision - Import PCI DSS Policies",
+        "bodyHeader": "Decide if a PCI-DSS PolicySet should be assigned as part of the initial EPAC deployment..",
+        "bodyText": "This can be useful for those organizations that need to evaluate their current state against the standard set of policies defined by Microsoft to evaluate against this standard.",
+        "dataRequest": "Please choose whether or not to deploy this policy...",
+        "links": [
+            "https://www.azadvertizer.net/azpolicyinitiativesadvertizer/c676748e-3af9-4e22-bc28-50feed564afb.html"
+        ],
+        "inputType": "optionList",
+        "menuOptions": {
+            "Yes": "Apply this policy as part of the initial EPAC deployment..",
+            "No": "Do not apply this policy as part of the initial EPAC deployment.."
+        }
+    },
+    "importNist80053": {
+        // TODO: Add logic for additional pacSelectors in next release (etc)
+        "outputVariableName": "importNist80053Policies",
+        "loopId": "policyDecisions",
+        "questionIncrement": 3,
+        "displayText": "Decision - Import NIST 800-53 v5 Policies",
+        "bodyHeader": "Decide if a NIST 800-53 v5 PolicySet should be assigned as part of the initial EPAC deployment..",
+        "bodyText": "This can be useful for those organizations that need to evaluate their current state against the standard set of policies defined by Microsoft to evaluate against this standard.",
+        "dataRequest": "Please choose whether or not to deploy this policy...",
+        "links": [],
+        "inputType": "optionList",
+        "menuOptions": {
+            "Yes": "Apply this policy as part of the initial EPAC deployment..",
+            "No": "Do not apply this policy as part of the initial EPAC deployment.."
+        }
+    },
+    "importMsb": {
+        // TODO: Add logic for additional pacSelectors in next release (etc)
+        "outputVariableName": "importMcsbPolicies",
+        "loopId": "policyDecisions",
+        "questionIncrement": 4,
+        "displayText": "Decision - Import Microsoft Cloud Security Baseline Policies",
+        "bodyHeader": "Decide if the Microsoft Cloud Security Baseline PolicySet should be assigned as part of the initial EPAC deployment..",
+        "bodyText": "This can be useful for those organizations that need to evaluate their current state against the standard set of policies defined by Microsoft to evaluate against Microsoft's baseline recommendations for Azure products.",
+        "dataRequest": "Please choose whether or not to deploy this policy...",
+        "links": [
+            "https://www.azadvertizer.net/azpolicyinitiativesadvertizer/1f3afdf9-d0c9-4c3d-847f-89da613e70a8.html"
+        ],
+        "inputType": "optionList",
+        "menuOptions": {
+            "Yes": "Apply this policy as part of the initial EPAC deployment..",
+            "No": "Do not apply this policy as part of the initial EPAC deployment.."
+        }
+    },
+    "useModuleorScript": { // If script, sync-repo from ./temp
+        "outputVariableName": "codeExecutionType",
+        "loopId": "pipelineDecisions",
+        "questionIncrement": 1,
+        "displayText": "Choose EPAC Code Source for Pipeline",
+        "bodyHeader": "Define how EPAC code will be executed",
+        "bodyText": "Please choose how you would like the Pipeline to interact with EPAC code in order to run processes. This can use either the psGallery Module, or a local copy of the Enterprise Policy as Code source.",
+        "DataRequest": "Choose Module or Script...",
+        "inputType": "optionList",
+        "links": [
+            "https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/start-forking-github-repo.md"
+        ],
+        "menuOptions": {
+            "Module": "This choice will require that the EnterprisePolicyAsCode module in PSGallery be available in the pipeline(s).",
+            "LocalScript": "This choice will require a local copy of the EPAC source code be available to the pipeline(s)."
+        }
+    },
+    "pipelineFlow": { // TODO: Update Release bodyText information when additional pacSelectors become available in the next release.
+        "outputVariableName": "pipelineFlow",
+        "loopId": "pipelineDecisions",
+        "questionIncrement": 2,
+        "displayText": "Choose a Branching Flow",
+        "bodyHeader": "Define which branching flow will be used in EPAC deployments",
+        "bodyText": "The branching flow will define the type of flow that will be used in EPAC based policy deployments. If there is only a Tenant Intermediate Root, and an EPAC Development environment, then the simplified Github flow is the appropriate choice. If there are additional environments, such as a development hierarchy, to implement in prior to deployment to the production aspects of the tenant, then Release Flow is appropriate. NOTE: The additional pacSelectors will need to be defined outside of the Install-HydrationEpac workflow.",
+        "DataRequest": "Please choose a branching flow...",
+        "links": [
+            "https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/ci-cd-branching-flows.md",
+            "https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/ci-cd-ado-pipelines.md"
+        ],
+        "inputType": "optionList",
+        "menuOptions": {
+            "Github": "A basic flow that will deploy policy objects using EPAC to the EPAC Development environment as well as the Tenant Intermediate Root Group chosen for the pacSelector.",
+            "Release": "An advanced flow with multiple stages that will deploy policy objects using EPAC through multiple environments."
+        }
+    },
+    "pipelinePlatform": {
+        "outputVariableName": "pipelinePlatform",
+        "loopId": "pipelineDecisions",
+        "questionIncrement": 3,
+        "displayText": "Choose the DevOps Platform In Use",
+        "bodyHeader": "Define the DevOps platform that will be used to deploy policy objects using EPAC",
+        "bodyText": "There are currently two platforms that are supported by EPAC for policy deployment. These are Github and Azure DevOps. If you are using a different platform, please choose 'Other' and you will be prompted for the path to the root of the repository where the pipeline will be stored. A GitHub based pipeline will be placed in this location as a starting point for development of a custom pipeline for the platform in use.",
+        "DataRequest": "Please choose a platform...",
+        "links": [
+            "https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/ci-cd-github-actions.md",
+            "https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/ci-cd-ado-pipelines.md",
+            "https://www.github.com",
+            "https://dev.azure.com"
+        ],
+        "inputType": "optionList",
+        "menuOptions": {
+            "GithubActions": "Pipelines hosted in Github.",
+            "AzureDevOps": "Pipelines hosted in Azure DevOps.",
+            "Other": "Pipelines hosted in any other platform."
+        }
+    },
+    "pipelineCustomPath": {
+        // if pipeline.pipelineplaftorm -eq Other
+        // Include data: Repo Root Path
+        "outputVariableName": "pipelineCustomPath",
+        "loopId": "otherPipeline",
+        "questionIncrement": 1,
+        "displayText": "Define Pipeline Path",
+        "bodyHeader": "If you have a desired custom path for your pipeline storage, please list it here in a format that is a realtive path to the repo root directory.",
+        "bodyText": "As this is not a platform that EPAC has definitions for out of the box, we recommend choosing the appropriate custom path to place the pipelines at. Github style pipelines will be placed as these have similar formats to several other git based platforms, such as Gitlab. Example: pipelines/custompath",
+        "dataRequest": "Type the RELATIVE path from the root of the repo to the desired location for the pipeline to be stored...",
+        "links": [],
+        "inputType": "string"
+    }
+    // TODO: Next releas add a loop for all of the ALZ assignment questions to generate a proper ALZ deployment, requires additional assignment logic for 
+    // ,
+    // "promptForAdditionalPacSelectorRoots": { // Next Release.... 
+    //     "outputVariableName": "additionalMainTenantPacSelectors",
+    //     "loopId": "corePacSelectors",
+    //     "questionIncrement": 4,
+    //     "inputType": "string",
+    //     "allowNull": true,
+    //     "allowMultiple": true
+    // // },
+    // "promptForadditionalTenant": { // Next Release.... Variable will need a suffix as part of process.
+    //     "outputVariableName": "additionalTenants",
+    //     "loopId": "corePacSelectors",
+    //     "questionIncrement": 2,
+    //     "displayText": "Define Additional Tenant(s)",
+    //     "bodyHeader": "All Tenants that will be interacted with should be captured during this process, although more can be added at a later date by updating the global-settings file.",
+    //     "dataRequest": "Provide a yes/no response.",
+    //     "links": [],
+    //     "inputType": "array",
+    //     "allowNull": true,
+    //     "allowMultiple": true
+    // },
+    // "getAdditionalMainTenantPacSelectorRoots": { // Next Release.... Variable will need a suffix as part of process. Run for main, then for each additional tenant.
+    //     "outputVariableName": "additionalTenantsPacSelectors",
+    //     "loopId": "additionalTenantsPacSelectors",
+    //     "questionIncrement": 4,
+    //     "inputType": "string",
+    //     "allowNull": true,
+    //     "allowMultiple": true
+    // },
+    // "getadditionalTenants": { // Next Release.... Variable will need a suffix as part of process.
+    //     "outputVariableName": "additionalTenants",
+    //     "loopId": "corePacSelectors",
+    //     "questionIncrement": 2,
+    //     "displayText": "Define Additional Tenant(s)",
+    //     "bodyHeader": "All Tenants that will be interacted with should be captured during this process, although more can be added at a later date by updating the global-settings file.",
+    //     "dataRequest": "Provide a yes/no response.",
+    //     "links": [],
+    //     "inputType": "array",
+    //     "allowNull": true,
+    //     "allowMultiple": true
+    // },
+}

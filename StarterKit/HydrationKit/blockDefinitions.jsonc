@@ -1,0 +1,101 @@
+{
+    "uiStart": {
+        "TerminalWidth": null,
+        "RowCharacterColor": "Blue",
+        "TextRowCharacterColor": "Cyan",
+        "SmallRowCharacter": "+",
+        "DisplayText": "Enterprise Policy as Code (EPAC) Hydration Kit",
+        "LargeRowCharacter": "=",
+        "Location": "Top"
+    },
+    "runPreliminaryTests": {
+        "TerminalWidth": null,
+        "RowCharacterColor": "Blue",
+        "TextRowCharacterColor": "Yellow",
+        "SmallRowCharacter": "-",
+        "DisplayText": "Beginning Preliminary Tests",
+        "LargeRowCharacter": "+",
+        "Location": "Top"
+    },
+    "displayPreliminaryTests": {
+        "TerminalWidth": null,
+        "RowCharacterColor": "Yellow",
+        "TextRowCharacterColor": "Blue",
+        "SmallRowCharacter": "-",
+        "DisplayText": "Summarizing Test Results",
+        "LargeRowCharacter": "-",
+        "Location": "Middle"
+    },
+    "gatherData": {
+        "TerminalWidth": null,
+        "RowCharacterColor": "Yellow",
+        "TextRowCharacterColor": "Blue",
+        "SmallRowCharacter": "-",
+        "DisplayText": "Beginning Data Gathering",
+        "LargeRowCharacter": "-",
+        "Location": "Middle"
+    },
+    "displayGatherData": {
+        "TerminalWidth": null,
+        "RowCharacterColor": "Yellow",
+        "TextRowCharacterColor": "Blue",
+        "SmallRowCharacter": "-",
+        "DisplayText": "Summarizing Data Gathered",
+        "LargeRowCharacter": "-",
+        "Location": "Middle"
+    },
+    "generateAnswerFile": {
+        "TerminalWidth": null,
+        "RowCharacterColor": "Yellow",
+        "TextRowCharacterColor": "Blue",
+        "SmallRowCharacter": "+",
+        "DisplayText": "Beginning Interview Process to Define EPAC Deployment",
+        "LargeRowCharacter": "-",
+        "Location": "Top"
+    },
+    "displayAnswerData": {
+        "TerminalWidth": null,
+        "RowCharacterColor": "Yellow",
+        "TextRowCharacterColor": "Blue",
+        "SmallRowCharacter": "-",
+        "DisplayText": "Summarizing Answers Provided/Generated",
+        "LargeRowCharacter": "-",
+        "Location": "Middle"
+    },
+    "writeAnswerFile": {
+        "TerminalWidth": null,
+        "RowCharacterColor": "Yellow",
+        "TextRowCharacterColor": "Green",
+        "SmallRowCharacter": "+",
+        "DisplayText": "Updating Answer File",
+        "LargeRowCharacter": "-",
+        "Location": "Middle"
+    },
+    "importAnswerFile": {
+        "TerminalWidth": null,
+        "RowCharacterColor": "Yellow",
+        "TextRowCharacterColor": "Green",
+        "SmallRowCharacter": "+",
+        "DisplayText": "Importing Answer File",
+        "LargeRowCharacter": "-",
+        "Location": "Middle"
+    },
+    "beginHydrationProcess": {
+        "TerminalWidth": null,
+        "RowCharacterColor": "Yellow",
+        "TextRowCharacterColor": "Blue",
+        "SmallRowCharacter": "-",
+        "DisplayText": "Beginning Hydration Process",
+        "LargeRowCharacter": "-",
+        "Location": "Top"
+    },
+    "populateRepoDefinitions": {
+        "TerminalWidth": null,
+        "RowCharacterColor": "Yellow",
+        "TextRowCharacterColor": "Green",
+        "SmallRowCharacter": "+",
+        "DisplayText": "Using Answer Data to Generate Definitions Folder Contents",
+        "LargeRowCharacter": "-",
+        "Location": "Middle"
+    }
+}
