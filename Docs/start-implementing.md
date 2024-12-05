@@ -160,7 +160,7 @@ Create a new EPAC `Definitions` folder with a number of subfolder and a `global-
 > For a folder structure example, please see [StarterKit/Definitions-Common](https://github.com/Azure/enterprise-azure-policy-as-code/tree/main/StarterKit/Definitions-Common).
 
 ```ps1
-New-HydrationDefinitionFolder -DefinitionsRootFolder Definitions
+New-HydrationDefinitionsFolder -DefinitionsRootFolder Definitions
 ```
 
 ## Cloud Environment with Unsupported/Missing Policy Definitions
