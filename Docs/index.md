@@ -88,7 +88,7 @@ The following is the unique IDs (also known as PIDs) used in each of the modules
 
 | Function Name | PID |
 |:------------|:----|
-| `Deploy-PolicyPlan` | `3c88f740-55a8-4a96-9fba-30a81b52151a` |
+| `Build-DeploymentPlans` | `3c88f740-55a8-4a96-9fba-30a81b52151a` |
 | `Deploy-PolicyPlan` | `fe9ff1e8-5521-4b9d-ab1d-84e15447565e` |
 | `Deploy-RolesPlan` | `cf031290-b7d4-48ef-9ff5-4dcd7bff8c6c` |
 | `Build-PolicyDocumentation` | `2dc29bae-2448-4d7f-b911-418421e83900` |
