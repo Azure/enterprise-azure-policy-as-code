@@ -5,7 +5,7 @@ function Get-AzResourceListRestMethod {
         $SubscriptionId
     )
     
-    function Exec-AzRestMethod {
+    function Invoke-AzRestMethodCustom {
         [CmdletBinding()]
         param (
             [Parameter(Mandatory = $true)]
@@ -39,14 +39,14 @@ function Get-AzResourceListRestMethod {
     # Get the basic resources    
     $ApiVersion = "2021-04-01"
     $path = "/subscriptions/$SubscriptionId/resources?api-version=$ApiVersion"
-    $resources = Exec-AzRestMethod -path $path -method GET
+    $resources = Invoke-AzRestMethodCustom -path $path -method GET
 
     # Get the Subnets for all the Vnets found in the basic resources
     $snets = $($resources.value | Where-Object { $_.type -eq 'Microsoft.Network/virtualNetworks' })
     foreach ($snet in $snets) {   
         $ApiVersion = "2024-01-01"
         $path = "$($snet.id)/subnets?api-version=$ApiVersion"
-        $subnetResources = Exec-AzRestMethod -path $path -method GET
+        $subnetResources = Invoke-AzRestMethodCustom -path $path -method GET
         $resources.value += $subnetResources.value
     }
 
