@@ -3,12 +3,14 @@ New-Item .\Module\EnterprisePolicyAsCode\functions -ItemType Directory -Force
 
 $tag_name = $env:TAG_NAME -replace "v", ""
 
+Write-Output $tag_name
+
 if ($tag_name -match "-") {
-    Copy-Item -Path .\Module\EnterprisePolicyAsCode.prerelease.psd1 -Destination .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1 -Force
+    Copy-Item -Path .\Module\EnterprisePolicyAsCode.prerelease.psd1 -Destination .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1 -Force -Verbose
     $isPreRelease = $true
 }
 else {
-    Copy-Item -Path .\Module\EnterprisePolicyAsCode.release.psd1 -Destination .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1 -Force
+    Copy-Item -Path .\Module\EnterprisePolicyAsCode.release.psd1 -Destination .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1 -Force -Verbose
 }
 
 Get-ChildItem -Path .\Scripts\Helpers\*.ps1 -Recurse -File -Exclude Add-HelperScripts.ps1 | Copy-Item -Destination .\Module\EnterprisePolicyAsCode\internal\functions
