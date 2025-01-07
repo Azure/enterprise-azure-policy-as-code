@@ -4,11 +4,11 @@ New-Item .\Module\EnterprisePolicyAsCode\functions -ItemType Directory -Force
 $tag_name = $env:TAG_NAME -replace "v", ""
 
 if ($tag_name -match "-") {
-    Copy-Item -Path .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.prerelease.psd1 -Destination .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1 -Force
+    Copy-Item -Path .\Module\EnterprisePolicyAsCode.prerelease.psd1 -Destination .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1 -Force
     $isPreRelease = $true
 }
 else {
-    Copy-Item -Path .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.release.psd1 -Destination .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1 -Force
+    Copy-Item -Path .\Module\EnterprisePolicyAsCode.release.psd1 -Destination .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1 -Force
 }
 
 Get-ChildItem -Path .\Scripts\Helpers\*.ps1 -Recurse -File -Exclude Add-HelperScripts.ps1 | Copy-Item -Destination .\Module\EnterprisePolicyAsCode\internal\functions
