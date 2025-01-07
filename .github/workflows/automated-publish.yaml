@@ -17,4 +17,10 @@ jobs:
         run: |
           Install-Module Az.ResourceGraph -Force
           .\Module\build.ps1
-          Publish-Module -Path .\Module\EnterprisePolicyAsCode -NuGetApiKey $env:APIKEY -Verbose
+          if ($env:TAG_NAME -match "-") {
+            Publish-Module -Path .\Module\EnterprisePolicyAsCode -NuGetApiKey $env:APIKEY -Verbose -AllowPrerelease
+          }
+          else {
+            Publish-Module -Path .\Module\EnterprisePolicyAsCode -NuGetApiKey $env:APIKEY -Verbose
+          }
+          
