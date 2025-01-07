@@ -56,6 +56,7 @@ if ($isPreRelease) {
     $prereleaseString = ($tag_name -split "-")[1]
     (Get-Content -Path .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1) -replace "ModuleVersion     = ''", "ModuleVersion     = '$version'" | Set-Content .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1
     (Get-Content -Path .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1) -replace "Prerelease = ''", "Prerelease = '$prereleaseString'" | Set-Content .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1
+    Get-Content .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1
 }
 else {
     (Get-Content -Path .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1) -replace "ModuleVersion     = ''", "ModuleVersion     = '$tag_name'" | Set-Content .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1
