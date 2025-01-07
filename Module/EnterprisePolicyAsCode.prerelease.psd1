@@ -48,7 +48,7 @@
 			# Tags = @()
 
 			# Prerelease tag to append
-			Prerelease   = ''
+			Prerelease     = ''
 			
 			# A URL to the license for this module.
 			LicenseUri   = 'https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/LICENSE'
