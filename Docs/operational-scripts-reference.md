@@ -39,7 +39,7 @@ Include Policies with effect Manual. Default: do not include Policies with effec
 The New-AzRemediationTasks PowerShell creates remediation tasks for all non-compliant resources in the current AAD tenant. If one or multiple remediation tasks fail, their respective objects are added to a PowerShell variable that is outputted for later use in the Azure DevOps Pipeline.
 
 ```ps1
-New-AzRemediationTasks [[-PacEnvironmentSelector] <String>] [-DefinitionsRootFolder <String>] [-Interactive <Boolean>] [-OnlyCheckManagedAssignments] [-PolicyDefinitionFilter <String[]>] [-PolicySetDefinitionFilter <String[]>] [-PolicyAssignmentFilter <String[]>] [-PolicyEffectFilter <String[]>] [-NoWait] [-WhatIf] [-Confirm] [<CommonParameters>]
+New-AzRemediationTasks [[-PacEnvironmentSelector] <String>] [-DefinitionsRootFolder <String>] [-Interactive <Boolean>] [-OnlyCheckManagedAssignments] [-PolicyDefinitionFilter <String[]>] [-PolicySetDefinitionFilter <String[]>] [-PolicyAssignmentFilter <String[]>] [-PolicyEffectFilter <String[]>] [-NoWait] [-TestRun] [-Confirm] [<CommonParameters>]
 ```
 
 ### Parameters
@@ -79,7 +79,7 @@ Filter by Policy effect (array).
 #### `-NoWait [<SwitchParameter>]`
 Indicates that the script should not wait for the remediation tasks to complete.
 
-#### `-WhatIf [<SwitchParameter>]`
+#### `-TestRun [<SwitchParameter>]`
 Simulates the actions of the command without actually performing them. Useful for testing.
 
 #### `-Confirm [<SwitchParameter>]`

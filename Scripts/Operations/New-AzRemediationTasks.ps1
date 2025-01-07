@@ -88,7 +88,10 @@ param(
     [string[]] $PolicyEffectFilter = $null,
 
     [Parameter(Mandatory = $false, HelpMessage = "Do not wait for the tasks to complete")]
-    [switch] $NoWait
+    [switch] $NoWait,
+    
+    [Parameter(Mandatory = $false, HelpMessage = "Used to output the remediation tasks that would occur if 'New-AzRemediationTasks' runs.")]
+    [switch] $TestRun
 )
 
 # Dot Source Helper Scripts
@@ -214,9 +217,9 @@ else {
     }
 
     Write-Information ""
-    if ($WhatIfPreference) {
+    if ($TestRun) {
         Write-Information "==================================================================================================="
-        Write-Information "WhatIf: Creating $($collatedByAssignmentId.Count) remediation tasks..."
+        Write-Information "TEST RUN: Testing the creation of $($collatedByAssignmentId.Count) remediation tasks..."
         Write-Information "==================================================================================================="
     }
     else {
@@ -240,8 +243,8 @@ else {
         }
         $parameters = $_.parametersSplat
         Write-Verbose "Parameters: $($parameters | ConvertTo-Json -Depth 99)"
-        if ($WhatIfPreference) {
-            Write-Information "`tWhatIf: Remediation Task would have been created."
+        if ($TestRun) {
+            Write-Information "`TEST RUN: Remediation Task would have been created."
             $newPolicyRemediationTask = [ordered]@{
                 Name               = $parameters.Name
                 Id                 = $parameters.Name
@@ -253,7 +256,7 @@ else {
             $succeeded++
         }
         else {
-            $newPolicyRemediationTask = Start-AzPolicyRemediation @parameters -ErrorAction SilentlyContinue -WhatIf:$WhatIfPreference
+            $newPolicyRemediationTask = Start-AzPolicyRemediation @parameters -ErrorAction SilentlyContinue
 
             if ($null -eq $newPolicyRemediationTask) {
                 Write-Information "`tRemediation Task could not be created."
@@ -315,9 +318,9 @@ else {
                 $runningPolicyRemediationTask = $runningPolicyRemediationTasks[$i]
                 $remediationTaskState = "Check for status failed"
                 $taskDone = $false
-                if ($WhatIfPreference) {
-                    $remediationTaskState = "WhatIf - Succeeded"
-                    Write-Information "`tWhatIf: Remediation Task '$($runningPolicyRemediationTask.Name)' might have succeeded."
+                if ($TestRun) {
+                    $remediationTaskState = "TEST RUN - Succeeded"
+                    Write-Information "`TEST RUN: Remediation Task '$($runningPolicyRemediationTask.Name)' might have succeeded."
                     $taskDone = $true
                     $succeeded++
                 }
@@ -363,13 +366,13 @@ else {
 
     $createWorkItem = $false
     Write-Information ""
-    if ($WhatIfPreference) {
+    if ($TestRun) {
         Write-Information "==================================================================================================="
-        Write-Information "WhatIf: Remediation Task Status"
+        Write-Information "TEST RUN: Remediation Task Status (NO ACTION TAKEN)"
         Write-Information "==================================================================================================="
-        Write-Information "WhatIf: $needed needed"
-        Write-Information "WhatIf: $created created"
-        Write-Information "WhatIf: $succeeded succeeded"
+        Write-Information "TEST RUN: $needed needed"
+        Write-Information "TEST RUN: $created created"
+        Write-Information "TEST RUN: $succeeded succeeded"
     }
     else {
         Write-Information "==================================================================================================="

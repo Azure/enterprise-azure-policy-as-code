@@ -261,19 +261,21 @@ function Get-GlobalSettings {
                             }
                             else {
                                 $null = $excludedScopesList.Add($excludedScope)
-                                if ($excludedScope.StartsWith("/subscriptions/") -and $desired.excludeSubscriptions -eq $false) {
-                                    if ($excludedScope.Contains("/resourceGroups/", [System.StringComparison]::OrdinalIgnoreCase)) {
-                                        $null = $globalExcludedScopesResourceGroupsList.Add($excludedScope)
-                                    }
-                                    else {
-                                        $null = $globalExcludedScopesSubscriptionsList.Add($excludedScope)
+                                if ($excludedScope.StartsWith("/subscriptions/")) {
+                                    if ($desired.excludeSubscriptions -eq $false -or $null -eq $desired.excludeSubscriptions) {
+                                        if ($excludedScope.Contains("/resourceGroups/", [System.StringComparison]::OrdinalIgnoreCase)) {
+                                            $null = $globalExcludedScopesResourceGroupsList.Add($excludedScope)
+                                        }
+                                        else {
+                                            $null = $globalExcludedScopesSubscriptionsList.Add($excludedScope)
+                                        }
                                     }
                                 }
                                 elseif ($excludedScope.StartsWith("/providers/Microsoft.Management/managementGroups/")) {
                                     $null = $globalExcludedScopesManagementGroupsList.Add($excludedScope)
                                 }
                                 else {
-                                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.excludedScopes ($excludedScope) must be a valid scope."
+                                    Write-Host "Global settings error: pacEnvironment $pacSelector field desiredState.excludedScopes ($excludedScope) must be a valid scope."
                                 }
                             }
                         }
