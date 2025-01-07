@@ -400,13 +400,22 @@ function Build-AssignmentDefinitionNode {
                     $thisScopeGlobalNotScopeTable = $thisScopeDetails.notScopesTable
                     foreach ($notScope in $definition.notScopesList) {
                         $individualResource = $false
+                        if ($notScope -match "subscriptionsPattern") {
+                            $thisScopeChildren.Keys | Foreach-Object {
+                                if ($thisScopeChildren.$_.type -eq "/subscriptions") {
+                                    if ($thisScopeChildren.$_.displayName -like $notScope.split("/")[-1]) {
+                                        $null = $thisNotScopeList.Add($thisScopeChildren.$_.id)
+                                    }
+                                }
+                            }
+                        }
                         $notScopeTrimmed = $notScope
                         $splits = $notScope -split "/"
                         if ($splits.Count -gt 5) {
                             $individualResource = $true
                             $notScopeTrimmed = $splits[0..4] -join "/"
                         }
-                        if (-not $thisScopeGlobalNotScopeTable.ContainsKey($notScopeTrimmed)) {
+                        if (-not $thisScopeGlobalNotScopeTable.ContainsKey($notScopeTrimmed) -or ($notScope -match "subscriptionsPattern")) {
                             if ($thisScopeChildren.ContainsKey($notScopeTrimmed)) {
                                 $null = $thisNotScopeList.Add($notScope)
                             }

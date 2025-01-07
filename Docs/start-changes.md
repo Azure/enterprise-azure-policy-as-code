@@ -29,7 +29,7 @@ Per `pacEnvironment`:
 - `strategy`: was optional and defaulted to `full`. We recommend setting it to `full`, except during a short transition period to EPAC. This was changed to require an explicit decision.
 - `keepDfcSecurityAssignments`: replaces `deleteDfcSecurityAssignments`  which defaulted to `true`. We highly recommend setting it to `false` and assigning any desired Initiative at management groups.
 
-`desiredState` fields `deleteExpiredExemptions` and `deleteOrphanedExemptions` are deprecated and removed. Exemptions with an ``unknownOwner` are only deleted when `strategy` is `full`. 
+`desiredState` fields `deleteExpiredExemptions` and `deleteOrphanedExemptions` are deprecated and removed. Exemptions with an ``unknownOwner` are only deleted when `strategy` is `full`.
 
 The recommended `desiredState` settings are now as follows:
 
@@ -51,7 +51,7 @@ During a brief transition from a pre-EPAC to an EPAC usage, you can set `desired
 
 ### Desired State Handling for Policy Assignments
 
-Field `desiredState.includeResourceGroups` is deprecated/removed. This change removes all Policy Assignments in resource groups not defined in the Policy Assignment definition files. To keep the previous behavior, add a pattern `"/subscriptions/*/resourceGroups/*" to the `"excludedScopes"` array.
+Field `desiredState.includeResourceGroups` is deprecated/removed. This change removes all Policy Assignments in resource groups not defined in the Policy Assignment definition files. To keep the previous behavior, add a pattern `"/subscriptions/*/resourceGroups/*" to the`"excludedScopes"` array.
 
 Desired state handling for Policy Assignments related to Defender for Cloud (DfC) automatic Policy Assignments has been reworked. DfC creates two different types of Policy Assignments at the subscription level.
 
@@ -78,14 +78,6 @@ EPAC had multiple operational scripts which are not Policy as Code related. Thes
 
 We recommend that you use [Azure Governance Visualizer (AzGovViz)](https://github.com/JulianHayward/Azure-MG-Sub-Governance-Reporting) for these tasks.
 
-## Enhancements planned for v10.1.0
-
-- Script to update CSV effect/parameter files preserving extra columns: https://github.com/Azure/enterprise-azure-policy-as-code/issues/498.
-- Automatically disable deprecated Policies: https://github.com/Azure/enterprise-azure-policy-as-code/issues/516.
-- Cleanup/Improve `Export-PolicyResources` and `Build-PolicyDocumentation` scripts: https://github.com/Azure/enterprise-azure-policy-as-code/issues/517 and https://github.com/Azure/enterprise-azure-policy-as-code/issues/498.
-- Simplify exemption creation by allowing lists of scopes and Policy definitions: https://github.com/Azure/enterprise-azure-policy-as-code/issues/518.
-- Clarify SPNs, Least Privilege, and environments for CI/CD: https://github.com/Azure/enterprise-azure-policy-as-code/issues/519.
-
 ## Enhancements in v10.0.0
 
 ### Support for Cloud environments with limited Support for Resource Graph Queries
@@ -93,13 +85,14 @@ We recommend that you use [Azure Governance Visualizer (AzGovViz)](https://githu
 - US Government Cloud handling of Role Assignments
 - China cloud (21v) handling for Role Assignments and Exemptions.
 
-### Cross-tenant (Lighthouse) support for Role Assignments.
+### Cross-tenant (Lighthouse) support for Role Assignments
 
 Cross-tenant Role Assignments are now supported. This is used if log collection is directed to a resource (Log Analytics, Event Hub. Storage) in a management tenant (e.g, Azure Lighthouse, and similar constructs) which requires you to use `additionalRoleAssignments` in the Policy Assignment file.
 
 ### Simplified Exemption definitions
 
 Exemptions can be specified with a `policyDefinitionName` or `policyDefinitionId` instead of a `policyAssignmentId` and `policyDefinitionReferenceId`. EPAC creates as many Exemptions as needed to cover all Policy Assignments occurrences of the specified Policy
+
 - Support for Microsoft release flow in addition to GitHub flow (documentation and starter kit)
 - Schema updated to latest draft specification
 
@@ -130,3 +123,7 @@ Updating JSON schema to the latest [specification 2020-12](https://json-schema.o
 ### Documentation Updates
 
 Reorganized the documentation to make it easier to find information. Added a new section on how to use the starter kit and how to use the Microsoft release flow.
+
+## Prerelease Features
+
+- v10.7.6-alpha - Subscription pattern matching for excluded scopes in assignments

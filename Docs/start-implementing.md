@@ -139,6 +139,9 @@ EPAC can be installed in two ways:
     Install-Module EnterprisePolicyAsCode -Scope CurrentUser
 ```
 
+> [!IMPORTANT]
+> Experimental or features containing large breaking changes may be available as a prerelease version in GitHub and in PowerShell. To install one of these versions use the ```-AllowPrerelease``` parameter in Install-Module. Be aware that these version are not supported for production use and may introduce breaking changes. Where a feature is implemented in a prerelease it will be documented accordingly.
+
 Many scripts use parameters for input and output folders. They default to the current directory. We recommend that you do one of the following approaches instead of accepting the default to prevent your files being created in the wrong location:
     - [Preferred] Set the environment variables `PAC_DEFINITIONS_FOLDER`, `PAC_OUTPUT_FOLDER`, and `PAC_INPUT_FOLDER`.
     - [Alternative] Use the script parameters `-DefinitionsRootFolder`, `-OutputFolder`, and `-InputFolder`.

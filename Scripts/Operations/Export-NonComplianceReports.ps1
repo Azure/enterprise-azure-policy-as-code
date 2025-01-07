@@ -244,7 +244,7 @@ else {
         $subscriptionScope = "/subscriptions/$($subscriptionId)"
         $subscriptionName = $subscriptionId
         if ($scopeTable.ContainsKey($subscriptionScope)) {
-            $subscriptionName = $scopeTable.$subscriptionScope.name
+            $subscriptionName = $scopeTable.$subscriptionScope.displayName
         }
         $splits = $resourceId -split "/"
         $segments = $splits.Length

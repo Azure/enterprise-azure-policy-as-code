@@ -201,6 +201,22 @@ Both `scope` and `notScopes` are specific to an [EPAC Environment using the pacS
 }
 ```
 
+> [!NOTE]
+> Prerelease Feature - Subscription Pattern Matching for Excluded Scopes
+> As of version v10.7.6-beta you can define a pattern to match on subscriptions for an excluded scope. This allows an assignment to add matched subscription names to the excluded scope. It is not dynamic i.e. if you add subscriptions later and want to include them you would have to run the plan again.
+> The syntax is:
+
+```jsonc
+"notScopes": {
+    "tenant": [
+        "/subscriptions/subscriptionsPattern/wildcard-pattern-to-match" 
+    ]
+}
+E.g. /subscriptions/subscriptionsPattern/Con* would match a subscription with the name Connectivity
+
+The Powershell -like expression is used for matching. 
+```
+
 ## Managed Identities and role assignments
 
 Policies with a `DeployIfNotExists` or `Modify` effect need a Managed Identity (MI) and role assignments to execute remediation tasks. EPAC calculates the necessary role assignments based on the `roleDefinitionIds` in the policy definition. By default EPAC uses a system-assigned Managed Identity. The team maintaining EPAC recommend using system-assigned identities; however, your organization may have role assignment reasons to use user-assigned Managed Identities.

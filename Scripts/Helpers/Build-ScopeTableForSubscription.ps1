@@ -50,6 +50,16 @@ function Build-ScopeTableForSubscription {
                     $IsExcluded = $true
                     break
                 }
+                if ($SubscriptionName -like $globalExcludedScope) {
+                    $IsExcluded = $true
+                    break
+                }
+                if ($globalExcludedScope -match "/subscriptions/subscriptionsPattern/") {
+                    if ($SubscriptionName -match $globalExcludedScope.Split("/")[-1]) {
+                        $IsExcluded = $true
+                        break
+                    }
+                }
             }
         }
     }

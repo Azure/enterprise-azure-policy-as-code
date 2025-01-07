@@ -2,6 +2,16 @@
 
 Instead of installing `EnterprisePolicyAsCode` from the PowerShell Gallery, you can clone the GitHub repository and use the scripts described below to install the script source code. This is useful, if your organization has overly restrictive policies on installing PowerShell modules from the PowerShell Gallery. It can also be useful if you want to contribute EPAC source code to the project.
 
+## Changes to the Forking Process
+
+With the ability to provide prerelease versions via release and PowerShell - if you are working in a forked repo you should also clone the tags from the original source to allow your forked repo to pin to specific releases.
+
+1. Add an upstream remote containing the original release `git remote add upstream https://github.com/Azure/enterprise-azure-policy-as-code.git`
+1. Fetch the tags from the upstream - `git fetch --tags upstream`
+1. Push tags to the fork - `git push --tags`
+
+Tags are not automatically synced to a forked repo so you must perform this task each time you sync your fork with the main project.
+
 ## Setting up your Repo
 
 1. Initial setup
@@ -124,4 +134,4 @@ This is a guide on how to release a new version of the project - including autom
 7. Click **Publish Release**
 8. Click on **Actions**
 9. Verify that a workflow run has started with the same name as the release.
-12. Verify that the module has been published to the [PowerShell Gallery](https://www.powershellgallery.com/packages/EnterprisePolicyAsCode).
+10. Verify that the module has been published to the [PowerShell Gallery](https://www.powershellgallery.com/packages/EnterprisePolicyAsCode).
