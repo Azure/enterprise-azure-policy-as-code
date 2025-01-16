@@ -45,22 +45,20 @@
                                     "type": "array",
                                     "minItems": 2,
                                     "uniqueItems": true,
-                                    "items": [
-                                        {
-                                            "type": "string",
-                                            "enum": [
-                                                "Disabled",
-                                                "Audit",
-                                                "Deny",
-                                                "Modify",
-                                                "Append",
-                                                "AuditIfNotExists",
-                                                "DeployIfNotExists",
-                                                "DenyAction",
-                                                "Manual"
-                                            ]
-                                        }
-                                    ]
+                                    "items": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Disabled",
+                                            "Audit",
+                                            "Deny",
+                                            "Modify",
+                                            "Append",
+                                            "AuditIfNotExists",
+                                            "DeployIfNotExists",
+                                            "DenyAction",
+                                            "Manual"
+                                        ]
+                                    }
                                 },
                                 "defaultValue": {
                                     "enum": [
