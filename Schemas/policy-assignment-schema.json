@@ -223,11 +223,9 @@
                             },
                             "policyDefinitionReferences": {
                                 "type": "array",
-                                "items": [
-                                    {
-                                        "type": "string"
-                                    }
-                                ]
+                                "items": {
+                                    "type": "string"
+                                }
                             }
                         },
                         "oneOf": [
@@ -387,50 +385,44 @@
                     },
                     "selectors": {
                         "type": "array",
-                        "items": [
-                            {
-                                "type": "object",
-                                "properties": {
-                                    "kind": {
-                                        "enum": [
-                                            "resourceLocation",
-                                            "resourceWithoutLocation",
-                                            "resourceType"
-                                        ]
-                                    },
-                                    "in": {
-                                        "type": "array",
-                                        "items": [
-                                            {
-                                                "type": "string"
-                                            }
-                                        ]
-                                    },
-                                    "notIn": {
-                                        "type": "array",
-                                        "items": [
-                                            {
-                                                "type": "string"
-                                            }
-                                        ]
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "kind": {
+                                    "enum": [
+                                        "resourceLocation",
+                                        "resourceWithoutLocation",
+                                        "resourceType"
+                                    ]
+                                },
+                                "in": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
                                     }
                                 },
-                                "oneOf": [
-                                    {
-                                        "required": [
-                                            "kind",
-                                            "in"
-                                        ]
-                                    },
-                                    {
-                                        "required": [
-                                            "kind",
-                                            "notIn"
-                                        ]
+                                "notIn": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
                                     }
-                                ]
-                            }
-                        ]
+                                }
+                            },
+                            "oneOf": [
+                                {
+                                    "required": [
+                                        "kind",
+                                        "in"
+                                    ]
+                                },
+                                {
+                                    "required": [
+                                        "kind",
+                                        "notIn"
+                                    ]
+                                }
+                            ]
+                        }
                     }
                 },
                 "required": [
