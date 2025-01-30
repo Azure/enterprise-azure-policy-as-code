@@ -34,83 +34,75 @@
                 },
                 "importPolicyDefinitionGroups": {
                     "type": "array",
-                    "items": [
-                        {
-                            "type": "string"
-                        }
-                    ]
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "policyDefinitionGroups": {
                     "type": "array",
-                    "items": [
-                        {
-                            "type": "object",
-                            "properties": {
-                                "name": {
-                                    "type": "string"
-                                },
-                                "additionalMetadataId": {
-                                    "type": "string"
-                                }
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
                             },
-                            "additionalProperties": false,
-                            "required": [
-                                "name"
-                            ]
-                        }
-                    ]
+                            "additionalMetadataId": {
+                                "type": "string"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "name"
+                        ]
+                    }
                 },
                 "parameters": {
                     "type": "object"
                 },
                 "policyDefinitions": {
                     "type": "array",
-                    "items": [
-                        {
-                            "type": "object",
-                            "properties": {
-                                "policyDefinitionId": {
-                                    "type": "string"
-                                },
-                                "policyDefinitionName": {
-                                    "type": "string"
-                                },
-                                "policyDefinitionReferenceId": {
-                                    "type": "string"
-                                },
-                                "definitionVersion": {
-                                    "type": "string"
-                                },
-                                "parameters": {
-                                    "type": "object"
-                                },
-                                "groupNames": {
-                                    "type": "array",
-                                    "items": [
-                                        {
-                                            "type": "string"
-                                        }
-                                    ]
-                                }
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "policyDefinitionId": {
+                                "type": "string"
                             },
-                            "additionalProperties": false,
-                            "oneOf": [
-                                {
-                                    "required": [
-                                        "policyDefinitionId"
-                                    ]
-                                },
-                                {
-                                    "required": [
-                                        "policyDefinitionName"
-                                    ]
+                            "policyDefinitionName": {
+                                "type": "string"
+                            },
+                            "policyDefinitionReferenceId": {
+                                "type": "string"
+                            },
+                            "definitionVersion": {
+                                "type": "string"
+                            },
+                            "parameters": {
+                                "type": "object"
+                            },
+                            "groupNames": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
                                 }
-                            ],
-                            "required": [
-                                "policyDefinitionReferenceId"
-                            ]
-                        }
-                    ]
+                            }
+                        },
+                        "additionalProperties": false,
+                        "oneOf": [
+                            {
+                                "required": [
+                                    "policyDefinitionId"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "policyDefinitionName"
+                                ]
+                            }
+                        ],
+                        "required": [
+                            "policyDefinitionReferenceId"
+                        ]
+                    }
                 }
             },
             "additionalProperties": false,
