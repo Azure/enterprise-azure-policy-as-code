@@ -9,10 +9,10 @@ function Search-AzGraphAllItems {
     # Search-AzGraph can only return a maximum of 1000 items. Without the -First it will only return 100 items
     $body = @{
         query = $Query
-        # options = @{
-        #     "`$top"  = 1000
-        #     "`$skip" = 0
-        # }
+        options = @{
+            "`$top"  = $ProgressIncrement
+            "`$skip" = 0
+        }
     }
     if ($ScopeSplat.ManagementGroup) {
         $body.managementGroups = @($ScopeSplat.ManagementGroup)
