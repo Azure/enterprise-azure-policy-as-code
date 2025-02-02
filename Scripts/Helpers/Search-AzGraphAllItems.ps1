@@ -7,12 +7,19 @@ function Search-AzGraphAllItems {
     )
 
     # Search-AzGraph can only return a maximum of 1000 items. Without the -First it will only return 100 items
-    $body = @{
-        query = $Query
-        # options = @{
-        #     "`$top"  = 1000
-        #     "`$skip" = 0
-        # }
+    if ($ProgressItemName -ne "Policy Set definitions") {
+        $body = @{
+            query = $Query
+        }
+    }
+    else {
+        $body = @{
+            query   = $Query
+            options = @{
+                "`$top"  = $ProgressIncrement
+                "`$skip" = 0
+            }
+        }
     }
     if ($ScopeSplat.ManagementGroup) {
         $body.managementGroups = @($ScopeSplat.ManagementGroup)
@@ -29,13 +36,35 @@ function Search-AzGraphAllItems {
 
     [System.Collections.ArrayList] $data = [System.Collections.ArrayList]::new()
 
-    $bodyJson = $body | ConvertTo-Json -Depth 100
-    $dsi = 1
+    $dsi = 0
+
     do {
         try {
+            $bodyJson = $body | ConvertTo-Json -Depth 100
+
             $response = Invoke-AzRestMethod -Method POST `
                 -Path "/providers/Microsoft.ResourceGraph/resources?api-version=2022-10-01" `
                 -Payload $bodyJson
+            $dsi++
+                
+            if ($response.StatusCode -ge 400) {
+                $contentString = $response.Content -join ""
+                $contentObj = ConvertFrom-Json -InputObject $contentString
+                if ($contentObj.error.details[0].code -eq "ResponsePayloadTooLarge") {
+                    Write-Host "Payload too large detected. Adjusting request and retrying..."
+                    $ProgressIncrement = [Convert]::ToInt32([math]::Floor($ProgressIncrement / 2))
+                    # Modify body to include pagination options
+                    $body = @{
+                        query   = $Query
+                        options = @{
+                            "`$top"  = $ProgressIncrement
+                            "`$skip" = 0
+                        }
+                    }
+                    # Retry immediately without incrementing $dsi
+                    continue
+                }
+            }
         }
         catch {
             Write-Warning "Recovering Data Stream Error: $_"
