@@ -23,10 +23,13 @@
 .PARAMETER UseBuiltIn    
     Default to using builtin policies rather than local versions.
 
-.PARAMETER Scope
+.PARAMETER PacSelector
     Used to set scope value on each assignment file.
 
-.PARAMETER PacSelector
+.PARAMETER OverwriteScope
+    Used to set scope value on each assignment file.
+
+.PARAMETER OverwritePacSelector
     Used to set PacEnvironment for each assignment file.
 
 .PARAMETER OverwriteOutput
@@ -37,7 +40,7 @@
     Retrieves Policy from Azure Portal, auto creates parameters to be manipulated in the assignment and sets assignment and policy set to use built-in policies rather than self hosted.
 
 .EXAMPLE
-    "./Export-PolicyToEPAC.ps1" -ALZPolicySetDefinitionId "Enforce-Guardrails-OpenAI" -PacSelector "EPAC-Prod" -Scope "/providers/Microsoft.Management/managementGroups/4fb849a3-3ff3-4362-af8e-45174cd753dd" 
+    "./Export-PolicyToEPAC.ps1" -ALZPolicySetDefinitionId "Enforce-Guardrails-OpenAI" -PacSelector "EPAC-Prod" -OverwriteScope "/providers/Microsoft.Management/managementGroups/4fb849a3-3ff3-4362-af8e-45174cd753dd" 
     Retrieves Policy from ALZ Repo, sets the PacSelector in the assignment files to "EPAC-Prod" and the scope to the management group path provided.
 #>
 
@@ -65,10 +68,13 @@ param (
     [bool] $UseBuiltIn = $true,
 
     [Parameter(Mandatory = $false, HelpMessage = "Used to set scope value on each assignment file")]
-    [string] $Scope,
+    [string] $PacSelector,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Used to set scope value on each assignment file")]
+    [string] $OverwriteScope,
 
     [Parameter(Mandatory = $false, HelpMessage = "Used to set PacEnvironment for each assignment file")]
-    [string] $PacSelector,
+    [string] $OverwritePacSelector,
 
     [Parameter(Mandatory = $false, HelpMessage = "Used to Overwrite the contents of the output folder with each run. Helpful when running consecutively")]
     [bool] $OverwriteOutput = $true
@@ -651,6 +657,7 @@ elseif ($ALZPolicySetDefinitionId) {
 }
 else {
     Write-Error "Export-PolicyToEPAC requires at least one of the following: PolicyDefinitionId, PolicySetDefinitionId, ALZPolicyDefinitionId or ALZPolicySetDefinitionId!"
+    exit 1
 }
 
 
@@ -719,20 +726,51 @@ if ($policyObject) {
     $assignmentObject.children.assignment.displayName = "$policyDisplayName"
     $assignmentObject.children.assignment.description = "$policyDescription"
 
-    # Overwrite PacSelector is given
-    if ($PacSelector -and $PacSelector -ne "EPAC-Dev") {
-        $assignmentObject.children.scope | Add-Member -MemberType NoteProperty -Name "$PacSelector" -Value ""
-        $assignmentObject.children.scope.$PacSelector = $assignmentObject.children.scope.'EPAC-Dev'
+    # Set PacSelector from Global-Settings if given
+    if ($PacSelector) {
+        $filePath = "Definitions/global-settings.jsonc"
+        if (Test-Path -Path $filePath) {
+            $globalSettingsContent = Get-Content -Path $filePath | ConvertFrom-Json
+        }
+        else {
+            Write-Error "'global-settings.jconc' file found in the 'Definitions' folder."
+            exit 1
+        }
+        $pacEnvironments = $globalSettingsContent.PacEnvironments
+        if ($pacEnvironments.pacSelector -contains "$PacSelector") {
+            foreach ($environment in $pacEnvironments) {
+                if ($environment.pacSelector -eq "$PacSelector") {
+                    $tempScope = $environment.deploymentRootScope
+                    $assignmentObject.children.scope | Add-Member -MemberType NoteProperty -Name "$PacSelector" -Value @("$tempScope")
+                    $assignmentObject.children[0].nodeName = "$PacSelector"
+                    $assignmentObject.children.scope.PSObject.Properties.Remove("EPAC-Dev")
+                }
+            }
+        }
+        else {
+            Write-Error "The PacSelector provided not found in 'global-settings.jconc' file."
+            exit 1
+        }
+
+        # Overwrite Scope if given
+        if ($OverwriteScope) {
+            $assignmentObject.children[0].scope.$PacSelector[0] = "$OverwriteScope"
+        }
+    }
+
+    # Overwrite PacSelector if given
+    if ($OverwritePacSelector -and $OverwritePacSelector -ne "EPAC-Dev") {
+        $assignmentObject.children.scope | Add-Member -MemberType NoteProperty -Name "$OverwritePacSelector" -Value ""
+        $assignmentObject.children.scope.$OverwritePacSelector = $assignmentObject.children.scope.'EPAC-Dev'
         $assignmentObject.children.scope.PSObject.Properties.Remove("EPAC-Dev")
     }
 
     # Overwrite Scope if given
-    if ($Scope -and $PacSelector) {
-        $assignmentObject.children.scope.$PacSelector = "$Scope"
+    if ($OverwriteScope -and $OverwritePacSelector -and !$PacSelector) {
+        $assignmentObject.children.scope.$OverwritePacSelector[0] = "$OverwriteScope"
     }
-    elseif ($Scope -and !$PacSelector) {
-        $assignmentObject.children.scope.'EPAC-Dev' = "$Scope"
-
+    elseif ($OverwriteScope -and !$OverwritePacSelector -and !$PacSelector) {
+        $assignmentObject.children.scope.'EPAC-Dev'[0] = "$OverwriteScope"
     }
 
     #region AutoParameter
