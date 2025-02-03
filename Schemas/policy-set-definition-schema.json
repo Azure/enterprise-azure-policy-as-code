@@ -14,6 +14,9 @@
                 "displayName": {
                     "type": "string"
                 },
+                "policyType": {
+                    "type": "string"
+                },
                 "description": {
                     "type": "string"
                 },
