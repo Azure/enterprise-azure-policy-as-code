@@ -21,15 +21,17 @@ To utilize the schema add a ```$schema``` tag to the JSON file.
 
 This schema is new in v7.4.x and may not be complete. Please let us know if we missed anything.
 
-## Example Documentation Specification File using 'documentAllAssignments'
+## Examples
 
-Each file must contain one or both documentation topics. This example file in the StarterKit has both topics. The element `pacEnvironment` references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the custom Policies and Policy Sets are deployed.
+The following are 2 examples which are both valid. Both are presented and should be used based on requirements and preference.
 
-* [`documentAssignments`](#assignment-documentation)
-* [`documentPolicySets`](#policy-set-documentation)
+### Document All Assignments
+
+Each file must contain one or both documentation topics, [`documentAssignments`](#assignment-documentation) and/or [`documentPolicySets`](#policy-set-documentation). This example file in the StarterKit has both topics. The element `pacEnvironment` references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the custom Policies and Policy Sets are deployed.
 
 ```json
 {
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-documentation-schema.json",
     "documentAssignments": {
         "documentAllAssignments": [
             {
@@ -104,15 +106,16 @@ Each file must contain one or both documentation topics. This example file in th
 }
 ```
 
-## Example Documentation Specification File using 'environmentCategories'
+### Document chosen 'Environment Categories'
 
-Each file must contain one or both documentation topics. This example file in the StarterKit has both topics. The element `pacEnvironment` references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the custom Policies and Policy Sets are deployed.
+Each file must contain one or both documentation topics, [`documentAssignments`](#assignment-documentation) and/or [`documentPolicySets`](#policy-set-documentation). This example file in the StarterKit has both topics. The element `pacEnvironment` references the Policy as Code environment in `global-settings.jsonc` defining the tenant and root scope where the custom Policies and Policy Sets are deployed.
 
 * [`documentAssignments`](#assignment-documentation)
 * [`documentPolicySets`](#policy-set-documentation)
 
 ```json
 {
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-documentation-schema.json",
     "documentAssignments": {
         "environmentCategories": [
             {

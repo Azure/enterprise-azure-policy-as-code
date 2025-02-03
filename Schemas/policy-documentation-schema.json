@@ -7,7 +7,7 @@
             "properties": {
                 "documentAllAssignments": {
                     "type": "array",
-                    "maxItems": 1,
+                    "minItems": 1,
                     "items": {
                         "type": "object",
                         "properties": {
@@ -101,12 +101,6 @@
             "anyOf": [
                 {
                     "required": [
-                        "environmentCategories",
-                        "documentationSpecifications"
-                    ]
-                },
-                {
-                    "required": [
                         "documentAllAssignments",
                         "documentationSpecifications"
                     ]
@@ -138,12 +132,27 @@
                                     "type": "string"
                                 },
                                 "id": {
-                                    "type": "string"
+                                    "type": "string",
+                                    "description": "The name of the policy set. This is used for built-in policy sets."
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "description": "The name of the policy set. This is used for custom policy sets."
                                 }
                             },
-                            "required": [
-                                "shortName",
-                                "id"
+                            "oneOf": [
+                                {
+                                    "required": [
+                                        "shortName",
+                                        "id"
+                                    ]
+                                },
+                                {
+                                    "required": [
+                                        "shortName",
+                                        "name"
+                                    ]
+                                }
                             ]
                         }
                     },
