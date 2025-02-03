@@ -40,7 +40,7 @@ function Confirm-ObjectValueEqualityDeep {
                 # This resolves a unique situation where GraphApi returns a string instead of an array for a metadata value, very unique situation
                 # By testing the json and count, we can confirm that it is a json string and convert it to an array
                 # A try catch is included to revert to the value we normally use in the event of failure just in case there is a scenario that has not been accounted for
-                if ($(Test-Json -InputObject $Object1) -and $Object1.count -eq 1) {
+                if ($(Test-Json -Json $Object1) -and $Object1.count -eq 1) {
                     try {
                         $Object1 = $Object1 | ConvertFrom-Json -Depth 100
                     }
@@ -54,7 +54,7 @@ function Confirm-ObjectValueEqualityDeep {
                 # This resolves a unique situation where GraphApi returns a string instead of an array for a metadata value, very unique situation
                 # By testing the json and count, we can confirm that it is a json string and convert it to an array
                 # A try catch is included to revert to the value we normally use in the event of failure just in case there is a scenario that has not been accounted for
-                if ($(Test-Json -InputObject $Object2) -and $Object2.count -eq 1) {
+                if ($(Test-Json -Json $Object2) -and $Object2.count -eq 1) {
                     try {
                         $Object2 = $Object2 | ConvertFrom-Json -Depth 100
                     }
