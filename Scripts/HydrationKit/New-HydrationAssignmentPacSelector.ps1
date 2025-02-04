@@ -101,7 +101,7 @@ function New-HydrationAssignmentPacSelector {
             if ($json.children) {
                 $i = 0
                 foreach ($c in $json.children) {
-                    $c.scope
+                    # $c.scope
                     if ($c.scope.($NewPacSelector)) {
                         $i++
                     }
@@ -111,12 +111,12 @@ function New-HydrationAssignmentPacSelector {
                 Write-Debug "    No scope found for $SourcePacSelector in $($f.FullName), reviewing children..."
                 foreach ($c in $json.children) {
                     Write-Debug "    Processing child $($c.nodeName)..."
-                    $c.scope.($SourcePacSelector)
+                    # $c.scope.($SourcePacSelector)
                     if ($c.scope.($SourcePacSelector)) {
                         $childScope = @()
                         foreach ($scope in $($c.scope.($SourcePacSelector))) {
                             if ($scope -like "/subscriptions/*") {
-                                Write-Warning "$($json.assignment.name): $($json.assignment.displayName) is assigned to subscription $scope, this cannot be duplicated without a specific subscription in the environment $NewPacSelector"
+                                Write-Warning "$($json.assignment.name): `"$($json.assignment.displayName)`" is assigned to subscription $scope, this cannot be duplicated without a specific subscription in the environment $NewPacSelector"
                             }
                             else {
                                 $childScope += "/providers/Microsoft.Management/managementGroups/" + $MGHierarchyPrefix + $(Split-Path $scope -Leaf) + $MGHierarchySuffix
@@ -124,7 +124,18 @@ function New-HydrationAssignmentPacSelector {
                                 Write-Debug "    New Scope Name: $($c.nodeName)"
                             }
                         }
-                        $c.scope | Add-Member -MemberType NoteProperty -Name $NewPacSelector -Value $childScope
+                        try{
+                            if(!($c.scope.$NewPacSelector)) {
+                                $c.scope | Add-Member -MemberType NoteProperty -Name $NewPacSelector -Value $childScope
+                            }
+                            else {
+                                "Target pacSelector already exists in $($f.FullName), skipping..."
+                            }
+                        }
+                        catch{
+                            Write-Warning "Target pacSelector already exists in $($f.FullName), skipping..."
+                        }
+                        
                     }
                     else {
                         Write-Debug "    No scope found for $($SourcePacSelector) in $($c.nodeName), skipping..."
@@ -143,7 +154,9 @@ function New-HydrationAssignmentPacSelector {
                     }
                     else {
                         $newScope += "/providers/Microsoft.Management/managementGroups/" + $MGHierarchyPrefix + $(Split-Path $scope -Leaf) + $MGHierarchySuffix
-                        $json.scope | Add-Member -MemberType NoteProperty -Name $NewPacSelector -Value $newScope
+                        if(!($json.scope.$NewPacSelector)) {
+                            $json.scope | Add-Member -MemberType NoteProperty -Name $NewPacSelector -Value $newScope
+                        }
                     }
                             
                 }
@@ -164,3 +177,8 @@ function New-HydrationAssignmentPacSelector {
         }
     }
 }
+# New-HydrationAssignmentPacSelector -NewPacSelector 'epac-dev' `
+#     -SourcePacSelector 'tenant' `
+#     -Definitions './Definitions' `
+#     -Output './Output' `
+#     -MGHierarchySuffix '-epdev'

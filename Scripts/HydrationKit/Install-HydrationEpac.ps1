@@ -28,6 +28,7 @@
 #>
 function Install-HydrationEpac {
     [CmdletBinding()]
+    [Alias("Build-EpacRepo", "ber")]
     param (
         [Parameter(Mandatory = $true, HelpMessage = "The path to the Tenant Intermediate Root. This parameter is mandatory.")]
         [string]
@@ -55,6 +56,7 @@ function Install-HydrationEpac {
         $SkipTests
 
     )
+    $epacDevName = "epac-dev"
     Clear-Host
     $sleepTime = 10
     # Define Verbosity
@@ -67,14 +69,12 @@ function Install-HydrationEpac {
     }
 
     # Move to repo root as EPAC generally prefers to be run from this location
-    $repoRootPath = Split-Path $DefinitionsRootFolder
-    Set-Location $repoRootPath
     $logDirectory = Join-Path $Output "Logs"
     $logFilePath = Join-Path $logDirectory "Install-HydrationEpac.log"
     $questionsFilePath = Join-Path $StarterKit "HydrationKit" "questions.jsonc"
     $pathsToTest = @($DefinitionsRootFolder, `
-        $logDirectory, `
-        $Output)
+            $logDirectory, `
+            $Output)
     # Import, fail to import, or create the answer file
     if ($AnswerFile) {
         $answerFilePath = $AnswerFile
@@ -83,7 +83,7 @@ function Install-HydrationEpac {
             return
         }
         $allInterviewAnswers = Get-Content $AnswerFile `
-            | ConvertFrom-Json -Depth 10 -AsHashtable
+        | ConvertFrom-Json -Depth 10 -AsHashtable
     }
     else {
         $answerFilePath = Join-Path $Output `
@@ -174,11 +174,49 @@ function Install-HydrationEpac {
             Message = "The script will be unable to programatically download the StarterKit from GitHub. Please ensure that you have an updated copy of StarterKit in the same directory as the Definitions folder, based on the choices made in this script." 
         }
     }
-    $stageBlocks = Get-Content $(Join-Path $StarterKit 'HydrationKit' 'blockDefinitions.jsonc') | ConvertFrom-Json -Depth 5 -AsHashtable
-    foreach($key in $stageBlocks.keys) {
-        $stageBlocks.$key.TerminalWidth = $TerminalWidth
+    # $stageBlocks = Get-Content $(Join-Path $StarterKit 'HydrationKit' 'blockDefinitions.jsonc') | ConvertFrom-Json -Depth 5 -AsHashtable
+    # foreach ($key in $stageBlocks.keys) {
+    #     $stageBlocks.$key.TerminalWidth = $TerminalWidth
+    # }
+    ##################### INSERT INITIAL BLOCK HERE
+    $stageBlocks = [ordered]@{
+        "displayPreliminaryTests" = @{
+            "TerminalWidth"         = $TerminalWidth
+            "RowCharacterColor"     = "Yellow"
+            "TextRowCharacterColor" = "Blue"
+            "SmallRowCharacter"     = "-"
+            "DisplayText"           = "Summarizing Test Results"
+            "LargeRowCharacter"     = "-"
+            "Location"              = "Middle"
+        }
+        "gatherData"              = @{
+            "TerminalWidth"         = $TerminalWidth
+            "RowCharacterColor"     = "Yellow"
+            "TextRowCharacterColor" = "Blue"
+            "SmallRowCharacter"     = "-"
+            "DisplayText"           = "Beginning Data Gathering"
+            "LargeRowCharacter"     = "-"
+            "Location"              = "Middle"
+        }
+        "uiStart"                 = @{
+            "TerminalWidth"         = $TerminalWidth
+            "RowCharacterColor"     = "Blue"
+            "TextRowCharacterColor" = "Cyan"
+            "SmallRowCharacter"     = "+"
+            "DisplayText"           = "Enterprise Policy as Code (EPAC) Hydration Kit"
+            "LargeRowCharacter"     = "="
+            "Location"              = "Top"
+        }
+        "runPreliminaryTests"     = @{
+            "TerminalWidth"         = $TerminalWidth
+            "RowCharacterColor"     = "Blue"
+            "TextRowCharacterColor" = "Yellow"
+            "SmallRowCharacter"     = "-"
+            "DisplayText"           = "Beginning Preliminary Tests"
+            "LargeRowCharacter"     = "+"
+            "Location"              = "Top"
+        }
     }
-
     Clear-Host
     ################################################################################
     ################################################################################
@@ -216,9 +254,10 @@ function Install-HydrationEpac {
     Write-Host "Beginning path tests to help ensure that the script can run successfully..." -ForegroundColor Yellow
     # Test for and create directories if they do not exist, this allows realtime logging to file to begin
 
-    if ($SkipTests){
+    if ($SkipTests) {
         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Skipping tests..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Magenta
-    }else {
+    }
+    else {
         foreach ($path in $pathsToTest) {
             $pathTest = Test-HydrationPath -LocalPath $path `
                 -UseUtc:$UseUtc `
@@ -237,7 +276,9 @@ function Install-HydrationEpac {
             Write-HydrationLogFile -EntryType testResult -EntryData "$entry -- $($summary.$entry)" -UseUtc:$UseUtc -LogFilePath $logFilePath -Silent
             Start-Sleep -Seconds $sleepTime
         }
-        
+        $DefinitionsRootFolder = Resolve-Path $DefinitionsRootFolder
+        $repoRootPath = Split-Path $DefinitionsRootFolder
+        Set-Location $repoRootPath
         # Begin Azure Network Connection Tests
         Write-Host "Beginning connectivity tests to help ensure that the script can run successfully..." -ForegroundColor Yellow
         $connectionTestUrlList = [ordered]@{
@@ -262,14 +303,14 @@ function Install-HydrationEpac {
             Write-HydrationLogFile -EntryType testResult -EntryData "$url -- $($summary.$url)" -UseUtc:$UseUtc -LogFilePath $logFilePath -Silent
         }
         
-        # Begin Azure Authorization Tests
-        Write-Host "Beginning RBAC Authorization tests to help ensure that the script can run successfully..." -ForegroundColor Yellow
-        Write-Host "- This will only check for direct assignments, and will not take into account group membership, as it requires API calls to Entra ID that are not within the scope of EPAC's mission." -ForegroundColor Yellow
-        Write-Host "    - Creation, and Removal, of a Management group at Tenant Root will effectively confirm privileges if the test must be bypassed/ignored for this reason." -ForegroundColor Yellow
-        Write-Host "- If your terminal appears to hang during this process, it is likely that the script is waiting for an authentication prompt in the medium configured for your terminal session. This is generally the default web browser. Please check for hidden windows." -ForegroundColor Magenta
-        Write-Host "    - For example, VSCode's default Terminal behavior is to open a login window in the default web browser IN THE BACKGROUND, a pop-under. Please check for this window if you are using VSCode." -ForegroundColor Magenta
-        $rbacTest = Test-HydrationRbacAssignment -Scope $(Get-AzContext).Tenant.Id -Output:$Output -UseUtc:$UseUtc -LogFilePath $logFilePath -Silent
-        $summary.add("RbacAuthorization", $rbacTest)
+        # # Begin Azure Authorization Tests
+        # Write-Host "Beginning RBAC Authorization tests to help ensure that the script can run successfully..." -ForegroundColor Yellow
+        # Write-Host "- This will only check for direct assignments, and will not take into account group membership, as it requires API calls to Entra ID that are not within the scope of EPAC's mission." -ForegroundColor Yellow
+        # Write-Host "    - Creation, and Removal, of a Management group at Tenant Root will effectively confirm privileges if the test must be bypassed/ignored for this reason." -ForegroundColor Yellow
+        # Write-Host "- If your terminal appears to hang during this process, it is likely that the script is waiting for an authentication prompt in the medium configured for your terminal session. This is generally the default web browser. Please check for hidden windows." -ForegroundColor Magenta
+        # Write-Host "    - For example, VSCode's default Terminal behavior is to open a login window in the default web browser IN THE BACKGROUND, a pop-under. Please check for this window if you are using VSCode." -ForegroundColor Magenta
+        # $rbacTest = Test-HydrationRbacAssignment -Scope $(Get-AzContext).Tenant.Id -Output:$Output -UseUtc:$UseUtc -LogFilePath $logFilePath -Silent
+        # $summary.add("RbacAuthorization", $rbacTest)
         Write-Host "Beginning git tests to help ensure that the script can run successfully..." -ForegroundColor Yellow
         try {
             if (($(git --help))) {
@@ -290,7 +331,8 @@ function Install-HydrationEpac {
             }
         }
         
-        if ($failedTests.keys.count -gt 0 -or (!($($summary.RBACAuthorization -eq "PassedHydrationDeploy")))) {
+        # if ($failedTests.keys.count -gt 0 -or (!($($summary.RBACAuthorization -eq "PassedHydrationDeploy")))) {
+        if ($failedTests.keys.count -gt 0) {
             Write-Host "The following items should be considered before continuing:" -ForegroundColor Red
             foreach ($key in $failedTests.keys) {
                 switch ($key) {
@@ -315,45 +357,45 @@ function Install-HydrationEpac {
                     }
                 }
             }
-            switch ($summary.RbacAuthorization) {
-                "PassedEpacAllDeploy" {
-                    Write-Host "    $($roleMessages.PassedEpacAllDeploy)" -ForegroundColor Red
-                }
-                "PassedEpacPolicyDeploy" {
-                    Write-Host "    $($roleMessages.PassedEpacAllDeploy)" -ForegroundColor Red
-                    Write-Host "    $($roleMessages.PassedEpacPolicyDeploy)" -ForegroundColor Red
-                    $limitation.Write.Status = $true
-                    $limitation.Role.Status.Status = $true
-                }
-                "PassedEpacRoleDeploy" {
-                    Write-Host "    $($roleMessages.PassedEpacRoleDeploy)" -ForegroundColor Red
-                    Write-Host "    $($roleMessages.PassedEpacAllDeploy)" -ForegroundColor Red
-                    Write-Host "    $($roleMessages.PassedEpacPolicyDeploy)" -ForegroundColor Red
-                    $limitation.Write.Status = $true
-                    $limitation.Policy.Status = $true
-                }
-                "PassedEpacPlan" {
-                    Write-Host "    $($roleMessages.PassedEpacPlan)" -ForegroundColor Red
-                    Write-Host "    $($roleMessages.PassedEpacRoleDeploy)" -ForegroundColor Red
-                    Write-Host "    $($roleMessages.PassedEpacAllDeploy)" -ForegroundColor Red
-                    Write-Host "    $($roleMessages.PassedEpacPolicyDeploy)" -ForegroundColor Red
-                    $limitation.Write.Status = $true
-                    $limitation.Policy.Status = $true
-                    $limitation.Role.Status = $true
-                }
-                "Failed" {
-                    Write-Host "    $($roleMessages.PassedEpacAllDeploy)" -ForegroundColor Red
-                    Write-Host "    $($roleMessages.PassedEpacPlan)" -ForegroundColor Red
-                    Write-Host "    $($roleMessages.PassedEpacRoleDeploy)" -ForegroundColor Red
-                    Write-Host "    $($roleMessages.PassedEpacAllDeploy)" -ForegroundColor Red
-                    Write-Host "    $($roleMessages.PassedEpacPolicyDeploy)" -ForegroundColor Red
-                    $limitation.Write.Status = $true
-                    $limitation.Plan = $true
-                    $limitation.Policy.Status = $true
-                    $limitation.Role.Status = $true
-                    $limitation.Gather = $true
-                }
-            }
+            # switch ($summary.RbacAuthorization) {
+            #     "PassedEpacAllDeploy" {
+            #         Write-Host "    $($roleMessages.PassedEpacAllDeploy)" -ForegroundColor Red
+            #     }
+            #     "PassedEpacPolicyDeploy" {
+            #         Write-Host "    $($roleMessages.PassedEpacAllDeploy)" -ForegroundColor Red
+            #         Write-Host "    $($roleMessages.PassedEpacPolicyDeploy)" -ForegroundColor Red
+            #         $limitation.Write.Status = $true
+            #         $limitation.Role.Status.Status = $true
+            #     }
+            #     "PassedEpacRoleDeploy" {
+            #         Write-Host "    $($roleMessages.PassedEpacRoleDeploy)" -ForegroundColor Red
+            #         Write-Host "    $($roleMessages.PassedEpacAllDeploy)" -ForegroundColor Red
+            #         Write-Host "    $($roleMessages.PassedEpacPolicyDeploy)" -ForegroundColor Red
+            #         $limitation.Write.Status = $true
+            #         $limitation.Policy.Status = $true
+            #     }
+            #     "PassedEpacPlan" {
+            #         Write-Host "    $($roleMessages.PassedEpacPlan)" -ForegroundColor Red
+            #         Write-Host "    $($roleMessages.PassedEpacRoleDeploy)" -ForegroundColor Red
+            #         Write-Host "    $($roleMessages.PassedEpacAllDeploy)" -ForegroundColor Red
+            #         Write-Host "    $($roleMessages.PassedEpacPolicyDeploy)" -ForegroundColor Red
+            #         $limitation.Write.Status = $true
+            #         $limitation.Policy.Status = $true
+            #         $limitation.Role.Status = $true
+            #     }
+            #     "Failed" {
+            #         Write-Host "    $($roleMessages.PassedEpacAllDeploy)" -ForegroundColor Red
+            #         Write-Host "    $($roleMessages.PassedEpacPlan)" -ForegroundColor Red
+            #         Write-Host "    $($roleMessages.PassedEpacRoleDeploy)" -ForegroundColor Red
+            #         Write-Host "    $($roleMessages.PassedEpacAllDeploy)" -ForegroundColor Red
+            #         Write-Host "    $($roleMessages.PassedEpacPolicyDeploy)" -ForegroundColor Red
+            #         $limitation.Write.Status = $true
+            #         $limitation.Plan = $true
+            #         $limitation.Policy.Status = $true
+            #         $limitation.Role.Status = $true
+            #         $limitation.Gather = $true
+            #     }
+            # }
         }
         else {
             Write-Host "All tests indicate that the connection is in an optimal state for the EPAC installation process. Additional data will be gathered using these connections, and errors after this point will generally indicate a unique condition such as an inheritance block/override for RBAC authority." -ForegroundColor Green
@@ -393,124 +435,132 @@ function Install-HydrationEpac {
     $summary = [ordered]@{}
     $gatherData = $stageBlocks.gatherData
     New-HydrationSeparatorBlock @gatherData
-    Write-HydrationLogFile -EntryType newStage -EntryData $stageBlocks.displayPreliminaryTests.DisplayText -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent
-    if ($limitation.Gather.Status) {
-        Write-HydrationLogFile -EntryType answerRequested -EntryData $limitation.Gather.Message -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent    
-        Write-Host limitation.Gather.Message -ForegroundColor Red
-        $continueWithoutRead = New-HydrationAnswer `
-            -QuestionData "Would you like to continue without the ability to gather data from Azure?" `
-            -AnswerOptions "Yes", "No" `
-            -DefaultValue "No"
-        if ($continueWithoutRead -eq "Yes") {
-            Write-Host "Continuing without the ability to gather data from Azure..." -ForegroundColor DarkRed
-        }
-        else {
-            Write-Host "Stopping the process to allow for a connection to Azure with an account that has more comprehensive rights, at least Read, to Azure." -ForegroundColor Red
-            return
-        }
+    Write-HydrationLogFile -EntryType newStage -EntryData $stageBlocks.gatherData.DisplayText -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent
+    # if ($limitation.Gather.Status) {
+    #     Write-HydrationLogFile -EntryType answerRequested -EntryData $limitation.Gather.Message -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent    
+    #     Write-Host limitation.Gather.Message -ForegroundColor Red
+    #     $continueWithoutRead = New-HydrationAnswer `
+    #         -QuestionData "Would you like to continue without the ability to gather data from Azure?" `
+    #         -AnswerOptions "Yes", "No" `
+    #         -DefaultValue "No"
+    #     if ($continueWithoutRead -eq "Yes") {
+    #         Write-Host "Continuing without the ability to gather data from Azure..." -ForegroundColor DarkRed
+    #     }
+    #     else {
+    #         Write-Host "Stopping the process to allow for a connection to Azure with an account that has more comprehensive rights, at least Read, to Azure." -ForegroundColor Red
+    #         return
+    #     }
+    # }
+    # else {
+    Write-Host "Beginning data gathering process..." -ForegroundColor Yellow
+
+    # Gather Data
+    $gatherData = [ordered]@{}
+    $environmentEntry = [ordered]@{
+        pacSelector                = ""
+        intermediateRootGroupName  = $TenantIntermediateRoot
+        tenantId                   = $(Get-AzContext).Tenant.Id
+        cloud                      = $(Get-AzContext).Environment.Name
+        keepDfcSecurityAssignments = $false
+        caf3Status                 = "Untested"
+        intermediateRootStatus     = "Untested"
+    }
+    # Current Tenant Information
+    try {
+        $gatherData.Add('currentTenantPacSelector', $(Get-DeepCloneAsOrderedHashtable -InputObject $environmentEntry))
+        $gatherData.currentTenantPacSelector.pacSelector = "tenant01" # Set Default for primary tenant, primary root (that will be cloned to epac-dev environment)
+    }
+    catch {
+        Write-Error "Cannot find the EPAC helper command `'Get-DeepCloneAsOrderedHashtable`', please ensure that the EPAC module or is installed and available, or that the scripts directory is available and the helpers have been dot sourced for use."
+        return
+    }
+    try {
+        $gatherData.Add('locationList', @((Get-AzLocation).Location) -join ", ")
+    }
+    catch {
+        Write-Error "Failed to gather Azure Location List, please ensure that you have a connection to Azure and try again."
+        return
+    }
+    
+    try {
+        $tenantIntermediateRootTestResult = Get-AzManagementGroupRestMethod -GroupID $TenantIntermediateRoot
+    }
+    catch {
+        Write-Warning "Error returned retrieving the Tenant Intermediate Root. This generally means that it has not been created, and the interview process will continue with the assumption that it needs to be created."
+    }
+    if (!($tenantIntermediateRootTestResult.Id)) {
+        $gatherData.currentTenantPacSelector.intermediateRootStatus = $environmentEntry.intermediateRootStatus = "Available"
+        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "The Tenant Intermediate Root Management Group does not exist, and will need to be created to be used." -LogFilePath $logFilePath -UseUtc:$UseUtc -silent 
+        $interviewQuestionSets.optionalCreatePrimaryIntermediateRoot = $true
+        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Create Intermediate Root: `"$TenantIntermediateRoot`" does not exist, adding discussion items..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
     }
     else {
-        Write-Host "Beginning data gathering process..." -ForegroundColor Yellow
-
-        # Gather Data
-        $gatherData = [ordered]@{}
-        $environmentEntry = [ordered]@{
-            pacSelector                = ""
-            intermediateRootGroupName  = $TenantIntermediateRoot
-            tenantId                   = $(Get-AzContext).Tenant.Id
-            cloud                      = $(Get-AzContext).Environment.Name
-            keepDfcSecurityAssignments = $false
-            caf3Status                 = "Untested"
-            intermediateRootStatus     = "Untested"
-        }
-        # Current Tenant Information
-        try {
-            $gatherData.Add('currentTenantPacSelector', $(Get-DeepCloneAsOrderedHashtable -InputObject $environmentEntry))
-            $gatherData.currentTenantPacSelector.pacSelector = "tenant01" # Set Default for primary tenant, primary root (that will be cloned to epac-dev environment)
-        }
-        catch {
-            Write-Error "Cannot find the EPAC helper command `'Get-DeepCloneAsOrderedHashtable`', please ensure that the EPAC module or is installed and available, or that the scripts directory is available and the helpers have been dot sourced for use."
-            return
-        }
-        try {
-            $gatherData.Add('locationList', @((Get-AzLocation).Location) -join ", ")
-        }
-        catch {
-            Write-Error "Failed to gather Azure Location List, please ensure that you have a connection to Azure and try again."
-            return
-        }
-        
-        try {
-            $tenantIntermediateRootTestResult = Get-AzManagementGroupRestMethod -GroupID $TenantIntermediateRoot
-            # Identify if the property tested below is correct
-        }
-        catch {
-            Write-Warning "Error returned retrieving the Tenant Intermediate Root. This generally means that it has not been created, and the interview process will continue with the assumption that it needs to be created."
-        }
-        if (!($tenantIntermediateRootTestResult.Id)) {
-            $gatherData.currentTenantPacSelector.intermediateRootStatus = $environmentEntry.intermediateRootStatus = "Available"
-            Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "The Tenant Intermediate Root Management Group does not exist, and will need to be created to be used." -LogFilePath $logFilePath -UseUtc:$UseUtc -silent 
-            $interviewQuestionSets.optionalCreatePrimaryIntermediateRoot = $true
-            Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Create Intermediate Root: `"$TenantIntermediateRoot`" does not exist, adding discussion items..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
-         }
-        else {
-            $gatherData.currentTenantPacSelector.intermediateRootStatus = $environmentEntry.intermediateRootStatus = "Passed"
-            Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "The TenantIntermediateRoot Management Group `"$TenantIntermediateRoot`"  is confirmed." -LogFilePath $logFilePath -UseUtc:$UseUtc -silent 
-            $interviewQuestionSets.optionalCreatePrimaryIntermediateRoot = $false
-            Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Create Intermediate Root Test: `"$TenantIntermediateRoot`" exists , no deployment is needed..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Green
-        }
-        try {
-            $gatherData.currentTenantPacSelector.caf3Status = $environmentEntry.caf3Status = Test-HydrationCaf3Hierarchy -TenantId $(Get-AzContext).Tenant.Id -TenantIntermediateRoot $TenantIntermediateRoot -LogFilePath $logFilePath
-        }
-        catch {
-            Write-Error $Error[0].Exception.Message
-        }
-        
-        if ($tenantIntermediateRootTestResult.id) {
-            $interviewQuestionSets.optionalCreatePrimaryIntermediateRoot = $false
-            Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Create Intermediate Root Test: `"$TenantIntermediateRoot`" exists , no deployment is needed..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Green
-        }
-        else {
-            $interviewQuestionSets.optionalCreatePrimaryIntermediateRoot = $true
-            Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Create Intermediate Root: `"$TenantIntermediateRoot`" does not exist, adding discussion items..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
-        }
-        $interviewQuestionSets.optionalCreatePrimaryIntermediateRoot = $true
-        $interviewQuestionSets.optionalCreateMainCaf3Hierarchy = $true
-        $interviewQuestionSets.optionalRequireCaf3HierarchyRename = $true
-        # TODO: The logic below needs some work before it can be used effectively, need to think through when we still want to offer the option as this is too limiting.
-        # switch ($gatherData.currentTenantPacSelector.caf3Status) {
-        #     "PassedCaf3Exists" {
-        #         $interviewQuestionSets.optionalCreatePrimaryIntermediateRoot = $false
-        #         $interviewQuestionSets.optionalCreateMainCaf3Hierarchy = $true # May still want to create an alternate
-        #         $interviewQuestionSets.optionalRequireCaf3HierarchyRename = $false # May still want to create an alternate
-        #         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Default CAF3 Hierarchy Test: CAF3 hierarchy is in place under the management group `"$TenantIntermediateRoot`" , no additional Management Group deployment items will be recommended." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Green
-        #     }
-        #     "PassedRunCaf3" {
-        #         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Caf3 Hierarchy: CAF3 Hierarchy is a viable option under `"$TenantIntermediateRoot`", adding discussion items..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
-        #         $interviewQuestionSets.optionalCreateMainCaf3Hierarchy = $true
-        #         $interviewQuestionSets.optionalRequireCaf3HierarchyRename = $false
-        #     }
-        #     "FailedNameCollision" {
-        #         $interviewQuestionSets.optionalCreateMainCaf3Hierarchy = $true
-        #         $interviewQuestionSets.optionalRequireCaf3HierarchyRename = $true
-        #         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Create CAF3 Hierarchy: A default CAF3 hierarchy does not exist in an expected state, which is to say that default names are used in a non-standard hierarchy. `
-        #         `n    -This can be addressed by creating a new hierarchy (if desired) using a prefix/suffix to the standard default strings, adding discussion items..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
-        #     }
-        #     "Failed" {
-        #         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Test Failed, please review error message, access levels, and connection to Azure before testing again." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Red
-        #         $endAfterDataGather = $true
-        #     }
-        #     Default {
-        #         $message = "This should not happen, `$gatherData.currentTenantPacSelector.caf3Status is set to an invalid value, '$($gatherData.currentTenantPacSelector.caf3Status)'"
-        #         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData $message -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Red
-        #         return
-        #     }
-        # }
-        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Data Gathered: $($gatherData | Convertto-Json -depth 100 -compress)" -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent
-        Write-Host "`n"
-        $endSummary.gatherData = $summary
-        New-HydrationContinuePrompt -Interactive:$Interactive -SleepTime:$sleepTime
+        $gatherData.currentTenantPacSelector.intermediateRootStatus = $environmentEntry.intermediateRootStatus = "Passed"
+        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "The TenantIntermediateRoot Management Group `"$TenantIntermediateRoot`"  is confirmed." -LogFilePath $logFilePath -UseUtc:$UseUtc -silent 
+        $interviewQuestionSets.optionalCreatePrimaryIntermediateRoot = $false
+        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Create Intermediate Root Test: `"$TenantIntermediateRoot`" exists , no deployment is needed..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Green
     }
+    
+    # if ($tenantIntermediateRootTestResult.id) {
+    #     $interviewQuestionSets.optionalCreatePrimaryIntermediateRoot = $false
+    #     Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Create Intermediate Root Test: `"$TenantIntermediateRoot`" exists , no deployment is needed..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Green
+    # }
+    # else {
+    #     $interviewQuestionSets.optionalCreatePrimaryIntermediateRoot = $true
+    #     Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Create Intermediate Root: `"$TenantIntermediateRoot`" does not exist, adding discussion items..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
+    # }
+    $interviewQuestionSets.optionalCreatePrimaryIntermediateRoot = $true
+    $interviewQuestionSets.optionalCreateMainCaf3Hierarchy = $true
+    $interviewQuestionSets.optionalRequireCaf3HierarchyRename = $true
+    # TODO: The logic below needs some work before it can be used effectively, need to think through when we still want to offer the option as this is too limiting.
+    # switch ($gatherData.currentTenantPacSelector.caf3Status) {
+    #     "PassedCaf3Exists" {
+    #         $interviewQuestionSets.optionalCreatePrimaryIntermediateRoot = $false
+    #         $interviewQuestionSets.optionalCreateMainCaf3Hierarchy = $true # May still want to create an alternate
+    #         $interviewQuestionSets.optionalRequireCaf3HierarchyRename = $false # May still want to create an alternate
+    #         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Default CAF3 Hierarchy Test: CAF3 hierarchy is in place under the management group `"$TenantIntermediateRoot`" , no additional Management Group deployment items will be recommended." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Green
+    #     }
+    #     "PassedRunCaf3" {
+    #         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Caf3 Hierarchy: CAF3 Hierarchy is a viable option under `"$TenantIntermediateRoot`", adding discussion items..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
+    #         $interviewQuestionSets.optionalCreateMainCaf3Hierarchy = $true
+    #         $interviewQuestionSets.optionalRequireCaf3HierarchyRename = $false
+    #     }
+    #     "FailedNameCollision" {
+    #         $interviewQuestionSets.optionalCreateMainCaf3Hierarchy = $true
+    #         $interviewQuestionSets.optionalRequireCaf3HierarchyRename = $true
+    #         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Create CAF3 Hierarchy: A default CAF3 hierarchy does not exist in an expected state, which is to say that default names are used in a non-standard hierarchy. `
+    #         `n    -This can be addressed by creating a new hierarchy (if desired) using a prefix/suffix to the standard default strings, adding discussion items..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
+    #     }
+    #     "Failed" {
+    #         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Test Failed, please review error message, access levels, and connection to Azure before testing again." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Red
+    #         $endAfterDataGather = $true
+    #     }
+    #     Default {
+    #         $message = "This should not happen, `$gatherData.currentTenantPacSelector.caf3Status is set to an invalid value, '$($gatherData.currentTenantPacSelector.caf3Status)'"
+    #         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData $message -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Red
+    #         return
+    #     }
+    # }
+    Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Data Gathered: $($gatherData | Convertto-Json -depth 100 -compress)" -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent
+    Write-Host "`n"
+    $endSummary.gatherData = $summary
+    New-HydrationContinuePrompt -Interactive:$Interactive -SleepTime:$sleepTime
+    # }
+    ################################################################################
+    ################################################################################
+    # Download Repo Contents
+    Get-HydrationEpacRepo
+    if ($updateStarterKitManually) { Read-Host "TEMP: Pause to copy files" }
+    $stageBlocks2 = Get-Content $(Join-Path $StarterKit 'HydrationKit' 'blockDefinitions.jsonc') | ConvertFrom-Json -Depth 5 -AsHashtable
+    foreach ($key in $stageBlocks2.keys) {
+        $stageBlocks2.$key.TerminalWidth = $TerminalWidth
+        $stageBlocks.add($key, $stageBlocks2.$key)
+    }
+    Remove-Variable stageBlocks2 -ErrorAction SilentlyContinue
+
+    ################################################################################
+    ################################################################################
+    # Run Interview Process
     if ($AnswerFile) {
         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Answer File Provided: $AnswerFilePath" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
         try {
@@ -687,7 +737,7 @@ function Install-HydrationEpac {
         if ($summary.RbacAuthorization -like "Passed*") {
             $loopNotes = @("Location List: $($endSummary.gatherData.locationList)")
         }
-        else{
+        else {
             $loopNotes = @("Location List: Rbac Test Failed, no location list gathered.")
         }
         try {
@@ -821,6 +871,8 @@ function Install-HydrationEpac {
             $hashString = $( -join ($intKey, " ", ($testSummarySeparator * ($TerminalWidth - ($intKey.Length + $($interview.$intKey).Length + 2))), " ", $($interview.$intKey)))
             Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "$hashString" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Green
         }
+        # Release flow is too complicated for the current logic, and should be part of a new module generating the pipeline integration with the platform.
+        $allInterviewAnswers.Add("pipelineFlow", "Github")
         Remove-Variable loopId -ErrorAction SilentlyContinue
         Remove-Variable loopNotes -ErrorAction SilentlyContinue
         New-HydrationContinuePrompt -Interactive:$Interactive -SleepTime:$sleepTime 
@@ -883,6 +935,35 @@ function Install-HydrationEpac {
     }
     New-HydrationContinuePrompt -Interactive:$Interactive -SleepTime:$sleepTime
 
+    # Test New MG Values
+    
+    try {
+        $gatherData.currentTenantPacSelector.caf3Status = $environmentEntry.caf3Status = `
+            Test-HydrationCaf3Hierarchy `
+            -TenantId $(Get-AzContext).Tenant.Id `
+            -TenantIntermediateRoot $TenantIntermediateRoot `
+            -MgPrefix:$allInterviewAnswers.mainCaf3Prefix `
+            -MgSuffix:$allInterviewAnswers.mainCaf3Suffix `
+            -LogFilePath $logFilePath
+    }
+    catch {
+        Write-Error $Error[0].Exception.Message
+        return
+    }
+    try {
+        $gatherData.currentTenantPacSelector.caf3Status = $environmentEntry.caf3Status = `
+            Test-HydrationCaf3Hierarchy `
+            -TenantId $(Get-AzContext).Tenant.Id `
+            -TenantIntermediateRoot $TenantIntermediateRoot `
+            -MgPrefix:$allInterviewAnswers.epacPrefix `
+            -MgSuffix:$allInterviewAnswers.epacSuffix `
+            -LogFilePath $logFilePath
+    }
+    catch {
+        Write-Error $Error[0].Exception.Message
+        return
+    }
+    
     ################################################################################
     # Execute hydration process
     Clear-Host
@@ -921,7 +1002,7 @@ function Install-HydrationEpac {
         DefinitionsRootFolder      = $DefinitionsRootFolder
         ManagedIdentityLocation    = $allInterviewAnswers.managedIdAssignmentLocation
         MainPacSelector            = $allInterviewAnswers.mainTenantMainPacSelectorName
-        EpacPacSelector            = "epac-dev" # TODO: Improvement, add a question to the mainpacselector loop for the epacPacSelector
+        EpacPacSelector            = $epacDevName # TODO: Improvement, add a question to the mainpacselector loop for the epacPacSelector
         Cloud                      = (Get-AzContext).environment.name # This never need not be prompted, choice of initialTenantId will choose this implicitly
         TenantId                   = $allInterviewAnswers.initialTenantId
         MainDeploymentRoot         = $allInterviewAnswers.initialTenantIntermediateRoot
@@ -980,14 +1061,14 @@ function Install-HydrationEpac {
     ## Build MG Structure
     if ($allInterviewAnswers.createMainIntermediateRoot -eq "Yes") {
         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Creating Main Intermediate Root..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
-        do{
-            try{
+        do {
+            try {
                 New-AzManagementGroup -GroupName $allInterviewAnswers.initialTenantIntermediateRoot -ErrorAction Stop
             }
-            catch{
+            catch {
                 $AzMgRetry = $true
             }
-            if(Get-AzManagementGroupRestMethod -GroupId $allInterviewAnswers.initialTenantIntermediateRoot){
+            if (Get-AzManagementGroupRestMethod -GroupId $allInterviewAnswers.initialTenantIntermediateRoot) {
                 $AzMgRetry = $false
             }
 
@@ -1048,7 +1129,7 @@ function Install-HydrationEpac {
                             -LogFilePath $logFilePath `
                             -UseUtc:$UseUtc `
                             -Silent
-                        if(!(Test-Path -Path $destinationPath)) {
+                        if (!(Test-Path -Path $destinationPath)) {
                             Write-HydrationLogFile -EntryType logEntryDataAsPresented `
                                 -EntryData "    Failed to copy $uFile to $destinationPath, this should be copied manually or the task should be run again." `
                                 -LogFilePath $logFilePath `
@@ -1063,36 +1144,54 @@ function Install-HydrationEpac {
     }
 
     # Add Audit standards at root of hierarchies
-    if ($allInterviewAnswers.importPciDssPolicies -eq "Yes" -or $allInterviewAnswers.importMcsbPolicies -eq "Yes" -or $allInterviewAnswers.importNist80053Policies -eq "Yes") {
-        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Adding Specified Compliance Standards" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
-        $auditStandardList = @()
-        if ($allInterviewAnswers.importPciDssPolicies -eq "Yes") {
-            $auditStandardList += "/providers/Microsoft.Authorization/policySetDefinitions/c676748e-3af9-4e22-bc28-50feed564afb"
-        }
-        if ($allInterviewAnswers.importMcsbPolicies -eq "Yes") {
-            $auditStandardList += "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8"
-        }
-        if ($allInterviewAnswers.importNist80053Policies -eq "Yes") {
-            $auditStandardList += "/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f"
-        }
-        foreach ($polSet in $auditStandardList) {
-            Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Exporting $polSet" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
-            Export-PolicyToEPAC -PolicySetDefinitionId $polSet -OutputFolder $(Join-Path $Output "NewExportedAssignments") -AutoCreateParameters $TRUE -UseBuiltIn $TRUE -Scope $allInterviewAnswers.initialTenantIntermediateRoot -PacSelector $allInterviewAnswers.mainTenantMainPacSelectorName 
-            Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Copying to  $(Join-Path $Output "NewExportedAssignments" "Export" "policyAssignments")" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
-            Copy-Item -Path $(Join-Path $Output "NewExportedAssignments" "Export" "policyAssignments") `
-                -Destination $(Join-Path $Output  "export" "definitions") `
-                -Recurse `
-                -Force            
+    # if ($allInterviewAnswers.importPciDssPolicies -eq "Yes" -or $allInterviewAnswers.importMcsbPolicies -eq "Yes" -or $allInterviewAnswers.importNist80053Policies -eq "Yes") {
+    Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Adding Specified PolicySet and (optional) Policy defintions" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
+    $auditStandardList = @("/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8")
+    if ($allInterviewAnswers.importPciDssPolicies -eq "Yes") {
+        $auditStandardList += "/providers/Microsoft.Authorization/policySetDefinitions/c676748e-3af9-4e22-bc28-50feed564afb"
+    }
+    if ($allInterviewAnswers.importNist80053Policies -eq "Yes") {
+        $auditStandardList += "/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f"
+    }
+    # Altered logic to REQUIRE MCSB policies to be imported
+    # if ($allInterviewAnswers.importMcsbPolicies -eq "Yes") {
+    #     $auditStandardList += "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8"
+    # }
+    if ($allInterviewAnswers.importAdditionalPolicySets) {
+        $splitList = $allInterviewAnswers.importAdditionalPolicySets -split ","
+        foreach ($guid in $splitList) {
+            $guid = $guid -replace '[,"'' ]', ''
+            $parsedGuid = [System.Guid]::Empty
+            if (-not [System.Guid]::TryParse($guid, [ref]$parsedGuid)) {
+                Write-Error "$guid is not a valid GUID, skipping..."
+            }
+            else {
+                $auditStandardList += "/providers/Microsoft.Authorization/policySetDefinitions/$guid"
+            }
         }
     }
+    foreach ($polSet in $auditStandardList) {
+        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Exporting $polSet" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
+        Export-PolicyToEPAC -PolicySetDefinitionId $polSet -OutputFolder $(Join-Path $Output "NewExportedAssignments") -AutoCreateParameters $TRUE -UseBuiltIn $TRUE -Scope $(@("/providers/Microsoft.Management/managementGroups", $allInterviewAnswers.initialTenantIntermediateRoot) -join "/") -PacSelector $allInterviewAnswers.mainTenantMainPacSelectorName -OverwriteOutput $FALSE
+        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Copying to  $(Join-Path $Output "NewExportedAssignments" "Export" "policyAssignments")" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow     
+    }
+    Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Copying $(Join-Path $Output "NewExportedAssignments" "Export" "policyAssignments") to Definitions folder structure..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow            
+    if (Test-Path $(Join-Path $Output "NewExportedAssignments" "Export" "policyAssignments")) {
+        Copy-Item -Path $(Join-Path $Output "NewExportedAssignments" "Export" "policyAssignments") `
+            -Destination "$DefinitionsRootFolder" `
+            -Recurse `
+            -Force       
+    }
+    # }
     # Copy the updated assignments to the definitions folder 
     Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Updating exported and newly created assignments with epac-dev pacSelector information based on assignments in PacSelector `'$($allInterviewAnswers.mainTenantMainPacSelectorName)...`'" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
-    if($(Get-ChildItem $(Join-Path $Output 'export' 'definitions' 'policyAssignments') -ErrorAction SilentlyContinue).count -lt 1) {
-        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    No exported assignments found, skipping assignment update..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
-    }else{
-        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Adding EPAC pacSelector 'epac-dev' to assignments based on current scope..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
-        New-HydrationAssignmentPacSelector -SourcePacSelector $allInterviewAnswers.mainTenantMainPacSelectorName -NewPacSelector 'epac-dev' -MGHierarchyPrefix:$allInterviewAnswers.epacPrefix -MGHierarchySuffix:$allInterviewAnswers.epacSuffix -Definitions $(Join-Path $Output 'export' 'Definitions') -Output $Output -ErrorAction Stop
-    }
+    # if ($(Get-ChildItem $(Join-Path $Output 'export' 'definitions' 'policyAssignments') -ErrorAction SilentlyContinue).count -lt 1) {
+    #     Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    No exported assignments found, skipping assignment update..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
+    # }
+    # else {
+    #     Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Adding EPAC pacSelector 'epac-dev' to assignments based on current scope..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
+    #     New-HydrationAssignmentPacSelector -SourcePacSelector $allInterviewAnswers.mainTenantMainPacSelectorName -NewPacSelector 'epac-dev' -MGHierarchyPrefix:$allInterviewAnswers.epacPrefix -MGHierarchySuffix:$allInterviewAnswers.epacSuffix -Definitions $(Join-Path $Output 'export' 'Definitions') -Output $Output -ErrorAction Stop
+    # }
     $updatedAssignmentList = Get-ChildItem -Path $(Join-Path $Output "UpdatedAssignments") -Recurse -Include "*.json", "*.jsonc" -ErrorAction SilentlyContinue
     if ($updatedAssignmentList.count -gt 0) {
         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Copying updated $($UpdatedAssignmentList.count) assignments to definitions folder..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
@@ -1103,41 +1202,82 @@ function Install-HydrationEpac {
         }
         foreach ($assignment in $updatedAssignmentList) {
             Copy-Item -Path $assignment.FullName -Destination $destinationPath
-            if(Test-Path $(Join-Path $destinationPath $assignment.Name)){
+            if (Test-Path $(Join-Path $destinationPath $assignment.Name)) {
                 Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Copied $assignment to $destinationPath" -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent
             }
-            else{
+            else {
                 Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Failed to copy $($assignment.fullname) to $(Join-Path $destinationPath $assignment.Name)" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Red
             }
         }
     }
-    else{
+    else {
         Write-HydrationLogFile -EntryType logEntryDataAsPresented `
             -EntryData "    No updated assignments found, skipping assignment update, but it is recommended that that you consider running this again with choices that include generation of an assignment so you have a template to review..." `
             -LogFilePath $logFilePath `
             -UseUtc:$UseUtc `
             -ForegroundColor Yellow
     }
-        
-
-
+    if ($answers.useModuleorScript -eq "LocalScript") {
+        $starterKitSourcePath = Join-Path -Path $repoRootPath -ChildPath "epacRepoTemp" "Scripts"
+        $starterKitDestinationPath = Join-Path -Path $repoRootPath -ChildPath "Scripts"
+        Copy-Item $starterKitSourcePath $starterKitDestinationPath -Recurse -Force
+        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Copied Scripts directory to repo for use in ongoing operations..." -LogFilePath $logFilePath -UseUtc:$UseUtc
+    }
+    if (Test-Path $(Join-Path $Output "Export")) {
+        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Copying exported content to $DefinitionsRootFolder..."  -LogFilePath $logFilePath -UseUtc:$UseUtc
+        Copy-Item -Path $(Join-Path $Output "export" "Definitions" "*") -Destination $DefinitionsRootFolder -Recurse -Force -Exclude "policy-ownership.csv"
+    }
+    try {
+        $policyAssignmentList = Get-ChildItem -Path $(Join-Path $DefinitionsRootFolder "policyAssignments") -Recurse -Include "*.json", "*.jsonc" -ErrorAction Stop
+    }
+    catch {
+        Write-Error "No policy assignments found, rerun the process."
+    }
+    # $fullAssignmentList = Get-ChildItem "$DefinitionsRootFolder/policyAssignments" -Recurse -Include "*.json", "*.jsonc" -File -ErrorAction SilentlyContinue
+    # foreach($assignment in $fullAssignmentList){
+    # }
+    Copy-Item -Path $(Join-Path $Output "export" "Definitions" "*") -Destination $DefinitionsRootFolder -Recurse -Force -Exclude "policy-ownership.csv"
+    New-HydrationAssignmentPacSelector -SourcePacSelector $allInterviewAnswers.mainTenantMainPacSelectorName `
+        -NewPacSelector $epacDevName `
+        -MGHierarchyPrefix:$allInterviewAnswers.epacPrefix `
+        -MGHierarchySuffix:$allInterviewAnswers.epacSuffix `
+        -Definitions $DefinitionsRootFolder `
+        -Output $Output `
+        -ErrorAction Stop
+    Copy-Item -Path $(Join-Path $Output "UpdatedAssignments" "*") -Destination $(Join-Path $DefinitionsRootFolder "policyAssignments") -Recurse -Force
     ################################################################################
-    # Test in EPAC-Dev
+    # Closing Tasks
+    # Clear-Host
     New-HydrationSeparatorBlock -DisplayText "End Hydration Process" -Location Bottom
-    Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Hydration process complete" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Magenta
-
+    Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Hydration process complete." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Magenta
+    
     ################################################################################
     # Test in EPAC-Dev
 
     New-HydrationSeparatorBlock -DisplayText "Deploy to epac-dev" -Location Top
 
     Write-Host "These stepes require that the Az and EnterprisePolicyAsCode modules be available" -ForegroundColor Yellow
-    Write-Host "When you are ready to deploy the changes to epac-dev, please perform the following tasks to complete deployment to the 'epac-dev' pacSelector:" -ForegroundColor Yellow
-    Write-Host "    Build-DeploymentPlans -PacEnvironmentSelector 'epac-dev' -OutputFolder $Output -DefinitionsRootFolder $DefinitionsRootFolder"
+    Write-Host "When you are ready to deploy the changes to epac-dev, please perform the following tasks to complete deployment to the $epacDevName pacSelector:" -ForegroundColor Yellow
+    Write-Host "    Build-DeploymentPlans -PacEnvironmentSelector $epacDevName -OutputFolder $Output -DefinitionsRootFolder $DefinitionsRootFolder"
+    Write-Host "    Deploy-PolicyPlan -PacEnvironmentSelector $epacDevName -DefinitionsRootFolder $DefinitionsRootFolder"
+    Write-Host "    Deploy-RolesPlan -PacEnvironmentSelector $epacDevName -DefinitionsRootFolder $DefinitionsRootFolder"
+    Write-Host "`nIf you were notified that default values were missing for items above (scroll back to review), you will need to update those values prior to running the code above.`n" -BackgroundColor Yellow -ForegroundColor Black
+    Write-Host "`nParameter Update Guidance: https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/policy-assignments.md"
+    Write-Host "Advanced Parameter Managment Guidance: https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/policy-assignments-csv-parameters.md"
 
-    Write-Host "`nOnce this is complete, begin updating your pipeline environment to test deployment to the epac-dev environment via pipeline..." -ForegroundColor Yellow
+    Write-Host "`nNext Steps: CI/CD Integration" -ForegroundColor Yellow
     Write-Host "    General Guidance: https://azure.github.io/enterprise-azure-policy-as-code/ci-cd-overview/"
+    Write-Host "    Branching Flow Guidance: https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/ci-cd-branching-flows.md"
+    Write-Host "        Review high level CI/CD Options. While the hydration kit only supports a standard two stage deployment plan, you may want to consider a release plan for your environment."
     Write-Host "    Azure DevOps: https://azure.github.io/enterprise-azure-policy-as-code/ci-cd-ado-pipelines/"
+    Write-Host "        Review Azure DevOps Pipeline implementation options and guidance."
     Write-Host "    GitHub Actions: https://azure.github.io/enterprise-azure-policy-as-code/ci-cd-github-actions/"
+    Write-Host "        Review Github Actions implementation options and guidance."
+    Write-Host "`nNext Steps: Additional Policy Assignments" -ForegroundColor Yellow    
+    Write-Host "    Sync-AlzPolicies: https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/integrating-with-alz.md#scenario-2---alz-policy-deployment-with-epac" 
+    Write-Host "        Import the ALZ Policy Set using Sync-AlzPolicies, and update the parameters which do not have default values to add policies that will aid in modification of your environment to baseline Microsoft standards."
+    Write-Host "    Create Additional Assignments: https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/operational-scripts.md"
+    Write-Host "        Review the command Export-PolicyToEPAC to simplify additional assignment creation."
 }
 
+# Install-HydrationEpac -TenantIntermediateRoot $rootScope -SkipTests -AnswerFile .\Output\HydrationAnswer\AnswerFile.json 

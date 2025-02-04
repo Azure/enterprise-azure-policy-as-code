@@ -1,49 +1,49 @@
 {
-    "uiStart": {
-        "TerminalWidth": null,
-        "RowCharacterColor": "Blue",
-        "TextRowCharacterColor": "Cyan",
-        "SmallRowCharacter": "+",
-        "DisplayText": "Enterprise Policy as Code (EPAC) Hydration Kit",
-        "LargeRowCharacter": "=",
-        "Location": "Top"
-    },
-    "runPreliminaryTests": {
-        "TerminalWidth": null,
-        "RowCharacterColor": "Blue",
-        "TextRowCharacterColor": "Yellow",
-        "SmallRowCharacter": "-",
-        "DisplayText": "Beginning Preliminary Tests",
-        "LargeRowCharacter": "+",
-        "Location": "Top"
-    },
-    "displayPreliminaryTests": {
-        "TerminalWidth": null,
-        "RowCharacterColor": "Yellow",
-        "TextRowCharacterColor": "Blue",
-        "SmallRowCharacter": "-",
-        "DisplayText": "Summarizing Test Results",
-        "LargeRowCharacter": "-",
-        "Location": "Middle"
-    },
-    "gatherData": {
-        "TerminalWidth": null,
-        "RowCharacterColor": "Yellow",
-        "TextRowCharacterColor": "Blue",
-        "SmallRowCharacter": "-",
-        "DisplayText": "Beginning Data Gathering",
-        "LargeRowCharacter": "-",
-        "Location": "Middle"
-    },
-    "displayGatherData": {
-        "TerminalWidth": null,
-        "RowCharacterColor": "Yellow",
-        "TextRowCharacterColor": "Blue",
-        "SmallRowCharacter": "-",
-        "DisplayText": "Summarizing Data Gathered",
-        "LargeRowCharacter": "-",
-        "Location": "Middle"
-    },
+    // "uiStart": { // THIS BLOCK IS NOW PART OF SCRIPT
+    //     "TerminalWidth": null,
+    //     "RowCharacterColor": "Blue",
+    //     "TextRowCharacterColor": "Cyan",
+    //     "SmallRowCharacter": "+",
+    //     "DisplayText": "Enterprise Policy as Code (EPAC) Hydration Kit",
+    //     "LargeRowCharacter": "=",
+    //     "Location": "Top"
+    // },
+    // "runPreliminaryTests": { // THIS BLOCK IS NOW PART OF SCRIPT
+    //     "TerminalWidth": null,
+    //     "RowCharacterColor": "Blue",
+    //     "TextRowCharacterColor": "Yellow",
+    //     "SmallRowCharacter": "-",
+    //     "DisplayText": "Beginning Preliminary Tests",
+    //     "LargeRowCharacter": "+",
+    //     "Location": "Top"
+    // },
+    // "displayPreliminaryTests": { // THIS BLOCK IS NOW PART OF SCRIPT
+    //     "TerminalWidth": null,
+    //     "RowCharacterColor": "Yellow",
+    //     "TextRowCharacterColor": "Blue",
+    //     "SmallRowCharacter": "-",
+    //     "DisplayText": "Summarizing Test Results",
+    //     "LargeRowCharacter": "-",
+    //     "Location": "Middle"
+    // },
+    // "gatherData": { // THIS BLOCK IS NOW PART OF SCRIPT
+    //     "TerminalWidth": null, 
+    //     "RowCharacterColor": "Yellow",
+    //     "TextRowCharacterColor": "Blue",
+    //     "SmallRowCharacter": "-",
+    //     "DisplayText": "Beginning Data Gathering",
+    //     "LargeRowCharacter": "-",
+    //     "Location": "Middle"
+    // },
+    // "displayGatherData": { // THIS BLOCK IS REMOVED
+    //     "TerminalWidth": null,
+    //     "RowCharacterColor": "Yellow",
+    //     "TextRowCharacterColor": "Blue",
+    //     "SmallRowCharacter": "-",
+    //     "DisplayText": "Summarizing Data Gathered",
+    //     "LargeRowCharacter": "-",
+    //     "Location": "Middle"
+    // },
     "generateAnswerFile": {
         "TerminalWidth": null,
         "RowCharacterColor": "Yellow",
