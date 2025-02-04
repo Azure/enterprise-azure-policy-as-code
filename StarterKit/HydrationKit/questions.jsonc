@@ -242,23 +242,20 @@
             "No": "Do not apply this policy as part of the initial EPAC deployment.."
         }
     },
-    "importMsb": {
+    "importAdditionalPolicySets": {
         // TODO: Add logic for additional pacSelectors in next release (etc)
-        "outputVariableName": "importMcsbPolicies",
+        "outputVariableName": "importAdditionalPolicySets",
         "loopId": "policyDecisions",
         "questionIncrement": 4,
-        "displayText": "Decision - Import Microsoft Cloud Security Baseline Policies",
-        "bodyHeader": "Decide if the Microsoft Cloud Security Baseline PolicySet should be assigned as part of the initial EPAC deployment..",
-        "bodyText": "This can be useful for those organizations that need to evaluate their current state against the standard set of policies defined by Microsoft to evaluate against Microsoft's baseline recommendations for Azure products.",
-        "dataRequest": "Please choose whether or not to deploy this policy...",
+        "displayText": "Decision - Add additional Built-In PolicySets",
+        "bodyHeader": "Additional PolicySet",
+        "bodyText": "This can be useful for those organizations that know what additional policies they would like to assign as part of the initial EPAC deployment.",
+        "dataRequest": "Please add a list in the format \"GUID1\",\"GUID2\" etc...",
+        "allowNull": true,
         "links": [
-            "https://www.azadvertizer.net/azpolicyinitiativesadvertizer/1f3afdf9-d0c9-4c3d-847f-89da613e70a8.html"
+            "https://www.azadvertizer.net/azpolicyinitiativesadvertizer_all.html"
         ],
-        "inputType": "optionList",
-        "menuOptions": {
-            "Yes": "Apply this policy as part of the initial EPAC deployment..",
-            "No": "Do not apply this policy as part of the initial EPAC deployment.."
-        }
+        "inputType": "string"
     },
     "useModuleorScript": { // If script, sync-repo from ./temp
         "outputVariableName": "codeExecutionType",
@@ -277,28 +274,28 @@
             "LocalScript": "This choice will require a local copy of the EPAC source code be available to the pipeline(s)."
         }
     },
-    "pipelineFlow": { // TODO: Update Release bodyText information when additional pacSelectors become available in the next release.
-        "outputVariableName": "pipelineFlow",
-        "loopId": "pipelineDecisions",
-        "questionIncrement": 2,
-        "displayText": "Choose a Branching Flow",
-        "bodyHeader": "Define which branching flow will be used in EPAC deployments",
-        "bodyText": "The branching flow will define the type of flow that will be used in EPAC based policy deployments. If there is only a Tenant Intermediate Root, and an EPAC Development environment, then the simplified Github flow is the appropriate choice. If there are additional environments, such as a development hierarchy, to implement in prior to deployment to the production aspects of the tenant, then Release Flow is appropriate. NOTE: The additional pacSelectors will need to be defined outside of the Install-HydrationEpac workflow.",
-        "DataRequest": "Please choose a branching flow...",
-        "links": [
-            "https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/ci-cd-branching-flows.md",
-            "https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/ci-cd-ado-pipelines.md"
-        ],
-        "inputType": "optionList",
-        "menuOptions": {
-            "Github": "A basic flow that will deploy policy objects using EPAC to the EPAC Development environment as well as the Tenant Intermediate Root Group chosen for the pacSelector.",
-            "Release": "An advanced flow with multiple stages that will deploy policy objects using EPAC through multiple environments."
-        }
-    },
+    // "pipelineFlow": { // TODO: Update Release bodyText information when additional pacSelectors become available in the next release.
+    //     "outputVariableName": "pipelineFlow",
+    //     "loopId": "pipelineDecisions",
+    //     "questionIncrement": 2,
+    //     "displayText": "Choose a Branching Flow",
+    //     "bodyHeader": "Define which branching flow will be used in EPAC deployments",
+    //     "bodyText": "The branching flow will define the type of flow that will be used in EPAC based policy deployments. If there is only a Tenant Intermediate Root, and an EPAC Development environment, then the simplified Github flow is the appropriate choice. If there are additional environments, such as a development hierarchy, to implement in prior to deployment to the production aspects of the tenant, then Release Flow is appropriate. NOTE: The additional pacSelectors will need to be defined outside of the Install-HydrationEpac workflow.",
+    //     "DataRequest": "Please choose a branching flow...",
+    //     "links": [
+    //         "https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/ci-cd-branching-flows.md",
+    //         "https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/ci-cd-ado-pipelines.md"
+    //     ],
+    //     "inputType": "optionList",
+    //     "menuOptions": {
+    //         "Github": "A basic flow that will deploy policy objects using EPAC to the EPAC Development environment as well as the Tenant Intermediate Root Group chosen for the pacSelector.",
+    //         "Release": "An advanced flow with multiple stages that will deploy policy objects using EPAC through multiple environments."
+    //     }
+    // },
     "pipelinePlatform": {
         "outputVariableName": "pipelinePlatform",
         "loopId": "pipelineDecisions",
-        "questionIncrement": 3,
+        "questionIncrement": 2,
         "displayText": "Choose the DevOps Platform In Use",
         "bodyHeader": "Define the DevOps platform that will be used to deploy policy objects using EPAC",
         "bodyText": "There are currently two platforms that are supported by EPAC for policy deployment. These are Github and Azure DevOps. If you are using a different platform, please choose 'Other' and you will be prompted for the path to the root of the repository where the pipeline will be stored. A GitHub based pipeline will be placed in this location as a starting point for development of a custom pipeline for the platform in use.",

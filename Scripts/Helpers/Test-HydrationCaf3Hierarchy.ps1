@@ -34,7 +34,9 @@ function Test-HydrationCaf3Hierarchy {
         [string]
         $TenantIntermediateRoot = "TenantIntermediateRoot",
         $LogFilePath,
-        $Output = "./Output"
+        $Output = "./Output",
+        $MgPrefix = "",
+        $MgSuffix = ""
     )
     if (!($LogFilePath)) {
         $LogFilePath = Join-Path $Output "Logs" "HydrationTests.log"
@@ -77,8 +79,13 @@ function Test-HydrationCaf3Hierarchy {
     }
     foreach ($mgKey in $mgPairs.keys) {
         $currentList = $mgPairs.$mgKey
-        $parentName = $mgKey
-        foreach ($mg in $currentList) {
+        if($mgKey -eq $TenantIntermediateRoot) {
+            $parentName = $mgKey
+        }else{
+            $parentName = $(-join ($mgPrefix, $mgKey, $mgSuffix))
+        }
+        foreach ($mgBase in $currentList) {
+            $mg = $(-join ($mgPrefix, $mgBase, $mgSuffix))
             try {
                 $mgListing = Get-AzManagementGroupRestMethod -GroupId $mg -ErrorAction Stop
             }
