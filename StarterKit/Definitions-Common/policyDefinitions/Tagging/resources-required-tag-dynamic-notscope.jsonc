@@ -108,7 +108,7 @@
                     },
                     {
                         "field": "[concat('tags[', parameters('tagName'), ']')]",
-                        "exists": "true"
+                        "exists": "false"
                     },
                     {
                         "count": {
