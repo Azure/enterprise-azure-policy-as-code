@@ -474,14 +474,34 @@ function Install-HydrationEpac {
         Write-Error "Cannot find the EPAC helper command `'Get-DeepCloneAsOrderedHashtable`', please ensure that the EPAC module or is installed and available, or that the scripts directory is available and the helpers have been dot sourced for use."
         return
     }
+    try { 
+        $psdList = Get-AzPolicySetDefinition -ManagementGroupName $(Get-AzContext).Tenant.Id
+    }
+    catch {
+        Write-Error "Failed to gather Azure Policy Set Definition List, please ensure that you have a connection to Azure and try again."
+        return
+    }
+    $gatherData.Add('policySetDefinitions', $psdList)
+    Remove-Variable psdList -ErrorAction SilentlyContinue
+    try { 
+        $pdList = Get-AzPolicyDefinition -ManagementGroupName $(Get-AzContext).Tenant.Id
+    }
+    catch {
+        Write-Error "Failed to gather Azure Policy Set Definition List, please ensure that you have a connection to Azure and try again."
+        return
+    }
+    $gatherData.Add('policyDefinitions', $pdList)
+    Remove-Variable pdList -ErrorAction SilentlyContinue
     try {
-        $gatherData.Add('locationList', @((Get-AzLocation).Location) -join ", ")
+        $locationList = (Get-AzLocation -ErrorAction SilentlyContinue).location
+        if ($locationList.count -gt 0) {
+            $gatherData.Add('locationList', @($LocationList) -join ", ")
+        }
     }
     catch {
         Write-Error "Failed to gather Azure Location List, please ensure that you have a connection to Azure and try again."
         return
     }
-    
     try {
         $tenantIntermediateRootTestResult = Get-AzManagementGroupRestMethod -GroupID $TenantIntermediateRoot
     }
@@ -734,11 +754,11 @@ function Install-HydrationEpac {
         # corePacSelectors Loop
         $loopId = "corePacSelectors"
         Write-HydrationLogFile -EntryType newStage -EntryData "Processing QuestionSet: $loopId"  -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent
-        if ($summary.RbacAuthorization -like "Passed*") {
+        if (!($endSummary.gatherData.locationList -eq "" -or $null -eq $endSummary.gatherData.locationList)) {
             $loopNotes = @("Location List: $($endSummary.gatherData.locationList)")
         }
         else {
-            $loopNotes = @("Location List: Rbac Test Failed, no location list gathered.")
+            # $loopNotes = @("Location List: Rbac Test Failed, no location list gathered.")
         }
         try {
             $interview = New-HydrationAnswerSet -LoopId $loopId -QuestionsFilePath $questionsFilePath -Notes $loopNotes -UseUtc:$UseUtc -LogFilePath $logFilePath  -TerminalWidth:$TerminalWidth -ErrorAction Stop
@@ -1160,6 +1180,7 @@ function Install-HydrationEpac {
     if ($allInterviewAnswers.importAdditionalPolicySets) {
         $splitList = $allInterviewAnswers.importAdditionalPolicySets -split ","
         foreach ($guid in $splitList) {
+            # Note: Rather than supporting questions about whether or not "" are appropriate for wrapping the GUID, we just manage it with RegEx.
             $guid = $guid -replace '[,"'' ]', ''
             $parsedGuid = [System.Guid]::Empty
             if (-not [System.Guid]::TryParse($guid, [ref]$parsedGuid)) {
@@ -1172,8 +1193,31 @@ function Install-HydrationEpac {
     }
     foreach ($polSet in $auditStandardList) {
         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Exporting $polSet" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
-        Export-PolicyToEPAC -PolicySetDefinitionId $polSet -OutputFolder $(Join-Path $Output "NewExportedAssignments") -AutoCreateParameters $TRUE -UseBuiltIn $TRUE -Scope $(@("/providers/Microsoft.Management/managementGroups", $allInterviewAnswers.initialTenantIntermediateRoot) -join "/") -PacSelector $allInterviewAnswers.mainTenantMainPacSelectorName -OverwriteOutput $FALSE
-        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Copying to  $(Join-Path $Output "NewExportedAssignments" "Export" "policyAssignments")" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow     
+        $lCount = 0
+        do {
+            $succ1 = $true
+            try {
+                if ($gatherData.policySetDefinitions.name -contains $($polSet.split("/")[-1])) {
+                    Export-PolicyToEPAC -PolicySetDefinitionId $polSet -OutputFolder $(Join-Path $Output "NewExportedAssignments") -AutoCreateParameters $TRUE -UseBuiltIn $TRUE -OverwriteScope $(@("/providers/Microsoft.Management/managementGroups", $allInterviewAnswers.initialTenantIntermediateRoot) -join "/") -OverwritePacSelector $allInterviewAnswers.mainTenantMainPacSelectorName -OverwriteOutput $FALSE
+                }
+                elseif ($gatherData.policyDefinitions.name -contains $($polSet.split("/")[-1])) {
+                    Export-PolicyToEPAC -PolicyDefinitionId $polSet -OutputFolder $(Join-Path $Output "NewExportedAssignments") -AutoCreateParameters $TRUE -UseBuiltIn $TRUE -OverwriteScope $(@("/providers/Microsoft.Management/managementGroups", $allInterviewAnswers.initialTenantIntermediateRoot) -join "/") -OverwritePacSelector $allInterviewAnswers.mainTenantMainPacSelectorName -OverwriteOutput $FALSE
+                }
+                else {
+                    Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    PolicySet or PolicyDefinition does not appear to be a valid built-in policySet, skipping..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Red  
+                }
+            }
+            catch {
+                $succ1 = $false
+                $lCount++
+            }
+        }until($succ1 -eq $true -or $lCount -gt 5)
+        if ($succ1) {
+            Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Copying to  $(Join-Path $Output "NewExportedAssignments" "Export" "policyAssignments")" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow     
+        }
+        else {
+            Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Failed to Export  $(Join-Path $Output "NewExportedAssignments" "Export" "policyAssignments")" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow     
+        }
     }
     Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Copying $(Join-Path $Output "NewExportedAssignments" "Export" "policyAssignments") to Definitions folder structure..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow            
     if (Test-Path $(Join-Path $Output "NewExportedAssignments" "Export" "policyAssignments")) {
@@ -1236,7 +1280,13 @@ function Install-HydrationEpac {
     # $fullAssignmentList = Get-ChildItem "$DefinitionsRootFolder/policyAssignments" -Recurse -Include "*.json", "*.jsonc" -File -ErrorAction SilentlyContinue
     # foreach($assignment in $fullAssignmentList){
     # }
-    Copy-Item -Path $(Join-Path $Output "export" "Definitions" "*") -Destination $DefinitionsRootFolder -Recurse -Force -Exclude "policy-ownership.csv"
+    if (Test-Path $(Join-Path $Output "export" "Definitions" "*")) {
+        Copy-Item -Path $(Join-Path $Output "export" "Definitions" "*") -Destination $DefinitionsRootFolder -Recurse -Force -Exclude "policy-ownership.csv"
+    }
+
+    if (Test-Path  $(Join-Path $Output "UpdatedAssignments" "*")) {
+        Copy-Item -Path $(Join-Path $Output "UpdatedAssignments" "*") -Destination $(Join-Path $DefinitionsRootFolder "policyAssignments") -Recurse -Force
+    }
     New-HydrationAssignmentPacSelector -SourcePacSelector $allInterviewAnswers.mainTenantMainPacSelectorName `
         -NewPacSelector $epacDevName `
         -MGHierarchyPrefix:$allInterviewAnswers.epacPrefix `
@@ -1244,7 +1294,6 @@ function Install-HydrationEpac {
         -Definitions $DefinitionsRootFolder `
         -Output $Output `
         -ErrorAction Stop
-    Copy-Item -Path $(Join-Path $Output "UpdatedAssignments" "*") -Destination $(Join-Path $DefinitionsRootFolder "policyAssignments") -Recurse -Force
     ################################################################################
     # Closing Tasks
     # Clear-Host
@@ -1279,5 +1328,3 @@ function Install-HydrationEpac {
     Write-Host "    Create Additional Assignments: https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/operational-scripts.md"
     Write-Host "        Review the command Export-PolicyToEPAC to simplify additional assignment creation."
 }
-
-# Install-HydrationEpac -TenantIntermediateRoot $rootScope -SkipTests -AnswerFile .\Output\HydrationAnswer\AnswerFile.json 
