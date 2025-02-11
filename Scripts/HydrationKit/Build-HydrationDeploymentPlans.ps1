@@ -24,12 +24,12 @@
     Output a report with specific data used for evaluation on each object, useful for debugging as well as large sets of changes.
 
 .EXAMPLE
-    .\Build-HydrationDeploymentPlans.ps1 -PacEnvironmentSelector "dev"
+    Build-HydrationDeploymentPlans -PacEnvironmentSelector "dev"
 
     Builds the deployment plans for the Policy as Code (PAC) environment 'dev'.
 
 .EXAMPLE
-    .\Build-HydrationDeploymentPlans.ps1 -PacEnvironmentSelector "dev" -DevOpsType "ado"
+    Build-HydrationDeploymentPlans -PacEnvironmentSelector "dev" -DevOpsType "ado"
 
     Builds the deployment plans for the Policy as Code (PAC) environment 'dev' and outputs variables consumable by conditions in an Azure DevOps pipeline.
 
@@ -602,16 +602,16 @@ function Build-HydrationDeploymentPlans {
         Write-Information "    Detailed policy resource deployment documented; writing detailed change information json file '$detailedOutJson'"
         Write-Information "    Detailed policy resource deployment documented; writing detailed change information csv file '$detailedOutCsv'"
         $detailedRecordList | Select-Object -Unique | ConvertTo-Json -Depth 100 `
-            | Out-File -FilePath $detailedOutJson -Force
+        | Out-File -FilePath $detailedOutJson -Force
         $detailedRecordHashtable = Get-DeepCloneAsOrderedHashtable -InputObject $detailedRecordList
         Convert-HashtableToFlatPsObject -Hashtable $detailedRecordHashtable.values `
-            | Select-Object @{Name="CombinedKey"; Expression={ "$($_.id)-$($_.name)-$($_.fileRelativePath)" }}, * `
-            | Sort-Object CombinedKey `
-            | Select-Object -Unique * `
-            | Select-Object -ExcludeProperty CombinedKey `
-            | Export-Csv -Path $detailedOutCsv -NoTypeInformation -Force
+        | Select-Object @{Name = "CombinedKey"; Expression = { "$($_.id)-$($_.name)-$($_.fileRelativePath)" } }, * `
+        | Sort-Object CombinedKey `
+        | Select-Object -Unique * `
+        | Select-Object -ExcludeProperty CombinedKey `
+        | Export-Csv -Path $detailedOutCsv -NoTypeInformation -Force
         
-            # Build md file
+        # Build md file
         ## TODO: Confirming base format to generate template for output, will be in next release of this cmdlet
     }
     Write-Information "---------------------------------------------------------------------------------------------------"
