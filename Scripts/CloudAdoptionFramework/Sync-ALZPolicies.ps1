@@ -5,7 +5,7 @@ Param(
     [string] $DefinitionsRootFolder,
 
     [Parameter(Mandatory = $false)]
-    [ValidateScript({ ($_ -eq 'latest') -or ($_.StartsWith("tag/")) }, ErrorMessage = "Allowed values are 'latest' and 'tag/TAG_NAME'")]
+    [ValidateScript({ ($_ -eq 'latest') -or ($_.StartsWith("tags/")) }, ErrorMessage = "Allowed values are 'latest' and 'tags/TAG_NAME'")]
     [string] $GithubRelease = 'latest',
 
     [Parameter(Mandatory = $false)]
