@@ -208,7 +208,8 @@ function Build-PolicySetPlan {
                 -DefinedParametersObj $parameters
             $policyDefinitionsMatch = Confirm-PolicyDefinitionsInPolicySetMatch `
                 $deployedDefinition.policyDefinitions `
-                $policyDefinitionsFinal
+                $policyDefinitionsFinal `
+                $AllDefinitions.policydefinitions
             $policyDefinitionGroupsMatch = Confirm-ObjectValueEqualityDeep `
                 $deployedDefinition.policyDefinitionGroups `
                 $policyDefinitionGroupsFinal

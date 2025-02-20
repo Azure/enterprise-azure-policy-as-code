@@ -21,6 +21,8 @@
 . "$PSScriptRoot/Build-ScopeTableForManagementGroup.ps1"
 . "$PSScriptRoot/Build-ScopeTableForSubscription.ps1"
 
+. "$PSScriptRoot/Compare-SemanticVersion.ps1"
+
 . "$PSScriptRoot/Confirm-EffectIsAllowed.ps1"
 . "$PSScriptRoot/Confirm-MetadataMatches.ps1"
 . "$PSScriptRoot/Confirm-NullOrEmptyValue.ps1"
