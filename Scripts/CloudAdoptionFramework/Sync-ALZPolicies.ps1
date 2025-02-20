@@ -10,11 +10,26 @@ Param(
 
     [Parameter(Mandatory = $false)]
     [ValidateSet('AzureCloud', 'AzureChinaCloud', 'AzureUSGovernment')]
-    [string] $CloudEnvironment = 'AzureCloud'
+    [string] $CloudEnvironment = 'AzureCloud',
+
+    [Parameter(Mandatory = $false)]
+    [securestring] $GithubToken
 )
 
+# Setup headers for connecting to GitHub
+$GitHubHeaders = @{
+    'Accept'               = 'application/vnd.github.v3+json'
+    'X-GitHub-Api-Version' = '2022-11-28'
+}
+if ($null -ne $GithubToken) {
+    $GitHubHeaders['Authorization'] = "Bearer $((New-Object PSCredential 0, $GithubToken).GetNetworkCredential().Password)"
+}
+elseif ($null -ne $env:GITHUB_TOKEN) {
+    $GitHubHeaders['Authorization'] = "Bearer $env:GITHUB_TOKEN"
+}
+
 # Verify release exists
-$GithubReleaseTag = Invoke-RestMethod -Method Get -Uri "https://api.github.com/repos/Azure/Enterprise-Scale/releases/$GithubRelease" -ErrorAction Stop | Select-Object -ExpandProperty tag_name
+$GithubReleaseTag = Invoke-RestMethod -Method Get -Uri "https://api.github.com/repos/Azure/Enterprise-Scale/releases/$GithubRelease" -Headers $GitHubHeaders -ErrorAction Stop | Select-Object -ExpandProperty tag_name
 $defaultPolicyURIs = @(
     "https://raw.githubusercontent.com/Azure/Enterprise-Scale/$GithubReleaseTag/eslzArm/managementGroupTemplates/policyDefinitions/policies.json",
     "https://raw.githubusercontent.com/Azure/Enterprise-Scale/$GithubReleaseTag/eslzArm/managementGroupTemplates/policyDefinitions/initiatives.json"
@@ -57,7 +72,7 @@ New-Item -Path "$DefinitionsRootFolder\policyAssignments\ALZ" -ItemType Director
 . "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
 
 foreach ($policyUri in $defaultPolicyURIs) {
-    $rawContent = (Invoke-WebRequest -Uri $policyUri).Content | ConvertFrom-Json
+    $rawContent = (Invoke-WebRequest -Uri $policyUri -Headers $GitHubHeaders).Content | ConvertFrom-Json
     $jsonPolicyDefsHash = $rawContent.variables | ConvertTo-HashTable
     $jsonPolicyDefsHash.GetEnumerator() | Foreach-Object {
         if ($_.Key -match 'fxv') {

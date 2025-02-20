@@ -77,8 +77,23 @@ param (
     [string] $OverwritePacSelector,
 
     [Parameter(Mandatory = $false, HelpMessage = "Used to Overwrite the contents of the output folder with each run. Helpful when running consecutively")]
-    [bool] $OverwriteOutput = $true
+    [bool] $OverwriteOutput = $true,
+
+    [Parameter(Mandatory = $false)]
+    [securestring] $GithubToken
 )
+
+# Setup headers for connecting to GitHub
+$GitHubHeaders = @{
+    'Accept'               = 'application/vnd.github.v3+json'
+    'X-GitHub-Api-Version' = '2022-11-28'
+}
+if ($null -ne $GithubToken) {
+    $GitHubHeaders['Authorization'] = "Bearer $((New-Object PSCredential 0, $GithubToken).GetNetworkCredential().Password)"
+}
+elseif ($null -ne $env:GITHUB_TOKEN) {
+    $GitHubHeaders['Authorization'] = "Bearer $env:GITHUB_TOKEN"
+}
 
 # Validate session with Azure exists
 if (-not (Get-AzContext)) {
@@ -345,9 +360,9 @@ elseif ($PolicySetDefinitionId) {
 }
 #region ALZ Definitions
 elseif ($ALZPolicyDefinitionId) {
-    $GithubReleaseTag = Invoke-RestMethod -Method Get -Uri "https://api.github.com/repos/Azure/Enterprise-Scale/releases/latest" -ErrorAction Stop | Select-Object -ExpandProperty tag_name
+    $GithubReleaseTag = Invoke-RestMethod -Method Get -Uri "https://api.github.com/repos/Azure/Enterprise-Scale/releases/latest" -Headers $GitHubHeaders -ErrorAction Stop | Select-Object -ExpandProperty tag_name
     $defaultPolicyURI = "https://raw.githubusercontent.com/Azure/Enterprise-Scale/$GithubReleaseTag/eslzArm/managementGroupTemplates/policyDefinitions/policies.json"
-    $rawContent = (Invoke-WebRequest -Uri $defaultPolicyURI).Content | ConvertFrom-Json
+    $rawContent = (Invoke-WebRequest -Uri $defaultPolicyURI -Headers $GitHubHeaders).Content | ConvertFrom-Json
     $variables = $rawContent.variables
     [hashtable] $jsonPolicyDefsHash = @{}
     if ($null -ne $variables) {
@@ -425,9 +440,9 @@ elseif ($ALZPolicyDefinitionId) {
 elseif ($ALZPolicySetDefinitionId) { 
     $builtInPolicies = Get-AzPolicyDefinition -Builtin
     $builtInPolicyNames = $builtInPolicies.name
-    $GithubReleaseTag = Invoke-RestMethod -Method Get -Uri "https://api.github.com/repos/Azure/Enterprise-Scale/releases/latest" -ErrorAction Stop | Select-Object -ExpandProperty tag_name
+    $GithubReleaseTag = Invoke-RestMethod -Method Get -Uri "https://api.github.com/repos/Azure/Enterprise-Scale/releases/latest" -Headers $GitHubHeaders -ErrorAction Stop | Select-Object -ExpandProperty tag_name
     $defaultPolicyURI = "https://raw.githubusercontent.com/Azure/Enterprise-Scale/$GithubReleaseTag/eslzArm/managementGroupTemplates/policyDefinitions/policies.json"
-    $rawContent = (Invoke-WebRequest -Uri $defaultPolicyURI).Content | ConvertFrom-Json
+    $rawContent = (Invoke-WebRequest -Uri $defaultPolicyURI -Headers $GitHubHeaders).Content | ConvertFrom-Json
     $variables = $rawContent.variables
     [hashtable] $jsonPolicyDefsHash = @{}
     if ($null -ne $variables) {
@@ -463,7 +478,7 @@ elseif ($ALZPolicySetDefinitionId) {
     }
     
     $defaultPolicySetURI = "https://raw.githubusercontent.com/Azure/Enterprise-Scale/$GithubReleaseTag/eslzArm/managementGroupTemplates/policyDefinitions/initiatives.json"
-    $rawContent = (Invoke-WebRequest -Uri $defaultPolicySetURI).Content | ConvertFrom-Json
+    $rawContent = (Invoke-WebRequest -Uri $defaultPolicySetURI -Headers $GitHubHeaders).Content | ConvertFrom-Json
     $variables = $rawContent.variables
     [hashtable] $jsonPolicySetDefsHash = @{}
     if ($null -ne $variables) {
