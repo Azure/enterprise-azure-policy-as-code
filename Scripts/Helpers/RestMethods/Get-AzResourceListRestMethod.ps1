@@ -50,5 +50,14 @@ function Get-AzResourceListRestMethod {
         $resources.value += $subnetResources.value
     }
 
+    # Get the automation account variables for all the automation accounts found in the basic resources
+    $automationAccounts = $($resources.value | Where-Object { $_.type -eq 'Microsoft.Automation/automationAccounts' })
+    foreach ($account in $automationAccounts) {   
+        $ApiVersion = "2023-11-01"
+        $path = "$($account.id)/variables?api-version=$ApiVersion"
+        $variableResources = Invoke-AzRestMethodCustom -path $path -method GET
+        $resources.value += $variableResources.value
+    }
+
     Write-Output $resources.value -NoEnumerate
 }
