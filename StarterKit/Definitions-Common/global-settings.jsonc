@@ -1,6 +1,6 @@
 {
     "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/global-settings-schema.json",
-    "pacOwnerId": "bd715eb8-36d2-4d33-8db0-505e04c0e4aa",
+    "pacOwnerId": "REDACTED",
     "pacEnvironments": [
         {
             "pacSelector": "EPAC-DEV",
