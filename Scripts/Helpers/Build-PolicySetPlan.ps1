@@ -49,6 +49,7 @@ function Build-PolicySetPlan {
         $displayName = $definitionProperties.displayName
         $description = $definitionProperties.description
         $metadata = Get-DeepCloneAsOrderedHashtable $definitionProperties.metadata
+        $version = $definitionProperties.version
         $parameters = $definitionProperties.parameters
         $policyDefinitions = $definitionProperties.policyDefinitions
         $policyDefinitionGroups = $definitionProperties.policyDefinitionGroups
@@ -182,6 +183,7 @@ function Build-PolicySetPlan {
             displayName            = $displayName
             description            = $description
             metadata               = $metadata
+            version                = $version
             parameters             = $parameters
             policyDefinitions      = $policyDefinitionsFinal
             policyDefinitionGroups = $policyDefinitionGroupsFinal

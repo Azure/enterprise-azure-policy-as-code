@@ -49,12 +49,13 @@ function Build-PolicyPlan {
 
         $definitionProperties = Get-PolicyResourceProperties -PolicyResource $definitionObject
         $name = $definitionObject.name
-            
+
         $id = "$deploymentRootScope/providers/Microsoft.Authorization/policyDefinitions/$name"
         $displayName = $definitionProperties.displayName
         $description = $definitionProperties.description
         $metadata = Get-DeepCloneAsOrderedHashtable $definitionProperties.metadata
         $mode = $definitionProperties.mode
+        $version = $definitionProperties.version
         $parameters = $definitionProperties.parameters
         $policyRule = $definitionProperties.policyRule
         if ($null -ne $metadata) {
@@ -114,6 +115,7 @@ function Build-PolicyPlan {
             displayName = $displayName
             description = $description
             mode        = $mode
+            version     = $version
             metadata    = $metadata
             parameters  = $parameters
             policyRule  = $policyRule
@@ -193,7 +195,7 @@ function Build-PolicyPlan {
             Write-Information "New '$($displayName)'"
         }
     }
-       
+
 
     $strategy = $PacEnvironment.desiredState.strategy
     foreach ($id in $deleteCandidates.Keys) {
