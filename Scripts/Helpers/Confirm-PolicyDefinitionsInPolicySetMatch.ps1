@@ -42,7 +42,7 @@ function Confirm-PolicyDefinitionsInPolicySetMatch {
             if ($null -ne $item2.definitionVersion) {
                 # ignore auto-generated definitionVersion, only compare if Policy definition entry has a definitionVersion
                 if ($null -eq $Definitions[$item1.policyDefinitionId].properties) {
-                    # The properties object does not exist, it probably has been splatted
+                    # The properties object does not exist, it probably has been reconstructed for splatting
                     $deployedPolicyDefinitionVersion = $Definitions[$item1.policyDefinitionId].version
                     if ($null -eq $deployedPolicyDefinitionVersion) {
                         # If the version is not found it could be in metadata.version
