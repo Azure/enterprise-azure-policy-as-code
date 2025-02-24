@@ -41,15 +41,21 @@ function Confirm-PolicyDefinitionsInPolicySetMatch {
             }
             if ($null -ne $item2.definitionVersion) {
                 # ignore auto-generated definitionVersion, only compare if Policy definition entry has a definitionVersion
-                $deployedPolicyDefinitionVersion = $Definitions[$item1.policyDefinitionId].properties.version
-                if ($null -eq $deployedPolicyDefinitionVersion) {
-                    # Custom policy definition - version is in a different place
-                    $deployedPolicyDefinitionVersion = $Definitions[$item1.policyDefinitionId].metadata.version
+                if ($null -eq $Definitions[$item1.policyDefinitionId].properties) {
+                    # The properties object does not exist, it probably has been splatted
+                    $deployedPolicyDefinitionVersion = $Definitions[$item1.policyDefinitionId].version
+                    if ($null -eq $deployedPolicyDefinitionVersion) {
+                        # If the version is not found it could be in metadata.version
+                        $deployedPolicyDefinitionVersion = $Definitions[$item1.policyDefinitionId].metadata.version
+                    }
                 }
-                # $definitionVersionMatches = $item1.definitionVersion -eq $item2.definitionVersion
-                # if (!$definitionVersionMatches) {
-                #     return $false
-                # }
+                else {
+                    $deployedPolicyDefinitionVersion = $Definitions[$item1.policyDefinitionId].properties.version
+                    if ($null -eq $deployedPolicyDefinitionVersion) {
+                        # Policy definition entry does not have a properties.version, it could be in properties.metadata.version
+                        $deployedPolicyDefinitionVersion = $Definitions[$item1.policyDefinitionId].properties.metadata.version
+                    }
+                }
                 $definitionVersionMatches = Compare-SemanticVersion -Version1 $deployedPolicyDefinitionVersion -Version2 $item2.definitionVersion
                 if ($definitionVersionMatches -ne 0) {
                     Write-Verbose "Definition Id: $($item1.policyDefinitionId)"
@@ -79,7 +85,7 @@ function Confirm-PolicyDefinitionsInPolicySetMatch {
                     return $false
                 }
             }
-            
+
             $parametersUsageMatches = Confirm-ParametersUsageMatches `
                 -ExistingParametersObj $item1.parameters `
                 -DefinedParametersObj $item2.parameters `
