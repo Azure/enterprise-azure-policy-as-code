@@ -28,8 +28,8 @@ function Confirm-PolicyDefinitionsInPolicySetMatch {
         return $false
     }
     for ($i = 0; $i -le $Object1.Count; $i++) {
-        $item1 = $Object1[$i]
-        $item2 = $Object2[$i]
+        $item1 = $Object1[$i] # this is the Azure Policy definition set
+        $item2 = $Object2[$i] # this is the local policy definition set
         if ($item1 -ne $item2) {
             $policyDefinitionReferenceIdMatches = $item1.policyDefinitionReferenceId -eq $item2.policyDefinitionReferenceId
             if (!$policyDefinitionReferenceIdMatches) {
@@ -39,24 +39,15 @@ function Confirm-PolicyDefinitionsInPolicySetMatch {
             if (!$policyDefinitionIdMatches) {
                 return $false
             }
-            if ($null -ne $item2.definitionVersion) {
-                # ignore auto-generated definitionVersion, only compare if Policy definition entry has a definitionVersion
-                $deployedPolicyDefinitionVersion = $Definitions[$item1.policyDefinitionId].properties.version
-                if ($null -eq $deployedPolicyDefinitionVersion) {
-                    # Custom policy definition - version is in a different place
-                    $deployedPolicyDefinitionVersion = $Definitions[$item1.policyDefinitionId].metadata.version
-                }
-                # $definitionVersionMatches = $item1.definitionVersion -eq $item2.definitionVersion
-                # if (!$definitionVersionMatches) {
-                #     return $false
-                # }
-                $definitionVersionMatches = Compare-SemanticVersion -Version1 $deployedPolicyDefinitionVersion -Version2 $item2.definitionVersion
-                if ($definitionVersionMatches -ne 0) {
-                    Write-Verbose "Definition Id: $($item1.policyDefinitionId)"
-                    Write-Verbose "DefinitionVersion does not match: Azure: $deployedPolicyDefinitionVersion, Local: $($item2.definitionVersion)"
-                    return $false
-                }
+
+            # Validate the Azure definitionVersion with the local definitionVersion, if the local definitionVersion doesn't exist and the Azure definitionVersion is not equal to latest policy version then return false
+            $definitionVersionMatches = Compare-SemanticVersion -Version1 $($item1.definitionVersion ?? $Definitions[$item1.policyDefinitionId].properties.version ?? '1.*.*') -Version2 $($item2.definitionVersion ?? $Definitions[$item1.policyDefinitionId].properties.version ?? '1.*.*')
+            if ($definitionVersionMatches -ne 0) {
+                Write-Verbose "Definition Id: $($item1.policyDefinitionId)"
+                Write-Verbose "DefinitionVersion does not match: Azure: $($item1.definitionVersion), Local: $($item2.definitionVersion)"
+                return $false
             }
+
             $groupNames1 = $item1.groupNames
             $groupNames2 = $item2.groupNames
             if ($null -eq $groupNames1 -and $null -eq $groupNames2 -and $i -eq $Object1.Count) {
@@ -79,7 +70,7 @@ function Confirm-PolicyDefinitionsInPolicySetMatch {
                     return $false
                 }
             }
-            
+
             $parametersUsageMatches = Confirm-ParametersUsageMatches `
                 -ExistingParametersObj $item1.parameters `
                 -DefinedParametersObj $item2.parameters `
