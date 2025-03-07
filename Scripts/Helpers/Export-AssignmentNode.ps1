@@ -126,6 +126,12 @@ function Export-AssignmentNode {
                     }
                     break
                 }
+                definitionVersion {
+                    if ($null -ne $propertyValue) {
+                        $null = $AssignmentNode.Add("definitionVersion", $propertyValue)
+                    }
+                    break
+                }
             }
         }
         else {

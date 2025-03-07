@@ -188,7 +188,8 @@ $propertyNames = @(
     "notScopes",
     "nonComplianceMessages",
     "additionalRoleAssignments",
-    "identityEntry"
+    "identityEntry",
+    "definitionVersion"
 )
 
 $policyResourcesByPacSelector = @{}
@@ -296,6 +297,7 @@ if ($Mode -ne 'exportFromRawFiles') {
                     PolicyDefinitionId    = $policy.Value.properties.policyDefinitionId
                     Parameters            = $policy.Value.properties.parameters
                     NonComplianceMessages = $policy.Value.properties.nonComplianceMessages
+                    DefinitionVersion     = $policy.Value.properties.definitionVersion
                 }
             }
     
@@ -665,6 +667,7 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
             $policyDefinitionKey = $parts.definitionKey
             $enforcementMode = $properties.enforcementMode
             $displayName = $policyAssignment.name
+            $definitionVersion = $properties.definitionVersion
             if ($null -ne $properties.displayName -and $properties.displayName -ne "") {
                 $displayName = $properties.displayName
             }
@@ -759,6 +762,7 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
                 identityEntry             = $identityEntry
                 scopes                    = $scope
                 notScopes                 = $notScopes
+                definitionVersion         = $definitionVersion
             }
 
             $perDefinition = $null
