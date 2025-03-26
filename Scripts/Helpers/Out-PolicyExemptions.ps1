@@ -141,7 +141,7 @@ function Out-PolicyExemptions {
         Write-Information "Output $numberOfExemptions active (not expired or orphaned) Exemptions for epac environment '$pacSelector'"
         Write-Information "==================================================================================================="
         if ($OutputJson) {
-            $selectedArray = $selectedExemptions | Where-Object status -eq "active" | Select-Object -Property name, `
+            $selectedArray = $selectedExemptions | Where-Object status -in @("active", "active-expiring-within-15-days") | Select-Object -Property name, `
                 displayName, `
                 description, `
                 exemptionCategory, `
@@ -167,7 +167,7 @@ function Out-PolicyExemptions {
             ConvertTo-Json $outputJsonObj -Depth 100 | Out-File $jsonFile -Force
         }
         if ($OutputCsv) {
-            $selectedArray = $selectedExemptions | Where-Object status -eq "active" | Select-Object -Property name, `
+            $selectedArray = $selectedExemptions | Where-Object status -in @("active", "active-expiring-within-15-days") | Select-Object -Property name, `
                 displayName, `
                 description, `
                 exemptionCategory, `
