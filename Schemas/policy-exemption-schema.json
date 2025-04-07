@@ -25,6 +25,9 @@
                     "scope": {
                         "type": "string"
                     },
+                    "scopes": {
+                        "type": "array"
+                    },
                     "policyAssignmentId": {
                         "type": "string"
                     },
@@ -81,11 +84,22 @@
                         ]
                     }
                 ],
+				"oneOf": [
+					{
+                        "required": [
+                            "scope"
+                        ]
+                    },
+                    {
+                        "required": [
+                            "scopes"
+                        ]
+                    }
+				],
                 "required": [
                     "name",
                     "displayName",
-                    "exemptionCategory",
-                    "scope"
+                    "exemptionCategory"
                 ]
             }
         }
