@@ -225,6 +225,10 @@ else {
 if ($warningMessages.Count -gt 0) {
     foreach ($warningMessage in $warningMessages) {
         Write-Warning $warningMessage
+
+        if ($DevOpsType -eq "ado") {
+            Write-Host "##vso[task.logissue type=warning]$warningMessage"
+        }
     }
 }
 #endregion calculate which plans need to be built
