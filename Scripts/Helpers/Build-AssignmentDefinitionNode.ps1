@@ -18,6 +18,8 @@ function Build-AssignmentDefinitionNode {
     $definition = Get-DeepCloneAsOrderedHashtable -InputObject $AssignmentDefinition
     $pacSelector = $PacEnvironment.pacSelector
 
+    $definitionVersion = $null
+
     #region nodeName (required)
     $nodeName = $definition.nodeName
     if ($DefinitionNode.nodeName) {
@@ -352,6 +354,12 @@ function Build-AssignmentDefinitionNode {
     }
     #endregion advanced parameters - overrides and resourceSelectors
 
+    if ($DefinitionNode.definitionVersion) {
+        $definition.definitionVersion = $DefinitionNode.definitionVersion
+    }
+
+    #if ($DefinitionNode)
+
     #region scopes, notScopes
     if ($definition.scopeCollection -or $definition.hasOnlyNotSelectedEnvironments) {
         # Once a scopeList is defined at a parent, no descendant may define scopeList or notScope
@@ -451,7 +459,7 @@ function Build-AssignmentDefinitionNode {
     #region identity and additionalRoleAssignments (optional, specific to an EPAC environment)
     if ($DefinitionNode.additionalRoleAssignments) {
         # Process additional permissions needed to execute remediations; for example permissions to log to Event Hub, Storage Account or Log Analytics
-        $definition.additionalRoleAssignments = Add-SelectedPacArray -InputObject $DefinitionNode.additionalRoleAssignments -PacSelector $pacSelector -ExistingList $definition.additionalRoleAssignments
+        $definition.additionalRoleAssignments = Add-SelectedPacArray -InputObject $DefinitionNode.additionalRoleAssignments -PacSelector $pacSelector -ExistingList $definition.additionalRoleAssignments -AdditionalRoles $true
     }
 
     if ($DefinitionNode.managedIdentityLocations) {

@@ -12,6 +12,8 @@
 - Microsoft.PolicyInsights/*
 - Microsoft.Management/register/action
 - Microsoft.Management/managementGroups/read
+- Microsoft.Resources/subscriptions/read
+- Microsoft.Resources/subscriptions/resourceGroups/read
 
 ## Create Azure DevOps Pipeline or GitHub Workflow
 
@@ -26,4 +28,3 @@
 `-BranchingFlow <String>` - Release or GitHub (flow); default is Release
 
 `-ScriptType <String>` - scripts (in your repo) or module (from PowerShell gallery); default is module
-
