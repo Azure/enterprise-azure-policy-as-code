@@ -190,7 +190,7 @@ To have a Policy or PolicySet definition deployed only to epacEnvironments that 
 
 ### Example 2: Policy Assignment
 
-To have a Policy Assignment deployed only to epacEnvironments that are China cloud tenants, add an "epacCloudEnvironemnts" property within the top section of the assignment file like file:
+To have a Policy Assignment deployed only to epacEnvironments that are China cloud tenants, add an "epacCloudEnvironemnts" property within the top section of the assignment file like this:
 
 ```json
 {
