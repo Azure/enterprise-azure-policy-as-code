@@ -1305,7 +1305,7 @@ function Install-HydrationEpac {
 
     New-HydrationSeparatorBlock -DisplayText "Deploy to epac-dev" -Location Top
 
-    Write-Host "These stepes require that the Az and EnterprisePolicyAsCode modules be available" -ForegroundColor Yellow
+    Write-Host "These steps require that the Az and EnterprisePolicyAsCode modules be available" -ForegroundColor Yellow
     Write-Host "When you are ready to deploy the changes to epac-dev, please perform the following tasks to complete deployment to the $epacDevName pacSelector:" -ForegroundColor Yellow
     Write-Host "    Build-DeploymentPlans -PacEnvironmentSelector $epacDevName -OutputFolder $Output -DefinitionsRootFolder $DefinitionsRootFolder"
     Write-Host "    Deploy-PolicyPlan -PacEnvironmentSelector $epacDevName -DefinitionsRootFolder $DefinitionsRootFolder"
