@@ -168,12 +168,40 @@ New-HydrationDefinitionsFolder -DefinitionsRootFolder Definitions
 
 ## Cloud Environment with Unsupported/Missing Policy Definitions
 
-In some multi-tenant implementations, not all policies, policy sets, and/or assignments will function in all tenants, usually due to either built-in policies that don't exist in some tenant types or unavailable resource providers.  In order to facilitate multi-tenant deployments in these scenarios, utilize the `epacCloudEnvironments` property to specify which cloud type a specific file should be considered in.  For example in order to have a policy definition deployed only to epacEnvironments that are China cloud tenants, add a metadata property like this to that definition (or definitionSet) file:
+In some multi-tenant implementations, not all policies, policy sets, and/or assignments will function in all tenants, usually due to either built-in policies that don't exist in some tenant types or unavailable resource providers.  In order to facilitate multi-tenant deployments in these scenarios, utilize the `epacCloudEnvironments` property to specify which cloud type a specific file should be considered in.
+
+The allowed values are: "AzureCloud", "AzureChinaCloud" or "AzureUSGovernment".
+
+###  Example 1: Policy / PolicySet
+
+To have a Policy or PolicySet definition deployed only to epacEnvironments that are China cloud tenants, add an "epacCloudEnvironemnts" property to the metadata section of the file like this:
 
 ```json
-"metadata": {
+{
+  "displayName": "",
+  "description": "",
+  "metadata": {
+    "epacCloudEnvironments": [
+      "AzureChinaCloud"
+    ]
+  }
+},
+```
+
+### Example 2: Policy Assignment
+
+To have a Policy Assignment deployed only to epacEnvironments that are China cloud tenants, add an "epacCloudEnvironemnts" property within the top section of the assignment file like file:
+
+```json
+{
+  "nodename": "/root",
   "epacCloudEnvironments": [
-    "AzureChinaCloud"
+      "AzureChinaCloud"
+    ],
+  "definitionEntry": {
+        "policySetId": ""
+    },
+  "children": [
   ]
 },
 ```
