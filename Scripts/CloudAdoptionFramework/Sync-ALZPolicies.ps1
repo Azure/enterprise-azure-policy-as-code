@@ -82,6 +82,7 @@ foreach ($policyUri in $defaultPolicyURIs) {
                 $environments = ($_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Properties).metadata.alzCloudEnvironments
                 if ($environments -contains $CloudEnvironment) {
                     $baseTemplate = @{
+                        schema     = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json"
                         name       = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Name
                         properties = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Properties
                     }
@@ -89,7 +90,7 @@ foreach ($policyUri in $defaultPolicyURIs) {
                     if (!(Test-Path $DefinitionsRootFolder\policyDefinitions\ALZ\$category)) {
                         New-Item -Path $DefinitionsRootFolder\policyDefinitions\ALZ\$category -ItemType Directory -Force -ErrorAction SilentlyContinue
                     }
-                    $baseTemplate | Select-Object name, properties | ConvertTo-Json -Depth 50 | Out-File -FilePath $DefinitionsRootFolder\policyDefinitions\ALZ\$category\$name.json -Force
+                    $baseTemplate | ConvertTo-Json -Depth 50 | Out-File -FilePath $DefinitionsRootFolder\policyDefinitions\ALZ\$category\$name.json -Force
                     (Get-Content $DefinitionsRootFolder\policyDefinitions\ALZ\$category\$name.json) -replace "\[\[", "[" | Set-Content $DefinitionsRootFolder\policyDefinitions\ALZ\$category\$name.json
                 }
                 
@@ -109,6 +110,7 @@ foreach ($policyUri in $defaultPolicyURIs) {
                         }
                     }
                     $baseTemplate = @{
+                        schema     = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-set-definition-schema.json"
                         name       = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Name
                         properties = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Properties
                     }
@@ -116,7 +118,7 @@ foreach ($policyUri in $defaultPolicyURIs) {
                     if (!(Test-Path $DefinitionsRootFolder\policySetDefinitions\ALZ\$category)) {
                         New-Item -Path $DefinitionsRootFolder\policySetDefinitions\ALZ\$category -ItemType Directory -Force -ErrorAction SilentlyContinue
                     }
-                    $baseTemplate | Select-Object name, properties | ConvertTo-Json -Depth 50 | Out-File -FilePath $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json -Force
+                    $baseTemplate | ConvertTo-Json -Depth 50 | Out-File -FilePath $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json -Force
                     (Get-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json) -replace "\[\[", "[" | Set-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json
                     (Get-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json) -replace "variables\('scope'\)", "'/providers/Microsoft.Management/managementGroups/$managementGroupId'" | Set-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json
                     (Get-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json) -replace "', '", "" | Set-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json
