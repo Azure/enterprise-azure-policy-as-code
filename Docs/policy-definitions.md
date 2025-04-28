@@ -6,13 +6,21 @@ Policy definition files are managed within the folder `policyDefinitions` under 
 
 The names of the definition JSON files don't matter, the Policy and Policy Set definitions are registered based on the `name` attribute. The solution also allows the use of JSON with comments by using `.jsonc` instead of `.json` for the file extension.
 
+### Custom Definitions
+
+Custom definitions are uploaded to Azure at the time of initial deployment to a pacSelector. For each pacSelector, the definition is uploaded to the pacSelector's defined root. This makes it available to the entirity of that pacSelector, while facilitating code promotion by allowing each pacSelector to recieve the updated definition as part of the release/deployment process.
+
+### Definition Delivery
+
+[policy(Set)Definitions](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/scope#definition-location) are deployed at the pacSelector root. This enables versioning on custom definitions to be put through the CI/CD based change process.
+
 ## JSON Schema
 
 The GitHub repo contains a JSON schema which can be used in tools such as [VS Code](https://code.visualstudio.com/Docs/languages/json#_json-schemas-and-settings) to provide code completion.
 
 To utilize the schema add a ```$schema``` tag to the JSON file.
 
-```
+```json
 {
   "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json"
 }

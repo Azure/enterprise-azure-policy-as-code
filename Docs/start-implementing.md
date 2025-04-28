@@ -7,23 +7,37 @@
 
 The following steps are required to implement Enterprise Policy as Code (EPAC) in your environment:
 
-1. Understand [concepts and environments](#epac-concepts-and-environments).
-2. Determine [desired state strategy](settings-desired-state.md).
-3. How to handle [Defender for Cloud Policy Assignments](settings-dfc-assignments.md).
-4. Design your [CI/CD process](ci-cd-overview.md).
-5. Install [Powershell and EPAC](#install-powershell-and-epac).
-6. Create your [`Definitions` folder and subfolders](#create-the-definitions-folder).
-7. Populate `global-settings.jsonc` with your [environment settings](settings-global-setting-file.md) and [desired state strategy](settings-dfc-assignments.md).
-8. Populate your Definitions folder with Policy resources. (For a folder structure example, please see [StarterKit/Definitions-Common](https://github.com/Azure/enterprise-azure-policy-as-code/tree/main/StarterKit/Definitions-Common))
-    - [Option A:] [Extract existing Policy resources](start-extracting-policy-resources.md) from your Azure environment.
-    - [Option B:] [Integrate Azure Landing Zones (ALZ)](integrating-with-alz.md).
-    - [Option C:] Utilize the [hydration kit](operational-scripts-hydration-kit.md) and `StarterKit` content.
-    - [Optional] Create custom [Policy definitions](policy-definitions.md).
-    - [Optional] Create custom [Policy Set definitions](policy-set-definitions.md).
-    - Create your [Policy Assignments](policy-assignments.md).
-    - [Optional] Manage [Policy Exemptions](policy-exemptions.md).
-9. Implement your [CI/CD pipelines](ci-cd-overview.md).
-10. Operate your environment with the provided [operational scripts](operational-scripts.md).
+1. Learning
+    1. Understand [EAPC Concepts and Environments](#epac-concepts-and-environments)
+    2. Determine [desired state strategy](./settings-desired-state.md)
+    3. How to handle [Defender for Cloud Policy Assignments](./settings-dfc-assignments.md)
+    4. Design your [CI/CD process](./ci-cd-overview.md)
+1. Install Prerequisite Software  
+    1. Install [Powershell and EPAC](#install-powershell-and-epac)
+1. Build the Definitions Folder
+    1. ***RECOMMENDED***: Leverage the [EPAC Hydration Kit](start-hydration-kit.md) Accelerator
+        1. Automatically deploys the Microsoft Cloud Security Benchmark
+        1. Prompts for common audit standards
+        1. Generates the global-setings.jsonc file automatically
+            1. Sets the ```desiredState.strategy``` in the Global Settings file to ```ownedOnly```
+            1. Defines a single [pacSelector](./settings-global-setting-file.md#Define-EPAC-Environments-in-`pacEnvironments`) and the epac-dev pacSelector needed for CI/CD Operations
+    1. Option 2: Manually Configure Environment
+        1. Create your [`Definitions` folder and subfolders](#create-the-definitions-folder)
+            > ![NOTE]
+            > For a folder structure example, please see [StarterKit/Definitions-Common](https://github.com/Azure/enterprise-azure-policy-as-code/tree/main/StarterKit/Definitions-Common)
+        1. Populate `global-settings.jsonc` with your [environment settings](./settings-global-setting-file.md#Define-EPAC-Environments-in-`pacEnvironments`) and [desired state strategy](settings-dfc-assignments.md)
+        1. Populate your Definitions folder with [existing Policy resources](start-extracting-policy-resources.md) from your Azure environment
+1. Add Additional Content:
+    1. Integrate [Azure Landing Zones (ALZ)](integrating-with-alz.md)
+    1. Create custom [Policy definitions](policy-definitions.md)
+    1. Create custom [Policy Set definitions](policy-set-definitions.md)
+    1. Create new [Policy Assignments](policy-assignments.md)
+    1. Manage [Policy Exemptions](policy-exemptions.md)
+1. [Generate Documentation](./operational-scripts-documenting-policy.md) for Audit Purposes
+1. Configure CI/CD Operations
+      1. Implement templated [CI/CD pipelines](ci-cd-overview.md)
+
+Once this is complete, the repo is ready for workflow customization in order to optimize  the process for approval workflows. In addition, tools are provided to assist in managing the new EPAC environment using the provided [operational scripts](operational-scripts.md)
 
 ## EPAC Concepts and Environments
 
@@ -172,7 +186,7 @@ In some multi-tenant implementations, not all policies, policy sets, and/or assi
 
 The allowed values are: "AzureCloud", "AzureChinaCloud" or "AzureUSGovernment".
 
-###  Example 1: Policy / PolicySet
+### Example 1: Policy / PolicySet
 
 To have a Policy or PolicySet definition deployed only to epacEnvironments that are China cloud tenants, add an "epacCloudEnvironments" property to the metadata section of the file like this:
 
