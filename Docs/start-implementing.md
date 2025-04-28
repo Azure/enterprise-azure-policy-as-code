@@ -174,7 +174,7 @@ The allowed values are: "AzureCloud", "AzureChinaCloud" or "AzureUSGovernment".
 
 ###  Example 1: Policy / PolicySet
 
-To have a Policy or PolicySet definition deployed only to epacEnvironments that are China cloud tenants, add an "epacCloudEnvironemnts" property to the metadata section of the file like this:
+To have a Policy or PolicySet definition deployed only to epacEnvironments that are China cloud tenants, add an "epacCloudEnvironments" property to the metadata section of the file like this:
 
 ```json
 {
@@ -190,7 +190,7 @@ To have a Policy or PolicySet definition deployed only to epacEnvironments that 
 
 ### Example 2: Policy Assignment
 
-To have a Policy Assignment deployed only to epacEnvironments that are China cloud tenants, add an "epacCloudEnvironemnts" property within the top section of the assignment file like file:
+To have a Policy Assignment deployed only to epacEnvironments that are China cloud tenants, add an "epacCloudEnvironments" property within the top section of the assignment file like this:
 
 ```json
 {
