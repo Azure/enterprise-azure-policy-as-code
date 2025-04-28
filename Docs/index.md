@@ -98,6 +98,7 @@ The following is the unique IDs (also known as PIDs) used in each of the modules
 | `Get-AzExemptions` | `3f02e7d5-1cf5-490a-a95c-3d49f0673093` |
 | `New-AzPolicyReaderRole` | `f4b5b7ac-70b4-40fc-836f-585791aa83e7` |
 | `Sync-ALZPolicies` | `a5e82cd0-9dda-417b-948c-68ec81596c32`|
+| `Sync-ALZPolicyFromLibrary` | `adaa7564-1962-46e6-92b4-735e91f76d43` |
 
 ## Support
 

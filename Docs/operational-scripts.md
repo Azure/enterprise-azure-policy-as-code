@@ -15,6 +15,7 @@ This script executes all remediation tasks in a Policy as Code environment speci
 
 #### Links
 
+* [Guidance: Implementing an Azure Policy Based Remediation Solution](./guidance-remediation.md)
 * [Remediate non-compliant resources with Azure Policy](https://learn.microsoft.com/en-us/azure/governance/policy/how-to/remediate-resources?tabs=azure-portal)
 * [Start-AzPolicyRemediation](https://learn.microsoft.com/en-us/powershell/module/az.policyinsights/start-azpolicyremediation?view=azps-10.1.0)
 
