@@ -28,6 +28,8 @@ elseif ($null -ne $env:GITHUB_TOKEN) {
     $GitHubHeaders['Authorization'] = "Bearer $env:GITHUB_TOKEN"
 }
 
+Write-Warning "This command is deprecated and will be removed in a future release. Please see https://azure.github.io/enterprise-azure-policy-as-code/integrating-with-alz/ for details."
+
 # Verify release exists
 $GithubReleaseTag = Invoke-RestMethod -Method Get -Uri "https://api.github.com/repos/Azure/Enterprise-Scale/releases/$GithubRelease" -Headers $GitHubHeaders -ErrorAction Stop | Select-Object -ExpandProperty tag_name
 $defaultPolicyURIs = @(

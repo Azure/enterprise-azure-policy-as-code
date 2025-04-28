@@ -21,19 +21,21 @@ Desired State strategy enables you to adjust the default behavior to fit more co
   - `excludedPolicySetDefinitions`: An array of Policy Set Definitions to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
   - `excludedPolicyAssignments`: An array of Policy Assignments to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
   - `doNotDisableDeprecatedPolicies`: Automatically set deprecated policies' policy effect to "Disabled". This setting can be used to override that behavior by setting it to `true`. Default is `false`.
-  - `excludeSubscriptions`: Exclude all subscription under the deployment root scope. Designed for environments containing many frequently updated subscriptions that are not requiring management and where using ```excludedScopes``` would be impractical to maintain. If resource groups are added ```excludedScopes``` they will be ignored as this setting will take precedence. It will not effect excluded management group scopes. Default is `false`
+  - `excludeSubscriptions`: Exclude all subscription under the deployment root scope. Designed for environments containing many frequently updated subscriptions that are not requiring management and where using ```excludedScopes``` would be impractical to maintain. If resource groups are added ```excludedScopes``` they will be ignored as this setting will take precedence by virtue of the fact that it excludes all Subscriptions, which by definition contain all Resource Groups. It will not effect excluded management group scopes. Default is `false`
 
 The following example shows the `desiredState` element with all properties set:
 
 ```json
 "desiredState": {
-    "strategy": "full",
-    "keepDfcSecurityAssignments": false,
-    "doNotDisableDeprecatedPolicies": false,
-    "excludedScopes": [],
-    "excludedPolicyDefinitions": [],
-    "excludedPolicySetDefinitions": [],
-    "excludedPolicyAssignments": []
+    "strategy"                             = "[ownedOnly|full]"
+    "keepDfcSecurityAssignments"           = false
+    "cleanupObsoleteExemptions"            = false
+    "excludeSubscriptions"                 = false
+    "doNotDisableDeprecatedPolicies"       = false
+    "excludedScopes"                       = []
+    "excludedPolicyDefinitions"            = []
+    "excludedPolicySetDefinitions"         = []
+    "excludedPolicyAssignments"            = []
 }
 ```
 
@@ -142,11 +144,13 @@ You use `globalNotScopes` to exclude a child scope from management by EPAC. The 
 This happens when EPAC `strategy` is `full` and some child scopes contain Policy resources not managed by an EPAC repo (delivered through some other deployment method). You can exclude them based on:
 
 - Scopes (Management Groups, subscriptions and Resource Groups) through `desiredState.excludedScopes`
+  - `desiredState.excludeSubscriptions` is the preferred way to exclude all Subscriptions within a pacSelector
+  - `"/subscriptions/subscriptionsPattern/*"` is also a valid `excludedScopes` value, but is more commonly used for name based filtering
 - Policy Definitions through `desiredState.excludedPolicyDefinitions`
 - Policy Set Definitions through `desiredState.excludedPolicySetDefinitions`
 - Policy Assignments through `desiredState.excludedPolicyAssignments`
 
-You can exclude any combination of `excludedScopes`, `excludedPolicyDefinitions`, `excludedPolicySetDefinitions` and `excludedPolicyAssignments`. Any of the strings can contain simple wild cards.
+You can exclude any combination of `excludedScopes`, `excludedPolicyDefinitions`, `excludedPolicySetDefinitions` and `excludedPolicyAssignments`. Any of the strings can contain simple wild cards. See [PolicyAssignment](./policy-assignments.md) documentation for further information.
 
 ```json
 "desiredState": {
