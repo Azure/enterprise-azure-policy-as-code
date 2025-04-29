@@ -31,7 +31,7 @@ Altering the target assignment is necessary if assignments are being moved durin
 
 In these cases, find each listing for affected assignments in the CSV/JSON file, and duplicate, then update, the reference to reflect the new assignment location. Doing so will allow the exemptions to be applied as the new assignments are applied while retaining the old exemptions until you are ready to remove the assignment entirely.
 
-#### Manual Assignment Location Updates
+<!-- #### Manual Assignment Location Updates
 
 > NOTE TODO: REQUIRES TESTING, PURELY CONCEPTUAL
 
@@ -43,6 +43,7 @@ In these cases, find each listing for affected assignments in the CSV/JSON file,
     1. Replace temporary pacSelector with main pacSelector:
         1. Epac Managed Exemptions: ```metadata\epacMetadata\"pacSelector"```
 1. PR to Main branch; this should not change the Exemption that was just added
+-->
 
 ## Adding/updating exemptions with script
 

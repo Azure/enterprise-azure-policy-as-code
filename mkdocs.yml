@@ -54,11 +54,11 @@ nav:
   - Operational Scripts:
       - Scripts Overview: operational-scripts.md
       - Documenting Policy: operational-scripts-documenting-policy.md
-      - Hydration Kit: start-hydration-kit.md
       - Reference: operational-scripts-reference.md
   - Operator Guidance:
       - Remediation Enforcement: guidance-remediation.md
       - Exclusion Management: guidance-scope-exclusions.md
+      - Exemption Updates: guidance-exemptions.md
 
 markdown_extensions:
   - admonition
