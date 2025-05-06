@@ -50,8 +50,8 @@ Each exemption must define the following properties:
 - Optional
   - `expiresOn` - empty or expiry date.
   - `assignmentScopeValidation` - `Default` or `DoNotValidate`
-  - `resourceSelectors` - valid JSON (see JSON format below)
-  - `metadata` - valid JSON (see JSON format below)
+  - `resourceSelectors` - valid JSON array (see JSON format [here](./policy-assignments.md#defining-resourceselectors))
+  - `metadata` - valid JSON object (see JSON format below)
 
 ### Metadata
 
@@ -331,8 +331,8 @@ The columns must have the headers as described below. The order of the columns i
   - `expiresOn` - empty or expiry date.
   - `policyDefinitionReferenceIds` - list of ampersand `&` separated [strings as defined above](#specifying-policydefinitionreferenceids).
   - `assignmentScopeValidation` - `Default` or `DoNotValidate`
-  - `resourceSelectors` - valid JSON (see JSON format below)
-  - `metadata` - valid JSON (see JSON format below)
+  - `resourceSelectors` - valid JSON array (see JSON format [here](./policy-assignments.md#defining-resourceselectors))
+  - `metadata` - valid JSON object (see JSON format below)
 
 > [!CAUTION]
 > Breaking change: v10.1.0 replaced the usual comma in `policyDefinitionReferenceIds` with an ampersand `&` to avoid conflicts with the scope Ids. You must replace in-cell commas with ampersands.
