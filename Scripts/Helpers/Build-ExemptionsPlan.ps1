@@ -206,8 +206,8 @@ function Build-ExemptionsPlan {
                     $resourceSelectors = $null
                     $step1 = $row.resourceSelectors
                     if (-not [string]::IsNullOrWhiteSpace($step1)) {
-                        $step2 = $step1.Trim()      
-                        if ($step2.StartsWith("{")) {
+                        $step2 = $step1.Trim()
+                        if ($step2.StartsWith("[")) {
                             try {
                                 $step3 = ConvertFrom-Json $step2 -AsHashTable -Depth 100 -NoEnumerate
                             }
