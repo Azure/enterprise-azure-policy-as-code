@@ -32,12 +32,20 @@ In both cases it is now recommended that if you have the default ALZ policies de
 
 ## Using the new Azure Landing Zone Library sync process
 
+### Pre-requisites
+
+To use the ALZ policies in an environment successfully there are some Azure Resources that need to be created. This is normally completed by using one of the ALZ accelerators to deploy the environment however if you have written your own code or modified the default deployment ensure you have the following resources in place to support the ALZ policies.
+
+- Log Analytics workspace
+- DCR rules to support monitoring - [data collection rule templates](https://github.com/Azure/Enterprise-Scale/tree/main/eslzArm/resourceGroupTemplates)
+- User Assigned Managed Identity to support Azure Monitor Agent - [sample template](https://github.com/Azure/Enterprise-Scale/blob/main/eslzArm/resourceGroupTemplates/userAssignedIdentity.json)
+
 ### Create a policy default structure file
 
-This file contains information that drives the sync process. The file includes management group IDs, default enforcement mode, and parameter values. It must be generated at least once before executing the sync process.
+This file contains information that drives the sync process. The file includes management group IDs, default enforcement mode, and parameter values. **It must be generated at least once before executing the sync process.**
 
-1. Ensure that the EPAC module is up to date.
-2. Follow the example below to clone the library repository and create the default file. There are examples below on how to run this commnand.
+1. Ensure that the EPAC module is up to date - required minimum version to use these features is 10.9.0.
+2. Use to code to clone the library repository and create the default file. There are examples below on how to run this commnand - you will only need to run one of these depending on your requirements.
 
 ```ps1
 # Create a default file for ALZ policies using the latest version of the ALZ Library 
@@ -89,7 +97,7 @@ Modify the default enforcement mode
 
 The next command will generate policy assignments based on the values in this file so ensure they are correct for your environment.
 
-4. Follow the example below to sync the policy files and update scopes and parameters based on the information in the previously created file.
+4. Use to code to sync the policy files and update scopes and parameters based on the information in the previously created file. There are examples below on how to run this command - you will only need to run one of these depending on your requirements. The files will be copied into their own folder to separate them from any definitions already in the repository.
 
 ```ps1
 # Sync the ALZ policies and assign to the "epac-dev" PAC environment.
@@ -111,4 +119,7 @@ Carefully review the generated policy assigments and ensure all parameter and sc
 
 ## Advanced Scenarios
 
-Using the format of the Azure Landing Zones repository it is possible to extend the management groups defined and provide your own archetypes. You must maintain a local copy of the library for this purpose. Details will be provided at a later stage on how to customize this.
+Using the format of the Azure Landing Zones repository it is possible to extend the management groups defined and provide your own archetypes. You must maintain a local copy of the library for this purpose. Details will be provided at a later stage on how to customize this for different scenarios including:
+
+- Modifying the management group structure (add new groups and archetypes)
+- Add/Remove policies from an archetype
