@@ -1,0 +1,2025 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://azure.github.io/enterprise-azure-policy-as-code/integrating-with-alz/">
+      
+      
+        <link rel="prev" href="../integrating-with-alz-library/">
+      
+      
+        <link rel="next" href="../integrating-with-alz-monitor/">
+      
+      
+      <link rel="icon" href="../Images/10316-icon-service-Policy.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+    
+    
+      
+        <title>ALZ Policy Integration (Legacy) - Enterprise Policy As Code (EPAC)</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.2afb09e1.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#integrating-epac-with-azure-landing-zones" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Enterprise Policy As Code (EPAC)" class="md-header__button md-logo" aria-label="Enterprise Policy As Code (EPAC)" data-md-component="logo">
+      
+  <img src="../Images/10316-icon-service-Policy.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Enterprise Policy As Code (EPAC)
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ALZ Policy Integration (Legacy)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Azure/enterprise-azure-policy-as-code" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../start-hydration-kit/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../settings-global-setting-file/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Settings and Desired State
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../integrating-with-alz-library/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Azure Landing Zones
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../policy-definitions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Define Policy Resources
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../ci-cd-overview/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  CI/CD Integration
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../operational-scripts/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Operational Scripts
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../guidance-remediation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Operator Guidance
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Enterprise Policy As Code (EPAC)" class="md-nav__button md-logo" aria-label="Enterprise Policy As Code (EPAC)" data-md-component="logo">
+      
+  <img src="../Images/10316-icon-service-Policy.svg" alt="logo">
+
+    </a>
+    Enterprise Policy As Code (EPAC)
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Azure/enterprise-azure-policy-as-code" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start-hydration-kit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Hydration Kit
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start-implementing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Start Implementation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start-forking-github-repo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Forking GitHub Repo
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start-extracting-policy-resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Extracting Policy Resources
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start-changes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Changes in v10.0.0
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Settings and Desired State
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Settings and Desired State
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../settings-global-setting-file/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Global Settings
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../settings-desired-state/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Desired State
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../settings-dfc-assignments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    DfC Assignments
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Azure Landing Zones
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Azure Landing Zones
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrating-with-alz-library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ALZ Policy Integration (New)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    ALZ Policy Integration (Legacy)
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    ALZ Policy Integration (Legacy)
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rationale
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-and-when-should-you-use-epac-to-manage-alz-deployed-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why and when should you use EPAC to manage ALZ deployed policies
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scenarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scenarios
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scenario-1-existing-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scenario 1 - Existing Deployment
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Scenario 1 - Existing Deployment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bicep" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bicep
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#terraform" class="md-nav__link">
+    <span class="md-ellipsis">
+      Terraform
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scenario-2-alz-policy-deployment-with-epac" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scenario 2 - ALZ Policy Deployment with EPAC
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keeping-up-to-date-with-changes-manually" class="md-nav__link">
+    <span class="md-ellipsis">
+      Keeping up to date with changes manually
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keeping-up-to-date-with-github-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Keeping up to date with GitHub Actions
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrating-with-alz-monitor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Azure Monitor Baseline Alerts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrating-with-slz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Sovereign Landing Zones
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Define Policy Resources
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Define Policy Resources
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policy-definitions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Policy Definitions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policy-set-definitions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Policy Set Definitions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policy-assignments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Policy Assignment Files
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policy-assignments-csv-parameters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CSV Assignment Parameters
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policy-exemptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Policy Exemptions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    CI/CD Integration
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            CI/CD Integration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CI/CD Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-app-registrations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    App Registrations Setup
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-branching-flows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Branching Flows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-ado-pipelines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Azure DevOps Pipelines
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-github-actions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GitHub Actions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Operational Scripts
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Operational Scripts
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operational-scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Scripts Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operational-scripts-documenting-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Documenting Policy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operational-scripts-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Reference
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Operator Guidance
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            Operator Guidance
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guidance-remediation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Remediation Enforcement
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guidance-scope-exclusions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Exclusion Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guidance-exemptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Exemption Updates
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#rationale" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rationale
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-and-when-should-you-use-epac-to-manage-alz-deployed-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why and when should you use EPAC to manage ALZ deployed policies
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scenarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scenarios
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scenario-1-existing-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scenario 1 - Existing Deployment
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Scenario 1 - Existing Deployment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bicep" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bicep
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#terraform" class="md-nav__link">
+    <span class="md-ellipsis">
+      Terraform
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scenario-2-alz-policy-deployment-with-epac" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scenario 2 - ALZ Policy Deployment with EPAC
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keeping-up-to-date-with-changes-manually" class="md-nav__link">
+    <span class="md-ellipsis">
+      Keeping up to date with changes manually
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keeping-up-to-date-with-github-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Keeping up to date with GitHub Actions
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="integrating-epac-with-azure-landing-zones">Integrating EPAC with Azure Landing Zones</h1>
+<h2 id="rationale">Rationale</h2>
+<p>Microsoft publishes and maintains a <a href="https://aka.ms/alz/policies">list of Policies, Policy Sets and Assignments</a> which are deployed as part of the Cloud Adoption Framework Azure Landing Zones deployment. The central repository that contains these policies acts as the source of truth for ALZ deployments via the portal, Bicep and Terraform. A current list of policies which are deployed using these solutions is found at this link.</p>
+<p>To enable customers to use the Enterprise Policy as Code solution and combine Microsoft's policy recommendations there is a script which will pull the Policies, Policy Sets and Policy Assignments from the central repository and allow you to deploy them using this solution.</p>
+<p>As the policies and assignments change in main repository the base files in this solution can be updated to match.</p>
+<h2 id="why-and-when-should-you-use-epac-to-manage-alz-deployed-policies">Why and when should you use EPAC to manage ALZ deployed policies</h2>
+<p>EPAC can be used to manage Azure Policy deployed using ALZ Bicep or Terraform using the scenarios below. Some reasons you may want to switch to EPAC policy management include:</p>
+<ul>
+<li>You have existing unmanaged policies in a brownfield environment that you want to deploy in the new ALZ environment. <a href="../start-extracting-policy-resources/">Export the existing policies</a> and manage them with EPAC alongside the ALZ policy objects.</li>
+<li>You have ALZ deployed in a non standard way e.g. multiple management group structures for testing, non-conventional management group structure. The default assignment structure provided by other ALZ deployment methods may not fit your strategy.</li>
+<li>A team that is not responsible for infrastructure deployment e.g. a security team may want to deploy and manage policies.</li>
+<li>You require features from policy not available in the ALZ deployments e.g. policy exemptions, documentation, assignment customization.</li>
+<li>Non-compliance reporting and remediation task management.</li>
+</ul>
+<p>Instructions are provided below for integrating with Bicep and Terraform deployments.</p>
+<h2 id="scenarios">Scenarios</h2>
+<p>There are two scenarios for integrating EPAC with ALZ.</p>
+<ol>
+<li>Existing Azure Landing Zone deployment and EPAC is to be used as the policy engine moving forward.</li>
+<li>Using EPAC to deploy and manage the Azure Landing Zone policies.</li>
+</ol>
+<h2 id="scenario-1-existing-deployment">Scenario 1 - Existing Deployment</h2>
+<p>With an existing Azure Landing Zone deployment you can use EPAC's extract scripts to extract the existing policies and assignments.</p>
+<ol>
+<li>
+<p>Install the EnterprisePolicyAsCode module from the PowerShell gallery and import it.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">Install-Module</span> <span class="n">EnterprisePolicyAsCode</span>
+<span class="nb">Import-Module</span> <span class="n">EnterprisePolicyAsCode</span>
+</code></pre></div>
+</li>
+<li>
+<p>Create a new policy definition folder structure using the command below.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">New-HydrationDefinitionFolder</span> <span class="n">-DefinitionsRootFolder</span> <span class="p">.\</span><span class="n">Definitions</span>
+</code></pre></div>
+</li>
+<li>
+<p>Update the <code>global-settings.json</code> file in the Definitions folder as described <a href="../settings-global-setting-file/">here</a></p>
+</li>
+<li>
+<p>Extract the existing policies from the environment by using the extract functionality as described <a href="../start-extracting-policy-resources/">here</a></p>
+<p>This will create in the <code>Output</code> folder a group of folders containing the extracted policies. Note that it extracts all policies in the environment including ones not deployed by any of the Azure Landing Zone deployments.</p>
+</li>
+<li>
+<p>Copy each of the folders in the <code>Output\Definitions</code> folder to the <code>Definitions</code> folder you created above.</p>
+</li>
+<li>
+<p>At this point you can run the build script and generate a plan to validate what is going to be changed in the existing environment.</p>
+<div class="highlight"><pre><span></span><code><span class="n">Build-DeploymentPlans</span> <span class="n">-DefinitionsRootFolder</span> <span class="n">Definitions</span> <span class="n">-OutputFolder</span> <span class="n">Output</span>
+</code></pre></div>
+<p>In a newly deployed CAF environment with no other policies the results of the plan should be similar to below - EPAC will update each policy definition, set definition and assignment with a <a href="../settings-global-setting-file/#uniquely-identify-deployments-with-pacownerid">pacOwnerId</a></p>
+<div class="highlight"><pre><span></span><code>===================================================================================================
+Summary
+===================================================================================================
+Policy counts:
+    0 unchanged
+    116 changes:
+        new     = 0
+        update  = 116
+        replace = 0
+        delete  = 0
+Policy Set counts:
+    0 unchanged
+    7 changes:
+        new     = 0
+        update  = 7
+        replace = 0
+        delete  = 0
+Policy Assignment counts:
+    0 unchanged
+    30 changes:
+        new     = 0
+        update  = 30
+        replace = 0
+        delete  = 0
+Role Assignment counts:
+    0 changes
+</code></pre></div>
+</li>
+<li>
+<p>Run the generated plan to deploy the policy objects</p>
+<div class="highlight"><pre><span></span><code><span class="n">Deploy-PolicyPlan</span> <span class="n">-DefinitionsRootFolder</span> <span class="p">.\</span><span class="n">Definitions</span> <span class="n">-InputFolder</span> <span class="p">.\</span><span class="n">Output</span>
+</code></pre></div>
+</li>
+<li>
+<p>Run the generated plan to update the role assignment objects</p>
+<div class="highlight"><pre><span></span><code><span class="n">Deploy-RolesPlan</span> <span class="n">-DefinitionsRootFolder</span> <span class="p">.\</span><span class="n">Definitions</span> <span class="n">-InputFolder</span> <span class="p">.\</span><span class="n">Output</span>
+</code></pre></div>
+</li>
+</ol>
+<p>If you have deployed the Azure Landing Zone accelerator using Bicep or Terraform - they support incremental updates as new features are released. If you are going to use EPAC to manage policies in the environment then follow the steps below depending on which tool you have used to do the landing zone deployment.</p>
+<h3 id="bicep">Bicep</h3>
+<ul>
+<li>Do not deploy the policy modules when upgrading the Azure Landing Zones. Use the process <a href="./#keeping-up-to-date-with-changes-manually">below</a> to keep in sync with changes to ALZ policies.</li>
+</ul>
+<h3 id="terraform">Terraform</h3>
+<ul>
+<li>You must override the built-in management group archetypes to tell the Terraform module not to deploy policies. Sample files to replace the built-in archetypes are available in a repository <a href="https://github.com/anwather/epac-removetf">here</a></li>
+</ul>
+<h2 id="scenario-2-alz-policy-deployment-with-epac">Scenario 2 - ALZ Policy Deployment with EPAC</h2>
+<p>To deploy the ALZ policies using EPAC follow the steps below.</p>
+<ol>
+<li>
+<p>Install the EnterprisePolicyAsCode module from the PowerShell gallery and import it.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">Install-Module</span> <span class="n">EnterprisePolicyAsCode</span>
+<span class="nb">Import-Module</span> <span class="n">EnterprisePolicyAsCode</span>
+</code></pre></div>
+</li>
+<li>
+<p>Create a new policy definition folder structure using the command below.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">New-HydrationDefinitionFolder</span> <span class="n">-DefinitionsRootFolder</span> <span class="p">.\</span><span class="n">Definitions</span>
+</code></pre></div>
+</li>
+<li>
+<p>Update the <code>global-settings.json</code> file in the Definitions folder as described <a href="../settings-global-setting-file/">here</a></p>
+</li>
+<li>
+<p>Synchronize the policies from the upstream repository. You should ensure that you are running the latest version of the EPAC module before running this script each time.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">Sync-ALZPolicies</span> <span class="n">-DefinitionsRootFolder</span> <span class="p">.\</span><span class="n">Definitions</span> <span class="n">-CloudEnvironment</span> <span class="n">AzureCloud</span>
+<span class="c"># Also accepts AzureUSGovernment or AzureChinaCloud</span>
+</code></pre></div>
+</li>
+<li>
+<p>Update the assignments scopes. Each assignment file has a default scope assigned to it - this need to be updated to reflect your environment and <code>global-settings.jsonc</code> file.</p>
+<p>For example:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;$schema&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;nodeName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/Root/&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;tenant1&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="c1">// Replace with your EPAC environment name and validate the management group listed below exists</span>
+<span class="w">            </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/toplevelmanagementgroup&quot;</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;logAnalytics&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Replace with your central Log Analytics workspace ID</span>
+<span class="w">        </span><span class="nt">&quot;logAnalytics_1&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Replace with your central Log Analytics workspace ID</span>
+<span class="w">        </span><span class="nt">&quot;emailSecurityContact&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Security contact email address for Microsoft Defender for Cloud</span>
+<span class="w">        </span><span class="nt">&quot;ascExportResourceGroupName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mdfc-export&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Resource group to export Microsoft Defender for Cloud data to</span>
+<span class="w">        </span><span class="nt">&quot;ascExportResourceGroupLocation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="c1">// Location of the resource group to export Microsoft Defender for Cloud data to</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>If my top level management group had an ID of contoso and my PAC environments specified a production environment I would need to update the block as below.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;nodeName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/Root/&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;production&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/contoso&quot;</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;logAnalytics&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;logAnalytics_1&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;emailSecurityContact&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;ascExportResourceGroupName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;ascExportResourceGroupLocation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+</code></pre></div>
+<p>Each assignment file corresponds to a management group deployed as part of the <a href="https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/design-area/resource-org-management-groups#management-groups-in-the-azure-landing-zone-accelerator">CAF Azure Landing Zone</a> management group structure.</p>
+</li>
+<li>
+<p>Update assignment parameters.</p>
+</li>
+</ol>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Carefully review the parameters and policies deployed as they have recently changed. Review each assignment file carefully and ensure all parameter values are completed. Due to changes in usage of the Azure Monitor Agent - there are some Data Collection Rules that must be deployed prior to assigning the policies - the source for these DCRs are provided in the assignment file parameter comments.</p>
+<p>Several of the assignment files also have parameters which need to be in place. Pay attention to the requirements about having a Log Analytics workspace deployed prior to assigning these policies as it is a requirement for several of the assignments. Less generic parameters are also available for modification in the assignment files.</p>
+</div>
+<ol>
+<li>Follow the normal steps to deploy the solution to the environment.</li>
+</ol>
+<h2 id="keeping-up-to-date-with-changes-manually">Keeping up to date with changes manually</h2>
+<p>The Azure Landing Zone deployment contains several policies that help provide guardrails to an environment, and the team that works on these policies is always providing updates to the original content to keep in line with Microsoft's best practices and road maps. The EPAC solution contains a function to help synchronize changes from the upstream project.</p>
+<p>To pull the latest changes from the upstream repository - use the code below.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">Sync-ALZPolicies</span> <span class="n">-DefinitionsRootFolder</span> <span class="p">.\</span><span class="n">Definitions</span> <span class="n">-CloudEnvironment</span> <span class="n">AzureCloud</span> <span class="c"># Also accepts AzureUSGovernment or AzureChinaCloud</span>
+</code></pre></div>
+<p>Carefully review the proposed changes before deploying them. It is best to make sure you're project is stored in source control so you can easily see which files have changed before deployment.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If you have followed Scenario 1 above, the first time you run the <code>Sync-ALZPolicies</code>, there will be many changes recorded due to formatting. Review the files completely before deploying.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Assignments deployed via the ALZ accelerators are kept in sync with the EnterprisePolicyAsCode module so ensure you have the latest PowerShell module installed before running <code>Sync-ALZPolicies</code></p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Rename or copy the default ALZ assignment files - when you do a sync, it makes it easier to compare changes.</p>
+</div>
+<h2 id="keeping-up-to-date-with-github-actions">Keeping up to date with GitHub Actions</h2>
+<p>There is a GitHub action workflow which executes the above script. The process for configuring it is below.</p>
+<ol>
+<li>Copy the <code>alz-sync.yaml</code> file from <a href="https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/StarterKit/Pipelines/GitHubActions/alz-sync.yaml">here</a> to <code>.github\workflows\alz-sync.yaml</code> in your repository.</li>
+<li>
+<p>Update the <code>env:</code> section with details below</p>
+<table>
+<thead>
+<tr>
+<th>Environment Variable Name</th>
+<th>Value</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REVIEWER</td>
+<td>Add a GitHub user to review the PR</td>
+<td></td>
+</tr>
+<tr>
+<td>definitionsRootFolder</td>
+<td>The folder containing <code>global-settings.jsonc</code> and definitions</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Run the workflow - new policies will be synced from the source.</p>
+</li>
+<li>Before merging the PR - checkout the branch and confirm that changes. Note that the sync script will overwrite the default assignments so ensure you compare for new functionality before reverting.</li>
+<li>When changes are confirmed - merge the PR.</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.indexes", {"navigation.sections": {"level": 1}}, "navigation.tabs", "navigation.tabs.sticky", "content.code.annotate", "content.tabs.link", "content.code.copy"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+    
+  </body>
+</html>

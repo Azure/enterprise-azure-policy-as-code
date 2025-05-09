@@ -1,0 +1,2008 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://azure.github.io/enterprise-azure-policy-as-code/settings-desired-state/">
+      
+      
+        <link rel="prev" href="../settings-global-setting-file/">
+      
+      
+        <link rel="next" href="../settings-dfc-assignments/">
+      
+      
+      <link rel="icon" href="../Images/10316-icon-service-Policy.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+    
+    
+      
+        <title>Desired State - Enterprise Policy As Code (EPAC)</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.2afb09e1.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#desired-state-management" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Enterprise Policy As Code (EPAC)" class="md-header__button md-logo" aria-label="Enterprise Policy As Code (EPAC)" data-md-component="logo">
+      
+  <img src="../Images/10316-icon-service-Policy.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Enterprise Policy As Code (EPAC)
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Desired State
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Azure/enterprise-azure-policy-as-code" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../start-hydration-kit/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../settings-global-setting-file/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Settings and Desired State
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../integrating-with-alz-library/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Azure Landing Zones
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../policy-definitions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Define Policy Resources
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../ci-cd-overview/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  CI/CD Integration
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../operational-scripts/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Operational Scripts
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../guidance-remediation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Operator Guidance
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Enterprise Policy As Code (EPAC)" class="md-nav__button md-logo" aria-label="Enterprise Policy As Code (EPAC)" data-md-component="logo">
+      
+  <img src="../Images/10316-icon-service-Policy.svg" alt="logo">
+
+    </a>
+    Enterprise Policy As Code (EPAC)
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Azure/enterprise-azure-policy-as-code" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start-hydration-kit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Hydration Kit
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start-implementing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Start Implementation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start-forking-github-repo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Forking GitHub Repo
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start-extracting-policy-resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Extracting Policy Resources
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start-changes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Changes in v10.0.0
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Settings and Desired State
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Settings and Desired State
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../settings-global-setting-file/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Global Settings
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Desired State
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Desired State
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-desiredstate-element" class="md-nav__link">
+    <span class="md-ellipsis">
+      The desiredState Element
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transitioning-to-epac" class="md-nav__link">
+    <span class="md-ellipsis">
+      Transitioning to EPAC
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exclude-resource-groups" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exclude Resource Groups
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-case-1-centralized-team" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use Case 1: Centralized Team
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-case-2-manage-policy-definitions-assignments-or-exemptions-differently" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use case 2: Manage Policy Definitions, Assignments, or Exemptions differently
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Use case 2: Manage Policy Definitions, Assignments, or Exemptions differently">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-advanced-cicd-pipelines-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using Advanced CI/CD Pipelines (Recommended)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-separate-repos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using separate Repos
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-case-3-multiple-teams-with-shared-responsibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use Case 3: Multiple Teams with Shared Responsibility
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-case-4-multiple-teams-in-a-hierarchical-organization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use Case 4: Multiple Teams in a Hierarchical Organization
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-case-5-exclude-some-scopes-and-policy-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use Case 5: Exclude some Scopes and Policy Resources
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Use Case 5: Exclude some Scopes and Policy Resources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#child-scope-not-managed-and-not-subject-to-these-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Child Scope not Managed and Not Subject to these Policies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#child-scopes-not-managed-by-any-epac-repo-but-subject-to-these-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Child Scopes not Managed by any EPAC repo but Subject to these Policies
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../settings-dfc-assignments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    DfC Assignments
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Azure Landing Zones
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Azure Landing Zones
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrating-with-alz-library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ALZ Policy Integration (New)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrating-with-alz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ALZ Policy Integration (Legacy)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrating-with-alz-monitor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Azure Monitor Baseline Alerts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrating-with-slz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Sovereign Landing Zones
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Define Policy Resources
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Define Policy Resources
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policy-definitions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Policy Definitions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policy-set-definitions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Policy Set Definitions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policy-assignments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Policy Assignment Files
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policy-assignments-csv-parameters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CSV Assignment Parameters
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policy-exemptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Policy Exemptions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    CI/CD Integration
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            CI/CD Integration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CI/CD Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-app-registrations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    App Registrations Setup
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-branching-flows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Branching Flows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-ado-pipelines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Azure DevOps Pipelines
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-github-actions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GitHub Actions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Operational Scripts
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Operational Scripts
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operational-scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Scripts Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operational-scripts-documenting-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Documenting Policy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operational-scripts-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Reference
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Operator Guidance
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            Operator Guidance
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guidance-remediation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Remediation Enforcement
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guidance-scope-exclusions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Exclusion Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guidance-exemptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Exemption Updates
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-desiredstate-element" class="md-nav__link">
+    <span class="md-ellipsis">
+      The desiredState Element
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transitioning-to-epac" class="md-nav__link">
+    <span class="md-ellipsis">
+      Transitioning to EPAC
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exclude-resource-groups" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exclude Resource Groups
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-case-1-centralized-team" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use Case 1: Centralized Team
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-case-2-manage-policy-definitions-assignments-or-exemptions-differently" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use case 2: Manage Policy Definitions, Assignments, or Exemptions differently
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Use case 2: Manage Policy Definitions, Assignments, or Exemptions differently">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-advanced-cicd-pipelines-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using Advanced CI/CD Pipelines (Recommended)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-separate-repos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using separate Repos
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-case-3-multiple-teams-with-shared-responsibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use Case 3: Multiple Teams with Shared Responsibility
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-case-4-multiple-teams-in-a-hierarchical-organization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use Case 4: Multiple Teams in a Hierarchical Organization
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-case-5-exclude-some-scopes-and-policy-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Use Case 5: Exclude some Scopes and Policy Resources
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Use Case 5: Exclude some Scopes and Policy Resources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#child-scope-not-managed-and-not-subject-to-these-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Child Scope not Managed and Not Subject to these Policies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#child-scopes-not-managed-by-any-epac-repo-but-subject-to-these-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Child Scopes not Managed by any EPAC repo but Subject to these Policies
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="desired-state-management">Desired State Management</h1>
+<div class="admonition danger">
+<p class="admonition-title">Caution</p>
+<p>EPAC is a true desired state deployment technology. It takes possession of all Policy Resources at the <code>deploymentRootScope</code> and its children. It will delete any Policy resources not defined in the EPAC repo.</p>
+</div>
+<p>Desired State strategy enables you to adjust the default behavior to fit more complex scenarios, including shared responsibility scenarios. The use cases below show the archetypical use cases. For complex scenarios it is possible to combine multiple use cases.</p>
+<h2 id="the-desiredstate-element">The <code>desiredState</code> Element</h2>
+<p><code>pacEnvironments</code> must contain a <code>desiredState</code> element.</p>
+<ul>
+<li>Required:</li>
+<li><code>strategy</code>: The strategy to use for managing Policy resources. The following values are supported:<ul>
+<li><code>full</code>: EPAC manages all Policy resources in the <code>deploymentRootScope</code> and its children. EPAC deletes any Policy resources not defined in the EPAC repo.</li>
+<li><code>ownedOnly</code>: EPAC manages only Policy resources defined in the EPAC repo. EPAC does not delete any Policy resources not defined in the EPAC repo.</li>
+</ul>
+</li>
+<li>
+<p><code>keepDfcSecurityAssignments</code>: It is recommended that Security and Compliance Initiatives are managed at management group levels with EPAC. Please read <a href="../settings-dfc-assignments/">Managing Defender for Cloud Assignments</a>.</p>
+</li>
+<li>
+<p>Optional:</p>
+</li>
+<li><code>excludedScopes</code>: An array of scopes to exclude from management by EPAC. The default is an empty array. Wild cards are supported.</li>
+<li><code>excludedPolicyDefinitions</code>: An array of Policy Definitions to exclude from management by EPAC. The default is an empty array. Wild cards are supported.</li>
+<li><code>excludedPolicySetDefinitions</code>: An array of Policy Set Definitions to exclude from management by EPAC. The default is an empty array. Wild cards are supported.</li>
+<li><code>excludedPolicyAssignments</code>: An array of Policy Assignments to exclude from management by EPAC. The default is an empty array. Wild cards are supported.</li>
+<li><code>doNotDisableDeprecatedPolicies</code>: Automatically set deprecated policies' policy effect to "Disabled". This setting can be used to override that behavior by setting it to <code>true</code>. Default is <code>false</code>.</li>
+<li><code>excludeSubscriptions</code>: Exclude all subscription under the deployment root scope. Designed for environments containing many frequently updated subscriptions that are not requiring management and where using <code>excludedScopes</code> would be impractical to maintain. If resource groups are added <code>excludedScopes</code> they will be ignored as this setting will take precedence by virtue of the fact that it excludes all Subscriptions, which by definition contain all Resource Groups. It will not effect excluded management group scopes. Default is <code>false</code></li>
+</ul>
+<p>The following example shows the <code>desiredState</code> element with all properties set:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;desiredState&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;strategy&quot;</span><span class="w">                             </span><span class="err">=</span><span class="w"> </span><span class="s2">&quot;[ownedOnly|full]&quot;</span>
+<span class="w">    </span><span class="s2">&quot;keepDfcSecurityAssignments&quot;</span><span class="w">           </span><span class="err">=</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">    </span><span class="s2">&quot;cleanupObsoleteExemptions&quot;</span><span class="w">            </span><span class="err">=</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">    </span><span class="s2">&quot;excludeSubscriptions&quot;</span><span class="w">                 </span><span class="err">=</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">    </span><span class="s2">&quot;doNotDisableDeprecatedPolicies&quot;</span><span class="w">       </span><span class="err">=</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">    </span><span class="s2">&quot;excludedScopes&quot;</span><span class="w">                       </span><span class="err">=</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">    </span><span class="s2">&quot;excludedPolicyDefinitions&quot;</span><span class="w">            </span><span class="err">=</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">    </span><span class="s2">&quot;excludedPolicySetDefinitions&quot;</span><span class="w">         </span><span class="err">=</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">    </span><span class="s2">&quot;excludedPolicyAssignments&quot;</span><span class="w">            </span><span class="err">=</span><span class="w"> </span><span class="p">[]</span>
+<span class="p">}</span>
+</code></pre></div>
+<h2 id="transitioning-to-epac">Transitioning to EPAC</h2>
+<p>While transitioning to EPAC, existing Policy resources may need to be kept. Setting <code>desiredState</code> to <code>ownedOnly</code> allows EPAC to remove its own resources while preserving instances requiring (temporary) preservation.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;desiredState&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;strategy&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ownedOnly&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;keepDfcSecurityAssignments&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>After short transitioning period (weeks), it is recommended to set <code>desiredState</code> to <code>full</code> to allow EPAC to manage all Policy resources.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;desiredState&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;strategy&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;full&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;keepDfcSecurityAssignments&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="p">}</span>
+</code></pre></div>
+<h2 id="exclude-resource-groups">Exclude Resource Groups</h2>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>Breaking Change in v10.0.0:</strong> Policy Assignments at resource groups are <strong>managed</strong> by EPAC. The element <code>includeResourceGroups</code> has been deprecated and removed.</p>
+</div>
+<p>To exclude resource groups from management by EPAC, add an <code>excludedScopes</code> array element with a wild card for the subscription and resourceGroups to <code>desiredState</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;desiredState&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;excludedScopes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="s2">&quot;/subscriptions/*/resourceGroups/*&quot;</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<h2 id="use-case-1-centralized-team">Use Case 1: Centralized Team</h2>
+<p>This original (previously the only) use case assumes one team/repo manages all Policies in a tenant or multiple tenants. Omit <code>desiredState</code> and <code>inheritedDefinitionsScopes</code>.</p>
+<h2 id="use-case-2-manage-policy-definitions-assignments-or-exemptions-differently">Use case 2: Manage Policy Definitions, Assignments, or Exemptions differently</h2>
+<p>In some organizations the lifecycle of different parts may be managed separately. For example, you may want to manage Definitions and Assignments separately from Exemptions.</p>
+<h3 id="using-advanced-cicd-pipelines-recommended">Using Advanced CI/CD Pipelines (Recommended)</h3>
+<p><a href="../ci-cd-overview/#advanced-cicd-with-release-flow">Advanced CI/CD Pipelines with Release Flow</a> can be used to fast-track Exemptions while keeping a regular lifecycle for Definitions and Assignments. Script <code>Build-DeploymentPlans</code> has a parameter <code>BuildExemptionsOnly</code> to deploy only Exemptions.</p>
+<h3 id="using-separate-repos">Using separate Repos</h3>
+<p>In some organizations the lifecycle of different parts may be managed separately. For example, you may have one repo to manage Definitions and Assignments separately from Exemptions. Changing <code>pacOwnerId</code> is not effective.</p>
+<p>EPAC only manages items with a directory in the <code>Definitions</code> folder. Therefore, you can use the same <code>pacOwnerId</code> from two repos and remove the folders to separate them. In this example:</p>
+<ul>
+<li>Repo1: <code>Definitions</code> contains <code>policyDefinitions</code>, <code>policySetDefinitions</code> and <code>policyAssignments</code> folders.</li>
+<li>Repo2: <code>Definitions</code> contains <code>policyExemptions</code> folder.</li>
+</ul>
+<p>Policy resource that would be defined in the folder. It is important to remove the folders. GitHub repos remove empty folder automatically.</p>
+<p>If you have an empty folder or a folder with a file extension not recognized by EPAC, EPAC will delete any item which the folder could define from your environment.</p>
+<h2 id="use-case-3-multiple-teams-with-shared-responsibility">Use Case 3: Multiple Teams with Shared Responsibility</h2>
+<p>In a shared responsibility model multiple teams manage the same tenant(s) at the same scope. Additionally, a variant of this use case is well suited to what previously was called <code>brownfield</code> which needs to preserve Policy resources deployed prior to EPAC. The following diagram shows two EPAC solutions managing the same root (tenant). Other Policy as Code solutions can also participate if the solution sets <code>metadata.pacOwnerId</code>.</p>
+<p><img alt="image.png" src="../Images/shared-responsibility.png" /></p>
+<p>For standard behavior where each repo manages, no additional entries in <code>global-settings.jsonc</code> are necessary since the default strategy <code>full</code> is the default. <code>full</code> deletes any Policy resources without a <code>pacOwnerId</code>; however, id does not delete Policy resources with a different <code>pacOwnerId</code>.
+<a href="./#use-case-4-multiple-teams-in-a-hierarchical-organization">test</a></p>
+<h2 id="use-case-4-multiple-teams-in-a-hierarchical-organization">Use Case 4:  Multiple Teams in a Hierarchical Organization</h2>
+<p>The hierarchical model allows a central team to manage the commonality while giving parts of the organization a capability to further restrict resources with Policies. This is a common scenario in multi-national corporations with additional jurisdictional requirements (e.g., data sovereignty, local regulations, ...).</p>
+<p>This is managed identical to use case 3.</p>
+<div class="admonition danger">
+<p class="admonition-title">Caution</p>
+<p>Previously, it was possible for a solution at a child scope to inherit Policy definitions form EPAC-A. This feature has been removed in v10.0.0 since it was not possible to manage the dependencies between Policy and Policy Set definitions and Policy Assignments correctly.</p>
+</div>
+<blockquote>
+<p>To replicate the previous functionality, copy/replicate the custom Policy and Policy Set definitions files from EPAC-A repo to EPAC-C repo.</p>
+</blockquote>
+<p><img alt="image.png" src="../Images/shared-hierarchical.png" /></p>
+<h2 id="use-case-5-exclude-some-scopes-and-policy-resources">Use Case 5: Exclude some Scopes and Policy Resources</h2>
+<p>In rare cases you may need to exclude individual child scopes, or Policy resources from management by an EPAC solution.</p>
+<h3 id="child-scope-not-managed-and-not-subject-to-these-policies">Child Scope not Managed and Not Subject to these Policies</h3>
+<p>Child scope is managed by some other means. The use of a EPAC development Management Group under the same root is such an example. Another example is a child scope managed by a different organization not subject to the root scope Policies.</p>
+<p>You use <code>globalNotScopes</code> to exclude a child scope from management by EPAC. The following example excludes the <code>childScope</code> from management by EPAC. See also <a href="../settings-global-setting-file/">Global Settings</a></p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="nt">&quot;globalNotScopes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;tenant&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/mg-policy-as-code&quot;</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+</code></pre></div>
+<h3 id="child-scopes-not-managed-by-any-epac-repo-but-subject-to-these-policies">Child Scopes not Managed by any EPAC repo but Subject to these Policies</h3>
+<p>This happens when EPAC <code>strategy</code> is <code>full</code> and some child scopes contain Policy resources not managed by an EPAC repo (delivered through some other deployment method). You can exclude them based on:</p>
+<ul>
+<li>Scopes (Management Groups, subscriptions and Resource Groups) through <code>desiredState.excludedScopes</code></li>
+<li><code>desiredState.excludeSubscriptions</code> is the preferred way to exclude all Subscriptions within a pacSelector</li>
+<li><code>"/subscriptions/subscriptionsPattern/*"</code> is also a valid <code>excludedScopes</code> value, but is more commonly used for name based filtering</li>
+<li>Policy Definitions through <code>desiredState.excludedPolicyDefinitions</code></li>
+<li>Policy Set Definitions through <code>desiredState.excludedPolicySetDefinitions</code></li>
+<li>Policy Assignments through <code>desiredState.excludedPolicyAssignments</code></li>
+</ul>
+<p>You can exclude any combination of <code>excludedScopes</code>, <code>excludedPolicyDefinitions</code>, <code>excludedPolicySetDefinitions</code> and <code>excludedPolicyAssignments</code>. Any of the strings can contain simple wild cards. See <a href="../policy-assignments/">PolicyAssignment</a> documentation for further information.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;desiredState&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;strategy&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;full&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;keepDfcSecurityAssignments&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;doNotDisableDeprecatedPolicies&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;excludedScopes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="c1">// Management Groups, Subscriptions, Resource Groups</span>
+<span class="w">        </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/mg-policy-as-code/childScope&quot;</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;excludedPolicyDefinitions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="s2">&quot;/subscriptions/*/providers/Microsoft.Authorization/policyDefinitions/childScope-policy&quot;</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;excludedPolicySetDefinitions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/mg-policy-as-code/providers/Microsoft.Authorization/policySetDefinitions/pattern-policy-set-*&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/mg-policy-as-code/providers/Microsoft.Authorization/policySetDefinitions/one-of-policy-set&quot;</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;excludedPolicyAssignments&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="s2">&quot;/subscriptions/*/providers/Microsoft.Authorization/policyAssignments/my-*&quot;</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><img alt="image.png" src="../Images/shared-excluded.png" /></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.indexes", {"navigation.sections": {"level": 1}}, "navigation.tabs", "navigation.tabs.sticky", "content.code.annotate", "content.tabs.link", "content.code.copy"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+    
+  </body>
+</html>

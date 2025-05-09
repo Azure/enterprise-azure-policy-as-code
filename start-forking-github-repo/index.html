@@ -1,0 +1,1998 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://azure.github.io/enterprise-azure-policy-as-code/start-forking-github-repo/">
+      
+      
+        <link rel="prev" href="../start-implementing/">
+      
+      
+        <link rel="next" href="../start-extracting-policy-resources/">
+      
+      
+      <link rel="icon" href="../Images/10316-icon-service-Policy.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+    
+    
+      
+        <title>Forking GitHub Repo - Enterprise Policy As Code (EPAC)</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.2afb09e1.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#forking-the-github-repo-an-alternate-installation-method" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Enterprise Policy As Code (EPAC)" class="md-header__button md-logo" aria-label="Enterprise Policy As Code (EPAC)" data-md-component="logo">
+      
+  <img src="../Images/10316-icon-service-Policy.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Enterprise Policy As Code (EPAC)
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Forking GitHub Repo
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Azure/enterprise-azure-policy-as-code" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../start-hydration-kit/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../settings-global-setting-file/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Settings and Desired State
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../integrating-with-alz-library/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Azure Landing Zones
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../policy-definitions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Define Policy Resources
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../ci-cd-overview/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  CI/CD Integration
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../operational-scripts/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Operational Scripts
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../guidance-remediation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Operator Guidance
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Enterprise Policy As Code (EPAC)" class="md-nav__button md-logo" aria-label="Enterprise Policy As Code (EPAC)" data-md-component="logo">
+      
+  <img src="../Images/10316-icon-service-Policy.svg" alt="logo">
+
+    </a>
+    Enterprise Policy As Code (EPAC)
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Azure/enterprise-azure-policy-as-code" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start-hydration-kit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Hydration Kit
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start-implementing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Start Implementation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Forking GitHub Repo
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Forking GitHub Repo
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#changes-to-the-forking-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      Changes to the Forking Process
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-up-your-repo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setting up your Repo
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#syncing-latest-version-from-github-repo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Syncing latest Version from GitHub repo
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contribute-to-github" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contribute to GitHub
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sync-repops1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sync-Repo.ps1
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-for-development-maintainers-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Process for Development (Maintainers Only)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process for Development (Maintainers Only)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sync-fromghps1-and-sync-toghps1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sync-FromGH.ps1 and Sync-ToGH.ps1
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#syncing-latest-version-from-github-repo-to-epac-development-repo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Syncing latest Version from GitHub repo to epac-development repo
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#development-in-epac-development-repo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Development in epac-development repo
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-promotion-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      Code Promotion Process
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#github-releases" class="md-nav__link">
+    <span class="md-ellipsis">
+      GitHub Releases
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start-extracting-policy-resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Extracting Policy Resources
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start-changes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Changes in v10.0.0
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Settings and Desired State
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Settings and Desired State
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../settings-global-setting-file/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Global Settings
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../settings-desired-state/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Desired State
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../settings-dfc-assignments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    DfC Assignments
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Azure Landing Zones
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Azure Landing Zones
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrating-with-alz-library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ALZ Policy Integration (New)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrating-with-alz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ALZ Policy Integration (Legacy)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrating-with-alz-monitor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Azure Monitor Baseline Alerts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrating-with-slz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Sovereign Landing Zones
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Define Policy Resources
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Define Policy Resources
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policy-definitions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Policy Definitions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policy-set-definitions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Policy Set Definitions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policy-assignments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Policy Assignment Files
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policy-assignments-csv-parameters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CSV Assignment Parameters
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policy-exemptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Policy Exemptions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    CI/CD Integration
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            CI/CD Integration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CI/CD Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-app-registrations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    App Registrations Setup
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-branching-flows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Branching Flows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-ado-pipelines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Azure DevOps Pipelines
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-github-actions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GitHub Actions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Operational Scripts
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Operational Scripts
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operational-scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Scripts Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operational-scripts-documenting-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Documenting Policy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operational-scripts-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Reference
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Operator Guidance
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            Operator Guidance
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guidance-remediation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Remediation Enforcement
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guidance-scope-exclusions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Exclusion Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guidance-exemptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Exemption Updates
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#changes-to-the-forking-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      Changes to the Forking Process
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-up-your-repo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setting up your Repo
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#syncing-latest-version-from-github-repo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Syncing latest Version from GitHub repo
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contribute-to-github" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contribute to GitHub
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sync-repops1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sync-Repo.ps1
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-for-development-maintainers-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Process for Development (Maintainers Only)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Process for Development (Maintainers Only)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sync-fromghps1-and-sync-toghps1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sync-FromGH.ps1 and Sync-ToGH.ps1
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#syncing-latest-version-from-github-repo-to-epac-development-repo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Syncing latest Version from GitHub repo to epac-development repo
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#development-in-epac-development-repo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Development in epac-development repo
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-promotion-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      Code Promotion Process
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#github-releases" class="md-nav__link">
+    <span class="md-ellipsis">
+      GitHub Releases
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="forking-the-github-repo-an-alternate-installation-method">Forking the GitHub Repo - an Alternate Installation Method</h1>
+<p>Instead of installing <code>EnterprisePolicyAsCode</code> from the PowerShell Gallery, you can clone the GitHub repository and use the scripts described below to install the script source code. This is useful, if your organization has overly restrictive policies on installing PowerShell modules from the PowerShell Gallery. It can also be useful if you want to contribute EPAC source code to the project.</p>
+<h2 id="changes-to-the-forking-process">Changes to the Forking Process</h2>
+<p>With the ability to provide prerelease versions via release and PowerShell - if you are working in a forked repo you should also clone the tags from the original source to allow your forked repo to pin to specific releases.</p>
+<ol>
+<li>Add an upstream remote containing the original release <code>git remote add upstream https://github.com/Azure/enterprise-azure-policy-as-code.git</code></li>
+<li>Fetch the tags from the upstream - <code>git fetch --tags upstream</code></li>
+<li>Push tags to the fork - <code>git push --tags</code></li>
+</ol>
+<p>Tags are not automatically synced to a forked repo so you must perform this task each time you sync your fork with the main project.</p>
+<h2 id="setting-up-your-repo">Setting up your Repo</h2>
+<ol>
+<li>Initial setup<ol>
+<li>Create <code>MyForkRepo</code> as a fork of <a href="https://github.com/Azure/enterprise-azure-policy-as-code">GitHub repo</a>.</li>
+<li>Create <code>MyWorkingRepo</code>.
+        1. <strong>Clone</strong> your forked repo.
+        1. Create a new repo from the clone (<strong>do not</strong> fork <code>MyForkRepo</code>)</li>
+</ol>
+</li>
+<li>Work in <code>MyWorkingRepo</code><ol>
+<li>While the root folder is not modified as part of the Sync-Repo process, it is recommended that this part of the file structure not be used for storage of any custom material other than new folders.<ol>
+<li>You may add additional folders, such as a folder for your own operational scripts.</li>
+</ol>
+</li>
+<li>Use only folders <code>Definitions</code> and <code>Pipeline</code>, except when working on fixes to be contributed back to GitHub.<ol>
+<li>Review the <a href="#sync-repops1"><code>Sync-Repo</code></a> documentation for additional information on the folders which are destroyed and recreated as part of the version upgrade process for additional insight on this topic.</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p><img alt="image" src="../Images/Sync-Repo.png" /></p>
+<h2 id="syncing-latest-version-from-github-repo">Syncing latest Version from GitHub repo</h2>
+<ol>
+<li>Fetch changes from GitHub to <code>MyForkRepo</code>.</li>
+<li>Execute <a href="#sync-repops1"><code>Sync-Repo</code></a> to copy files from <code>MyForkRepo</code> to <code>MyWorkingRepo</code> feature branch.</li>
+<li>PR <code>MyWorkingRepo</code> feature branch.</li>
+</ol>
+<h2 id="contribute-to-github">Contribute to GitHub</h2>
+<ol>
+<li>Execute <a href="#sync-repops1"><code>Sync-Repo</code></a> to copy files from <code>MyWorkingRepo</code> to <code>MyForkRepo</code> feature branch.<ol>
+<li><strong>Be sure not to copy internal references within your files during your sync to MyForkRepo.</strong></li>
+</ol>
+</li>
+<li>PR <code>MyForkRepo</code> feature branch.</li>
+<li>PR changes in your fork (<code>MyForkRepo</code>) to GitHub.</li>
+<li>GitHub maintainers will review the PR.</li>
+</ol>
+<h2 id="sync-repops1">Sync-Repo.ps1</h2>
+<p>The repo contains script to synchronize directories in both directions: <code>Sync-Repo.ps1</code>. It only works if you do not modify:</p>
+<ul>
+<li><code>Docs</code>, <code>Scripts</code>, <code>Module</code> and <code>StarterKit</code> directories</li>
+<li><code>*.md</code>, <code>*.ps1</code>, <code>*.yml</code>, and <code>LICENSE</code> files in repo root directory</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SourceDirectory</code></td>
+<td>Required</td>
+<td>Directory with the source (forked repo)</td>
+</tr>
+<tr>
+<td><code>DestinationDirectory</code></td>
+<td>Required</td>
+<td>Directory with the destination (your private repo)</td>
+</tr>
+<tr>
+<td><code>SuppressDeleteFiles</code></td>
+<td>Optional</td>
+<td>Switch parameter to suppress deleting files in <code>$destinationDirectory</code> tree</td>
+</tr>
+</tbody>
+</table>
+<h2 id="process-for-development-maintainers-only">Process for Development (Maintainers Only)</h2>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This is Intended for maintainers only: It documents how to move internal EPAC development (ADO) to production (GitHub).</p>
+</div>
+<p>Assumptions:</p>
+<ul>
+<li>You have completed PR in for EPAC Development in ADO and are ready to release to public GitHub EPAC project.</li>
+<li>You are using known local path names for EPAC Development repo and GitHub repo, for example:</li>
+<li>EPAC Development local repo: <code>C:\GitRepoClones\epac-development</code></li>
+<li>EPAC GitHub local repo: <code>C:\GitRepoClones\enterprise-azure-policy-as-code</code></li>
+</ul>
+<h3 id="sync-fromghps1-and-sync-toghps1">Sync-FromGH.ps1 and Sync-ToGH.ps1</h3>
+<p>Sync-FromGH.ps1 and Sync-ToGH.ps1 are a wrapper around Sync-Repo.ps1 used by the EPAC maintainers to simplify syncing their development repo <code>epac-development</code> and the GitHub repo <code>enterprise-azure-policy-as-code</code>.</p>
+<h3 id="syncing-latest-version-from-github-repo-to-epac-development-repo">Syncing latest Version from GitHub repo to <code>epac-development</code> repo</h3>
+<ul>
+<li>Create a branch in <code>epac-development repo</code> named <code>feature/sync-from-github</code></li>
+<li>Sync GitHub enterprise main branch with <code>Sync-FromGH.ps1</code></li>
+<li>Verify changes</li>
+<li>Commit changes to <code>epac-development</code> branch <code>feature/sync-from-github</code></li>
+<li>Test and PR <code>epac-development</code> branch <code>feature/sync-from-github</code> to <code>epac-development</code> main branch</li>
+<li>Delete <code>epac-development</code> branch <code>feature/sync-from-github</code></li>
+</ul>
+<h3 id="development-in-epac-development-repo">Development in <code>epac-development</code> repo</h3>
+<ul>
+<li>Each developer owns</li>
+<li>Management Group in the <code>epac-development</code> tenant</li>
+<li>Folder in the <code>Test</code> folder, <code>pipeline.yml</code>, and <code>Set-EnvironmentVariables.ps1</code> in the <code>epac-development</code> repo</li>
+<li><code>Set-EnvironmentVariables.ps1</code> in your Test folder is used to set the environment variables for your <code>Test</code> folders. This is required for interactively using the scripts.</li>
+<li>Create a feature branch in <code>epac-development</code> repo named <code>feature/&lt;your-name&gt;/&lt;github-issue-number&gt;</code></li>
+<li>Make and test changes</li>
+<li>PR <code>epac-development</code> branch <code>feature/&lt;your-name&gt;/&lt;github-issue-number&gt;</code> to <code>epac-development</code> main branch</li>
+<li>Validate "prod" build in <code>epac-development</code> tenant</li>
+<li>Delete branch <code>feature/&lt;your-name&gt;/&lt;github-issue-number&gt;</code></li>
+<li>Fetch main branch from <code>epac-development</code> repo</li>
+<li>Create a branch in GitHub <code>enterprise-policy-as-code</code> repo from the issue you working on.</li>
+<li>Fetch that branch in VS Code</li>
+<li>Sync <code>enterprise-policy-as-code</code> repo with <code>Sync-Repo.ps1</code> from epac-development repo</li>
+<li>Commit changes to <code>enterprise-policy-as-code</code> branch created above</li>
+<li>validate the changes for conflicts</li>
+<li>PR <code>enterprise-policy-as-code</code> branch created above to the main branch</li>
+<li>Create a release in <a href="#">GitHub <code>enterprise-policy-as-code</code> repo</a></li>
+<li>Delete the branch in <code>enterprise-policy-as-code</code> repo</li>
+</ul>
+<h3 id="code-promotion-process">Code Promotion Process</h3>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Modify mkdocs.yml after adding markdown files to the Docs folder.</p>
+</div>
+<p>This process is used to promote code from the EPAC Development repo to the EPAC GitHub repo.</p>
+<ol>
+<li>Create a branch in GitHub (<a href="https://github.com/Azure/enterprise-azure-policy-as-code">https://github.com/Azure/enterprise-azure-policy-as-code</a>).</li>
+<li>Update local production repo with content from local development repo. In local VS code repo for EPAC GitHub, open terminal:
+   <code>PS C:\GitRepoClones\enterprise-azure-policy-as-code&gt; .\Sync-ToGH.ps1</code>.</li>
+<li>Commit changes and sync.</li>
+<li>Go to <a href="https://github.com/Azure/enterprise-azure-policy-as-code">https://github.com/Azure/enterprise-azure-policy-as-code</a>, go to <code>Compare and Pull Request</code></li>
+<li>Add PR title and create PR.</li>
+<li>Complete GitHub Review and merge PR process.</li>
+<li>Delete branch from GitHub.</li>
+<li>Go to VSCode for EPAC Release (GitHub) (<code>C:\GitRepoClones\enterprise-azure-policy-as-code</code>)</li>
+<li>In Source Control, select main branch. Move to Remotes and fetch, then sync changes.</li>
+<li>Move to branches, delete local branch (force delete may be required).</li>
+<li>Open terminal, type <code>git remote prune origin</code></li>
+<li>Verify that the documents <a href="https://aka.ms/epac">have been published</a>.</li>
+</ol>
+<h3 id="github-releases">GitHub Releases</h3>
+<p>This is a guide on how to release a new version of the project - including automated PowerShell module publish. It is used by the EPAC maintainers only.</p>
+<ol>
+<li>Navigate to <a href="https://github.com/Azure/enterprise-azure-policy-as-code/releases">https://github.com/Azure/enterprise-azure-policy-as-code/releases</a></li>
+<li>Click on <strong>Draft a new release</strong></li>
+<li>Click on <strong>Choose a tag</strong> and enter in the new release version - it should be in the format "v(major).(minor).(build)" i.e. v7.3.4 <strong>Don't forget the v</strong></li>
+<li>When prompted click on <strong>Create new tag: vX.X.X on publish</strong></li>
+<li>Add a release title - you can just use the new version number.</li>
+<li>Click on <strong>Generate release notes</strong> to pull all the notes in from related PRs. Update if necessary.</li>
+<li>Click <strong>Publish Release</strong></li>
+<li>Click on <strong>Actions</strong></li>
+<li>Verify that a workflow run has started with the same name as the release.</li>
+<li>Verify that the module has been published to the <a href="https://www.powershellgallery.com/packages/EnterprisePolicyAsCode">PowerShell Gallery</a>.</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.indexes", {"navigation.sections": {"level": 1}}, "navigation.tabs", "navigation.tabs.sticky", "content.code.annotate", "content.tabs.link", "content.code.copy"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+    
+  </body>
+</html>

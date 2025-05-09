@@ -1,0 +1,2911 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://azure.github.io/enterprise-azure-policy-as-code/policy-assignments/">
+      
+      
+        <link rel="prev" href="../policy-set-definitions/">
+      
+      
+        <link rel="next" href="../policy-assignments-csv-parameters/">
+      
+      
+      <link rel="icon" href="../Images/10316-icon-service-Policy.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
+    
+    
+      
+        <title>Policy Assignment Files - Enterprise Policy As Code (EPAC)</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.2afb09e1.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#policy-assignments" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Enterprise Policy As Code (EPAC)" class="md-header__button md-logo" aria-label="Enterprise Policy As Code (EPAC)" data-md-component="logo">
+      
+  <img src="../Images/10316-icon-service-Policy.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Enterprise Policy As Code (EPAC)
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Policy Assignment Files
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Azure/enterprise-azure-policy-as-code" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../start-hydration-kit/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../settings-global-setting-file/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Settings and Desired State
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../integrating-with-alz-library/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Azure Landing Zones
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../policy-definitions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Define Policy Resources
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../ci-cd-overview/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  CI/CD Integration
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../operational-scripts/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Operational Scripts
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../guidance-remediation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Operator Guidance
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Enterprise Policy As Code (EPAC)" class="md-nav__button md-logo" aria-label="Enterprise Policy As Code (EPAC)" data-md-component="logo">
+      
+  <img src="../Images/10316-icon-service-Policy.svg" alt="logo">
+
+    </a>
+    Enterprise Policy As Code (EPAC)
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Azure/enterprise-azure-policy-as-code" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start-hydration-kit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Hydration Kit
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start-implementing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Start Implementation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start-forking-github-repo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Forking GitHub Repo
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start-extracting-policy-resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Extracting Policy Resources
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../start-changes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Changes in v10.0.0
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Settings and Desired State
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Settings and Desired State
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../settings-global-setting-file/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Global Settings
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../settings-desired-state/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Desired State
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../settings-dfc-assignments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    DfC Assignments
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Azure Landing Zones
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Azure Landing Zones
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrating-with-alz-library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ALZ Policy Integration (New)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrating-with-alz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ALZ Policy Integration (Legacy)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrating-with-alz-monitor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Azure Monitor Baseline Alerts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrating-with-slz/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Sovereign Landing Zones
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Define Policy Resources
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Define Policy Resources
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policy-definitions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Policy Definitions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policy-set-definitions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Policy Set Definitions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Policy Assignment Files
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Policy Assignment Files
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#assignment-json-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Assignment JSON structure
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Assignment JSON structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#json-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      JSON Schema
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#policy-assignment-file-folder-structure-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      Policy Assignment File Folder Structure Guidelines
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Points
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#assignment-element-and-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      Assignment Element and Metadata
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Assignment Element and Metadata">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#defining-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining metadata
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadata-for-role-assignments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Metadata for Role Assignments
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#assigning-policy-sets-or-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Assigning Policy Sets or Policies
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Assigning Policy Sets or Policies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#assigning-a-single-policy-or-policy-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      Assigning a single Policy or Policy Set
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#assigning-multiple-policies-or-policy-sets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Assigning multiple Policies or Policy Sets
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#assignment-scopes-and-excluded-scopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Assignment scopes and excluded scopes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#managed-identities-and-role-assignments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Managed Identities and role assignments
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Managed Identities and role assignments">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#defining-managedidentitylocations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining managedIdentityLocations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#defining-optional-additionalroleassignments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining optional additionalRoleAssignments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#user-assigned-managed-identities" class="md-nav__link">
+    <span class="md-ellipsis">
+      User-assigned Managed Identities
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defining-parameters-overrides-and-noncompliancemessages" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining parameters, overrides and nonComplianceMessages
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Defining parameters, overrides and nonComplianceMessages">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#utilizing-a-csv-file-to-define-parameters-overrides-and-noncompliancemessages" class="md-nav__link">
+    <span class="md-ellipsis">
+      Utilizing a CSV File to define parameters, overrides and nonComplianceMessages
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#defining-parameters-with-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining parameters with JSON
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-elements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced Elements
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced Elements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#defining-overrides-with-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining overrides with JSON
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#defining-noncompliancemessages-with-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining nonComplianceMessages with JSON
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#defining-resourceselectors" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining resourceSelectors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#defining-enforcementmode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining enforcementMode
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-assignment-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example assignment files
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example assignment files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#simple-policy-assignment-allowed-locations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Simple Policy Assignment (Allowed Locations)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security-focused-policy-assignment-with-json-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security-Focused Policy Assignment with JSON parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inverted-policy-assignment-tag-inheritance-and-required-tags" class="md-nav__link">
+    <span class="md-ellipsis">
+      Inverted Policy Assignment (Tag Inheritance and Required Tags)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#non-compliance-messages-in-a-policy-definition-assignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Non-Compliance Messages in a Policy Definition Assignment
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#non-compliance-messages-in-a-policy-set-definition-assignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Non-Compliance Messages in a Policy Set Definition Assignment
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#non-compliance-messages-in-a-policy-set-definition-assignment-with-a-definitionentrylist" class="md-nav__link">
+    <span class="md-ellipsis">
+      Non-Compliance Messages in a Policy Set Definition Assignment with a definitionEntryList
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policy-assignments-csv-parameters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CSV Assignment Parameters
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../policy-exemptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Policy Exemptions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    CI/CD Integration
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            CI/CD Integration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CI/CD Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-app-registrations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    App Registrations Setup
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-branching-flows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Branching Flows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-ado-pipelines/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Azure DevOps Pipelines
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci-cd-github-actions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GitHub Actions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Operational Scripts
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Operational Scripts
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operational-scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Scripts Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operational-scripts-documenting-policy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Documenting Policy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operational-scripts-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Reference
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Operator Guidance
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            Operator Guidance
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guidance-remediation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Remediation Enforcement
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guidance-scope-exclusions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Exclusion Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guidance-exemptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Exemption Updates
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#assignment-json-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Assignment JSON structure
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Assignment JSON structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#json-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      JSON Schema
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#policy-assignment-file-folder-structure-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      Policy Assignment File Folder Structure Guidelines
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Points
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#assignment-element-and-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      Assignment Element and Metadata
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Assignment Element and Metadata">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#defining-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining metadata
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadata-for-role-assignments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Metadata for Role Assignments
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#assigning-policy-sets-or-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Assigning Policy Sets or Policies
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Assigning Policy Sets or Policies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#assigning-a-single-policy-or-policy-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      Assigning a single Policy or Policy Set
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#assigning-multiple-policies-or-policy-sets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Assigning multiple Policies or Policy Sets
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#assignment-scopes-and-excluded-scopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Assignment scopes and excluded scopes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#managed-identities-and-role-assignments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Managed Identities and role assignments
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Managed Identities and role assignments">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#defining-managedidentitylocations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining managedIdentityLocations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#defining-optional-additionalroleassignments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining optional additionalRoleAssignments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#user-assigned-managed-identities" class="md-nav__link">
+    <span class="md-ellipsis">
+      User-assigned Managed Identities
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defining-parameters-overrides-and-noncompliancemessages" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining parameters, overrides and nonComplianceMessages
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Defining parameters, overrides and nonComplianceMessages">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#utilizing-a-csv-file-to-define-parameters-overrides-and-noncompliancemessages" class="md-nav__link">
+    <span class="md-ellipsis">
+      Utilizing a CSV File to define parameters, overrides and nonComplianceMessages
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#defining-parameters-with-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining parameters with JSON
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-elements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced Elements
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced Elements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#defining-overrides-with-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining overrides with JSON
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#defining-noncompliancemessages-with-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining nonComplianceMessages with JSON
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#defining-resourceselectors" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining resourceSelectors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#defining-enforcementmode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Defining enforcementMode
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-assignment-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example assignment files
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example assignment files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#simple-policy-assignment-allowed-locations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Simple Policy Assignment (Allowed Locations)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security-focused-policy-assignment-with-json-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security-Focused Policy Assignment with JSON parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inverted-policy-assignment-tag-inheritance-and-required-tags" class="md-nav__link">
+    <span class="md-ellipsis">
+      Inverted Policy Assignment (Tag Inheritance and Required Tags)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#non-compliance-messages-in-a-policy-definition-assignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Non-Compliance Messages in a Policy Definition Assignment
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#non-compliance-messages-in-a-policy-set-definition-assignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Non-Compliance Messages in a Policy Set Definition Assignment
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#non-compliance-messages-in-a-policy-set-definition-assignment-with-a-definitionentrylist" class="md-nav__link">
+    <span class="md-ellipsis">
+      Non-Compliance Messages in a Policy Set Definition Assignment with a definitionEntryList
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="policy-assignments">Policy Assignments</h1>
+<p>This chapter describes how <strong>Policy Assignments</strong> are handled by EPAC. Policy Assignments are the actual assignments of Policies and Policy Sets to scopes in Azure.</p>
+<h2 id="assignment-json-structure">Assignment JSON structure</h2>
+<p>Assignment JSON is hierarchical for efficient definitions, avoiding duplication (copy/paste) of JSON. Each branch of the tree is cumulative. Each tree node must include a <code>nodeName</code> - an arbitrary string exclusively used by EPAC to display an error location. EPAC concatenates a leading <code>/</code> and the nodeName entries encountered in the tree to create a "breadcrumbs" trail; therefore, we recommend that you use <code>/</code> to help separate the concatenated <code>nodeName</code>. The following partial and invalid assignment tree would create this error message.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;nodeName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/Security/&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;definitionEntry&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;policySetName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;org-sec-initiative&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;children&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;nodeName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prod/&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;some-effect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Deny&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><img alt="Assignment File Overview Diagram" src="../Images/PaC-Assignment-Structure.png" /></p>
+<h3 id="json-schema">JSON Schema</h3>
+<p>The GitHub repo contains a JSON schema which can be used in tools such as <a href="https://code.visualstudio.com/Docs/languages/json#_json-schemas-and-settings">VS Code</a> to provide code completion.</p>
+<p>To utilize the schema add a <code>$schema</code> tag to the JSON file.</p>
+<div class="highlight"><pre><span></span><code>{
+  &quot;$schema&quot;: &quot;https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json&quot;
+}
+</code></pre></div>
+<h2 id="policy-assignment-file-folder-structure-guidelines">Policy Assignment File Folder Structure Guidelines</h2>
+<p>In any EPAC deployment you will have a number of assignment files. When a deployment plan is built EPAC does a recursive search for all the files in the <code>policyAssignments</code> folder. This means that you are free to use any folder structure you think is appropriate to help organise the files. For example if you have a multi-tenant or multi-environment setup you might choose to create folders representing each tenant or environment and then store the assignment files for each environment in that folder.</p>
+<h2 id="key-points">Key Points</h2>
+<ul>
+<li>Every tree branch must accumulate a <code>definitionEntry</code> (or <code>definitionEntryList</code>), Assignment naming (<code>name</code> and <code>displayName</code>) and <code>scope</code> element.</li>
+<li>The elements <code>parameters</code>, <code>overrides</code>, <code>resourceSelectors</code>, <code>notScope</code>, <code>enforcementMode</code>, <code>metadata</code>, <code>userAssignedIdentity</code>, <code>managedIdentityLocations</code>,<code>additionalRoleAssignments</code>and<code>nonComplianceMessages</code> are optional.</li>
+<li>For Policy Sets with large numbers of included Policies you should use a spreadsheet (CSV file) to manage <strong>effects</strong> (parameterized or effect <code>overrides</code>), <code>parameters</code> and optional <code>nonComplianceMessages</code>. We recommend the CSV approach for Policy Sets with more than 10 included Policies.</li>
+<li>EPAC continues to support deprecated elements <code>initiativeId</code>, <code>initiativeName</code> and <code>ignoreBranch</code>, Consider using their replacements <code>policySetId</code>, <code>policySetName</code> and <code>enforcementMode</code> instead.</li>
+<li>Role Assignments for user-assigned Managed Identities (UAMI) are not managed by EPAC, and will not generate a <code>roles-plan.json</code> file.</li>
+<li><code>additionalRoleAssignments</code> are used when a resource required is not in the current scope. For example, a Policy Assignment that requires a Event Hub to be managed in a subscription not contained in the current management group.</li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>The tree is not required to be balanced. The number of levels is not restricted; however, anything beyond 3 levels is unnecessary in real scenarios and would be difficult to read and manage as the depth increases.</p>
+</div>
+<h2 id="assignment-element-and-metadata">Assignment Element and Metadata</h2>
+<p>Each Assignment is required to have a <code>name</code> which is used in its resource Id. EPAC also requires a <code>displayName</code>. The <code>description</code> is optional. For the allowed location assignment you specify the component with:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;assignment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;allowed-locations&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Allowed Locations&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Sets the allowed locations.&quot;</span>
+<span class="p">},</span>
+</code></pre></div>
+<p>Multiple <code>assignment</code> naming components in a tree branch are string concatenated for each of the three fields.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Azure has a limit of 24 characters for the concatenated <code>name</code> string. EPAC displays an error if this limit is exceeded. Azure also has a limit of 128 characters for <code>displayName</code> and 512 characters for <code>description</code> (For additional information see <a href="https://learn.microsoft.com/en-us/azure/governance/policy/concepts/assignment-structure#display-name-and-description">Assignment Structure: Display name and description</a>).</p>
+</div>
+<h3 id="defining-metadata">Defining <code>metadata</code></h3>
+<p><code>metadata</code> is sometimes used to assign categories for changes. Do NOT specify EPAC-reserved elements <code>roles</code> and <code>pacOwnerId</code>. For the final <code>metadata</code> EPAC creates the union of instances in the entire tree branch.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Security&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Not recommended</strong>: Adding <code>assignedBy</code> to the <code>metadata</code> overrides the <code>deployedBy</code> value from the <code>global-settings.jsonc</code> file normally used for <code>assignedBy</code>. It defaults to <code>"epac/$pacOwnerId/$pacSelector"</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Security&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;assignedBy&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;security-team@epac/epac/00000000-0000-0000-0000-000000000000/tenant&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="metadata-for-role-assignments">Metadata for Role Assignments</h3>
+<p>Role assignments do not contain a <code>metadata</code> field. Instead, the <code>description</code> field is used to populate the <code>deployedBy</code> value. The <code>description</code> field is populated with the Policy Assignment Id, reason and <code>deployedBy</code> value. This is useful for tracking the source of the Role Assignment.</p>
+<p>Reasons is one of:</p>
+<ul>
+<li><code>Role Assignment required by Policy</code> - Policy definition(s) specify the required Role Definition Ids.</li>
+<li><code>additional Role Assignment</code> - from filed "additionalRoleAssignments" in the Policy Assignment file.</li>
+<li><code>additional cross tenant Role Assignment</code> - from filed "additionalRoleAssignments" with <code>crossTenant</code> set to <code>$true</code> in the Policy Assignment file.</li>
+</ul>
+<h2 id="assigning-policy-sets-or-policies">Assigning Policy Sets or Policies</h2>
+<h3 id="assigning-a-single-policy-or-policy-set">Assigning a single Policy or Policy Set</h3>
+<p>Each assignment assigns either a Policy or Policy Set. In EPAC this is done with a <code>definitionEntry</code> or a <code>definitionEntryList</code>. Exactly one occurrence must exist in any collated tree branch. For each entry, you need to specify one of the following:</p>
+<ul>
+<li><code>policyName</code> - custom Policy. Specifying just the name allows EPAC to inject the correct definition scope.</li>
+<li><code>policySetName</code> - custom Policy Set. Specifying just the name allows EPAC to inject the correct definition scope</li>
+<li><code>policyId</code> - resource id for builtin Policy.</li>
+<li><code>policySetId</code> - resource id for builtin Policy Set.</li>
+</ul>
+<p><code>displayName</code> is an optional field to document the entry if the Policy name is a GUID. Builtin Policies and Policy Sets use a GUID.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;definitionEntry&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;policySetName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;general-allowed-locations-policy-set&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Use this if the Policy name is a GUID&quot;</span>
+<span class="p">},</span>
+</code></pre></div>
+<h3 id="assigning-multiple-policies-or-policy-sets">Assigning multiple Policies or Policy Sets</h3>
+<p>Using <code>definitionEntryList</code> allows you to save on copy/paste tree branches. Without it, the number of branches would need to be duplicated as many times as the list has entries.</p>
+<p>Each entry in the list creates an Assignment at each leaf of the tree. Since assignments must have unique names at a specific scope, the Assignment naming component must be amended for each list entry. In this sub-component you can decide if you want to concatenate the string by appending or prepending them by specifying <code>append</code> boolean value.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;definitionEntryList&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;policySetId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Azure Security Benchmark&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;assignment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;append&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;asb&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Azure Security Benchmark&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Azure Security Benchmark Initiative. &quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;policySetId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;NIST SP 800-53 Rev. 5&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;assignment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;append&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;nist-800-53-r5&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;NIST SP 800-53 Rev. 5&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;NIST SP 800-53 Rev. 5 Initiative.&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">],</span>
+</code></pre></div>
+<p>In the above example one of the children (leaf node) has the following Assignment name.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;assignment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pr-&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prod &quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prod Environment controls enforcement with &quot;</span>
+<span class="p">},</span>
+</code></pre></div>
+<p>This example generates two assignments at the "prod" leaf per scope:</p>
+<ul>
+<li>/providers/Microsoft.Management/managementGroups/<strong><em>Contoso-Prod</em></strong>/providers/Microsoft.Authorization/policyAssignments/<strong>pr-asb</strong></li>
+<li><code>displayName</code> = "Prod Azure Security Benchmark"</li>
+<li><code>description</code> = "Prod Environment controls enforcement with Azure Security Benchmark Initiative."</li>
+<li>/providers/Microsoft.Management/managementGroups/<strong><em>Contoso-Prod</em></strong>/providers/Microsoft.Authorization/policyAssignments/<strong>pr-nist-800-53-r5</strong></li>
+<li><code>displayName</code> = "Prod NIST SP 800-53 Rev. 5"</li>
+<li><code>description</code> = "Prod Environment controls enforcement with NIST SP 800-53 Rev. 5 Initiative."</li>
+</ul>
+<h2 id="assignment-scopes-and-excluded-scopes">Assignment scopes and excluded scopes</h2>
+<p><code>scope</code> is required exactly once in each tree branch. Excluded scopes (<code>notScope</code>) are cumulative from <code>global-settings.json</code> and the entire tree branch; however, once a scope is defined <code>notScopes</code> may not be defined at any child node.</p>
+<p>Both <code>scope</code> and <code>notScopes</code> are specific to an <a href="../start-implementing/#epac-concepts-and-environments">EPAC Environment using the pacSelector name</a>, e.g., <code>epac-dev</code> and <code>tenant</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;epac-dev&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/Epac-Prod&quot;</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;tenant&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/Contoso-Prod&quot;</span>
+<span class="w">        </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/Contoso-Prod2&quot;</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><code>notScopes</code> works the same. In addition <code>"*"</code> means all EPAC Environments.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;notScopes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;*&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="s2">&quot;/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-pattern*&quot;</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;tenant&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/&lt;mg-id&gt;&quot;</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Prerelease Feature - Subscription Pattern Matching for Excluded Scopes</p>
+</div>
+<blockquote>
+<p>As of version v10.7.6-beta you can define a pattern to match on subscriptions for an excluded scope. This allows an assignment to add matched subscription names to the excluded scope. It is not dynamic i.e. if you add subscriptions later and want to include them you would have to run the plan again.
+The syntax is:</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code>&quot;notScopes&quot;: {
+    &quot;tenant&quot;: [
+        &quot;/subscriptions/subscriptionsPattern/wildcard-pattern-to-match&quot; 
+    ]
+}
+E.g. /subscriptions/subscriptionsPattern/Con* would match a subscription with the name Connectivity
+
+The Powershell -like expression is used for matching. 
+</code></pre></div>
+<h2 id="managed-identities-and-role-assignments">Managed Identities and role assignments</h2>
+<p>Policies with a <code>DeployIfNotExists</code> or <code>Modify</code> effect need a Managed Identity (MI) and role assignments to execute remediation tasks. EPAC calculates the necessary role assignments based on the <code>roleDefinitionIds</code> in the policy definition. By default EPAC uses a system-assigned Managed Identity. The team maintaining EPAC recommend using system-assigned identities; however, your organization may have role assignment reasons to use user-assigned Managed Identities.</p>
+<h3 id="defining-managedidentitylocations">Defining <code>managedIdentityLocations</code></h3>
+<p>Policy assignments requiring a Managed Identity (system-assigned or user-assigned) require a location <code>managedIdentityLocations</code>. You must specify the location based on EPAC Environment or use <code>"*"</code> to use the same location for all of the EPAC Environments.
+You can specify them in <code>global-settings.jsonc</code> or at any node in the tree. The last (closest to the leaf node) is the one chosen if multiple <code>managedIdentityLocations</code> entries are encountered in a tree branch.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;managedIdentityLocations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;*&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eastus2&quot;</span>
+<span class="p">},</span>
+</code></pre></div>
+<h3 id="defining-optional-additionalroleassignments">Defining optional <code>additionalRoleAssignments</code></h3>
+<p>In some scenarios you will need <code>additionalRoleAssignments</code>; e.g., for diagnostics settings to Event Hubs, the target resource might be in a different Management Group and therefore the Managed Identity requires additional role assignments. You must specify the <code>additionalRoleAssignments</code> based on EPAC Environment or use <code>"*"</code>to use the same <code>additionalRoleAssignments</code>for all of the EPAC Environments.  If the pacEnvironment under deployment is specified in the additionalRoleAssignments, the <code>"*"</code> assignments will be ignored.</p>
+<p>If the additional assignment is to made to a managing tenant in the scenario where the pacEnvironment under deployment is a managed (Azure Lighthouse) tenant, you must specify <code>""crossTenant": true"</code> for that assignment.  Ensure all necessary ABAC permissions are in place for the executing SPN.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;additionalRoleAssignments&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;*&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;roleDefinitionId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/subscriptions/&lt;id&gt;/resourceGroups/&lt;example&gt;&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;prod&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;roleDefinitionId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/providers/microsoft.authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/subscriptions/&lt;id&gt;/resourceGroups/&lt;example&gt;&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;lighthouse&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;roleDefinitionId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/providers/microsoft.authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f606fba81ae7&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/subscriptions/945a01ac-ae61-41da-81b4-640a8441da7b&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;crossTenant&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">},</span>
+</code></pre></div>
+<h3 id="user-assigned-managed-identities">User-assigned Managed Identities</h3>
+<p>Azure Policy can use a user-defined Managed Identity and EPAC allows you to use this functionality. You must specify the user-defined Managed Identity based on EPAC Environment or use <code>"*"</code> to use the same identity for all of the EPAC Environments (only possible in single tenant scenarios). Within each EPAC Environment entry, you can specify just the URI string indicating to use the same identity even if we are using a <code>definitionEntryList</code>, or in the case of a <code>definitionEntryList</code> can assign a different identity based on the definitionEntryList by specifying a matching <code>policyName</code>, <code>policyId</code>, <code>policySetName</code> or <code>policySetId</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;userAssignedIdentity&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// For single definitionEntry or when using the same identity for all definitions being assigned</span>
+<span class="w">    </span><span class="nt">&quot;tenant1&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/subscriptions/id/resourceGroups/testRG/providers/Microsoft.ManagedIdentity/userAssignedIdentities/identity-1&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;tenant2&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="c1">// differentiate by assigned definition</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;policySetName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;somePolicySetName&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;identity&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/subscriptions/id/resourceGroups/testRG/providers/Microsoft.ManagedIdentity/userAssignedIdentities/identity-2&quot;</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;policySetId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;somePolicySetId&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;identity&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/subscriptions/id/resourceGroups/testRG/providers/Microsoft.ManagedIdentity/userAssignedIdentities/identity-3&quot;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p></br></p>
+<h2 id="defining-parameters-overrides-and-noncompliancemessages">Defining <code>parameters</code>, <code>overrides</code> and <code>nonComplianceMessages</code></h2>
+<h3 id="utilizing-a-csv-file-to-define-parameters-overrides-and-noncompliancemessages">Utilizing a CSV File to define <code>parameters</code>, <code>overrides</code> and <code>nonComplianceMessages</code></h3>
+<p>Assigning single or multiple security and compliance focused Policy Sets (Initiatives), such as Microsoft Cloud Security Benchmark, NIST 800-53 R5, PCI, NIST 800-171, etc, with just JSON parameters becomes very complex. Add to this the complexity of overriding the effect if it is not surfaced as a parameter in the <code>Policy Set</code>. Finally, adding the optional <code>nonComplianceMessages</code> further increases the complexity.</p>
+<p>To address the problem of reading and maintaining hundreds or thousands of JSON lines, EPAC can use the content of a CSV file to create <code>parameters</code>, <code>overrides</code> and optionally <code>nonComplianceMessages</code> for a single Policy assignment <code>definitionEntry</code> or multiple Policy definitions (<code>definitionEntryList</code>).</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>This approach is best for large Policy Sets such as Azure Security Benchmark, NIST 800-53, etc. Smaller Policy Sets should still be handled with JSON <code>parameters</code>, <code>overrides</code> and <code>nonComplianceMessages</code>.</p>
+</div>
+<p>Implement these steps as documented in <a href="../policy-assignments-csv-parameters/">Managing Policy Assignment Parameters with a CSV file</a>.</p>
+<ul>
+<li>Generate the CSV file from your already deployed Assignment(s) or Policy Set(s).</li>
+<li>Modify the effect and parameter columns for each type of environment type you will use.</li>
+<li>Modify the Policy Assignment file to reference the CSV file and the column prefix.</li>
+<li>Update the CSV file with the new effect and parameter values.</li>
+</ul>
+<h3 id="defining-parameters-with-json">Defining <code>parameters</code> with JSON</h3>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code>parameters</code> have a simplified JSON structure. You do not need the additional <code>value</code> indirection that Azure requests (EPAC will inject that indirection).</p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;aksClusterContainersAllowedImagesExcludedNamespaces&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;kube-system&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;gatekeeper-system&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;azure-arc&quot;</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;kvKeysActiveMaximumNumberOfDays&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">90</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;publicNetworkAccessShouldBeDisabledForContainerRegistriesEffect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Audit&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;mysqlDisablePublicNetworkAccessEffect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Deny&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;kvRsaCryptographyMinimumKeySizeEffect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Deny&quot;</span><span class="p">,</span>
+<span class="p">},</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To enable <code>definitionEntryList</code>, parameters not present in the Policy or Policy Set definition are quietly ignored.</p>
+</div>
+<h2 id="advanced-elements">Advanced Elements</h2>
+<h3 id="defining-overrides-with-json">Defining <code>overrides</code> with JSON</h3>
+<p><code>overrides</code> are in the same <a href="https://learn.microsoft.com/en-us/azure/governance/policy/concepts/assignment-structure#overrides-preview">format as documented by Azure</a>. They are  cumulative in each tree branch. The <code>selectors</code> element is only used for Assignments of Policy Sets. They are not valid for Assignments of a single Policy.</p>
+<p>If using <code>definitionEntryList</code>, you must add the <code>policyName</code>, <code>policyId</code>, <code>policySetName</code> or <code>policySetId</code> as used in the <code>definitionEntryList</code> item.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;overrides&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;policySetId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;kind&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;policyEffect&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AuditIfNotExists&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;selectors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;kind&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;policyDefinitionReferenceId&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;in&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                    </span><span class="s2">&quot;331e8ea8-378a-410f-a2e5-ae22f38bb0da&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="s2">&quot;385f5831-96d4-41db-9a3c-cd3af78aaae6&quot;</span>
+<span class="w">                </span><span class="p">]</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;policySetId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;kind&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;policyEffect&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AuditIfNotExists&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;selectors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;kind&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;policyDefinitionReferenceId&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;in&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                    </span><span class="s2">&quot;cddd188c-4b82-4c48-a19d-ddf74ee66a01&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="s2">&quot;3cf2ab00-13f1-4d0c-8971-2ac904541a7e&quot;</span>
+<span class="w">                </span><span class="p">]</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">],</span>
+</code></pre></div>
+<h3 id="defining-noncompliancemessages-with-json">Defining <code>nonComplianceMessages</code> with JSON</h3>
+<p>Assign a non-compliance message to the assignment, or individual non-compliance messages if the assignment is for an Policy Set. This value is an array of objects - each containing a message, and in the case of an initiative a policyDefinitionReferenceId. See <a href="https://learn.microsoft.com/en-us/azure/governance/policy/concepts/assignment-structure#non-compliance-messages">this link</a> for details.</p>
+<p>If you use single <code>definitionEntry</code>, place them normally. If you use a <code>definitionEntryList</code> place them in the respective list entry.</p>
+<div class="highlight"><pre><span></span><code>&quot;nonComplianceMessages&quot;: [
+    {
+        &quot;message&quot;: &quot;Update main message&quot;
+        // Default nonComplianceMessage
+    },
+    {
+        &quot;message&quot;: &quot;Individual policy message&quot;,
+        // Policy specific nonComplianceMessage. You must include the policyDefinitionReferenceId as defined in the Policy Set.
+        &quot;policyDefinitionReferenceId&quot;: &quot;ASC_DeployAzureDefenderForSqlAdvancedThreatProtectionWindowsAgent&quot;
+    }
+],
+</code></pre></div>
+<h3 id="defining-resourceselectors">Defining <code>resourceSelectors</code></h3>
+<p><code>resourceSelectors</code> may appear anywhere in the tree and are cumulative in any branch. <a href="https://learn.microsoft.com/en-us/azure/governance/policy/concepts/assignment-structure#resource-selectors-preview">They follow the standard Azure Format</a>.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;resourceSelectors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SDPRegions&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;selectors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;kind&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;resourceLocation&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;in&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;eastus&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;westus&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;centralus&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;southcentralus&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div>
+<h3 id="defining-enforcementmode">Defining <code>enforcementMode</code></h3>
+<p><code>enforcementMode</code> is similar to the deprecated <code>ignoreBranch</code>; it deploys the assignment and sets the assignment to <code>Default</code> or <code>DoNotEnforce</code>. <code>DoNotEnforce</code> allows a what-if analysis. <code>enforcementMode</code> may appear anywhere in the tree. Definitions at a child override the previous setting.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;enforcementMode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DoNotEnforce&quot;</span><span class="p">,</span>
+</code></pre></div>
+<h2 id="example-assignment-files">Example assignment files</h2>
+<h3 id="simple-policy-assignment-allowed-locations">Simple Policy Assignment (Allowed Locations)</h3>
+<p>In the simple case an assignment is a single node with no difference in <code>assignment</code>, <code>parameters</code>, and <code>definitionEntry</code> across multiple scopes. In many scenarios "Allowed Locations" is such a simple Assignment. Such Assignments do not have child nodes, just the root node.
+Example</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;nodeName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/root&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;definitionEntry&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Allowed Locations Initiative&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;policySetName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;general-allowed-locations-policy-set&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;assignment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;allowed-locations&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Allowed Locations&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Sets the allowed locations&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">  </span><span class="nt">&quot;enforcementMode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Default&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;AllowedLocations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="s2">&quot;centralus&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">&quot;eastus&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">&quot;eastus2&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">&quot;southcentralus&quot;</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;epac-dev&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/Epac-Mg-1&quot;</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;tenant&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/c&quot;</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<ul>
+<li><code>nodeName</code> is required for error messages; its value is immaterial. EPAC concatenates them in the current tree branch.</li>
+<li><code>definitionEntry</code> specifies that the custom Policy Set <code>general-allowed-locations-policy-set</code> from our starter kit. <code>displayName</code> has no meaning - it is for readability and in this instance is superfluous.</li>
+<li><code>assignment</code> fields <code>name</code>, <code>displayName</code> and <code>description</code> are used when creating the assignment.</li>
+<li>This assignment has no <code>metadata</code>. You don't need an empty collection. EPAC will add <code>pacOwnerId</code> and <code>roles</code> <code>metadata</code>. Do not add them manually.</li>
+<li>enforcementMode is set to default - it is superfluous.</li>
+<li><code>parameters</code> are obvious. Note: you don't add the <code>value</code> layer Azure inserts - EPAC takes care of that.</li>
+<li><code>scope</code>:</li>
+<li>During Policy resource development (called <code>epac-dev</code>) the Assignment is deployed to an EPAC development Management Group <code>Epac-Mg-1</code>.</li>
+<li>During Policy prod deployments (<code>tenant</code>-wide), it is deployed to the tenant Management Group <code>Epac-Mg-1</code>.</li>
+<li>No <code>notScope</code> entries are specified.</li>
+</ul>
+<h3 id="security-focused-policy-assignment-with-json-parameters">Security-Focused Policy Assignment with JSON parameters</h3>
+<ul>
+<li>In the following example we named our root node (<code>nodeName</code>) <code>/security/</code>. Since it is only used in case of error messages produced by EPAC during planning its actual value doesn't matter as long as its unique.</li>
+<li>We use a <code>definitionEntryList</code> to create two assignments at every leaf (six assignments total).</li>
+<li>For <code>assignment</code> string concatenation we append the strings in the <code>definitionEntryList</code> to the strings in the child nodes. You can see this best when you look at the <code>description</code> string in the child  nodes. It will form a sentence when concatenated by <code>append</code>ing the <code>definitionEntryList</code> <code>assignment</code> field <code>description</code>.</li>
+<li>The <code>parameters</code> specified in the children are specific to the IaC environment types and their <code>scope</code>. Note: a real assignment would define many more parameters. The set here is abbreviated since the actual set could easily exceed a hundred entries for each of the IaC environments. We'll see in the next example how to simplify large Policy Set parameters with a CSV file.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;nodeName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/Security/&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;definitionEntryList&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;policySetId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Azure Security Benchmark&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;assignment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;append&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;asb&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Azure Security Benchmark&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Azure Security Benchmark Initiative.&quot;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;policySetId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;NIST SP 800-53 Rev. 5&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;assignment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;append&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;nist-800-53-r5&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;NIST SP 800-53 Rev. 5&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;NIST SP 800-53 Rev. 5 Initiative.&quot;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;children&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;nodeName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prod/&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;assignment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pr-&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prod &quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Prod Environment controls enforcement with &quot;</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;classicComputeVMsMonitoringEffect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Deny&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;disallowPublicBlobAccessEffect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;deny&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;azureCosmosDBAccountsShouldHaveFirewallRulesMonitoringEffect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Deny&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;allowedContainerImagesInKubernetesClusterEffect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Audit&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;AllowedHostNetworkingAndPortsInKubernetesClusterEffect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Disabled&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;clusterProtectionLevelInServiceFabricMonitoringEffect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Deny&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;epac-dev&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/epac-dev-prod&quot;</span>
+<span class="w">        </span><span class="p">],</span>
+<span class="w">        </span><span class="nt">&quot;tenant&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/Contoso-Prod&quot;</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;nodeName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;NonProd/&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;assignment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;np-&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;NonProd &quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Non Prod Environment controls enforcement with &quot;</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;classicComputeVMsMonitoringEffect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Deny&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;disallowPublicBlobAccessEffect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;deny&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;azureCosmosDBAccountsShouldHaveFirewallRulesMonitoringEffect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Audit&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;allowedContainerImagesInKubernetesClusterEffect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Audit&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;AllowedHostNetworkingAndPortsInKubernetesClusterEffect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Disabled&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;clusterProtectionLevelInServiceFabricMonitoringEffect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Audit&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;epac-dev&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/epac-dev-nonprod&quot;</span>
+<span class="w">        </span><span class="p">],</span>
+<span class="w">        </span><span class="nt">&quot;tenant&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/Contoso-nonprod&quot;</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;nodeName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Sandbox/&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;assignment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sbx-&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Sandbox &quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Sandbox Environment controls enforcement with &quot;</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;classicStorageAccountsMonitoringEffect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Deny&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;allowedServicePortsInKubernetesClusterEffect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Disabled&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;certificatesValidityPeriodInMonths&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;AllowedAppArmorProfilesInKubernetesClusterEffect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Disabled&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;certificatesValidityPeriodMonitoringEffect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;disabled&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;cognitiveServicesAccountsShouldRestrictNetworkAccessMonitoringEffect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Disabled&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;AllowedCapabilitiesInKubernetesClusterEffect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Disabled&quot;</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;epac-dev&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/epac-dev-sandbox&quot;</span>
+<span class="w">        </span><span class="p">],</span>
+<span class="w">        </span><span class="nt">&quot;tenant&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/Contoso-Sandbox&quot;</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="inverted-policy-assignment-tag-inheritance-and-required-tags">Inverted Policy Assignment (Tag Inheritance and Required Tags)</h3>
+<p>As mentioned above sometimes it is advantageous (to reduce the number of repetitions) to turn a definition on its head:</p>
+<ul>
+<li><strong>Common</strong> <code>parameters</code>, <code>scope</code>, <code>definitionEntryList</code> (with two Policies) at the root (<code>nodeName</code> is <code>/Tags/</code>).</li>
+<li>Start of the <code>assignment</code> strings (<code>append</code> is defaulted to <code>false</code>). Again look at description which will be a concatenated sentence.</li>
+<li>The children define the <code>tagName</code> parameter and the second part of the strings for <code>assignment</code>. The set of <code>parameters</code> is the union of the root node and the child node.</li>
+<li>This creates six Assignments (number of Policies assigned times number of children).</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;nodeName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/Tags/&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;excludedRG&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="s2">&quot;synapseworkspace-managedrg-*&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">&quot;databricks-rg-*&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">&quot;managed*&quot;</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;epac-dev&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/epac-dev-mg-1&quot;</span>
+<span class="w">      </span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;tenant&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/Contoso-Root&quot;</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;definitionEntryList&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                    </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;policyName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;7ce92201-8036-4d55-938e-0dce0a5bc475&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Require Tag on Resource Group with dynamic notScope&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;assignment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rgtag-&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Require Tag on Resource Group - &quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Require Tag for Resource Groups when any resource group (not listed in in excludedRg) is created or updated - &quot;</span>
+<span class="w">                    </span><span class="p">}</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;policyName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;5cc2cbfc-e306-4ec6-a141-eea3c79bb2ae&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Inherit Tag from Resource Group with dynamic notScope&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;assignment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;taginh-&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Inherit Tag from Resource Group - &quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Modify Tag to comply with governance goal of enforcing Tags by inheriting Tags from RG - &quot;</span>
+<span class="w">                    </span><span class="p">}</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;children&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;nodeName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AppName&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;assignment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AppName&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AppName&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AppName.&quot;</span>
+<span class="w">          </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;tagName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AppName&quot;</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;nodeName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Environment&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;assignment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Environment&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Environment&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Environment.&quot;</span>
+<span class="w">          </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;tagName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Environment&quot;</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;nodeName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Project&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;assignment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Project&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Project&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Project.&quot;</span>
+<span class="w">          </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;tagName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Project&quot;</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="non-compliance-messages-in-a-policy-definition-assignment">Non-Compliance Messages in a Policy Definition Assignment</h3>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;nodeName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;test&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;issue48&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/issue48&quot;</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;assignment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Audit virtual machines without disaster recovery configured&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Some description&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;46332f3a51cb4bf2b4de78a7&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;definitionEntry&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;policyName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0015ea4d-51ff-4ce3-8d8c-f3f8f0179a56&quot;</span><span class="w"> </span><span class="c1">// Single policy definition</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;nonComplianceMessages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="c1">// Array of nonComplianceMessages</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Update non-compliance message&quot;</span><span class="w"> </span><span class="c1">// Default nonComplianceMessage</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="non-compliance-messages-in-a-policy-set-definition-assignment">Non-Compliance Messages in a Policy Set Definition Assignment</h3>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;nodeName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;test&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;issue48&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/issue48&quot;</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;assignment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Configure Azure Defender for SQL agents on virtual machines&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Some other description&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;39a366e6&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;definitionEntry&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;initiativeName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;39a366e6-fdde-4f41-bbf8-3757f46d1611&quot;</span><span class="w"> </span><span class="c1">// Policy set definition</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;nonComplianceMessages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="c1">// Array of nonComplianceMessages</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Update main message&quot;</span><span class="w"> </span><span class="c1">// Default nonComplianceMessage</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Individual policy message&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Policy specific nonComplianceMessage. You must include the policyDefinitionReferenceId as defined in the initiative.</span>
+<span class="w">            </span><span class="nt">&quot;policyDefinitionReferenceId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ASC_DeployAzureDefenderForSqlAdvancedThreatProtectionWindowsAgent&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="non-compliance-messages-in-a-policy-set-definition-assignment-with-a-definitionentrylist">Non-Compliance Messages in a Policy Set Definition Assignment with a <code>definitionEntryList</code></h3>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;nodeName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;test&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;issue48&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="s2">&quot;/providers/Microsoft.Management/managementGroups/issue48&quot;</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;definitionEntryList&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;initiativeName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;62329546-775b-4a3d-a4cb-eb4bb990d2c0&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;assignment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Flow logs should be configured and enabled for every network security group&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Audit for network security groups to verify if flow logs are configured and if flow log status is enabled. Enabling flow logs allows to log information about IP traffic flowing through network security group. It can be used for optimizing network flows, monitoring throughput, verifying compliance, detecting intrusions and more.&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;62329546&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;nonComplianceMessages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="c1">// nonComplianceMessages must be in the definitionEntryList object for each policy/initiative deployed.</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Updated Default message&quot;</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="p">{</span>
+<span class="w">                    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Individual policy message&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="nt">&quot;policyDefinitionReferenceId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;NetworkWatcherFlowLog_Enabled_Audit&quot;</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">]</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;initiativeName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cb5e1e90-7c33-491c-a15b-24885c915752&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;assignment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Enable Azure Cosmos DB throughput policy&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Enable throughput control for Azure Cosmos DB resources in the specified scope (Management group, Subscription or resource group). Takes max throughput as parameter. Use this policy to help enforce throughput control via the resource provider.&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cb5e1e90&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;throughputMax&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">400</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.indexes", {"navigation.sections": {"level": 1}}, "navigation.tabs", "navigation.tabs.sticky", "content.code.annotate", "content.tabs.link", "content.code.copy"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+    
+  </body>
+</html>
