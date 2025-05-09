@@ -93,6 +93,9 @@ function Out-DocumentationForPolicySets {
                 if ($policySetList.ContainsKey($shortName)) {
                     $perPolicySet = $policySetList.$shortName
                     $effectValue = $perPolicySet.effectValue
+                    if ($effectValue.StartsWith("[if(contains(parameters('resourceTypeList')")) {
+                        $effectValue = "SetByParameter"
+                    }
                     $effectAllowedValues = $perPolicySet.effectAllowedValues
                     $text = Convert-EffectToMarkdownString `
                         -Effect $effectValue `
@@ -147,6 +150,9 @@ function Out-DocumentationForPolicySets {
             }
             else {
                 $effectValue = $_.effectDefault
+            }
+            if ($effectValue.StartsWith("[if(contains(parameters('resourceTypeList')")) {
+                $effectValue = "SetByParameter"
             }
 
             if ($effectValue -ne "Manual" -or $IncludeManualPolicies) {
@@ -276,6 +282,19 @@ function Out-DocumentationForPolicySets {
         }
         else {
             $effectValue = $_.effectDefault
+        }
+        
+        # Check effectValue, effectDefault & policySetEffectString for SetByParameter
+        if ($effectValue.StartsWith("[if(contains(parameters('resourceTypeList')")) {
+            $effectValue = "SetByParameter"
+        }
+        if ($effectDefault.StartsWith("[if(contains(parameters('resourceTypeList')")) {
+            $effectDefault = "SetByParameter"
+        }
+        $checkArray = $policySetEffectStrings.split(": ")
+        if ($checkArray[1].StartsWith("[if(contains(parameters('resourceTypeList')")) {
+            $checkArray[1] = "SetByParameter"
+            $policySetEffectStrings = $checkArray[0] + ": " + $checkArray[1]
         }
 
         if ($effectValue -ne "Manual" -or $IncludeManualPolicies) {
