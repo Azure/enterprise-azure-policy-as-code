@@ -120,14 +120,14 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\
 # Create assignment objects
 
 try {
-    $structureFile = Get-Content .\$Type.policy_default_structure.json -ErrorAction Stop | ConvertFrom-Json
+    $structureFile = Get-Content $DefinitionsRootFolder\$Type.policy_default_structure.json -ErrorAction Stop | ConvertFrom-Json
     switch ($structureFile.enforcementMode) {
         "Default" { $enforcementModeText = "must" }
         "DoNotEnforce" { $enforcementModeText = "should" }
     }
 }
 catch {
-    Write-Host "No policy default structure file found. Please run Create-ALZPolicyDefaultStructure.ps1 first."
+    Write-Host "No policy default structure file found. Please run New-ALZPolicyDefaultStructure.ps1 first and ensure the file is in the same directory as the global-settings.jsonc file"
     exit
 }
 
