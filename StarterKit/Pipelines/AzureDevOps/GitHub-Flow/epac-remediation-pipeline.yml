@@ -33,7 +33,7 @@ schedules:
 
 stages:
   - ${{ each pacEnvironment in parameters.pacEnvironmentsToRemediate }}:
-    - stage: Remediate${{ pacEnvironment }}
+    - stage: Remediate ${{ replace(pacEnvironment, '-', '') }}
       dependsOn: []
       displayName: "Remediate ${{ pacEnvironment }} environment"
       jobs:

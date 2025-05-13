@@ -7,16 +7,16 @@ function Get-CustomMetadata {
 
     # remove system generated metadata
     $metadataTemp = ConvertTo-HashTable $Metadata
-    if ($metadataTemp.ContainsKey("createdBy")) {
+    if ($metadataTemp.Keys -contains "createdBy") {
         $metadataTemp.Remove("createdBy")
     }
-    if ($metadataTemp.ContainsKey("createdOn")) {
+    if ($metadataTemp.Keys -contains "createdOn") {
         $metadataTemp.Remove("createdOn")
     }
-    if ($metadataTemp.ContainsKey("updatedBy")) {
+    if ($metadataTemp.Keys -contains "updatedBy") {
         $metadataTemp.Remove("updatedBy")
     }
-    if ($metadataTemp.ContainsKey("updatedOn")) {
+    if ($metadataTemp.Keys -contains "updatedOn") {
         $metadataTemp.Remove("updatedOn")
     }
     if ($null -ne $Remove) {
