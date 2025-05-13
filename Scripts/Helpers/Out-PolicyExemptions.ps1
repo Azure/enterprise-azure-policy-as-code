@@ -158,12 +158,14 @@ function Out-PolicyExemptions {
             }
             # Logic to force the order of the Metadata property (DeployedBy first, then epacMetadata)
             foreach ($array in $jsonArray) {
-                $meta = $array.Metadata
-                $orderedMeta = [ordered]@{
-                    deployedBy   = $meta['deployedBy']
-                    epacMetadata = $meta['epacMetadata']
+                if ($null -ne $array.Metadata) {
+                    $meta = $array.Metadata
+                    $orderedMeta = [ordered]@{
+                        deployedBy   = $meta['deployedBy']
+                        epacMetadata = $meta['epacMetadata']
+                    }
+                    $array.Metadata = $orderedMeta
                 }
-                $array.Metadata = $orderedMeta
             }
             $jsonFile = "$stem.$FileExtension"
             if (Test-Path $jsonFile) {
@@ -193,14 +195,16 @@ function Out-PolicyExemptions {
             }
             # Logic to force the order of the Metadata property (DeployedBy first, then epacMetadata)
             foreach ($array in $excelArray) {
-                $metaString = $array.Metadata
-                $meta = $metaString | ConvertFrom-Json -Depth 100
-                $orderedMeta = [ordered]@{
-                    deployedBy   = $meta.deployedBy
-                    epacMetadata = $meta.epacMetadata
+                if ($null -ne $array.Metadata) {
+                    $metaString = $array.Metadata
+                    $meta = $metaString | ConvertFrom-Json -Depth 100
+                    $orderedMeta = [ordered]@{
+                        deployedBy   = $meta.deployedBy
+                        epacMetadata = $meta.epacMetadata
+                    }
+                    $orderedMetadata = (ConvertTo-Json $orderedMeta -Depth 100 -Compress).ToString()
+                    $array.Metadata = $orderedMetadata
                 }
-                $orderedMetadata = (ConvertTo-Json $orderedMeta -Depth 100 -Compress).ToString()
-                $array.Metadata = $orderedMetadata
             }
             $csvFile = "$stem.csv"
             if (Test-Path $csvFile) {
@@ -246,12 +250,14 @@ function Out-PolicyExemptions {
             }
             # Logic to force the order of the Metadata property (DeployedBy first, then epacMetadata)
             foreach ($array in $jsonArray) {
-                $meta = $array.Metadata
-                $orderedMeta = [ordered]@{
-                    deployedBy   = $meta['deployedBy']
-                    epacMetadata = $meta['epacMetadata']
+                if ($null -ne $array.Metadata) {
+                    $meta = $array.Metadata
+                    $orderedMeta = [ordered]@{
+                        deployedBy   = $meta['deployedBy']
+                        epacMetadata = $meta['epacMetadata']
+                    }
+                    $array.Metadata = $orderedMeta
                 }
-                $array.Metadata = $orderedMeta
             }
             $jsonFile = "$stem.$FileExtension"
             if (Test-Path $jsonFile) {
@@ -283,14 +289,16 @@ function Out-PolicyExemptions {
             }
             # Logic to force the order of the Metadata property (DeployedBy first, then epacMetadata)
             foreach ($array in $excelArray) {
-                $metaString = $array.Metadata
-                $meta = $metaString | ConvertFrom-Json -Depth 100
-                $orderedMeta = [ordered]@{
-                    deployedBy   = $meta.deployedBy
-                    epacMetadata = $meta.epacMetadata
+                if ($null -ne $array.Metadata) {
+                    $metaString = $array.Metadata
+                    $meta = $metaString | ConvertFrom-Json -Depth 100
+                    $orderedMeta = [ordered]@{
+                        deployedBy   = $meta.deployedBy
+                        epacMetadata = $meta.epacMetadata
+                    }
+                    $orderedMetadata = (ConvertTo-Json $orderedMeta -Depth 100 -Compress).ToString()
+                    $array.Metadata = $orderedMetadata
                 }
-                $orderedMetadata = (ConvertTo-Json $orderedMeta -Depth 100 -Compress).ToString()
-                $array.Metadata = $orderedMetadata
             }
             $csvFile = "$stem.csv"
             if (Test-Path $csvFile) {
