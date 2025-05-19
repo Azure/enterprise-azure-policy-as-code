@@ -76,7 +76,7 @@ foreach ($policyUri in $defaultPolicyURIs) {
                 $name = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Name
                 $environments = ($_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Properties).metadata.alzCloudEnvironments
                 if ($environments -contains $CloudEnvironment) {
-                    $baseTemplate = @{
+                    $baseTemplate = [ordered]@{
                         schema     = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json"
                         name       = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Name
                         properties = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Properties
@@ -100,7 +100,7 @@ foreach ($policyUri in $defaultPolicyURIs) {
                             "AzureCloud" { $fileName = $name }
                         }
                     }
-                    $baseTemplate = @{
+                    $baseTemplate = [ordered]@{
                         schema     = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-set-definition-schema.json"
                         name       = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Name
                         properties = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Properties
