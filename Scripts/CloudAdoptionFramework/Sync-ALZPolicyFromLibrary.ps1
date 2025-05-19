@@ -68,7 +68,7 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\
     $fileContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
     $baseTemplate = [ordered]@{
         name       = $fileContent.name
-        properties = @{
+        properties = [ordered]@{
             description            = $fileContent.properties.description
             displayName            = $fileContent.properties.displayName
             metadata               = $fileContent.properties.metadata
@@ -80,7 +80,7 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\
     $policyDefinitions = @()
     # Fix the policyDefinitionIds for custom policies
     foreach ($policyDefinition in $fileContent.properties.policyDefinitions) {
-        $obj = @{
+        $obj = [ordered]@{
             parameters                  = $policyDefinition.parameters
             groupNames                  = $policyDefinition.groupNames
             policyDefinitionReferenceId = $policyDefinition.policyDefinitionReferenceId
@@ -129,15 +129,15 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\
         $baseTemplate = [ordered]@{
             "`$schema"      = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json"
             nodeName        = "$($archetypeContent.name)/$($fileContent.name)"
-            assignment      = @{
+            assignment      = [ordered]@{
                 name        = $fileContent.Name
                 displayName = $fileContent.properties.displayName
                 description = $fileContent.properties.description
             }
-            definitionEntry = @{
+            definitionEntry = [ordered]@{
                 displayName = $fileContent.properties.displayName
             }
-            parameters      = @{}
+            parameters      = [ordered]@{}
             enforcementMode = $structureFile.enforcementMode
         }
 
@@ -171,7 +171,7 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\
         if ($scopeTrim -eq "landing_zones") {
             $scopeTrim = "landingzones"
         }
-        $scope = @{
+        $scope = [ordered]@{
             $PacEnvironmentSelector = @(
                 $structureFile.managementGroupNameMappings.$scopeTrim.value
             )
