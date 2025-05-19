@@ -64,13 +64,6 @@ try {
 }
 catch {}
 
-New-Item -Path "$DefinitionsRootFolder\policyDefinitions" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$DefinitionsRootFolder\policyDefinitions\ALZ" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$DefinitionsRootFolder\policySetDefinitions" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$DefinitionsRootFolder\policySetDefinitions\ALZ" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$DefinitionsRootFolder\policyAssignments" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$DefinitionsRootFolder\policyAssignments\ALZ" -ItemType Directory -Force -ErrorAction SilentlyContinue
-
 . "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
 
 foreach ($policyUri in $defaultPolicyURIs) {
@@ -89,10 +82,7 @@ foreach ($policyUri in $defaultPolicyURIs) {
                         properties = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Properties
                     }
                     $category = $baseTemplate.properties.Metadata.category
-                    if (!(Test-Path $DefinitionsRootFolder\policyDefinitions\ALZ\$category)) {
-                        New-Item -Path $DefinitionsRootFolder\policyDefinitions\ALZ\$category -ItemType Directory -Force -ErrorAction SilentlyContinue
-                    }
-                    $baseTemplate | ConvertTo-Json -Depth 50 | Out-File -FilePath $DefinitionsRootFolder\policyDefinitions\ALZ\$category\$name.json -Force
+                    $baseTemplate | ConvertTo-Json -Depth 50 | New-Item -Path $DefinitionsRootFolder\policyDefinitions\ALZ\$category -ItemType File -Name "$name.json" -Force -ErrorAction SilentlyContinue
                     (Get-Content $DefinitionsRootFolder\policyDefinitions\ALZ\$category\$name.json) -replace "\[\[", "[" | Set-Content $DefinitionsRootFolder\policyDefinitions\ALZ\$category\$name.json
                 }
                 
@@ -117,10 +107,7 @@ foreach ($policyUri in $defaultPolicyURIs) {
                         properties = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Properties
                     }
                     $category = $baseTemplate.properties.Metadata.category
-                    if (!(Test-Path $DefinitionsRootFolder\policySetDefinitions\ALZ\$category)) {
-                        New-Item -Path $DefinitionsRootFolder\policySetDefinitions\ALZ\$category -ItemType Directory -Force -ErrorAction SilentlyContinue
-                    }
-                    $baseTemplate | ConvertTo-Json -Depth 50 | Out-File -FilePath $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json -Force
+                    $baseTemplate | ConvertTo-Json -Depth 50 | New-Item -Path $DefinitionsRootFolder\policySetDefinitions\ALZ\$category -ItemType File -Name "$fileName.json" -Force -ErrorAction SilentlyContinue
                     (Get-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json) -replace "\[\[", "[" | Set-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json
                     (Get-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json) -replace "variables\('scope'\)", "'/providers/Microsoft.Management/managementGroups/$managementGroupId'" | Set-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json
                     (Get-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json) -replace "', '", "" | Set-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json
