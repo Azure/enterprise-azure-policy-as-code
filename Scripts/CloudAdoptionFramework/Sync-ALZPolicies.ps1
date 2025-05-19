@@ -82,11 +82,10 @@ foreach ($policyUri in $defaultPolicyURIs) {
                         properties = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Properties
                     }
                     $category = $baseTemplate.properties.Metadata.category
-                    $baseTemplate | ConvertTo-Json -Depth 50 | New-Item -Path $DefinitionsRootFolder\policyDefinitions\ALZ\$category -ItemType File -Name "$name.json" -Force -ErrorAction SilentlyContinue
-                    (Get-Content $DefinitionsRootFolder\policyDefinitions\ALZ\$category\$name.json) -replace "\[\[", "[" | Set-Content $DefinitionsRootFolder\policyDefinitions\ALZ\$category\$name.json
+                    ($baseTemplate | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path $DefinitionsRootFolder\policyDefinitions\ALZ\$category -ItemType File -Name "$name.json" -Force -ErrorAction SilentlyContinue
                 }
-                
             }
+
             if ($type -match 'Microsoft.Authorization/policySetDefinitions') {
                 $name = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Name
                 $environments = ($_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Properties).metadata.alzCloudEnvironments
@@ -107,13 +106,11 @@ foreach ($policyUri in $defaultPolicyURIs) {
                         properties = $_.Value | ConvertFrom-Json | Select-Object -ExpandProperty Properties
                     }
                     $category = $baseTemplate.properties.Metadata.category
-                    $baseTemplate | ConvertTo-Json -Depth 50 | New-Item -Path $DefinitionsRootFolder\policySetDefinitions\ALZ\$category -ItemType File -Name "$fileName.json" -Force -ErrorAction SilentlyContinue
-                    (Get-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json) -replace "\[\[", "[" | Set-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json
-                    (Get-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json) -replace "variables\('scope'\)", "'/providers/Microsoft.Management/managementGroups/$managementGroupId'" | Set-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json
-                    (Get-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json) -replace "', '", "" | Set-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json
-                    (Get-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json) -replace "\[concat\(('(.+)')\)\]", "`$2" | Set-Content $DefinitionsRootFolder\policySetDefinitions\ALZ\$category\$fileName.json
+                    ($baseTemplate | ConvertTo-Json -Depth 50) -replace "\[\[", "[" `
+                        -replace "variables\('scope'\)", "'/providers/Microsoft.Management/managementGroups/$managementGroupId'" `
+                        -replace "', '", "" `
+                        -replace "\[concat\(('(.+)')\)\]", "`$2" | New-Item -Path $DefinitionsRootFolder\policySetDefinitions\ALZ\$category -ItemType File -Name "$fileName.json" -Force -ErrorAction SilentlyContinue
                 }
-                
             }
         }
     }
