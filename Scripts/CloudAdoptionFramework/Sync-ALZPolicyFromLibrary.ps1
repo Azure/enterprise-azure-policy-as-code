@@ -50,18 +50,11 @@ try {
 }
 catch {}
 
-New-Item -Path "$DefinitionsRootFolder\policyDefinitions" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$DefinitionsRootFolder\policyDefinitions\$Type" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$DefinitionsRootFolder\policySetDefinitions" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$DefinitionsRootFolder\policySetDefinitions\$Type" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$DefinitionsRootFolder\policyAssignments" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$DefinitionsRootFolder\policyAssignments\$Type" -ItemType Directory -Force -ErrorAction SilentlyContinue
-
 # Create policy definition objects
 
 foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\policy_definitions" -Recurse -File -Include *.json) {
     $fileContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
-    $baseTemplate = @{
+    $baseTemplate = [ordered]@{
         name       = $fileContent.name
         properties = $fileContent.properties
     }
@@ -77,7 +70,7 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\
 
 foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\policy_set_definitions" -Recurse -File -Include *.json) {
     $fileContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
-    $baseTemplate = @{
+    $baseTemplate = [ordered]@{
         name       = $fileContent.name
         properties = @{
             description            = $fileContent.properties.description
@@ -141,7 +134,7 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\
         }
         
 
-        $baseTemplate = @{
+        $baseTemplate = [ordered]@{
             nodeName        = "$($archetypeContent.name)/$($fileContent.name)"
             assignment      = @{
                 name        = $fileContent.Name
