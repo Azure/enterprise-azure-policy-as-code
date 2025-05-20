@@ -1,6 +1,6 @@
 Param(
    
-    [Parameter(Mandatory = $false)]
+    [Parameter(Mandatory = $true)]
     [string] $DefinitionsRootFolder,
 
     [ValidateSet("ALZ", "AMBA")]
@@ -15,11 +15,11 @@ Param(
 if ($LibraryPath -eq "") {
     if ($Tag) {
         git clone --depth 1 --branch $Tag https://github.com/anwather/Azure-Landing-Zones-Library.git .\temp
-        $LibraryPath = ".\temp"
+        $LibraryPath = "./temp"
     }
     else {
         git clone --depth 1 https://github.com/anwather/Azure-Landing-Zones-Library.git .\temp
-        $LibraryPath = ".\temp"
+        $LibraryPath = "./temp"
     }
 }
 
@@ -142,6 +142,7 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\
         
 
         $baseTemplate = @{
+            "`$schema"      = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json"
             nodeName        = "$($archetypeContent.name)/$($fileContent.name)"
             assignment      = @{
                 name        = $fileContent.Name
@@ -235,7 +236,7 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\
         if (!(Test-Path $DefinitionsRootFolder\policyAssignments\$Type\$category)) {
             New-Item -Path $DefinitionsRootFolder\policyAssignments\$Type\$category -ItemType Directory -Force -ErrorAction SilentlyContinue
         }
-        $baseTemplate | Select-Object nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50 | Out-File -FilePath $DefinitionsRootFolder\policyAssignments\$Type\$category\$($fileContent.name).json -Force
+        $baseTemplate | Select-Object "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50 | Out-File -FilePath $DefinitionsRootFolder\policyAssignments\$Type\$category\$($fileContent.name).json -Force
         (Get-Content $DefinitionsRootFolder\policyAssignments\$Type\$category\$($fileContent.name).json) -replace "\[\[", "[" | Set-Content $DefinitionsRootFolder\policyAssignments\$Type\$category\$($fileContent.name).json
         if ($fileContent.name -eq "Deploy-Private-DNS-Zones") {
             (Get-Content $DefinitionsRootFolder\policyAssignments\$Type\$category\$($fileContent.name).json) -replace "\.ne\.", ".$dnsZoneRegion." | Set-Content $DefinitionsRootFolder\policyAssignments\$Type\$category\$($fileContent.name).json
@@ -245,7 +246,7 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\
 
 }
 
-if ($LibraryPath -eq ".\temp") {
-    Remove-Item .\temp -Recurse -Force -ErrorAction SilentlyContinue
+if ($LibraryPath -eq "./temp") {
+    Remove-Item ./temp -Recurse -Force -ErrorAction SilentlyContinue
 }
 
