@@ -1,6 +1,6 @@
 Param(
    
-    [Parameter(Mandatory = $false)]
+    [Parameter(Mandatory = $true)]
     [string] $DefinitionsRootFolder,
 
     [ValidateSet('ALZ', 'FSI', 'AMBA', 'SLZ')]
@@ -28,11 +28,11 @@ if ($DefinitionsRootFolder -eq "") {
 if ($LibraryPath -eq "") {
     if ($Tag) {
         git clone --depth 1 --branch $Tag https://github.com/anwather/Azure-Landing-Zones-Library.git .\temp
-        $LibraryPath = ".\temp"
+        $LibraryPath = "./temp"
     }
     else {
         git clone --depth 1 https://github.com/anwather/Azure-Landing-Zones-Library.git .\temp
-        $LibraryPath = ".\temp"
+        $LibraryPath = "./temp"
     }
 }
 
@@ -77,8 +77,8 @@ foreach ($parameter in $policyDefaultFile.defaults) {
 Out-File "$DefinitionsRootFolder\$($Type.ToLower()).policy_default_structure.json" -InputObject ($jsonOutput | ConvertTo-Json -Depth 10) -Encoding utf8 -Force
 
 
-if ($LibraryPath -eq ".\temp") {
-    Remove-Item .\temp -Recurse -Force -ErrorAction SilentlyContinue
+if ($LibraryPath -eq "./temp") {
+    Remove-Item ./temp -Recurse -Force -ErrorAction SilentlyContinue
 }
 
 
