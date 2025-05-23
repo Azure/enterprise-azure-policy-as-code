@@ -50,36 +50,27 @@ try {
 }
 catch {}
 
-New-Item -Path "$DefinitionsRootFolder\policyDefinitions" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$DefinitionsRootFolder\policyDefinitions\$Type" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$DefinitionsRootFolder\policySetDefinitions" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$DefinitionsRootFolder\policySetDefinitions\$Type" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$DefinitionsRootFolder\policyAssignments" -ItemType Directory -Force -ErrorAction SilentlyContinue
-New-Item -Path "$DefinitionsRootFolder\policyAssignments\$Type" -ItemType Directory -Force -ErrorAction SilentlyContinue
-
 # Create policy definition objects
 
-foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\policy_definitions" -Recurse -File -Include *.json) {
+foreach ($file in Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_definitions" -Recurse -File -Include *.json) {
     $fileContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
-    $baseTemplate = @{
+    $baseTemplate = [ordered]@{
+        '$schema'  = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json"
         name       = $fileContent.name
         properties = $fileContent.properties
     }
     $category = $baseTemplate.properties.Metadata.category
-    if (!(Test-Path $DefinitionsRootFolder\policyDefinitions\$Type\$category)) {
-        New-Item -Path $DefinitionsRootFolder\policyDefinitions\$Type\$category -ItemType Directory -Force -ErrorAction SilentlyContinue
-    }
-    $baseTemplate | Select-Object name, properties | ConvertTo-Json -Depth 50 | Out-File -FilePath $DefinitionsRootFolder\policyDefinitions\$Type\$category\$($fileContent.name).json -Force
-    (Get-Content $DefinitionsRootFolder\policyDefinitions\$Type\$category\$($fileContent.name).json) -replace "\[\[", "[" | Set-Content $DefinitionsRootFolder\policyDefinitions\$Type\$category\$($fileContent.name).json
+    ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path $DefinitionsRootFolder\policyDefinitions\$Type\$category -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue
 }
 
 # Create policy set definition objects
 
 foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\policy_set_definitions" -Recurse -File -Include *.json) {
     $fileContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
-    $baseTemplate = @{
+    $baseTemplate = [ordered]@{
+        "`$schema" = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-set-definition-schema.json"
         name       = $fileContent.name
-        properties = @{
+        properties = [ordered]@{
             description            = $fileContent.properties.description
             displayName            = $fileContent.properties.displayName
             metadata               = $fileContent.properties.metadata
@@ -91,13 +82,13 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\
     $policyDefinitions = @()
     # Fix the policyDefinitionIds for custom policies
     foreach ($policyDefinition in $fileContent.properties.policyDefinitions) {
-        $obj = @{
+        $obj = [ordered]@{
             parameters                  = $policyDefinition.parameters
             groupNames                  = $policyDefinition.groupNames
             policyDefinitionReferenceId = $policyDefinition.policyDefinitionReferenceId
         }
         if ($policyDefinition.policyDefinitionId -match "managementGroups") {
-            $obj.Add("policyDefinitionName", $policyDefinition.policyDefinitionId.split("/")[-1])
+            $obj.Add("policyDefinitionName", $policyDefinition.policyDefinitionId.split("/")[ - 1])
         }
         else {
             $obj.Add("policyDefinitionId", $policyDefinition.policyDefinitionId)
@@ -107,14 +98,10 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\
     $baseTemplate.properties.policyDefinitions = $policyDefinitions
 
     $category = $baseTemplate.properties.Metadata.category
-    if (!(Test-Path $DefinitionsRootFolder\policySetDefinitions\$Type\$category)) {
-        New-Item -Path $DefinitionsRootFolder\policySetDefinitions\$Type\$category -ItemType Directory -Force -ErrorAction SilentlyContinue
-    }
-    $baseTemplate | Select-Object name, properties | ConvertTo-Json -Depth 50 | Out-File -FilePath $DefinitionsRootFolder\policySetDefinitions\$Type\$category\$($fileContent.name).json -Force
-    (Get-Content $DefinitionsRootFolder\policySetDefinitions\$Type\$category\$($fileContent.name).json) -replace "\[\[", "[" | Set-Content $DefinitionsRootFolder\policySetDefinitions\$Type\$category\$($fileContent.name).json
-    (Get-Content $DefinitionsRootFolder\policySetDefinitions\$Type\$category\$($fileContent.name).json) -replace "variables\('scope'\)", "'/providers/Microsoft.Management/managementGroups/$managementGroupId'" | Set-Content $DefinitionsRootFolder\policySetDefinitions\$Type\$category\$($fileContent.name).json
-    (Get-Content $DefinitionsRootFolder\policySetDefinitions\$Type\$category\$($fileContent.name).json) -replace "', '", "" | Set-Content $DefinitionsRootFolder\policySetDefinitions\$Type\$category\$($fileContent.name).json
-    (Get-Content $DefinitionsRootFolder\policySetDefinitions\$Type\$category\$($fileContent.name).json) -replace "\[concat\(('(.+)')\)\]", "`$2" | Set-Content $DefinitionsRootFolder\policySetDefinitions\$Type\$category\$($fileContent.name).json
+    ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace "\[\[", "[" `
+        -replace "variables\('scope'\)", "'/providers/Microsoft.Management/managementGroups/$managementGroupId'" `
+        -replace "', '", "" `
+        -replace "\[concat\(('(.+)')\)\]", "`$2" | New-Item -Path $DefinitionsRootFolder\policySetDefinitions\$Type\$category -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue
 }
 
 # Create assignment objects
@@ -141,18 +128,18 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\
         }
         
 
-        $baseTemplate = @{
+        $baseTemplate = [ordered]@{
             "`$schema"      = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json"
             nodeName        = "$($archetypeContent.name)/$($fileContent.name)"
-            assignment      = @{
+            assignment      = [ordered]@{
                 name        = $fileContent.Name
                 displayName = $fileContent.properties.displayName
                 description = $fileContent.properties.description
             }
-            definitionEntry = @{
+            definitionEntry = [ordered]@{
                 displayName = $fileContent.properties.displayName
             }
-            parameters      = @{}
+            parameters      = [ordered]@{}
             enforcementMode = $structureFile.enforcementMode
         }
 
@@ -163,10 +150,10 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\
     
         # Definition Entry
         if ($fileContent.properties.policyDefinitionId -match "placeholder.+policySetDefinition") {
-            $baseTemplate.definitionEntry.Add("policySetName", ($fileContent.properties.policyDefinitionId).Split("/")[-1])
+            $baseTemplate.definitionEntry.Add("policySetName", ($fileContent.properties.policyDefinitionId).Split("/")[ - 1])
         }
         elseif ($fileContent.properties.policyDefinitionId -match "placeholder.+policyDefinition") {
-            $baseTemplate.definitionEntry.Add("policyName", ($fileContent.properties.policyDefinitionId).Split("/")[-1])
+            $baseTemplate.definitionEntry.Add("policyName", ($fileContent.properties.policyDefinitionId).Split("/")[ - 1])
         }
         else {
             if ($fileContent.properties.policyDefinitionId -match "policySetDefinitions") {
@@ -186,7 +173,7 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\
         if ($scopeTrim -eq "landing_zones") {
             $scopeTrim = "landingzones"
         }
-        $scope = @{
+        $scope = [ordered]@{
             $PacEnvironmentSelector = @(
                 $structureFile.managementGroupNameMappings.$scopeTrim.value
             )
@@ -233,11 +220,7 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\
         
 
         $category = $structureFile.managementGroupNameMappings.$scopeTrim.management_group_function
-        if (!(Test-Path $DefinitionsRootFolder\policyAssignments\$Type\$category)) {
-            New-Item -Path $DefinitionsRootFolder\policyAssignments\$Type\$category -ItemType Directory -Force -ErrorAction SilentlyContinue
-        }
-        $baseTemplate | Select-Object "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50 | Out-File -FilePath $DefinitionsRootFolder\policyAssignments\$Type\$category\$($fileContent.name).json -Force
-        (Get-Content $DefinitionsRootFolder\policyAssignments\$Type\$category\$($fileContent.name).json) -replace "\[\[", "[" | Set-Content $DefinitionsRootFolder\policyAssignments\$Type\$category\$($fileContent.name).json
+        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path $DefinitionsRootFolder\policyAssignments\$Type\$category -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue
         if ($fileContent.name -eq "Deploy-Private-DNS-Zones") {
             (Get-Content $DefinitionsRootFolder\policyAssignments\$Type\$category\$($fileContent.name).json) -replace "\.ne\.", ".$dnsZoneRegion." | Set-Content $DefinitionsRootFolder\policyAssignments\$Type\$category\$($fileContent.name).json
         }
