@@ -128,6 +128,7 @@ foreach ($policySetFile in Get-ChildItem "$DefinitionsRootFolder\policySetDefini
     $jsonContent | ConvertTo-Json -Depth 20 | Set-Content $policySetFile
 }
 
+New-Item -Path "$DefinitionsRootFolder\policyAssignments\ALZ" -ItemType Directory -Force -ErrorAction SilentlyContinue
 if ($ModuleRoot) {
     Copy-Item -Path "$ModuleRoot/policyAssignments/*.*" -Destination "$DefinitionsRootFolder\policyAssignments\ALZ\" -Force
 }
