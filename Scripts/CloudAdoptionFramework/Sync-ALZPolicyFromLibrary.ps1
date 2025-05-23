@@ -86,7 +86,7 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\
             policyDefinitionReferenceId = $policyDefinition.policyDefinitionReferenceId
         }
         if ($policyDefinition.policyDefinitionId -match "managementGroups") {
-            $obj.Add("policyDefinitionName", $policyDefinition.policyDefinitionId.split("/")[-1])
+            $obj.Add("policyDefinitionName", $policyDefinition.policyDefinitionId.split("/")[ - 1])
         }
         else {
             $obj.Add("policyDefinitionId", $policyDefinition.policyDefinitionId)
@@ -148,10 +148,10 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\
     
         # Definition Entry
         if ($fileContent.properties.policyDefinitionId -match "placeholder.+policySetDefinition") {
-            $baseTemplate.definitionEntry.Add("policySetName", ($fileContent.properties.policyDefinitionId).Split("/")[-1])
+            $baseTemplate.definitionEntry.Add("policySetName", ($fileContent.properties.policyDefinitionId).Split("/")[ - 1])
         }
         elseif ($fileContent.properties.policyDefinitionId -match "placeholder.+policyDefinition") {
-            $baseTemplate.definitionEntry.Add("policyName", ($fileContent.properties.policyDefinitionId).Split("/")[-1])
+            $baseTemplate.definitionEntry.Add("policyName", ($fileContent.properties.policyDefinitionId).Split("/")[ - 1])
         }
         else {
             if ($fileContent.properties.policyDefinitionId -match "policySetDefinitions") {
@@ -218,9 +218,9 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\
         
 
         $category = $structureFile.managementGroupNameMappings.$scopeTrim.management_group_function
-        ($baseTemplate | Select-Object "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path $DefinitionsRootFolder\policyAssignments\$Type\$category -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue
+                    ($baseTemplate | Select-Object "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path $DefinitionsRootFolder\policyAssignments\$Type\$category -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue
         if ($fileContent.name -eq "Deploy-Private-DNS-Zones") {
-            (Get-Content $DefinitionsRootFolder\policyAssignments\$Type\$category\$($fileContent.name).json) -replace "\.ne\.", ".$dnsZoneRegion." | Set-Content $DefinitionsRootFolder\policyAssignments\$Type\$category\$($fileContent.name).json
+                        (Get-Content $DefinitionsRootFolder\policyAssignments\$Type\$category\$($fileContent.name).json) -replace "\.ne\.", ".$dnsZoneRegion." | Set-Content $DefinitionsRootFolder\policyAssignments\$Type\$category\$($fileContent.name).json
         }
     }
     
