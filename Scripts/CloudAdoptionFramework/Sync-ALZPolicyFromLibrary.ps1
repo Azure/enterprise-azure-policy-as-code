@@ -88,7 +88,7 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\
             policyDefinitionReferenceId = $policyDefinition.policyDefinitionReferenceId
         }
         if ($policyDefinition.policyDefinitionId -match "managementGroups") {
-            $obj.Add("policyDefinitionName", $policyDefinition.policyDefinitionId.split("/")[-1])
+            $obj.Add("policyDefinitionName", $policyDefinition.policyDefinitionId.split("/")[ - 1])
         }
         else {
             $obj.Add("policyDefinitionId", $policyDefinition.policyDefinitionId)
@@ -150,10 +150,10 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\
     
         # Definition Entry
         if ($fileContent.properties.policyDefinitionId -match "placeholder.+policySetDefinition") {
-            $baseTemplate.definitionEntry.Add("policySetName", ($fileContent.properties.policyDefinitionId).Split("/")[-1])
+            $baseTemplate.definitionEntry.Add("policySetName", ($fileContent.properties.policyDefinitionId).Split("/")[ - 1])
         }
         elseif ($fileContent.properties.policyDefinitionId -match "placeholder.+policyDefinition") {
-            $baseTemplate.definitionEntry.Add("policyName", ($fileContent.properties.policyDefinitionId).Split("/")[-1])
+            $baseTemplate.definitionEntry.Add("policyName", ($fileContent.properties.policyDefinitionId).Split("/")[ - 1])
         }
         else {
             if ($fileContent.properties.policyDefinitionId -match "policySetDefinitions") {
