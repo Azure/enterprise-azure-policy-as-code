@@ -101,16 +101,16 @@ The next command will generate policy assignments based on the values in this fi
 
 ```ps1
 # Sync the ALZ policies and assign to the "epac-dev" PAC environment.
-Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type ALZ -DefinitionsRootFolder .\Definitions -PacEnvironmentSelector "epac-dev"
+Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type ALZ -PacEnvironmentSelector "epac-dev"
 
 # Sync the ALZ policies and assign to the "epac-dev" PAC environment. Specify a tagged version of the ALZ library
-Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type ALZ -DefinitionsRootFolder .\Definitions -PacEnvironmentSelector "epac-dev" -Tag "platform/alz/2025.02.0"
+Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type ALZ -PacEnvironmentSelector "epac-dev" -Tag "platform/alz/2025.02.0"
 
 # Sync the ALZ policies from a cloned/modified library
-Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type ALZ -DefinitionsRootFolder .\Definitions -PacEnvironmentSelector "epac-dev" -LibraryPath <<path to library>>
+Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type ALZ -PacEnvironmentSelector "epac-dev" -LibraryPath <<path to library>>
 
 # Sync the AMBA policies and assign to the "epac-dev" PAC environment.
-Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type AMBA -DefinitionsRootFolder .\Definitions -PacEnvironmentSelector "epac-dev"
+Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type AMBA -PacEnvironmentSelector "epac-dev"
 ```
 
 Carefully review the generated policy assigments and ensure all parameter and scope information is correct.

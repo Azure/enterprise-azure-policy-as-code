@@ -62,12 +62,24 @@ foreach ($mg in $archetypeDefinitionFile.management_groups) {
 $policyDefaultFile = Get-Content -Path "$LibraryPath\platform\$($Type.ToLower())\alz_policy_default_values.json" | ConvertFrom-Json
 
 foreach ($parameter in $policyDefaultFile.defaults) {
+    # Grab the first policy assignment to grab default value of the parameter
+    $parameterAssignmentName = $parameter.policy_assignments[0].parameter_names[0]
+    $assignment = $parameter.policy_assignments[0]
+
+    $assingmentFileName = ("$($assignment.policy_assignment_name).alz_policy_assignment.json")
+    if ($type -eq "AMBA") {
+        $assingmentFileName = $assingmentFileName -replace ("-", "_")
+    }
+    $file = Get-ChildItem -Recurse -Path ".\temp" -Filter "$assingmentFileName" -File | Select-Object -First 1
+    $jsonContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
+    $tempDefaultParamValue = $jsonContent.properties.parameters.$parameterAssignmentName.value
+    
     $obj = @{
         description            = $parameter.description
         policy_assignment_name = $parameter.policy_assignments.policy_assignment_name
         parameters             = @{
             parameter_name = $parameter.policy_assignments[0].parameter_names[0]
-            value          = ""
+            value          = $tempDefaultParamValue
         }
     }
 

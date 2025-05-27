@@ -326,6 +326,9 @@ function Build-HydrationAssignmentPlan {
                             $assignmentRecord.Set_Item('metadataChanged', !($metadataMatches))
                             $assignmentRecord.Set_Item('oldMetadata', $deployedPolicyAssignmentProperties.metadata)
                             $assignmentRecord.Set_Item('newMetadata', $metadata)
+                            $metadataComparison = Compare-HydrationMetadata -oldKeys $deployedPolicyAssignmentProperties.metadata -newKeys $metadata
+                            $assignmentRecord.Set_Item('metadataComparison', $metadataComparison)
+
                         }          
                         if (!$definitionVersionMatches) {
                             $assignmentRecord.Set_Item('definitionVersionChanged', !($definitionVersionMatches))
