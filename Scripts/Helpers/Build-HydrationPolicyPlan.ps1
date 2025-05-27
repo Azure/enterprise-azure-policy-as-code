@@ -245,6 +245,8 @@ function Build-HydrationPolicyPlan {
                         $fileRecord.Set_Item('metadataChanged', !($metadataMatches))
                         $fileRecord.Set_Item('oldMetadata', $deployedDefinitionProperties.metadata)
                         $fileRecord.Set_Item('newMetadata', $metadata)
+                        $metadataComparison = Compare-HydrationMetadata -oldKeys $deployedDefinitionProperties.metadata -newKeys $metadata
+                        $fileRecord.Set_Item('metadataComparison', $metadataComparison)
                     }
                     if (!$parametersMatch -and !$incompatible) {
                         $fileRecord.Set_Item('parametersChanged', !($parametersMatch))
