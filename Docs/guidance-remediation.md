@@ -60,7 +60,7 @@ The objective at this point is to reduce the administration teams' effort to cor
 
 While Infrastructure as Code is an excellent first layer, the second layer in a Defense In Depth model is to enforce this. In Azure Resource Manager, we use Azure Policy Remediation Tasks to accomplish this. Whereas Start-AzPolicyRemediation does allow very targetted deployments, EPAC seeks to take corrective action in broad swaths using the security structure that has been implemented. To this end, the cmdlet New-AzRemediationTasks was created, and can be used in a pipeline to remediate all policyAssignments (that have that capability) in a single pipeline action that should be scheduled with a cron trigger.
 
-Once the *Updating Security Posture* Workstreams above are complete, it is time to move on into the upper tiers of CMM for ARM Governance, congratulations! The environment will be largely self-correcting after this is compelte.
+Once the *Updating Security Posture* Workstreams above are complete, it is time to move on into the upper tiers of CMM for ARM Governance, congratulations! The environment will be largely self-correcting after this is complete.
 
 1. Change `enforcementMode: 'DoNotEnforce'` to `enforcementMode: 'Default'` where applicable
 1. Ensure `DesireStateConfiguration: 'full'` is configured
