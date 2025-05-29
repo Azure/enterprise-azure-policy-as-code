@@ -107,7 +107,7 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\
 # Create assignment objects
 
 try {
-    $structureFile = Get-Content $DefinitionsRootFolder\$Type.policy_default_structure.json -ErrorAction Stop | ConvertFrom-Json
+    $structureFile = Get-Content $DefinitionsRootFolder\$Type.policy_default_structure.jsonc -ErrorAction Stop | ConvertFrom-Json
     switch ($structureFile.enforcementMode) {
         "Default" { $enforcementModeText = "must" }
         "DoNotEnforce" { $enforcementModeText = "should" }
@@ -220,9 +220,9 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\
         
 
         $category = $structureFile.managementGroupNameMappings.$scopeTrim.management_group_function
-        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path $DefinitionsRootFolder\policyAssignments\$Type\$category -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue
+        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path $DefinitionsRootFolder\policyAssignments\$Type\$category -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
         if ($fileContent.name -eq "Deploy-Private-DNS-Zones") {
-            (Get-Content $DefinitionsRootFolder\policyAssignments\$Type\$category\$($fileContent.name).json) -replace "\.ne\.", ".$dnsZoneRegion." | Set-Content $DefinitionsRootFolder\policyAssignments\$Type\$category\$($fileContent.name).json
+            (Get-Content $DefinitionsRootFolder\policyAssignments\$Type\$category\$($fileContent.name).jsonc) -replace "\.ne\.", ".$dnsZoneRegion." | Set-Content $DefinitionsRootFolder\policyAssignments\$Type\$category\$($fileContent.name).jsonc
         }
     }
     

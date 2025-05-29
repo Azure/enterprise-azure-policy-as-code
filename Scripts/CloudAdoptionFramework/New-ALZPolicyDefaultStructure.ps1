@@ -86,7 +86,7 @@ foreach ($parameter in $policyDefaultFile.defaults) {
     $jsonOutput.defaultParameterValues.Add($parameter.default_name, $obj)
 }
 
-Out-File "$DefinitionsRootFolder\$($Type.ToLower()).policy_default_structure.json" -InputObject ($jsonOutput | ConvertTo-Json -Depth 10) -Encoding utf8 -Force
+Out-File "$DefinitionsRootFolder\$($Type.ToLower()).policy_default_structure.jsonc" -InputObject ($jsonOutput | ConvertTo-Json -Depth 10) -Encoding utf8 -Force
 
 
 if ($LibraryPath -eq "./temp") {
