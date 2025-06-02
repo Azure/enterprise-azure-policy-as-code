@@ -13,13 +13,12 @@ Param(
 )
 
 if ($LibraryPath -eq "") {
+    $LibraryPath = Join-Path -Path (Get-Location) -ChildPath "temp"
     if ($Tag) {
-        git clone --depth 1 --branch $Tag https://github.com/anwather/Azure-Landing-Zones-Library.git .\temp
-        $LibraryPath = "./temp"
+        git clone --depth 1 --branch $Tag https://github.com/anwather/Azure-Landing-Zones-Library.git $LibraryPath
     }
     else {
-        git clone --depth 1 https://github.com/anwather/Azure-Landing-Zones-Library.git .\temp
-        $LibraryPath = "./temp"
+        git clone --depth 1 https://github.com/anwather/Azure-Landing-Zones-Library.git $LibraryPath
     }
 }
 
@@ -229,7 +228,8 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath\platform\$($Type.ToLower())\
 
 }
 
-if ($LibraryPath -eq "./temp") {
-    Remove-Item ./temp -Recurse -Force -ErrorAction SilentlyContinue
+$tempPath = Join-Path -Path (Get-Location) -ChildPath "temp"
+if ($LibraryPath -eq $tempPath) {
+    Remove-Item $LibraryPath -Recurse -Force -ErrorAction SilentlyContinue
 }
 

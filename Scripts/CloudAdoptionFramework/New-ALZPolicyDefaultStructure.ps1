@@ -26,13 +26,12 @@ if ($DefinitionsRootFolder -eq "") {
 }
 
 if ($LibraryPath -eq "") {
+    $LibraryPath = Join-Path -Path (Get-Location) -ChildPath "temp"
     if ($Tag) {
-        git clone --depth 1 --branch $Tag https://github.com/anwather/Azure-Landing-Zones-Library.git .\temp
-        $LibraryPath = "./temp"
+        git clone --depth 1 --branch $Tag https://github.com/anwather/Azure-Landing-Zones-Library.git $LibraryPath
     }
     else {
-        git clone --depth 1 https://github.com/anwather/Azure-Landing-Zones-Library.git .\temp
-        $LibraryPath = "./temp"
+        git clone --depth 1 https://github.com/anwather/Azure-Landing-Zones-Library.git $LibraryPath
     }
 }
 
@@ -89,8 +88,9 @@ foreach ($parameter in $policyDefaultFile.defaults) {
 Out-File "$DefinitionsRootFolder\$($Type.ToLower()).policy_default_structure.jsonc" -InputObject ($jsonOutput | ConvertTo-Json -Depth 10) -Encoding utf8 -Force
 
 
-if ($LibraryPath -eq "./temp") {
-    Remove-Item ./temp -Recurse -Force -ErrorAction SilentlyContinue
+$tempPath = Join-Path -Path (Get-Location) -ChildPath "temp"
+if ($LibraryPath -eq $tempPath) {
+    Remove-Item $LibraryPath -Recurse -Force -ErrorAction SilentlyContinue
 }
 
 
