@@ -33,7 +33,7 @@ function Confirm-PacOwner {
                         return "managedByDfcSecurityPolicies"
                     }
                     elseif ($description.StartsWith("This policy assignment was automatically created by ") -or 
-                        $description -eq "This initiative enables Defender for SQL on SQL VMs and Arc-enabled SQL Servers."
+                        $description.StartsWith("This initiative enables Defender ")
                     ) {
                         $ManagedByCounters.dfcDefenderPlans += 1
                         return "managedByDfcDefenderPlans"
