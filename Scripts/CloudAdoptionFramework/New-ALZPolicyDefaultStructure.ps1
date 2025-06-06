@@ -1,5 +1,5 @@
+
 Param(
-   
     [Parameter(Mandatory = $true)]
     [string] $DefinitionsRootFolder,
 
@@ -8,7 +8,9 @@ Param(
 
     [string]$LibraryPath,
 
-    [string]$Tag
+    [string]$Tag,
+
+    [string] $PacEnvironmentSelector
 )
 
 if ($DefinitionsRootFolder -eq "") {
@@ -35,7 +37,6 @@ if ($LibraryPath -eq "") {
     }
 }
 
-
 $jsonOutput = @{
     managementGroupNameMappings = @{}
     defaultParameterValues      = @{}
@@ -44,8 +45,7 @@ $jsonOutput = @{
 
 # Get Management Group Names
 
-$archetypeDefinitionFile = Get-Content -Path "$LibraryPath\platform\$($Type.ToLower())\architecture_definitions\$($Type.ToLower()).alz_architecture_definition.json" | `
-    ConvertFrom-Json
+$archetypeDefinitionFile = Get-Content -Path "$LibraryPath\platform\$($Type.ToLower())\architecture_definitions\$($Type.ToLower()).alz_architecture_definition.json" | ConvertFrom-Json
 
 foreach ($mg in $archetypeDefinitionFile.management_groups) {
     $obj = @{
@@ -66,7 +66,7 @@ foreach ($parameter in $policyDefaultFile.defaults) {
     $assignment = $parameter.policy_assignments[0]
 
     $assingmentFileName = ("$($assignment.policy_assignment_name).alz_policy_assignment.json")
-    if ($type -eq "AMBA") {
+    if ($Type -eq "AMBA") {
         $assingmentFileName = $assingmentFileName -replace ("-", "_")
     }
     $file = Get-ChildItem -Recurse -Path ".\temp" -Filter "$assingmentFileName" -File | Select-Object -First 1
@@ -85,12 +85,20 @@ foreach ($parameter in $policyDefaultFile.defaults) {
     $jsonOutput.defaultParameterValues.Add($parameter.default_name, $obj)
 }
 
-Out-File "$DefinitionsRootFolder\$($Type.ToLower()).policy_default_structure.jsonc" -InputObject ($jsonOutput | ConvertTo-Json -Depth 10) -Encoding utf8 -Force
+# Ensure the output directory exists
+$outputDirectory = "$DefinitionsRootFolder\policyStructures"
+if (-not (Test-Path -Path $outputDirectory)) {
+    New-Item -ItemType Directory -Path $outputDirectory
+}
 
+if ($PacEnvironmentSelector) {
+    Out-File "$outputDirectory\$($Type.ToLower()).policy_default_structure.$PacEnvironmentSelector.jsonc" -InputObject ($jsonOutput | ConvertTo-Json -Depth 10) -Encoding utf8 -Force
+}
+else {
+    Out-File "$outputDirectory\$($Type.ToLower()).policy_default_structure.jsonc" -InputObject ($jsonOutput | ConvertTo-Json -Depth 10) -Encoding utf8 -Force
+}
 
 $tempPath = Join-Path -Path (Get-Location) -ChildPath "temp"
 if ($LibraryPath -eq $tempPath) {
     Remove-Item $LibraryPath -Recurse -Force -ErrorAction SilentlyContinue
 }
-
-
