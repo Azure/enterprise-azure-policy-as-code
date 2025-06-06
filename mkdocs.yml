@@ -35,10 +35,9 @@ nav:
       - Desired State: settings-desired-state.md
       - DfC Assignments: settings-dfc-assignments.md
   - Azure Landing Zones:
+      - ALZ Overview: integrating-with-alz-overview.md
       - ALZ Policy Integration (New): integrating-with-alz-library.md
       - ALZ Policy Integration (Legacy): integrating-with-alz.md
-      - Azure Monitor Baseline Alerts: integrating-with-alz-monitor.md
-      - Sovereign Landing Zones: integrating-with-slz.md
   - Define Policy Resources:
       - Policy Definitions: policy-definitions.md
       - Policy Set Definitions: policy-set-definitions.md

@@ -36,6 +36,12 @@ if ($DefinitionsRootFolder -eq "") {
     }
 }
 
+# Ensure the output directory exists
+$structureDirectory = "$DefinitionsRootFolder\policyStructures"
+if (-not (Test-Path -Path $structureDirectory)) {
+    New-Item -ItemType Directory -Path $structureDirectory
+}
+
 try {
     $telemetryEnabled = (Get-Content $DefinitionsRootFolder/global-settings.jsonc | ConvertFrom-Json).telemetryOptOut
     $deploymentRootScope = (Get-Content $DefinitionsRootFolder/global-settings.jsonc | ConvertFrom-Json).pacEnvironments[0]
@@ -107,11 +113,13 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/
 
 #region Create assignment objects
 try {
-    If (Test-Path -Path "$DefinitionsRootFolder/$($Type.ToLower()).policy_default_structure.$PacEnvironmentSelector.jsonc") {
-        $structureFilePath = "$DefinitionsRootFolder/$($Type.ToLower()).policy_default_structure.$PacEnvironmentSelector.jsonc"
+    If (Test-Path -Path "$structureDirectory/$($Type.ToLower()).policy_default_structure.$PacEnvironmentSelector.jsonc") {
+        $structureFilePath = "$structureDirectory/$($Type.ToLower()).policy_default_structure.$PacEnvironmentSelector.jsonc"
+        $defaultStructurePAC = $PacEnvironmentSelector
     }
     else {
-        $structureFilePath = "$DefinitionsRootFolder/$($Type.ToLower()).policy_default_structure.jsonc"
+        $structureFilePath = "$structureDirectory/$($Type.ToLower()).policy_default_structure.jsonc"
+        $defaultStructurePAC = $PacEnvironmentSelector
     }
     $structureFile = Get-Content $structureFilePath -Raw -ErrorAction Stop | ConvertFrom-Json
     Write-Host "Policy default structure file used: `"$structureFilePath`""
@@ -229,9 +237,9 @@ try {
         
 
             $category = $structureFile.managementGroupNameMappings.$scopeTrim.management_group_function
-        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
+        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$defaultStructurePAC/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
             if ($fileContent.name -eq "Deploy-Private-DNS-Zones") {
-            (Get-Content "$DefinitionsRootFolder/policyAssignments/$Type/$category/$($fileContent.name).jsonc") -replace "\.ne\.", ".$dnsZoneRegion." | Set-Content "$DefinitionsRootFolder/policyAssignments/$Type/$category/$($fileContent.name).jsonc"
+            (Get-Content "$DefinitionsRootFolder/policyAssignments/$Type/$defaultStructurePAC/$category/$($fileContent.name).jsonc") -replace "\.ne\.", ".$dnsZoneRegion." | Set-Content "$DefinitionsRootFolder/policyAssignments/$Type/$defaultStructurePAC/$category/$($fileContent.name).jsonc"
             }
         }
     
