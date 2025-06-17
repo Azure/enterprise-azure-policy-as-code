@@ -208,7 +208,7 @@ try {
             if ($null -ne $fileContent.properties.nonComplianceMessages) {
                 $obj = @(
                     @{
-                        message = $fileContent.properties.nonComplianceMessages.message -replace "{ enforcementMode }", $enforcementModeText
+                        message = $fileContent.properties.nonComplianceMessages.message -replace "{enforcementMode}", $enforcementModeText
                     }
                 )
                 $baseTemplate.Add("nonComplianceMessages", $obj)
