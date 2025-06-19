@@ -89,7 +89,7 @@ Carefully review the generated policy assigments and ensure all parameter and sc
 
 2. When complete run `Build-DeploymentPlans` to ensure the correct changes are made. During the first sync for either a new or existing environment there will be many changes due to updating of the existing policies.
 
-## Example
+## Examples
 
 ### ALZ
 
@@ -105,11 +105,14 @@ Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type ALZ -PacEnv
 
 For users interested in deploying the [Azure Monitor Baseline Alerts](https://azure.github.io/azure-monitor-baseline-alerts/welcome/) project with EPAC - these policies have been extracted and converted to the EPAC format and are available at the [amba-export](https://github.com/anwather/amba-export) repository.
 
+> [!Note]
+> Review breaking changes on the [AMBA Releases](https://azure.github.io/azure-monitor-baseline-alerts/patterns/alz/HowTo/UpdateToNewReleases/) page to ensure policy deployments. In most cases, it's an update of a parameter type (i.e. String -> Array).
+
 ```ps1
-# Create a Pac Environment default file for ALZ policies using the latest version of the ALZ Library 
+# Create a Pac Environment default file for AMBA policies using the latest version of the ALZ Library 
 New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type AMBA -PacEnvironmentSelector "epac-dev"
 
-# Sync the ALZ policies and assign to the "epac-dev" PAC environment.
+# Sync the AMBA policies and assign to the "epac-dev" PAC environment.
 Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type AMBA -PacEnvironmentSelector "epac-dev"
 ```
 
@@ -118,11 +121,11 @@ Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type AMBA -PacEn
 For users interested in deploying the [Sovereignty Policy Baseline](https://github.com/Azure/sovereign-landing-zone/blob/main/docs/scenarios/Sovereignty-Baseline-Policy-Initiatives.md) project with EPAC - these policies have been extracted and converted to the EPAC format and are available at the [spb-export](https://github.com/anwather/spb-export) repository.
 
 ```ps1
-# Create a Pac Environment default file for ALZ policies using the latest version of the ALZ Library 
-New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type AMBA -PacEnvironmentSelector "epac-dev"
+# Create a Pac Environment default file for SLZ policies using the latest version of the ALZ Library 
+New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type SLZ -PacEnvironmentSelector "epac-dev"
 
-# Sync the ALZ policies and assign to the "epac-dev" PAC environment.
-Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type AMBA -PacEnvironmentSelector "epac-dev"
+# Sync the SLZ policies and assign to the "epac-dev" PAC environment.
+Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type SLZ -PacEnvironmentSelector "epac-dev"
 ```
 
 ## Advanced Scenarios
@@ -132,7 +135,7 @@ Using the format of the Azure Landing Zones repository it is possible to extend 
 - Modifying the management group structure (add new groups and archetypes)
 - Add/Remove policies from an archetype
 
-### Maintaining multiple ALZ/AMBA environment with different parameter / management group values
+### Maintaining multiple ALZ/AMBA environments
 
 If you need to have separate parameter values or different management group names for different PAC environments you can follow steps below.
 
@@ -148,3 +151,21 @@ alz.policy_default_structure.<PAC SELECTOR>.jsonc
 
 2. When syncing policies run the `Sync-ALZPolicyFromLibrary` once for each PAC Environment. A folder specific for that Pac Selector will now be placed within the ALZ Type.
 
+### Disabling / Changes specific parameters
+
+If you need to disable a single policy parameter, such as the 'effect' for a specific Defender for Cloud, add that specific parameter to your default file structure to ensure it does not get overwritten when running the **Sync-ALZPolicyFromLibrary** command.
+
+An example of disabling the **"Configure Microsoft Defender for Key Vault plan"** in the **"Deploy-MDFC-Config-H224"** Policy Assignment.
+
+```json
+"enableAscForKeyVault_effect": {
+      "policy_assignment_name": [
+        "Deploy-MDFC-Config-H224"
+      ],
+      "description": "Enable or disable the execution of the Key Vault DFC policy.",
+      "parameters": {
+        "parameter_name": "enableAscForKeyVault",
+        "value": "Disabled" // Update the value here as required by the description
+      }
+    }
+```

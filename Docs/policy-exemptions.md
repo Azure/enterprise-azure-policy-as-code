@@ -3,6 +3,35 @@
 > [!TIP]
 > The changes implementing [Option **A** below](#option-a-policy-definition-ids-or-names) makes JSON files easier to read than CSV files. We recommend using **Policy definition Ids or Names** for new exemptions and **JSON** files  instead of CSV files. Of course, CSV files are still supported. You may even mix and match the two formats in the same folder.
 
+## Templates
+
+### JSON
+
+```json
+{
+      "exemptions": [
+          {
+              "name": "short-name",
+              "displayName": "Descriptive name displayed on portal",
+              "description": "More details",
+              "exemptionCategory": "Waiver",
+              "expiresOn": "",
+              "scopes": [
+                  "/subscriptions/11111111-2222-3333-4444-555555555555",
+              ],
+              "policyAssignmentId": "",
+          }
+      ]
+  }
+```
+
+### CSV
+
+```json
+name,displayName,description,exemptionCategory,expiresOn,scope,policyAssignmentId,policyDefinitionReferenceIds,metadata,assignmentScopeValidation
+Exemption_00000000000001,My display Name,Mitigated,,,,,,
+```
+
 ## Exemption Folder Structure
 
 Exemptions can be defined as JSON or CSV files (we recommend that you use JSON files). The names of the definition files don't matter. If multiple files exists in a folder, the lists from all the files are added together.
