@@ -25,7 +25,7 @@ In the example header below the infrastructure environments prod, test, dev, and
 The CSV file generated contains the following headers/columns:
 
 * `name` is the name of the policyDefinition referenced by the Policy Sets being assigned.
-* `referencePath` is only used if the Policy is used more than once in at least one of the Policy Sets to disambiguate them. The format is `<policySetName>\\<policyDefinitionReferenceId>`.
+* `referencePath` is only used if the Policy is used more than once in at least one of the Policy Sets to disambiguate them. The format is `<policySetName>//<policyDefinitionReferenceId>`.
 * `policyType`,`category`,`displayName`,`description`,`groupNames`,`policySets`,`allowedEffects` are optional and not used for deployment planning. They assist you in filling out the `<env>Effect` columns. The CSV file is sorted alphabetically by `category` and `displayName`.
 * `<env>Effect` columns must contain one of the allowedValues or allowedOverrides values. You define which scopes define each type of environment and what short name you give the environment type to use as a column prefix.
 * `<env>Parameters` can contain additional parameters. You can also specify such parameters in JSON. EPAC will use the union of all parameters.

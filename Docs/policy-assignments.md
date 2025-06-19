@@ -3,6 +3,70 @@
 
 This chapter describes how **Policy Assignments** are handled by EPAC. Policy Assignments are the actual assignments of Policies and Policy Sets to scopes in Azure.
 
+## Templates
+
+### Single Scope
+
+Recommended for simple deployments to a single scope.
+
+```json
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
+    "nodeName": "/Security/",
+    "definitionEntry": {
+        "displayName": "",
+        "policySetName": ""
+    },
+    "assignment": {
+        "name": "", //24 Character limit
+        "displayName": "",
+        "description": ""
+    },
+    "metadata": {},
+    "enforcementMode": "Default",
+    "parameters": {
+        "effect": "Audit"
+    },
+    "scope": {
+        "epac-dev": [
+            "/providers/Microsoft.Management/managementGroups/epac-dev"
+        ]
+    }
+}
+```
+### Multiple Scopes
+
+Recommended for deployments to a multiple scope. Typically used for setting unique parameters per scope.
+
+```json
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
+    "nodeName": "/Security/",
+    "definitionEntry": {
+        "policySetName": ""
+    },
+    "children": [
+        {
+            "nodeName": "epac-dev/",
+            "assignment": {
+                "name": "", //24 Character limit
+                "displayName": "",
+                "description": ""
+            },
+            "enforcementMode": "Default",
+            "parameters": {
+                "effect": "Audit"
+            },
+            "scope": {
+                "epac-dev": [
+                    "/providers/Microsoft.Management/managementGroups/epac-dev"
+                ]
+            }
+        }
+    ]
+}
+```
+
 ## Assignment JSON structure
 
 Assignment JSON is hierarchical for efficient definitions, avoiding duplication (copy/paste) of JSON. Each branch of the tree is cumulative. Each tree node must include a `nodeName` - an arbitrary string exclusively used by EPAC to display an error location. EPAC concatenates a leading `/` and the nodeName entries encountered in the tree to create a "breadcrumbs" trail; therefore, we recommend that you use `/` to help separate the concatenated `nodeName`. The following partial and invalid assignment tree would create this error message.

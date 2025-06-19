@@ -6,6 +6,53 @@ Policy Set definition files are managed within the folder `policySetDefinitions`
 
 The names of the definition JSON files don't matter, the Policy Sets are registered based on the `name` attribute. The solution also allows the use of JSON with comments by using `.jsonc` instead of `.json` for the file extension.
 
+## Template
+
+```json
+{
+  "name": "Newly created GUID",
+  "properties": {
+    "displayName": "Your Initiative Display Name",
+    "description": "Initiative Description",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Category Name"
+    },
+    "parameters": {
+      "Parameter for policy one": {
+        "type": "String",
+        "defaultValue": ""
+      },
+      
+      "Parameter for policy two": {
+        "type": "Array",
+        "defaultValue": []
+      }
+    },
+    "policyDefinitions": [
+      {
+        "policyDefinitionReferenceId": "Reference to policy number one",
+        "policyDefinitionName": "Name of Policy Number One",
+        "parameters": {
+          "Parameter for policy one": {
+            "value": "[parameters('Parameter for policy one')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "Reference to policy number two",
+        "policyDefinitionName": "Name of Policy Number Two",
+        "parameters": {
+          "Parameter for policy two": {
+            "value": "[parameters('Parameter for policy two')]"
+          }
+        }
+      }
+    ]
+  }
+}
+```
+
 ### Custom Definitions
 
 Custom definitions are uploaded to Azure at the time of initial deployment to a pacSelector. For each pacSelector, the definition is uploaded to the pacSelector's defined root. This makes it available to the entirity of that pacSelector, while facilitating code promotion by allowing each pacSelector to recieve the updated definition as part of the release/deployment process.
@@ -52,70 +99,3 @@ It is customary to include a `category` and a `version` in the `metadata` sectio
 EPAC injects `deployedBy` into the `metadata` section. This is a string that identifies the deployment source. It defaults to `epac/$pacOwnerId/$pacSelector`. You can override this value in `global-settings.jsonc`
 
 **Not recommended:** Adding `deployedBy` to the `metadata` section in the Policy definition file will override the value for this definition only from `global-settings.jsonc` or default value.
-
-## Example
-
-```json
-{
-  "name": "Newly created GUID",
-  "properties": {
-    "displayName": "Your Initiative Display Name",
-    "description": "Initiative Description",
-    "metadata": {
-      "version": "1.0.0",
-      "category": "Category Name"
-    },
-    "policyDefinitionGroups": [
-      {
-        "name": "Azure_Security_Benchmark_v2.0_NS-1",
-        "additionalMetadataId": "/providers/Microsoft.PolicyInsights/policyMetadata/Azure_Security_Benchmark_v2.0_NS-1"
-      }
-    ],
-    "parameters": {
-      "Parameter for policy one": {
-        "type": "Array",
-        "defaultValue": []
-      },
-      "Parameter for policy two": {
-        "type": "string",
-        "defaultValue": []
-      }
-    },
-    "policyDefinitions": [
-      {
-        "policyDefinitionReferenceId": "Reference to policy number one",
-        "policyDefinitionName": "Name of Policy Number One",
-        "parameters": {
-          "Parameter for policy one": {
-            "value": "[parameters('Parameter for policy one')]"
-          }
-        }
-      },
-      {
-        "policyDefinitionReferenceId": "Reference to policy number two",
-        "policyDefinitionName": "Name of Policy Number Two",
-        "parameters": {
-          "Parameter for policy two": {
-            "value": "[parameters('Parameter for policy two')]"
-          }
-        },
-        "groupNames": [
-            "Azure_Security_Benchmark_v2.0_NS-1"
-        ]
-      },
-      {
-        "policyDefinitionReferenceId": "Reference to policy number two",
-        "policyDefinitionId": "id of a builtin Policy",
-        "parameters": {
-          "Parameter for policy two": {
-            "value": "[parameters('Parameter for policy two')]"
-          }
-        },
-        "groupNames": [
-            "Azure_Security_Benchmark_v2.0_NS-1"
-        ]
-      }
-    ]
-  }
-}
-```

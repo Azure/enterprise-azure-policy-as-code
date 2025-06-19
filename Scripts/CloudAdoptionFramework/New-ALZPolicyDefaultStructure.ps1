@@ -37,10 +37,10 @@ if ($LibraryPath -eq "") {
     }
 }
 
-$jsonOutput = @{
+$jsonOutput = [ordered]@{
     managementGroupNameMappings = @{}
-    defaultParameterValues      = @{}
     enforcementMode             = "Default"
+    defaultParameterValues      = @{}
 }
 
 # Get Management Group Names
