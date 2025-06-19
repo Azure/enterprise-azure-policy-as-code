@@ -9,20 +9,24 @@
 
 ```json
 {
-      "exemptions": [
-          {
-              "name": "short-name",
-              "displayName": "Descriptive name displayed on portal",
-              "description": "More details",
-              "exemptionCategory": "Waiver",
-              "expiresOn": "",
-              "scopes": [
-                  "/subscriptions/11111111-2222-3333-4444-555555555555",
-              ],
-              "policyAssignmentId": "",
-          }
-      ]
-  }
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-exemption-schema.json",
+    "exemptions": [
+        {
+            "name": "short-name",
+            "displayName": "Descriptive name displayed on portal",
+            "description": "More details",
+            "exemptionCategory": "Waiver",
+            "expiresOn": "",
+            "scopes": [
+                "/subscriptions/11111111-2222-3333-4444-555555555555",
+            ],
+            "policyAssignmentId": "",
+            "policyDefinitionReferenceIds": [
+                "temp"
+            ]
+        }
+    ]
+}
 ```
 
 ### CSV

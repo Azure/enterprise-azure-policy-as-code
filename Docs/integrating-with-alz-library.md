@@ -106,7 +106,7 @@ Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type ALZ -PacEnv
 For users interested in deploying the [Azure Monitor Baseline Alerts](https://azure.github.io/azure-monitor-baseline-alerts/welcome/) project with EPAC - these policies have been extracted and converted to the EPAC format and are available at the [amba-export](https://github.com/anwather/amba-export) repository.
 
 > [!Note]
-> Review breaking changes on the [AMBA Releases](https://azure.github.io/azure-monitor-baseline-alerts/patterns/alz/HowTo/UpdateToNewReleases/) page to ensure policy deployments. In most cases, it's an update of a parameter type (i.e. String -> Array).
+> It is recommeneded to review breaking changes on the [AMBA Releases](https://azure.github.io/azure-monitor-baseline-alerts/patterns/alz/HowTo/UpdateToNewReleases/) page to avoid unexpected failed policy deployments. In most cases, it's an update of a parameter type (i.e. String -> Array).
 
 ```ps1
 # Create a Pac Environment default file for AMBA policies using the latest version of the ALZ Library 
@@ -151,9 +151,9 @@ alz.policy_default_structure.<PAC SELECTOR>.jsonc
 
 2. When syncing policies run the `Sync-ALZPolicyFromLibrary` once for each PAC Environment. A folder specific for that Pac Selector will now be placed within the ALZ Type.
 
-### Disabling / Changes specific parameters
+### Disabling / Changing specific parameters
 
-If you need to disable a single policy parameter, such as the 'effect' for a specific Defender for Cloud, add that specific parameter to your default file structure to ensure it does not get overwritten when running the **Sync-ALZPolicyFromLibrary** command.
+If you need to disable a single policy parameter, such as the 'effect' for a specific policy within an assignment, add that parameter to your default file structure to ensure it is not overwritten when running the **Sync-ALZPolicyFromLibrary** command.
 
 An example of disabling the **"Configure Microsoft Defender for Key Vault plan"** in the **"Deploy-MDFC-Config-H224"** Policy Assignment.
 
