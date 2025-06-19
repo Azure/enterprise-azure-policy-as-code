@@ -36,7 +36,7 @@ Recommended for simple deployments to a single scope.
 ```
 ### Multiple Scopes
 
-Recommended for deployments to a multiple scope. Typically used for setting unique parameters per scope.
+Recommended for deployments to a multiple scopes. Typically used for setting unique parameters per scope.
 
 ```json
 {

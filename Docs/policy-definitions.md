@@ -48,11 +48,11 @@ The names of the definition JSON files don't matter, the Policy and Policy Set d
 }
 ```
 
-### Custom Definitions
+## Custom Definitions
 
 Custom definitions are uploaded to Azure at the time of initial deployment to a pacSelector. For each pacSelector, the definition is uploaded to the pacSelector's defined root. This makes it available to the entirity of that pacSelector, while facilitating code promotion by allowing each pacSelector to recieve the updated definition as part of the release/deployment process.
 
-### Definition Delivery
+## Definition Delivery
 
 [policy(Set)Definitions](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/scope#definition-location) are deployed at the pacSelector root. This enables versioning on custom definitions to be put through the CI/CD based change process.
 

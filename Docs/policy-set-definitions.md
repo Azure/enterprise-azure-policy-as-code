@@ -10,6 +10,7 @@ The names of the definition JSON files don't matter, the Policy Sets are registe
 
 ```json
 {
+  "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-set-definition-schema.json",
   "name": "Newly created GUID",
   "properties": {
     "displayName": "Your Initiative Display Name",
@@ -53,11 +54,11 @@ The names of the definition JSON files don't matter, the Policy Sets are registe
 }
 ```
 
-### Custom Definitions
+## Custom Definitions
 
 Custom definitions are uploaded to Azure at the time of initial deployment to a pacSelector. For each pacSelector, the definition is uploaded to the pacSelector's defined root. This makes it available to the entirity of that pacSelector, while facilitating code promotion by allowing each pacSelector to recieve the updated definition as part of the release/deployment process.
 
-### Policy Definition Groups
+## Policy Definition Groups
 
 **Optional:** Policy definition groups allow custom Policy Sets to map to different regulatory compliance requirements. These will show up in the regulatory compliance blade in Azure Security Center as if they were built-in. In order to use this, the custom Policy Sets must have both policy definition groups and group names defined.
 
