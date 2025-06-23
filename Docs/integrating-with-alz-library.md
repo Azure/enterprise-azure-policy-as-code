@@ -18,16 +18,16 @@ This file contains information that drives the sync process. The file includes m
 2. Use to code to clone the library repository and create the default file. There are examples below on how to run this commnand - you will only need to run one of these depending on your requirements.
 
 ```ps1
-# Create a Pac Environment default file for ALZ policies using the latest version of the ALZ Library 
+# Create a Pac Environment default file for ALZ policies using the latest release of the ALZ Library release
 New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type ALZ -PacEnvironmentSelector "epac-dev"
 
-# Create a default file for ALZ policies specifiying a tagged version of the ALZ Library 
+# Create a default file for ALZ policies specifiying a tagged release of the ALZ Library 
 New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type ALZ -Tag "platform/alz/2025.02.0"
 
 # Create a default file for ALZ policies by provising a path to a cloned/modified library 
 New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type ALZ -LibraryPath <<path to library>>
 
-# Create a default file for AMBA policies using the latest version of the ALZ Library 
+# Create a default file for AMBA policies using the latest release of the ALZ Library
 New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type AMBA
 ```
 
@@ -75,7 +75,7 @@ The next command will generate policy assignments based on the values in this fi
 # Sync the ALZ policies and assign to the "epac-dev" PAC environment.
 Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type ALZ -PacEnvironmentSelector "epac-dev"
 
-# Sync the ALZ policies and assign to the "epac-dev" PAC environment. Specify a tagged version of the ALZ library
+# Sync the ALZ policies and assign to the "epac-dev" PAC environment. Specify a released version of the ALZ library
 Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type ALZ -PacEnvironmentSelector "epac-dev" -Tag "platform/alz/2025.02.0"
 
 # Sync the ALZ policies from a cloned/modified library
@@ -94,7 +94,7 @@ Carefully review the generated policy assigments and ensure all parameter and sc
 ### ALZ
 
 ```ps1
-# Create a Pac Environment default file for ALZ policies using the latest version of the ALZ Library 
+# Create a Pac Environment default file for ALZ policies using the latest release of the ALZ Library 
 New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type ALZ -PacEnvironmentSelector "epac-dev"
 
 # Sync the ALZ policies and assign to the "epac-dev" PAC environment.
@@ -109,7 +109,7 @@ For users interested in deploying the [Azure Monitor Baseline Alerts](https://az
 > It is recommeneded to review breaking changes on the [AMBA Releases](https://azure.github.io/azure-monitor-baseline-alerts/patterns/alz/HowTo/UpdateToNewReleases/) page to avoid unexpected failed policy deployments. In most cases, it's an update of a parameter type (i.e. String -> Array).
 
 ```ps1
-# Create a Pac Environment default file for AMBA policies using the latest version of the ALZ Library 
+# Create a Pac Environment default file for AMBA policies using the latest release of the ALZ Library 
 New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type AMBA -PacEnvironmentSelector "epac-dev"
 
 # Sync the AMBA policies and assign to the "epac-dev" PAC environment.
@@ -121,7 +121,7 @@ Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type AMBA -PacEn
 For users interested in deploying the [Sovereignty Policy Baseline](https://github.com/Azure/sovereign-landing-zone/blob/main/docs/scenarios/Sovereignty-Baseline-Policy-Initiatives.md) project with EPAC - these policies have been extracted and converted to the EPAC format and are available at the [spb-export](https://github.com/anwather/spb-export) repository.
 
 ```ps1
-# Create a Pac Environment default file for SLZ policies using the latest version of the ALZ Library 
+# Create a Pac Environment default file for SLZ policies using the latest release of the ALZ Library 
 New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type SLZ -PacEnvironmentSelector "epac-dev"
 
 # Sync the SLZ policies and assign to the "epac-dev" PAC environment.
@@ -168,4 +168,46 @@ An example of disabling the **"Configure Microsoft Defender for Key Vault plan"*
         "value": "Disabled" // Update the value here as required by the description
       }
     }
+```
+
+### Deploying Workload Specific Compliance Guardrails
+
+To deploy the workload specific compliance guardrails for Azure Landing Zones the default policy structure file should contain an `enforceGuardrails` key. If it doesn't you can rerun the `New-ALZPolicyDefaultStructure` command to generate a file containing this entry.
+
+By default ALZ specifies deploying all the guardrail policies to the `platform` and `landingzones` management group and when the `Sync-ALZPolicyFromLibrary` with the `-CreateGuardrailAssignments` parameter command runs it will generate assignments which are scoped to these management groups.
+
+To modify this behaviour you can update/modify the scopes in the `deployment.scopes` entry - or if you want to deploy different guardrails to different scopes simply create another entry within the `enforceGuardrails.deployment` array similar to below.
+
+```
+"enforceGuardrails": {
+    "deployments": [
+      {
+        "scope": [
+          "/providers/Microsoft.Management/managementGroups/landingzones"
+        ],
+        "policy_set_names": [
+          "Enforce-Guardrails-APIM",
+          "Enforce-Guardrails-AppServices",
+          "Enforce-Guardrails-Automation"
+        ]
+      },
+      {
+        "scope": [
+          "/providers/Microsoft.Management/managementGroups/platform"
+        ],
+        "policy_set_names": [
+          "Enforce-Guardrails-APIM",
+          "Enforce-Guardrails-AppServices",
+          "Enforce-Guardrails-Automation"
+        ]
+      }
+    ]
+}
+```
+
+Example to generate assignments with guardrails assignments included.
+
+```
+# Sync the ALZ policies and assign to the "epac-dev" PAC environment.
+Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type ALZ -PacEnvironmentSelector "epac-dev" -CreateGuardrailAssignments
 ```
