@@ -18,10 +18,7 @@ To help maintain a segmentation of duties and a least-privilege approach, it is 
     - Each EPAC Environment should have a separate service principal with the Azure RBAC Role `Role Based Access Control Administrator` assigned at the *EPAC environment root*. This service Principal will be used for the Azure RBAC role assignment phase.
 
 > [!TIP]
-> For the EPAC Development Environment, a single service principal can be used for both the Policy Deployment & Role Deployment to simplify management. While it is recommended to separate these to maintain a separation of duties and enable additional security controls, the nature and isolation of the EPAC Development environment does not create the need for separation. Note: If you wish to use a single Service Principal for EPAC Development, both role assignments are still required.
-
-> [!TIP]
-> To further improve security posture, conditions can be used for the RBAC assignment for each role deployment service principal to restrict the assignment of privileged roles such as `Owner`, `User Access Admin` and `Role Based Access Control Administrator`. In general, policy assignments should never require the use of an additional role assignment that will create other role assignments. For more information on conditions for role assignments, please refer to the [Azure RBAC Documentation](https://learn.microsoft.com/en-us/azure/role-based-access-control/conditions-format)
+> To further improve security posture, conditions can be used for the RBAC assignment on each "Role Deployment" service principal. These conditions are intended to restrict the assignment of privileged roles such as `Owner`, `User Access Admin` and `Role Based Access Control Administrator`. EPAC recommends configuring the service principal with permissions sufficient for most enforcement and remediation scenarios - without being overly permissive. In cases where policy developers choose to deploy an Azure Policy which requires elevated privileges, such as assigning roles like Owner or User Access Administrator, it's up to the policy deployer to evaluate and adjust permissions accordingly. For more information on conditions for role assignments, please refer to the [Azure RBAC Documentation](https://learn.microsoft.com/en-us/azure/role-based-access-control/conditions-format)
 
 ### Create Service Principals
 
@@ -67,6 +64,8 @@ The following Service Principals & Role assignments would be created to support 
 | spn-epac-dev | Resource Policy Contributor <br> Role Based Access Control Administrator | epac-contoso |
 | spn-epac-tenant-deploy | Resource Policy Contributor | Contoso |
 | spn-epac-tenant-roles | Role Based Access Control Administrator | Contoso |
+
+For the EPAC Development Environment, a single service principal can be used for both the Policy Deployment & Role Deployment to simplify management. While it is recommended to separate these to maintain a separation of duties and enable additional security controls, the nature and isolation of the EPAC Development environment does not create the need for separation. **Note: If you wish to use a single Service Principal for EPAC Development, both role assignments are still required.**
 
 ## Application Credentials
 

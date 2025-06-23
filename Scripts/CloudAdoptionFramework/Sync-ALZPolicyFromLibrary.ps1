@@ -9,16 +9,35 @@ Param(
     [Parameter(Mandatory = $true)]
     [string]$PacEnvironmentSelector,
 
-    [string]$LibraryPath
+    [string]$LibraryPath,
+
+    [switch]$CreateGuardrailAssignments
 )
+
+# Latest tag values
+
+switch ($Type) {
+    'ALZ' {
+        $Tag = "platform/alz/2025.02.0"
+    }
+    'FSI' {
+        $Tag = "platform/fsi/2025.03.0"
+    }
+    'AMBA' {
+        $Tag = "platform/amba/2025.05.0"
+    }
+    'SLZ' {
+        $Tag = "platform/slz/2025.03.0"
+    }
+}
 
 if ($LibraryPath -eq "") {
     $LibraryPath = Join-Path -Path (Get-Location) -ChildPath "temp"
     if ($Tag) {
-        git clone --depth 1 --branch $Tag https://github.com/anwather/Azure-Landing-Zones-Library.git $LibraryPath
+        git clone --config advice.detachedHead=false --depth 1 --branch $Tag https://github.com/Azure/Azure-Landing-Zones-Library.git $LibraryPath
     }
     else {
-        git clone --depth 1 https://github.com/anwather/Azure-Landing-Zones-Library.git $LibraryPath
+        git clone --depth 1 https://github.com/Azure/Azure-Landing-Zones-Library.git $LibraryPath
     }
 }
 
@@ -242,8 +261,47 @@ try {
             (Get-Content "$DefinitionsRootFolder/policyAssignments/$Type/$defaultStructurePAC/$category/$($fileContent.name).jsonc") -replace "\.ne\.", ".$dnsZoneRegion." | Set-Content "$DefinitionsRootFolder/policyAssignments/$Type/$defaultStructurePAC/$category/$($fileContent.name).jsonc"
             }
         }
-    
+    }
 
+    if ($CreateGuardrailAssignments -and $Type -eq "ALZ") {
+        foreach ($deployment in $structureFile.enforceGuardrails.deployments) {
+            foreach ($file in Get-ChildItem "$LibraryPath/platform/$($Type.ToLower())/policy_set_definitions" -Recurse -File -Include *.json) {
+                if (($file.Name -match "^Enforce-Guardrails") -and ($file.Name.Split(".")[0] -in $deployment.policy_set_names)) {
+                    $fileContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json -Depth 100
+
+                    $baseTemplate = [ordered]@{
+                        "`$schema"      = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json"
+                        nodeName        = "$($fileContent.name)"
+                        assignment      = [ordered]@{
+                            name        = $fileContent.Name -replace "Guardrails", "GR"
+                            displayName = $fileContent.properties.displayName
+                            description = $fileContent.properties.description
+                        }
+                        definitionEntry = [ordered]@{
+                            displayName   = $fileContent.properties.displayName
+                            policySetName = $fileContent.name
+                        }
+                        parameters      = @{}
+                        enforcementMode = $structureFile.enforcementMode
+                    }
+
+                    $scope = [ordered]@{
+                        $PacEnvironmentSelector = @(
+                            $deployment.scope
+                        )
+                    }
+                    if ($deployment.scope.Count -gt 1) {
+                        $baseTemplate.Add("scope", $scope)
+                        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, enforcementMode, parameters, scope | ConvertTo-Json -Depth 100) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$defaultStructurePAC/Guardrails/multiScopeAssignments" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
+                    }
+                    else {
+                        $baseTemplate.Add("scope", $scope)
+                        $scopeShortName = $deployment.Scope.Split("/")[-1]
+                        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, enforcementMode, parameters, scope | ConvertTo-Json -Depth 100) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$defaultStructurePAC/Guardrails/$scopeShortName" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
+                    } 
+                }
+            }
+        }
     }
 
     $tempPath = Join-Path -Path (Get-Location) -ChildPath "temp"
