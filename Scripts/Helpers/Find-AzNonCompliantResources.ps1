@@ -9,7 +9,8 @@ function Find-AzNonCompliantResources {
         [string[]] $PolicyExemptionFilter,
         [string[]] $PolicyEffectFilter,
         [switch] $OnlyCheckManagedAssignments,
-        [switch] $ExcludeManualPolicyEffect
+        [switch] $ExcludeManualPolicyEffect,
+        [string] $OnlyDefaultEnforcementMode
     )
     
     Write-Information "==================================================================================================="
@@ -55,6 +56,20 @@ function Find-AzNonCompliantResources {
     $query = ""
     if ($RemediationOnly) {
         $query = "policyresources | where type == `"microsoft.policyinsights/policystates`" and properties.complianceState == `"NonCompliant`"$($effectFilter)"
+    }
+    if ($OnlyDefaultEnforcementMode -eq "Default") {
+        $query = @"
+policyresources
+| where type == "microsoft.policyinsights/policystates"
+| where properties.complianceState == "NonCompliant"
+| extend assignmentId = tostring(properties.policyAssignmentId)
+| join kind=inner (
+    policyresources
+    | where type == "microsoft.authorization/policyassignments"
+    | extend assignmentId = tolower(id), enforcementMode = tostring(properties.enforcementMode)
+) on assignmentId
+| where enforcementMode == "Default"
+"@
     }
     else {
         $query = "policyresources | where type == `"microsoft.policyinsights/policystates`""

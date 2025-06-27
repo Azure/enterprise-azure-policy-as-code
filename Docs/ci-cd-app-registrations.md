@@ -22,7 +22,7 @@ To help maintain a segmentation of duties and a least-privilege approach, it is 
 
 ### Create Service Principals
 
-For guidance creating Service Principals in Entra ID, please refer to the [Entra ID Documentation](https://learn.microsoft.com/en-us/entra/identity-platform/howto-create-service-principal-portal#register-an-application-with-microsoft-entra-id-and-create-a-service-principal
+For guidance creating Service Principals in Entra ID, please refer to the [Entra ID Documentation](https://learn.microsoft.com/en-us/entra/identity-platform/howto-create-service-principal-portal#register-an-application-with-microsoft-entra-id-and-create-a-service-principal)
 
 ### Assign Service Principals Permissions in Azure
 

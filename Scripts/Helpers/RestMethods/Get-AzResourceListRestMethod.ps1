@@ -2,7 +2,9 @@ function Get-AzResourceListRestMethod {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
-        $SubscriptionId
+        $SubscriptionId,
+
+        [switch]$CheckCustomRoleDefinitions
     )
     
     function Invoke-AzRestMethodCustom {
@@ -57,6 +59,14 @@ function Get-AzResourceListRestMethod {
         $path = "$($account.id)/variables?api-version=$ApiVersion"
         $variableResources = Invoke-AzRestMethodCustom -path $path -method GET
         $resources.value += $variableResources.value
+    }
+
+    # Get the custom role definitions if requested
+    if ($CheckCustomRoleDefinitions) {
+        $ApiVersion = "2022-04-01"
+        $path = "/subscriptions/$SubscriptionId/providers/Microsoft.Authorization/roleDefinitions?api-version=$ApiVersion&`$filter=type eq 'CustomRole'"
+        $customRoleDefinitions = Invoke-AzRestMethodCustom -path $path -method GET
+        $resources.value += $customRoleDefinitions.value
     }
 
     Write-Output $resources.value -NoEnumerate
