@@ -561,7 +561,12 @@ function Build-ExemptionsPlan {
                                     }
                                 }
                                 else {
-                                    $resources = Get-AzResourceListRestMethod -SubscriptionId $subscriptionId
+                                    if ($currentScope -match "roledefinitions") {
+                                        $resources = Get-AzResourceListRestMethod -SubscriptionId $subscriptionId -CheckCustomRoleDefinitions
+                                    }
+                                    else {
+                                        $resources = Get-AzResourceListRestMethod -SubscriptionId $subscriptionId
+                                    }
                                     $resourceIds = @{}
                                     foreach ($resource in $resources) {
                                         $resourceId = $resource.id
@@ -591,8 +596,14 @@ function Build-ExemptionsPlan {
                         $exemptionScopeDetails = $ScopeTable.$trimmedScope
                     }
                     elseif ($validateScope) {
-                        Write-Warning "Exemption entry $($entryNumber): Exemption scope $($currentScope) not found in current scope tree for root $($PacEnvironment.deploymentRootScope), skipping entry."
-                        $scopeIsValid = $false
+                        if ($trimmedScope -match "microsoft.authorization" ) {
+                            $scopeIsValid = $true
+                            $scopeIsRoleDefinition = $true
+                        }
+                        else {
+                            Write-Warning "Exemption entry $($entryNumber): Exemption scope $($currentScope) not found in current scope tree for root $($PacEnvironment.deploymentRootScope), skipping entry."
+                            $scopeIsValid = $false
+                        }       
                     }
                     else {
                         $exemptionScopeDetails = @{
@@ -621,8 +632,13 @@ function Build-ExemptionsPlan {
                                 Write-Verbose "Assignment scope = '$($policyAssignmentScope)' is in a globally excluded scope"
                             }
                             elseif ($scopeIsValid) {
-                                $parentTable = $exemptionScopeDetails.parentTable
-                                $includeAssignment = $trimmedScope -eq $policyAssignmentScope -or $parentTable.ContainsKey($policyAssignmentScope)
+                                if (!$scopeIsRoleDefinition) {
+                                    $parentTable = $exemptionScopeDetails.parentTable
+                                    $includeAssignment = $trimmedScope -eq $policyAssignmentScope -or $parentTable.ContainsKey($policyAssignmentScope)
+                                }
+                                else {
+                                    $includeAssignment = $true
+                                }
                                 if ($includeAssignment) {
                                     foreach ($notScope in $calculatedPolicyAssignment.notScopes) {
                                         if ($trimmedScope -eq $notScope -or $parentTable.ContainsKey($notScope)) {

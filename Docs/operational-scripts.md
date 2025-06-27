@@ -12,6 +12,7 @@ This script executes all remediation tasks in a Policy as Code environment speci
 * Query Policy Insights for non-complaint resources
 * Start remediation task for each Policy with non-compliant resources
 * Switch parameter `-OnlyCheckManagedAssignments` includes non-compliance data only for Policy assignments owned by this Policy as Code repo.
+* Switch parameter `-OnlyDefaultEnforcementMode` to only run remediation tasks against policy assignments that have enforcement mode set to 'Default'"\.
 
 #### Links
 
