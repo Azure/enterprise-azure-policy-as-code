@@ -285,6 +285,13 @@ try {
                         enforcementMode = $structureFile.enforcementMode
                     }
 
+                    foreach ($key in $structureFile.defaultParameterValues.psObject.Properties.Name) {
+                        if ($structureFile.defaultParameterValues.$key.policy_assignment_name -eq ($fileContent.name -replace "Guardrails", "GR")) {
+                            $keyName = $structureFile.defaultParameterValues.$key.parameters.parameter_name
+                            $baseTemplate.parameters.Add($keyName, $structureFile.defaultParameterValues.$key.parameters.value)
+                        }
+                    }
+
                     $scope = [ordered]@{
                         $PacEnvironmentSelector = @(
                             $deployment.scope
