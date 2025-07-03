@@ -32,7 +32,9 @@ function Confirm-PacOwner {
                         $ManagedByCounters.dfcSecurityPolicies += 1
                         return "managedByDfcSecurityPolicies"
                     }
-                    elseif ($description.StartsWith("This policy assignment was automatically created by ")) {
+                    elseif ($description.StartsWith("This policy assignment was automatically created by ") -or 
+                        $description.StartsWith("This initiative enables Defender ")
+                    ) {
                         $ManagedByCounters.dfcDefenderPlans += 1
                         return "managedByDfcDefenderPlans"
                     }

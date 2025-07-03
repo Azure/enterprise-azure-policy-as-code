@@ -227,7 +227,7 @@ function Build-HydrationPolicySetPlan {
             $parametersMatch, $incompatible = Confirm-ParametersDefinitionMatch `
                 -ExistingParametersObj $deployedDefinition.parameters `
                 -DefinedParametersObj $parameters
-            Remove-Variable policyDefinitionsMatch -ErrorAction SilentlyContinue
+            Remove-Variable policyDefinitionsMatch -ErrorAction SilentlyContinue # TODO: THis is where it breaks
             $policyDefinitionsMatch = Confirm-PolicyDefinitionsInPolicySetMatch `
                 $deployedDefinition.policyDefinitions `
                 $policyDefinitionsFinal
@@ -238,7 +238,9 @@ function Build-HydrationPolicySetPlan {
             $deletedPolicyDefinitionGroups = !$policyDefinitionGroupsMatch -and ($null -eq $policyDefinitionGroupsFinal -or $policyDefinitionGroupsFinal.Length -eq 0)            
             # Update Policy Set in Azure if necessary
             $containsReplacedPolicy = $false
-            $replacedPolicyList = @()
+            if($ExtendedReporting){
+                $replacedPolicyList = @()
+            }
             foreach ($policyDefinitionEntry in $policyDefinitionsFinal) {
                 $policyId = $policyDefinitionEntry.policyDefinitionId
                 if ($ReplaceDefinitions.ContainsKey($policyId)) {
@@ -249,6 +251,7 @@ function Build-HydrationPolicySetPlan {
                     else{
                         # Capture full list of replaced policies for ExtendedReporting
                         $replacedPolicyList += $policyId
+                        break
                     }
                 }
             }
@@ -345,6 +348,14 @@ function Build-HydrationPolicySetPlan {
                         $fileRecord.Set_Item('metadataChanged', !($metadataMatches))
                         $fileRecord.Set_Item('oldMetadata', $deployedDefinition.metadata)
                         $fileRecord.Set_Item('newMetadata', $metadata)
+                        $metadataComparison = Compare-HydrationMetadata -oldKeys $deployedDefinition.metadata -newKeys $metadata
+                        try{
+                            $fileRecord.Set_Item('metadataComparison', $metadataComparison)
+
+                        }
+                        catch{
+                            Write-Error "Failed to set metadataComparison for $($fileRecord.id) with $($metadataComparison)"
+                        }
                     }
                     if (!$parametersMatch -and !$incompatible) { # I don't think this is really useful, we don't test on it anywhere, we test on incompatible... which appears to be the same intended outcome.
                         $fileRecord.Set_Item('parametersChanged', !($parametersMatch))

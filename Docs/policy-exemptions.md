@@ -3,9 +3,42 @@
 > [!TIP]
 > The changes implementing [Option **A** below](#option-a-policy-definition-ids-or-names) makes JSON files easier to read than CSV files. We recommend using **Policy definition Ids or Names** for new exemptions and **JSON** files  instead of CSV files. Of course, CSV files are still supported. You may even mix and match the two formats in the same folder.
 
+## Templates
+
+### JSON
+
+```json
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-exemption-schema.json",
+    "exemptions": [
+        {
+            "name": "short-name",
+            "displayName": "Descriptive name displayed on portal",
+            "description": "More details",
+            "exemptionCategory": "Waiver",
+            "expiresOn": "",
+            "scopes": [
+                "/subscriptions/11111111-2222-3333-4444-555555555555",
+            ],
+            "policyAssignmentId": "",
+            "policyDefinitionReferenceIds": [
+                "temp"
+            ]
+        }
+    ]
+}
+```
+
+### CSV
+
+```json
+name,displayName,description,exemptionCategory,expiresOn,scope,policyAssignmentId,policyDefinitionReferenceIds,metadata,assignmentScopeValidation
+Exemption_00000000000001,My display Name,Mitigated,,,,,,
+```
+
 ## Exemption Folder Structure
 
-Exemptions can be defined as JSON or CSV files (we recommend that you use CSV files). The names of the definition files don't matter. If multiple files exists in a folder, the lists from all the files are added together.
+Exemptions can be defined as JSON or CSV files (we recommend that you use JSON files). The names of the definition files don't matter. If multiple files exists in a folder, the lists from all the files are added together.
 
 The pacEnvironment (see global-settings.jsonc) is represented with a folder structure under the folder policyExemptions, such as epac-dev, tenant, ... A missing folder indicates that the pacEnvironment's Exemptions are not managed by this solution. To extract existing exemptions, the operations script Get-AzExemptions.ps1 can be used to generate JSON and CSV files. The output may be used to start the Exemption definitions. This same output is also created when [Extract existing Policy Resources from an Environment](epac-extracting-policy-resources.md).
 
@@ -50,8 +83,8 @@ Each exemption must define the following properties:
 - Optional
   - `expiresOn` - empty or expiry date.
   - `assignmentScopeValidation` - `Default` or `DoNotValidate`
-  - `resourceSelectors` - valid JSON (see JSON format below)
-  - `metadata` - valid JSON (see JSON format below)
+  - `resourceSelectors` - valid JSON array (see JSON format [here](./policy-assignments.md#defining-resourceselectors))
+  - `metadata` - valid JSON object (see JSON format below)
 
 ### Metadata
 
@@ -331,8 +364,8 @@ The columns must have the headers as described below. The order of the columns i
   - `expiresOn` - empty or expiry date.
   - `policyDefinitionReferenceIds` - list of ampersand `&` separated [strings as defined above](#specifying-policydefinitionreferenceids).
   - `assignmentScopeValidation` - `Default` or `DoNotValidate`
-  - `resourceSelectors` - valid JSON (see JSON format below)
-  - `metadata` - valid JSON (see JSON format below)
+  - `resourceSelectors` - valid JSON array (see JSON format [here](./policy-assignments.md#defining-resourceselectors))
+  - `metadata` - valid JSON object (see JSON format below)
 
 > [!CAUTION]
 > Breaking change: v10.1.0 replaced the usual comma in `policyDefinitionReferenceIds` with an ampersand `&` to avoid conflicts with the scope Ids. You must replace in-cell commas with ampersands.

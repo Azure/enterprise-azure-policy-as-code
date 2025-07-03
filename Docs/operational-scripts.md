@@ -12,9 +12,11 @@ This script executes all remediation tasks in a Policy as Code environment speci
 * Query Policy Insights for non-complaint resources
 * Start remediation task for each Policy with non-compliant resources
 * Switch parameter `-OnlyCheckManagedAssignments` includes non-compliance data only for Policy assignments owned by this Policy as Code repo.
+* Switch parameter `-OnlyDefaultEnforcementMode` to only run remediation tasks against policy assignments that have enforcement mode set to 'Default'"\.
 
 #### Links
 
+* [Guidance: Implementing an Azure Policy Based Remediation Solution](./guidance-remediation.md)
 * [Remediate non-compliant resources with Azure Policy](https://learn.microsoft.com/en-us/azure/governance/policy/how-to/remediate-resources?tabs=azure-portal)
 * [Start-AzPolicyRemediation](https://learn.microsoft.com/en-us/powershell/module/az.policyinsights/start-azpolicyremediation?view=azps-10.1.0)
 

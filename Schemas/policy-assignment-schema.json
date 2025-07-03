@@ -27,7 +27,9 @@
                     "type": "string"
                 },
                 "definitionVersion": {
-                    "type": "string"
+                    "type": "string",
+                    "pattern": "^\\d+\\.\\*\\.\\*|\\d+\\.\\d+\\.\\*$",
+                    "description": "The definitionVersion must follow the format XX.*.*' or 'XX.XX.*'. Ensure the versioning adheres to this pattern."
                 },
                 "displayName": {
                     "type": "string"
@@ -77,7 +79,9 @@
                         "type": "string"
                     },
                     "definitionVersion": {
-                        "type": "string"
+                        "type": "string",
+                        "pattern": "^\\d+\\.\\*\\.\\*|\\d+\\.\\d+\\.\\*$",
+                        "description": "The definitionVersion must follow the format 'XX.*.*' or 'XX.XX.*'. Ensure the versioning adheres to this pattern."
                     },
                     "displayName": {
                         "type": "string"

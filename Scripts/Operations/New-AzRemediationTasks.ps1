@@ -91,7 +91,10 @@ param(
     [switch] $NoWait,
     
     [Parameter(Mandatory = $false, HelpMessage = "Used to output the remediation tasks that would occur if 'New-AzRemediationTasks' runs.")]
-    [switch] $TestRun
+    [switch] $TestRun,
+    
+    [Parameter(Mandatory = $false, HelpMessage = "Used to only run remediation tasks against policy assignments that have enforcement mode set to 'Default'")]
+    [switch] $OnlyDefaultEnforcementMode
 )
 
 # Dot Source Helper Scripts
@@ -123,6 +126,10 @@ else {
 }
 Write-Information ""
 
+if ($OnlyDefaultEnforcementMode) {
+    $enforcementMode = "Default"
+}
+
 $rawNonCompliantList, $deployedPolicyResources, $scopeTable = Find-AzNonCompliantResources `
     -RemediationOnly `
     -PacEnvironment $pacEnvironment `
@@ -130,7 +137,8 @@ $rawNonCompliantList, $deployedPolicyResources, $scopeTable = Find-AzNonComplian
     -PolicyDefinitionFilter:$policyDefinitionFilter `
     -PolicySetDefinitionFilter:$policySetDefinitionFilter `
     -PolicyAssignmentFilter:$policyAssignmentFilter `
-    -PolicyEffectFilter $policyEffectFilter
+    -PolicyEffectFilter $policyEffectFilter `
+    -OnlyDefaultEnforcementMode $enforcementMode
 
 Write-Information "==================================================================================================="
 Write-Information "Collating non-compliant resources by Assignment Id and (if Policy Set) policyDefinitionReferenceId"

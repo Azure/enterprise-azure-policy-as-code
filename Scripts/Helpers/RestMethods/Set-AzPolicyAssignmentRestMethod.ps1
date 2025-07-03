@@ -47,6 +47,9 @@ function Set-AzPolicyAssignmentRestMethod {
     if ($AssignmentObj.resourceSelectors) {
         $assignment.properties.resourceSelectors = $AssignmentObj.resourceSelectors
     }
+    if ($AssignmentObj.definitionVersion) {
+        $assignment.properties.definitionVersion = $AssignmentObj.definitionVersion
+    }
 
     # Invoke the REST API
     $assignmentJson = ConvertTo-Json $assignment -Depth 100 -Compress

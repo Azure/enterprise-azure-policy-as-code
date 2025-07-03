@@ -178,7 +178,13 @@ function Build-AssignmentDefinitionAtLeaf {
         $metadata.pacOwnerId = $thisPacOwnerId
 
         #endregion assignment name, displayName, description, metadata, enforcementMode
+        if ($AssignmentDefinition.definitionVersion) {
+            $definitionVersion = $AssignmentDefinition.definitionVersion
+        }
 
+        if ($definitionEntry.definitionVersion) {
+            $definitionVersion = $definitionEntry.definitionVersion
+        }
         #region nonComplianceMessages in two variants
 
         $nonComplianceMessagesList = [System.Collections.ArrayList]::new()
@@ -515,6 +521,11 @@ function Build-AssignmentDefinitionAtLeaf {
             $baseAssignment.overrides = $overridesList.ToArray()
         }
         $baseAssignment.nonComplianceMessages = $nonComplianceMessagesList
+
+        if ($definitionVersion) {
+            $baseAssignment.definitionVersion = $definitionVersion
+            $definitionVersion = $null
+        }
 
         #endregion baseAssignment
 

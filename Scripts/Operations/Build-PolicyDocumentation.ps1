@@ -326,7 +326,8 @@ foreach ($file in $files) {
                     -DocumentationSpecification $documentationSpecification `
                     -AssignmentsByEnvironment $assignmentsByEnvironment `
                     -IncludeManualPolicies:$IncludeManualPolicies `
-                    -PacEnvironments $pacEnvironments
+                    -PacEnvironments $pacEnvironments `
+                    -WikiClonePat $WikiClonePat
                 # Out-DocumentationForPolicyAssignments `
                 #     -OutputPath $outputPath `
                 #     -WindowsNewLineCells:$true `

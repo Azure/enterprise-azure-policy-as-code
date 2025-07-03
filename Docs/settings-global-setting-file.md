@@ -83,7 +83,7 @@ EPAC has a concept of an environment identified by a string (unique per reposito
 `pacEnvironments` entries associate:
 
 - Required:
-  - `pacSelector`: the logical name of the EPAC environment.
+  - `pacSelector`: the logical name of the EPAC environment. This should be lower case whenever used throughout an EPAC project.
   - `cloud`: select cloud environments.
   - `tenantId`: enables multi-tenant scenarios.
   - `deploymentRootScope`: the deployment scope for Policy and Policy Set definitions. Policy Assignments can only defined at this scope and child scopes (recursive). The format for each scope level is as follows:

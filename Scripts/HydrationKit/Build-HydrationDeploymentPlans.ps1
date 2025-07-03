@@ -202,6 +202,7 @@ function Build-HydrationDeploymentPlans {
             oldOwner                          = ""
             newOwner                          = ""
             metadataChanged                   = $false
+            metadataComparison                = @{}
             oldMetadata                       = @{}
             newMetadata                       = @{}
             definitionVersionChanged          = $false

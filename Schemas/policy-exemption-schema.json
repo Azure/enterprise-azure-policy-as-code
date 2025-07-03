@@ -25,6 +25,9 @@
                     "scope": {
                         "type": "string"
                     },
+                    "scopes": {
+                        "type": "array"
+                    },
                     "policyAssignmentId": {
                         "type": "string"
                     },
@@ -54,38 +57,55 @@
                     }
                 },
                 "additionalProperties": false,
-                "oneOf": [
+                "allOf": [
                     {
-                        "required": [
-                            "policyAssignmentId"
+                        "oneOf": [
+                            {
+                                "required": [
+                                    "policyAssignmentId"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "policyDefinitionId"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "policyDefinitionName"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "policySetDefinitionId"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "policySetDefinitionName"
+                                ]
+                            }
                         ]
                     },
                     {
-                        "required": [
-                            "policyDefinitionId"
-                        ]
-                    },
-                    {
-                        "required": [
-                            "policyDefinitionName"
-                        ]
-                    },
-                    {
-                        "required": [
-                            "policySetDefinitionId"
-                        ]
-                    },
-                    {
-                        "required": [
-                            "policySetDefinitionName"
+                        "oneOf": [
+                            {
+                                "required": [
+                                    "scope"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "scopes"
+                                ]
+                            }
                         ]
                     }
                 ],
                 "required": [
                     "name",
                     "displayName",
-                    "exemptionCategory",
-                    "scope"
+                    "exemptionCategory"
                 ]
             }
         }
