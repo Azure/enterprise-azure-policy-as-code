@@ -12,7 +12,7 @@ function Find-AzNonCompliantResources {
         [switch] $ExcludeManualPolicyEffect,
         [string] $OnlyDefaultEnforcementMode
     )
-
+    
     Write-Information "==================================================================================================="
     Write-Information "Retrieve Policy Compliance List"
     Write-Information "==================================================================================================="
@@ -54,14 +54,14 @@ function Find-AzNonCompliantResources {
         }
     }
     $query = ""
-    if ($RemediationOnly -and $OnlyDefaultEnforcementMode -ne "Default") {
+    if ($RemediationOnly) {
         $query = "policyresources | where type == `"microsoft.policyinsights/policystates`" and properties.complianceState == `"NonCompliant`"$($effectFilter)"
     }
-    elseif ($RemediationOnly -and $OnlyDefaultEnforcementMode -eq "Default") {
+    if ($OnlyDefaultEnforcementMode -eq "Default") {
         $query = @"
 policyresources
 | where type == "microsoft.policyinsights/policystates"
-| where properties.complianceState == "NonCompliant" $($effectFilter)
+| where properties.complianceState == "NonCompliant"
 | extend assignmentId = tostring(properties.policyAssignmentId)
 | join kind=inner (
     policyresources
@@ -138,7 +138,7 @@ policyresources
                 }
             }
         }
-
+        
     }
     Write-Information "Found $($rawNonCompliantList.Count) non-compliant resources"
     Write-Information ""
