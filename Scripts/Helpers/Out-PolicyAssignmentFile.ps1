@@ -66,6 +66,15 @@ function Out-PolicyAssignmentFile {
         -AssignmentNode $assignmentDefinition `
         -PropertyNames $PropertyNames
 
+    # Added logic to move scope from top of the assignment definition to each children to prevent errors
+    if (($assignmentDefinition.keys -contains 'children') -and ($assignmentDefinition.keys -contains 'scope')) {
+        $scopeValue = $assignmentDefinition.scope
+        foreach ($child in $assignmentDefinition.children) {
+            $child['scope'] = $scopeValue
+        }
+        $assignmentDefinition.Remove('scope')
+    }
+    
     # Write structure to file
     $json = ConvertTo-Json $assignmentDefinition -Depth 100
     $null = New-Item $fullPath -Force -ItemType File -Value $json

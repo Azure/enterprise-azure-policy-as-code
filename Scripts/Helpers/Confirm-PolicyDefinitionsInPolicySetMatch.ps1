@@ -56,7 +56,7 @@ function Confirm-PolicyDefinitionsInPolicySetMatch {
             #         # Compare-SemanticVersion -Version1 (anything not 0) -Version2 0 is always 1, so we forego the calculation and set it
             #         # $definitionVersionMatches = Compare-SemanticVersion -Version1 $item1.definitionVersion -Version2 0
             #         $definitionVersionMatches = 1
-            #     }
+            #     }               
             #     else {
             #         # If neither of the definitionVersion values are null, then the compare can proceed without error
             #         $definitionVersionMatches = Compare-SemanticVersion -Version1 $($item1.definitionVersion ?? $Definitions[$item1.policyDefinitionId].properties.version ?? '1.*.*') -Version2 $($item2.definitionVersion ?? $Definitions[$item1.policyDefinitionId].properties.version ?? '1.*.*')

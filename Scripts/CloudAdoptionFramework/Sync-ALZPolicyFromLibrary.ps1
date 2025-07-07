@@ -256,9 +256,9 @@ try {
         
 
             $category = $structureFile.managementGroupNameMappings.$scopeTrim.management_group_function
-        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$defaultStructurePAC/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
+            ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$defaultStructurePAC/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
             if ($fileContent.name -eq "Deploy-Private-DNS-Zones") {
-            (Get-Content "$DefinitionsRootFolder/policyAssignments/$Type/$defaultStructurePAC/$category/$($fileContent.name).jsonc") -replace "\.ne\.", ".$dnsZoneRegion." | Set-Content "$DefinitionsRootFolder/policyAssignments/$Type/$defaultStructurePAC/$category/$($fileContent.name).jsonc"
+                (Get-Content "$DefinitionsRootFolder/policyAssignments/$Type/$defaultStructurePAC/$category/$($fileContent.name).jsonc") -replace "\.ne\.", ".$dnsZoneRegion." | Set-Content "$DefinitionsRootFolder/policyAssignments/$Type/$defaultStructurePAC/$category/$($fileContent.name).jsonc"
             }
         }
     }
@@ -273,7 +273,7 @@ try {
                         "`$schema"      = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json"
                         nodeName        = "$($fileContent.name)"
                         assignment      = [ordered]@{
-                            name        = $fileContent.Name -replace "Guardrails", "GR"
+                            name        = $fileContent.Name -replace "Enforce-Guardrails", "GR"
                             displayName = $fileContent.properties.displayName
                             description = $fileContent.properties.description
                         }
@@ -283,6 +283,13 @@ try {
                         }
                         parameters      = @{}
                         enforcementMode = $structureFile.enforcementMode
+                    }
+
+                    foreach ($key in $structureFile.defaultParameterValues.psObject.Properties.Name) {
+                        if ($structureFile.defaultParameterValues.$key.policy_assignment_name -eq $fileContent.name) {
+                            $keyName = $structureFile.defaultParameterValues.$key.parameters.parameter_name
+                            $baseTemplate.parameters.Add($keyName, $structureFile.defaultParameterValues.$key.parameters.value)
+                        }
                     }
 
                     $scope = [ordered]@{

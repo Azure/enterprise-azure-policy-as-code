@@ -61,7 +61,10 @@ param (
     [string] $WikiClonePat,
 
     [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
-    [string] $pacSelector
+    [string] $pacSelector,
+
+    [parameter(Mandatory = $false, HelpMessage = "Will only document assignments that are managed by your defined PAC Owner", Position = 0)]
+    [switch] $OnlyCheckManagedAssignments
 )
 
 # Dot Source Helper Scripts
@@ -487,6 +490,31 @@ foreach ($file in $files) {
                     -AssignmentArray $assignmentArray `
                     -PolicyResourceDetails $policyResourceDetails `
                     -CachedAssignmentsDetails $cachedAssignmentsDetails
+
+                # Remove entries if not managed by PAC
+                if ($OnlyCheckManagedAssignments) {
+    
+                    # Collect keys to remove
+                    $keysToRemove = @()
+                    foreach ($key in $assignmentsDetails.Keys) {
+                        $pacOwner = $assignmentsDetails[$key].assignment.pacOwner
+                        if ($pacOwner -eq "unknownOwner" -or $pacOwner -eq "otherPac") {
+                            $keysToRemove += $key
+                        }
+                    }
+
+                    # Remove the entries from assignmentsDetails
+                    foreach ($key in $keysToRemove) {
+                        $assignmentsDetails.Remove($key)
+                    }
+
+                    # Remove the entries from ItemList
+                    $itemList = $itemList | Where-Object { $_.assignmentId -notin $keysToRemove }
+                }
+
+                If ($assignmentsDetails.Count -eq 0) {
+                    Write-Error "No EPAC owned assignments found for pacEnvironment '$($environmentCategoryEntry.pacEnvironment)' in environment category '$($environmentCategoryEntry.environmentCategory)'. Skipping documentation generation."
+                }
 
                 # Flatten Policy lists in Assignments and reconcile the most restrictive effect for each Policy
                 $flatPolicyList = Convert-PolicyResourcesDetailsToFlatList `
