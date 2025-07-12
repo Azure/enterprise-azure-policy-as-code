@@ -49,6 +49,7 @@ function Build-PolicySetPlan {
         $displayName = $definitionProperties.displayName
         $description = $definitionProperties.description
         $metadata = Get-DeepCloneAsOrderedHashtable $definitionProperties.metadata
+        $version = $definitionProperties.version
         $parameters = $definitionProperties.parameters
         $policyDefinitions = $definitionProperties.policyDefinitions
         $policyDefinitionGroups = $definitionProperties.policyDefinitionGroups
@@ -74,7 +75,7 @@ function Build-PolicySetPlan {
             Write-Error "Policy Set from file '$($file.Name)' requires a name" -ErrorAction Stop
         }
         if (-not (Confirm-ValidPolicyResourceName -Name $name)) {
-            Write-Error "Policy Set from file '$($file.Name) has a name '$name' containing invalid charachters <>*%&:?.+/ or ends with a space." -ErrorAction Stop
+            Write-Error "Policy Set from file '$($file.Name) has a name '$name' containing invalid characters <>*%&:?.+/ or ends with a space." -ErrorAction Stop
         }
         if ($null -eq $displayName) {
             Write-Error "Policy Set '$name' from file '$($file.Name)' requires a displayName" -ErrorAction Stop
@@ -111,19 +112,15 @@ function Build-PolicySetPlan {
         # Process policyDefinitionGroups
         $policyDefinitionGroupsHashTable = @{}
         if ($null -ne $policyDefinitionGroups) {
-            # Explicitly defined policyDefinitionGroups
-            $null = $policyDefinitionGroups | ForEach-Object {
-                $groupName = $_.name
-                if ($usedPolicyGroupDefinitions.ContainsKey($groupName)) {
-                    # Covered this use of a group name
-                    $usedPolicyGroupDefinitions.Remove($groupName)
-                }
-                else {
-                    Write-Error "$($displayName): PolicyDefinitionGroup '$groupName' not found in policyDefinitionGroups." -ErrorAction Stop
-                }
-                if (!$policyDefinitionGroupsHashTable.ContainsKey($groupName)) {
-                    # Ignore duplicates
-                    $policyDefinitionGroupsHashTable.Add($groupName, $_)
+            # Check for group defined as policyDefinitionGroups but not used in policies and add them to a new object
+            # Add each group to the object as Azure allows non used groups
+            $policyDefinitionGroups | ForEach-Object {
+                $policyDefinitionGroupsHashTable.Add($_.name, $_)
+            }
+            # Now check each used group defined by policyDefinitions to make sure that it exists in the policyDefinitionGroups as this causes an error when deploying
+            $usedPolicyGroupDefinitions.Keys | ForEach-Object {
+                if (!$policyDefinitionGroupsHashTable.ContainsKey($_)) {
+                    Write-Error "$($displayName): PolicyDefinitionGroup '$_' not found in policyDefinitionGroups." -ErrorAction Stop
                 }
             }
         }
@@ -186,6 +183,7 @@ function Build-PolicySetPlan {
             displayName            = $displayName
             description            = $description
             metadata               = $metadata
+            version                = $version
             parameters             = $parameters
             policyDefinitions      = $policyDefinitionsFinal
             policyDefinitionGroups = $policyDefinitionGroupsFinal
@@ -212,7 +210,8 @@ function Build-PolicySetPlan {
                 -DefinedParametersObj $parameters
             $policyDefinitionsMatch = Confirm-PolicyDefinitionsInPolicySetMatch `
                 $deployedDefinition.policyDefinitions `
-                $policyDefinitionsFinal
+                $policyDefinitionsFinal `
+                $AllDefinitions.policydefinitions
             $policyDefinitionGroupsMatch = Confirm-ObjectValueEqualityDeep `
                 $deployedDefinition.policyDefinitionGroups `
                 $policyDefinitionGroupsFinal

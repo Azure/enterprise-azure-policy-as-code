@@ -16,6 +16,11 @@ function Remove-AzRoleAssignmentRestMethod {
     $statusCode = $response.StatusCode
     if ($statusCode -lt 200 -or $statusCode -ge 300) {
         $content = $response.Content
-        Write-Error "Role assignment deletion failed with error $($statusCode) -- $($content)" -ErrorAction Stop
+        if ($content.Contains("ScopeLocked", [StringComparison]::InvariantCultureIgnoreCase)) {
+            Write-Warning "Ignoring scope locked error: $($statusCode) -- $($content)"
+        }
+        else {
+            Write-Error "Role assignment deletion failed with error $($statusCode) -- $($content)" -ErrorAction Stop
+        }
     }
 }

@@ -17,12 +17,19 @@ function Build-ScopeTableForManagementGroup {
     $notScopesList = [System.Collections.ArrayList]::new()
     $notScopesTable = @{}
     $excludedScopesTable = @{}
-    $managementGroupType = $ManagementGroup.Type
-    $managementGroupId = $ManagementGroup.Id
-    $managementGroupName = $ManagementGroup.Name
-    $managementGroupDisplayName = $ManagementGroup.DisplayName
-    $managementGroupChildren = $ManagementGroup.Children
     #endregion initialize variables
+
+    #region get management group details
+    $managementGroupType = $ManagementGroup.type
+    $managementGroupId = $ManagementGroup.id
+    $managementGroupName = $ManagementGroup.name
+    $managementGroupDisplayName = $ManagementGroup.displayName
+    $managementGroupChildren = $ManagementGroup.children
+    if ($ManagementGroup.properties) {
+        $managementGroupDisplayName = $ManagementGroup.properties.displayName
+        $managementGroupChildren = $ManagementGroup.properties.children
+    }
+    #endregion get management group details
 
     #region build scope details
     $thisNotScope = $null
@@ -62,7 +69,7 @@ function Build-ScopeTableForManagementGroup {
         excludedScopesTable = $excludedScopesTable
         isExcluded          = $IsExcluded
         isInGlobalNotScope  = $IsInGlobalNotScope
-        state               = $resourceContainer.properties.state
+        state               = "Enabled"
         location            = "global"
     }
     if ($IsExcluded) {
@@ -81,12 +88,12 @@ function Build-ScopeTableForManagementGroup {
     #region recurse down the tree
     if ($null -ne $managementGroupChildren) {
         foreach ($child in $managementGroupChildren) {
-            $childId = $child.Id
+            $childId = $child.id
             $childScopeDetails = $null
-            if ($child.Type -eq "/subscriptions") {
+            if ($child.type -eq "/subscriptions") {
                 $childScopeDetails = Build-ScopeTableForSubscription `
-                    -SubscriptionId $child.Name `
-                    -SubscriptionName $child.DisplayName `
+                    -SubscriptionId $child.name `
+                    -SubscriptionName $child.displayName `
                     -ResourceGroupsBySubscriptionId $ResourceGroupsBySubscriptionId `
                     -PacEnvironment $PacEnvironment `
                     -ScopeTable $ScopeTable `
@@ -111,7 +118,7 @@ function Build-ScopeTableForManagementGroup {
     }
     #endregion recurse down the tree
 
-    #region augment this parents scope's details with this mangement group's details
+    #region augment this parents scope's details with this management group's details
     if ($null -ne $ParentScopeDetails) {
         $parentScopeChildrenTable = $ParentScopeDetails.childrenTable
         $parentScopeResourceGroupsTable = $ParentScopeDetails.resourceGroupsTable
@@ -137,7 +144,7 @@ function Build-ScopeTableForManagementGroup {
             $null = $parentScopeExcludedScopesTable.Add($excludedScope, $excludedScopesTable.$excludedScope)
         }
     }
-    #endregion augment this parents scope's details with this mangement group's details
+    #endregion augment this parents scope's details with this management group's details
 
     return $scopeDetails
 }

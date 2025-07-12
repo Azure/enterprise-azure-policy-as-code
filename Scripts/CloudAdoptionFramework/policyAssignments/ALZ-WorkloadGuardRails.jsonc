@@ -61,6 +61,23 @@
             ]
         },
         {
+            "nodeName": "BotServices",
+            "assignment": {
+                "name": "Enforce-GR-BotService",
+                "displayName": "Enforce recommended guardrails for Bot Service",
+                "description": "This initiative assignment enables additional ALZ guardrails for Bot Service."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-BotService",
+                "displayName": "Enforce recommended guardrails for Bot Service"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for Bot Service."
+                }
+            ]
+        },
+        {
             "nodeName": "CogServ",
             "assignment": {
                 "name": "Enforce-GR-CogServ",
@@ -433,6 +450,24 @@
                     "message": "Recommended guardrails must be enforced for Virtual Desktop"
                 }
             ]
+        },
+        {
+            "nodeName": "CMK",
+            "assignment": {
+                "name": "Enforce-Encrypt-CMK",
+                "displayName": "Enforce recommended guardrails for Customer Managed Keys",
+                "description": "This initiative assignment enables additional ALZ guardrails for Customer Managed Keys."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Encryption-CMK",
+                "displayName": "Deny or Audit resources without Encryption with a customer-managed key (CMK)",
+                "nonComplianceMessages": [
+                    {
+                        "policyDefinitionReferenceId": null,
+                        "message": "Recommended guardrails must be enforced for Customer Managed Keys."
+                    }
+                ]
+            }
         }
     ]
 }

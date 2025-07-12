@@ -1,31 +1,4 @@
-# Integrating EPAC with Azure Landing Zones
-
-## Rationale
-
-Microsoft publishes and maintains a [list of Policies, Policy Sets and Assignments](https://aka.ms/alz/policies) which are deployed as part of the Cloud Adoption Framework Azure Landing Zones deployment. The central repository that contains these policies acts as the source of truth for ALZ deployments via the portal, Bicep and Terraform. A current list of policies which are deployed using these solutions is found at this link.
-
-To enable customers to use the Enterprise Policy as Code solution and combine Microsoft's policy recommendations there is a script which will pull the Policies, Policy Sets and Policy Assignments from the central repository and allow you to deploy them using this solution.
-
-As the policies and assignments change in main repository the base files in this solution can be updated to match.
-
-## Why and when should you use EPAC to manage ALZ deployed policies
-
-EPAC can be used to manage Azure Policy deployed using ALZ Bicep or Terraform using the scenarios below. Some reasons you may want to switch to EPAC policy management include:
-
-- You have existing unmanaged policies in a brownfield environment that you want to deploy in the new ALZ environment. [Export the existing policies](start-extracting-policy-resources.md) and manage them with EPAC alongside the ALZ policy objects.
-- You have ALZ deployed in a non standard way e.g. multiple management group structures for testing, non-conventional management group structure. The default assignment structure provided by other ALZ deployment methods may not fit your strategy.
-- A team that is not responsible for infrastructure deployment e.g. a security team may want to deploy and manage policies.
-- You require features from policy not available in the ALZ deployments e.g. policy exemptions, documentation, assignment customization.
-- Non-compliance reporting and remediation task management.
-
-Instructions are provided below for integrating with Bicep and Terraform deployments.
-
-## Scenarios
-
-There are two scenarios for integrating EPAC with ALZ.
-
-1. Existing Azure Landing Zone deployment and EPAC is to be used as the policy engine moving forward.
-2. Using EPAC to deploy and manage the Azure Landing Zone policies.
+# Integrating EPAC with the Azure Landing Zones Library (Legacy)
 
 ## Scenario 1 - Existing Deployment
 
@@ -128,7 +101,7 @@ To deploy the ALZ policies using EPAC follow the steps below.
     New-HydrationDefinitionsFolder -DefinitionsRootFolder .\Definitions
     ```
 
-3. Update the `global-settings.json` file in the Definitions folder as described [here](definitions-and-global-settings.md#global-settings)
+3. Update the `global-settings.json` file in the Definitions folder as described [here](settings-global-setting-file.md)
 
 4. Synchronize the policies from the upstream repository. You should ensure that you are running the latest version of the EPAC module before running this script each time.
 
@@ -182,8 +155,8 @@ To deploy the ALZ policies using EPAC follow the steps below.
 
 6. Update assignment parameters.
 
-> [!WARNING] 
-> Carefully review the parameters and policies deployed as they have recently changed. Review each asssignment file carefully and ensure all parameter values are completed. Due to changes in usage of the Azure Monitor Agent - there are some Data Collection Rules that must be deployed prior to assigning the policies - the source for these DCRs are provided in the assignment file parameter comments. 
+> [!WARNING]
+> Carefully review the parameters and policies deployed as they have recently changed. Review each assignment file carefully and ensure all parameter values are completed. Due to changes in usage of the Azure Monitor Agent - there are some Data Collection Rules that must be deployed prior to assigning the policies - the source for these DCRs are provided in the assignment file parameter comments.
 
     Several of the assignment files also have parameters which need to be in place. Pay attention to the requirements about having a Log Analytics workspace deployed prior to assigning these policies as it is a requirement for several of the assignments. Less generic parameters are also available for modification in the assignment files.
 
@@ -191,7 +164,7 @@ To deploy the ALZ policies using EPAC follow the steps below.
 
 ## Keeping up to date with changes manually
 
-The Azure Landing Zone deployment contains a number of policies which help provide guardrails to an environment, and the team which works on these policies is always providing updates to the original content to keep in line with Microsoft best practice and road map. The EPAC solution contains a function to help synchronize changes from the upstream project
+The Azure Landing Zone deployment contains several policies that help provide guardrails to an environment, and the team that works on these policies is always providing updates to the original content to keep in line with Microsoft's best practices and road maps. The EPAC solution contains a function to help synchronize changes from the upstream project.
 
 To pull the latest changes from the upstream repository - use the code below.
 
@@ -202,19 +175,19 @@ Sync-ALZPolicies -DefinitionsRootFolder .\Definitions -CloudEnvironment AzureClo
 Carefully review the proposed changes before deploying them. It is best to make sure you're project is stored in source control so you can easily see which files have changed before deployment.
 
 > [!WARNING]
-> If you have follow Scenario 1 above, the first time you run the `Sync-ALZPolicies` there will be many changes recorded due to formatting. Review the files completely before deploying.
+> If you have followed Scenario 1 above, the first time you run the `Sync-ALZPolicies`, there will be many changes recorded due to formatting. Review the files completely before deploying.
 
 > [!WARNING]
 > Assignments deployed via the ALZ accelerators are kept in sync with the EnterprisePolicyAsCode module so ensure you have the latest PowerShell module installed before running `Sync-ALZPolicies`
 
 > [!TIP]
-> Rename or copy the default ALZ assignment files - when you do a sync it makes it easier to compare changes.
+> Rename or copy the default ALZ assignment files - when you do a sync, it makes it easier to compare changes.
 
 ## Keeping up to date with GitHub Actions
 
 There is a GitHub action workflow which executes the above script. The process for configuring it is below.
 
-1. Copy the `alz-sync.yaml` file from [here](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/StarterKit/Pipelines/GitHubActions/.github/workflows/alz-sync.yaml) to `.github\workflows\alz-sync.yaml` in your repository.
+1. Copy the `alz-sync.yaml` file from [here](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/StarterKit/Pipelines/GitHubActions/alz-sync.yaml) to `.github\workflows\alz-sync.yaml` in your repository.
 2. Update the `env:` section with details below
 
     | Environment Variable Name | Value | Notes |

@@ -1,4 +1,4 @@
-function Get-HydrrationChildManagementGroupNameList {
+function Get-HydrationChildManagementGroupNameList {
     <#
     .SYNOPSIS
         This function retrieves a list of all child management groups of a given management group.
@@ -24,13 +24,13 @@ function Get-HydrrationChildManagementGroupNameList {
         $ManagementGroupName
     )
     $childMgsList = @()
-    $mgs = Get-AzManagementGroup $ManagementGroupName -Recurse -Expand
+    $mgs = Get-AzManagementGroupRestMethod -GroupId $ManagementGroupName -Expand  -Recurse 
     do {
         $childMgs = @()
         foreach ($mg in $mgs) {
             $childMgsList += $mg
-            foreach ($cMg in $mg.Children) {
-                $childMgs += $cMg.Children | Where-Object { $_.Type -eq "Microsoft.Management/managementGroups" }
+            foreach ($cMg in $mg.properties.children) {
+                $childMgs += $cMg.properties.children | Where-Object { $_.Type -eq "Microsoft.Management/managementGroups" }
             } 
         }
         Clear-Variable mgs

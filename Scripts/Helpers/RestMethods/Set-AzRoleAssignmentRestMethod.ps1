@@ -33,16 +33,24 @@ function Set-AzRoleAssignmentRestMethod {
 
     # Process response
     $statusCode = $response.StatusCode
-    if ($statusCode -eq 409) {
-        if ($response.content -match "ScopeLocked") {
-            Write-Warning "Scope at $($RoleAssignment.scope) is locked, cannot update role assignment"
+    if ($statusCode -lt 200 -or $statusCode -ge 300) {
+        if ($statusCode -eq 409) {
+            if ($response.content -match "ScopeLocked") {
+                Write-Warning "Scope at $($RoleAssignment.scope) is locked, cannot update role assignment"
+            }
+            else {
+                Write-Warning "Role assignment already exists (ignore): $($RoleAssignment.assignmentDisplayName)"
+            }     
+        }
+        elseif ($statusCode -eq 403 -and $response.content -match "does not have authorization to perform action") {
+            Write-Error "Error, Permissions Issue. Please review permissions for service principal at scope $($RoleAssignment.scope) -- $($response.content)"
+        }
+        elseif ($statusCode -eq 403 -and $response.content -match "has an authorization with ABAC condition that is not fulfilled to perform action") {
+            Write-Error "Error, ABAC Permissions Issue. Please review permissions for service principal at scope $($RoleAssignment.scope) -- $($response.content)"
         }
         else {
-            Write-Warning "Role assignment already exists (ignore): $($RoleAssignment.assignmentDisplayName)"
-        }     
-    }
-    else {
-        $content = $response.Content
-        Write-Warning "Error, continue deployment: $($statusCode) -- $($content)"
+            $content = $response.Content
+            Write-Warning "Error, continue deployment: $($statusCode) -- $($content)"
+        }
     }
 }

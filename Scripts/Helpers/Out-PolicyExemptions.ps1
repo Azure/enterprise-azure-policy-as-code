@@ -22,6 +22,34 @@ function Out-PolicyExemptions {
         $null = New-Item $outputPath -Force -ItemType directory
     }
 
+    
+    #region Sort Metadata and epacMetaData
+    $exemptionskeys = $Exemptions.Keys
+    foreach ($key in $exemptionskeys) {
+        # Create a new ordered hash table
+        $orderedMetadata = [ordered]@{}
+        # Get the properties of the original object and sort them alphabetically
+        $metadataKeys = $Exemptions.$($key).metadata.Keys | Sort-Object
+        # Add the sorted properties to the new ordered hash table
+        foreach ($metadataKey in $metadataKeys) {
+            $orderedMetadata.$metadataKey = $Exemptions.$($key).metadata.$metadataKey
+        }
+        $Exemptions.$($key).metadata = $orderedMetadata
+    }
+
+    $exemptionskeys = $Exemptions.Keys
+    foreach ($key in $exemptionskeys) {
+        # Create a new ordered hash table
+        $orderedEpacMetadata = [ordered]@{}
+        # Get the properties of the original object and sort them alphabetically
+        $epacMetadataKeys = $Exemptions.$($key).metadata.epacMetadata.Keys | Sort-Object
+        # Add the sorted properties to the new ordered hash table
+        foreach ($epacMetadataKey in $epacMetadataKeys) {
+            $orderedEpacMetadata.$epacMetadataKey = $Exemptions.$($key).metadata.epacMetadata.$epacMetadataKey
+        }
+        $Exemptions.$($key).metadata.epacMetadata = $orderedEpacMetadata
+    }
+
     #region Transformations
 
     $policyDefinitionReferenceIdsTransform = @{
@@ -113,7 +141,7 @@ function Out-PolicyExemptions {
         Write-Information "Output $numberOfExemptions active (not expired or orphaned) Exemptions for epac environment '$pacSelector'"
         Write-Information "==================================================================================================="
         if ($OutputJson) {
-            $selectedArray = $selectedExemptions | Where-Object status -eq "active" | Select-Object -Property name, `
+            $selectedArray = $selectedExemptions | Where-Object status -in @("active", "active-expiring-within-15-days") | Select-Object -Property name, `
                 displayName, `
                 description, `
                 exemptionCategory, `
@@ -128,6 +156,17 @@ function Out-PolicyExemptions {
             if ($selectedArray -and $selectedArray.Count -gt 0) {
                 $jsonArray += $selectedArray
             }
+            # Logic to force the order of the Metadata property (DeployedBy first, then epacMetadata)
+            foreach ($array in $jsonArray) {
+                if ($null -ne $array.Metadata) {
+                    $meta = $array.Metadata
+                    $orderedMeta = [ordered]@{
+                        deployedBy   = $meta['deployedBy']
+                        epacMetadata = $meta['epacMetadata']
+                    }
+                    $array.Metadata = $orderedMeta
+                }
+            }
             $jsonFile = "$stem.$FileExtension"
             if (Test-Path $jsonFile) {
                 Remove-Item $jsonFile
@@ -139,7 +178,7 @@ function Out-PolicyExemptions {
             ConvertTo-Json $outputJsonObj -Depth 100 | Out-File $jsonFile -Force
         }
         if ($OutputCsv) {
-            $selectedArray = $selectedExemptions | Where-Object status -eq "active" | Select-Object -Property name, `
+            $selectedArray = $selectedExemptions | Where-Object status -in @("active", "active-expiring-within-15-days") | Select-Object -Property name, `
                 displayName, `
                 description, `
                 exemptionCategory, `
@@ -153,6 +192,19 @@ function Out-PolicyExemptions {
             $excelArray = @()
             if ($null -ne $selectedArray -and $selectedArray.Count -gt 0) {
                 $excelArray += $selectedArray
+            }
+            # Logic to force the order of the Metadata property (DeployedBy first, then epacMetadata)
+            foreach ($array in $excelArray) {
+                if ($null -ne $array.Metadata) {
+                    $metaString = $array.Metadata
+                    $meta = $metaString | ConvertFrom-Json -Depth 100
+                    $orderedMeta = [ordered]@{
+                        deployedBy   = $meta.deployedBy
+                        epacMetadata = $meta.epacMetadata
+                    }
+                    $orderedMetadata = (ConvertTo-Json $orderedMeta -Depth 100 -Compress).ToString()
+                    $array.Metadata = $orderedMetadata
+                }
             }
             $csvFile = "$stem.csv"
             if (Test-Path $csvFile) {
@@ -196,6 +248,17 @@ function Out-PolicyExemptions {
             if ($selectedArray -and $selectedArray.Count -gt 0) {
                 $jsonArray += $selectedArray
             }
+            # Logic to force the order of the Metadata property (DeployedBy first, then epacMetadata)
+            foreach ($array in $jsonArray) {
+                if ($null -ne $array.Metadata) {
+                    $meta = $array.Metadata
+                    $orderedMeta = [ordered]@{
+                        deployedBy   = $meta['deployedBy']
+                        epacMetadata = $meta['epacMetadata']
+                    }
+                    $array.Metadata = $orderedMeta
+                }
+            }
             $jsonFile = "$stem.$FileExtension"
             if (Test-Path $jsonFile) {
                 Remove-Item $jsonFile
@@ -223,6 +286,19 @@ function Out-PolicyExemptions {
             $excelArray = @()
             if ($null -ne $selectedArray -and $selectedArray.Count -gt 0) {
                 $excelArray += $selectedArray
+            }
+            # Logic to force the order of the Metadata property (DeployedBy first, then epacMetadata)
+            foreach ($array in $excelArray) {
+                if ($null -ne $array.Metadata) {
+                    $metaString = $array.Metadata
+                    $meta = $metaString | ConvertFrom-Json -Depth 100
+                    $orderedMeta = [ordered]@{
+                        deployedBy   = $meta.deployedBy
+                        epacMetadata = $meta.epacMetadata
+                    }
+                    $orderedMetadata = (ConvertTo-Json $orderedMeta -Depth 100 -Compress).ToString()
+                    $array.Metadata = $orderedMetadata
+                }
             }
             $csvFile = "$stem.csv"
             if (Test-Path $csvFile) {

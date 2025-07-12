@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS 
-    Builds documentation from instructions in policyDocumentations folder reading the delployed Policy Resources from the EPAC envioronment.   
+    Builds documentation from instructions in policyDocumentations folder reading the deployed Policy Resources from the EPAC environment.   
 
 .PARAMETER DefinitionsRootFolder
     Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
@@ -18,19 +18,19 @@
     Suppresses prompt for confirmation to delete existing file in interactive mode
 
 .PARAMETER IncludeManualPolicies
-    Include Policies with effect Manual. Default: do not include Polcies with effect Manual.
+    Include Policies with effect Manual. Default: do not include Policies with effect Manual.
 
 .EXAMPLE
     Build-PolicyDocumentation.ps1 -DefinitionsRootFolder "C:\PAC\Definitions" -OutputFolder "C:\PAC\Output" -Interactive
-    Builds documentation from instructions in policyDocumentations folder reading the delployed Policy Resources from the EPAC envioronment.
+    Builds documentation from instructions in policyDocumentations folder reading the deployed Policy Resources from the EPAC environment.
 
 .EXAMPLE
     Build-PolicyDocumentation.ps1 -Interactive
-    Builds documentation from instructions in policyDocumentations folder reading the delployed Policy Resources from the EPAC envioronment. The script prompts for the PAC environment and uses the default definitions and output folders.
+    Builds documentation from instructions in policyDocumentations folder reading the deployed Policy Resources from the EPAC environment. The script prompts for the PAC environment and uses the default definitions and output folders.
 
 .EXAMPLE
     Build-PolicyDocumentation.ps1 -DefinitionsRootFolder "C:\PAC\Definitions" -OutputFolder "C:\PAC\Output" -Interactive -SuppressConfirmation
-    Builds documentation from instructions in policyDocumentations folder reading the delployed Policy Resources from the EPAC envioronment. The script prompts for the PAC environment and uses the default definitions and output folders. It suppresses prompt for confirmation to delete existing file in interactive mode.
+    Builds documentation from instructions in policyDocumentations folder reading the deployed Policy Resources from the EPAC environment. The script prompts for the PAC environment and uses the default definitions and output folders. It suppresses prompt for confirmation to delete existing file in interactive mode.
 
 .LINK
     https://azure.github.io/enterprise-azure-policy-as-code/#deployment-scripts
@@ -54,8 +54,17 @@ param (
     [Parameter(Mandatory = $false, HelpMessage = "Suppresses prompt for confirmation of each file in interactive mode")]
     [switch] $SuppressConfirmation,
 
-    [Parameter(Mandatory = $false, HelpMessage = "Include Policies with effect Manual. Default: do not include Polcies with effect Manual.")]
-    [switch] $IncludeManualPolicies
+    [Parameter(Mandatory = $false, HelpMessage = "Include Policies with effect Manual. Default: do not include Policies with effect Manual.")]
+    [switch] $IncludeManualPolicies,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Include if using a PAT token for pushing to ADO Wiki.")]
+    [string] $WikiClonePat,
+
+    [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
+    [string] $pacSelector,
+
+    [parameter(Mandatory = $false, HelpMessage = "Will only document assignments that are managed by your defined PAC Owner", Position = 0)]
+    [switch] $OnlyCheckManagedAssignments
 )
 
 # Dot Source Helper Scripts
@@ -70,6 +79,13 @@ $pacEnvironments = $globalSettings.pacEnvironments
 $outputPath = "$($globalSettings.outputFolder)/policy-documentation"
 if (-not (Test-Path $outputPath)) {
     New-Item $outputPath -Force -ItemType directory
+}
+$outputPathServices = "$($globalSettings.outputFolder)/policy-documentation/services"
+if (-not (Test-Path $outputPathServices)) {
+    New-Item $outputPathServices -Force -ItemType directory
+}
+else {
+    Get-ChildItem -Path $outputPathServices -File | Remove-Item
 }
 
 # Telemetry
@@ -249,7 +265,7 @@ foreach ($file in $files) {
         }
 
         # Process instructions to document Assignments
-        if ($documentationSpec.documentAssignments) {
+        if ($documentationSpec.documentAssignments -and !$documentationSpec.documentAssignments.documentAllAssignments) {
             $documentAssignments = $documentationSpec.documentAssignments
             $environmentCategories = $documentAssignments.environmentCategories
 
@@ -299,7 +315,6 @@ foreach ($file in $files) {
                     }
                 )
             }
-
             # Build documents
             $documentationSpecifications = $documentAssignments.documentationSpecifications
             foreach ($documentationSpecification in $documentationSpecifications) {
@@ -309,10 +324,13 @@ foreach ($file in $files) {
                 }
                 Out-DocumentationForPolicyAssignments `
                     -OutputPath $outputPath `
+                    -OutputPathServices $outputPathServices `
                     -WindowsNewLineCells:$WindowsNewLineCells `
                     -DocumentationSpecification $documentationSpecification `
                     -AssignmentsByEnvironment $assignmentsByEnvironment `
-                    -IncludeManualPolicies:$IncludeManualPolicies
+                    -IncludeManualPolicies:$IncludeManualPolicies `
+                    -PacEnvironments $pacEnvironments `
+                    -WikiClonePat $WikiClonePat
                 # Out-DocumentationForPolicyAssignments `
                 #     -OutputPath $outputPath `
                 #     -WindowsNewLineCells:$true `
@@ -321,5 +339,220 @@ foreach ($file in $files) {
             }
         }
 
+        if ($documentationSpec.documentAssignments -and $documentationSpec.documentAssignments.documentAllAssignments) {
+            # Load pacEnvironments from policy documentations folder
+            $pacEnvironmentSelector = $documentationSpec.documentAssignments.documentAllAssignments.pacEnvironment
+
+            # Check to see if PacSelector was passed as a parameter
+            if ($pacSelector) {
+                $pacEnvironmentSelector = $pacSelector
+                $pacSelectorDocumentAllAssignments = $documentationSpec.documentAssignments.documentAllAssignments | Where-Object { $_.pacEnvironment -eq "$pacSelector" }
+                $documentationSpec.documentAssignments.documentAllAssignments = $pacSelectorDocumentAllAssignments
+
+                if ($null -eq $documentationSpec.documentAssignments.documentAllAssignments) {
+                    Write-Error "Provided PacSelector '$pacSelector' not found in $($file.Name)!" -ErrorAction Stop
+                }
+            }
+
+            # Check to see if PacSelector was not passed as a parameter but there are multiple pacEnvironments configured within documentAllAssignments
+            if ($pacEnvironmentSelector.count -gt 1 -and $pacSelector -eq "") {
+                Write-Error "Multiple 'pacEnvironments' found in $($file.Name) - Please provide parameter -PacSelector to specify the documentation needed to be created" -ErrorAction Stop
+            }
+            $pacEnvironment = Switch-PacEnvironment `
+                -PacEnvironmentSelector $pacEnvironmentSelector `
+                -PacEnvironments $pacEnvironments `
+                -Interactive $Interactive
+
+            # Retrieve Policies and PolicySets for current pacEnvironment from cache or from Azure
+            $policyResourceDetails = Get-AzPolicyResourcesDetails `
+                -PacEnvironmentSelector $pacEnvironmentSelector `
+                -PacEnvironment $pacEnvironment `
+                -CachedPolicyResourceDetails $cachedPolicyResourceDetails `
+                -CollectAllPolicies
+
+            # Create artificial Environment Categories based on Assignment Scope
+            $environmentCategories = @()
+            foreach ($key in $policyResourceDetails.policyAssignments.keys) {
+                if ($environmentCategories.environmentCategory -notContains ($policyResourceDetails.policyAssignments.$key.scopeDisplayName)) {
+                    $environmentCategories += New-Object PSObject -Property @{
+                        pacEnvironment            = $pacEnvironmentSelector
+                        environmentCategory       = $policyResourceDetails.policyAssignments.$key.scopeDisplayName
+                        scopes                    = @($policyResourceDetails.policyAssignments.$key.scopeType + ": " + $policyResourceDetails.policyAssignments.$key.scopeDisplayName)
+                        representativeAssignments = @()
+                        scopeid                   = $policyResourceDetails.policyAssignments.$key.scope
+                    }
+                }
+            }
+            
+            # Assignment by environmentCategory
+            foreach ($environment in $environmentCategories) {
+                foreach ($key in $policyResourceDetails.policyAssignments.keys) {
+                    # Validate the categories match to the populate with an assignment
+                    if ($environment.environmentCategory -eq $policyResourceDetails.policyAssignments.$key.scopeDisplayName) {   
+                        # Validate it is not in our list of skipAssignments
+                        if ($key -notin $documentationSpec.documentAssignments.documentAllAssignments.skipPolicyAssignments) {
+                            $defID = $policyResourceDetails.policyAssignments.$key.properties.policyDefinitionId
+                            # Validate it is not in our list of skipPolicyDefinitions
+                            if ($defID -notin $documentationSpec.documentAssignments.documentAllAssignments.skipPolicyDefinitions) {
+                                $suffix = [guid]::NewGuid().Guid.split("-")[0]
+                                $environment.representativeAssignments += New-Object PSObject -Property @{
+                                    shortName = $policyResourceDetails.policyAssignments.$key.name + "_" + $suffix
+                                    id        = $policyResourceDetails.policyAssignments.$key.id
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            # Set overrideEnvironmentCategory to false if does not exist
+            if ($null -eq $documentationSpec.documentAssignments.documentAllAssignments.overrideEnvironmentCategory) {
+                $overrideEnvironmentCategory = ""
+            }
+            else {
+                $overrideEnvironmentCategory = $documentationSpec.documentAssignments.documentAllAssignments.overrideEnvironmentCategory 
+            }
+
+            # Update overrideEnvironmentCategory where applicable
+            if (!$overrideEnvironmentCategory -eq "") {
+                foreach ($environment in $environmentCategories) {
+                    foreach ($category in $overrideEnvironmentCategory.PSObject.Properties) {
+                        if ($environment.scopeid -in $category.Value) {
+                            $environment.environmentCategory = $category.Name
+                        }
+                    }
+                }
+                $tempEnvironmentCategory = @()
+                foreach ($envCategory in $environmentCategories) {
+                    if ($envCategory.environmentCategory -notin $tempEnvironmentCategory.environmentCategory) {
+                        $tempEnvironmentCategory += New-Object PSObject -Property @{
+                            pacEnvironment            = $envCategory.pacEnvironment
+                            environmentCategory       = $envCategory.environmentCategory
+                            scopes                    = $envCategory.scopes
+                            representativeAssignments = $envCategory.representativeAssignments
+                            scopeid                   = $envCategory.scopeid
+                        }
+                    }
+                    else {
+                        $tempEnvironmentCategory | Where-Object { $_.environmentCategory -eq $envCategory.environmentCategory } | ForEach-Object { $_.scopes += $envCategory.scopes }
+                        $tempEnvironmentCategory | Where-Object { $_.environmentCategory -eq $envCategory.environmentCategory } | ForEach-Object { $_.representativeAssignments += $envCategory.representativeAssignments }
+                        $tempEnvironmentCategory | Where-Object { $_.environmentCategory -eq $envCategory.environmentCategory } | ForEach-Object { $_.scopeid = "Multiple" }
+                    }
+                }
+
+                $environmentCategories = $tempEnvironmentCategory
+            }
+
+            # Logic to move Tenant Root group to the first entry / column on Markdown
+            $tenantRootCategory = $environmentCategories | Where-Object { $_.environmentCategory -eq "Tenant Root Group" }
+            if ($null -ne $tenantRootCategory) {
+                $environmentCategories = $environmentCategories | Where-Object { $_.environmentCategory -ne "Tenant Root Group" }
+                $environmentCategories = , $tenantRootCategory + $environmentCategories
+            }
+
+            $documentAssignments = $documentationSpec.documentAssignments
+            # Check if the member already exists
+            if ($documentAssignments | Get-Member -Name "environmentCategories" -MemberType NoteProperty) {
+                $documentAssignments.environmentCategories = $environmentCategories
+            }
+            else {
+                $documentAssignments | Add-Member -MemberType NoteProperty -Name "environmentCategories" -Value $environmentCategories
+            }
+
+            $envCategoriesArray = @()
+            foreach ($category in $environmentCategories.environmentCategory) {
+                $envCategoriesArray += $category
+            }
+
+            $tempDocumentationSpecifications = @()
+            $tempDocumentationSpecifications += New-Object PSObject -Property @{
+                fileNameStem               = $documentAssignments.documentationSpecifications.fileNameStem
+                environmentCategories      = $envCategoriesArray
+                title                      = $documentAssignments.documentationSpecifications.title
+                markdownAdoWiki            = $documentAssignments.documentationSpecifications.markdownAdoWiki
+                markdownAdoWikiConfig      = if ($null -ne $documentAssignments.documentationSpecifications.markdownAdoWikiConfig) { $documentAssignments.documentationSpecifications.markdownAdoWikiConfig }else { $null }
+                markdownMaxParameterLength = if ($null -ne $documentAssignments.documentationSpecifications.markdownMaxParameterLength) { $documentAssignments.documentationSpecifications.markdownMaxParameterLength }else { $null }
+            }
+
+            $documentAssignments.documentationSpecifications = $tempDocumentationSpecifications
+
+            [hashtable] $assignmentsByEnvironment = @{}
+            foreach ($environmentCategoryEntry in $environmentCategories) {
+                if (-not $environmentCategoryEntry.pacEnvironment) {
+                    Write-Error "JSON document does not contain the required 'pacEnvironment' element." -ErrorAction Stop
+                }
+
+                # Retrieve assignments and process information or retrieve from cache is assignment previously processed
+                $assignmentArray = $environmentCategoryEntry.representativeAssignments
+
+                $itemList, $assignmentsDetails = Get-PolicyAssignmentsDetails `
+                    -PacEnvironmentSelector $currentPacEnvironmentSelector `
+                    -AssignmentArray $assignmentArray `
+                    -PolicyResourceDetails $policyResourceDetails `
+                    -CachedAssignmentsDetails $cachedAssignmentsDetails
+
+                # Remove entries if not managed by PAC
+                if ($OnlyCheckManagedAssignments) {
+    
+                    # Collect keys to remove
+                    $keysToRemove = @()
+                    foreach ($key in $assignmentsDetails.Keys) {
+                        $pacOwner = $assignmentsDetails[$key].assignment.pacOwner
+                        if ($pacOwner -eq "unknownOwner" -or $pacOwner -eq "otherPac") {
+                            $keysToRemove += $key
+                        }
+                    }
+
+                    # Remove the entries from assignmentsDetails
+                    foreach ($key in $keysToRemove) {
+                        $assignmentsDetails.Remove($key)
+                    }
+
+                    # Remove the entries from ItemList
+                    $itemList = $itemList | Where-Object { $_.assignmentId -notin $keysToRemove }
+                }
+
+                If ($assignmentsDetails.Count -eq 0) {
+                    Write-Error "No EPAC owned assignments found for pacEnvironment '$($environmentCategoryEntry.pacEnvironment)' in environment category '$($environmentCategoryEntry.environmentCategory)'. Skipping documentation generation."
+                }
+
+                # Flatten Policy lists in Assignments and reconcile the most restrictive effect for each Policy
+                $flatPolicyList = Convert-PolicyResourcesDetailsToFlatList `
+                    -ItemList $itemList `
+                    -Details $assignmentsDetails
+
+                # Store results of processing and flattening for use in document generation
+                $null = $assignmentsByEnvironment.Add($environmentCategoryEntry.environmentCategory, @{
+                        pacEnvironmentSelector = $currentPacEnvironmentSelector
+                        scopes                 = $environmentCategoryEntry.scopes
+                        itemList               = $itemList
+                        assignmentsDetails     = $assignmentsDetails
+                        flatPolicyList         = $flatPolicyList
+                    }
+                )
+            }
+            # Build documents
+            $documentationSpecifications = $documentAssignments.documentationSpecifications
+            foreach ($documentationSpecification in $documentationSpecifications) {
+                # Check to see if naming contains prefix for file name
+                if ($documentationSpec.documentAssignments.documentAllAssignments.fileNameStemPrefix) {
+                    $documentationSpecification.fileNameStem = $documentationSpec.documentAssignments.documentAllAssignments.fileNameStemPrefix + "-" + $documentationSpecification.fileNameStem
+                }
+
+                $documentationType = $documentationSpecification.type
+                if ($null -ne $documentationType) {
+                    Write-Information "Field documentationType ($($documentationType)) is deprecated"
+                }
+                Out-DocumentationForPolicyAssignments `
+                    -OutputPath $outputPath `
+                    -OutputPathServices $outputPathServices `
+                    -WindowsNewLineCells:$WindowsNewLineCells `
+                    -DocumentationSpecification $documentationSpecification `
+                    -AssignmentsByEnvironment $assignmentsByEnvironment `
+                    -IncludeManualPolicies:$IncludeManualPolicies `
+                    -PacEnvironments $pacEnvironments `
+                    -WikiClonePat $WikiClonePat
+            }
+        }
     }
 }

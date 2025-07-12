@@ -3,9 +3,7 @@
 Exports Azure Policy resources in EPAC format or raw format.
 
 .DESCRIPTION
-Exports Azure Policy resources in EPAC format or raw format. It has 4 operating modes - see -Mode parameter for details.
-It also generates documentation for the exported resources (can be suppressed with -SuppressDocumentation).
-To just generate EPAC formatted Definitions without generating documentation files, use -supressEpacOutput.
+Exports Azure Policy resources in EPAC format or raw format. It has 5 operating modes - see -Mode parameter for details.
 
 .PARAMETER DefinitionsRootFolder
 Definitions folder path. Defaults to environment variable $env:PAC_DEFINITIONS_FOLDER or './Definitions'.
@@ -39,9 +37,6 @@ Operating mode:
 .PARAMETER InputPacSelector
 Limits the collection to one EPAC environment, useful for non-interactive use in a multi-tenant scenario, especially with -Mode 'collectRawFile'.
 The default is '*' which will execute all EPAC-Environments.
-
-.PARAMETER SuppressDocumentation
-Suppress documentation generation.
 
 .PARAMETER SuppressEpacOutput
 Suppress output generation in EPAC format.
@@ -103,8 +98,8 @@ param (
     ")]
     [string] $InputPacSelector = '*',
 
-    [Parameter(Mandatory = $false, HelpMessage = "Suppress documentation generation")]
-    [switch] $SuppressDocumentation,
+    # [Parameter(Mandatory = $false, HelpMessage = "Suppress documentation generation")]
+    # [switch] $SuppressDocumentation,
 
     [Parameter(Mandatory = $false, HelpMessage = "Suppress output generation in EPAC format")]
     [switch] $SuppressEpacOutput,
@@ -193,7 +188,8 @@ $propertyNames = @(
     "notScopes",
     "nonComplianceMessages",
     "additionalRoleAssignments",
-    "identityEntry"
+    "identityEntry",
+    "definitionVersion"
 )
 
 $policyResourcesByPacSelector = @{}
@@ -206,9 +202,10 @@ if ($Mode -ne 'exportFromRawFiles') {
 
     foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
 
-        $pacEnvironment = $pacEnvironments.$pacSelector
+        # $pacEnvironment = $pacEnvironments.$pacSelector
 
         if ($InputPacSelector -eq $pacSelector -or $InputPacSelector -eq '*') {
+            $pacEnvironment = Select-PacEnvironment $pacSelector -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -Interactive $Interactive
             $null = Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -Interactive $Interactive
             if ($Mode -eq 'psrule' -and $PSRuleIgnoreFullScope -eq $false) {
                 $pacEnvironmentOriginalScope = $pacEnvironment.deploymentRootScope
@@ -300,6 +297,7 @@ if ($Mode -ne 'exportFromRawFiles') {
                     PolicyDefinitionId    = $policy.Value.properties.policyDefinitionId
                     Parameters            = $policy.Value.properties.parameters
                     NonComplianceMessages = $policy.Value.properties.nonComplianceMessages
+                    DefinitionVersion     = $policy.Value.properties.definitionVersion
                 }
             }
     
@@ -409,11 +407,15 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
             }
             if ($null -ne $rawMetadata.updatedBy) {
                 $rowObj.principalId = $rawMetadata.updatedBy
-                $rowObj.lastChange = ($rawMetadata.updatedOn).ToString("s")
+                $rowObj.lastChange = if ($null -ne $rawMetadata.updatedOn) { ($rawMetadata.updatedOn).ToString("s") } else { "n/a" }
+            }
+            elseif ($null -ne $rawMetadata.createdBy) {
+                $rowObj.principalId = $rawMetadata.createdBy
+                $rowObj.lastChange = if ($null -ne $rawMetadata.createdOn) { ($rawMetadata.createdOn).ToString("s") } else { "n/a" }
             }
             else {
-                $rowObj.principalId = $rawMetadata.createdBy
-                $rowObj.lastChange = ($rawMetadata.createdOn).ToString("s")
+                $rowObj.principalId = "n/a"
+                $rowObj.lastChange = if ($null -ne $rawMetadata.createdOn) { ($rawMetadata.createdOn).ToString("s") } else { "n/a" }
             }
             if ($null -ne $rawMetadata.category) {
                 $rowObj.category = $rawMetadata.category
@@ -497,11 +499,15 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
             }
             if ($null -ne $rawMetadata.updatedBy) {
                 $rowObj.principalId = $rawMetadata.updatedBy
-                $rowObj.lastChange = ($rawMetadata.updatedOn).ToString("s")
+                $rowObj.lastChange = if ($null -ne $rawMetadata.updatedOn) { ($rawMetadata.updatedOn).ToString("s") } else { "n/a" }
+            }
+            elseif ($null -ne $rawMetadata.createdBy) {
+                $rowObj.principalId = $rawMetadata.createdBy
+                $rowObj.lastChange = if ($null -ne $rawMetadata.createdOn) { ($rawMetadata.createdOn).ToString("s") } else { "n/a" }
             }
             else {
-                $rowObj.principalId = $rawMetadata.createdBy
-                $rowObj.lastChange = ($rawMetadata.createdOn).ToString("s")
+                $rowObj.principalId = "n/a"
+                $rowObj.lastChange = if ($null -ne $rawMetadata.createdOn) { ($rawMetadata.createdOn).ToString("s") } else { "n/a" }
             }
             if ($null -ne $rawMetadata.category) {
                 $rowObj.category = $rawMetadata.category
@@ -622,11 +628,15 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
             }
             if ($null -ne $rawMetadata.updatedBy) {
                 $rowObj.principalId = $rawMetadata.updatedBy
-                $rowObj.lastChange = ($rawMetadata.updatedOn).ToString("s")
+                $rowObj.lastChange = if ($null -ne $rawMetadata.updatedOn) { ($rawMetadata.updatedOn).ToString("s") } else { "n/a" }
+            }
+            elseif ($null -ne $rawMetadata.createdBy) {
+                $rowObj.principalId = $rawMetadata.createdBy
+                $rowObj.lastChange = if ($null -ne $rawMetadata.createdOn) { ($rawMetadata.createdOn).ToString("s") } else { "n/a" }
             }
             else {
-                $rowObj.principalId = $rawMetadata.createdBy
-                $rowObj.lastChange = ($rawMetadata.createdOn).ToString("s")
+                $rowObj.principalId = "n/a"
+                $rowObj.lastChange = if ($null -ne $rawMetadata.createdOn) { ($rawMetadata.createdOn).ToString("s") } else { "n/a" }
             }
             if ($null -ne $rawMetadata.category) {
                 $rowObj.category = $rawMetadata.category
@@ -657,6 +667,7 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
             $policyDefinitionKey = $parts.definitionKey
             $enforcementMode = $properties.enforcementMode
             $displayName = $policyAssignment.name
+            $definitionVersion = $properties.definitionVersion
             if ($null -ne $properties.displayName -and $properties.displayName -ne "") {
                 $displayName = $properties.displayName
             }
@@ -697,11 +708,21 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
             }
             if ($identityType -eq "UserAssigned") {
                 $userAssignedIdentities = $policyAssignment.identity.userAssignedIdentities
-                $identityProperty = $userAssignedIdentities.psobject.Properties
-                $identity = $identityProperty.Name
-                $identityEntry = @{
-                    userAssigned = $identity
-                    location     = $location
+                # $identityProperty = $userAssignedIdentities.psobject.Properties
+                $identity = $userAssignedIdentities.GetEnumerator().Name
+                if ($identity.Count -gt 1) {
+                    $identityEntry = $identity | ForEach-Object {
+                        @{
+                            userAssigned = $PSItem
+                            location     = $location
+                        }
+                    }
+                }
+                else {
+                    $identityEntry = @{
+                        userAssigned = $identity
+                        location     = $location
+                    }
                 }
             }
             elseif ($identityType -eq "SystemAssigned") {
@@ -741,6 +762,7 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
                 identityEntry             = $identityEntry
                 scopes                    = $scope
                 notScopes                 = $notScopes
+                definitionVersion         = $definitionVersion
             }
 
             $perDefinition = $null

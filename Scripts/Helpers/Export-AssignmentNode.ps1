@@ -109,7 +109,7 @@ function Export-AssignmentNode {
                         }
                     }
                     if ($notScopesValue.Count -gt 0) {
-                        $null = $AssignmentNode.Add("notScope", $notScopesValue)
+                        $null = $AssignmentNode.Add("notScopes", $notScopesValue)
                     }
                     break
                 }
@@ -123,6 +123,12 @@ function Export-AssignmentNode {
                     }
                     if ($scopeValue.Count -gt 0) {
                         $null = $AssignmentNode.Add("scope", $scopeValue)
+                    }
+                    break
+                }
+                definitionVersion {
+                    if ($null -ne $propertyValue) {
+                        $null = $AssignmentNode.Add("definitionVersion", $propertyValue)
                     }
                     break
                 }

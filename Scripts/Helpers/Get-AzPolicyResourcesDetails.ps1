@@ -3,7 +3,8 @@ function Get-AzPolicyResourcesDetails {
     param (
         [string] $PacEnvironmentSelector,
         [hashtable] $PacEnvironment,
-        [hashtable] $CachedPolicyResourceDetails
+        [hashtable] $CachedPolicyResourceDetails,
+        [switch] $CollectAllPolicies
     )
 
     $policyResourceDetails = $null
@@ -14,11 +15,21 @@ function Get-AzPolicyResourcesDetails {
         # New root scope found
         $scopeTable = Build-ScopeTableForDeploymentRootScope -PacEnvironment $PacEnvironment
         # $NoParallelProcessing = $true
-        $deployed = Get-AzPolicyResources `
-            -PacEnvironment $PacEnvironment `
-            -ScopeTable $scopeTable `
-            -SkipRoleAssignments `
-            -SkipExemptions
+        if ($CollectAllPolicies) {
+            $deployed = Get-AzPolicyResources `
+                -PacEnvironment $PacEnvironment `
+                -ScopeTable $scopeTable `
+                -SkipRoleAssignments `
+                -SkipExemptions `
+                -CollectAllPolicies
+        }
+        else {
+            $deployed = Get-AzPolicyResources `
+                -PacEnvironment $PacEnvironment `
+                -ScopeTable $scopeTable `
+                -SkipRoleAssignments `
+                -SkipExemptions
+        }
 
         $policyResourceDetails = Convert-PolicyResourcesToDetails `
             -AllPolicyDefinitions $deployed.policydefinitions.all `

@@ -24,7 +24,7 @@ function Confirm-ParametersDefinitionMatch {
         }
     }
     foreach ($existingParameterName in $existingParameters.Keys) {
-        # ignore paramer name case
+        # ignore parameter name case
         $definedParameterNameArray = $definedParameters.Keys -eq $existingParameterName
         if ($definedParameterNameArray.Count -gt 0) {
             # found a matching parameter name (case insensitive)

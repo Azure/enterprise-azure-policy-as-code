@@ -49,12 +49,13 @@ function Build-PolicyPlan {
 
         $definitionProperties = Get-PolicyResourceProperties -PolicyResource $definitionObject
         $name = $definitionObject.name
-            
+
         $id = "$deploymentRootScope/providers/Microsoft.Authorization/policyDefinitions/$name"
         $displayName = $definitionProperties.displayName
         $description = $definitionProperties.description
         $metadata = Get-DeepCloneAsOrderedHashtable $definitionProperties.metadata
         $mode = $definitionProperties.mode
+        $version = $definitionProperties.version
         $parameters = $definitionProperties.parameters
         $policyRule = $definitionProperties.policyRule
         if ($null -ne $metadata) {
@@ -77,7 +78,7 @@ function Build-PolicyPlan {
             Write-Error "Policy from file '$($file.Name)' requires a name" -ErrorAction Stop
         }
         if (-not (Confirm-ValidPolicyResourceName -Name $name)) {
-            Write-Error "Policy from file '$($file.Name) has a name '$name' containing invalid charachters <>*%&:?.+/ or ends with a space." -ErrorAction Stop
+            Write-Error "Policy from file '$($file.Name) has a name '$name' containing invalid characters <>*%&:?.+/ or ends with a space." -ErrorAction Stop
         }
         if ($null -eq $displayName) {
             Write-Error "Policy '$name' from file '$($file.Name)' requires a displayName" -ErrorAction Stop
@@ -114,6 +115,7 @@ function Build-PolicyPlan {
             displayName = $displayName
             description = $description
             mode        = $mode
+            version     = $version
             metadata    = $metadata
             parameters  = $parameters
             policyRule  = $policyRule
@@ -193,7 +195,7 @@ function Build-PolicyPlan {
             Write-Information "New '$($displayName)'"
         }
     }
-       
+
 
     $strategy = $PacEnvironment.desiredState.strategy
     foreach ($id in $deleteCandidates.Keys) {

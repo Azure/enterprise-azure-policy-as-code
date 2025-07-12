@@ -12,11 +12,13 @@ This script executes all remediation tasks in a Policy as Code environment speci
 * Query Policy Insights for non-complaint resources
 * Start remediation task for each Policy with non-compliant resources
 * Switch parameter `-OnlyCheckManagedAssignments` includes non-compliance data only for Policy assignments owned by this Policy as Code repo.
+* Switch parameter `-OnlyDefaultEnforcementMode` to only run remediation tasks against policy assignments that have enforcement mode set to 'Default'"\.
 
 #### Links
 
-- [Remediate non-compliant resources with Azure Policy](https://learn.microsoft.com/en-us/azure/governance/policy/how-to/remediate-resources?tabs=azure-portal)
-- [Start-AzPolicyRemediation](https://learn.microsoft.com/en-us/powershell/module/az.policyinsights/start-azpolicyremediation?view=azps-10.1.0)
+* [Guidance: Implementing an Azure Policy Based Remediation Solution](./guidance-remediation.md)
+* [Remediate non-compliant resources with Azure Policy](https://learn.microsoft.com/en-us/azure/governance/policy/how-to/remediate-resources?tabs=azure-portal)
+* [Start-AzPolicyRemediation](https://learn.microsoft.com/en-us/powershell/module/az.policyinsights/start-azpolicyremediation?view=azps-10.1.0)
 
 ## Documenting Policy
 
@@ -24,9 +26,9 @@ This script executes all remediation tasks in a Policy as Code environment speci
 
 ## Policy Resources Exports
 
-- `Export-AzPolicyResources` exports Azure Policy resources in EPAC. It also generates documentation for the exported resources (can be suppressed with `-SuppressDocumentation`). See usage documentation in [Extract existing Policy Resources](start-extracting-policy-resources.md).
-- `Get-AzExemptions` retrieves Policy Exemptions from an EPAC environment and saves them to files.
-- `Get-AzPolicyAliasOutputCSV` exports Policy Aliases to CSV format.
+* `Export-AzPolicyResources` exports Azure Policy resources in EPAC. See usage documentation in [Extract existing Policy Resources](start-extracting-policy-resources.md).
+* `Get-AzExemptions` retrieves Policy Exemptions from an EPAC environment and saves them to files.
+* `Get-AzPolicyAliasOutputCSV` exports Policy Aliases to CSV format.
 
 ## Hydration Kit
 
@@ -36,16 +38,44 @@ The Hydration Kit is a set of scripts that can be used to deploy an EPAC environ
 
 The scripts `New-AzureDevOpsBug` and `New-GitHubIssue` create a Bug or Issue when there are one or multiple failed Remediation Tasks.
 
+## Export Policy To EPAC
+
+The script `Export-PolicyToEPAC.ps1` creates for you the policyAssignments, policyDefinitions, and policySetDefinitions based on the provided definition/set ID into an Output folder under 'Export'.
+
+Parameters:
+
+* **PolicyDefinitionId**: Mandatory url of the policy or policy set from AzAdvertizer.
+
+* **PolicySetDefinitionId**: Mandatory url of the policy or policy set from AzAdvertizer.
+
+* **ALZPolicyDefinitionId**: Mandatory url of the policy or policy set from AzAdvertizer.
+
+* **ALZPolicySetDefinitionId**: Mandatory url of the policy or policy set from AzAdvertizer.
+
+* **OutputFolder**: Output Folder. Defaults to the path 'Output'.
+
+* **AutoCreateParameters**: Automatically create parameters for Azure Policy Sets and Assignment Files.
+
+* **UseBuiltIn**: Default to using builtin policies rather than local versions.
+
+* **PacSelector**: Used to set PacEnvironment for each assignment file based on the pac selector privided. This pulls from global-settings.jsonc, therefore it must exist or an erro will be thrown.
+
+* **OverwriteScope**: Used to overwrite scope value on each assignment file.
+
+* **OverwritePacSelector**: Used to overwrite PacEnvironment for each assignment file.
+
+* **OverwriteOutput**: Used to Overwrite the contents of the output folder with each run. Helpful when running consecutively.
+
 ## Non-compliance Reports
 
 `Export-NonComplianceReports` exports non-compliance reports for EPAC environments . It outputs the reports in the `$OutputFolders/non-compliance-reports` folder.
 
-- `summary-by-policy.csv` contains the summary of the non-compliant resources by Policy definition. The columns contain the resource counts.
-- `summary-by-resource.csv` contains the summary of the non-compliant resources. The columns contain the number of Policies causing the non-compliance.
-- `details-by-policy.csv` contains the details of the non-compliant resources by Policy definition including the non-compliant resource ids. Assignments are combined by Policy definition.
-- `details-by-resource.csv` contains the details of the non-compliant resources sorted by Resource id. Assignments are combined by Resource id.
-- `full-details-by-assignment.csv` contains the details of the non-compliant resources sorted by Policy Assignment id.
-- `full-details-by-resource.csv` contains the details of the non-compliant resources sorted by Resource id including the Policy Assignment details.
+* `summary-by-policy.csv` contains the summary of the non-compliant resources by Policy definition. The columns contain the resource counts.
+* `summary-by-resource.csv` contains the summary of the non-compliant resources. The columns contain the number of Policies causing the non-compliance.
+* `details-by-policy.csv` contains the details of the non-compliant resources by Policy definition including the non-compliant resource ids. Assignments are combined by Policy definition.
+* `details-by-resource.csv` contains the details of the non-compliant resources sorted by Resource id. Assignments are combined by Resource id.
+* `full-details-by-assignment.csv` contains the details of the non-compliant resources sorted by Policy Assignment id.
+* `full-details-by-resource.csv` contains the details of the non-compliant resources sorted by Resource id including the Policy Assignment details.
 
 ### Sample `summary-by-policy.csv`
 
@@ -60,4 +90,3 @@ The scripts `New-AzureDevOpsBug` and `New-GitHubIssue` create a Bug or Issue whe
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | /subscriptions/******************************** | ******************************** | PAC-DEV-001 |  | subscriptions |  |  | 25 | 481 | 0 | 0 | 0 | 0 |
 | /subscriptions/********************************/providers/microsoft.authorization/roledefinitions/0b00bc79-2207-410c-b9d5-d5d182ad514f | ******************************** | PAC-DEV-001 |  | microsoft.authorization/roledefinitions | 0b00bc79-2207-410c-b9d5-d5d182ad514f |  | 0 | 0 | 0 | 0 | 0 | 0 |
-

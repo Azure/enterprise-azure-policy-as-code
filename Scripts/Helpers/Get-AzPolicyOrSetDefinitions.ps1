@@ -26,15 +26,17 @@ function Get-AzPolicyOrSetDefinitions {
             $query = "PolicyResources | where type == 'microsoft.authorization/policydefinitions'"
             $progressItemName = "Policy definitions"
             $excludedIds = $desiredState.excludedPolicyDefinitions
+            $progressIncrement = 1000
         }
         policySetDefinitions {
             $query = "PolicyResources | where type == 'microsoft.authorization/policysetdefinitions'"
             $progressItemName = "Policy Set definitions"
             $excludedIds = $desiredState.excludedPolicySetDefinitions
+            $progressIncrement = 250
         }
     }
 
-    $policyResources = Search-AzGraphAllItems -Query $query -ProgressItemName $progressItemName
+    $policyResources = Search-AzGraphAllItems -Query $query -ProgressItemName $progressItemName -ProgressIncrement $progressIncrement
     foreach ($policyResource in $policyResources) {
         $resourceTenantId = $policyResource.tenantId
         if ($resourceTenantId -in @($null, "", $environmentTenantId)) {

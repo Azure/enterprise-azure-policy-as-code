@@ -106,7 +106,7 @@ function Build-ExemptionsPlan {
                 $errorInfo.hasLocalErrors = $false
                 $entryNumber++
 
-                #region read row values andd skip empty rows on CSV files
+                #region read row values and skip empty rows on CSV files
                 $name = $row.name
                 $displayName = $row.displayName
                 $exemptionCategory = $row.exemptionCategory
@@ -141,11 +141,11 @@ function Build-ExemptionsPlan {
                         continue
                     }
                 }
-                #endregion read row values andd skip empty rows on CSV files
+                #endregion read row values and skip empty rows on CSV files
 
                 if ($isCsvFile) {
 
-                    #region CSV files can define the assignment with assignmentReferenceId or the leagcy policyAssignmentId
+                    #region CSV files can define the assignment with assignmentReferenceId or the legacy policyAssignmentId
                     if ([string]::IsNullOrWhitespace($assignmentReferenceId) -xor [string]::IsNullOrWhitespace($policyAssignmentId)) {
                         if (-not [string]::IsNullOrWhitespace($assignmentReferenceId)) {
                             if ($assignmentReferenceId.StartsWith("policyDefinitions/")) {
@@ -173,7 +173,7 @@ function Build-ExemptionsPlan {
                     else {
                         Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "exactly one of the columns policyAssignmentId or assignmentReferenceId must have a non-empty cell" -EntryNumber $entryNumber
                     }
-                    #endregion CSV files can define the assignment with assignmentReferenceId or the leagcy policyAssignmentId
+                    #endregion CSV files can define the assignment with assignmentReferenceId or the legacy policyAssignmentId
 
                     #region Convert referenceIds into array (if cell empty, set to empty array)
                     $final = @()
@@ -202,12 +202,12 @@ function Build-ExemptionsPlan {
                     }
                     #endregion table must contain scope or scopes column
 
-                    #region Convert resourceSelectors into array (if cell empty, set to Snull)
+                    #region Convert resourceSelectors into array (if cell empty, set to $null)
                     $resourceSelectors = $null
                     $step1 = $row.resourceSelectors
                     if (-not [string]::IsNullOrWhiteSpace($step1)) {
-                        $step2 = $step1.Trim()      
-                        if ($step2.StartsWith("{")) {
+                        $step2 = $step1.Trim()
+                        if ($step2.StartsWith("[")) {
                             try {
                                 $step3 = ConvertFrom-Json $step2 -AsHashTable -Depth 100 -NoEnumerate
                             }
@@ -219,7 +219,7 @@ function Build-ExemptionsPlan {
                             }
                         }
                     }
-                    #endregion Convert resourceSelectors into array (if cell empty, set to Snull)
+                    #endregion Convert resourceSelectors into array (if cell empty, set to $null)
 
                     #region convert metadata JSON to object
                     $step1 = $row.metadata
@@ -420,7 +420,7 @@ function Build-ExemptionsPlan {
                 }
                 else {
                     if (-not (Confirm-ValidPolicyResourceName -Name $name)) {
-                        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "name '$($name.Substring(0, 32))...' contains invalid charachters <>*%&:?.+/ or ends with a space." -EntryNumber $entryNumber
+                        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "name '$($name.Substring(0, 32))...' contains invalid characters <>*%&:?.+/ or ends with a space." -EntryNumber $entryNumber
                     }
                     elseif ($name.Length -gt 64) {
                         Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "name too long (max 64 characters)" -EntryNumber $entryNumber
@@ -525,6 +525,7 @@ function Build-ExemptionsPlan {
                             else {
                                 Write-Warning "Exemption entry $($entryNumber): Exemption '$name' in definitions expired $( - $daysUntilExpired) days ago."
                             }
+                            $Exemptions.numberOfExpired++
                         }
                         elseif ($daysUntilExpired -le 15) {
                             Write-Warning "Exemption entry $($entryNumber): Exemption '$name' in definitions expires in $daysUntilExpired days."
@@ -560,11 +561,21 @@ function Build-ExemptionsPlan {
                                     }
                                 }
                                 else {
-                                    $resources = Get-AzResourceListRestMethod -SubscriptionId $subscriptionId
+                                    if ($currentScope -match "roledefinitions") {
+                                        $resources = Get-AzResourceListRestMethod -SubscriptionId $subscriptionId -CheckCustomRoleDefinitions
+                                    }
+                                    else {
+                                        $resources = Get-AzResourceListRestMethod -SubscriptionId $subscriptionId
+                                    }
                                     $resourceIds = @{}
                                     foreach ($resource in $resources) {
                                         $resourceId = $resource.id
-                                        $resourceIds.Add($resourceId, $resource)
+                                        if (!$resourceIds.ContainsKey($resourceId)) {
+                                            $resourceIds.Add($resourceId, $resource)
+                                        }
+                                        else {
+                                            Write-Debug -Message "Resource '$resourceId' already exists in the resourceIds hashtable."
+                                        }
                                         if ($resourceId -eq $currentScope) {
                                             $resourceStatus = "individualResourceExists"
                                         }
@@ -573,6 +584,7 @@ function Build-ExemptionsPlan {
                                 }
                                 if ($resourceStatus -eq "individualResourceDoesNotExists") {
                                     Write-Warning "Row $($entryNumber): Resource '$currentScope' does not exist, skipping entry."
+                                    $Exemptions.numberOfOrphans++
                                 }
                             }
                             else {
@@ -584,8 +596,14 @@ function Build-ExemptionsPlan {
                         $exemptionScopeDetails = $ScopeTable.$trimmedScope
                     }
                     elseif ($validateScope) {
-                        Write-Warning "Exemption entry $($entryNumber): Exemption scope $($currentScope) not found in current scope tree for root $($PacEnvironment.deploymentRootScope), skipping entry."
-                        $scopeIsValid = $false
+                        if ($trimmedScope -match "microsoft.authorization" ) {
+                            $scopeIsValid = $true
+                            $scopeIsRoleDefinition = $true
+                        }
+                        else {
+                            Write-Warning "Exemption entry $($entryNumber): Exemption scope $($currentScope) not found in current scope tree for root $($PacEnvironment.deploymentRootScope), skipping entry."
+                            $scopeIsValid = $false
+                        }       
                     }
                     else {
                         $exemptionScopeDetails = @{
@@ -614,8 +632,13 @@ function Build-ExemptionsPlan {
                                 Write-Verbose "Assignment scope = '$($policyAssignmentScope)' is in a globally excluded scope"
                             }
                             elseif ($scopeIsValid) {
-                                $parentTable = $exemptionScopeDetails.parentTable
-                                $includeAssignment = $trimmedScope -eq $policyAssignmentScope -or $parentTable.ContainsKey($policyAssignmentScope)
+                                if (!$scopeIsRoleDefinition) {
+                                    $parentTable = $exemptionScopeDetails.parentTable
+                                    $includeAssignment = $trimmedScope -eq $policyAssignmentScope -or $parentTable.ContainsKey($policyAssignmentScope)
+                                }
+                                else {
+                                    $includeAssignment = $true
+                                }
                                 if ($includeAssignment) {
                                     foreach ($notScope in $calculatedPolicyAssignment.notScopes) {
                                         if ($trimmedScope -eq $notScope -or $parentTable.ContainsKey($notScope)) {
@@ -667,6 +690,7 @@ function Build-ExemptionsPlan {
                         }
                         if ($filteredPolicyAssignments.Count -eq 0) {
                             Write-Warning "Exemption entry $($entryNumber): No assignments found for exemption scope $($currentScope), skipping entry."
+                            $Exemptions.numberOfOrphans++
                             continue
                         }
                     }
@@ -800,11 +824,34 @@ function Build-ExemptionsPlan {
                             ordinalString        = $ordinalString
                         }
                         $epacMetadata += $epacMetadataDefinitionSpecification
+
+                        # Create a new ordered hash table
+                        $orderedEpacMetadata = [ordered]@{}
+
+                        # Get the properties of the original object and sort them alphabetically
+                        $sortedKeys = $epacMetadata.Keys | Sort-Object
+
+                        # Add the sorted properties to the new ordered hash table
+                        foreach ($key in $sortedKeys) {
+                            $orderedEpacMetadata[$key] = $epacMetadata[$key]
+                        }
+
                         $clonedMetadata = Get-DeepCloneAsOrderedHashtable $metadata
                         $clonedMetadata.pacOwnerId = $PacEnvironment.pacOwnerId
-                        $clonedMetadata.epacMetadata = $epacMetadata
+                        $clonedMetadata.epacMetadata = $orderedEpacMetadata
                         if (!$clonedMetadata.ContainsKey("deployedBy")) {
                             $clonedMetadata.deployedBy = $PacEnvironment.deployedBy
+                        }
+
+                        # Create a new ordered hash table
+                        $orderedClonedMetadata = [ordered]@{}
+
+                        # Get the properties of the original object and sort them alphabetically
+                        $clonedSortedKeys = $clonedMetadata.Keys | Sort-Object
+                        
+                        # Add the sorted properties to the new ordered hash table
+                        foreach ($key in $clonedSortedKeys) {
+                            $orderedClonedMetadata[$key] = $clonedMetadata[$key]
                         }
                         #endregion metadata
 
@@ -825,7 +872,7 @@ function Build-ExemptionsPlan {
                             assignmentScopeValidation    = $assignmentScopeValidation
                             policyDefinitionReferenceIds = $policyDefinitionReferenceIdsAugmented
                             resourceSelectors            = $resourceSelectors
-                            metadata                     = $clonedMetadata
+                            metadata                     = $orderedClonedMetadata
                             expired                      = $expired
                             scopeIsValid                 = $scopeIsValid
                         }

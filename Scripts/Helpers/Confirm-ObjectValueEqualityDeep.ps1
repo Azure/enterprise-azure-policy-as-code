@@ -14,7 +14,7 @@ function Confirm-ObjectValueEqualityDeep {
             return $true
         }
         if ($null -eq $Object1) {
-            # $Object1 is $null, swap $Object1 and $Object2 to ensure that Object1 (the old Object2) is not $null and Object2 (the old Object1) is $null (setting it to $null is ommited because it is not used in the subsequent code)
+            # $Object1 is $null, swap $Object1 and $Object2 to ensure that Object1 (the old Object2) is not $null and Object2 (the old Object1) is $null (setting it to $null is omitted because it is not used in the subsequent code)
             $Object1 = $Object2
             $Object2 = $null
         }
@@ -37,9 +37,31 @@ function Confirm-ObjectValueEqualityDeep {
             # $Object1 or $Object2 is an array or ArrayList
             if ($Object1 -isnot [System.Collections.Ilist]) {
                 $Object1 = @($Object1)
+                # This resolves a unique situation where GraphApi returns a string instead of an array for a metadata value, very unique situation
+                # By testing the json and count, we can confirm that it is a json string and convert it to an array
+                # A try catch is included to revert to the value we normally use in the event of failure just in case there is a scenario that has not been accounted for
+                
+                try {
+                    $Object1 = $Object1 | ConvertFrom-Json -Depth 100
+                }
+                catch {
+                    $Object1 = @($Object1)
+                }
+                
             }
             elseif ($Object2 -isnot [System.Collections.Ilist]) {
                 $Object2 = @($Object2)
+                # This resolves a unique situation where GraphApi returns a string instead of an array for a metadata value, very unique situation
+                # By testing the json and count, we can confirm that it is a json string and convert it to an array
+                # A try catch is included to revert to the value we normally use in the event of failure just in case there is a scenario that has not been accounted for
+               
+                try {
+                    $Object2 = $Object2 | ConvertFrom-Json -Depth 100
+                }
+                catch {
+                    $Object2 = @($Object2)
+                }
+                
             }
             if ($Object1.Count -ne $Object2.Count) {
                 return $false

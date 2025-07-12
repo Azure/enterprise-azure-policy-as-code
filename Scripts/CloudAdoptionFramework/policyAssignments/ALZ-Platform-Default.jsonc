@@ -6,17 +6,14 @@
             "/providers/Microsoft.Management/managementGroups/platform"
         ]
     },
-    // Ensure that this whole file is review for parameters and ensure DCRs, managed identities, and log anaytics workspace are deployed
+    // Ensure that this whole file is reviewed for parameters and ensure DCRs, managed identities, and log analytics workspace are deployed
     // Sources for the DCRs which need to be deployed are in the individual assignment parameter comments
     "parameters": {
-        "userAssignedManagedIdentityName": "", // Replace with the name of the user assigned managed identity
-        "userAssignedIdentityName": "", // Replace with the name of the user assigned managed identity
+        "userAssignedIdentityResourceId": "", // Replace with the resource Id of the user assigned managed identity
         "bringYourOwnUserAssignedManagedIdentity": true,
         "enableProcessesAndDependencies": true,
-        "userAssignedManagedIdentityResourceGroup": "", //Replace with the name of the resource group where the user assigned managed identity is deployed
-        "identityResourceGroup": "", // Replace with the name of the resource group where the user assigned managed identity is deployed
-        "scopeToSupportedImages": false,
-        "resourceName": "" // Replace with the name of the user assigned managed identity
+        "restrictBringYourOwnUserAssignedIdentityToSubscription": false,
+        "scopeToSupportedImages": false
     },
     "children": [
         {
@@ -47,12 +44,12 @@
                 {
                     "nodeName": "DefenderSQL",
                     "assignment": {
-                        "name": "Deploy-MDFC-DefenSQL-AMA",
+                        "name": "Deploy-MDFC-SQL-AMA-PLT",
                         "displayName": "Configure SQL VMs and Arc-enabled SQL Servers to install Microsoft Defender for SQL and AMA with a user-defined LA workspace",
                         "description": "Microsoft Defender for SQL collects events from the agents and uses them to provide security alerts and tailored hardening tasks (recommendations). Creates a resource group and a Data Collection Rule in the same region as the user-defined Log Analytics workspace."
                     },
                     "definitionEntry": {
-                        "policySetName": "Deploy-MDFC-DefenderSQL-AMA",
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/de01d381-bae9-4670-8870-786f89f49e26",
                         "displayName": "Configure SQL VMs and Arc-enabled SQL Servers to install Microsoft Defender for SQL and AMA with a user-defined LA workspace",
                         "nonComplianceMessages": [
                             {
@@ -62,11 +59,11 @@
                         ]
                     },
                     "parameters": {
-                        "dcrResourceGroup": "", // Resource group for the DCR
-                        "dcrId": "", // Resource Id for the deployed DCR - see https://github.com/Azure/Enterprise-Scale/blob/main/eslzArm/resourceGroupTemplates/dataCollectionRule-DefenderSQL.json
+                        "dcrResourceId": "", // Resource Id for the deployed DCR - see https://github.com/Azure/Enterprise-Scale/blob/main/eslzArm/resourceGroupTemplates/dataCollectionRule-DefenderSQL.json
                         "userWorkspaceResourceId": "", //Log analytics workspace Id
                         "workspaceRegion": "", // Log analytics workspace region
-                        "dcrName": "" // DCR Name
+                        "enableCollectionOfSqlQueriesForSecurityResearch": false,
+                        "bringYourOwnDcr": true // Ensure the DCR is deployed
                     }
                 }
             ]
@@ -149,8 +146,9 @@
                         "displayName": "Do not allow deletion of specified resource and resource type"
                     },
                     "parameters": {
+                        "effect": "DenyAction",
                         "resourceType": "Microsoft.ManagedIdentity/userAssignedIdentities",
-                        "effect": "DenyAction"
+                        "resourceName": "" // Resource name for the user-assigned managed identity
                     }
                 }
             ]
@@ -229,7 +227,7 @@
                 {
                     "nodeName": "UpdateManager",
                     "assignment": {
-                        "name": "Enable-AUM-CheckUpdates",
+                        "name": "Enable-AUM-Updates-PLT",
                         "displayName": "Configure periodic checking for missing system updates on azure virtual machines and Arc-enabled virtual machines.",
                         "description": "Configure auto-assessment (every 24 hours) for OS updates. You can control the scope of assignment according to machine subscription, resource group, location or tag. Learn more about this for Windows: https://aka.ms/computevm-windowspatchassessmentmode, for Linux: https://aka.ms/computevm-linuxpatchassessmentmode."
                     },
@@ -244,89 +242,58 @@
                         ]
                     },
                     "parameters": {
-                        "locations": [
-                            "asia",
-                            "asiapacific",
-                            "australia",
-                            "australiacentral",
-                            "australiacentral2",
-                            "australiaeast",
-                            "australiasoutheast",
-                            "brazil",
-                            "brazilsouth",
-                            "brazilsoutheast",
-                            "brazilus",
-                            "canada",
-                            "canadacentral",
-                            "canadaeast",
-                            "centralindia",
-                            "centralus",
-                            "centralusstage",
-                            "eastasia",
-                            "eastasiastage",
-                            "eastus",
-                            "eastusstage",
-                            "eastus2",
-                            "eastus2stage",
-                            "europe",
-                            "france",
-                            "francecentral",
-                            "francesouth",
-                            "germany",
-                            "germanynorth",
-                            "germanywestcentral",
-                            "global",
-                            "india",
-                            "israelcentral",
-                            "italynorth",
-                            "japan",
-                            "japaneast",
-                            "japanwest",
-                            "jioindiacentral",
-                            "jioindiawest",
-                            "korea",
-                            "koreacentral",
-                            "koreasouth",
-                            "northcentralus",
-                            "northcentralusstage",
-                            "northeurope",
-                            "norway",
-                            "norwayeast",
-                            "norwaywest",
-                            "polandcentral",
-                            "qatarcentral",
-                            "singapore",
-                            "southafrica",
-                            "southafricanorth",
-                            "southafricawest",
-                            "southcentralus",
-                            "southcentralusstage",
-                            "southindia",
-                            "southeastasia",
-                            "southeastasiastage",
-                            "sweden",
-                            "swedencentral",
-                            "switzerland",
-                            "switzerlandnorth",
-                            "switzerlandwest",
-                            "uaecentral",
-                            "uaenorth",
-                            "uksouth",
-                            "ukwest",
-                            "uae",
-                            "uk",
-                            "unitedstates",
-                            "unitedstateseuap",
-                            "westcentralus",
-                            "westeurope",
-                            "westindia",
-                            "westus",
-                            "westusstage",
-                            "westus2",
-                            "westus2stage",
-                            "westus3"
+                        "tagValues": {},
+                        "locations": [],
+                        "tagOperator": "Any",
+                        "assessmentMode": "AutomaticByPlatform"
+                    }
+                }
+            ]
+        },
+        {
+            "nodeName": "Backup",
+            "children": [
+                {
+                    "nodeName": "ASR",
+                    "assignment": {
+                        "name": "Enforce-ASR-PLT",
+                        "displayName": "Enforce enhanced recovery and backup policies",
+                        "description": "This initiative assignment enables recommended ALZ guardrails for Azure Recovery Services."
+                    },
+                    "definitionEntry": {
+                        "policySetName": "Enforce-Backup",
+                        "displayName": "Enforce enhanced recovery and backup policies",
+                        "nonComplianceMessages": [
+                            {
+                                "policyDefinitionReferenceId": null,
+                                "message": "Recommended guardrails must be enforced for Azure Recovery Services (Backup and Site Recovery)."
+                            }
                         ]
                     }
+                }
+            ]
+        },
+        {
+            "nodeName": "Networking",
+            "children": [
+                {
+                    "nodeName": "Subnets",
+                    "assignment": {
+                        "name": "Enforce-Snet-Private-PLT",
+                        "displayName": "Subnets should be private",
+                        "description": "Ensure your subnets are secure by default by preventing default outbound access. For more information go to https://aka.ms/defaultoutboundaccessretirement"
+                    },
+                    "definitionEntry": {
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/7bca8353-aa3b-429b-904a-9229c4385837",
+                        "displayName": "Subnets should be private",
+                        "nonComplianceMessages": [
+                            {
+                                "policyDefinitionReferenceId": null,
+                                "message": "Subnets should be private."
+                            }
+                        ]
+                    },
+                    "enforcementMode": "DoNotEnforce"
                 }
             ]
         }

@@ -50,7 +50,7 @@ stages:
               steps:
                 - template: templates/deploy-policy.yml
                   parameters:
-                    serviceConnection: $(rolesServiceConnection)
+                    serviceConnection: $(deployServiceConnection)
                     pacEnvironmentSelector: ${{ variables.pacEnvironmentSelector }}
       - deployment: DeployRoles
         displayName: "Deploy Role Changes"

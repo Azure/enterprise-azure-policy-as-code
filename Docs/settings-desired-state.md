@@ -14,29 +14,34 @@ Desired State strategy enables you to adjust the default behavior to fit more co
     - `full`: EPAC manages all Policy resources in the `deploymentRootScope` and its children. EPAC deletes any Policy resources not defined in the EPAC repo.
     - `ownedOnly`: EPAC manages only Policy resources defined in the EPAC repo. EPAC does not delete any Policy resources not defined in the EPAC repo.
   - `keepDfcSecurityAssignments`: It is recommended that Security and Compliance Initiatives are managed at management group levels with EPAC. Please read [Managing Defender for Cloud Assignments](settings-dfc-assignments.md).
+
 - Optional:
   - `excludedScopes`: An array of scopes to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
   - `excludedPolicyDefinitions`: An array of Policy Definitions to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
   - `excludedPolicySetDefinitions`: An array of Policy Set Definitions to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
   - `excludedPolicyAssignments`: An array of Policy Assignments to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
+  - `doNotDisableDeprecatedPolicies`: Automatically set deprecated policies' policy effect to "Disabled". This setting can be used to override that behavior by setting it to `true`. Default is `false`.
+  - `excludeSubscriptions`: Exclude all subscription under the deployment root scope. Designed for environments containing many frequently updated subscriptions that are not requiring management and where using ```excludedScopes``` would be impractical to maintain. If resource groups are added ```excludedScopes``` they will be ignored as this setting will take precedence by virtue of the fact that it excludes all Subscriptions, which by definition contain all Resource Groups. It will not effect excluded management group scopes. Default is `false`
 
 The following example shows the `desiredState` element with all properties set:
 
 ```json
 "desiredState": {
-    "strategy": "full",
-    "keepDfcSecurityAssignments": false,
-    "excludedScopes": [],
-    "excludedPolicyDefinitions": [],
-    "excludedPolicySetDefinitions": [],
-    "excludedPolicyAssignments": []
+    "strategy"                             = "[ownedOnly|full]"
+    "keepDfcSecurityAssignments"           = false
+    "cleanupObsoleteExemptions"            = false
+    "excludeSubscriptions"                 = false
+    "doNotDisableDeprecatedPolicies"       = false
+    "excludedScopes"                       = []
+    "excludedPolicyDefinitions"            = []
+    "excludedPolicySetDefinitions"         = []
+    "excludedPolicyAssignments"            = []
 }
 ```
 
 ## Transitioning to EPAC
 
 While transitioning to EPAC, existing Policy resources may need to be kept. Setting `desiredState` to `ownedOnly` allows EPAC to remove its own resources while preserving instances requiring (temporary) preservation.
-
 
 ```json
 "desiredState": {
@@ -59,7 +64,7 @@ After short transitioning period (weeks), it is recommended to set `desiredState
 > [!WARNING]
 > **Breaking Change in v10.0.0:** Policy Assignments at resource groups are **managed** by EPAC. The element `includeResourceGroups` has been deprecated and removed.
 
-To exclude resource groups from management by EPAC, add an `excludedScopes` array element with a wild card for the subscription and resourceGroups to `desiredState`. 
+To exclude resource groups from management by EPAC, add an `excludedScopes` array element with a wild card for the subscription and resourceGroups to `desiredState`.
 
 ```json
 "desiredState": {
@@ -87,8 +92,8 @@ In some organizations the lifecycle of different parts may be managed separately
 
 EPAC only manages items with a directory in the `Definitions` folder. Therefore, you can use the same `pacOwnerId` from two repos and remove the folders to separate them. In this example:
 
-* Repo1: `Definitions` contains `policyDefinitions`, `policySetDefinitions` and `policyAssignments` folders.
-* Repo2: `Definitions` contains `policyExemptions` folder.
+- Repo1: `Definitions` contains `policyDefinitions`, `policySetDefinitions` and `policyAssignments` folders.
+- Repo2: `Definitions` contains `policyExemptions` folder.
 
 Policy resource that would be defined in the folder. It is important to remove the folders. GitHub repos remove empty folder automatically.
 
@@ -139,15 +144,19 @@ You use `globalNotScopes` to exclude a child scope from management by EPAC. The 
 This happens when EPAC `strategy` is `full` and some child scopes contain Policy resources not managed by an EPAC repo (delivered through some other deployment method). You can exclude them based on:
 
 - Scopes (Management Groups, subscriptions and Resource Groups) through `desiredState.excludedScopes`
+  - `desiredState.excludeSubscriptions` is the preferred way to exclude all Subscriptions within a pacSelector
+  - `"/subscriptions/subscriptionsPattern/*"` is also a valid `excludedScopes` value, but is more commonly used for name based filtering
 - Policy Definitions through `desiredState.excludedPolicyDefinitions`
 - Policy Set Definitions through `desiredState.excludedPolicySetDefinitions`
 - Policy Assignments through `desiredState.excludedPolicyAssignments`
 
-You can exclude any combination of `excludedScopes`, `excludedPolicyDefinitions`, `excludedPolicySetDefinitions` and `excludedPolicyAssignments`. Any of the strings can contain simple wild cards.
+You can exclude any combination of `excludedScopes`, `excludedPolicyDefinitions`, `excludedPolicySetDefinitions` and `excludedPolicyAssignments`. Any of the strings can contain simple wild cards. See [PolicyAssignment](./policy-assignments.md) documentation for further information.
 
 ```json
 "desiredState": {
     "strategy": "full",
+    "keepDfcSecurityAssignments": false,
+    "doNotDisableDeprecatedPolicies": false,
     "excludedScopes": [ // Management Groups, Subscriptions, Resource Groups
         "/providers/Microsoft.Management/managementGroups/mg-policy-as-code/childScope"
     ],

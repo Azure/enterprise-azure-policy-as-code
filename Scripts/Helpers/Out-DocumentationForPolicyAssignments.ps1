@@ -2,10 +2,13 @@ function Out-DocumentationForPolicyAssignments {
     [CmdletBinding()]
     param (
         [string] $OutputPath,
+        [string] $OutputPathServices,
         [switch] $WindowsNewLineCells,
         $DocumentationSpecification,
         [hashtable] $AssignmentsByEnvironment,
-        [switch] $IncludeManualPolicies
+        [switch] $IncludeManualPolicies,
+        [hashtable] $PacEnvironments,
+        [string] $WikiClonePat
     )
 
     [string] $fileNameStem = $DocumentationSpecification.fileNameStem
@@ -31,7 +34,7 @@ function Out-DocumentationForPolicyAssignments {
     $flatPolicyListAcrossEnvironments = @{}
     foreach ($environmentCategory in $environmentCategories) {
         if (-not $AssignmentsByEnvironment.ContainsKey($environmentCategory)) {
-            # Should never happen (programing bug)
+            # Should never happen (programming bug)
             Write-Error "Unknown environmentCategory '$environmentCategory' encountered - bug in EPAC PowerShell code" -ErrorAction Stop
         }
 
@@ -150,6 +153,13 @@ function Out-DocumentationForPolicyAssignments {
         }
     }
 
+    #region Process Deprecated
+    $deprecatedHash = @{}
+    foreach ($key in $policyResourceDetails.policies.keys) {
+        if ($true -eq $policyResourceDetails.policies.$key.isDeprecated) {
+            $deprecatedHash[$policyResourceDetails.policies.$key.name] = $policyResourceDetails.policies.$key
+        }
+    }
     #region Review Duplicates
 
     # Iterate over each key-value pair in the hashtable
@@ -171,7 +181,7 @@ function Out-DocumentationForPolicyAssignments {
                                 # Find which env category is missing, add it to $policyDef
                                 foreach ($env in $flatPolicyListAcrossEnvironments[$policyDefCompare].environmentList.keys) {
                                     if (-not $flatPolicyListAcrossEnvironments[$policyDef].environmentList.ContainsKey($env)) {
-                                        # Copy envrionemnt from match to original key
+                                        # Copy environment from match to original key
                                         $flatPolicyListAcrossEnvironments[$policyDef].environmentList[$env] = $flatPolicyListAcrossEnvironments[$policyDefCompare].environmentList[$env]
                                     }
                                 }
@@ -189,6 +199,7 @@ function Out-DocumentationForPolicyAssignments {
     #region Markdown
 
     [System.Collections.Generic.List[string]] $allLines = [System.Collections.Generic.List[string]]::new()
+    [System.Collections.Generic.List[string]] $assignmentsByCategoryHeader = [System.Collections.Generic.List[string]]::new()
     $leadingHeadingHashtag = "#"
     if ($DocumentationSpecification.markdownAdoWiki) {
         $leadingHeadingHashtag = ""
@@ -228,17 +239,29 @@ function Out-DocumentationForPolicyAssignments {
         foreach ($item in $itemList) {
             $assignmentId = $item.assignmentId
             if ($assignmentsDetails.ContainsKey($assignmentId)) {
-                # should always be true
                 $assignmentsDetail = $assignmentsDetails.$assignmentId
-                $null = $allLines.Add("`n$leadingHeadingHashtag## Assignment: ``$($assignmentsDetail.assignment.properties.displayName)```n")
-                $null = $allLines.Add("| Property | Value |")
-                $null = $allLines.Add("| :------- | :---- |")
-                $null = $allLines.Add("| Assignment Id | $($assignmentId) |")
-                $null = $allLines.Add("| Policy Set | ``$($assignmentsDetail.displayName)`` |")
-                $null = $allLines.Add("| Policy Set Id | $($assignmentsDetail.policySetId) |")
-                $null = $allLines.Add("| Type | $($assignmentsDetail.policyType) |")
-                $null = $allLines.Add("| Category | ``$($assignmentsDetail.category)`` |")
-                $null = $allLines.Add("| Description | $($assignmentsDetail.description) |")
+                if ($assignmentsDetail.policySetId) {
+                    $null = $allLines.Add("`n$leadingHeadingHashtag## Assignment: ``$($assignmentsDetail.assignment.properties.displayName)```n")
+                    $null = $allLines.Add("| Property | Value |")
+                    $null = $allLines.Add("| :------- | :---- |")
+                    $null = $allLines.Add("| Assignment Id | $($assignmentId) |")
+                    $null = $allLines.Add("| Policy Set | ``$($assignmentsDetail.displayName)`` |")
+                    $null = $allLines.Add("| Policy Set Id | $($assignmentsDetail.policySetId) |")
+                    $null = $allLines.Add("| Type | $($assignmentsDetail.policyType) |")
+                    $null = $allLines.Add("| Category | ``$($assignmentsDetail.category)`` |")
+                    $null = $allLines.Add("| Description | $($assignmentsDetail.description) |")  
+                }
+                if (!$assignmentsDetail.policySetId -and $assignmentsDetail.policyDefinitionId) {
+                    $null = $allLines.Add("`n$leadingHeadingHashtag## Assignment: ``$($assignmentsDetail.assignment.properties.displayName)```n")
+                    $null = $allLines.Add("| Property | Value |")
+                    $null = $allLines.Add("| :------- | :---- |")
+                    $null = $allLines.Add("| Assignment Id | $($assignmentId) |")
+                    $null = $allLines.Add("| Policy | ``$($assignmentsDetail.displayName)`` |")
+                    $null = $allLines.Add("| Policy Definition Id | $($assignmentsDetail.policyDefinitionId) |")
+                    $null = $allLines.Add("| Type | $($assignmentsDetail.policyType) |")
+                    $null = $allLines.Add("| Category | ``$($assignmentsDetail.category)`` |")
+                    $null = $allLines.Add("| Description | $($assignmentsDetail.description) |")  
+                }
             }
         }
     }
@@ -246,6 +269,9 @@ function Out-DocumentationForPolicyAssignments {
     #endregion Environment Categories
 
     #region Policy Effects
+
+    # Initialize Hashtable to hold sub pages
+    $assignmentsByCategory = @{}
 
     $addedTableHeader = ""
     $addedTableDivider = ""
@@ -261,11 +287,17 @@ function Out-DocumentationForPolicyAssignments {
         $null = $allLines.Add("`n$leadingHeadingHashtag# Policy Effects by Policy`n")
         $null = $allLines.Add("| Category | Policy | Group Names |$addedTableHeader")
         $null = $allLines.Add("| :------- | :----- | :---------- |$addedTableDivider")
+        $null = $assignmentsByCategoryHeader.Add("`n$leadingHeadingHashtag# Policy Effects by Policy`n")
+        $null = $assignmentsByCategoryHeader.Add("| Category | Policy | Group Names |$addedTableHeader")
+        $null = $assignmentsByCategoryHeader.Add("| :------- | :----- | :---------- |$addedTableDivider")
     }
     else {
         $null = $allLines.Add("`n$leadingHeadingHashtag# Policy Effects by Policy`n")
         $null = $allLines.Add("| Category | Policy |$addedTableHeader")
         $null = $allLines.Add("| :------- | :----- |$addedTableDivider")
+        $null = $assignmentsByCategoryHeader.Add("`n$leadingHeadingHashtag# Policy Effects by Policy`n")
+        $null = $assignmentsByCategoryHeader.Add("| Category | Policy |$addedTableHeader")
+        $null = $assignmentsByCategoryHeader.Add("| :------- | :----- |$addedTableDivider")
     }
     
     $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
@@ -278,6 +310,9 @@ function Out-DocumentationForPolicyAssignments {
                 if ($environmentList.ContainsKey($environmentCategory)) {
                     $environmentCategoryValues = $environmentList.$environmentCategory
                     $effectValue = $environmentCategoryValues.effectValue
+                    if ($effectValue.StartsWith("[if(contains(parameters('resourceTypeList')")) {
+                        $effectValue = "SetByParameter"
+                    }
                     $effectAllowedValues = $_.effectAllowedValues
                     $text = Convert-EffectToMarkdownString `
                         -Effect $effectValue `
@@ -301,10 +336,19 @@ function Out-DocumentationForPolicyAssignments {
                     $groupNamesText = "| "
                 }
             }
+            # Add to Main Markdown
             $null = $allLines.Add("| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) $($groupNamesText)|$($addedEffectColumns)")
+            # Add to sub-page markdown
+            if ($assignmentsByCategory.ContainsKey($_.category)) {   
+                $assignmentsByCategory[$_.category].subLines += "| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) $($groupNamesText)|$($addedEffectColumns)"
+            }
+            else {
+                $assignmentsByCategory[$_.category] = @{}
+                $assignmentsByCategory[$_.category].subLines = $assignmentsByCategoryHeader
+                $assignmentsByCategory[$_.category].subLines += "| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) $($groupNamesText)|$($addedEffectColumns)"
+            }
         }
     }
-
     #endregion Policy Effects
 
     #region Parameters
@@ -385,6 +429,9 @@ function Out-DocumentationForPolicyAssignments {
                                 else {
                                     $valueString = ConvertTo-Json $value -Depth 100 -Compress
                                 }
+                                if ($valueString -match '","') {
+                                    $valueString = $valueString -replace '","', '", "'
+                                }
                                 if ($valueString.length -gt $markdownMaxParameterLength) {
                                     $valueString = $valueString.substring(0, $markdownMaxParameterLength - 3) + "..."
                                 }
@@ -398,7 +445,28 @@ function Out-DocumentationForPolicyAssignments {
                     }
                 }
                 if ($hasParameters) {
+                    # Add to main markdown
                     $null = $allLines.Add("| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) |$($addedParametersColumns)")
+                    # Add to sub-page markdown
+                    if ($assignmentsByCategory.ContainsKey($_.category)) {
+                        if ($assignmentsByCategory[$_.category].subLines -match "Policy Parameters by Policy") {
+                            $assignmentsByCategory[$_.category].subLines += "| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) |$($addedParametersColumns)"
+                        }
+                        else {
+                            $null = $assignmentsByCategory[$_.category].subLines += "`n$leadingHeadingHashtag# Policy Parameters by Policy`n"
+                            $null = $assignmentsByCategory[$_.category].subLines += "| Category | Policy |$addedTableHeader"
+                            $null = $assignmentsByCategory[$_.category].subLines += "| :------- | :----- |$addedTableDividerParameters"
+                            $assignmentsByCategory[$_.category].subLines += "| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) |$($addedParametersColumns)"
+                        }
+                    }
+                    else {
+                        $null = $assignmentsByCategory[$_.category].subLines += "`n$leadingHeadingHashtag# Policy Parameters by Policy`n"
+                        $null = $assignmentsByCategory[$_.category].subLines += "| Category | Policy |$addedTableHeader"
+                        $null = $assignmentsByCategory[$_.category].subLines += "| :------- | :----- |$addedTableDividerParameters"
+                        $assignmentsByCategory[$_.category] = @{}
+                        $assignmentsByCategory[$_.category].subLines = $assignmentsByCategoryHeader
+                        $assignmentsByCategory[$_.category].subLines += "| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) |$($addedParametersColumns)"
+                    }
                 }
             }
         }
@@ -408,7 +476,14 @@ function Out-DocumentationForPolicyAssignments {
 
     # Output file
     $outputFilePath = "$($OutputPath -replace '[/\\]$', '')/$($fileNameStem).md"
-    $allLines | Out-File $outputFilePath -Force
+    $allLines | Out-File "$outputFilePath" -Force
+
+    # Output file
+    foreach ($key in $assignmentsByCategory.keys | Sort-Object) {
+        $fileName = $key -replace ' ', '-'
+        $outputFilePath = "$($OutputPathServices -replace '[/\\]$', '')/$($fileName).md"
+        $assignmentsByCategory[$key].subLines | Out-File $outputFilePath -Force
+    }
 
     #endregion Markdown
 
@@ -441,7 +516,7 @@ function Out-DocumentationForPolicyAssignments {
 
     # Process the table
     $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
-        # If statement to skip over duplicates
+        # If statement to skip over duplicates and ensure not to include Deprecated Policies
         if ( $true -ne $_.isReferencePathMatch) {
             # Initialize row - with empty strings
             $rowObj = [ordered]@{}
@@ -485,23 +560,34 @@ function Out-DocumentationForPolicyAssignments {
 
             $environmentList = $_.environmentList
             # Build environmentCategory columns
+            $doNotSkip = $false
             foreach ($environmentCategory in $environmentCategories) {
                 if ($environmentList.ContainsKey($environmentCategory)) {
                     $perEnvironment = $environmentList.$environmentCategory
-                    if ($null -ne $perEnvironment.effectValue) {
-                        $rowObj["$($environmentCategory)Effect"] = Convert-EffectToCsvString $perEnvironment.effectValue
-                    }
-                    else {
-                        $rowObj["$($environmentCategory)Effect"] = Convert-EffectToCsvString $_.effectDefault
-                    }
 
-                    $text = Convert-ParametersToString -Parameters $perEnvironment.parameters -OutputType "csvValues"
-                    $rowObj["$($environmentCategory)Parameters"] = $text
+                    # Validate doNotDisableDeprecatedPolicies for env
+                    $envPacSelector = $AssignmentsByEnvironment."$($perEnvironment.environmentCategory)".pacEnvironmentSelector
+                    $doNotDisableDeprecatedPolicies = $PacEnvironments.$envPacSelector.doNotDisableDeprecatedPolicies
+
+                    if (!$deprecatedHash.ContainsKey($_.name) -or $doNotDisableDeprecatedPolicies) {
+                        if ($null -ne $perEnvironment.effectValue) {
+                            $rowObj["$($environmentCategory)Effect"] = Convert-EffectToCsvString $perEnvironment.effectValue
+                        }
+                        else {
+                            $rowObj["$($environmentCategory)Effect"] = Convert-EffectToCsvString $_.effectDefault
+                        }
+
+                        $text = Convert-ParametersToString -Parameters $perEnvironment.parameters -OutputType "csvValues"
+                        $rowObj["$($environmentCategory)Parameters"] = $text
+                        $doNotSkip = $true
+                    }
                 }
             }
 
             # Add row to spreadsheet
-            $null = $allRows.Add($rowObj)
+            if ($doNotSkip) {
+                $null = $allRows.Add($rowObj)
+            }
         }
     }
 
@@ -516,5 +602,42 @@ function Out-DocumentationForPolicyAssignments {
     }
 
     #endregion csv
-
+    
+    #region PushToWiki
+    if ($WikiClonePat) {
+        Write-Information "Attempting push to Azure DevOps Wiki"
+        # Clone down wiki
+        git clone "https://$($WikiClonePat):x-oauth-basic@$($DocumentationSpecification.markdownAdoWikiConfig.adoOrganization).visualstudio.com/$($DocumentationSpecification.markdownAdoWikiConfig.adoProject)/_git/$($DocumentationSpecification.markdownAdoWikiConfig.adoWiki).wiki"
+        # Move into folder
+        Set-Location -Path "$($DocumentationSpecification.markdownAdoWikiConfig.adoWiki).wiki"
+        $branch = git branch
+        $branch = $branch.split(" ")[1]
+        # Copy main markdown file into wiki
+        Copy-Item -Path "../$OutputPath/$($DocumentationSpecification.fileNameStem).md"
+        # Configure dummy email and user (required)
+        git config user.email "epac-wiki@example.com"
+        git config user.name "EPAC Wiki"
+        # Add changes to commit
+        git add .
+        # Check if a folder exist that holds the sub pages
+        if (-not (Test-Path -Path "$($DocumentationSpecification.fileNameStem)")) {
+            # Create folder if does not exist
+            New-Item -Path "$($DocumentationSpecification.fileNameStem)" -ItemType Directory
+        }
+        # Copy all individual services markdown files
+        $services = Get-ChildItem -Path "../$OutputPathServices"
+        # Move into folder
+        Set-Location -Path "$($DocumentationSpecification.fileNameStem)"
+        # Remove files that currently exist in file to ensure fresh updates
+        Get-ChildItem -Path . -File | Remove-Item
+        # Copy over new individual services markdown files
+        foreach ($file in $services) {
+            Copy-Item $file .
+        }
+        # Commit and push up to Wiki
+        git add .
+        git commit -m "Update wiki with the latest markdown files"
+        git push origin "$branch"
+        Set-Location "../../"
+    }
 }

@@ -1,5 +1,8 @@
 #Requires -PSEdition Core
 
+# Define ./Scripts location in repo based on it being the parent of the Helpers directiory in which this script is located
+$scriptRoot = Split-Path $PSScriptRoot -Parent
+
 # Load cmdlets
 . "$PSScriptRoot/Add-ErrorMessage.ps1"
 . "$PSScriptRoot/Add-SelectedPacArray.ps1"
@@ -20,6 +23,8 @@
 . "$PSScriptRoot/Build-ScopeTableForDeploymentRootScope.ps1"
 . "$PSScriptRoot/Build-ScopeTableForManagementGroup.ps1"
 . "$PSScriptRoot/Build-ScopeTableForSubscription.ps1"
+
+. "$PSScriptRoot/Compare-SemanticVersion.ps1"
 
 . "$PSScriptRoot/Confirm-EffectIsAllowed.ps1"
 . "$PSScriptRoot/Confirm-MetadataMatches.ps1"
@@ -105,6 +110,7 @@
 . "$PSScriptRoot/Write-AssignmentDetails.ps1"
 . "$PSScriptRoot/Write-ErrorsFromErrorInfo.ps1"
 
+. "$PSScriptRoot/RestMethods/Get-AzManagementGroupRestMethod.ps1" 
 . "$PSScriptRoot/RestMethods/Get-AzPolicyAssignmentRestMethod.ps1"
 . "$PSScriptRoot/RestMethods/Get-AzPolicyExemptionsRestMethod.ps1"
 . "$PSScriptRoot/RestMethods/Get-AzResourceListRestMethod.ps1"
@@ -117,3 +123,48 @@
 . "$PSScriptRoot/RestMethods/Set-AzPolicySetDefinitionRestMethod.ps1"
 . "$PSScriptRoot/RestMethods/Set-AzPolicyExemptionRestMethod.ps1"
 . "$PSScriptRoot/RestMethods/Set-AzRoleAssignmentRestMethod.ps1"
+
+# Hydration Kit Content
+
+. "$PSScriptRoot/Build-HydrationAssignmentPlan.ps1"
+. "$PSScriptRoot/Build-HydrationPolicyPlan.ps1"
+. "$PSScriptRoot/Build-HydrationPolicySetPlan.ps1"
+. "$PSScriptRoot/Compare-HydrationMetadata.ps1"
+. "$PSScriptRoot/Copy-HydrationOrderedHashtable.ps1"
+. "$PSScriptRoot/Export-HydrationObjectToJsonFile.ps1"
+. "$PSScriptRoot/Get-HydrationChildManagementGroupNameList.ps1"
+. "$PSScriptRoot/Get-HydrationDefinitionSubfolderByContentId.ps1"
+. "$PSScriptRoot/Get-HydrationEpacRepo.ps1"
+. "$PSScriptRoot/Get-HydrationUserObjectId.ps1"
+. "$PSScriptRoot/Join-HydrationHashtableToPath.ps1"
+. "$PSScriptRoot/New-HydrationAnswerFile.ps1"
+. "$PSScriptRoot/New-HydrationAnswerSet.ps1"
+. "$PSScriptRoot/New-HydrationChangeEntry.ps1"
+. "$PSScriptRoot/New-HydrationContinuePrompt.ps1"
+. "$PSScriptRoot/New-HydrationManagementGroupChildren.ps1"
+. "$PSScriptRoot/New-HydrationMenuResponse.ps1"
+. "$PSScriptRoot/New-HydrationMultipleChoicePrompt.ps1"
+. "$PSScriptRoot/New-HydrationSeparatorBlock.ps1"
+. "$PSScriptRoot/Remove-HydrationChildHierarchy.ps1"
+. "$PSScriptRoot/Test-HydrationAccess.ps1"
+. "$PSScriptRoot/Test-HydrationCaf3Hierarchy.ps1"
+. "$PSScriptRoot/Update-HydrationModuleToSupportedVersion.ps1"
+. "$PSScriptRoot/Update-HydrationStarterKitAssignmentScope.ps1"
+. "$PSScriptRoot/Write-HydrationLogFile.ps1"
+
+. "$scriptRoot/HydrationKit/Build-HydrationDeploymentPlans.ps1"
+. "$scriptRoot/HydrationKit/Copy-HydrationManagementGroupHierarchy.ps1"
+. "$scriptRoot/HydrationKit/Install-HydrationEpac.ps1"
+. "$scriptRoot/HydrationKit/New-FilteredExceptionFile.ps1"
+. "$scriptRoot/HydrationKit/New-HydrationAssignmentPacSelector.ps1"
+. "$scriptRoot/HydrationKit/New-HydrationCaf3Hierarchy.ps1"
+. "$scriptRoot/HydrationKit/New-HydrationDefinitionsFolder.ps1"
+. "$scriptRoot/HydrationKit/New-HydrationGlobalSettingsFile.ps1"
+. "$scriptRoot/HydrationKit/New-HydrationPolicyDocumentationSourceFile.ps1"
+. "$scriptRoot/HydrationKit/Remove-HydrationManagementGroupRecursively.ps1"
+. "$scriptRoot/HydrationKit/Test-HydrationConnection.ps1"
+. "$scriptRoot/HydrationKit/Test-HydrationManagementGroupName.ps1"
+. "$scriptRoot/HydrationKit/Test-HydrationPath.ps1"
+. "$scriptRoot/HydrationKit/Test-HydrationRbacAssignment.ps1"
+. "$scriptRoot/HydrationKit/Update-HydrationAssignmentDestination.ps1"
+. "$scriptRoot/HydrationKit/Update-HydrationDefinitionFolderStructureByAssignment.ps1"

@@ -19,8 +19,8 @@ function Get-CalculatedPolicyAssignmentsAndReferenceIds {
     $index = 0
     foreach ($assignment in $Assignments) {
         $assignmentId = $assignment.id
-        $assignmentPoperties = Get-PolicyResourceProperties $assignment
-        $assignedPolicyDefinitionId = $assignmentPoperties.policyDefinitionId
+        $assignmentProperties = Get-PolicyResourceProperties $assignment
+        $assignedPolicyDefinitionId = $assignmentProperties.policyDefinitionId
 
         if ($assignedPolicyDefinitionId.Contains("/providers/Microsoft.Authorization/policyDefinitions/", [StringComparison]::InvariantCultureIgnoreCase)) {
 
@@ -29,10 +29,10 @@ function Get-CalculatedPolicyAssignmentsAndReferenceIds {
                 id                             = $assignmentId
                 scope                          = $assignment.scope
                 name                           = $assignment.name
-                displayName                    = $assignmentPoperties.displayName
+                displayName                    = $assignmentProperties.displayName
                 assignedPolicyDefinitionId     = $assignedPolicyDefinitionId
                 policyDefinitionId             = $assignedPolicyDefinitionId
-                notScopes                      = $assignmentPoperties.notScopes
+                notScopes                      = $assignmentProperties.notScopes
                 isPolicyAssignment             = $true
                 allowReferenceIdsInRow         = $false
                 policyDefinitionReferenceIds   = $null
@@ -58,7 +58,7 @@ function Get-CalculatedPolicyAssignmentsAndReferenceIds {
         elseif ($assignedPolicyDefinitionId.Contains("/providers/Microsoft.Authorization/policySetDefinitions/", [StringComparison]::InvariantCultureIgnoreCase)) {
             $thisPolicySetReferences = $null
 
-            #region caclculate referenceId values for this Policy Set
+            #region calculate referenceId values for this Policy Set
             if ($byPolicySetIdPolicyDefinitionReferences.ContainsKey($assignedPolicyDefinitionId)) {
                 # use previously calculated values
                 $thisPolicySetReferences = $byPolicySetIdPolicyDefinitionReferences.$assignedPolicyDefinitionId
@@ -101,17 +101,17 @@ function Get-CalculatedPolicyAssignmentsAndReferenceIds {
                     $policyIndex++
                 }
             }
-            #endregion caclculate referenceId values for this Policy Set
+            #endregion calculate referenceId values for this Policy Set
 
             #region calculated assignment for this policyAssignment AND for this policySetId
             $calculatedPolicyAssignment = @{
                 id                             = $assignmentId
                 scope                          = $assignment.scope
                 name                           = $assignment.name
-                displayName                    = $assignmentPoperties.displayName
+                displayName                    = $assignmentProperties.displayName
                 assignedPolicyDefinitionId     = $assignedPolicyDefinitionId
                 policyDefinitionId             = $null
-                notScopes                      = $assignmentPoperties.notScopes
+                notScopes                      = $assignmentProperties.notScopes
                 isPolicyAssignment             = $false
                 allowReferenceIdsInRow         = $true
                 policyDefinitionReferenceIds   = $thisPolicySetReferences.policyDefinitionReferenceIds
@@ -141,10 +141,10 @@ function Get-CalculatedPolicyAssignmentsAndReferenceIds {
                     id                             = $assignmentId
                     scope                          = $assignment.scope
                     name                           = $assignment.name
-                    displayName                    = $assignmentPoperties.displayName
+                    displayName                    = $assignmentProperties.displayName
                     assignedPolicyDefinitionId     = $assignedPolicyDefinitionId
                     policyDefinitionId             = $policyDefinitionId
-                    notScopes                      = $assignmentPoperties.notScopes
+                    notScopes                      = $assignmentProperties.notScopes
                     isPolicyAssignment             = $false
                     allowReferenceIdsInRow         = $false
                     policyDefinitionReferenceIds   = $thisPolicyReferences.referenceIds

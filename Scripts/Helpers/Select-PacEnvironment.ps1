@@ -64,7 +64,7 @@ function Select-PacEnvironment {
         AzureChinaCloud {
             @{
                 policyDefinitions    = "2021-06-01"
-                policySetDefinitions = "2021-06-01"
+                policySetDefinitions = "2023-04-01"
                 policyAssignments    = "2022-06-01"
                 policyExemptions     = "2022-07-01-preview"
                 roleAssignments      = "2022-04-01"
@@ -73,7 +73,7 @@ function Select-PacEnvironment {
         AzureUSGovernment {
             @{
                 policyDefinitions    = "2021-06-01"
-                policySetDefinitions = "2021-06-01"
+                policySetDefinitions = "2023-04-01"
                 policyAssignments    = "2022-06-01"
                 policyExemptions     = "2022-07-01-preview"
                 roleAssignments      = "2022-04-01"

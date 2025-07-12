@@ -101,7 +101,8 @@ function Convert-PolicySetToDetails {
                         else {
                             $null = $parametersAlreadyCovered.Add($policySetParameterName, $true)
                         }
-                        $null = $surfacedParameters.Add($policySetParameterName, @{
+                        if (!($surfacedParameters.ContainsKey($policySetParameterName))){
+                            $null = $surfacedParameters.Add($policySetParameterName, @{
                                 multiUse     = $multiUse
                                 isEffect     = $isEffect
                                 value        = $defaultValue
@@ -109,6 +110,8 @@ function Convert-PolicySetToDetails {
                                 definition   = $policySetParameter
                             }
                         )
+                        }
+                        
                     }
                 }
             }

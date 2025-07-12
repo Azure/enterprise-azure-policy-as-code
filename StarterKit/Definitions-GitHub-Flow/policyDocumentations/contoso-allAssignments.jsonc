@@ -1,0 +1,43 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-documentation-schema.json",
+    "documentAssignments": {
+        "documentAllAssignments": [
+            {
+                "enabled": true,
+                "pacEnvironment": "EPAC-Prod",
+                "skipPolicyAssignments": [],
+                "skipPolicyDefinitions": [
+                    "/providers/microsoft.authorization/policysetdefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8" // Azure Security Benchmark v3
+                ],
+                "overrideEnvironmentCategory": {
+                    "DEV": [ // Any name will suffice - will be header of column, grouping the scopes within the array
+                        "/providers/Microsoft.Management/managementGroups/DEV-1",
+                        "/providers/Microsoft.Management/managementGroups/DEV-2"
+                    ],
+                    "PROD": [
+                        "/providers/Microsoft.Management/managementGroups/PROD-1",
+                        "/providers/Microsoft.Management/managementGroups/PROD-2"
+                    ]
+                }
+            }
+        ],
+        "documentationSpecifications": [
+            {
+                "fileNameStem": "contoso-policy-effects",
+                "environmentCategories": [
+                    "prod",
+                    "nonprod"
+                ],
+                "title": "Contoso Policy effects",
+                "markdownAdoWiki": true,
+                "markdownAdoWikiConfig": [
+                    {
+                        "adoOrganization": "MyOrganization",
+                        "adoProject": "EPAC",
+                        "adoWiki": "EPAC"
+                    }
+                ]
+            }
+        ]
+    }
+}

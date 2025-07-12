@@ -27,7 +27,9 @@
                     "type": "string"
                 },
                 "definitionVersion": {
-                    "type": "string"
+                    "type": "string",
+                    "pattern": "^\\d+\\.\\*\\.\\*|\\d+\\.\\d+\\.\\*$",
+                    "description": "The definitionVersion must follow the format XX.*.*' or 'XX.XX.*'. Ensure the versioning adheres to this pattern."
                 },
                 "displayName": {
                     "type": "string"
@@ -61,81 +63,81 @@
         },
         "definitionEntryList": {
             "type": "array",
-            "items": [
-                {
-                    "type": "object",
-                    "properties": {
-                        "policyId": {
-                            "type": "string"
-                        },
-                        "policyName": {
-                            "type": "string"
-                        },
-                        "policySetId": {
-                            "type": "string"
-                        },
-                        "policySetName": {
-                            "type": "string"
-                        },
-                        "definitionVersion": {
-                            "type": "string"
-                        },
-                        "displayName": {
-                            "type": "string"
-                        },
-                        "assignment": {
-                            "type": "object",
-                            "properties": {
-                                "append": {
-                                    "type": "boolean"
-                                },
-                                "name": {
-                                    "type": "string"
-                                },
-                                "displayName": {
-                                    "type": "string"
-                                },
-                                "description": {
-                                    "type": "string"
-                                }
-                            },
-                            "required": [
-                                "name",
-                                "displayName"
-                            ]
-                        },
-                        "nonComplianceMessages": {
-                            "$ref": "#/$defs/nonComplianceMessages"
-                        }
+            "items": {
+                "type": "object",
+                "properties": {
+                    "policyId": {
+                        "type": "string"
                     },
-                    "oneOf": [
-                        {
-                            "required": [
-                                "policyId"
-                            ]
+                    "policyName": {
+                        "type": "string"
+                    },
+                    "policySetId": {
+                        "type": "string"
+                    },
+                    "policySetName": {
+                        "type": "string"
+                    },
+                    "definitionVersion": {
+                        "type": "string",
+                        "pattern": "^\\d+\\.\\*\\.\\*|\\d+\\.\\d+\\.\\*$",
+                        "description": "The definitionVersion must follow the format 'XX.*.*' or 'XX.XX.*'. Ensure the versioning adheres to this pattern."
+                    },
+                    "displayName": {
+                        "type": "string"
+                    },
+                    "assignment": {
+                        "type": "object",
+                        "properties": {
+                            "append": {
+                                "type": "boolean"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "displayName": {
+                                "type": "string"
+                            },
+                            "description": {
+                                "type": "string"
+                            }
                         },
-                        {
-                            "required": [
-                                "policyName"
-                            ]
-                        },
-                        {
-                            "required": [
-                                "policySetId"
-                            ]
-                        },
-                        {
-                            "required": [
-                                "policySetName"
-                            ]
-                        }
-                    ],
-                    "required": [
-                        "assignment"
-                    ],
-                    "additionalProperties": false
-                }
-            ]
+                        "required": [
+                            "name",
+                            "displayName"
+                        ]
+                    },
+                    "nonComplianceMessages": {
+                        "$ref": "#/$defs/nonComplianceMessages"
+                    }
+                },
+                "oneOf": [
+                    {
+                        "required": [
+                            "policyId"
+                        ]
+                    },
+                    {
+                        "required": [
+                            "policyName"
+                        ]
+                    },
+                    {
+                        "required": [
+                            "policySetId"
+                        ]
+                    },
+                    {
+                        "required": [
+                            "policySetName"
+                        ]
+                    }
+                ],
+                "required": [
+                    "assignment"
+                ],
+                "additionalProperties": false
+            }
         },
         "assignment": {
             "type": "object",
@@ -160,99 +162,95 @@
         },
         "overrides": {
             "type": "array",
-            "items": [
-                {
-                    "anyOf": [
-                        {
-                            "type": "object",
-                            "properties": {
-                                "policyId": {
-                                    "type": "string"
-                                },
-                                "policyName": {
-                                    "type": "string"
-                                },
-                                "effect": {
-                                    "enum": [
-                                        "Disabled",
-                                        "Audit",
-                                        "Deny",
-                                        "Modify",
-                                        "Append",
-                                        "AuditIfNotExists",
-                                        "DeployIfNotExists",
-                                        "DenyAction",
-                                        "Manual"
-                                    ]
-                                }
+            "items": {
+                "anyOf": [
+                    {
+                        "type": "object",
+                        "properties": {
+                            "policyId": {
+                                "type": "string"
                             },
-                            "oneOf": [
-                                {
-                                    "required": [
-                                        "policyId"
-                                    ]
-                                },
-                                {
-                                    "required": [
-                                        "policyName"
-                                    ]
-                                }
-                            ],
-                            "required": [
-                                "effect"
-                            ]
+                            "policyName": {
+                                "type": "string"
+                            },
+                            "effect": {
+                                "enum": [
+                                    "Disabled",
+                                    "Audit",
+                                    "Deny",
+                                    "Modify",
+                                    "Append",
+                                    "AuditIfNotExists",
+                                    "DeployIfNotExists",
+                                    "DenyAction",
+                                    "Manual"
+                                ]
+                            }
                         },
-                        {
-                            "type": "object",
-                            "properties": {
-                                "policySetId": {
-                                    "type": "string"
-                                },
-                                "policySetName": {
-                                    "type": "string"
-                                },
-                                "effect": {
-                                    "enum": [
-                                        "Disabled",
-                                        "Audit",
-                                        "Deny",
-                                        "Modify",
-                                        "Append",
-                                        "AuditIfNotExists",
-                                        "DeployIfNotExists",
-                                        "DenyAction",
-                                        "Manual"
-                                    ]
-                                },
-                                "policyDefinitionReferences": {
-                                    "type": "array",
-                                    "items": [
-                                        {
-                                            "type": "string"
-                                        }
-                                    ]
-                                }
+                        "oneOf": [
+                            {
+                                "required": [
+                                    "policyId"
+                                ]
                             },
-                            "oneOf": [
-                                {
-                                    "required": [
-                                        "policySetId"
-                                    ]
-                                },
-                                {
-                                    "required": [
-                                        "policySetName"
-                                    ]
+                            {
+                                "required": [
+                                    "policyName"
+                                ]
+                            }
+                        ],
+                        "required": [
+                            "effect"
+                        ]
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "policySetId": {
+                                "type": "string"
+                            },
+                            "policySetName": {
+                                "type": "string"
+                            },
+                            "effect": {
+                                "enum": [
+                                    "Disabled",
+                                    "Audit",
+                                    "Deny",
+                                    "Modify",
+                                    "Append",
+                                    "AuditIfNotExists",
+                                    "DeployIfNotExists",
+                                    "DenyAction",
+                                    "Manual"
+                                ]
+                            },
+                            "policyDefinitionReferences": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
                                 }
-                            ],
-                            "required": [
-                                "effect",
-                                "policyDefinitionReferences"
-                            ]
-                        }
-                    ]
-                }
-            ]
+                            }
+                        },
+                        "oneOf": [
+                            {
+                                "required": [
+                                    "policySetId"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "policySetName"
+                                ]
+                            }
+                        ],
+                        "required": [
+                            "effect",
+                            "policyDefinitionReferences"
+                        ]
+                    }
+                ]
+            }
         },
         "parameterFile": {
             "type": "string"
@@ -268,11 +266,9 @@
             "patternProperties": {
                 "^*$": {
                     "type": "array",
-                    "items": [
-                        {
-                            "type": "string"
-                        }
-                    ]
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -282,11 +278,9 @@
                 "patternProperties": {
                     "^*$": {
                         "type": "array",
-                        "items": [
-                            {
-                                "type": "string"
-                            }
-                        ]
+                        "items": {
+                            "type": "string"
+                        }
                     }
                 }
             }
@@ -304,23 +298,21 @@
             "patternProperties": {
                 "^*$": {
                     "type": "array",
-                    "items": [
-                        {
-                            "type": "object",
-                            "properties": {
-                                "roleDefinitionId": {
-                                    "type": "string"
-                                },
-                                "scope": {
-                                    "type": "string"
-                                }
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "roleDefinitionId": {
+                                "type": "string"
                             },
-                            "required": [
-                                "roleDefinitionId",
-                                "scope"
-                            ]
-                        }
-                    ]
+                            "scope": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "roleDefinitionId",
+                            "scope"
+                        ]
+                    }
                 }
             }
         },
@@ -334,53 +326,51 @@
                         },
                         {
                             "type": "array",
-                            "items": [
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "policyName": {
-                                            "type": "string"
-                                        },
-                                        "policyId": {
-                                            "type": "string"
-                                        },
-                                        "policySetName": {
-                                            "type": "string"
-                                        },
-                                        "policySetId": {
-                                            "type": "string"
-                                        },
-                                        "identity": {
-                                            "type": "string"
-                                        }
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "policyName": {
+                                        "type": "string"
                                     },
-                                    "oneOf": [
-                                        {
-                                            "required": [
-                                                "policyId"
-                                            ]
-                                        },
-                                        {
-                                            "required": [
-                                                "policyName"
-                                            ]
-                                        },
-                                        {
-                                            "required": [
-                                                "policySetId"
-                                            ]
-                                        },
-                                        {
-                                            "required": [
-                                                "policySetName"
-                                            ]
-                                        }
-                                    ],
-                                    "required": [
-                                        "identity"
-                                    ]
-                                }
-                            ]
+                                    "policyId": {
+                                        "type": "string"
+                                    },
+                                    "policySetName": {
+                                        "type": "string"
+                                    },
+                                    "policySetId": {
+                                        "type": "string"
+                                    },
+                                    "identity": {
+                                        "type": "string"
+                                    }
+                                },
+                                "oneOf": [
+                                    {
+                                        "required": [
+                                            "policyId"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "policyName"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "policySetId"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "policySetName"
+                                        ]
+                                    }
+                                ],
+                                "required": [
+                                    "identity"
+                                ]
+                            }
                         }
                     ]
                 }
@@ -391,67 +381,59 @@
         },
         "resourceSelectors": {
             "type": "array",
-            "items": [
-                {
-                    "type": "object",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "selectors": {
-                            "type": "array",
-                            "items": [
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "selectors": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "kind": {
+                                    "enum": [
+                                        "resourceLocation",
+                                        "resourceWithoutLocation",
+                                        "resourceType"
+                                    ]
+                                },
+                                "in": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "notIn": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "oneOf": [
                                 {
-                                    "type": "object",
-                                    "properties": {
-                                        "kind": {
-                                            "enum": [
-                                                "resourceLocation",
-                                                "resourceWithoutLocation",
-                                                "resourceType"
-                                            ]
-                                        },
-                                        "in": {
-                                            "type": "array",
-                                            "items": [
-                                                {
-                                                    "type": "string"
-                                                }
-                                            ]
-                                        },
-                                        "notIn": {
-                                            "type": "array",
-                                            "items": [
-                                                {
-                                                    "type": "string"
-                                                }
-                                            ]
-                                        }
-                                    },
-                                    "oneOf": [
-                                        {
-                                            "required": [
-                                                "kind",
-                                                "in"
-                                            ]
-                                        },
-                                        {
-                                            "required": [
-                                                "kind",
-                                                "notIn"
-                                            ]
-                                        }
+                                    "required": [
+                                        "kind",
+                                        "in"
+                                    ]
+                                },
+                                {
+                                    "required": [
+                                        "kind",
+                                        "notIn"
                                     ]
                                 }
                             ]
                         }
-                    },
-                    "required": [
-                        "name",
-                        "selectors"
-                    ]
-                }
-            ]
+                    }
+                },
+                "required": [
+                    "name",
+                    "selectors"
+                ]
+            }
         },
         "enforcementMode": {
             "enum": [
@@ -472,38 +454,36 @@
     "$defs": {
         "nonComplianceMessages": {
             "type": "array",
-            "items": [
-                {
-                    "anyOf": [
-                        {
-                            "type": "object",
-                            "properties": {
-                                "message": {
-                                    "type": "string"
-                                }
-                            },
-                            "required": [
-                                "message"
-                            ]
+            "items": {
+                "anyOf": [
+                    {
+                        "type": "object",
+                        "properties": {
+                            "message": {
+                                "type": "string"
+                            }
                         },
-                        {
-                            "type": "object",
-                            "properties": {
-                                "message": {
-                                    "type": "string"
-                                },
-                                "policyDefinitionReferenceId": {
-                                    "type": "string"
-                                }
+                        "required": [
+                            "message"
+                        ]
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "message": {
+                                "type": "string"
                             },
-                            "required": [
-                                "message",
-                                "policyDefinitionReferenceId"
-                            ]
-                        }
-                    ]
-                }
-            ]
+                            "policyDefinitionReferenceId": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "message",
+                            "policyDefinitionReferenceId"
+                        ]
+                    }
+                ]
+            }
         }
     }
 }

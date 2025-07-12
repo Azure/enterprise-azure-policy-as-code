@@ -5,188 +5,191 @@
         "documentAssignments": {
             "type": "object",
             "properties": {
-                "environmentCategories": {
+                "documentAllAssignments": {
                     "type": "array",
                     "minItems": 1,
-                    "items": [
-                        {
-                            "type": "object",
-                            "properties": {
-                                "pacEnvironment": {
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "enabled": {
+                                "type": "boolean"
+                            },
+                            "pacEnvironment": {
+                                "type": "string"
+                            },
+                            "skipPolicyAssignments": {
+                                "type": "array",
+                                "minItems": 0,
+                                "items": {
                                     "type": "string"
-                                },
-                                "environmentCategory": {
-                                    "type": "string"
-                                },
-                                "scopes": {
-                                    "type": "array",
-                                    "minItems": 1,
-                                    "items": [
-                                        {
-                                            "type": "string"
-                                        }
-                                    ]
-                                },
-                                "representativeAssignments": {
-                                    "type": "array",
-                                    "minItems": 1,
-                                    "items": [
-                                        {
-                                            "type": "object",
-                                            "properties": {
-                                                "shortName": {
-                                                    "type": "string"
-                                                },
-                                                "id": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "required": [
-                                                "shortName",
-                                                "id"
-                                            ]
-                                        }
-                                    ]
                                 }
                             },
-                            "required": [
-                                "pacEnvironment",
-                                "environmentCategory",
-                                "scopes",
-                                "representativeAssignments"
-                            ]
-                        }
-                    ]
+                            "skipPolicyDefinitions": {
+                                "type": "array",
+                                "minItems": 0,
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "overrideEnvironmentCategory": {
+                                "type": "object",
+                                "minItems": 0,
+                                "properties": {
+                                    "*": {
+                                        "type": "array",
+                                        "maxItems": 0,
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "required": [
+                            "enabled",
+                            "pacEnvironment",
+                            "title"
+                        ]
+                    }
                 },
                 "documentationSpecifications": {
                     "type": "array",
                     "minItems": 1,
-                    "items": [
-                        {
-                            "type": "object",
-                            "properties": {
-                                "fileNameStem": {
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "fileNameStem": {
+                                "type": "string"
+                            },
+                            "environmentCategories": {
+                                "type": "array",
+                                "minItems": 1,
+                                "items": {
                                     "type": "string"
-                                },
-                                "environmentCategories": {
-                                    "type": "array",
-                                    "minItems": 1,
-                                    "items": [
-                                        {
-                                            "type": "string"
-                                        }
-                                    ]
-                                },
-                                "title": {
-                                    "type": "string"
-                                },
-                                "markdownAddToc": {
-                                    "type": "boolean"
-                                },
-                                "markdownAdoWiki": {
-                                    "type": "boolean"
-                                },
-                                "markdownNoEmbeddedHtml": {
-                                    "type": "boolean"
-                                },
-                                "markdownIncludeComplianceGroupNames": {
-                                    "type": "boolean"
-                                },
-                                "markdownSuppressParameterSection": {
-                                    "type": "boolean"
-                                },
-                                "markdownMaxParameterLength": {
-                                    "type": "integer"
                                 }
                             },
-                            "required": [
-                                "fileNameStem",
-                                "environmentCategories",
-                                "title"
-                            ]
-                        }
-                    ]
+                            "title": {
+                                "type": "string"
+                            },
+                            "markdownAddToc": {
+                                "type": "boolean"
+                            },
+                            "markdownAdoWiki": {
+                                "type": "boolean"
+                            },
+                            "markdownNoEmbeddedHtml": {
+                                "type": "boolean"
+                            },
+                            "markdownIncludeComplianceGroupNames": {
+                                "type": "boolean"
+                            },
+                            "markdownSuppressParameterSection": {
+                                "type": "boolean"
+                            },
+                            "markdownMaxParameterLength": {
+                                "type": "integer"
+                            }
+                        },
+                        "required": [
+                            "fileNameStem",
+                            "environmentCategories",
+                            "title"
+                        ]
+                    }
                 }
             },
-            "required": [
-                "environmentCategories",
-                "documentationSpecifications"
+            "anyOf": [
+                {
+                    "required": [
+                        "documentAllAssignments",
+                        "documentationSpecifications"
+                    ]
+                }
             ]
         },
         "documentPolicySets": {
             "type": "array",
             "minItems": 1,
-            "items": [
-                {
-                    "type": "object",
-                    "properties": {
-                        "pacEnvironment": {
-                            "type": "string"
-                        },
-                        "fileNameStem": {
-                            "type": "string"
-                        },
-                        "title": {
-                            "type": "string"
-                        },
-                        "policySets": {
-                            "type": "array",
-                            "minItems": 1,
-                            "items": [
+            "items": {
+                "type": "object",
+                "properties": {
+                    "pacEnvironment": {
+                        "type": "string"
+                    },
+                    "fileNameStem": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "policySets": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "shortName": {
+                                    "type": "string"
+                                },
+                                "id": {
+                                    "type": "string",
+                                    "description": "The name of the policy set. This is used for built-in policy sets."
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "description": "The name of the policy set. This is used for custom policy sets."
+                                }
+                            },
+                            "oneOf": [
                                 {
-                                    "type": "object",
-                                    "properties": {
-                                        "shortName": {
-                                            "type": "string"
-                                        },
-                                        "id": {
-                                            "type": "string"
-                                        }
-                                    },
                                     "required": [
                                         "shortName",
                                         "id"
                                     ]
-                                }
-                            ]
-                        },
-                        "environmentColumnsInCsv": {
-                            "type": "array",
-                            "minItems": 1,
-                            "items": [
+                                },
                                 {
-                                    "type": "string"
+                                    "required": [
+                                        "shortName",
+                                        "name"
+                                    ]
                                 }
                             ]
-                        },
-                        "markdownAddToc": {
-                            "type": "boolean"
-                        },
-                        "markdownAdoWiki": {
-                            "type": "boolean"
-                        },
-                        "markdownNoEmbeddedHtml": {
-                            "type": "boolean"
-                        },
-                        "markdownIncludeComplianceGroupNames": {
-                            "type": "boolean"
-                        },
-                        "markdownSuppressParameterSection": {
-                            "type": "boolean"
-                        },
-                        "markdownMaxParameterLength": {
-                            "type": "integer"
                         }
                     },
-                    "required": [
-                        "pacEnvironment",
-                        "fileNameStem",
-                        "title",
-                        "policySets",
-                        "environmentColumnsInCsv"
-                    ]
-                }
-            ]
+                    "environmentColumnsInCsv": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "markdownAddToc": {
+                        "type": "boolean"
+                    },
+                    "markdownAdoWiki": {
+                        "type": "boolean"
+                    },
+                    "markdownNoEmbeddedHtml": {
+                        "type": "boolean"
+                    },
+                    "markdownIncludeComplianceGroupNames": {
+                        "type": "boolean"
+                    },
+                    "markdownSuppressParameterSection": {
+                        "type": "boolean"
+                    },
+                    "markdownMaxParameterLength": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "pacEnvironment",
+                    "fileNameStem",
+                    "title",
+                    "policySets",
+                    "environmentColumnsInCsv"
+                ]
+            }
         }
     },
     "anyOf": [

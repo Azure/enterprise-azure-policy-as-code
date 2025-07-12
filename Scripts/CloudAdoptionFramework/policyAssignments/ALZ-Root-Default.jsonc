@@ -10,8 +10,9 @@
         "logAnalytics": "", // Replace with your central Log Analytics workspace ID
         "logAnalytics_1": "", // Replace with your central Log Analytics workspace ID
         "emailSecurityContact": "", // Security contact email address for Microsoft Defender for Cloud
-        "ascExportResourceGroupName": "mdfc-export", // Resource group to export Microsoft Defender for Cloud data to
-        "ascExportResourceGroupLocation": "" // Location of the resource group to export Microsoft Defender for Cloud data to
+        "ascExportResourceGroupName": "asc-export", // Resource group to export Microsoft Defender for Cloud data to
+        "ascExportResourceGroupLocation": "", // Location of the resource group to export Microsoft Defender for Cloud data to
+        "createResourceGroup": "true" // A new resource group will be created if set to true for ascExportResourceGroupName
     },
     "children": [
         {
@@ -38,27 +39,27 @@
                 {
                     "nodeName": "MDFC",
                     "assignment": {
-                        "name": "Deploy-MDFC-Config",
+                        "name": "Deploy-MDFC-Config-H224",
                         "displayName": "Deploy Microsoft Defender for Cloud configuration",
                         "description": "Deploy Microsoft Defender for Cloud and Security Contacts"
                     },
                     "definitionEntry": {
-                        "policySetName": "Deploy-MDFC-Config",
+                        "policySetName": "Deploy-MDFC-Config_20240319",
                         "displayName": "Microsoft Defender For Cloud"
                     },
                     "parameters": {
-                        "enableAscForServers": "Disabled", // Adjust parameter values to control Microsoft Defender for Cloud configuration Disabled/Disabled
-                        "enableAscForSql": "Disabled",
-                        "enableAscForAppServices": "Disabled",
-                        "enableAscForStorage": "Disabled",
-                        "enableAscForContainers": "Disabled",
-                        "enableAscForKeyVault": "Disabled",
-                        "enableAscForSqlOnVm": "Disabled",
-                        "enableAscForArm": "Disabled",
-                        "enableAscForOssDb": "Disabled",
-                        "enableAscForCosmosDbs": "Disabled",
-                        "enableAscForServersVulnerabilityAssessments": "Disabled",
-                        "enableAscForCspm": "Disabled"
+                        "enableAscForServers": "DeployIfNotExists", // Adjust parameter values to control Microsoft Defender for Cloud configuration Disabled/Disabled
+                        "enableAscForCosmosDbs": "DeployIfNotExists",
+                        "enableAscForAppServices": "DeployIfNotExists",
+                        "enableAscForStorage": "DeployIfNotExists",
+                        "enableAscForOssDb": "DeployIfNotExists",
+                        "enableAscForKeyVault": "DeployIfNotExists",
+                        "enableAscForArm": "DeployIfNotExists",
+                        "enableAscForSqlOnVm": "DeployIfNotExists",
+                        "enableAscForContainers": "DeployIfNotExists",
+                        "enableAscForServersVulnerabilityAssessments": "DeployIfNotExists",
+                        "enableAscForSql": "DeployIfNotExists",
+                        "enableAscForCspm": "DeployIfNotExists"
                     },
                     "nonComplianceMessages": [
                         {
@@ -88,6 +89,24 @@
                             "message": "Microsoft Defender for Endpoint agent must be deployed on applicable images."
                         }
                     ]
+                },
+                {
+                    "nodeName": "MDAMA",
+                    "assignment": {
+                        "name": "Deploy-MDEndpointsAMA",
+                        "displayName": "Configure multiple Microsoft Defender for Endpoint integration settings with Microsoft Defender for Cloud",
+                        "description": "Configure the multiple Microsoft Defender for Endpoint integration settings with Microsoft Defender for Cloud (WDATP, WDATP_EXCLUDE_LINUX_PUBLIC_PREVIEW, WDATP_UNIFIED_SOLUTION etc.). See: https://learn.microsoft.com/azure/defender-for-cloud/integration-defender-for-endpoint for more information."
+                    },
+                    "definitionEntry": {
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/77b391e3-2d5d-40c3-83bf-65c846b3c6a3",
+                        "displayName": "Configure multiple Microsoft Defender for Endpoint integration settings with Microsoft Defender for Cloud",
+                        "nonComplianceMessages": [
+                            {
+                                "policyDefinitionReferenceId": null,
+                                "message": "Microsoft Defender for Endpoint must be deployed."
+                            }
+                        ]
+                    }
                 },
                 {
                     "nodeName": "MDFEOSSDB",
@@ -166,18 +185,18 @@
                 {
                     "nodeName": "ResourceDiagnostics",
                     "assignment": {
-                        "name": "Deploy-Resource-Diag",
-                        "displayName": "Deploy-Resource-Diag",
-                        "description": "Ensures that Azure resources are configured to forward diagnostic logs and metrics to an Azure Log Analytics workspace."
+                        "name": "Deploy-Diag-Logs",
+                        "displayName": "Enable allLogs category group resource logging for supported resources to Log Analytics",
+                        "description": "Resource logs should be enabled to track activities and events that take place on your resources and give you visibility and insights into any changes that occur. This initiative deploys diagnostic setting using the allLogs category group to route logs to an Event Hub for all supported resources."
                     },
                     "definitionEntry": {
-                        "policySetName": "Deploy-Diagnostics-LogAnalytics",
-                        "displayName": "Resource Diagnostics"
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/0884adba-2312-4468-abeb-5422caed1038",
+                        "displayName": "Enable allLogs category group resource logging for supported resources to Log Analytics"
                     },
                     "parameters": {},
                     "nonComplianceMessages": [
                         {
-                            "message": "Diagnostic settings must be deployed to Azure services."
+                            "message": "Diagnostic settings must be deployed to Azure services to forward logs to Log Analytics."
                         }
                     ]
                 }
@@ -223,7 +242,7 @@
                     "nonComplianceMessages": [
                         {
                             "policyDefinitionReferenceId": null,
-                            "message": "Trust Launch must be used on supported virtual machines for enhanced security."
+                            "message": "Trusted Launch must be used on supported virtual machines for enhanced security."
                         }
                     ]
                 }
@@ -241,7 +260,7 @@
                     },
                     "definitionEntry": {
                         "policyName": "6c112d4e-5bc7-47ae-a041-ea2d9dccd749",
-                        "displayName": "Deny Classic Resources"
+                        "displayName": "Not allowed resource types"
                     },
                     "parameters": {
                         "listOfResourceTypesNotAllowed": [

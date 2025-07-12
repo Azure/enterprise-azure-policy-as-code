@@ -2,6 +2,10 @@
 
 Enterprise Azure Policy as Code (EPAC for short) is a number of PowerShell scripts which can be used in CI/CD based system or a semi-automated use to deploy Policies, Policy Sets, Policy Assignments, Policy Exemptions and Role Assignments. It also contains operational scripts to simplify operational tasks.
 
+## Latest Updates
+
+For all EPAC changes and newest updates, please visit our [GitHub Releases Page](https://github.com/Azure/enterprise-azure-policy-as-code/releases).
+
 > [!CAUTION]
 > Review the Breaking changes in v10.0.0 carefully to avoid issues with your EPAC instance. The changes are [documented here](start-changes.md#breaking-changes-in-v1000).
 
@@ -48,7 +52,7 @@ EPAC is designed for medium and large organizations with a larger number of Poli
 
 ## Deployment Scripts
 
-Three deployment scripts plan a deployment, deploy Policy resources, and Role Assignments respectively as shown in the following diagram. The solution consumes definition files (JSON and/or CSV files). The planning script (`Build-DeploymentPlan`) creates plan files (`policy-plan.json` and `roles-plan.json`) to be consumed by the two deployment scripts (`Deploy-PolicyPlan` and `Deploy-RolesPlan`). The scripts require `Reader`, `Resource Policy Contributor` and `Role Based Access Administrator` privileges respectively as indicated in blue text in the diagram. The diagram also shows the usual approval gates after each step/script for prod deployments.
+Three deployment scripts plan a deployment, deploy Policy resources, and Role Assignments respectively as shown in the following diagram. The solution consumes definition files (JSON and/or CSV files). The planning script (`Build-DeploymentPlan`) creates plan files (`policy-plan.json` and `roles-plan.json`) to be consumed by the two deployment scripts (`Deploy-PolicyPlan` and `Deploy-RolesPlan`). The scripts require `Reader`, `Resource Policy Contributor` and `Role Based Access Control Administrator` privileges respectively as indicated in blue text in the diagram. The diagram also shows the usual approval gates after each step/script for prod deployments.
 
 ![image.png](Images/epac-deployment-scripts.png)
 
@@ -84,7 +88,7 @@ The following is the unique IDs (also known as PIDs) used in each of the modules
 
 | Function Name | PID |
 |:------------|:----|
-| `Deploy-PolicyPlan` | `3c88f740-55a8-4a96-9fba-30a81b52151a` |
+| `Build-DeploymentPlans` | `3c88f740-55a8-4a96-9fba-30a81b52151a` |
 | `Deploy-PolicyPlan` | `fe9ff1e8-5521-4b9d-ab1d-84e15447565e` |
 | `Deploy-RolesPlan` | `cf031290-b7d4-48ef-9ff5-4dcd7bff8c6c` |
 | `Build-PolicyDocumentation` | `2dc29bae-2448-4d7f-b911-418421e83900` |
@@ -94,6 +98,7 @@ The following is the unique IDs (also known as PIDs) used in each of the modules
 | `Get-AzExemptions` | `3f02e7d5-1cf5-490a-a95c-3d49f0673093` |
 | `New-AzPolicyReaderRole` | `f4b5b7ac-70b4-40fc-836f-585791aa83e7` |
 | `Sync-ALZPolicies` | `a5e82cd0-9dda-417b-948c-68ec81596c32`|
+| `Sync-ALZPolicyFromLibrary` | `adaa7564-1962-46e6-92b4-735e91f76d43` |
 
 ## Support
 

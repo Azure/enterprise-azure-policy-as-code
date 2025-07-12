@@ -1,0 +1,87 @@
+---
+
+parameters:
+  - name: epacVersion
+    type: string
+    default: 'latest'
+    displayName: 'EPAC Version (leave as "latest" for most recent version)'
+  - name: definitionsRootFolder
+    type: string
+    default: './Definitions'
+    displayName: 'Policy Definitions Root Folder'
+  - name: projectName
+    type: string
+    default: 'azure-automation'
+    displayName: 'Azure DevOps Project Name'
+  - name: gitUserEmail
+    type: string
+    default: 'devops@example.com'
+    displayName: 'Git User Email'
+  - name: gitUserName
+    type: string
+    default: 'Azure DevOps'
+    displayName: 'Git User Name'
+
+trigger: none
+pr: none
+
+pool:
+  vmImage: "ubuntu-latest"
+
+variables:
+  PAC_OUTPUT_FOLDER: ./Output
+  PAC_DEFINITIONS_FOLDER: ${{ parameters.definitionsRootFolder }}
+
+stages:
+  - stage: Sync_ALZ_Policies
+    displayName: 'Sync ALZ Policies'
+    jobs:
+      - job: Sync_ALZ_Policies
+        displayName: 'Sync ALZ Policies'
+        steps:
+          - script: |
+              # Install EPAC module with version handling
+              if [ "${{ parameters.epacVersion }}" = "latest" ]; then
+                echo "Installing latest version of EPAC"
+                pwsh -Command "Install-Module -Name EnterprisePolicyAsCode -Force -Scope CurrentUser"
+              else
+                echo "Installing EPAC version ${{ parameters.epacVersion }}"
+                pwsh -Command "Install-Module -Name EnterprisePolicyAsCode -RequiredVersion ${{ parameters.epacVersion }} -Force -Scope CurrentUser"
+              fi
+            displayName: 'Install EPAC Module'
+
+          - script: |
+              echo 'Configuring Git...'
+              git config --global user.email "${{ parameters.gitUserEmail }}"
+              git config --global user.name "${{ parameters.gitUserName }}"
+
+              echo 'Checking out the repository...'
+              git checkout -b auto-generated-config-$(Build.BuildId)
+
+              echo 'Adding changes...'
+              git add .
+              git commit -m "Auto-generated ALZ policy update"
+
+              echo 'Setting up remote with access token...'
+              git remote set-url origin https://$(System.AccessToken)@dev.azure.com/th-azdo/${{ parameters.projectName }}/_git/$(Build.Repository.Name)
+
+              echo 'Pushing new branch...'
+              git push -u origin auto-generated-config-$(Build.BuildId)
+            displayName: 'Create new branch and push changes'
+            env:
+              SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+
+          - script: |
+                echo 'Creating a pull request targeting the main branch...'
+                az repos pr create \
+                  --repository $(Build.Repository.Name) \
+                  --source-branch auto-generated-config-$(Build.BuildId) \
+                  --target-branch main \
+                  --title "Auto-generated ALZ policy update" \
+                  --description "This is an auto-generated pull request for ALZ policy updates.
+
+                  Pipeline Details:
+                  - [Pipeline Run Link]($(System.TeamFoundationCollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId))"
+            displayName: 'Create Pull Request'
+            env:
+              AZURE_DEVOPS_EXT_PAT: $(System.AccessToken)

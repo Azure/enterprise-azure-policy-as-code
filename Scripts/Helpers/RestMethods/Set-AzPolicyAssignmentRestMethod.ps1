@@ -47,6 +47,9 @@ function Set-AzPolicyAssignmentRestMethod {
     if ($AssignmentObj.resourceSelectors) {
         $assignment.properties.resourceSelectors = $AssignmentObj.resourceSelectors
     }
+    if ($AssignmentObj.definitionVersion) {
+        $assignment.properties.definitionVersion = $AssignmentObj.definitionVersion
+    }
 
     # Invoke the REST API
     $assignmentJson = ConvertTo-Json $assignment -Depth 100 -Compress
@@ -57,6 +60,6 @@ function Set-AzPolicyAssignmentRestMethod {
     if ($statusCode -ge 300 -or $statusCode -lt 200) {
         $content = $response.Content
         Write-Information "assignment: $assignmentJson"
-        Write-Error "Assignment error $($statusCode) -- $($content)" -ErrorAction Stop
+        Write-Error "Definition error $($statusCode) -- $($AssignmentObj.displayName) --$($content)" -ErrorAction Stop
     }
 }

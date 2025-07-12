@@ -6,7 +6,7 @@ function ConvertTo-HashTable {
         $InputObject = $null
     )
 
-    [hashtable] $hashTable = @{}
+    $hashTable = [ordered]@{}
     if ($null -ne $InputObject) {
         if ($InputObject -is [System.Collections.IDictionary]) {
             if ($InputObject -is [hashtable]) {

@@ -30,7 +30,7 @@ function Convert-AllowedEffectsToCsvString {
 
     $effectArray = @()
     foreach ($effectValue in @( "Modify", "Append", "DenyAction", "Deny", "Audit", "Manual", "DeployIfNotExists", "AuditIfNotExists", "Disabled" )) {
-        # sorted logicaly
+        # sorted logically
         if ($allowedList -contains $effectValue) {
             $effectArray += $effectValue
         }

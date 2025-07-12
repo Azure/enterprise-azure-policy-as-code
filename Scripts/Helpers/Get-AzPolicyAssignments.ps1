@@ -39,6 +39,11 @@ function Get-AzPolicyAssignments {
                 $scope = $resourceIdParts.scope
                 $policyResource.resourceIdParts = $resourceIdParts
                 $policyResource.scope = $scope
+                $policyResource.scopeType = $resourceIdParts.scopeType
+                $policyResource.scopeDisplayName = $ScopeTable.$scope.displayName
+                if ($policyResource.scopeDisplayName -eq $policyResource.tenantId) {
+                    $policyResource.scopeDisplayName = "Tenant Root Group"
+                }
                 $policyResource.pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -PolicyResource $policyResource -Scope $scope -ManagedByCounters $policyResourcesTable.counters.managedBy
                 if ($policyResource.identity -and $policyResource.identity.type -ne "None") {
                     $principalId = ""

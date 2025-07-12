@@ -192,11 +192,6 @@ function Get-GlobalSettings {
             if ($skipResourceValidationForExemptionsRaw) {
                 $skipResourceValidationForExemptions = $true
             }
-            $doNotDisableDeprecatedPolicies = $false
-            $doNotDisableDeprecatedPoliciesRaw = $pacEnvironment.doNotDisableDeprecatedPolicies
-            if ($doNotDisableDeprecatedPoliciesRaw) {
-                $doNotDisableDeprecatedPolicies = $true
-            }
 
             $desiredState = @{
                 strategy                             = "undefined"
@@ -209,6 +204,8 @@ function Get-GlobalSettings {
                 excludedPolicyDefinitions            = @()
                 excludedPolicySetDefinitions         = @()
                 excludedPolicyAssignments            = @()
+                excludeSubscriptions                 = $false
+                doNotDisableDeprecatedPolicies       = $false
             }
             
             $desired = $pacEnvironment.desiredState
@@ -265,18 +262,20 @@ function Get-GlobalSettings {
                             else {
                                 $null = $excludedScopesList.Add($excludedScope)
                                 if ($excludedScope.StartsWith("/subscriptions/")) {
-                                    if ($excludedScope.Contains("/resourceGroups/", [System.StringComparison]::OrdinalIgnoreCase)) {
-                                        $null = $globalExcludedScopesResourceGroupsList.Add($excludedScope)
-                                    }
-                                    else {
-                                        $null = $globalExcludedScopesSubscriptionsList.Add($excludedScope)
+                                    if ($desired.excludeSubscriptions -eq $false -or $null -eq $desired.excludeSubscriptions) {
+                                        if ($excludedScope.Contains("/resourceGroups/", [System.StringComparison]::OrdinalIgnoreCase)) {
+                                            $null = $globalExcludedScopesResourceGroupsList.Add($excludedScope)
+                                        }
+                                        else {
+                                            $null = $globalExcludedScopesSubscriptionsList.Add($excludedScope)
+                                        }
                                     }
                                 }
                                 elseif ($excludedScope.StartsWith("/providers/Microsoft.Management/managementGroups/")) {
                                     $null = $globalExcludedScopesManagementGroupsList.Add($excludedScope)
                                 }
                                 else {
-                                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.excludedScopes ($excludedScope) must be a valid scope."
+                                    Write-Host "Global settings error: pacEnvironment $pacSelector field desiredState.excludedScopes ($excludedScope) must be a valid scope."
                                 }
                             }
                         }
@@ -303,6 +302,9 @@ function Get-GlobalSettings {
                     }
                     $desiredState.excludedPolicyAssignments = $excluded
                 }
+                if ($desired.excludeSubscriptions) {
+                    $desiredState.excludeSubscriptions = $true
+                }
                 $deleteExpired = $desired.deleteExpiredExemptions
                 if ($null -ne $deleteExpired) {
                     Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.deleteExpiredExemptions is deprecated. Remove it!"
@@ -310,6 +312,18 @@ function Get-GlobalSettings {
                 $deleteOrphaned = $desired.deleteOrphanedExemptions
                 if ($null -ne $deleteOrphaned) {
                     Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.deleteOrphanedExemptions is deprecated. Remove it!"
+                }
+                $doNotDisableDeprecatedPolicies = $desired.doNotDisableDeprecatedPolicies
+                if ($null -ne $doNotDisableDeprecatedPolicies) {
+                    if ($doNotDisableDeprecatedPolicies -is [bool]) {
+                        $desiredState.doNotDisableDeprecatedPolicies = $doNotDisableDeprecatedPolicies
+                    }
+                    else {
+                        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.doNotDisableDeprecatedPolicies ($doNotDisableDeprecatedPolicies) must be a boolean value."
+                    }
+                }
+                else {
+                    $doNotDisableDeprecatedPolicies = $false
                 }
             }
 

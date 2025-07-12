@@ -88,7 +88,13 @@ param(
     [string[]] $PolicyEffectFilter = $null,
 
     [Parameter(Mandatory = $false, HelpMessage = "Do not wait for the tasks to complete")]
-    [switch] $NoWait
+    [switch] $NoWait,
+    
+    [Parameter(Mandatory = $false, HelpMessage = "Used to output the remediation tasks that would occur if 'New-AzRemediationTasks' runs.")]
+    [switch] $TestRun,
+    
+    [Parameter(Mandatory = $false, HelpMessage = "Used to only run remediation tasks against policy assignments that have enforcement mode set to 'Default'")]
+    [switch] $OnlyDefaultEnforcementMode
 )
 
 # Dot Source Helper Scripts
@@ -120,6 +126,10 @@ else {
 }
 Write-Information ""
 
+if ($OnlyDefaultEnforcementMode) {
+    $enforcementMode = "Default"
+}
+
 $rawNonCompliantList, $deployedPolicyResources, $scopeTable = Find-AzNonCompliantResources `
     -RemediationOnly `
     -PacEnvironment $pacEnvironment `
@@ -127,10 +137,11 @@ $rawNonCompliantList, $deployedPolicyResources, $scopeTable = Find-AzNonComplian
     -PolicyDefinitionFilter:$policyDefinitionFilter `
     -PolicySetDefinitionFilter:$policySetDefinitionFilter `
     -PolicyAssignmentFilter:$policyAssignmentFilter `
-    -PolicyEffectFilter $policyEffectFilter
+    -PolicyEffectFilter $policyEffectFilter `
+    -OnlyDefaultEnforcementMode $enforcementMode
 
 Write-Information "==================================================================================================="
-Write-Information "Collating non-compliant resources by Assignment Id and (if Policy Set) policyDefintionReferenceId"
+Write-Information "Collating non-compliant resources by Assignment Id and (if Policy Set) policyDefinitionReferenceId"
 Write-Information "==================================================================================================="
 
 
@@ -214,9 +225,9 @@ else {
     }
 
     Write-Information ""
-    if ($WhatIfPreference) {
+    if ($TestRun) {
         Write-Information "==================================================================================================="
-        Write-Information "WhatIf: Creating $($collatedByAssignmentId.Count) remediation tasks..."
+        Write-Information "TEST RUN: Testing the creation of $($collatedByAssignmentId.Count) remediation tasks..."
         Write-Information "==================================================================================================="
     }
     else {
@@ -230,7 +241,7 @@ else {
     $created = 0
     $failedToCreate = 0
     $failed = 0
-    $succeded = 0
+    $succeeded = 0
     $collatedByAssignmentId.Values | Sort-Object { $_.policyAssignmentId }, { $_.category }, { $_.policyName } | ForEach-Object {
         if ($_.policyDefinitionReferenceId) {
             Write-Information "'$($_.shortScope)/$($_.policyAssignmentName)|$($_.policyDefinitionReferenceId)': $($_.resourceCount) resources, '$($_.policyDefinitionName)', $($_.policyDefinitionAction)"
@@ -240,8 +251,8 @@ else {
         }
         $parameters = $_.parametersSplat
         Write-Verbose "Parameters: $($parameters | ConvertTo-Json -Depth 99)"
-        if ($WhatIfPreference) {
-            Write-Information "`tWhatIf: Remediation Task would have been created."
+        if ($TestRun) {
+            Write-Information "`TEST RUN: Remediation Task would have been created."
             $newPolicyRemediationTask = [ordered]@{
                 Name               = $parameters.Name
                 Id                 = $parameters.Name
@@ -250,10 +261,10 @@ else {
             }
             # $null = $runningPolicyRemediationTasks.Add($newPolicyRemediationTask)
             $created++
-            $succeded++
+            $succeeded++
         }
         else {
-            $newPolicyRemediationTask = Start-AzPolicyRemediation @parameters -ErrorAction SilentlyContinue -WhatIf:$WhatIfPreference
+            $newPolicyRemediationTask = Start-AzPolicyRemediation @parameters -ErrorAction SilentlyContinue
 
             if ($null -eq $newPolicyRemediationTask) {
                 Write-Information "`tRemediation Task could not be created."
@@ -268,7 +279,7 @@ else {
             }
             elseif ($newPolicyRemediationTask.ProvisioningState -eq 'Succeeded') {
                 Write-Information "`tRemediation Task succeeded immediately."
-                $succeded++
+                $succeeded++
                 $created++
             }
             elseif ($newPolicyRemediationTask.ProvisioningState -eq 'Failed') {
@@ -315,11 +326,11 @@ else {
                 $runningPolicyRemediationTask = $runningPolicyRemediationTasks[$i]
                 $remediationTaskState = "Check for status failed"
                 $taskDone = $false
-                if ($WhatIfPreference) {
-                    $remediationTaskState = "WhatIf - Succeeded"
-                    Write-Information "`tWhatIf: Remediation Task '$($runningPolicyRemediationTask.Name)' might have succeeded."
+                if ($TestRun) {
+                    $remediationTaskState = "TEST RUN - Succeeded"
+                    Write-Information "`TEST RUN: Remediation Task '$($runningPolicyRemediationTask.Name)' might have succeeded."
                     $taskDone = $true
-                    $succeded++
+                    $succeeded++
                 }
                 else {
                     Write-Verbose "`tChecking the provisioning state of the '$($runningPolicyRemediationTask.Name)' Remediation Task"
@@ -330,7 +341,7 @@ else {
                     if ($remediationTaskState -eq 'Succeeded') {
                         Write-Information "`tRemediation Task '$($runningPolicyRemediationTask.Name)' succeeded."
                         $taskDone = $true
-                        $succeded++
+                        $succeeded++
                     }
                     elseif ($remediationTaskState -eq 'Failed') {
                         Write-Information "`tRemediation Task '$($runningPolicyRemediationTask.Name)' failed."
@@ -363,13 +374,13 @@ else {
 
     $createWorkItem = $false
     Write-Information ""
-    if ($WhatIfPreference) {
+    if ($TestRun) {
         Write-Information "==================================================================================================="
-        Write-Information "WhatIf: Remediation Task Status"
+        Write-Information "TEST RUN: Remediation Task Status (NO ACTION TAKEN)"
         Write-Information "==================================================================================================="
-        Write-Information "WhatIf: $needed needed"
-        Write-Information "WhatIf: $created created"
-        Write-Information "WhatIf: $succeded succeded"
+        Write-Information "TEST RUN: $needed needed"
+        Write-Information "TEST RUN: $created created"
+        Write-Information "TEST RUN: $succeeded succeeded"
     }
     else {
         Write-Information "==================================================================================================="
@@ -381,14 +392,9 @@ else {
             Write-Information "$failedToCreate failed to create"
         }
         Write-Information "$created created"
-        Write-Information "$succeded succeded"
+        Write-Information "$succeeded succeeded"
         if ($failed -gt 0) {
             Write-Information "$failed failed"
-            if (-not $Interactive) {
-                $failedPolicyRemediationTasksJsonString = $failedPolicyRemediationTasks | ConvertTo-Json -Depth 10 -Compress
-                Write-Output "##vso[task.setvariable variable=failedPolicyRemediationTasksJsonString;isOutput=true]$($failedPolicyRemediationTasksJsonString)"
-                $createWorkItem = $true
-            }
         }
         if ($canceled -gt 0) {
             Write-Information "$canceled canceled"
@@ -397,6 +403,12 @@ else {
             Write-Information "$stillRunning still running after $checkForMinutes minutes"
         }
         if (-not $Interactive) {
+            if (($failed -gt 0) -or ($failedToCreate -gt 0)) {
+                $failedPolicyRemediationTasksJsonString = $failedPolicyRemediationTasks | ConvertTo-Json -Depth 10 -Compress
+                Write-Output "##vso[task.setvariable variable=failedPolicyRemediationTasksJsonString;isOutput=true]$($failedPolicyRemediationTasksJsonString)"
+                $createWorkItem = $true
+            } 
+              
             Write-Output "##vso[task.setvariable variable=createWorkItem;isOutput=true]$($createWorkItem)"
         }
     }

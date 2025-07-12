@@ -225,6 +225,10 @@ else {
 if ($warningMessages.Count -gt 0) {
     foreach ($warningMessage in $warningMessages) {
         Write-Warning $warningMessage
+
+        if ($DevOpsType -eq "ado") {
+            Write-Host "##vso[task.logissue type=warning]$warningMessage"
+        }
     }
 }
 #endregion calculate which plans need to be built
@@ -317,6 +321,14 @@ if ($buildSelections.buildAny) {
         $allAssignments[$id] = $deployedPolicyAssignments.$id
     }
 
+    #region Process Deprecated
+    $deprecatedHash = @{}
+    foreach ($key in $combinedPolicyDetails.policies.keys) {
+        if ($combinedPolicyDetails.policies.$key.isDeprecated) {
+            $deprecatedHash[$combinedPolicyDetails.policies.$key.name] = $combinedPolicyDetails.policies.$key
+        }
+    }
+
     if ($buildSelections.buildPolicyAssignments) {
         # Process Assignment JSON files
         Build-AssignmentPlan `
@@ -329,7 +341,8 @@ if ($buildSelections.buildAny) {
             -AllAssignments $allAssignments `
             -ReplaceDefinitions $replaceDefinitions `
             -PolicyRoleIds $policyRoleIds `
-            -CombinedPolicyDetails $combinedPolicyDetails
+            -CombinedPolicyDetails $combinedPolicyDetails `
+            -DeprecatedHash $deprecatedHash
     }
 
     if ($buildSelections.buildPolicyExemptions) {

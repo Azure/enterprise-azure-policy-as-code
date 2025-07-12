@@ -8,7 +8,8 @@ function Build-AssignmentDefinitionNode {
         [hashtable] $AssignmentDefinition, # Collected values in tree branch
         [hashtable] $CombinedPolicyDetails,
         [hashtable] $PolicyRoleIds,
-        [hashtable] $RoleDefinitions
+        [hashtable] $RoleDefinitions,
+        [hashtable] $DeprecatedHash
 
         # Returns a list os completed assignmentValues
     )
@@ -16,6 +17,8 @@ function Build-AssignmentDefinitionNode {
     # Each tree branch needs a private copy
     $definition = Get-DeepCloneAsOrderedHashtable -InputObject $AssignmentDefinition
     $pacSelector = $PacEnvironment.pacSelector
+
+    $definitionVersion = $null
 
     #region nodeName (required)
     $nodeName = $definition.nodeName
@@ -166,13 +169,38 @@ function Build-AssignmentDefinitionNode {
     #endregion metadata
 
     #region parameters in JSON; parameters defined at a deeper level override previous parameters (union operator)
+    
+    # create parameter Hash to Policy Def
+    $parameterHash = @{}
+    foreach ($key in $flatPolicyList.keys) {
+        foreach ($paramKey in $flatPolicyList.$key.parameters.keys) {
+            $parameterHash.$paramKey = $flatPolicyList.$key
+        }
+    }
+
+    $deprecatedInJSON = [System.Collections.ArrayList]::new()
     if ($DefinitionNode.parameters) {
         $allParameters = $definition.parameters
         $addedParameters = $DefinitionNode.parameters
         foreach ($parameterName in $addedParameters.Keys) {
             $rawParameterValue = $addedParameters.$parameterName
+            $currentParameterHash = $parameterHash.$parameterName
+            if ($null -ne $currentParameterHash.name) {
+                if ($DeprecatedHash.ContainsKey($($currentParameterHash.name)) -and $currentParameterHash.parameters.$parameterName.isEffect) {
+                    $null = $deprecatedInJSON.Add("Assignment: '$($assignment.name)' with Parameter: '$parameterName' ($($currentParameterHash))")
+                    if (!$PacEnvironment.desiredState.doNotDisableDeprecatedPolicies) {
+                        $rawParameterValue = "Disabled"
+                    }
+                }
+            }
             $parameterValue = Get-DeepCloneAsOrderedHashtable $rawParameterValue
-            $allParameters[$parameterName] = $parameterValue
+            $allParameters.$parameterName = $parameterValue
+        }
+    }
+    if ($deprecatedInJSON.Count -gt 0) {
+        Write-Warning "Node $($nodeName): Assignment contains JSON effect parameter for Policies that has been deprecated in the Policy Sets. Update Policy Sets."
+        foreach ($deprecated in $deprecatedInJSON) {
+            Write-Information "    $($deprecated)"
         }
     }
     #endregion parameters in JSON; parameters defined at a deeper level override previous parameters (union operator)
@@ -184,6 +212,7 @@ function Build-AssignmentDefinitionNode {
         $definition.effectColumn = "$($parameterSelector)Effect"
         $definition.parametersColumn = "$($parameterSelector)Parameters"
     }
+    $deprecatedInCSV = [System.Collections.ArrayList]::new()
     if ($DefinitionNode.parameterFile) {
         $parameterFileName = $DefinitionNode.parameterFile
         if ($ParameterFilesCsv.ContainsKey($parameterFileName)) {
@@ -191,6 +220,28 @@ function Build-AssignmentDefinitionNode {
             $content = Get-Content -Path $fullName -Raw -ErrorAction Stop
             $xlsArray = @() + ($content | ConvertFrom-Csv -ErrorAction Stop)
             $csvParameterArray = Get-DeepCloneAsOrderedHashtable $xlsArray
+            # Replace CSV effect with Disabled if Deprecated
+            foreach ($entry in $csvParameterArray) {
+                # If policy in csv is found to be deprecated
+                if ($DeprecatedHash.ContainsKey($entry.name)) {
+                    # For each child in the assignment
+                    foreach ($child in $DefinitionNode.children) {
+                        # If that child is using a parameterSelector with the CSV
+                        if ($child.ContainsKey('parameterSelector')) {
+                            $key = "$($child.parameterSelector)" + "Effect"
+                            # If the parameter is not set to Disabled already
+                            if ($entry.$key -ne "Disabled") {
+                                if (!$PacEnvironment.desiredState.doNotDisableDeprecatedPolicies) {
+                                    $entry.$key = 'Disabled'
+                                }
+                                $null = $deprecatedInCSV.Add("$($entry.displayName) ($($entry.name))")
+                            }
+                        }
+                    }
+                    break
+                }
+            }
+            
             $definition.parameterFileName = $parameterFileName
             $definition.csvParameterArray = $csvParameterArray
             $definition.csvRowsValidated = $false
@@ -272,6 +323,12 @@ function Build-AssignmentDefinitionNode {
                 Write-Information "    $($missing)"
             }
         }
+        if ($deprecatedInCSV.Count -gt 0) {
+            Write-Warning "Node $($nodeName): CSV parameterFile '$parameterFileName' contains rows for Policies that have been deprecated in the Policy Sets. Update Policy Sets."
+            foreach ($deprecated in $deprecatedInCSV) {
+                Write-Information "    $($deprecated)"
+            }
+        }
     }
     #endregion validate CSV rows
 
@@ -296,6 +353,12 @@ function Build-AssignmentDefinitionNode {
         $definition.nonComplianceMessages += $DefinitionNode.nonComplianceMessages
     }
     #endregion advanced parameters - overrides and resourceSelectors
+
+    if ($DefinitionNode.definitionVersion) {
+        $definition.definitionVersion = $DefinitionNode.definitionVersion
+    }
+
+    #if ($DefinitionNode)
 
     #region scopes, notScopes
     if ($definition.scopeCollection -or $definition.hasOnlyNotSelectedEnvironments) {
@@ -345,13 +408,22 @@ function Build-AssignmentDefinitionNode {
                     $thisScopeGlobalNotScopeTable = $thisScopeDetails.notScopesTable
                     foreach ($notScope in $definition.notScopesList) {
                         $individualResource = $false
+                        if ($notScope -match "subscriptionsPattern") {
+                            $thisScopeChildren.Keys | Foreach-Object {
+                                if ($thisScopeChildren.$_.type -eq "/subscriptions") {
+                                    if ($thisScopeChildren.$_.displayName -like $notScope.split("/")[-1]) {
+                                        $null = $thisNotScopeList.Add($thisScopeChildren.$_.id)
+                                    }
+                                }
+                            }
+                        }
                         $notScopeTrimmed = $notScope
                         $splits = $notScope -split "/"
                         if ($splits.Count -gt 5) {
                             $individualResource = $true
                             $notScopeTrimmed = $splits[0..4] -join "/"
                         }
-                        if (-not $thisScopeGlobalNotScopeTable.ContainsKey($notScopeTrimmed)) {
+                        if (-not $thisScopeGlobalNotScopeTable.ContainsKey($notScopeTrimmed) -or ($notScope -match "subscriptionsPattern")) {
                             if ($thisScopeChildren.ContainsKey($notScopeTrimmed)) {
                                 $null = $thisNotScopeList.Add($notScope)
                             }
@@ -387,7 +459,7 @@ function Build-AssignmentDefinitionNode {
     #region identity and additionalRoleAssignments (optional, specific to an EPAC environment)
     if ($DefinitionNode.additionalRoleAssignments) {
         # Process additional permissions needed to execute remediations; for example permissions to log to Event Hub, Storage Account or Log Analytics
-        $definition.additionalRoleAssignments = Add-SelectedPacArray -InputObject $DefinitionNode.additionalRoleAssignments -PacSelector $pacSelector -ExistingList $definition.additionalRoleAssignments
+        $definition.additionalRoleAssignments = Add-SelectedPacArray -InputObject $DefinitionNode.additionalRoleAssignments -PacSelector $pacSelector -ExistingList $definition.additionalRoleAssignments -AdditionalRoles $true
     }
 
     if ($DefinitionNode.managedIdentityLocations) {
@@ -416,7 +488,8 @@ function Build-AssignmentDefinitionNode {
                 -AssignmentDefinition $definition `
                 -CombinedPolicyDetails $CombinedPolicyDetails `
                 -PolicyRoleIds $PolicyRoleIds `
-                -RoleDefinitions $RoleDefinitions
+                -RoleDefinitions $RoleDefinitions `
+                -DeprecatedHash $DeprecatedHash
 
             if ($hasErrorsLocal) {
                 $hasErrors = $true

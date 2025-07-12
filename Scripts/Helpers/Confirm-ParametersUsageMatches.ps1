@@ -33,15 +33,20 @@ function Confirm-ParametersUsageMatches {
             $definedParameter = $definedParameters.$definedParameterName
         }
 
-        $existingParameterValue = $existingParameter
-        if ($null -ne $existingParameterValue.value) {
+        if ($existingParameter -is [System.Collections.Hashtable]) {
             $existingParameterValue = $existingParameter.value
         }
-        $definedParameterValue = $definedParameter
-        if ($null -ne $definedParameterValue.value) {
-            $definedParameterValue = $definedParameter.value
+        else {
+            $existingParameterValue = $existingParameter
         }
 
+        $definedParameterValue = $definedParameter
+        if (($null -ne $definedParameterValue.value) -and ((-not($uniqueKeys -contains "maintenanceConfigurationResourceId")) -or (-not($uniqueKeys -contains "AzurePatchRingmaintenanceConfigurationResourceId")))) {
+            if ($definedParameterValue -isnot [array]) {
+                $definedParameterValue = $definedParameter.value
+            }
+        }
+        
         if (!(Confirm-ObjectValueEqualityDeep $existingParameterValue $definedParameterValue)) {
             return $false
         }

@@ -75,7 +75,7 @@ $htmlTable = $failedPolicyRemediationTasks | ConvertTo-Html @htmlParams -Fragmen
 $htmlBody = @"
 $htmlTable
 "@
-Write-Output "Succesfully created the HTML table that will be included in the Issue"
+Write-Output "Successfully created the HTML table that will be included in the Issue"
 #endregion
 
 #region Create the Issue in Github
@@ -98,7 +98,7 @@ try {
     } | ConvertTo-Json
 
     Invoke-RestMethod -Method Post -Uri $uri -Headers $headers -Body $body | Out-Null
-    Write-Output "Succesfully created the Issue in the '$($RepositoryName)' GitHub Repository that is located under the '$($OrganizationName)' GitHub Organization"
+    Write-Output "Successfully created the Issue in the '$($RepositoryName)' GitHub Repository that is located under the '$($OrganizationName)' GitHub Organization"
 }
 catch {
     Write-Error $_

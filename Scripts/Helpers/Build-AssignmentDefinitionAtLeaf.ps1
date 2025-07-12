@@ -159,7 +159,7 @@ function Build-AssignmentDefinitionAtLeaf {
             continue
         }
         elseif (-not (Confirm-ValidPolicyResourceName -Name $name)) {
-            Write-Error "    Leaf Node $($nodeName): Assignment name '$name' contains invalid charachters <>*%&:?.+/ or ends with a space."
+            Write-Error "    Leaf Node $($nodeName): Assignment name '$name' contains invalid characters <>*%&:?.+/ or ends with a space."
             $hasErrors = $true
             continue
         }
@@ -178,7 +178,13 @@ function Build-AssignmentDefinitionAtLeaf {
         $metadata.pacOwnerId = $thisPacOwnerId
 
         #endregion assignment name, displayName, description, metadata, enforcementMode
+        if ($AssignmentDefinition.definitionVersion) {
+            $definitionVersion = $AssignmentDefinition.definitionVersion
+        }
 
+        if ($definitionEntry.definitionVersion) {
+            $definitionVersion = $definitionEntry.definitionVersion
+        }
         #region nonComplianceMessages in two variants
 
         $nonComplianceMessagesList = [System.Collections.ArrayList]::new()
@@ -196,7 +202,14 @@ function Build-AssignmentDefinitionAtLeaf {
         }
         foreach ($nonComplianceMessageRaw in $nonComplianceMessagesList) {
             if ($null -eq $nonComplianceMessageRaw.message -or $nonComplianceMessageRaw.message -eq "") {
-                Write-Error "    Leaf Node $($nodeName): each nonComplianceMessage must conatin a message string: $($nonComplianceMessageRaw | ConvertTo-Json -Depth 100 -Compress)"
+                Write-Error "    Leaf Node $($nodeName): each nonComplianceMessage must contain a message string: $($nonComplianceMessageRaw | ConvertTo-Json -Depth 100 -Compress)"
+                $hasErrors = $true
+            }
+        }
+
+        foreach ($referenceId in $nonComplianceMessagesList.policyDefinitionReferenceId) {
+            if ($referenceId -notin $CombinedPolicyDetails.policySets[$definitionEntry.policyDefinitionId].policyDefinitions.policyDefinitionReferenceId) {
+                Write-Error "   Reference Id $referenceId in nonComplianceMessages is not found in the policy definition: $($definitionEntry.policyDefinitionId)"
                 $hasErrors = $true
             }
         }
@@ -508,6 +521,11 @@ function Build-AssignmentDefinitionAtLeaf {
             $baseAssignment.overrides = $overridesList.ToArray()
         }
         $baseAssignment.nonComplianceMessages = $nonComplianceMessagesList
+
+        if ($definitionVersion) {
+            $baseAssignment.definitionVersion = $definitionVersion
+            $definitionVersion = $null
+        }
 
         #endregion baseAssignment
 
