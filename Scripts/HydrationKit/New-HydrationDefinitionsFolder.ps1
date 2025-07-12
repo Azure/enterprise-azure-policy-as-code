@@ -4,7 +4,7 @@
 .DESCRIPTION
     Creates a definitions folder with the correct folder structure and blank global settings file.
 .EXAMPLE
-    New-HydrationDefinitionFolder -DefinitionsRootFolder = "Definitions"
+    New-HydrationDefinitionsFolder -DefinitionsRootFolder = "Definitions"
 
     Scaffold a definitions folder called "Definitions"
 #>
