@@ -57,7 +57,7 @@ if ($LibraryPath -eq "") {
 $jsonOutput = [ordered]@{
     managementGroupNameMappings = [ordered]@{}
     enforcementMode             = "Default"
-    defaultParameterValues      = @{}
+    defaultParameterValues      = [ordered]@{}
     enforceGuardrails           = @{
         deployments = @()
     }
