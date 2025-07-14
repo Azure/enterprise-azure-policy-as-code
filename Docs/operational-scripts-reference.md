@@ -356,12 +356,12 @@ Defines which Policy as Code (PAC) environment we are using, if omitted, the scr
 
 Set to false if used non-interactive
 
-## Script `New-HydrationDefinitionFolder`
+## Script `New-HydrationDefinitionsFolder`
 
 Creates a definitions folder with the correct folder structure and blank global settings file.
 
 ```ps1
-New-HydrationDefinitionFolder [[-DefinitionsRootFolder] <String>] [<CommonParameters>]
+New-HydrationsDefinitionFolder [[-DefinitionsRootFolder] <String>] [<CommonParameters>]
 ```
 
 ### Description
