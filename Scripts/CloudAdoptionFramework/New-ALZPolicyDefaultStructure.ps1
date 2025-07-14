@@ -53,9 +53,9 @@ if ($LibraryPath -eq "") {
 git clone --config advice.detachedHead=false --depth 1 --branch $Tag https://github.com/Azure/Azure-Landing-Zones-Library.git $LibraryPath
 
 $jsonOutput = [ordered]@{
-    managementGroupNameMappings = @{}
+    managementGroupNameMappings = [ordered]@{}
     enforcementMode             = "Default"
-    defaultParameterValues      = @{}
+    defaultParameterValues      = [ordered]@{}
     enforceGuardrails           = @{
         deployments = @()
     }
