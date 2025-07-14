@@ -104,7 +104,7 @@ function New-HydrationGlobalSettingsFile {
     $InformationPreference = "Continue"
     $mgBaseString = "/providers/Microsoft.Management/managementGroups/"
     if (!(Test-Path $DefinitionsRootFolder)) {
-        $null = New-HydrationDefinitionFolder -DefinitionsRootFolder $DefinitionsRootFolder
+        $null = New-HydrationDefinitionsFolder -DefinitionsRootFolder $DefinitionsRootFolder
         Write-HydrationLogFile -entrytype logEntryDataAsPresented -LogFilePath $LogFilePath -EntryData "Created Definitions folder at $DefinitionsRootFolder" -UseUtc:$UseUtc -ForegroundColor Yellow
     }
     Write-Information "`nCreating Global Settings..."

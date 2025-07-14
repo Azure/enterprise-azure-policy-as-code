@@ -4,11 +4,12 @@ Param(
     [string] $DefinitionsRootFolder,
 
     [ValidateSet('ALZ', 'FSI', 'AMBA', 'SLZ')]
-    [string]$Type = 'ALZ',
+    [string] $Type = 'ALZ',
 
-    [string]$LibraryPath,
+    [string] $LibraryPath,
 
-    [string]$Tag,
+    [ValidateScript({ "refs/tags/$_" -in (Invoke-RestMethod -Uri 'https://api.github.com/repos/Azure/Azure-Landing-Zones-Library/git/refs/tags/').ref }, ErrorMessage = "Tag must be a valid tag." )]
+    [string] $Tag,
 
     [string] $PacEnvironmentSelector
 )
@@ -28,36 +29,33 @@ if ($DefinitionsRootFolder -eq "") {
 }
 
 # Latest tag values
-
-switch ($Type) {
-    'ALZ' {
-        $Tag = "platform/alz/2025.02.0"
-    }
-    'FSI' {
-        $Tag = "platform/fsi/2025.03.0"
-    }
-    'AMBA' {
-        $Tag = "platform/amba/2025.05.0"
-    }
-    'SLZ' {
-        $Tag = "platform/slz/2025.03.0"
+if ($Tag -eq "") {
+    switch ($Type) {
+        'ALZ' {
+            $Tag = "platform/alz/2025.02.0"
+        }
+        'FSI' {
+            $Tag = "platform/fsi/2025.03.0"
+        }
+        'AMBA' {
+            $Tag = "platform/amba/2025.05.0"
+        }
+        'SLZ' {
+            $Tag = "platform/slz/2025.03.0"
+        }
     }
 }
 
 if ($LibraryPath -eq "") {
     $LibraryPath = Join-Path -Path (Get-Location) -ChildPath "temp"
-    if ($Tag) {
-        git clone --config advice.detachedHead=false --depth 1 --branch $Tag https://github.com/Azure/Azure-Landing-Zones-Library.git $LibraryPath
-    }
-    else {
-        git clone --depth 1 https://github.com/Azure/Azure-Landing-Zones-Library.git $LibraryPath
-    }
 }
 
+git clone --config advice.detachedHead=false --depth 1 --branch $Tag https://github.com/Azure/Azure-Landing-Zones-Library.git $LibraryPath
+
 $jsonOutput = [ordered]@{
-    managementGroupNameMappings = @{}
+    managementGroupNameMappings = [ordered]@{}
     enforcementMode             = "Default"
-    defaultParameterValues      = @{}
+    defaultParameterValues      = [ordered]@{}
     enforceGuardrails           = @{
         deployments = @()
     }
