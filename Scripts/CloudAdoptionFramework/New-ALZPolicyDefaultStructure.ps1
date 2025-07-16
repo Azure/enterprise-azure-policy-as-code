@@ -126,8 +126,10 @@ $policyDefaultFile = Get-Content -Path "$LibraryPath\platform\$($Type.ToLower())
 $policyDefaults = @()
 
 $policyDefaults += $policyDefaultFile.defaults
-$additionalValues | ForEach-Object {
-    $policyDefaults += $_
+if ($Type -eq "ALZ") {
+    $additionalValues | ForEach-Object {
+        $policyDefaults += $_
+    }
 }
 
 foreach ($parameter in $policyDefaults) {
