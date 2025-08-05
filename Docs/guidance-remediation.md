@@ -16,7 +16,7 @@ There are several different ways that policies that affect change can be deploye
     1. Considerations:
         1. Much faster, requiring little planning
         1. Will not update new deployments, but allows remediation of existing deployments as approval is receieved
-        1. New-AzRemediationTask **will** enforce policyAssignments with the *DoNotEnforce* configuration, and it is recommended that these be removed or set to default enforcement before that pipeline is enabled
+        1. New-AzRemediationTasks **will** by default enforce policyAssignments with the *DoNotEnforce* configuration. It is recommended to either use the switch parameter `-OnlyDefaultEnforcementMode`, have these policyAssignments removed or set to default enforcement before that pipeline is enabled
 1. Use of Effect *Override* functionality
     1. Override can be set to any Effect that is supported by that policy
     1. When overriding a policySet, the policyDefinitionReferenceId will be used to identify which policies recieve audit vs auditIfNotExist effect if both exist
@@ -25,13 +25,13 @@ There are several different ways that policies that affect change can be deploye
         1. Much more granular control, requiring review of available effects and generating a list of overrides
         1. Provides compliance data
         1. Remediation tasks can be executed in this configuration
-        1. New-AzRemediationTask **will** enforce policyAssignments with the *Override* configuration, and it is recommended that the override be removed, and actual effect parameters be used, before that pipeline is enabled
+        1. New-AzRemediationTasks **will** enforce policyAssignments with the *Override* configuration, and it is recommended that the override be removed, and actual effect parameters be used, before that pipeline is enabled
 
 ## Updating Security Posture
 
 The objective during this process is to reach a new, more secure, steady state. To achieve this, incremental change is generally preferred as testing workloads in the new security framework can be time consuming, and rollbacks should be avoided whenever possible. This is not the time to implement a pipeline that will update the entire environment at once as this tends to cause operational challenges, and instead workloads should be targeted for prioritized changes at a pace that can be managed by the local teams.
 
-The EPAC cmdlet New-AzRemediationTask is written to leverage the EPAC system to automate enforcement of as many as all of the policyAssignments that exist in EPAC in a single line of code. While this is extremely powerful, it is intended to be automation that leverages the native [Start-AzPolicyRemediation](https://learn.microsoft.com/en-us/powershell/module/az.policyinsights/start-azpolicyremediation) cmdlet at Enterprise Scale. If this scale is not desired, it is recommended to simply use the Start-AzPolicyRemediation cmdlet from the [Az](https://www.powershellgallery.com/packages/Az).PolicyInsights module to accomplish this goal until a steady state can be reached for a given assignment, which should at that time be transitioned to the Steady State procedure below.
+The EPAC cmdlet New-AzRemediationTasks is written to leverage the EPAC system to automate enforcement of as many as all of the policyAssignments that exist in EPAC in a single line of code. While this is extremely powerful, it is intended to be automation that leverages the native [Start-AzPolicyRemediation](https://learn.microsoft.com/en-us/powershell/module/az.policyinsights/start-azpolicyremediation) cmdlet at Enterprise Scale. If this scale is not desired, it is recommended to simply use the Start-AzPolicyRemediation cmdlet from the [Az](https://www.powershellgallery.com/packages/Az).PolicyInsights module to accomplish this goal until a steady state can be reached for a given assignment, which should at that time be transitioned to the Steady State procedure below.
 
 While this does not take advantage of EPAC's global-settings files to auto-complete many of the fields, it does offer options to reduce the scope that are appealing at this point in the process. As an alternative, if you wish to leverage EPAC, consider a ***temporary*** pacSelector in the global-settings file at the scope that you wish to affect. This can leverage remediation deployments at a scope without affecting the rest of your CI/CD process.
 
