@@ -311,11 +311,6 @@ if (!$DefinitionsOnly) {
                 }
             }
         }
-
-        $tempPath = Join-Path -Path (Get-Location) -ChildPath "temp"
-        if ($LibraryPath -eq $tempPath) {
-            Remove-Item $LibraryPath -Recurse -Force -ErrorAction SilentlyContinue
-        }
     }
     catch {
         Write-Error "Error details: $($_ | Select-Object -Property * | Out-string)"
@@ -323,3 +318,16 @@ if (!$DefinitionsOnly) {
     }
 }
 #endregion Create assignment objects
+
+#region Cleanup
+try {
+    $tempPath = Join-Path -Path (Get-Location) -ChildPath "temp"
+    if ($LibraryPath -eq $tempPath) {
+        Remove-Item $LibraryPath -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+catch {
+    Write-Error "Error details: $($_ | Select-Object -Property * | Out-string)"
+    exit
+}
+#endregion Cleanup
