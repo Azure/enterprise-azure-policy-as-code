@@ -56,11 +56,12 @@ if ($DefinitionsRootFolder -eq "") {
 }
 
 # Ensure the output directory exists
-$structureDirectory = "$DefinitionsRootFolder\policyStructures"
-if (-not (Test-Path -Path $structureDirectory)) {
-    New-Item -ItemType Directory -Path $structureDirectory
+if (!$DefinitionsOnly) {
+    $structureDirectory = "$DefinitionsRootFolder\policyStructures"
+    if (-not (Test-Path -Path $structureDirectory)) {
+        New-Item -ItemType Directory -Path $structureDirectory
+    }
 }
-
 try {
     $telemetryEnabled = (Get-Content $DefinitionsRootFolder/global-settings.jsonc | ConvertFrom-Json).telemetryOptOut
     $deploymentRootScope = (Get-Content $DefinitionsRootFolder/global-settings.jsonc | ConvertFrom-Json).pacEnvironments[0]
