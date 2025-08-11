@@ -28,6 +28,18 @@
                         },
                         "category": {
                             "type": "string"
+                        },
+                        "epacCloudEnvironments": {
+                            "type": "array",
+                            "maxItems": 3,
+                            "uniqueItems": true,
+                            "items": {
+                                "enum": [
+                                    "AzureCloud",
+                                    "AzureChinaCloud",
+                                    "AzureUSGovernment"
+                                ]
+                            }
                         }
                     },
                     "required": [
