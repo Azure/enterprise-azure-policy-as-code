@@ -1,229 +1,264 @@
-# Start the Enterprise Policy as Code (EPAC) Implementation
+# Getting Started with EPAC
 
-> [!CAUTION]
-> EPAC is a true desired state deployment technology. It takes possession of all Policy Resources at the `deploymentRootScope` and its children. It will **delete any Policy resources not defined in the EPAC repo**. This behavior can be modified as documented in the [desired state strategy](settings-desired-state.md) page.
-
-## Getting Started
-
-The following steps are required to implement Enterprise Policy as Code (EPAC) in your environment:
-
-1. Learning
-    1. Understand [EAPC Concepts and Environments](#epac-concepts-and-environments)
-    2. Determine [desired state strategy](./settings-desired-state.md)
-    3. How to handle [Defender for Cloud Policy Assignments](./settings-dfc-assignments.md)
-    4. Design your [CI/CD process](./ci-cd-overview.md)
-1. Install Prerequisite Software  
-    1. Install [Powershell and EPAC](#install-powershell-and-epac)
-1. Build the Definitions Folder
-    1. ***RECOMMENDED***: Leverage the [EPAC Hydration Kit](start-hydration-kit.md) Accelerator
-        1. Automatically deploys the Microsoft Cloud Security Benchmark
-        1. Prompts for common audit standards
-        1. Generates the global-setings.jsonc file automatically
-            1. Sets the ```desiredState.strategy``` in the Global Settings file to ```ownedOnly```
-            1. Defines a single [pacSelector](./settings-global-setting-file.md#Define-EPAC-Environments-in-`pacEnvironments`) and the epac-dev pacSelector needed for CI/CD Operations
-    1. Option 2: Manually Configure Environment
-        1. Create your [`Definitions` folder and subfolders](#create-the-definitions-folder)
-            > ![NOTE]
-            > For a folder structure example, please see [StarterKit/Definitions-Common](https://github.com/Azure/enterprise-azure-policy-as-code/tree/main/StarterKit/Definitions-Common)
-        1. Populate `global-settings.jsonc` with your [environment settings](./settings-global-setting-file.md#Define-EPAC-Environments-in-`pacEnvironments`) and [desired state strategy](settings-dfc-assignments.md)
-        1. Populate your Definitions folder with [existing Policy resources](start-extracting-policy-resources.md) from your Azure environment
-1. Add Additional Content:
-    1. Integrate [Azure Landing Zones (ALZ)](integrating-with-alz.md)
-    1. Create custom [Policy definitions](policy-definitions.md)
-    1. Create custom [Policy Set definitions](policy-set-definitions.md)
-    1. Create new [Policy Assignments](policy-assignments.md)
-    1. Manage [Policy Exemptions](policy-exemptions.md)
-1. [Generate Documentation](./operational-scripts-documenting-policy.md) for Audit Purposes
-1. Configure CI/CD Operations
-      1. Implement templated [CI/CD pipelines](ci-cd-overview.md)
-
-Once this is complete, the repo is ready for workflow customization in order to optimize  the process for approval workflows. In addition, tools are provided to assist in managing the new EPAC environment using the provided [operational scripts](operational-scripts.md)
-
-## EPAC Concepts and Environments
+EPAC (Enterprise Azure Policy as Code) enables you to manage Azure Policy at scale using Infrastructure as Code principles. This guide will help you understand core concepts and choose the right implementation path for your organization.
 
 > [!IMPORTANT]
-> Understanding the concepts and  environments is crucial. Do **not** proceed until you completely understand this section.
+> **Take time to understand the concepts** - Understanding EPAC's core concepts is crucial for successful implementation. Don't skip the EPAC Overview section.
 
-### EPAC Concepts
+**What you'll learn:**
+- Core EPAC concepts and terminology
+- Prerequisites and permissions needed
+- Implementation options (Hydration Kit vs Manual)
+- How to get started quickly
 
-Like any other code development project (including Infrastructure as Code - IaC), developing Policy requires a development area to test and validate the Policy resources before deploying them to production. EPAC is no different.
+## Pre-requisites
 
-- EPAC's nonprod environment is used to develop and test Policy resources. In most cases you will need one management group hierarchy to simulate EPAC production tenants and management groups for development and testing of Policy definitions and Policy Assignments.
-- EPAC's prod environment will govern all other IaC environments (e.g., sandbox, development, integration, test/qa, pre-prod, prod, ...) and tenants. This can be confusing. We will use **EPAC environments** and **IaC environments** to disambiguate the environments.
+Before implementing EPAC, ensure you have the required knowledge, software, and permissions.
 
-### Defining EPAC Environments
+### Knowledge Requirements
+You should understand these Azure concepts:
+- [Azure Management Groups](https://learn.microsoft.com/en-us/azure/governance/management-groups/overview)
+- [Azure Policy](https://learn.microsoft.com/en-us/azure/governance/policy/overview)  
+- [Scope in Azure Policy](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/scope)
 
-EPAC defines environments identified by a string (unique per repository) called `pacSelector`. `pacEnvironments` in `global-settings.jsonc` environment map a `pacSelector` to the following settings:
+### Software Requirements
 
-- `cloud` - to select commercial or sovereign cloud environments.
-- `tenantId` - enables multi-tenant scenarios.
-- `rootDefinitionScope` - scope for custom Policy and Policy Set definition deployment.
-- [Optional] Define the following items:
-  - `globalNotScopes` - used to exclude scopes from Policy Assignments.
-  - `managedIdentityLocation` - used for the location for created Managed Identities.
-  - `desiredState` - desired state strategy and details for Policy resources.
-  - `managedTenant` - used for environments that are in a lighthouse managed tenant.
+Install the following software before proceeding:
 
-These associations are stored in [global-settings.jsonc](settings-global-setting-file.md) in an element called `pacEnvironments`.
+1. **[PowerShell 7.4 or higher](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell)**
+2. **[Az PowerShell module](https://learn.microsoft.com/en-us/powershell/azure/install-azure-powershell)**
+3. **[EnterprisePolicyAsCode PowerShell Module](https://www.powershellgallery.com/packages/EnterprisePolicyAsCode)**
 
-### Multi-Tenant Support
+> [!NOTE]
+> **Alternative installation:**  It is recommended to run EPAC using the `EnterprisePolicyAsCode` PowerShell Module, however, if you cannot use the PowerShell Gallery Module, you can run EPAC directly from source code. See [Forking the GitHub Repo](start-forking-github-repo.md) for details.
 
-EPAC supports single and multi-tenant deployments from a single source. In most cases you should have a fully or partially isolated area for Policy development and testing, such as a Management Group. An entire tenant can be used; however, it is not necessary since EPAC has sophisticated partitioning capabilities.  EPAC also supports deployments to managed (Lighthouse) tenants and is able to deploy cross tenant role assignments to projected subscriptions in order to facilitate writing data back to the managing tenant (e.g. diagnostic settings).
+> [!NOTE]
+> **Prerelease versions:** Experimental features may be available as prerelease versions. Use `Install-Module -AllowPrerelease` to access these, but note they are not supported for production use and may introduce breaking changes.
 
-### Example Management Group Structure and EPAC Environments
+### Azure Permissions
 
-Assuming that you have a single tenant with a management group hierarchy as follows (with additional levels of management groups not shown for brevity):
+You need specific Azure roles to deploy and manage policies with EPAC:
 
-- Root tenant (always present)
-  - mg-Enterprise (pseudo root)
-    - mg-Identity
-    - mg-NonProd
-      - mg-Dev
-      - mg-Sandbox
-      - ...
-    - mg-Prod
-      - mg-LandingZones
-      - mg-PCI
-    - mg-EpacDev (EPAC development)
+|Role|Required For|
+|-----|----------|
+|`Resource Policy Contributor`|Permissions to create, manage & delete Azure Policy resources|
+|`Role Based Access Control Administrator`|Permissions to create, manage & delete Azure RBAC assignments|
+| `Management Group Contributor` | Create Management Groups (Hydration Kit only) |
 
-You should create a development testing structure for EPAC in `mg-EpacDev`. We have found little need for a separate management group for EPAC testing, but you can create one mirroring the structure of `mg-EpacDev`.
+## EPAC Overview 
 
-- Root tenant (always present)
-  - mg-Enterprise (pseudo root) :arrow_right: **EPAC environment `"tenant"`**
-    - mg-Identity
-    - mg-NonProd
-    - mg-Sandbox
-    - mg-Prod
-    - mg-PCI
-    - mg-EpacDev (EPAC development) :arrow_right: **EPAC environment `"epac-dev"`**
-      - mg-EpacDev-Identity
-      - mg-EpacDev-NonProd
-        - mg-EpacDev-Dev
-        - mg-EpacDev-Sandbox
-      - mg-EpacDev-Prod
-        - mg-EpacDev-LandingZones
-        - mg-EpacDev-PCI
+This section covers the essential concepts you need to understand before implementing EPAC. 
 
-The simplest `global-settings.jsonc` for the above structure is:
+### Global Settings File
+
+EPAC relies on a `global-settings` file that contains key information about your environment that EPAC uses as inputs when running. Throughout this section, we will explore some of the key items that will need to be specified in the `global-settings` file.
+
+The `global-settings` file is a `jsonc` files (JSON with Comments) and a Schema is available which can be used in tools such as VS Code to provide code completion.
+
+```json
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/global-settings-schema.json"
+}
+```
+
+### Pac Owner ID
+
+The `pacOwnerId` is a representative name that is used to uniquely identify deployments from this instance of EPAC. We recommend simply generating and using a GUID for this.
 
 ```json
 {
     "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/global-settings-schema.json",
-    "pacOwnerId": "{{guid}}",
+    "pacOwnerId": "11111111-2222-3333-4444-555555555555",
+}
+```
+
+### Deployment Root Scope
+
+The `deploymentRootScope` defines where EPAC manages policies. EPAC can deploy and manage policies at this scope and any scope below it in the Azure hierarchy. EPAC is a desired state deployment technology and meant to manage **all** policy resources within the specified `deploymentRootScope` and act as the 'single source of truth' for Azure Policy. 
+
+**Example:** Setting `deploymentRootScope` to the Contoso organization's Management Group (e.g., `contoso`) allows EPAC to manage policies across all child Management Groups and subscriptions.
+
+![Sample Management Group Structure](./Images/sample-mg-structure.png)
+
+> [!IMPORTANT]
+> **Avoid Tenant Root Group** - Set your `deploymentRootScope` to an Intermediate Root Management Group rather than the Tenant Root Group to maintain flexibility and avoid lockout scenarios.  This is discussed in further detail in the Azure Cloud Adoption Framework [guidance](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/design-area/resource-org-management-groups).
+
+### EPAC Environments Overview
+
+Like any other solution or application, a development area is required to test and validate the solution before deploying to production. EPAC is the same, **however**, since Azure Policy affects all resources in your tenant, you need isolated space for policy development. 
+
+**The Challenge:** Testing new policies, or policy updates anywhere within your standard Management Group hierarchy could:
+- Disrupt existing workloads
+- Create compliance issues
+- Impact other teams' work
+
+For example, you may have an Azure policy assigned to control networking configuration, say to manage the firewall settings on storage accounts. This applies afor all workload types (platform, security, applications) and for all SDLC environments (production, development, sandbox, etc). You may need to update this policy, for instance to add a new allowed IP address. This policy needs to be tested before it rolls out to any scope within your environment to ensure there's no issues and its behaving accordingly. 
+
+**The Solution:** EPAC has the concept of **EPAC Environments**, or `pacEnvironments` providing isolated policy management with its own deployment scope.
+- Each **EPAC Environment** has a symbolic name (`pacSelector`) and its own distinct `deploymentRootScope` 
+- Each **EPAC Environment** is targeted separately for deployments, allowing you to manage policies independently. 
+
+### Typical EPAC Environment Setup
+
+Each **EPAC Environment** provides isolated policy management with its own deployment scope. This separation is crucial for safe policy development.
+
+**Typical Setup:**
+- **Tenant Environment** (`tenant01`): Manages policies in your main Management Group hierarchy
+- **Development Environment** (`epac-dev`): Manages policies in a separate, cloned Management Group hierarchy
+
+**Benefits of Separate Environments:**
+- Test policy changes without affecting other workloads
+- Validate compliance frameworks before deployment
+- Safely experiment with new policy configurations
+- Maintain audit trails for policy changes
+
+![Sample EPAC Management Group Structure](./Images/sample-epac-mg-structure.png)
+
+> [!TIP]
+> The development environment typically mirrors your production Management Group structure, giving you a representative testing environment.
+
+The `global-settings` file, would then look something like this:
+
+```json
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/global-settings-schema.json",
+    "pacOwnerId": "11111111-2222-3333-4444-555555555555",
     "pacEnvironments": [
         {
-            "pacSelector": "epac-dev",
-            "cloud": "AzureCloud",
-            "tenantId": "{{tenant-id}}",
-            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/mg-Epac-Dev"
+            "pacSelector": "tenant01",
+            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/contoso"
         },
         {
-            "pacSelector": "tenant",
-            "cloud": "AzureCloud",
-            "tenantId": "{{tenant-id}}",
-            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/mg-Enterprise"
+            "pacSelector": "epac-dev",
+            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/epac-contoso"
+        }
+    ]
+}
+``` 
+> [!IMPORTANT]
+> **epac-dev** - It is **strongly recommended** to create your development **EPAC Environment** with a `deploymentRootScope` that is **separate** from the rest of your tenant. Remember that EPAC expects to manage **ALL** policies within its `deploymentRootScope` and each `pacEnvironment` is independent, so creating an **EPAC Environment** that is nested within the `deploymentRootScope` of another **EPAC Environment** is generally not recommended.
+
+> [!Tip]
+> **Main pacEnvironment Name** - You'll notice that we gave our main `pacEnvironment` the name `tenant01` instead of something like `production` and that **"EPAC Environment"** has been consistently bolded throughout the documentation. This is to create a distinction between environments that EPAC uses (`pacEnvironments`) and your general SDLC environments within your company (Prod, test, qa, dev, etc.) and Azure tenant. As discussed, it is important to separate the "Development" **EPAC Environment** from your regular development environments.
+
+### Managed Identities
+
+DeployifNotExists (DINE) policies require a managed identity to function. If you are not familiar with this, please review the [Azure Policy documentation](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/effect-deploy-if-not-exists). For each `pacEnvironment` we will need to specify a *default* Azure Location (e.g. EastUS) where managed identities used by Azure Policy will be created. 
+
+```json
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/global-settings-schema.json",
+    "pacOwnerId": "11111111-2222-3333-4444-555555555555",
+    "pacEnvironments": [
+        {
+            "pacSelector": "tenant01",
+            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/contoso",
+            "managedIdentityLocation": "eastus2"
+        },
+        {
+            "pacSelector": "epac-dev",
+            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/epac-contoso",
+            "managedIdentityLocation": "eastus2"
         }
     ]
 }
 ```
 
-For assignment files, this is a top level property on the assignment's root node:
+> [!NOTE]
+> EPAC provides the ability to specify the location individually on each policy assignment. The location specified in the `pacEnvironment` is a default location incase one is not specified in the assignment. 
 
+### Multi-Tenant Capabilities
+
+EPAC supports single and multi-tenant configurations including: 
+- **Multiple Azure tenants** from a single EPAC instance
+- **Azure Lighthouse managed tenants** 
+- **Cross-tenant role assignments** for centralized management
+
+Each `pacEnvironment` has a `tenantId` property to enable these scenario(s):
 ```json
-"nodeName": "/root",
-"epacCloudEnvironments": [
-    "AzureChinaCloud"
-],
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/global-settings-schema.json",
+    "pacOwnerId": "11111111-2222-3333-4444-555555555555",
+    "pacEnvironments": [
+        {
+            "pacSelector": "tenant01",
+            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/contoso",
+            "tenantId": "77777777-8888-9999-1111-222222222222",
+            "managedIdentityLocation": "eastus2"
+        },
+        {
+            "pacSelector": "epac-dev",
+            "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/epac-contoso",
+            "tenantId": "77777777-8888-9999-1111-222222222222",
+            "managedIdentityLocation": "eastus2"
+        }
+    ]
+}
 ```
-
-## Install Powershell and EPAC
-
-EPAC can be installed in two ways:
-
-- Install the `EnterprisePolicyAsCode` module from the [PowerShell marketplace](https://www.powershellgallery.com/packages/EnterprisePolicyAsCode). This is the recommended approach documented here.
-- Copy the source code from an [EPAC GitHub repository](https://github.com/Azure/enterprise-azure-policy-as-code) fork. The process is described in [Forking the GitHub Repo - an Alternate Installation Method](start-forking-github-repo.md) page.
-
-### Installation Steps
-
-1. [Install PowerShell 7.4 or later](https://github.com/PowerShell/PowerShell/releases).
-2. Install the Az PowerShell modules and Enterprise Policy as Code module.
-
-```ps1
-    Install-Module Az -Scope CurrentUser
-    Install-Module EnterprisePolicyAsCode -Scope CurrentUser
-```
-
-> [!IMPORTANT]
-> Experimental or features containing large breaking changes may be available as a prerelease version in GitHub and in PowerShell. To install one of these versions use the ```-AllowPrerelease``` parameter in Install-Module. Be aware that these version are not supported for production use and may introduce breaking changes. Where a feature is implemented in a prerelease it will be documented accordingly.
-
-Many scripts use parameters for input and output folders. They default to the current directory. We recommend that you do one of the following approaches instead of accepting the default to prevent your files being created in the wrong location:
-    - [Preferred] Set the environment variables `PAC_DEFINITIONS_FOLDER`, `PAC_OUTPUT_FOLDER`, and `PAC_INPUT_FOLDER`.
-    - [Alternative] Use the script parameters `-DefinitionsRootFolder`, `-OutputFolder`, and `-InputFolder`.
-
-### `Definitions` Folder Structure
-
-- Define the Azure environment(s) in file `global-settings.jsonc`
-- Create custom Policies (optional) in folder `policyDefinitions`
-- Create custom Policy Sets (optional) in folder `policySetDefinitions`
-- Define the Policy Assignments in folder `policyAssignments`
-- Define the Policy Exemptions (optional) in folder `policyExemptions`
-- Define Documentation in folder `policyDocumentations`
-
-### Create the Definitions folder
-
-Create a new EPAC `Definitions` folder with a number of subfolder and a `global-settings.jsonc` file.
 
 > [!TIP]
-> For a folder structure example, please see [StarterKit/Definitions-Common](https://github.com/Azure/enterprise-azure-policy-as-code/tree/main/StarterKit/Definitions-Common).
+> It is possible to use this multi-tenant functionality for the "development" **EPAC Environment** (`epac-dev`) Discussed above; however, it is not necessary since EPAC has sophisticated partitioning capabilities. Generally, the multi-tenant functionality should be reserved for true multi-tenant scenarios.
 
-```ps1
-New-HydrationDefinitionsFolder -DefinitionsRootFolder Definitions
+### Configuration Files and Structure
+
+EPAC uses a simple folder structure to organize all policy resources:
+
+![Definitions Folder Structure](./Images/definitions-folder-structure.png)
+
+**Key Files:**
+- **`global-settings.jsonc`**: Central configuration file defining environments and settings
+- **`policyDefinitions/`**: Custom policy definitions
+- **`policySetDefinitions/`**: Policy initiative (set) definitions  
+- **`policyAssignments/`**: Policy assignments to scopes
+- **`policyExemptions/`**: Exemptions from policy enforcement
+
+## Implementation Path
+
+**Quick Start Decision Tree**
+
+```
+Are you new to EPAC? → YES → Use the Hydration Kit (recommended)
+                     ↓
+Do you need advanced customization? → NO → Use the Hydration Kit
+                                    ↓
+Do you have complex multi-tenant requirements? → YES → Manual Configuration
+                                               ↓
+                                              NO → Use the Hydration Kit
 ```
 
-## Cloud Environment with Unsupported/Missing Policy Definitions
+### Recommended: Hydration Kit
 
-In some multi-tenant implementations, not all policies, policy sets, and/or assignments will function in all tenants, usually due to either built-in policies that don't exist in some tenant types or unavailable resource providers.  In order to facilitate multi-tenant deployments in these scenarios, utilize the `epacCloudEnvironments` property to specify which cloud type a specific file should be considered in.
+**Best for:** Most users, especially those new to EPAC
 
-The allowed values are: "AzureCloud", "AzureChinaCloud" or "AzureUSGovernment".
+**What it provides:**
+- Interactive setup with guided decisions
+- Setup of folder structure & generation of `global-settings.jsonc`
+- Automatic creation of `epac-dev` environment 
+- Starter policies and compliance frameworks
+- Starter CI/CD pipeline templates
 
-### Example 1: Policy / PolicySet
+**Next step:** [Hydration Kit Guide](./start-hydration-kit.md)
 
-To have a Policy or PolicySet definition deployed only to epacEnvironments that are China cloud tenants, add an "epacCloudEnvironments" property to the metadata section of the file like this:
+### Alternative: Manual Configuration
 
-```json
-{
-  "displayName": "",
-  "description": "",
-  "metadata": {
-    "epacCloudEnvironments": [
-      "AzureChinaCloud"
-    ]
-  }
-},
-```
+**Best for:** Advanced users with specific customization needs
 
-### Example 2: Policy Assignment
+**What it provides:**
+- Full control over every configuration aspect
+- Ability to integrate with existing setups
+- Custom folder structures and naming
+- Advanced multi-tenant scenarios
 
-To have a Policy Assignment deployed only to epacEnvironments that are China cloud tenants, add an "epacCloudEnvironments" property within the top section of the assignment file like this:
+**Next step:** [Manual Configuration Guide](./manual-configuration.md)
 
-```json
-{
-  "nodename": "/root",
-  "epacCloudEnvironments": [
-      "AzureChinaCloud"
-    ],
-  "definitionEntry": {
-        "policySetId": ""
-    },
-  "children": [
-  ]
-},
-```
+### Not Sure Which to Choose?
 
-## Debug EPAC issues
+Start with the **Hydration Kit** as you can always customize the generated configuration afterward. The Hydration Kit creates a solid foundation to build upon.
 
-Should you encounter issues with the expected behavior of EPAC, try the following:
+## Need Help?
 
-- Run the scripts interactively.
-- [Debug the scripts in VS Code](https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/vscode/using-vscode?view=powershell-7.3).
-- Ask for help by raising a [GitHub Issue](https://github.com/Azure/enterprise-azure-policy-as-code/issues)
+If you encounter issues during implementation:
+
+- **Run scripts interactively** to see detailed output
+- **[Debug in VS Code](https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/vscode/using-vscode?view=powershell-7.3)** for step-by-step troubleshooting
+- **[Open a GitHub Issue](https://github.com/Azure/enterprise-azure-policy-as-code/issues)** for community support

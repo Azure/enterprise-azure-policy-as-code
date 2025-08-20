@@ -9,16 +9,7 @@
             "type": "object"
         },
         "epacCloudEnvironments": {
-            "type": "array",
-            "maxItems": 3,
-            "uniqueItems": true,
-            "items": {
-                "enum": [
-                    "AzureCloud",
-                    "AzureChinaCloud",
-                    "AzureUSGovernment"
-                ]
-            }
+            "type": "object"
         },
         "definitionEntry": {
             "type": "object",
