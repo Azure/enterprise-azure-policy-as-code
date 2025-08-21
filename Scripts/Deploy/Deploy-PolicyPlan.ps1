@@ -44,7 +44,10 @@ param (
     [string] $InputFolder,
 
     [Parameter(HelpMessage = "Use switch to indicate interactive use")]
-    [switch] $Interactive
+    [switch] $Interactive,
+
+    [Parameter(HelpMessage = "Set true to fail the pipeline and deployment if a 403 error occurs during creation and updates of exemptions.")]
+    [bool] $FailOnExemptionError = $false
 )
 
 $PSDefaultParameterValues = @{
@@ -210,7 +213,7 @@ else {
         Write-Information "---------------------------------------------------------------------------------------------------"
         foreach ($exemptionId in $table.Keys) {
             $entry = $table.$exemptionId
-            Set-AzPolicyExemptionRestMethod -ExemptionObj $entry -ApiVersion $pacEnvironment.apiVersions.policyExemptions
+            Set-AzPolicyExemptionRestMethod -ExemptionObj $entry -ApiVersion $pacEnvironment.apiVersions.policyExemptions -FailOnExemptionError $FailOnExemptionError
         }
     }
     Write-Information ""

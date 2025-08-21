@@ -38,7 +38,7 @@ function New-HydrationCaf3Hierarchy {
     $InformationPreference = "Continue"
     $mgLists = [ordered]@{
         $DestinationRootName = @("Platform", "LandingZones", "Decommissioned", "Sandbox")
-        Platform             = @("Identity", "Management", "Connectivity")
+        Platform             = @("Identity", "Management", "Connectivity", "Security")
         LandingZones         = @("Corp", "Online")
     }
     foreach ($listName in $mgLists.Keys) {
