@@ -69,38 +69,38 @@ The Hydration Kit will present you with a series of questions that will drive co
 
 #### Initial Configuration
 
-1. **Confirm your Tenant ID** - Verify you're authenticated to the correct Azure tenant
-1. **Set a PAC Owner ID** - Manually Specify a `pacOwnerId` or let the Hydration Kit auto-generate a GUID
-1. **Implement CAFv3** - Decide whether to deploy the CAFv3 Management Group Structure within the specified `tenantIntermediateRoot`.
-1. **Confirm provided scope** - Verify the `tenantIntermediateRoot` Management Group specified exists, and create one if not.
+1. **Confirm your Tenant ID:** Verify you're authenticated to the correct Azure tenant
+1. **Set a PAC Owner ID:** Manually Specify a `pacOwnerId` or let the Hydration Kit auto-generate a GUID
+1. **Implement CAFv3:** Decide whether to deploy the CAFv3 Management Group Structure within the specified `tenantIntermediateRoot`.
+1. **Confirm provided scope:** Verify the `tenantIntermediateRoot` Management Group specified exists, and create one if not.
 
 #### Cloud Adoption Framework (CAF) Naming
 If you elect to deploy the CAFv3 Management Group structure, you will additionally be prompted for:
 
-1. **Prefix for Management Groups** - (optional) Add a prefix to the CAFv3 Management Groups that will be created
-1. **Suffix for Management Groups** - (optional) Add a suffix to the CAFv3 Management Groups that will be created
+1. **Prefix for Management Groups:** (optional) Add a prefix to the CAFv3 Management Groups that will be created
+1. **Suffix for Management Groups:** (optional) Add a suffix to the CAFv3 Management Groups that will be created
 
 #### EPAC Environment Setup
 
-1. **Main PacSelector** - Provide a symbolic `PacSelector` Name for the main EPAC Environment (`pacEnvironment`).
+1. **Main PacSelector:** Provide a symbolic `PacSelector` Name for the main EPAC Environment (`pacEnvironment`).
     - The `tenantIntermediateRoot` specified will be the `deploymentRootScope` for this `pacEnvironment`.
-1. **epac-dev Parent** - Provide a Management Group that the `epac-dev` environment will be created. 
+1. **epac-dev Parent:** Provide a Management Group that the `epac-dev` environment will be created. 
     - A copy of the `tenantIntermediateRoot` Management Group specified (and all its child Management Groups) will be created as a child of this management group.
-1. **Managed Identity Location** - Choose a default Managed Identity Location for DeployIfNotExists and Modify Policies
+1. **Managed Identity Location:** Choose a default Managed Identity Location for DeployIfNotExists and Modify Policies
 
 #### epac-dev Naming
 
 To support the `epac-dev` environment being deployed, a copy of the `tenantIntermediateRoot` Management Group (and all its child Management Groups) will be deployed. You have the option to:
 
-1. **Prefix for Management Groups** - (optional) Add a prefix to the copied Management Groups that will be created for `epac-dev`
-1. **Suffix for Management Groups** - (optional) Add a suffix to the  copied Management Groups that will be created for `epac-dev`
+1. **Prefix for Management Groups:** (optional) Add a prefix to the copied Management Groups that will be created for `epac-dev`
+1. **Suffix for Management Groups:** (optional) Add a suffix to the  copied Management Groups that will be created for `epac-dev`
 
 #### Policy Import and Compliance Frameworks
 
 The Hydration Kit can help you get started with some initial policies, as well as import existing polices. You will be given the option to:
 
-1. **Import Policies** - Import existing policies into EPAC - this will create the required EPAC files for managing these policies.
-1. **Deploy Compliance Frameworks** - Add additional compliance frameworks to EPAC.
+1. **Import Policies:** Import existing policies into EPAC - this will create the required EPAC files for managing these policies.
+1. **Deploy Compliance Frameworks:** Add additional compliance frameworks to EPAC.
     - PCI-DSS compliance framework
     - NIST 800-53 v5 compliance framework.
     - Additional Built-In Policy Sets (specified via definition ID)
@@ -114,8 +114,8 @@ The Hydration Kit can help you get started with some initial policies, as well a
 #### CI/CD Pipeline Configuration
 
 EPAC supports various options for running EPAC through CI/CD pipelines. Choose the DevOps approach that best fits your existing toolsets:
-1. **Execution method:** - Run EPAC via PowerShell Module (recommended) or source code
-1. **Platform:** - Select starter pipelines built for GitHub Actions or Azure DevOps Pipelines
+1. **Execution method:** Run EPAC via PowerShell Module (recommended) or source code
+1. **Platform:** Select starter pipelines built for GitHub Actions or Azure DevOps Pipelines
 
 ## Current Limitations
 

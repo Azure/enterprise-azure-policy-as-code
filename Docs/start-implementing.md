@@ -3,9 +3,10 @@
 EPAC (Enterprise Azure Policy as Code) enables you to manage Azure Policy at scale using Infrastructure as Code principles. This guide will help you understand core concepts and choose the right implementation path for your organization.
 
 > [!IMPORTANT]
-> **Take time to understand the concepts** - Understanding EPAC's core concepts is crucial for successful implementation. Don't skip the EPAC Overview section.
+> **Take time to understand the concepts:** Understanding EPAC's core concepts is crucial for successful implementation. Don't skip the EPAC Overview section.
 
 **What you'll learn:**
+
 - Core EPAC concepts and terminology
 - Prerequisites and permissions needed
 - Implementation options (Hydration Kit vs Manual)
@@ -17,6 +18,7 @@ Before implementing EPAC, ensure you have the required knowledge, software, and 
 
 ### Knowledge Requirements
 You should understand these Azure concepts:
+
 - [Azure Management Groups](https://learn.microsoft.com/en-us/azure/governance/management-groups/overview)
 - [Azure Policy](https://learn.microsoft.com/en-us/azure/governance/policy/overview)  
 - [Scope in Azure Policy](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/scope)
@@ -81,13 +83,14 @@ The `deploymentRootScope` defines where EPAC manages policies. EPAC can deploy a
 ![Sample Management Group Structure](./Images/sample-mg-structure.png)
 
 > [!IMPORTANT]
-> **Avoid Tenant Root Group** - Set your `deploymentRootScope` to an Intermediate Root Management Group rather than the Tenant Root Group to maintain flexibility and avoid lockout scenarios.  This is discussed in further detail in the Azure Cloud Adoption Framework [guidance](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/design-area/resource-org-management-groups).
+> **Avoid Tenant Root Group:** Set your `deploymentRootScope` to an Intermediate Root Management Group rather than the Tenant Root Group to maintain flexibility and avoid lockout scenarios.  This is discussed in further detail in the Azure Cloud Adoption Framework [guidance](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/design-area/resource-org-management-groups).
 
 ### EPAC Environments Overview
 
 Like any other solution or application, a development area is required to test and validate the solution before deploying to production. EPAC is the same, **however**, since Azure Policy affects all resources in your tenant, you need isolated space for policy development. 
 
 **The Challenge:** Testing new policies, or policy updates anywhere within your standard Management Group hierarchy could:
+
 - Disrupt existing workloads
 - Create compliance issues
 - Impact other teams' work
@@ -95,6 +98,7 @@ Like any other solution or application, a development area is required to test a
 For example, you may have an Azure policy assigned to control networking configuration, say to manage the firewall settings on storage accounts. This applies afor all workload types (platform, security, applications) and for all SDLC environments (production, development, sandbox, etc). You may need to update this policy, for instance to add a new allowed IP address. This policy needs to be tested before it rolls out to any scope within your environment to ensure there's no issues and its behaving accordingly. 
 
 **The Solution:** EPAC has the concept of **EPAC Environments**, or `pacEnvironments` providing isolated policy management with its own deployment scope.
+
 - Each **EPAC Environment** has a symbolic name (`pacSelector`) and its own distinct `deploymentRootScope` 
 - Each **EPAC Environment** is targeted separately for deployments, allowing you to manage policies independently. 
 
@@ -103,10 +107,12 @@ For example, you may have an Azure policy assigned to control networking configu
 Each **EPAC Environment** provides isolated policy management with its own deployment scope. This separation is crucial for safe policy development.
 
 **Typical Setup:**
+
 - **Tenant Environment** (`tenant01`): Manages policies in your main Management Group hierarchy
 - **Development Environment** (`epac-dev`): Manages policies in a separate, cloned Management Group hierarchy
 
 **Benefits of Separate Environments:**
+
 - Test policy changes without affecting other workloads
 - Validate compliance frameworks before deployment
 - Safely experiment with new policy configurations
@@ -136,10 +142,10 @@ The `global-settings` file, would then look something like this:
 }
 ``` 
 > [!IMPORTANT]
-> **epac-dev** - It is **strongly recommended** to create your development **EPAC Environment** with a `deploymentRootScope` that is **separate** from the rest of your tenant. Remember that EPAC expects to manage **ALL** policies within its `deploymentRootScope` and each `pacEnvironment` is independent, so creating an **EPAC Environment** that is nested within the `deploymentRootScope` of another **EPAC Environment** is generally not recommended.
+> **epac-dev:**It is **strongly recommended** to create your development **EPAC Environment** with a `deploymentRootScope` that is **separate** from the rest of your tenant. Remember that EPAC expects to manage **ALL** policies within its `deploymentRootScope` and each `pacEnvironment` is independent, so creating an **EPAC Environment** that is nested within the `deploymentRootScope` of another **EPAC Environment** is generally not recommended.
 
 > [!Tip]
-> **Main pacEnvironment Name** - You'll notice that we gave our main `pacEnvironment` the name `tenant01` instead of something like `production` and that **"EPAC Environment"** has been consistently bolded throughout the documentation. This is to create a distinction between environments that EPAC uses (`pacEnvironments`) and your general SDLC environments within your company (Prod, test, qa, dev, etc.) and Azure tenant. As discussed, it is important to separate the "Development" **EPAC Environment** from your regular development environments.
+> **Main pacEnvironment Name:** You'll notice that we gave our main `pacEnvironment` the name `tenant01` instead of something like `production` and that **"EPAC Environment"** has been consistently bolded throughout the documentation. This is to create a distinction between environments that EPAC uses (`pacEnvironments`) and your general SDLC environments within your company (Prod, test, qa, dev, etc.) and Azure tenant. As discussed, it is important to separate the "Development" **EPAC Environment** from your regular development environments.
 
 ### Managed Identities
 
@@ -170,6 +176,7 @@ DeployifNotExists (DINE) policies require a managed identity to function. If you
 ### Multi-Tenant Capabilities
 
 EPAC supports single and multi-tenant configurations including: 
+
 - **Multiple Azure tenants** from a single EPAC instance
 - **Azure Lighthouse managed tenants** 
 - **Cross-tenant role assignments** for centralized management
@@ -206,6 +213,7 @@ EPAC uses a simple folder structure to organize all policy resources:
 ![Definitions Folder Structure](./Images/definitions-folder-structure.png)
 
 **Key Files:**
+
 - **`global-settings.jsonc`**: Central configuration file defining environments and settings
 - **`policyDefinitions/`**: Custom policy definitions
 - **`policySetDefinitions/`**: Policy initiative (set) definitions  
@@ -231,6 +239,7 @@ Do you have complex multi-tenant requirements? → YES → Manual Configuration
 **Best for:** Most users, especially those new to EPAC
 
 **What it provides:**
+
 - Interactive setup with guided decisions
 - Setup of folder structure & generation of `global-settings.jsonc`
 - Automatic creation of `epac-dev` environment 
@@ -244,6 +253,7 @@ Do you have complex multi-tenant requirements? → YES → Manual Configuration
 **Best for:** Advanced users with specific customization needs
 
 **What it provides:**
+
 - Full control over every configuration aspect
 - Ability to integrate with existing setups
 - Custom folder structures and naming
