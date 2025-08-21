@@ -3,13 +3,14 @@
 This guide walks you through manually setting up EPAC when the Hydration Kit doesn't meet your specific requirements. 
 
 **When to use Manual Configuration:**
+
 - Complex multi-tenant scenarios
 - Custom folder structures or naming conventions 
 - Advanced customization requirements
 - Specific compliance or organizational constraints
 
 > [!TIP]
-> **Consider the Hydration Kit first** - Even for advanced scenarios, you might start with the Hydration Kit and then customize the generated configuration. This can save time and provide a solid foundation. If they Hydration Kit is lacking on specific functionality that prevents its use in your environment, please **[Open a GitHub Issue](https://github.com/Azure/enterprise-azure-policy-as-code/issues)** to provide feedback and feature requests.
+> **Consider the Hydration Kit first:** Even for advanced scenarios, you might start with the Hydration Kit and then customize the generated configuration. This can save time and provide a solid foundation. If they Hydration Kit is lacking on specific functionality that prevents its use in your environment, please **[Open a GitHub Issue](https://github.com/Azure/enterprise-azure-policy-as-code/issues)** to provide feedback and feature requests.
 
 ## Prerequisites
 
@@ -77,8 +78,9 @@ Deploy-RolesPlan -PacEnvironmentSelector "epac-dev"
 
 > [!NOTE]
 > Many scripts use parameters for input and output folders. They default to the current directory. We recommend that you do one of the following approaches instead of accepting the default to prevent your files being created in the wrong location:
-    - [Preferred] Set the environment variables `PAC_DEFINITIONS_FOLDER`, `PAC_OUTPUT_FOLDER`, and `PAC_INPUT_FOLDER`.
-    - [Alternative] Use the script parameters `-DefinitionsRootFolder`, `-OutputFolder`, and `-InputFolder`.
+>
+>- [Preferred] Set the environment variables `PAC_DEFINITIONS_FOLDER`, `PAC_OUTPUT_FOLDER`, and `PAC_INPUT_FOLDER`.
+>- [Alternative] Use the script parameters `-DefinitionsRootFolder`, `-OutputFolder`, and `-InputFolder`.
 
 ## Starter Kit Pipelines
 
