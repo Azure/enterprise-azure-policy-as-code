@@ -107,8 +107,6 @@ if (Test-Path $SourceDirectory -PathType Container) {
     Copy-Item "$SourceDirectory/Schemas" "$DestinationDirectory/Schemas" -Recurse -Force
     Write-Information "Copying '$SourceDirectory/Scripts' to '$DestinationDirectory/Scripts'"
     Copy-Item "$SourceDirectory/Scripts" "$DestinationDirectory/Scripts" -Recurse -Force
-    Write-Information "Copying '$SourceDirectory/Scripts-Deprecated' to '$DestinationDirectory/Scripts-Deprecated'"
-    Copy-Item "$SourceDirectory/Scripts-Deprecated" "$DestinationDirectory/Scripts-Deprecated" -Recurse -Force
     Write-Information "Copying '$SourceDirectory/StarterKit' to '$DestinationDirectory/StarterKit'"
     Copy-Item "$SourceDirectory/StarterKit" "$DestinationDirectory/StarterKit" -Recurse -Force
 
