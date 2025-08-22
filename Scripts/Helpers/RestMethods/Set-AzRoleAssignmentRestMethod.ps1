@@ -2,9 +2,11 @@ function Set-AzRoleAssignmentRestMethod {
     [CmdletBinding()]
     param (
         $RoleAssignment,
-        [string] $ApiVersion
+        $PacEnvironment
     )
 
+    $isManagedSubscription = $PacEnvironment.managedSubscription
+    $ApiVersion = $PacEnvironment.apiVersions.roleAssignments
     $properties = $RoleAssignment.properties
     $path = $null
     $scope = $RoleAssignment.scope
@@ -20,7 +22,7 @@ function Set-AzRoleAssignmentRestMethod {
     $body = @{
         properties = $RoleAssignment.properties
     }
-    if ($body.properties.crossTenant -eq $true) {
+    if (($body.properties.crossTenant -eq $true) -or $isManagedSubscription) {
         $body.properties["delegatedManagedIdentityResourceId"] = $roleassignment.assignmentId
     }
 
@@ -33,7 +35,7 @@ function Set-AzRoleAssignmentRestMethod {
 
     # Process response
     $statusCode = $response.StatusCode
-    if ($statusCode -lt 200 -or $statusCode -ge 300) {
+    if ($statusCode -lt 200 -or $statusCode -ge 300) { 
         if ($statusCode -eq 409) {
             if ($response.content -match "ScopeLocked") {
                 Write-Warning "Scope at $($RoleAssignment.scope) is locked, cannot update role assignment"
