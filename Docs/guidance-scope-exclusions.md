@@ -18,7 +18,7 @@ If there is a requirement to review the scope change periodically, to confirm th
 
 While a decision around the scope will determine to which scope policyAssignments are applied, there are often changes to the Effect in order to descope individual items within a policySet. In this case, NotScope is generally the focus within the policyAssignment in order to provide that level of control.
 
-Example: Exempt a workload contained within a managment group from requiring Storage to use TLS 1.2 defined in the policySet [Enforce-EncryptTransit_20241211](https://www.azadvertizer.net/azpolicyinitiativesadvertizer/Enforce-EncryptTransit_20241211.html) in order to support a legacy service which must use TLS 1.1, while retaining the enforcement for all other Services.
+Example: Exempt a workload contained within a management group from requiring Storage to use TLS 1.2 defined in the policySet [Enforce-EncryptTransit_20241211](https://www.azadvertizer.net/azpolicyinitiativesadvertizer/Enforce-EncryptTransit_20241211.html) in order to support a legacy service which must use TLS 1.1, while retaining the enforcement for all other Services.
 
 ### Decision: Scope at policyAssignment or pacSelector
 

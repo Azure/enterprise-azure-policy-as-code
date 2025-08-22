@@ -1312,7 +1312,7 @@ function Install-HydrationEpac {
     Write-Host "    Deploy-RolesPlan -PacEnvironmentSelector $epacDevName -DefinitionsRootFolder $DefinitionsRootFolder"
     Write-Host "`nIf you were notified that default values were missing for items above (scroll back to review), you will need to update those values prior to running the code above.`n" -BackgroundColor Yellow -ForegroundColor Black
     Write-Host "`nParameter Update Guidance: https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/policy-assignments.md"
-    Write-Host "Advanced Parameter Managment Guidance: https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/policy-assignments-csv-parameters.md"
+    Write-Host "Advanced Parameter Management Guidance: https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/policy-assignments-csv-parameters.md"
 
     Write-Host "`nNext Steps: CI/CD Integration" -ForegroundColor Yellow
     Write-Host "    General Guidance: https://azure.github.io/enterprise-azure-policy-as-code/ci-cd-overview/"

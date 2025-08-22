@@ -19,7 +19,7 @@ There are several different ways that policies that affect change can be deploye
         1. New-AzRemediationTasks **will** by default enforce policyAssignments with the *DoNotEnforce* configuration. It is recommended to either use the switch parameter `-OnlyDefaultEnforcementMode`, have these policyAssignments removed or set to default enforcement before that pipeline is enabled
 1. Use of Effect *Override* functionality
     1. Override can be set to any Effect that is supported by that policy
-    1. When overriding a policySet, the policyDefinitionReferenceId will be used to identify which policies recieve audit vs auditIfNotExist effect if both exist
+    1. When overriding a policySet, the policyDefinitionReferenceId will be used to identify which policies receive audit vs auditIfNotExist effect if both exist
     1. If no effects are available, an override to *audit* was accepted in all tested cases
     1. Considerations:
         1. Much more granular control, requiring review of available effects and generating a list of overrides
