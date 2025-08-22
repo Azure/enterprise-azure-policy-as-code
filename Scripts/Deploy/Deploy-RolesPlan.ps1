@@ -98,7 +98,7 @@ else {
                 $null = Remove-AzRoleAssignmentRestMethod -RoleAssignmentId $roleAssignment.id -ApiVersion $pacEnvironment.apiVersions.roleAssignments
             }
             else {
-                $null = Remove-AzRoleAssignmentRestMethod -RoleAssignmentId $roleAssignment.id -TenantId $pacEnvironment.managingTenantId -ApiVersion $pacEnvironment.apiVersions.roleAssignments
+                $null = Remove-AzRoleAssignmentRestMethod -RoleAssignmentId $roleAssignment.id -TenantId $pacEnvironment.managedTenantId -ApiVersion $pacEnvironment.apiVersions.roleAssignments
             }
 
         }
@@ -144,7 +144,7 @@ else {
             elseif (-not $assignmentById.ContainsKey($policyAssignmentId)) {
                 $null = $assignmentById.Add($policyAssignmentId, $principalId)
             }
-            Set-AzRoleAssignmentRestMethod -RoleAssignment $roleAssignment -ApiVersion $pacEnvironment.apiVersions.roleAssignments
+            Set-AzRoleAssignmentRestMethod -RoleAssignment $roleAssignment -PacEnvironment $pacEnvironment
         }
         Write-Information ""
     }
@@ -155,7 +155,7 @@ else {
 
         # Get identities for policy assignments from plan or by calling the REST API to retrieve the Policy Assignment
         foreach ($roleAssignment in $updatedRoleAssignments) {
-            Set-AzRoleAssignmentRestMethod -RoleAssignment $roleAssignment -ApiVersion $pacEnvironment.apiVersions.roleAssignments
+            Set-AzRoleAssignmentRestMethod -RoleAssignment $roleAssignment -PacEnvironment $pacEnvironment
         }
         Write-Information ""
     }
