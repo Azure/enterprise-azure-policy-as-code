@@ -98,7 +98,13 @@ else {
                 $null = Remove-AzRoleAssignmentRestMethod -RoleAssignmentId $roleAssignment.id -ApiVersion $pacEnvironment.apiVersions.roleAssignments
             }
             else {
-                $null = Remove-AzRoleAssignmentRestMethod -RoleAssignmentId $roleAssignment.id -TenantId $pacEnvironment.managedTenantId -ApiVersion $pacEnvironment.apiVersions.roleAssignments
+                if ($roleAssignment.description -match "'(/subscriptions/[^']+)'") {
+                    $assignmentId = $matches[1]
+                }
+                else {
+                    Write-Error "AssignmentId not found in description '$($roleAssignment.description)' for cross tenant role removal.  Please report as a bug"
+                }
+                $null = Remove-AzRoleAssignmentRestMethod -RoleAssignmentId $roleAssignment.id -TenantId $pacEnvironment.managedTenantId -ApiVersion $pacEnvironment.apiVersions.roleAssignments -AssignmentId $assignmentId
             }
 
         }
