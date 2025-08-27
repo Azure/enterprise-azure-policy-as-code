@@ -22,7 +22,7 @@ function Set-AzRoleAssignmentRestMethod {
     $body = @{
         properties = $RoleAssignment.properties
     }
-    if (($body.properties.crossTenant -eq $true) -or $isManagedSubscription) {
+    if (($body.properties.crossTenant -eq $true) -or ($isManagedSubscription -and $roleAssignment.properties.description -notLike "*additional Role*")) {
         $body.properties["delegatedManagedIdentityResourceId"] = $roleassignment.assignmentId
     }
 
