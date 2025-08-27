@@ -10,10 +10,11 @@ The `Install-HydrationEpac` command builds a basic EPAC implementation for local
 
 - Review the [Start Implementing](./start-implementing.md) to ensure you are familiar with the core EPAC concepts, have the prerequisite software installed and have the required Azure permissions.
 - To run the Hydration Kit, permissions to create Management Groups at the **Tenant Root Level** is also required.
-    - The `Management Group Contributor` built-in RBAC role contains the required permissions.
-    - The Hydration Kit creates additional Management Groups for EPAC development.
+  - The `Management Group Contributor` built-in RBAC role contains the required permissions.
+  - The Hydration Kit creates additional Management Groups for EPAC development.
 
 ### Before You Begin
+
 1. **Connect to Azure:** Use `Connect-AzAccount` to authenticate to your Azure tenant
 1. **Verify permissions:** Confirm you can create Management Groups at the tenant root level
 1. **Choose your location:** Decide where you want the EPAC files to be created locally
@@ -24,12 +25,12 @@ The Hydration Kit guides you through the initial setup process for EPAC. Here's 
 
 1. **Creates folder structure:** Creates the `Definitions` directory with proper files & folders
 1. **Configures settings:** Pre-Populates the `Global-Settings.jsonc` file
-1. **Builds Management Groups:** 
+1. **Builds Management Groups:**
     1. Creates an isolated `epac-dev` environment for safe testing
     1. Optionally deploys the recommended Cloud Adoption Framework v3 Management Group structure
 1. **Imports existing policies:** Brings current Azure policies into EPAC for management
-1. **Deploys compliance frameworks:** 
-    1. Deploys the Microsoft Security Baseline (MSCB)
+1. **Deploys compliance frameworks:**
+    1. Deploys the Microsoft Security Baseline (MCSB)
     1. Optionally deploys additional compliance policies (NIST, PCI-DSS, etc.)
 7. **Provides CI/CD Starter Kit:** Generates starter pipelines for GitHub Actions or Azure DevOps
 
@@ -75,6 +76,7 @@ The Hydration Kit will present you with a series of questions that will drive co
 1. **Confirm provided scope:** Verify the `tenantIntermediateRoot` Management Group specified exists, and create one if not.
 
 #### Cloud Adoption Framework (CAF) Naming
+
 If you elect to deploy the CAFv3 Management Group structure, you will additionally be prompted for:
 
 1. **Prefix for Management Groups:** (optional) Add a prefix to the CAFv3 Management Groups that will be created
@@ -84,7 +86,7 @@ If you elect to deploy the CAFv3 Management Group structure, you will additional
 
 1. **Main PacSelector:** Provide a symbolic `PacSelector` Name for the main EPAC Environment (`pacEnvironment`).
     - The `tenantIntermediateRoot` specified will be the `deploymentRootScope` for this `pacEnvironment`.
-1. **epac-dev Parent:** Provide a Management Group that the `epac-dev` environment will be created. 
+1. **epac-dev Parent:** Provide a Management Group that the `epac-dev` environment will be created.
     - A copy of the `tenantIntermediateRoot` Management Group specified (and all its child Management Groups) will be created as a child of this management group.
 1. **Managed Identity Location:** Choose a default Managed Identity Location for DeployIfNotExists and Modify Policies
 
@@ -106,14 +108,15 @@ The Hydration Kit can help you get started with some initial policies, as well a
     - Additional Built-In Policy Sets (specified via definition ID)
 
 > [!NOTE]
-> The Hydration Kit will always include a copy of The Microsoft Security Baseline (MSCB) to be deployed with EPAC.
+> The Hydration Kit will always include a copy of The Microsoft Security Baseline (MCSB) to be deployed with EPAC.
 
 > [!NOTE]
 > While it is possible to both export policies from the management group structure and create it in the same step, it is rare that this is useful. Consider whether there is any content in this area to export when answering.
 
 #### CI/CD Pipeline Configuration
 
-EPAC supports various options for running EPAC through CI/CD pipelines. Choose the DevOps approach that best fits your existing toolsets:
+EPAC supports various options for running EPAC through CI/CD pipelines. Choose the DevOps approach that best fits your existing toolset:
+
 1. **Execution method:** Run EPAC via PowerShell Module (recommended) or source code
 1. **Platform:** Select starter pipelines built for GitHub Actions or Azure DevOps Pipelines
 
@@ -139,7 +142,7 @@ Deploy-RolesPlan -PacEnvironmentSelector "epac-dev"
 The installer builds out the repo insofar as CLI based deployment using a highly privileged account. After this prototype is complete, it is necessary to move to a more secure configuration that can be automated and audited.
 
 - Review additional settings available for configuration in the [global-settings file](./settings-global-setting-file.md)
-- Create additional policy objects such as custom policies, additional policy assignments, and exemptions. 
+- Create additional policy objects such as custom policies, additional policy assignments, and exemptions.
     1. Integrate [Azure Landing Zones (ALZ)](integrating-with-alz.md)
     1. Create custom [Policy definitions](policy-definitions.md)
     1. Create custom [Policy Set definitions](policy-set-definitions.md)

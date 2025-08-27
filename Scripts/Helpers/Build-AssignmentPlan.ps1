@@ -272,6 +272,7 @@ function Build-AssignmentPlan {
 
     $strategy = $PacEnvironment.desiredState.strategy
     $keepDfcSecurityAssignments = $PacEnvironment.desiredState.keepDfcSecurityAssignments
+    $keepDfcPlanAssignments = $PacEnvironment.desiredState.keepDfcPlanAssignments
     if ($deleteCandidates.psbase.Count -gt 0) {
         foreach ($id in $deleteCandidates.Keys) {
             $deleteCandidate = $deleteCandidates.$id
@@ -283,7 +284,8 @@ function Build-AssignmentPlan {
             $shallDelete = Confirm-DeleteForStrategy `
                 -PacOwner $pacOwner `
                 -Strategy $strategy `
-                -KeepDfcSecurityAssignments $keepDfcSecurityAssignments
+                -KeepDfcSecurityAssignments $keepDfcSecurityAssignments `
+                -KeepDfcPlanAssignments $keepDfcPlanAssignments
             if ($shallDelete) {
                 # always delete if owned by this Policy as Code solution
                 # never delete if owned by another Policy as Code solution

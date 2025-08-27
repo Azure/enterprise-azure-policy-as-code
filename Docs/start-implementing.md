@@ -17,6 +17,7 @@ EPAC (Enterprise Azure Policy as Code) enables you to manage Azure Policy at sca
 Before implementing EPAC, ensure you have the required knowledge, software, and permissions.
 
 ### Knowledge Requirements
+
 You should understand these Azure concepts:
 
 - [Azure Management Groups](https://learn.microsoft.com/en-us/azure/governance/management-groups/overview)
@@ -47,9 +48,9 @@ You need specific Azure roles to deploy and manage policies with EPAC:
 |`Role Based Access Control Administrator`|Permissions to create, manage & delete Azure RBAC assignments|
 | `Management Group Contributor` | Create Management Groups (Hydration Kit only) |
 
-## EPAC Overview 
+## EPAC Overview
 
-This section covers the essential concepts you need to understand before implementing EPAC. 
+This section covers the essential concepts you need to understand before implementing EPAC.
 
 ### Global Settings File
 
@@ -76,7 +77,7 @@ The `pacOwnerId` is a representative name that is used to uniquely identify depl
 
 ### Deployment Root Scope
 
-The `deploymentRootScope` defines where EPAC manages policies. EPAC can deploy and manage policies at this scope and any scope below it in the Azure hierarchy. EPAC is a desired state deployment technology and meant to manage **all** policy resources within the specified `deploymentRootScope` and act as the 'single source of truth' for Azure Policy. 
+The `deploymentRootScope` defines where EPAC manages policies. EPAC can deploy and manage policies at this scope and any scope below it in the Azure hierarchy. EPAC is a desired state deployment technology and meant to manage **all** policy resources within the specified `deploymentRootScope` and act as the 'single source of truth' for Azure Policy.
 
 **Example:** Setting `deploymentRootScope` to the Contoso organization's Management Group (e.g., `contoso`) allows EPAC to manage policies across all child Management Groups and subscriptions.
 
@@ -87,7 +88,7 @@ The `deploymentRootScope` defines where EPAC manages policies. EPAC can deploy a
 
 ### EPAC Environments Overview
 
-Like any other solution or application, a development area is required to test and validate the solution before deploying to production. EPAC is the same, **however**, since Azure Policy affects all resources in your tenant, you need isolated space for policy development. 
+Like any other solution or application, a development area is required to test and validate the solution before deploying to production. EPAC is the same, **however**, since Azure Policy affects all resources in your tenant, you need isolated space for policy development.
 
 **The Challenge:** Testing new policies, or policy updates anywhere within your standard Management Group hierarchy could:
 
@@ -95,12 +96,12 @@ Like any other solution or application, a development area is required to test a
 - Create compliance issues
 - Impact other teams' work
 
-For example, you may have an Azure policy assigned to control networking configuration, say to manage the firewall settings on storage accounts. This applies afor all workload types (platform, security, applications) and for all SDLC environments (production, development, sandbox, etc). You may need to update this policy, for instance to add a new allowed IP address. This policy needs to be tested before it rolls out to any scope within your environment to ensure there's no issues and its behaving accordingly. 
+For example, you may have an Azure policy assigned to control networking configuration, say to manage the firewall settings on storage accounts. This applies for all workload types (platform, security, applications) and for all SDLC environments (production, development, sandbox, etc). You may need to update this policy, for instance to add a new allowed IP address. This policy needs to be tested before it rolls out to any scope within your environment to ensure there's no issues and its behaving accordingly.
 
 **The Solution:** EPAC has the concept of **EPAC Environments**, or `pacEnvironments` providing isolated policy management with its own deployment scope.
 
-- Each **EPAC Environment** has a symbolic name (`pacSelector`) and its own distinct `deploymentRootScope` 
-- Each **EPAC Environment** is targeted separately for deployments, allowing you to manage policies independently. 
+- Each **EPAC Environment** has a symbolic name (`pacSelector`) and its own distinct `deploymentRootScope`
+- Each **EPAC Environment** is targeted separately for deployments, allowing you to manage policies independently.
 
 ### Typical EPAC Environment Setup
 
@@ -140,7 +141,8 @@ The `global-settings` file, would then look something like this:
         }
     ]
 }
-``` 
+```
+
 > [!IMPORTANT]
 > **epac-dev:**It is **strongly recommended** to create your development **EPAC Environment** with a `deploymentRootScope` that is **separate** from the rest of your tenant. Remember that EPAC expects to manage **ALL** policies within its `deploymentRootScope` and each `pacEnvironment` is independent, so creating an **EPAC Environment** that is nested within the `deploymentRootScope` of another **EPAC Environment** is generally not recommended.
 
@@ -149,7 +151,7 @@ The `global-settings` file, would then look something like this:
 
 ### Managed Identities
 
-DeployifNotExists (DINE) policies require a managed identity to function. If you are not familiar with this, please review the [Azure Policy documentation](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/effect-deploy-if-not-exists). For each `pacEnvironment` we will need to specify a *default* Azure Location (e.g. EastUS) where managed identities used by Azure Policy will be created. 
+DeployifNotExists (DINE) policies require a managed identity to function. If you are not familiar with this, please review the [Azure Policy documentation](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/effect-deploy-if-not-exists). For each `pacEnvironment` we will need to specify a *default* Azure Location (e.g. EastUS) where managed identities used by Azure Policy will be created.
 
 ```json
 {
@@ -171,17 +173,18 @@ DeployifNotExists (DINE) policies require a managed identity to function. If you
 ```
 
 > [!NOTE]
-> EPAC provides the ability to specify the location individually on each policy assignment. The location specified in the `pacEnvironment` is a default location incase one is not specified in the assignment. 
+> EPAC provides the ability to specify the location individually on each policy assignment. The location specified in the `pacEnvironment` is a default location incase one is not specified in the assignment.
 
 ### Multi-Tenant Capabilities
 
-EPAC supports single and multi-tenant configurations including: 
+EPAC supports single and multi-tenant configurations including:
 
 - **Multiple Azure tenants** from a single EPAC instance
-- **Azure Lighthouse managed tenants** 
+- **Azure Lighthouse managed tenants**
 - **Cross-tenant role assignments** for centralized management
 
 Each `pacEnvironment` has a `tenantId` property to enable these scenario(s):
+
 ```json
 {
     "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/global-settings-schema.json",
@@ -242,7 +245,7 @@ Do you have complex multi-tenant requirements? → YES → Manual Configuration
 
 - Interactive setup with guided decisions
 - Setup of folder structure & generation of `global-settings.jsonc`
-- Automatic creation of `epac-dev` environment 
+- Automatic creation of `epac-dev` environment
 - Starter policies and compliance frameworks
 - Starter CI/CD pipeline templates
 

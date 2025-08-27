@@ -196,6 +196,7 @@ function Get-GlobalSettings {
             $desiredState = @{
                 strategy                             = "undefined"
                 keepDfcSecurityAssignments           = $false
+                keepDfcPlanAssignments               = $false
                 cleanupObsoleteExemptions            = $false
                 excludedScopes                       = $excludedScopesList
                 globalExcludedScopesResourceGroups   = $globalExcludedScopesResourceGroupsList
@@ -238,6 +239,18 @@ function Get-GlobalSettings {
                     }
                     else {
                         Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.keepDfcSecurityAssignments ($keepDfcSecurityAssignments) must be a boolean value."
+                    }
+                }
+                $keepDfcPlanAssignments = $desired.keepDfcPlanAssignments
+                if ($null -eq $keepDfcPlanAssignments) {
+                    $desiredState.keepDfcPlanAssignments = $true
+                }
+                else {
+                    if ($keepDfcPlanAssignments -is [bool]) {
+                        $desiredState.keepDfcPlanAssignments = $keepDfcPlanAssignments
+                    }
+                    else {
+                        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.keepDfcPlanAssignments ($keepDfcPlanAssignments) must be a boolean value."
                     }
                 }
                 $cleanupObsoleteExemptions = $desired.cleanupObsoleteExemptions
