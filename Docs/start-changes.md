@@ -1,7 +1,21 @@
-# Changes in v10.0.0
+# Upcoming changes in v11.0.0
 
 > [!CAUTION]
 > Read the **breaking changes** below carefully and adjust your environment accordingly.
+
+## Breaking Changes in v11.0.0
+
+### Changes in Lighthouse Deployments
+
+EPAC is introducing updates that affect how role assignments are handled across managing and managed (Lighthouse) tenants. While EPAC does not yet support all Lighthouse scenarios, two specific use cases have been implemented based on GitHub issue feedback. These changes will break existing configurations that do not follow the new guidance detailed in [Lighhouse Subscription Management with EPAC](guidance-lighthouse.md)
+
+Use Case 1:
+- Role Assignments from Managing Tenant to Managed Subscriptions
+Scenario: Deploying diagnostics policies in the managing tenant that write data to resources in Lighthouse-managed subscriptions.
+
+Use Case 2
+- Role Assignments Within Managed Subscriptions (Cast Instances)
+Scenario: MSPs deploying policies with role assignments to customer subscriptions without direct access to their tenant.
 
 ## Breaking Changes in v10.0.0
 
