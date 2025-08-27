@@ -107,3 +107,6 @@ Once These two lists have been developed create your lighthouse invite template.
 
 NOTE:  Because Lighthouse does not allow grouping of "cast" lighthouse subscriptions to be grouped in the managing tenant, and does not allow for management groups to be cast, each unique subscription must be a unique pacEnvironment.  The best way to perform "mass" deployments is through custom pipelines that will create multiples plans with unique names and then run multiple deployments.  It is recommended to use Self-hosted agents in this scenario as you can create larger SKU agents that will allow for parallelism.
 
+### Additional Role Assignments
+
+In this scenario additional role assginments, whether they are being made in the managed subscription OR in at a scope in the managing tenant, additional role assignments are NOT considered cross tenant and should not get this property.  It should also be noted that if you assign a role at a scope in the managing tenant to a system-assigned managed identity (SAMI) that lives in the customer subscription, the dispaly in IAM at the scope of assignment will look like there is an issue.  That is because at the scope of assignment is has no reference to that object ID.  However, the assignment will work at runtime.
