@@ -15,16 +15,16 @@ To use the ALZ policies in an environment successfully there are some Azure Reso
 This file contains information that drives the sync process. The file includes management group IDs, default enforcement mode, and parameter values. **It must be generated at least once before executing the sync process.**
 
 1. Ensure that the EPAC module is up to date - required minimum version to use these features is 10.9.0.
-2. Use to code to clone the library repository and create the default file. There are examples below on how to run this commnand - you will only need to run one of these depending on your requirements.
+2. Use to code to clone the library repository and create the default file. There are examples below on how to run this command - you will only need to run one of these depending on your requirements.
 
 ```ps1
 # Create a Pac Environment default file for ALZ policies using the latest release of the ALZ Library release
 New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type ALZ -PacEnvironmentSelector "epac-dev"
 
-# Create a default file for ALZ policies specifiying a tagged release of the ALZ Library 
+# Create a default file for ALZ policies specifying a tagged release of the ALZ Library 
 New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type ALZ -Tag "platform/alz/2025.02.0"
 
-# Create a default file for ALZ policies by provising a path to a cloned/modified library 
+# Create a default file for ALZ policies by providing a path to a cloned/modified library 
 New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type ALZ -LibraryPath <<path to library>>
 
 # Create a default file for AMBA policies using the latest release of the ALZ Library
@@ -89,7 +89,7 @@ Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type AMBA -PacEn
 
 ```
 
-Carefully review the generated policy assigments and ensure all parameter and scope information is correct.
+Carefully review the generated policy assignments and ensure all parameter and scope information is correct.
 
 2. When complete run `Build-DeploymentPlans` to ensure the correct changes are made. During the first sync for either a new or existing environment there will be many changes due to updating of the existing policies.
 
@@ -145,7 +145,7 @@ If you need to have separate parameter values or different management group name
 
 1. Generate a policy structure file using `New-ALZPolicyDefaultStructure` and specify the `-PacEnvironmentSelector` parameter.
 
-This generates a standard file structure however the file's name will now include the Pac Selector given. This default structure will now be used everytime you run the "Sync-ALZPolicyFromLibrary" command with the matching PacEnvironmentSelector.
+This generates a standard file structure however the file's name will now include the Pac Selector given. This default structure will now be used every time you run the "Sync-ALZPolicyFromLibrary" command with the matching PacEnvironmentSelector.
 
 For example: -
 
@@ -180,7 +180,7 @@ To deploy the workload specific compliance guardrails for Azure Landing Zones th
 
 By default ALZ specifies deploying all the guardrail policies to the `platform` and `landingzones` management group and when the `Sync-ALZPolicyFromLibrary` with the `-CreateGuardrailAssignments` parameter command runs it will generate assignments which are scoped to these management groups.
 
-To modify this behaviour you can update/modify the scopes in the `deployment.scopes` entry - or if you want to deploy different guardrails to different scopes simply create another entry within the `enforceGuardrails.deployment` array similar to below.
+To modify this behavior you can update/modify the scopes in the `deployment.scopes` entry - or if you want to deploy different guardrails to different scopes simply create another entry within the `enforceGuardrails.deployment` array similar to below.
 
 ```
 "enforceGuardrails": {
@@ -254,7 +254,7 @@ The updated management group structure would follow similar to below:-
     }
 ```
 
-3. Now that the new archetypes have been added there needs to be archetype defintion files created - which tie together which assignments are associated to these archetypes. For this example we will apply the same assignments as what would have been applied to the `corp` management group to the new management groups.
+3. Now that the new archetypes have been added there needs to be archetype definition files created - which tie together which assignments are associated to these archetypes. For this example we will apply the same assignments as what would have been applied to the `corp` management group to the new management groups.
 4. In the forked repository in the folder `\platform\alz\archetype_definitions` we can copy the `corp.alz_archetype_definition.json` file twice and rename it to `non-production.alz_archetype_definition.json` and `production.alz_archetype_definition.json`. For each file update the `name` key in the file to match e.g.
 
 ```
@@ -313,3 +313,21 @@ Sync-ALZPolicyFromLibrary.ps1 -DefinitionsRootFolder .\Definitions\ -Type ALZ -L
 ```
 
 9. When maintaining parity with updates from the ALZ team including policy changes and new assignments it will be necessary to sync your forked repo and carefully check the incoming changes.
+
+### Migrating from the legacy sync process to the new sync process
+
+The process to migrate from the legacy sync process to the new process mainly involves changed to how the assignment files are generated and maintained. If the environment structure is well-aligned to the Cloud Adoption Framework the process will be fairly seamless. For environments which aren't aligned it will present a little bit more of a challenge however the initial complexity is balanced by less maintenance in the future when synchronising.
+
+## CAF Aligned
+
+Use the process [documented here](integrating-with-alz-library.md#using-the-new-azure-landing-zone-library-sync-process).
+
+Ensure that the management groups and the parameter values are updated in the newly generated structure file. When synchronising and running the build plan changes should be fairly minimal as all the assignments already exist - but any discrepancies should be examined as to why changes are being made.
+
+## CAF Unaligned
+
+Because the environment is not aligned to CAF - the sync process using the legacy method will already require a number of changes to the default assignment files. In this case it is best to maintain a [custom library](integrating-with-alz-library.md#using-a-custom-library-for-custom-management-group-structures).
+
+Carefully add the new archetypes to the cloned library - ensuring that all assignments are included.
+
+Again the sync process should be fairly simple as all the assignments already exist - however there will be more assignment files to manage. Setting up the custom library properly will ensure a seamless transition.

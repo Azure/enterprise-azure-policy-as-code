@@ -4,8 +4,31 @@ Defender for Cloud (DFC) is a suite of Azure Security Center (ASC) capabilities 
 
 ## Defender for Cloud Assignments for Defender Plans
 
-> [!NOTE]
-> DfC manages the Policy Assignments for Defender Plans when a plan is enabled. EPAC v9.0.0 and later **never** manage these Policy Assignments.
+Microsoft Defender for Cloud Plans provide comprehensive, cloud-native security protections across your Azure, hybrid, and multi-cloud environments. Each plan targets a specific resource type—such as servers, databases, containers, or storage—and enables advanced threat protection, vulnerability management, and compliance monitoring. To enforce these protections, Azure Policy plays a central role. When a Defender plan is enabled, Azure Policy assignments are automatically deployed to ensure that the necessary security configurations and monitoring agents are in place.
+
+If you're managing these policies through EPAC, you can choose whether to retain or delete the Azure Policy assignments originally deployed by Defender for Cloud. The easiest way to identify which policies are linked to a specific plan is to enable that DFC plan and observe which Azure Policies are assigned as a result. For more information regarding these Azure Policies, see [Azure Policy built-in definitions for Microsoft Defender for Cloud](https://learn.microsoft.com/en-us/azure/defender-for-cloud/policy-reference).
+
+> [!WARNING]
+> EPAC behavior for Defender Plan Policies **is controlled by** the `keepDfcPlanAssignments` in `desiredState`.
+
+- The default value for `$keepDfcPlanAssignments` is **`True`**, meaning EPAC will **not** remove "DfC Plan Policy Assignments" created by Defender for Cloud unless explicitly instructed to do so.
+- In global-settings, if $keepDFCPlanAssignments is **set to `false`** and `strategy` is `full`, EPAC will remove "DfC Security Policy Assignments" created by Defender for Cloud.
+
+```json
+"desiredState": {
+    "keepDfcPlanAssignments": false
+}
+```
+
+### Important Considerations
+- **Deletion is irreversible**: Once EPAC deletes these policy assignments, they cannot be recovered automatically.
+- **Use with caution**: Only set `$keepDfcPlanAssignments` to `false` if you are confident that EPAC is fully managing and deploying the policies for each DFC Plan.
+
+### When to Set to `false`
+You may choose to set `$keepDfcPlanAssignments = $false` if:
+- You have transitioned policy management from DFC to EPAC.
+- You want EPAC to take full control over policy lifecycle.
+- You are cleaning up legacy DFC-managed assignments.
 
 ![image.png](Images/dfc-defender-plans-settings.png)
 

@@ -8,7 +8,7 @@ In the past, CSV has been the preferred tool in EPAC. However, the introduction 
 
 ## Updating exemptions manually
 
-There are some usecases for manual update of the exemptions file. Generally, it is a consideration of what will be less effort to complete.
+There are some use cases for manual update of the exemptions file. Generally, it is a consideration of what will be less effort to complete.
 
 ### Expiration Update
 
@@ -20,7 +20,7 @@ Rather than update and export, an update to the date field can be accomplished w
 1. Open the json/jsonc/csv file used to manage Exemptions
 1. Update Content
     1. Search for the policyAssignmentId, including the full assignment path
-        1. Example: ```"policyAssignmentId": "/providers/Microsoft.Management/managementGroups/[ManagmenetGroupName]/providers/Microsoft.Authorization/policyAssignments/[PolicyAssignmentName]"```
+        1. Example: ```"policyAssignmentId": "/providers/Microsoft.Management/managementGroups/[ManagementGroupName]/providers/Microsoft.Authorization/policyAssignments/[PolicyAssignmentName]"```
     1. Modify the ```expiresOn``` field within the related block with the new timestamp
         1. Format: "YYYY-MM-DDTmm:hh:ssZ"
         1. Example: "2025-01-01T01:00:00Z"
@@ -37,7 +37,7 @@ In these cases, find each listing for affected assignments in the CSV/JSON file,
 
 1. Export Current Exemptions for pacSelector
 1. Update Content
-    1. Replace Root Management Group Name (Tenant GUID) with current assignment location (Tenant Intermediate Root Managment Group Name):
+    1. Replace Root Management Group Name (Tenant GUID) with current assignment location (Tenant Intermediate Root Management Group Name):
         1. ```"policyAssignmentId"```
         1. Epac Managed Exemptions: ```metadata\epacMetadata\"policyAssignmentId"```
     1. Replace temporary pacSelector with main pacSelector:
