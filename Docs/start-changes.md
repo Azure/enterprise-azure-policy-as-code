@@ -7,7 +7,9 @@
 
 ### Changes in Lighthouse Deployments
 
-EPAC is introducing updates that affect how role assignments are handled across managing and managed (Lighthouse) tenants. While EPAC does not yet support all Lighthouse scenarios, two specific use cases have been implemented based on GitHub issue feedback. These changes will break existing configurations that do not follow the new guidance detailed in [Lighhouse Subscription Management with EPAC](guidance-lighthouse.md)
+EPAC is introducing updates that affect how role assignments are handled across managing and managed Lighthouse tenants. While EPAC does not yet support all Lighthouse scenarios, two specific use cases have been implemented based on GitHub issue feedback. These changes will break existing configurations that do not follow the new guidance detailed in [Lighhouse Subscription Management with EPAC](guidance-lighthouse.md)
+
+For users currently leveraging EPAC for Lighthouse deployments, an immediate update to the global-settings.jsonc file is required. The existing properties will become outdated and will cause pipeline failures if not corrected. To ensure successful deployments, please update the global settings configuration without delay.
 
 Use Case 1:
 - Role Assignments from Managing Tenant to Managed Subscriptions
