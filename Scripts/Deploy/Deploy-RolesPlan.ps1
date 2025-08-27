@@ -98,7 +98,13 @@ else {
                 $null = Remove-AzRoleAssignmentRestMethod -RoleAssignmentId $roleAssignment.id -ApiVersion $pacEnvironment.apiVersions.roleAssignments
             }
             else {
-                $null = Remove-AzRoleAssignmentRestMethod -RoleAssignmentId $roleAssignment.id -TenantId $pacEnvironment.managingTenantId -ApiVersion $pacEnvironment.apiVersions.roleAssignments
+                if ($roleAssignment.description -match "'(/subscriptions/[^']+)'") {
+                    $assignmentId = $matches[1]
+                }
+                else {
+                    Write-Error "AssignmentId not found in description '$($roleAssignment.description)' for cross tenant role removal.  Please report as a bug"
+                }
+                $null = Remove-AzRoleAssignmentRestMethod -RoleAssignmentId $roleAssignment.id -TenantId $pacEnvironment.managedTenantId -ApiVersion $pacEnvironment.apiVersions.roleAssignments -AssignmentId $assignmentId
             }
 
         }
@@ -144,7 +150,7 @@ else {
             elseif (-not $assignmentById.ContainsKey($policyAssignmentId)) {
                 $null = $assignmentById.Add($policyAssignmentId, $principalId)
             }
-            Set-AzRoleAssignmentRestMethod -RoleAssignment $roleAssignment -ApiVersion $pacEnvironment.apiVersions.roleAssignments
+            Set-AzRoleAssignmentRestMethod -RoleAssignment $roleAssignment -PacEnvironment $pacEnvironment
         }
         Write-Information ""
     }
@@ -155,7 +161,7 @@ else {
 
         # Get identities for policy assignments from plan or by calling the REST API to retrieve the Policy Assignment
         foreach ($roleAssignment in $updatedRoleAssignments) {
-            Set-AzRoleAssignmentRestMethod -RoleAssignment $roleAssignment -ApiVersion $pacEnvironment.apiVersions.roleAssignments
+            Set-AzRoleAssignmentRestMethod -RoleAssignment $roleAssignment -PacEnvironment $pacEnvironment
         }
         Write-Information ""
     }

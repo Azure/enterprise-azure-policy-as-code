@@ -102,9 +102,10 @@ EPAC has a concept of an environment identified by a string (unique per reposito
     - Policy Definitions, Policy Set Definitions and Policy Exemptions - `metadata.deployedBy`.
     - Policy Assignments - `metadata.assignedBy` since Azure Portal displays it as 'Assigned by'.
     - Role Assignments - add the value to the `description` field since Role assignments do not contain `metadata`.
-  - `managedTenant`: Used when the `pacEnvironment` is in a lighthouse managed tenant, [see this example](#example-for-lighthouse-manged-tenant) It must contain:
-    - `managingTenantId` - The tenantId of the managing tenant.
-    - `managingTenantRootScope` - An array of all subscriptions that will need `additionalRoleAssignments` deployed to them.
+    - `managedSubscription` - True or False (defult is false).  Set to True if this is a lighthouse "cast" subscription, also refered to as a managed subscription.  This allows for role assignments to occur on these types of subscriptions.
+  - `managedTenant`: Used when the `pacEnvironment` is in lighthouse managing tenant to keep information about scopes that you manage and may need to grant your policies RBAC access to at those managed scopes, [see this example](#example-for-lighthouse-manged-tenant) It must contain:
+    - `managedTenantId` - The tenantId of the tenant containing the managed subscription.
+    - `managedTenantScopes` - An array of all subscriptions in managed tenant that will need `additionalRoleAssignments` deployed to them for policies in the managing tenant.  This is to allow policies in a managing tenant/subscription to have access to resources in the managed subscription(s).  For example, if deploying a diagnostic settings policy to a managing tenant scope, and you want to write the diagnostics data to a LAW in the managed tenant/subscription, the subscription containing that LAW should be listed in this array.
 - `defaultContext`: In rare cases (typically only when deploying to a lighthouse managed tenant) the default context (Get-azContext) of a user/SPN running a plan will  
 be set to a subscription where that user/SPN does not have sufficient privileges.  Some checks have been built in so that in some cases when this happens EPAC is able to fix the context issue.  When it is not, a `defaultContext` subscription name must be provided.  This can be any subscription within the `deploymentRootScope`.
 
@@ -179,9 +180,9 @@ Resource Group patterns allow us to exclude "special" managed Resource Groups. T
             "pacSelector": "lightHouseTenant",
             "cloud": "AzureCloud",
             "tenantId": "22000000-0000-0000-0000-000000000000",
-            "managingTenant": {
-                "managingTenantId": "11000000-0000-0000-0000-000000000000",
-                "managingTenantRootScope": [
+            "managedTenant": {
+                "managedTenantId": "11000000-0000-0000-0000-000000000000",
+                "managedTenantScopes": [
                     "/subscriptions/00000000-0000-0000-0000-000000000000",
                     "/subscriptions/00000000-0000-0000-0000-000000000000"
                 ]

@@ -60,6 +60,7 @@ nav:
       - Remediation Enforcement: guidance-remediation.md
       - Exclusion Management: guidance-scope-exclusions.md
       - Exemption Updates: guidance-exemptions.md
+      - Lighhouse Subscription Management: guidance-lighthouse.md
 
 markdown_extensions:
   - admonition
