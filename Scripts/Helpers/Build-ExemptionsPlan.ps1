@@ -547,6 +547,60 @@ function Build-ExemptionsPlan {
                     $scopeIsValid = $true
                     $resourceStatus = "notAnIndividualResource"
                     $splits = $currentScope -split "/"
+                    
+                    $expandedScopes = [System.Collections.ArrayList]::new()
+                    $patternMatched = $false
+                    
+                    if ($trimmedScope -match "subscriptionsPattern") {
+                        $patternMatched = $true
+                        $rootScope = $ScopeTable["root"]
+                        if ($null -ne $rootScope) {
+                            $rootScopeChildren = $rootScope.childrenTable
+                            $pattern = $trimmedScope.split("/")[-1]
+                            $rootScopeChildren.Keys | Foreach-Object {
+                                if ($rootScopeChildren.$_.type -eq "/subscriptions") {
+                                    $subName = $rootScopeChildren.$_.displayName
+                                    if ($subName -like $pattern) {
+                                        $expandedScope = @{
+                                            scope = $rootScopeChildren.$_.id
+                                            scopePostfix = $scopePostfix
+                                        }
+                                        $null = $expandedScopes.Add($expandedScope)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    elseif ($trimmedScope.Contains("*")) {
+                        $patternMatched = $true
+                        foreach ($scopeId in $ScopeTable.Keys) {
+                            if ($scopeId -ne "root" -and $scopeId -like $trimmedScope) {
+                                $expandedScope = @{
+                                    scope = $scopeId
+                                    scopePostfix = $scopePostfix
+                                }
+                                $null = $expandedScopes.Add($expandedScope)
+                            }
+                        }
+                    }
+                    
+                    if (-not $patternMatched) {
+                        $expandedScope = @{
+                            scope = $trimmedScope
+                            scopePostfix = $scopePostfix
+                        }
+                        $null = $expandedScopes.Add($expandedScope)
+                    }
+                    
+                    foreach ($expandedScopeInfo in $expandedScopes) {
+                        $currentScope = $expandedScopeInfo.scope
+                        $scopePostfix = $expandedScopeInfo.scopePostfix
+                        $trimmedScope = $currentScope.Trim()
+                        $subscriptionId = ""
+                        $scopeIsValid = $true
+                        $resourceStatus = "notAnIndividualResource"
+                        $splits = $currentScope -split "/"
+
                     if ($currentScope.StartsWith("/subscriptions/")) {
                         $subscriptionId = $splits[2]
                         if ($currentScope.Contains("/providers/")) {
@@ -1011,6 +1065,7 @@ function Build-ExemptionsPlan {
                     }
                     #endregion process each assignment (or multiple assignments)
 
+                    }
                 }
                 #endregion process each scope
             }
