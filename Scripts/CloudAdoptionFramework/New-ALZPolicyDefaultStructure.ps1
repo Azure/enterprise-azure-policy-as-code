@@ -48,9 +48,8 @@ if ($Tag -eq "") {
 
 if ($LibraryPath -eq "") {
     $LibraryPath = Join-Path -Path (Get-Location) -ChildPath "temp"
+    git clone --config advice.detachedHead=false --depth 1 --branch $Tag https://github.com/Azure/Azure-Landing-Zones-Library.git $LibraryPath
 }
-
-git clone --config advice.detachedHead=false --depth 1 --branch $Tag https://github.com/Azure/Azure-Landing-Zones-Library.git $LibraryPath
 
 $jsonOutput = [ordered]@{
     managementGroupNameMappings = [ordered]@{}
@@ -141,7 +140,7 @@ foreach ($parameter in $policyDefaults) {
     if ($Type -eq "AMBA") {
         $assignmentFileName = $assignmentFileName -replace ("-", "_")
     }
-    $file = Get-ChildItem -Recurse -Path ".\temp" -Filter "$assignmentFileName" -File | Select-Object -First 1
+    $file = Get-ChildItem -Recurse -Path $LibraryPath -Filter "$assignmentFileName" -File | Select-Object -First 1
     $jsonContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
     $tempDefaultParamValue = $jsonContent.properties.parameters.$parameterAssignmentName.value
     

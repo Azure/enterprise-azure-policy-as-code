@@ -18,27 +18,26 @@ Param(
 
 # Latest tag values
 if ($Tag -eq "") {
-   switch ($Type) {
-       'ALZ' {
-           $Tag = "platform/alz/2025.02.0"
-       }
-       'FSI' {
-           $Tag = "platform/fsi/2025.03.0"
-       }
-       'AMBA' {
-           $Tag = "platform/amba/2025.05.0"
-       }
-       'SLZ' {
-           $Tag = "platform/slz/2025.03.0"
-       }
-   }
+    switch ($Type) {
+        'ALZ' {
+            $Tag = "platform/alz/2025.02.0"
+        }
+        'FSI' {
+            $Tag = "platform/fsi/2025.03.0"
+        }
+        'AMBA' {
+            $Tag = "platform/amba/2025.05.0"
+        }
+        'SLZ' {
+            $Tag = "platform/slz/2025.03.0"
+        }
+    }
 }
 
 if ($LibraryPath -eq "") {
     $LibraryPath = Join-Path -Path (Get-Location) -ChildPath "temp"
+    git clone --config advice.detachedHead=false --depth 1 --branch $Tag https://github.com/Azure/Azure-Landing-Zones-Library.git $LibraryPath
 }
-
-git clone --config advice.detachedHead=false --depth 1 --branch $Tag https://github.com/Azure/Azure-Landing-Zones-Library.git $LibraryPath
 
 if ($DefinitionsRootFolder -eq "") {
     if ($null -eq $env:PAC_DEFINITIONS_FOLDER) {
