@@ -76,6 +76,17 @@ foreach ($mg in $archetypeDefinitionFile.management_groups) {
 # Static Parameter Values
 
 $additionalValues = @(
+    
+    [PSCustomObject]@{
+        default_name       = "ama_mdfc_sql_workspace_id"
+        description        = "Workspace Id of the Log Analytics workspace destination for the Data Collection Rule."
+        policy_assignments = @(
+            @{
+                policy_assignment_name = "Deploy-MDFC-DefSQL-AMA"
+                parameter_names        = @("userWorkspaceId")
+            }
+        )
+    },
     [PSCustomObject]@{
         default_name       = "ama_mdfc_sql_workspace_region"
         description        = "The region short name (e.g. `westus`) that should be used for the Log Analytics workspace for the SQL MDFC deployment."
@@ -132,29 +143,60 @@ if ($Type -eq "ALZ") {
 }
 
 foreach ($parameter in $policyDefaults) {
-    # Grab the first policy assignment to grab default value of the parameter
-    $parameterAssignmentName = $parameter.policy_assignments[0].parameter_names[0]
-    $assignment = $parameter.policy_assignments[0]
+    if ($parameter.default_name -ne "log_analytics_workspace_id") {
+        # Grab the first policy assignment to grab default value of the parameter
+        $parameterAssignmentName = $parameter.policy_assignments[0].parameter_names[0]
+        $assignment = $parameter.policy_assignments[0]
 
-    $assignmentFileName = ("$($assignment.policy_assignment_name).alz_policy_assignment.json")
-    if ($Type -eq "AMBA") {
-        $assignmentFileName = $assignmentFileName -replace ("-", "_")
-    }
-    $file = Get-ChildItem -Recurse -Path $LibraryPath -Filter "$assignmentFileName" -File | Select-Object -First 1
-    $jsonContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
-    $tempDefaultParamValue = $jsonContent.properties.parameters.$parameterAssignmentName.value
+        $assignmentFileName = ("$($assignment.policy_assignment_name).alz_policy_assignment.json")
+        if ($Type -eq "AMBA") {
+            $assignmentFileName = $assignmentFileName -replace ("-", "_")
+        }
+        $file = Get-ChildItem -Recurse -Path $LibraryPath -Filter "$assignmentFileName" -File | Select-Object -First 1
+        $jsonContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
+        $tempDefaultParamValue = $jsonContent.properties.parameters.$parameterAssignmentName.value
     
-    $obj = @(
-        @{
-            description            = $parameter.description
-            policy_assignment_name = $parameter.policy_assignments.policy_assignment_name
-            parameters             = @{
-                parameter_name = $parameter.policy_assignments[0].parameter_names[0]
-                value          = $tempDefaultParamValue
-            }
-        })
+        $obj = @(
+            @{
+                description            = $parameter.description
+                policy_assignment_name = $parameter.policy_assignments.policy_assignment_name
+                parameters             = @{
+                    parameter_name = $parameter.policy_assignments[0].parameter_names[0]
+                    value          = $tempDefaultParamValue
+                }
+            })
 
-    $jsonOutput.defaultParameterValues.Add($parameter.default_name, $obj)
+        $jsonOutput.defaultParameterValues.Add($parameter.default_name, $obj)
+    }
+    else {
+        $suffix = 0
+        foreach ($name in $parameter.policy_assignments.parameter_names | Group-Object | Select-Object -ExpandProperty Name) {
+            $parameterAssignmentName = $name
+            $assignments = $parameter.policy_assignments | Where-Object { $_.parameter_names -contains $parameterAssignmentName }
+            $assignment = $assignments[0]
+
+            $assignmentFileName = ("$($assignment.policy_assignment_name).alz_policy_assignment.json")
+            if ($Type -eq "AMBA") {
+                $assignmentFileName = $assignmentFileName -replace ("-", "_")
+            }
+            $file = Get-ChildItem -Recurse -Path $LibraryPath -Filter "$assignmentFileName" -File | Select-Object -First 1
+            $jsonContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
+            $tempDefaultParamValue = $jsonContent.properties.parameters.$parameterAssignmentName.value
+    
+            $obj = @(
+                @{
+                    description            = $parameter.description
+                    policy_assignment_name = $assignments.policy_assignment_name
+                    parameters             = @{
+                        parameter_name = [string]$assignment.parameter_names[0]
+                        value          = $tempDefaultParamValue
+                    }
+                })
+
+            $jsonOutput.defaultParameterValues.Add("$($parameter.default_name)_$suffix", $obj)
+            $suffix++
+        }
+    }
 }
 
 # Build Guardrail Deployment Object
