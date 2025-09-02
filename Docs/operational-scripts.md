@@ -58,7 +58,7 @@ Parameters:
 
 * **UseBuiltIn**: Default to using builtin policies rather than local versions.
 
-* **PacSelector**: Used to set PacEnvironment for each assignment file based on the pac selector privided. This pulls from global-settings.jsonc, therefore it must exist or an erro will be thrown.
+* **PacSelector**: Used to set PacEnvironment for each assignment file based on the pac selector provided. This pulls from global-settings.jsonc, therefore it must exist or an error will be thrown.
 
 * **OverwriteScope**: Used to overwrite scope value on each assignment file.
 

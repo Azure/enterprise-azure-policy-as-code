@@ -1,135 +1,135 @@
 # EPAC Hydration Kit
 
-The EPAC Hydration Script is intended to accelerate onboarding of EPAC as a policy management solution. It contains a growing number of common functions that are undertaken during repo deployment, and some functions that can be used later as needed. The scope of the initial Install-HydrationEpac command is to build a working repo from which to begin CLI based deployment. The pipeline files, as well as the pipeline environment, must be populated and updated outside of this installer.
+The EPAC Hydration Kit is an interactive installer designed to accelerate onboarding of EPAC as a policy management solution. It automates the initial setup process and guides you through key configuration decisions.
 
-**The exact list of available commands can be retrieved by running the PowerShell script below.**
+**What you'll get:** A foundational EPAC implementation with starter policies & CI/CD pipelines.
 
-```PowerShell
-Get-Command -module EnterprisePolicyAsCode | Where-Object {$_.Name -like "*-Hydration*"}
+The `Install-HydrationEpac` command builds a basic EPAC implementation for local testing and provides the foundation for CI/CD deployment through starter pipelines.
+
+## Prerequisites
+
+- Review the [Start Implementing](./start-implementing.md) to ensure you are familiar with the core EPAC concepts, have the prerequisite software installed and have the required Azure permissions.
+- To run the Hydration Kit, permissions to create Management Groups at the **Tenant Root Level** is also required.
+  - The `Management Group Contributor` built-in RBAC role contains the required permissions.
+  - The Hydration Kit creates additional Management Groups for EPAC development.
+
+### Before You Begin
+
+1. **Connect to Azure:** Use `Connect-AzAccount` to authenticate to your Azure tenant
+1. **Verify permissions:** Confirm you can create Management Groups at the tenant root level
+1. **Choose your location:** Decide where you want the EPAC files to be created locally
+
+## What the Hydration Kit Provides
+
+The Hydration Kit guides you through the initial setup process for EPAC. Here's what it accomplishes:
+
+1. **Creates folder structure:** Creates the `Definitions` directory with proper files & folders
+1. **Configures settings:** Pre-Populates the `Global-Settings.jsonc` file
+1. **Builds Management Groups:**
+    1. Creates an isolated `epac-dev` environment for safe testing
+    1. Optionally deploys the recommended Cloud Adoption Framework v3 Management Group structure
+1. **Imports existing policies:** Brings current Azure policies into EPAC for management
+1. **Deploys compliance frameworks:**
+    1. Deploys the Microsoft Security Baseline (MCSB)
+    1. Optionally deploys additional compliance policies (NIST, PCI-DSS, etc.)
+7. **Provides CI/CD Starter Kit:** Generates starter pipelines for GitHub Actions or Azure DevOps
+
+## Running the Hydration Kit Installer
+
+### Prepare Your Environment
+
+Set the location where you want EPAC files to be created. This could be a simple local directory, or a locally cloned repository.
+
+```Powershell
+$myRepoRoot = "/Path/To/Local/EPAC/Repo"
+Set-Location $myRepoRoot
 ```
 
-## Pre-requisites
+### Identify Your Tenant Intermediate Root
 
-The following software is required to use the EPAC Hydration Kit:
+Determine the **Tenant Intermediate Root** Management Group ID. This will be set as the `deploymentRootScope` of the `tenant01` (main) `pacEnvironment`. This is typically your organization's top-level Management Group (e.g., "contoso"), **not** the Tenant Root Group.
 
-1. PowerShell Core
-1. Az Module for PowerShell
-1. EnterprisePolicyAsCode Module for PowerShell
-1. Accounts with access to Azure for testing as outlined in [Deployment Scripts Section of the Index](./index.md)
-1. The Hydration Kit must be run by a Principal with the following abilities:
-    1. All rights needed for the EPAC Dev account in the link above
-    1. The ability to create Management Groups at the Tenant Root Level
+### Run the Hydration Kit
 
-> [!Note]
-> To confirm that the necessary rights are available to the current service principal, create a new management group at tenant root.
-
-## Repo Creation
-
-The code below is an example of how the new set of functions can be leveraged to create a new EPAC deployment capable of managing policy via command line locally. As part of the installation process, the StarterKit folder will be populated in the repo by default. Other items will be populated based on the choices made.
+Use the `Install-HydrationEpac` cmdlet to start the Hydration Kit Installer, specifying the `TenantIntermediateRoot`
 
 ```PowerShell
-$tenantId = "YourTenantGuid"
-$tenantIntermediateRoot = "YourTenantIntermediateRootManagementGroupId"
-$myRepoRoot = "/Path/To/Local/Root/Of/New/Repo"
-Set-Location $myRepoRoot
-Install-Module EnterprisePolicyAsCode
-Import-Module EnterprisePolicyAsCode
-Connect-AzAccount -TenantId $tenantId
+$tenantIntermediateRoot = "contoso" # Replace with your Management Group ID
 Install-HydrationEpac -TenantIntermediateRoot $tenantIntermediateRoot
 ```
 
-```PowerShell
-# Example...
-$tenantId = "00000000-nota-real-guid-000000000000"
-$tenantIntermediateRoot = "mgNameNotDisplayName"
-$myRepoRoot = "/home/myId/Documents/git/epac"
-Set-Location $myRepoRoot
-Install-Module EnterprisePolicyAsCode
-Import-Module EnterprisePolicyAsCode
-Connect-AzAccount -TenantId $tenantId
-Install-HydrationEpac -TenantIntermediateRoot $tenantIntermediateRoot
-```
+> [!IMPORTANT]
+> If the Management Group specified as the `tenantIntermediateRoot` does not exist, the Hydration Kit will offer to create it. If you respond `no` the Hydration Kit will exit as a valid `deploymentRootScope` is required for the `tenant` (main) `pacEnvironment`.
 
-This installer will present you with a series of questions that will generate an output file. This should be kept handy for reuse (some errors can be recovered by rerunning the process, such as access errors), as well as for troubleshooting purposes in the case of an unrecoverable error. These answers will be used to generate a new EPAC repo from the root of the directory that the command is executed from.
+> [!TIP]
+> The installer creates an output file that you should keep for reuse, troubleshooting and reference. If errors occur, you can often resolve them and re-run the process.
 
 ### Key Decisions
 
-You will make decisions that will drive whether or not a number of operations occur.
+The Hydration Kit will present you with a series of questions that will drive configuration that is specific to this implementation of EPAC:
 
-1. Create the Tenant Intermediate Root management group to contain the management group hierarchy
-1. Create a Management Group Structure based on CAF3 Model within the Tenant Intermediate Root
-    1. This will generate a new structure based on the CAF3 Model with the basic Corp and Online Archetypes.
-    1. These generally represent the traditional Internal and Perimeter Zones respectively, and while they do not represent the sum of useful Archetypes, they do generally represent the minimum number required to deploy with a Security First approach
-1. Export the current set of policyAssignments in Azure
-    1. This will not be useful in a greenfield environment as nothing has yet been assigned
+#### Initial Configuration
+
+1. **Confirm your Tenant ID:** Verify you're authenticated to the correct Azure tenant
+1. **Set a PAC Owner ID:** Manually Specify a `pacOwnerId` or let the Hydration Kit auto-generate a GUID
+1. **Implement CAFv3:** Decide whether to deploy the CAFv3 Management Group Structure within the specified `tenantIntermediateRoot`.
+1. **Confirm provided scope:** Verify the `tenantIntermediateRoot` Management Group specified exists, and create one if not.
+
+#### Cloud Adoption Framework (CAF) Naming
+
+If you elect to deploy the CAFv3 Management Group structure, you will additionally be prompted for:
+
+1. **Prefix for Management Groups:** (optional) Add a prefix to the CAFv3 Management Groups that will be created
+1. **Suffix for Management Groups:** (optional) Add a suffix to the CAFv3 Management Groups that will be created
+
+#### EPAC Environment Setup
+
+1. **Main PacSelector:** Provide a symbolic `PacSelector` Name for the main EPAC Environment (`pacEnvironment`).
+    - The `tenantIntermediateRoot` specified will be the `deploymentRootScope` for this `pacEnvironment`.
+1. **epac-dev Parent:** Provide a Management Group that the `epac-dev` environment will be created.
+    - A copy of the `tenantIntermediateRoot` Management Group specified (and all its child Management Groups) will be created as a child of this management group.
+1. **Managed Identity Location:** Choose a default Managed Identity Location for DeployIfNotExists and Modify Policies
+
+#### epac-dev Naming
+
+To support the `epac-dev` environment being deployed, a copy of the `tenantIntermediateRoot` Management Group (and all its child Management Groups) will be deployed. You have the option to:
+
+1. **Prefix for Management Groups:** (optional) Add a prefix to the copied Management Groups that will be created for `epac-dev`
+1. **Suffix for Management Groups:** (optional) Add a suffix to the  copied Management Groups that will be created for `epac-dev`
+
+#### Policy Import and Compliance Frameworks
+
+The Hydration Kit can help you get started with some initial policies, as well as import existing polices. You will be given the option to:
+
+1. **Import Policies:** Import existing policies into EPAC - this will create the required EPAC files for managing these policies.
+1. **Deploy Compliance Frameworks:** Add additional compliance frameworks to EPAC.
+    - PCI-DSS compliance framework
+    - NIST 800-53 v5 compliance framework.
+    - Additional Built-In Policy Sets (specified via definition ID)
+
+> [!NOTE]
+> The Hydration Kit will always include a copy of The Microsoft Security Baseline (MCSB) to be deployed with EPAC.
 
 > [!NOTE]
 > While it is possible to both export policies from the management group structure and create it in the same step, it is rare that this is useful. Consider whether there is any content in this area to export when answering.
 
-You will also make decisions that will drive configuration that is specific to this implementation of EPAC.
+#### CI/CD Pipeline Configuration
 
-1. [pacOwnerId](./settings-global-setting-file.md) for this installation of EPAC
-1. Name hash(es) for clone of Tenant Intermediate Root management group structure
-    1. This prevents naming collisions between your environment and the EPAC environment used for deployment testing in the CI/CD pipeline
-    1. Suffix offers an opportunity to leverage a standardized suffix for EPAC management group names (Example: epacDev-contosoTIR)
-    1. Prefix offers an opportunity to leverage a standardized prefix for EPAC management group names (Example: contosoTIR-epacDev)
-1. Management group hierarchy location for EPAC management groups
-1. Location for managed IDs used by policies which leverage
+EPAC supports various options for running EPAC through CI/CD pipelines. Choose the DevOps approach that best fits your existing toolset:
 
-Additional actions will be undertaken in order to facilitate the deployment of EPAC.
+1. **Execution method:** Run EPAC via PowerShell Module (recommended) or source code
+1. **Platform:** Select starter pipelines built for GitHub Actions or Azure DevOps Pipelines
 
-1. Download of the EPAC Starter Kit
-1. Generate a Definitions folder
-    1. Populate policyAssignments, policyDefinitions, and policySetDefinitions based on decisions made
-    1. Create new assignments designated in the IPKit, as well as the Microsoft Cloud Security Baseline
-        1. Export of current assignments, the optional list of additional assignments desired, and security standards questions will affect this
-    1. Create new Definition content based on Export decisions
+## Current Limitations
 
-### Current Functionality
+The Hydration Kit provides a working foundation but has some limitations that can be addressed manually after installation:
 
-There are a growing number of deployment features that are available for rapid deployment.
-
-1. Create Definitions directory structure
-1. Decide on Script or Module based implementation
-1. Update Assignments:
-    1. Process existing policy assignments
-        1. Export for use in new repo under EPAC management
-        1. Update with epac-dev pacSelector
-            1. Will not replicate non-management group assignments as subscriptions and below cannot be replicated programatically
-    1. Add Compliance Assignments:
-        1. Apply MCSB policySet from StarterKit for auditing purposes
-        1. (Optional) Apply PCI-DSS v4 policySet from StarterKit for auditing purposes
-        1. (Optional) Apply NIST 800-53 and Microsoft ASB policySets from StarterKit for auditing purposes
-    1. (Optional) Add a list of built-in content to assign
-        1. Generate assignments for the primary pacSelector as well as the epac-dev pacSelector
-        1. Generate default values for new assignments where possible
-        1. Notify you of parameters that did not contain default settings and will require review
-        1. Import into Definitions directory structure for processing in EPAC deployments
-1. Update Management Group Hierarchy:
-    1. (Optional) Generate Caf3 Hierarchy to support secure by default deployment
-        1. If this is chosen, there will be no need to export the current assignment set as there will be none present in the brand new hierarchy
-    1. Create duplicate of *Tenant Intermediate Group* Hierarchy with prefix and/or suffix for epac-dev processing based on decisions made
-
-### Limitations
-
-While these are limitations to the Hydration Kit itself, they can be adressed manually after the initially Hydration Kit based deployment is complete. The intent of this program is to provide a prototype environment that can be used as a baseline for customization rather than to provide automation for all possible customizations.
-
-1. Multiple Tenants cannot be automatically configured
-1. Release Flow pacSelector cannot automatically be created
-1. Update/Management of Workflows is outside the scope of the installer at this time
+- **Multi-tenant scenarios:** Multiple Tenants cannot be automatically configured
+- **Advanced branching flows:** Release Flow pacSelector cannot automatically be created
 
 ## Initial Test Deployment
 
-Deploy to EPAC Development Environment Using CLI
-
-<!-- - This content must also be uploaded  to a repo and configure the repo to leverage the newly deployed pipelines. -->
-[Start the Enterprise Policy as Code (EPAC) Implementation](start-implementing.md) outlines the steps needed to complete the installation
-
-- The current Install-HydrationKit process completes the steps **prior to** *Populate your Definitions folder with Policy resources*
-- The current Install-HydrationKit process completes most of the steps **in** *Populate your Definitions folder with Policy resources*, detailed in [Current Functionality](#current-functionality)
-- [CI/CD Overview](ci-cd-overview.md) provides insight into how to continue with the configuration of your DevOps Platform for ongoing EPAC CI/CD deployment, which is the next major area of focus.
-
-Once your content is populated, it is time to test your deployment against the epac-dev Management Group hierarchy that was created as part of the deployment process.
+Once the hydration kit is completed, you can test your deployment against the epac-dev Management Group hierarchy that was created as part of the deployment process.
 
 ```PowerShell
 Build-DeploymentPlans  -PacEnvironmentSelector "epac-dev"
@@ -137,55 +137,19 @@ Deploy-PolicyPlan -PacEnvironmentSelector "epac-dev"
 Deploy-RolesPlan -PacEnvironmentSelector "epac-dev"
 ```
 
-> [!IMPORTANT]
-> [Understanding the concepts and  environments](./start-implementing.md) is crucial. Do **not** deploy to environments other than epac-dev until you completely understand this content.
-
 ## Next Steps
 
 The installer builds out the repo insofar as CLI based deployment using a highly privileged account. After this prototype is complete, it is necessary to move to a more secure configuration that can be automated and audited.
 
-### Least Privilege: Custom Reader Role
-
-This is an optional step that will create a custom role used in planning deployments that will provide the the least privilege necessary for the process.
-
-`New-AzPolicyReaderRole` creates a custom role EPAC Resource Policy Reader with Id `2baa1a7c-6807-46af-8b16-5e9d03fba029`. It provides read access to all Policy resources for the purpose of planning the EPAC deployments at the scope selected with PacEnvironmentSelector. This role can be used to reduce the scope of the Service Principal used in the ```Build-PolicyPlans``` stage of the deployment process.
-
-The permissions granted are:
-
-- Microsoft.Authorization/policyassignments/read
-- Microsoft.Authorization/policydefinitions/read
-- Microsoft.Authorization/policyexemptions/read
-- Microsoft.Authorization/policysetdefinitions/read
-- Microsoft.Authorization/roleAssignments/read
-- Microsoft.PolicyInsights/*
-- Microsoft.Management/register/action
-- Microsoft.Management/managementGroups/read
-- Microsoft.Resources/subscriptions/read
-- Microsoft.Resources/subscriptions/resourceGroups/read
-
-## Create Azure DevOps Pipeline or GitHub Workflow
-
-`New-PipelinesFromStarterKit` creates a new Azure DevOps Pipeline or GitHub Workflow from the starter kit. This script copies pipelines and templates from the starter kit to a new folder. The script assembles the pipelines/workflows based on the type of pipeline to create, the branching flow to implement, and the type of script to use.
-
-`-StarterKitFolder <String>`
-
-`-PipelinesFolder <String>`
-
-`-PipelineType <String>` - AzureDevOps or GitHubActions; default is AzureDevOps
-
-`-BranchingFlow <String>` - Release or GitHub (flow); default is Release
-
-`-ScriptType <String>` - scripts (in your repo) or module (from PowerShell gallery); default is module
-
-1. CI/CD Integration
-    1. [General Guidance](https://azure.github.io/enterprise-azure-policy-as-code/ci-cd-overview/)
-    1. [Branching Flow Guidance](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/ci-cd-branching-flows.md): Review high level CI/CD Options. While the hydration kit only supports a standard two stage deployment plan, you may want to consider a release plan for your environment.
-    1. [Azure DevOps](https://azure.github.io/enterprise-azure-policy-as-code/ci-cd-ado-pipelines/): Review Azure DevOps Pipeline implementation options and guidance.
-    1. [GitHub Actions](https://azure.github.io/enterprise-azure-policy-as-code/ci-cd-github-actions/): Review Github Actions implementation options and guidance.
-1. Additional Policy Assignments
-    1. [Sync-AlzPolicies](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/integrating-with-alz.md#scenario-2---alz-policy-deployment-with-epac): Import the ALZ Policy Set using Sync-AlzPolicies, and update the parameters which do not have default values to add policies that will aid in modification of your environment to baseline Microsoft standards.
-    1. [Create Additional Assignments](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/operational-scripts.md)
-    1. Review the command *Export-PolicyToEPAC* to simplify additional assignment creation.
+- Review additional settings available for configuration in the [global-settings file](./settings-global-setting-file.md)
+- Create additional policy objects such as custom policies, additional policy assignments, and exemptions.
+    1. Integrate [Azure Landing Zones (ALZ)](integrating-with-alz.md)
+    1. Create custom [Policy definitions](policy-definitions.md)
+    1. Create custom [Policy Set definitions](policy-set-definitions.md)
+    1. Create new [Policy Assignments](policy-assignments.md)
+    1. Manage [Policy Exemptions](policy-exemptions.md)
+- [CI/CD Overview](ci-cd-overview.md) provides insight into how to continue with the configuration of your DevOps Platform for ongoing EPAC CI/CD deployment
+- [Generate Documentation](./operational-scripts-documenting-policy.md) for Audit Purposes
 
 ## Upcoming Roadmap Items
 
@@ -200,12 +164,18 @@ The permissions granted are:
 Each of these sets is broken up by API usage to accomplish the task. As each will require a different framework, they are listed as separate initiatives.
 
 1. Install-HydrationGithubRepo
-    1. Configure Github repo/actions/environments/secrets/settings
+    1. Configure GitHub repo/actions/environments/secrets/settings
         1. Release flow and configure pipeline moved to this process, kept basic flow until this process is ready
         1. Provide baseline security configuration
         1. Populate main branch
 1. Install-HydrationAdoRepo
     1. Configure ADO repo/pipelines/environments/secrets/settings
-        1. Flows: Release, Basic (github), Exemption, Remediation
+        1. Flows: Release, Basic (GitHub), Exemption, Remediation
         1. Provide baseline security configuration
         1. Populate main branch
+
+**The full list of available Hydration Kit commands can be retrieved by running the PowerShell below:**
+
+```PowerShell
+Get-Command -module EnterprisePolicyAsCode | Where-Object {$_.Name -like "*-Hydration*"}
+```

@@ -20,7 +20,7 @@ function Build-HydrationAssignmentPlan {
     Write-Information "Processing Policy Assignments JSON files in folder '$AssignmentsRootFolder'"
     Write-Information "==================================================================================================="
 
-    if($ExtendedReporting){
+    if ($ExtendedReporting) {
         $allAssignmentRecords = [ordered]@{}
         $rRoot = (Resolve-Path (Split-Path (Split-Path $AssignmentsRootFolder))).Path
     }
@@ -57,13 +57,13 @@ function Build-HydrationAssignmentPlan {
                 continue
             }
         }
-        if($ExtendedReporting){
+        if ($ExtendedReporting) {
             Remove-Variable fileRecord -ErrorAction SilentlyContinue
             $fileRecord = Get-DeepCloneAsOrderedHashtable -InputObject $DetailedRecord
-            if(!(Test-Path $AssignmentsRootFolder)){
+            if (!(Test-Path $AssignmentsRootFolder)) {
                 Write-Error "No Assignments folder found at $AssignmentsRootFolder"
             }
-            $relativePath = -join(".",$assignmentFile.FullName.Substring(($rRoot).Length))
+            $relativePath = -join (".", $assignmentFile.FullName.Substring(($rRoot).Length))
             $fileRecord.Set_Item('fileRelativePath', $relativePath)
         }
         # Write-Information ""
@@ -270,7 +270,7 @@ function Build-HydrationAssignmentPlan {
                     $null = $updateCollection.Add($id, $assignment)
                     Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix $prefixText -IdentityStatus $identityStatus
                     $Assignments.numberOfChanges++
-                    if($ExtendedReporting){
+                    if ($ExtendedReporting) {
                         # Define Changed Object Data for ExtendedReporting
                         # Populate Data Fields
                         Remove-Variable assignmentRecord -ErrorAction SilentlyContinue
@@ -297,10 +297,10 @@ function Build-HydrationAssignmentPlan {
                         if ($identityStatus.replaced -or $identityStatus.requiresRoleChanges) {
                             $assignmentRecord.Set_Item('requiresRoleChanges', $identityStatus.requiresRoleChanges)
                             $assignmentRecord.Set_Item('changedIdentityStrings', $identityStatus.changedIdentityStrings)
-                            $assignmentRecord.Set_Item('roleAdded',$identityStatus.added)
-                            $assignmentRecord.Set_Item('roleUpdated',$identityStatus.updated)
-                            $assignmentRecord.Set_Item('roleRemoved',$identityStatus.removed)
-                            $assignmentRecord.Set_Item('roleRReplaced',$identityStatus.replaced)
+                            $assignmentRecord.Set_Item('roleAdded', $identityStatus.added)
+                            $assignmentRecord.Set_Item('roleUpdated', $identityStatus.updated)
+                            $assignmentRecord.Set_Item('roleRemoved', $identityStatus.removed)
+                            $assignmentRecord.Set_Item('roleRReplaced', $identityStatus.replaced)
                         }
                         if (!$displayNameMatches) {
                             $assignmentRecord.Set_Item('displayNameChanged', (!($displayNameMatches)))
@@ -370,15 +370,17 @@ function Build-HydrationAssignmentPlan {
                             $assignmentRecord.Set_Item('changeList', $changesStrings)
                         }
                         # Define update type
-                        if($assignmentRecord.scopeChangedOnly -and $changedPolicyDefinitionId -and $changesStrings.count -eq 1){
+                        if ($assignmentRecord.scopeChangedOnly -and $changedPolicyDefinitionId -and $changesStrings.count -eq 1) {
                             $assignmentRecord.Set_Item('evaluationResult', 'DefinitionScopeUpdate')
-                        }elseif($changesStrings.count -eq 1 -and $changePacOwnerId){
+                        }
+                        elseif ($changesStrings.count -eq 1 -and $changePacOwnerId) {
                             $assignmentRecord.Set_Item('evaluationResult', 'OnwerOnly')
-                        }elseif($identityStatus.replaced -or $identityStatus.requiresRoleChanges){
+                        }
+                        elseif ($identityStatus.replaced -or $identityStatus.requiresRoleChanges) {
                             # Confirm that RequiresRoleChanges and ParametersMatch trigger thism confirm 
                             $assignmentRecord.Set_Item('evaluationResult', 'Replaced')
                         }
-                        elseif($changesStrings.count -gt 0){
+                        elseif ($changesStrings.count -gt 0) {
                             $assignmentRecord.Set_Item('evaluationResult', 'Update')
                         }
                     }
@@ -401,7 +403,7 @@ function Build-HydrationAssignmentPlan {
                 if ($identityStatus.isUserAssigned) {
                     $isUserAssignedAny = $true
                 }
-                if($ExtendedReporting){
+                if ($ExtendedReporting) {
                     # Add details to the NEW record
                     Remove-Variable assignmentRecord -ErrorAction SilentlyContinue
                     $assignmentRecord = Get-DeepCloneAsOrderedHashtable -InputObject $fileRecord
@@ -411,29 +413,30 @@ function Build-HydrationAssignmentPlan {
                     $assignmentRecord.Set_Item('definitionType', 'assignment')
                     $assignmentRecord.Set_Item('changes', '*')
                     $assignmentRecord.Set_Item('changeList', @('*'))
-                    $assignmentRecord.Set_Item('identityReplaced',"")
-                    $assignmentRecord.Set_Item('replacedReferencedDefinition',"")
-                    $assignmentRecord.Set_Item('displayNameChanged',"")
-                    $assignmentRecord.Set_Item('descriptionChanged',"")
-                    $assignmentRecord.Set_Item('definitionVersionChanged',"")
-                    $assignmentRecord.Set_Item('parametersChanged',"")
-                    $assignmentRecord.Set_Item('modeChanged',"")
-                    $assignmentRecord.Set_Item('resourceSelectorsChanged',"")
-                    $assignmentRecord.Set_Item('policyRuleChanged',"")
-                    $assignmentRecord.Set_Item('replacedPolicy',"")
-                    $assignmentRecord.Set_Item('policyDefinitionsChanged',"")
-                    $assignmentRecord.Set_Item('policyDefinitionGroupsChanged',"")
-                    $assignmentRecord.Set_Item('deletedPolicyDefinitionGroups',"")
+                    $assignmentRecord.Set_Item('identityReplaced', "")
+                    $assignmentRecord.Set_Item('replacedReferencedDefinition', "")
+                    $assignmentRecord.Set_Item('displayNameChanged', "")
+                    $assignmentRecord.Set_Item('descriptionChanged', "")
+                    $assignmentRecord.Set_Item('definitionVersionChanged', "")
+                    $assignmentRecord.Set_Item('parametersChanged', "")
+                    $assignmentRecord.Set_Item('modeChanged', "")
+                    $assignmentRecord.Set_Item('resourceSelectorsChanged', "")
+                    $assignmentRecord.Set_Item('policyRuleChanged', "")
+                    $assignmentRecord.Set_Item('replacedPolicy', "")
+                    $assignmentRecord.Set_Item('policyDefinitionsChanged', "")
+                    $assignmentRecord.Set_Item('policyDefinitionGroupsChanged', "")
+                    $assignmentRecord.Set_Item('deletedPolicyDefinitionGroups', "")
                 }
                 Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix "New" -IdentityStatus $identityStatus
             }
-            if($ExtendedReporting){
-                try{
-                    if(!$match){
-                        $allAssignmentRecords.add($(@($assignmentRecord.fileRelativePath,$assignmentRecord.definitionType,$assignmentRecord.id) -join "_"),$assignmentRecord)
+            if ($ExtendedReporting) {
+                try {
+                    if (!$match) {
+                        $allAssignmentRecords.add($(@($assignmentRecord.fileRelativePath, $assignmentRecord.definitionType, $assignmentRecord.id) -join "_"), $assignmentRecord)
                     }
                     
-                }catch{
+                }
+                catch {
                     Write-Host "Test"
                 }                
             }
@@ -442,6 +445,7 @@ function Build-HydrationAssignmentPlan {
 
     $strategy = $PacEnvironment.desiredState.strategy
     $keepDfcSecurityAssignments = $PacEnvironment.desiredState.keepDfcSecurityAssignments
+    $keepDfcPlanAssignments = $PacEnvironment.desiredState.keepDfcPlanAssignments
     if ($deleteCandidates.psbase.Count -gt 0) {
         foreach ($id in $deleteCandidates.Keys) {
             $deleteCandidate = $deleteCandidates.$id
@@ -453,7 +457,8 @@ function Build-HydrationAssignmentPlan {
             $shallDelete = Confirm-DeleteForStrategy `
                 -PacOwner $pacOwner `
                 -Strategy $strategy `
-                -KeepDfcSecurityAssignments $keepDfcSecurityAssignments
+                -KeepDfcSecurityAssignments $keepDfcSecurityAssignments `
+                -KeepDfcPlanAssignments $keepDfcPlanAssignments
             if ($shallDelete) {
                 # always delete if owned by this Policy as Code solution
                 # never delete if owned by another Policy as Code solution
@@ -483,7 +488,7 @@ function Build-HydrationAssignmentPlan {
                 $Assignments.delete.Add($id, $splat)
                 $Assignments.numberOfChanges++
                 # Process Extended Reporting for items that are not part of the EPAC repository, but exist in the managed scope
-                if($ExtendedReporting){
+                if ($ExtendedReporting) {
                     # Add record for any items that remain that will be deleted
                     Remove-Variable assignmentRecord -ErrorAction SilentlyContinue
                     $assignmentRecord = Get-DeepCloneAsOrderedHashtable -InputObject $DetailedRecord
@@ -510,7 +515,7 @@ function Build-HydrationAssignmentPlan {
                 switch ($pacOwner) {
                     thisPaC { 
                         Write-Error "Policy Assignment '$displayName' at $shortScope owned by this Policy as Code solution should have been deleted." -ErrorAction Stop
-                        if($ExtendedReporting){
+                        if ($ExtendedReporting) {
                             Remove-Variable assignmentRecord -ErrorAction SilentlyContinue
                             $assignmentRecord = Get-DeepCloneAsOrderedHashtable -InputObject $DetailedRecord
                             $assignmentRecord.Set_Item('name', $name)
@@ -525,7 +530,7 @@ function Build-HydrationAssignmentPlan {
                         if ($VerbosePreference -eq "Continue") {
                             Write-AssignmentDetails -DisplayName $displayName -Scope $shortScope -Prefix "Skipping delete (owned by other PaC):" -IdentityStatus $identityStatus
                         }
-                        if($ExtendedReporting){
+                        if ($ExtendedReporting) {
                             Remove-Variable assignmentRecord -ErrorAction SilentlyContinue
                             $assignmentRecord = Get-DeepCloneAsOrderedHashtable -InputObject $DetailedRecord
                             $assignmentRecord.Set_Item('name', $name)
@@ -540,7 +545,7 @@ function Build-HydrationAssignmentPlan {
                         if ($VerbosePreference -eq "Continue") {
                             Write-AssignmentDetails -DisplayName $displayName -Scope $shortScope -Prefix "Skipping delete owned by unknown (strategy $strategy):" -IdentityStatus $identityStatus
                         }
-                        if($ExtendedReporting){
+                        if ($ExtendedReporting) {
                             Remove-Variable assignmentRecord -ErrorAction SilentlyContinue
                             $assignmentRecord = Get-DeepCloneAsOrderedHashtable -InputObject $DetailedRecord
                             $assignmentRecord.Set_Item('name', $name)
@@ -555,7 +560,7 @@ function Build-HydrationAssignmentPlan {
                         if ($VerbosePreference -eq "Continue") {
                             Write-AssignmentDetails -DisplayName $displayName -Scope $shortScope -Prefix "Skipping delete (DfC Security Policies):" -IdentityStatus $identityStatus
                         }
-                        if($ExtendedReporting){
+                        if ($ExtendedReporting) {
                             Remove-Variable assignmentRecord -ErrorAction SilentlyContinue
                             $assignmentRecord = Get-DeepCloneAsOrderedHashtable -InputObject $DetailedRecord
                             $assignmentRecord.Set_Item('name', $name)
@@ -570,7 +575,7 @@ function Build-HydrationAssignmentPlan {
                         if ($VerbosePreference -eq "Continue") {
                             Write-AssignmentDetails -DisplayName $displayName -Scope $shortScope -Prefix "Skipping delete (DfC Defender Plans):" -IdentityStatus $identityStatus
                         }
-                        if($ExtendedReporting){
+                        if ($ExtendedReporting) {
                             Remove-Variable assignmentRecord -ErrorAction SilentlyContinue
                             $assignmentRecord = Get-DeepCloneAsOrderedHashtable -InputObject $DetailedRecord
                             $assignmentRecord.Set_Item('name', $name)
@@ -583,13 +588,13 @@ function Build-HydrationAssignmentPlan {
                     }
                 }
             } 
-            if($ExtendedReporting){
-                $allAssignmentRecords.add($(@($assignmentRecord.fileRelativePath,$assignmentRecord.definitionType,$assignmentRecord.id) -join "_"),$assignmentRecord)
+            if ($ExtendedReporting) {
+                $allAssignmentRecords.add($(@($assignmentRecord.fileRelativePath, $assignmentRecord.definitionType, $assignmentRecord.id) -join "_"), $assignmentRecord)
             }
         }
     }
-    foreach($aRec in $allAssignmentRecords.keys){
-        $detailedRecordList.Add($aRec,$allAssignmentRecords.$aRec)
+    foreach ($aRec in $allAssignmentRecords.keys) {
+        $detailedRecordList.Add($aRec, $allAssignmentRecords.$aRec)
     }
     if ($isUserAssignedAny) {
         Write-Warning "EPAC does not manage role assignments for Policy Assignments with user-assigned Managed Identities."

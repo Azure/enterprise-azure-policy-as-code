@@ -76,6 +76,9 @@
                             "keepDfcSecurityAssignments": {
                                 "type": "boolean"
                             },
+                            "keepDfcPlanAssignments": {
+                                "type": "boolean"
+                            },
                             "doNotDisableDeprecatedPolicies": {
                                 "type": "boolean"
                             },

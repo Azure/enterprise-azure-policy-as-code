@@ -26,7 +26,7 @@ if ($Tag -eq "") {
             $Tag = "platform/fsi/2025.03.0"
         }
         'AMBA' {
-            $Tag = "platform/amba/2025.05.0"
+            $Tag = "platform/amba/2025.07.0"
         }
         'SLZ' {
             $Tag = "platform/slz/2025.03.0"
@@ -250,12 +250,25 @@ try {
                     #$value = $fileContent.properties.parameters.$parameter.value -replace "00000000-0000-0000-0000-000000000000", $dnzZoneSubscription -replace "placeholder", $dnzZoneResourceGroupName
                     $baseTemplate.parameters.Add($parameter, $value)
                 }
+                
+                $additionalRoleAssignments = @{
+                    $PacEnvironmentSelector = @(
+                        @{
+                            roleDefinitionId = "/providers/microsoft.authorization/roleDefinitions/b12aa53e-6015-4669-85d0-8515ebb3ae7f"
+                            scope            = "/subscriptions/$($structureFile.defaultParameterValues.private_dns_zone_subscription_id.parameters.value)"
+                        }
+                    ) 
+                }
+                $baseTemplate.Add("additionalRoleAssignments", $additionalRoleAssignments)
+                    
+                
             }
         
 
             $category = $structureFile.managementGroupNameMappings.$scopeTrim.management_group_function
             ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$defaultStructurePAC/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
             if ($fileContent.name -eq "Deploy-Private-DNS-Zones") {
+                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope, additionalRoleAssignments | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$defaultStructurePAC/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
                 (Get-Content "$DefinitionsRootFolder/policyAssignments/$Type/$defaultStructurePAC/$category/$($fileContent.name).jsonc") -replace "\.ne\.", ".$dnsZoneRegion." | Set-Content "$DefinitionsRootFolder/policyAssignments/$Type/$defaultStructurePAC/$category/$($fileContent.name).jsonc"
             }
         }

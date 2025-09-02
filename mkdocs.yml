@@ -25,11 +25,13 @@ theme:
 nav:
   - Home: index.md
   - Getting Started:
+      - Overview and Prerequisites: start-implementing.md
       - Hydration Kit: start-hydration-kit.md
-      - Start Implementation: start-implementing.md
-      - Forking GitHub Repo: start-forking-github-repo.md
+      - Manual Configuration: manual-configuration.md
       - Extracting Policy Resources: start-extracting-policy-resources.md
-      - Changes in v10.0.0: start-changes.md
+      - Forking GitHub Repo: start-forking-github-repo.md
+      - Advanced Configuration: advanced-configuration.md
+      - Upcoming Changes in v11.0.0: start-changes.md
   - Settings and Desired State:
       - Global Settings: settings-global-setting-file.md
       - Desired State: settings-desired-state.md
@@ -58,6 +60,7 @@ nav:
       - Remediation Enforcement: guidance-remediation.md
       - Exclusion Management: guidance-scope-exclusions.md
       - Exemption Updates: guidance-exemptions.md
+      - Lighhouse Subscription Management: guidance-lighthouse.md
 
 markdown_extensions:
   - admonition

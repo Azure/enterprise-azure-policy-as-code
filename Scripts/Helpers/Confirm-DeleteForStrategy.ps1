@@ -3,9 +3,10 @@ function Confirm-DeleteForStrategy {
     param (
         [string] $PacOwner,
         [string] $Strategy,
-
         [Parameter(Mandatory = $false)]
-        $KeepDfcSecurityAssignments = $false
+        $KeepDfcSecurityAssignments = $false,
+        [Parameter(Mandatory = $false)]
+        $KeepDfcPlanAssignments = $false
     )
 
     $shallDelete = switch ($PacOwner) {
@@ -22,7 +23,7 @@ function Confirm-DeleteForStrategy {
             !$KeepDfcSecurityAssignments -and $Strategy -eq "full"
         }
         "managedByDfcDefenderPlans" {
-            $false
+            !$KeepDfcPlanAssignments -and $Strategy -eq "full"
         }
     }
     return $shallDelete
