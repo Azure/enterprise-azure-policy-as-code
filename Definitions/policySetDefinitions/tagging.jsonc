@@ -1,0 +1,32 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-set-definition-schema.json",
+    "name": "My-Tagging-PolicySet",
+    "properties": {
+        "displayName": "Tagging Initiative",
+        "description": "This is the grouping of tagging policies required for this environment",
+        "metadata": {
+            "category": "Tag",
+            "version": "1.0.0"
+        },
+        "policyDefinitions": [
+            {
+                "policyDefinitionReferenceId": "add-date-created-tag",
+                "policyDefinitionName": "date-created-tag",
+                "parameters": {
+                    "tagName": {
+                        "value": "Deployment Time"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "Inherit-Sub-tag",
+                "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/40df99da-1232-49b1-a39a-6da8d878f469",
+                "parameters": {
+                    "tagName": {
+                        "value": "Cost Center"
+                    }
+                }
+            }
+        ]
+    }
+}

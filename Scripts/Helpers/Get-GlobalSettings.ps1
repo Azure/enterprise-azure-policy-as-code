@@ -88,25 +88,6 @@ function Get-GlobalSettings {
             if ($null -eq $managedIdentityLocation) {
                 Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector does not contain required managedIdentityLocation field."
             }
-            $managedSubscription = $pacEnvironment.managedSubscription
-            $managedTenantId = $pacEnvironment.managedTenant.managedTenantId
-            $managedTenantScopes = $pacEnvironment.managedTenant.managedTenantScopes
-            if ($null -ne $managedTenantId) {
-                if ($null -eq $pacEnvironment.managedTenant.managedTenantScopes) {
-                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector element managedTenantScopes must have a valid value when managedTenantID has a value."
-                }
-                $objectGuid = [System.Guid]::empty
-                # Returns True if successfully parsed, otherwise returns False.
-                $isGUID = [System.Guid]::TryParse($managedTenantId, [System.Management.Automation.PSReference]$objectGuid)
-                if ($isGUID -ne $true) {
-                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field managedTenant ($managedTenantId) must be a GUID."
-                }
-            }
-            elseif ($null -ne $managedTenantScopes) {
-                if ($null -eq $managedTenantId) {
-                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector element managedTenantID must be a valid GUID when managedTenantScopes has a value."
-                }
-            }
 
             $defaultSubscriptionId = $pacEnvironment.defaultSubscriptionId
             if ($null -ne $defaultSubscriptionId) {
@@ -333,9 +314,6 @@ function Get-GlobalSettings {
                 deployedBy                          = $deployedBy
                 cloud                               = $cloud
                 tenantId                            = $tenantId
-                managedTenantId                     = $managedTenantId
-                managedTenantScopes                = $managedTenantScopes
-                managedSubscription                 = $managedSubscription
                 deploymentRootScope                 = $deploymentRootScope
                 defaultContext                      = $defaultContext
                 policyDefinitionsScopes             = $policyDefinitionsScopes

@@ -29,3 +29,4 @@ function Get-AzRoleAssignmentsRestMethod {
 # $null = $null
 # $roleAssignments2 = Get-AzRoleAssignmentsRestMethod -ApiVersion "2022-04-01" -Scope "/providers/Microsoft.Management/managementGroups/mg-Dev"
 # $null = $null
+$response = Invoke-AzRestMethod -Path "/subscriptions/58abd941-daf6-497a-9866-71fbd0199a6d/providers/Microsoft.Authorization/roleAssignments?api-version=2022-04-01&tenantId=68b133a0-68af-43fa-a9c3-d1b9bf296ea5" -Method GET

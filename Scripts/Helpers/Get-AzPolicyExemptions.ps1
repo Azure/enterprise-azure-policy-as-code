@@ -52,104 +52,99 @@ function Get-AzPolicyExemptions {
     }
 
     $thisPacOwnerId = $PacEnvironment.pacOwnerId
-    $environmentTenantId = $PacEnvironment.tenantId
 
     $policyResourcesTable = $DeployedPolicyResources.policyexemptions
     $policyExemptionsCounters = $policyResourcesTable.counters
 
     foreach ($policyResource in $policyResources) {
-        $resourceTenantId = $policyResource.tenantId
-        if (($resourceTenantId -in @($null, "", $environmentTenantId)) -or $PacEnvironment.managedSubscription -eq $true) {
-            $properties = Get-PolicyResourceProperties $policyResource
+        $properties = Get-PolicyResourceProperties $policyResource
 
-            $id = $policyResource.id
-            $name = $policyResource.name
-            $testId = $properties.policyAssignmentId
+        $id = $policyResource.id
+        $name = $policyResource.name
+        $testId = $properties.policyAssignmentId
 
-            $included, $resourceIdParts = Confirm-PolicyResourceExclusions `
-                -TestId $testId `
-                -ResourceId $id `
-                -ScopeTable $ScopeTable `
-                -ExcludedScopesTable $excludedScopesTable `
-                -ExcludedIds $excludedPolicyResources `
-                -PolicyResourceTable $policyResourcesTable
-            if ($included) {
-                $displayName = $properties.displayName
-                if ($null -ne $displayName -and $displayName -eq "") {
-                    $displayName = $null
-                }
-                $description = $properties.description
-                if ($null -ne $description -and $description -eq "") {
-                    $description = $null
-                }
-                $exemptionCategory = $properties.exemptionCategory
-                $expiresOnRaw = $properties.expiresOn
-                $expiresOn = $null
-                if ($null -ne $expiresOnRaw -and $expiresOnRaw -ne "") {
-                    if ($expiresOnRaw -is [datetime]) {
-                        $expiresOn = $expiresOnRaw.ToUniversalTime
-                    }
-                    else {
-                        $expiresOnDate = [datetime]::Parse($expiresOnRaw)
-                        $expiresOn = $expiresOnDate.ToUniversalTime()
-                    }
-                    $expiresOn = $expiresOnRaw.ToUniversalTime()
-                }
-                $metadataRaw = $properties.metadata
-                $metadata = $null
-                if ($null -ne $metadataRaw -and $metadataRaw -ne @{} ) {
-                    $metadata = $metadataRaw
-                }
-                $policyAssignmentId = $properties.policyAssignmentId
-                $policyDefinitionReferenceIdsRaw = $properties.policyDefinitionReferenceIds
-                $policyDefinitionReferenceIds = $null
-                if ($null -ne $policyDefinitionReferenceIdsRaw -and $policyDefinitionReferenceIdsRaw.Count -gt 0) {
-                    $policyDefinitionReferenceIds = $policyDefinitionReferenceIdsRaw
-                }
-                $resourceSelectors = $properties.resourceSelectors
-                $assignmentScopeValidation = $properties.assignmentScopeValidation
-                $pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -PolicyResource $policyResource -ManagedByCounters $policyExemptionsCounters.managedBy
-                $status = "active"
-                $expiresInDays = [Int32]::MaxValue
-                if ($expiresOn) {
-                    $expiresIn = New-TimeSpan -Start $now -End $expiresOn
-                    $expiresInDays = $expiresIn.Days
-                    if ($expiresInDays -lt -15) {
-                        $status = "expired-over-15-days"
-                        $policyExemptionsCounters.expired += 1
-                    }
-                    elseif ($expiresInDays -lt 0) {
-                        $status = "expired-less-within-15-days"
-                        $policyExemptionsCounters.expired += 1
-                    }
-                    elseif ($expiresInDays -lt 15) {
-                        $status = "active-expiring-within-15-days"
-                    }
-                }
-
-                $exemption = @{
-                    id                           = $id
-                    name                         = $name
-                    scope                        = $resourceIdParts.scope
-                    displayName                  = $displayName
-                    description                  = $description
-                    exemptionCategory            = $exemptionCategory
-                    expiresOn                    = $expiresOn
-                    metadata                     = $metadata
-                    policyAssignmentId           = $policyAssignmentId
-                    policyDefinitionReferenceIds = $policyDefinitionReferenceIds
-                    resourceSelectors            = $resourceSelectors
-                    assignmentScopeValidation    = $assignmentScopeValidation
-                    pacOwner                     = $pacOwner
-                    status                       = $status
-                    expiresInDays                = $expiresInDays
-                }
-                $null = $policyResourcesTable.managed.Add($id, $exemption)
+        $included, $resourceIdParts = Confirm-PolicyResourceExclusions `
+            -TestId $testId `
+            -ResourceId $id `
+            -ScopeTable $ScopeTable `
+            -ExcludedScopesTable $excludedScopesTable `
+            -ExcludedIds $excludedPolicyResources `
+            -PolicyResourceTable $policyResourcesTable
+        if ($included) {
+            $displayName = $properties.displayName
+            if ($null -ne $displayName -and $displayName -eq "") {
+                $displayName = $null
             }
-            else {
-                Write-Verbose "Policy resource $id excluded"
+            $description = $properties.description
+            if ($null -ne $description -and $description -eq "") {
+                $description = $null
             }
+            $exemptionCategory = $properties.exemptionCategory
+            $expiresOnRaw = $properties.expiresOn
+            $expiresOn = $null
+            if ($null -ne $expiresOnRaw -and $expiresOnRaw -ne "") {
+                if ($expiresOnRaw -is [datetime]) {
+                    $expiresOn = $expiresOnRaw.ToUniversalTime
+                }
+                else {
+                    $expiresOnDate = [datetime]::Parse($expiresOnRaw)
+                    $expiresOn = $expiresOnDate.ToUniversalTime()
+                }
+                $expiresOn = $expiresOnRaw.ToUniversalTime()
+            }
+            $metadataRaw = $properties.metadata
+            $metadata = $null
+            if ($null -ne $metadataRaw -and $metadataRaw -ne @{} ) {
+                $metadata = $metadataRaw
+            }
+            $policyAssignmentId = $properties.policyAssignmentId
+            $policyDefinitionReferenceIdsRaw = $properties.policyDefinitionReferenceIds
+            $policyDefinitionReferenceIds = $null
+            if ($null -ne $policyDefinitionReferenceIdsRaw -and $policyDefinitionReferenceIdsRaw.Count -gt 0) {
+                $policyDefinitionReferenceIds = $policyDefinitionReferenceIdsRaw
+            }
+            $resourceSelectors = $properties.resourceSelectors
+            $assignmentScopeValidation = $properties.assignmentScopeValidation
+            $pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -PolicyResource $policyResource -ManagedByCounters $policyExemptionsCounters.managedBy
+            $status = "active"
+            $expiresInDays = [Int32]::MaxValue
+            if ($expiresOn) {
+                $expiresIn = New-TimeSpan -Start $now -End $expiresOn
+                $expiresInDays = $expiresIn.Days
+                if ($expiresInDays -lt -15) {
+                    $status = "expired-over-15-days"
+                    $policyExemptionsCounters.expired += 1
+                }
+                elseif ($expiresInDays -lt 0) {
+                    $status = "expired-less-within-15-days"
+                    $policyExemptionsCounters.expired += 1
+                }
+                elseif ($expiresInDays -lt 15) {
+                    $status = "active-expiring-within-15-days"
+                }
+            }
+
+            $exemption = @{
+                id                           = $id
+                name                         = $name
+                scope                        = $resourceIdParts.scope
+                displayName                  = $displayName
+                description                  = $description
+                exemptionCategory            = $exemptionCategory
+                expiresOn                    = $expiresOn
+                metadata                     = $metadata
+                policyAssignmentId           = $policyAssignmentId
+                policyDefinitionReferenceIds = $policyDefinitionReferenceIds
+                resourceSelectors            = $resourceSelectors
+                assignmentScopeValidation    = $assignmentScopeValidation
+                pacOwner                     = $pacOwner
+                status                       = $status
+                expiresInDays                = $expiresInDays
+            }
+            $null = $policyResourcesTable.managed.Add($id, $exemption)
+        }
+        else {
+            Write-Verbose "Policy resource $id excluded"
         }
     }
 }
-

@@ -1,0 +1,59 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json",
+    "name": "date-created-tag",
+    "properties": {
+        "displayName": "Deploy 'deployment time' tag",
+        "description": "Automatically generate 'deployment time' for all resources",
+        "mode": "Indexed",
+        "metadata": {
+            "category": "Tags",
+            "version": "1.0.0",
+            "deployedBy": "epac/4bd3205d-7f89-49e8-b268-2cdfdafb4bde/EPAC-TEST-TENANT"
+        },
+        "parameters": {
+            "effect": {
+                "metadata": {
+                    "description": "Modify, Deny, Audit or Disabled the execution of the Policy",
+                    "displayName": "Effect"
+                },
+                "allowedValues": [
+                    "Modify",
+                    "Deny",
+                    "Audit",
+                    "Disabled"
+                ],
+                "defaultValue": "Audit",
+                "type": "string"
+            },
+            "tagName": {
+                "metadata": {
+                    "description": "Name of the tag, such as 'Date'",
+                    "displayName": "Tag Name"
+                },
+                "defaultValue": "deployment time",
+                "type": "string"
+            }
+        },
+        "policyRule": {
+            "if": {
+                "field": "[concat('tags[', parameters('tagName'), ']')]",
+                "exists": "false"
+            },
+            "then": {
+                "effect": "[parameters('effect')]",
+                "details": {
+                    "roleDefinitionIds": [
+                        "/providers/microsoft.authorization/roleDefinitions/4a9ae827-6dc8-4573-8ac7-8239d42aa03f"
+                    ],
+                    "operations": [
+                        {
+                            "field": "[concat('tags[', parameters('tagName'), ']')]",
+                            "value": "[utcNow()]",
+                            "operation": "add"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

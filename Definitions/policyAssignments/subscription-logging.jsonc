@@ -1,0 +1,39 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
+    "nodeName": "/SubscriptionLogging/",
+    "definitionEntry": {
+        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/2465583e-4e78-4c15-b6be-a36cbc7c8b0f"
+    },
+    "children": [
+        {
+            "nodeName": "TenantRootGroup",
+            "assignment": {
+                "name": "prd-SLOG",
+                "displayName": "MONITORING - Configure Monitoring for Subscription Level Logs",
+                "description": "Deploys the diagnostic settings for Azure Activity to stream subscriptions audit logs to a Log Analytics workspace to monitor subscription-level events."
+            },
+            "enforcementMode": "Default",
+            "parameters": {
+                "effect": "DeployIfNotExists",
+                "logAnalytics": "/subscriptions/5e81976f-4b4e-4f2b-bb61-b9e4a1959baa/resourcegroups/grayson/providers/microsoft.operationalinsights/workspaces/mytestlaw"
+            },
+            "scope": {
+                "Managed_Tenant_Updated": [
+                    "/subscriptions/58abd941-daf6-497a-9866-71fbd0199a6d"
+                ]
+            },
+            // "additionalRoleAssignments": {
+            //     "Managed_Tenant_Updated": [
+            //         {
+            //             "roleDefinitionId": "/providers/microsoft.authorization/roleDefinitions/749f88d5-cbae-40b8-bcfc-e573ddc772fa",
+            //             "scope": "/subscriptions/5e81976f-4b4e-4f2b-bb61-b9e4a1959baa/resourcegroups/grayson/providers/microsoft.operationalinsights/workspaces/mytestlaw"
+            //         },
+            //         {
+            //             "roleDefinitionId": "/providers/microsoft.authorization/roleDefinitions/92aaf0da-9dab-42b6-94a3-d43ce8d16293",
+            //             "scope": "/subscriptions/5e81976f-4b4e-4f2b-bb61-b9e4a1959baa/resourcegroups/grayson/providers/microsoft.operationalinsights/workspaces/mytestlaw"
+            //         }
+            //     ]
+            // }
+        }
+    ]
+}

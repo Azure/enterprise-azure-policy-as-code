@@ -22,10 +22,6 @@ function Set-AzRoleAssignmentRestMethod {
     $body = @{
         properties = $RoleAssignment.properties
     }
-    if (($body.properties.crossTenant -eq $true) -or ($isManagedSubscription -and $roleAssignment.properties.description -notLike "*additional Role*")) {
-        $body.properties["delegatedManagedIdentityResourceId"] = $roleassignment.assignmentId
-    }
-
 
     Write-Information "Assignment '$($RoleAssignment.assignmentDisplayName)', principalId $($properties.principalId), role '$($RoleAssignment.roleDisplayName)' at $($scope)"
 
@@ -35,6 +31,13 @@ function Set-AzRoleAssignmentRestMethod {
 
     # Process response
     $statusCode = $response.StatusCode
+    if ($statusCode -eq 403) {
+        $body.properties["delegatedManagedIdentityResourceId"] = $roleassignment.assignmentId
+        # Invoke the REST API
+        $bodyJson = ConvertTo-Json $body -Depth 100 -Compress
+        $response = Invoke-AzRestMethod -Path $path -Method PUT -Payload $bodyJson
+        $statusCode = $response.StatusCode
+    }
     if ($statusCode -lt 200 -or $statusCode -ge 300) { 
         if ($statusCode -eq 409) {
             if ($response.content -match "ScopeLocked") {

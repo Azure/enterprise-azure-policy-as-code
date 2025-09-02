@@ -1,0 +1,21 @@
+{
+    "nodeName": "/tagging/",
+    "definitionEntry": {
+        "policySetName": "My-Tagging-PolicySet"
+    },
+    "children": [
+        {
+            "nodeName": "Managed_Tenant/",
+            "assignment": {
+                "name": "tagging",
+                "displayName": "Enforce Tagging Requirements",
+                "description": "Tagging requirements for Azure resources."
+            },
+            "scope": {
+                "Managed_Tenant": [
+                    "/subscriptions/58abd941-daf6-497a-9866-71fbd0199a6d"
+                ]
+            }
+        }
+    ]
+}

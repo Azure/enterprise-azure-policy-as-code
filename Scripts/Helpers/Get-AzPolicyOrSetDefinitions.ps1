@@ -15,8 +15,6 @@ function Get-AzPolicyOrSetDefinitions {
     $scopesLength = $policyDefinitionsScopes.Length
     $scopesLast = $scopesLength - 1
     $thisPacOwnerId = $PacEnvironment.pacOwnerId
-    $environmentTenantId = $PacEnvironment.tenantId
-
 
     $query = $null
     $progressItemName = $null
@@ -38,66 +36,64 @@ function Get-AzPolicyOrSetDefinitions {
 
     $policyResources = Search-AzGraphAllItems -Query $query -ProgressItemName $progressItemName -ProgressIncrement $progressIncrement
     foreach ($policyResource in $policyResources) {
-        $resourceTenantId = $policyResource.tenantId
-        if (($resourceTenantId -in @($null, "", $environmentTenantId)) -or $PacEnvironment.managedSubscription -eq $true) {
-            $id = $policyResource.id
-            $testId = $id
-            $included, $resourceIdParts = Confirm-PolicyResourceExclusions `
-                -TestId $testId `
-                -ResourceId $id `
-                -ScopeTable $ScopeTable `
-                -ExcludedScopesTable $excludedScopesTable `
-                -ExcludedIds $excludedIds `
-                -PolicyResourceTable $PolicyResourcesTable
-            if ($included) {
-                $scope = $resourceIdParts.scope
-                $policyResource.resourceIdParts = $resourceIdParts
-                $policyResource.scope = $scope
-                $found = $false
-                for ($i = 0; $i -lt $scopesLength -and !$found; $i++) {
-                    $currentScopeId = $policyDefinitionsScopes[$i]
-                    if ($resourceIdParts.scope -eq $currentScopeId) {
-                        switch ($i) {
-                            0 {
-                                # deploymentRootScope
-                                $policyResource.pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -PolicyResource $policyResource -Scope $scope -ManagedByCounters $PolicyResourcesTable.counters.managedBy
-                                $null = $PolicyResourcesTable.all.Add($id, $policyResource)
-                                $null = $PolicyResourcesTable.managed.Add($id, $policyResource)
-                                $found = $true
-                            }
-                            $scopesLast {
-                                # BuiltIn or Static, since last entry in array is empty string ($currentPolicyDefinitionsScopeId)
-                                $policyResource.pacOwner = "readOnly"
-                                $null = $PolicyResourcesTable.all.Add($id, $policyResource)
-                                $null = $PolicyResourcesTable.readOnly.Add($id, $policyResource)
-                                $PolicyResourcesTable.counters.builtIn += 1
-                                $found = $true
-                            }
-                            Default {
-                                # Read only definitions scopes
-                                $policyResource.pacOwner = "builtin"
-                                $null = $PolicyResourcesTable.all.Add($id, $policyResource)
-                                $null = $PolicyResourcesTable.readOnly.Add($id, $policyResource)
-                                $PolicyResourcesTable.counters.inherited += 1
-                                $found = $true
-                            }
+        $id = $policyResource.id
+        $testId = $id
+        $included, $resourceIdParts = Confirm-PolicyResourceExclusions `
+            -TestId $testId `
+            -ResourceId $id `
+            -ScopeTable $ScopeTable `
+            -ExcludedScopesTable $excludedScopesTable `
+            -ExcludedIds $excludedIds `
+            -PolicyResourceTable $PolicyResourcesTable
+        if ($included) {
+            $scope = $resourceIdParts.scope
+            $policyResource.resourceIdParts = $resourceIdParts
+            $policyResource.scope = $scope
+            $found = $false
+            for ($i = 0; $i -lt $scopesLength -and !$found; $i++) {
+                $currentScopeId = $policyDefinitionsScopes[$i]
+                if ($resourceIdParts.scope -eq $currentScopeId) {
+                    switch ($i) {
+                        0 {
+                            # deploymentRootScope
+                            $policyResource.pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -PolicyResource $policyResource -Scope $scope -ManagedByCounters $PolicyResourcesTable.counters.managedBy
+                            $null = $PolicyResourcesTable.all.Add($id, $policyResource)
+                            $null = $PolicyResourcesTable.managed.Add($id, $policyResource)
+                            $found = $true
+                        }
+                        $scopesLast {
+                            # BuiltIn or Static, since last entry in array is empty string ($currentPolicyDefinitionsScopeId)
+                            $policyResource.pacOwner = "readOnly"
+                            $null = $PolicyResourcesTable.all.Add($id, $policyResource)
+                            $null = $PolicyResourcesTable.readOnly.Add($id, $policyResource)
+                            $PolicyResourcesTable.counters.builtIn += 1
+                            $found = $true
+                        }
+                        Default {
+                            # Read only definitions scopes
+                            $policyResource.pacOwner = "builtin"
+                            $null = $PolicyResourcesTable.all.Add($id, $policyResource)
+                            $null = $PolicyResourcesTable.readOnly.Add($id, $policyResource)
+                            $PolicyResourcesTable.counters.inherited += 1
+                            $found = $true
                         }
                     }
                 }
-                if (!$found) {
-                    if ($CollectAllPolicies) {
-                        $policyResource.pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -PolicyResource $policyResource -ManagedByCounters $PolicyResourcesTable.counters.managedBy
-                        $null = $PolicyResourcesTable.all.Add($id, $policyResource)
-                        $null = $PolicyResourcesTable.managed.Add($id, $policyResource)
-                    }
-                    else {
-                        $PolicyResourcesTable.counters.unmanagedScopes += 1
-                    }
+            }
+            if (!$found) {
+                if ($CollectAllPolicies) {
+                    $policyResource.pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -PolicyResource $policyResource -ManagedByCounters $PolicyResourcesTable.counters.managedBy
+                    $null = $PolicyResourcesTable.all.Add($id, $policyResource)
+                    $null = $PolicyResourcesTable.managed.Add($id, $policyResource)
+                }
+                else {
+                    $PolicyResourcesTable.counters.unmanagedScopes += 1
                 }
             }
-            else {
-                Write-Verbose "Policy resource $id excluded"
-            }
         }
+        else {
+            Write-Verbose "Policy resource $id excluded"
+        }
+        
     }
 }

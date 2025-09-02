@@ -10,7 +10,6 @@ function Get-AzPolicyAssignments {
     $thisPacOwnerId = $PacEnvironment.pacOwnerId
     $desiredState = $PacEnvironment.desiredState
     $excludedPolicyResources = $desiredState.excludedPolicyAssignments
-    $environmentTenantId = $PacEnvironment.tenantId
     $rootScopeDetails = $ScopeTable.root
     $excludedScopesTable = $rootScopeDetails.excludedScopesTable
 
@@ -21,46 +20,43 @@ function Get-AzPolicyAssignments {
     $policyResourcesTable = $DeployedPolicyResources.policyassignments
     $uniquePrincipalIds = @{}
     foreach ($policyResource in $policyResources) {
-        $resourceTenantId = $policyResource.tenantId
-        if (($resourceTenantId -in @($null, "", $environmentTenantId)) -or $PacEnvironment.managedSubscription -eq $true) {
-            $id = $policyResource.id
-            $testId = $id
-            $properties = Get-PolicyResourceProperties $policyResource
-            $included = $true
-            $resourceIdParts = $null
-            $included, $resourceIdParts = Confirm-PolicyResourceExclusions `
-                -TestId $testId `
-                -ResourceId $id `
-                -ScopeTable $ScopeTable `
-                -ExcludedScopesTable $excludedScopesTable `
-                -ExcludedIds $excludedPolicyResources `
-                -PolicyResourceTable $policyResourcesTable
-            if ($included) {
-                $scope = $resourceIdParts.scope
-                $policyResource.resourceIdParts = $resourceIdParts
-                $policyResource.scope = $scope
-                $policyResource.scopeType = $resourceIdParts.scopeType
-                $policyResource.scopeDisplayName = $ScopeTable.$scope.displayName
-                if ($policyResource.scopeDisplayName -eq $policyResource.tenantId) {
-                    $policyResource.scopeDisplayName = "Tenant Root Group"
-                }
-                $policyResource.pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -PolicyResource $policyResource -Scope $scope -ManagedByCounters $policyResourcesTable.counters.managedBy
-                if ($policyResource.identity -and $policyResource.identity.type -ne "None") {
-                    $principalId = ""
-                    if ($policyResource.identity.type -eq "SystemAssigned") {
-                        $principalId = $policyResource.identity.principalId
-                    }
-                    else {
-                        $principalId = $policyResource.identity.userAssignedIdentities.Values.principalId
-                    }
-                    $uniquePrincipalIds[$principalId] = $true
-                    $policyResourcesTable.counters.withIdentity += 1
-                }
-                $null = $policyResourcesTable.managed.Add($id, $policyResource)
+        $id = $policyResource.id
+        $testId = $id
+        $properties = Get-PolicyResourceProperties $policyResource
+        $included = $true
+        $resourceIdParts = $null
+        $included, $resourceIdParts = Confirm-PolicyResourceExclusions `
+            -TestId $testId `
+            -ResourceId $id `
+            -ScopeTable $ScopeTable `
+            -ExcludedScopesTable $excludedScopesTable `
+            -ExcludedIds $excludedPolicyResources `
+            -PolicyResourceTable $policyResourcesTable
+        if ($included) {
+            $scope = $resourceIdParts.scope
+            $policyResource.resourceIdParts = $resourceIdParts
+            $policyResource.scope = $scope
+            $policyResource.scopeType = $resourceIdParts.scopeType
+            $policyResource.scopeDisplayName = $ScopeTable.$scope.displayName
+            if ($policyResource.scopeDisplayName -eq $policyResource.tenantId) {
+                $policyResource.scopeDisplayName = "Tenant Root Group"
             }
-            else {
-                Write-Verbose "Policy Assignment $id excluded"
+            $policyResource.pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -PolicyResource $policyResource -Scope $scope -ManagedByCounters $policyResourcesTable.counters.managedBy
+            if ($policyResource.identity -and $policyResource.identity.type -ne "None") {
+                $principalId = ""
+                if ($policyResource.identity.type -eq "SystemAssigned") {
+                    $principalId = $policyResource.identity.principalId
+                }
+                else {
+                    $principalId = $policyResource.identity.userAssignedIdentities.Values.principalId
+                }
+                $uniquePrincipalIds[$principalId] = $true
+                $policyResourcesTable.counters.withIdentity += 1
             }
+            $null = $policyResourcesTable.managed.Add($id, $policyResource)
+        }
+        else {
+            Write-Verbose "Policy Assignment $id excluded"
         }
     }
 
@@ -150,35 +146,34 @@ function Get-AzPolicyAssignments {
                 -ProgressIncrement 1000
             $null = $roleDefinitions.AddRange($roleDefinitionsLocal)
         }
-            
-        if ($null -ne $PacEnvironment.managedTenantId) {
-            foreach ($subscription in $PacEnvironment.managedTenantScopes) {
-                $remoteAssignments = Get-AzRoleAssignmentsRestMethod -Scope $subscription -ApiVersion $PacEnvironment.apiVersions.roleAssignments -Tenant $PacEnvironment.managedTenantId
-                foreach ($assignment in $remoteAssignments) {
-                    #if the remote assignment is attached to a principal we are looking at then add to the known role assignments object ($roleAssignments)
-                    if ($uniquePrincipalIds.ContainsKey($assignment.properties.principalId)) {
-                        #Create object with necessary data to normalize
-                        $roleAssignmentObj = @{
-                            id          = $assignment.id
-                            name        = $assignment.name
-                            properties  = @{
-                                scope            = $assignment.properties.scope
-                                principalType    = $assignment.properties.principalType
-                                principalId      = $assignment.properties.principalId
-                                description      = $assignment.properties.description
-                                roleDefinitionId = "/" + ($assignment.properties.roleDefinitionId -split '/', 4)[3] -join '/'
-                            }
-                            displayName = ""
-                            crossTenant = $true
-                        }
-                        $null = $roleAssignments.Add($roleAssignmentObj)
-                        $DeployedPolicyResources.remoteAssignmentsCount += 1
+            # maybe throw logic in here to compare counts of role assignments 
+        $remoteAssignments = Get-AzRoleAssignmentsRestMethod -Scope $PacEnvironment.deploymentRootScope -ApiVersion $PacEnvironment.apiVersions.roleAssignments #-Tenant $PacEnvironment.tenantId
+        foreach ($assignment in $remoteAssignments) {
+            #if the remote assignment is attached to a principal we are looking at then add to the known role assignments object ($roleAssignments)
+            if ($uniquePrincipalIds.ContainsKey($assignment.properties.principalId)) {
+                #Create object with necessary data to normalize
+                $roleAssignmentObj = @{
+                    id          = $assignment.id
+                    name        = $assignment.name
+                    properties  = @{
+                        scope            = $assignment.properties.scope
+                        principalType    = $assignment.properties.principalType
+                        principalId      = $assignment.properties.principalId
+                        description      = $assignment.properties.description
+                        roleDefinitionId = "/" + ($assignment.properties.roleDefinitionId -split '/', 4)[3] -join '/'
                     }
+                    displayName = ""
+                    crossTenant = $true
                 }
+                $null = $roleAssignments.Add($roleAssignmentObj)
+                $DeployedPolicyResources.remoteAssignmentsCount += 1
             }
+        }
+        if ($DeployedPolicyResources.remoteAssignmentsCount -gt 0) {
             Write-Information "Retrieved $($DeployedPolicyResources.remoteAssignmentsCount) remote Role Assignments"  
         }
-           
+        
+
         $roleDefinitionsHt = $DeployedPolicyResources.roleDefinitions
         foreach ($roleDefinition in $roleDefinitions) {
             $roleDefinitionId = $roleDefinition.id
@@ -240,4 +235,3 @@ function Get-AzPolicyAssignments {
         }
     }
 }
-
