@@ -169,9 +169,9 @@ In CSV files, the `scope` column is still supported for backward compatibility. 
 
 In JSON files, `scope` is a string and `scopes` is an array of strings.
 
-### Subscription Pattern Matching
+### Pattern Matching
 
-You can define a pattern to match on subscriptions for scopes. This allows an exemption to add matched subscriptions or resource group names to the exempted scope. It is not dynamic i.e. if you add subscriptions or resource groups later and want to include them you would have to run the plan again.
+You can define a pattern to match on subscriptions or resource groups for scopes. This allows an exemption to add matched subscriptions or resource group names to the exempted scope. It is not dynamic i.e. if you add subscriptions or resource groups later and want to include them you would have to run the plan again.
 
 The syntax is:
 
@@ -188,6 +188,9 @@ or
   "/subscriptions/*/resourceGroups/rg-pattern-to-match"
 ]
 ```
+
+> [!TIP]
+> If you want to match against a subscriptions name, rather than it's ID, you need to use the `subscriptionsPattern` to designate the name with the wildcards.
 
 ## Combining Policy Definitions at multiple Scopes
 
