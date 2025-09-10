@@ -336,7 +336,7 @@ Again the sync process should be fairly simple as all the assignments already ex
 
 If you are using Terraform to manage ALZ policies but are planning on integrating EPAC - you must stop Terraform from managing the policies.
 
-Depending on the method of deployment for your Terraform based ALZ you can use the links below to find files which can override the default archetypes containing the polic definitions and assignments. Use these in your Terraform repo to remove its ability to manage policy.
+Depending on the method of deployment for your Terraform based ALZ you can use the links below to find files which can override the default archetypes containing the policy definitions and assignments. Use these in your Terraform repo to remove its ability to manage policy.
 
 - Azure Verified Module - avm-ptn-alz - <https://github.com/anwather/epac-removetf-avm>
 - Legacy CAF module - terraform-azurerm-caf-enterprise-scale - <https://github.com/anwather/epac-removetf>
