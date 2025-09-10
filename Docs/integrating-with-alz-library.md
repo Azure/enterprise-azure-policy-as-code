@@ -318,16 +318,25 @@ Sync-ALZPolicyFromLibrary.ps1 -DefinitionsRootFolder .\Definitions\ -Type ALZ -L
 
 The process to migrate from the legacy sync process to the new process mainly involves changed to how the assignment files are generated and maintained. If the environment structure is well-aligned to the Cloud Adoption Framework the process will be fairly seamless. For environments which aren't aligned it will present a little bit more of a challenge however the initial complexity is balanced by less maintenance in the future when synchronising.
 
-## CAF Aligned
+### *Cloud Adoption Framework Aligned*
 
 Use the process [documented here](integrating-with-alz-library.md#using-the-new-azure-landing-zone-library-sync-process).
 
 Ensure that the management groups and the parameter values are updated in the newly generated structure file. When synchronising and running the build plan changes should be fairly minimal as all the assignments already exist - but any discrepancies should be examined as to why changes are being made.
 
-## CAF Unaligned
+### *Cloud Adoption Framework Unaligned*
 
 Because the environment is not aligned to CAF - the sync process using the legacy method will already require a number of changes to the default assignment files. In this case it is best to maintain a [custom library](integrating-with-alz-library.md#using-a-custom-library-for-custom-management-group-structures).
 
 Carefully add the new archetypes to the cloned library - ensuring that all assignments are included.
 
 Again the sync process should be fairly simple as all the assignments already exist - however there will be more assignment files to manage. Setting up the custom library properly will ensure a seamless transition.
+
+### Using EPAC to manage ALZ policies in place of Terraform
+
+If you are using Terraform to manage ALZ policies but are planning on integrating EPAC - you must stop Terraform from managing the policies.
+
+Depending on the method of deployment for your Terraform based ALZ you can use the links below to find files which can override the default archetypes containing the polic definitions and assignments. Use these in your Terraform repo to remove its ability to manage policy.
+
+- Azure Verified Module - avm-ptn-alz - <https://github.com/anwather/epac-removetf-avm>
+- Legacy CAF module - terraform-azurerm-caf-enterprise-scale - <https://github.com/anwather/epac-removetf>
