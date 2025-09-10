@@ -107,7 +107,7 @@ Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type ALZ -PacEnv
 
 ### AMBA (ALZ)
 
-For users interested in deploying the [Azure Monitor Baseline Alerts](https://azure.github.io/azure-monitor-baseline-alerts/welcome/) project with EPAC - these policies have been extracted and converted to the EPAC format and are available at the [amba-export](https://github.com/anwather/amba-export) repository.
+For users interested in deploying the [Azure Monitor Baseline Alerts](https://azure.github.io/azure-monitor-baseline-alerts/welcome/) project with EPAC use the commands below.
 
 > [!Note]
 > It is recommended to review breaking changes on the [AMBA Releases](https://azure.github.io/azure-monitor-baseline-alerts/patterns/alz/HowTo/UpdateToNewReleases/) page to avoid unexpected failed policy deployments. In most cases, it's an update of a parameter type (i.e. String -> Array).
@@ -122,7 +122,7 @@ Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type AMBA -PacEn
 
 ### SLZ
 
-For users interested in deploying the [Sovereignty Policy Baseline](https://github.com/Azure/sovereign-landing-zone/blob/main/docs/scenarios/Sovereignty-Baseline-Policy-Initiatives.md) project with EPAC - these policies have been extracted and converted to the EPAC format and are available at the [spb-export](https://github.com/anwather/spb-export) repository.
+For users interested in deploying the [Sovereignty Policy Baseline](https://github.com/Azure/sovereign-landing-zone/blob/main/docs/scenarios/Sovereignty-Baseline-Policy-Initiatives.md) project with EPAC use the commands below.
 
 ```ps1
 # Create a Pac Environment default file for SLZ policies using the latest release of the ALZ Library 
