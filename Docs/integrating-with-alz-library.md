@@ -134,10 +134,7 @@ Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type SLZ -PacEnv
 
 ## Advanced Scenarios
 
-Using the format of the Azure Landing Zones repository it is possible to extend the management groups defined and provide your own archetypes. You must maintain a local copy of the library for this purpose. Details will be provided at a later stage on how to customize this for different scenarios including:
-
-- Modifying the management group structure (add new groups and archetypes)
-- Add/Remove policies from an archetype
+Using the format of the Azure Landing Zones repository it is possible to enable some advanced scenarios. Many of these are based around customisation to the recommended ALZ management group structure. It is recommended to maintain your own fork of the ALZ Library in some of these cases.
 
 ### Maintaining multiple ALZ/AMBA environments
 
