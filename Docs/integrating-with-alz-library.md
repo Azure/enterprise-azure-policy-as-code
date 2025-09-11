@@ -313,7 +313,7 @@ Sync-ALZPolicyFromLibrary.ps1 -DefinitionsRootFolder .\Definitions\ -Type ALZ -L
 
 ### Migrating from the legacy sync process to the new sync process
 
-The process to migrate from the legacy sync process to the new process mainly involves changed to how the assignment files are generated and maintained. If the environment structure is well-aligned to the Cloud Adoption Framework the process will be fairly seamless. For environments which aren't aligned it will present a little bit more of a challenge however the initial complexity is balanced by less maintenance in the future when synchronizing.
+The process to migrate from the legacy sync process to the new process mainly involves changes to how the assignment files are generated and maintained. If the environment structure is well-aligned to the Cloud Adoption Framework the process will be fairly seamless. For environments which aren't aligned it will present a little bit more of a challenge however the initial complexity is balanced by less maintenance in the future when synchronizing.
 
 ### *Cloud Adoption Framework Aligned*
 
