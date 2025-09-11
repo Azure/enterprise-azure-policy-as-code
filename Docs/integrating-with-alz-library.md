@@ -107,7 +107,7 @@ Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type ALZ -PacEnv
 
 ### AMBA (ALZ)
 
-For users interested in deploying the [Azure Monitor Baseline Alerts](https://azure.github.io/azure-monitor-baseline-alerts/welcome/) project with EPAC - these policies have been extracted and converted to the EPAC format and are available at the [amba-export](https://github.com/anwather/amba-export) repository.
+For users interested in deploying the [Azure Monitor Baseline Alerts](https://azure.github.io/azure-monitor-baseline-alerts/welcome/) project with EPAC use the commands below.
 
 > [!Note]
 > It is recommended to review breaking changes on the [AMBA Releases](https://azure.github.io/azure-monitor-baseline-alerts/patterns/alz/HowTo/UpdateToNewReleases/) page to avoid unexpected failed policy deployments. In most cases, it's an update of a parameter type (i.e. String -> Array).
@@ -122,7 +122,7 @@ Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type AMBA -PacEn
 
 ### SLZ
 
-For users interested in deploying the [Sovereignty Policy Baseline](https://github.com/Azure/sovereign-landing-zone/blob/main/docs/scenarios/Sovereignty-Baseline-Policy-Initiatives.md) project with EPAC - these policies have been extracted and converted to the EPAC format and are available at the [spb-export](https://github.com/anwather/spb-export) repository.
+For users interested in deploying the [Sovereignty Policy Baseline](https://github.com/Azure/sovereign-landing-zone/blob/main/docs/scenarios/Sovereignty-Baseline-Policy-Initiatives.md) project with EPAC use the commands below.
 
 ```ps1
 # Create a Pac Environment default file for SLZ policies using the latest release of the ALZ Library 
@@ -134,10 +134,7 @@ Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type SLZ -PacEnv
 
 ## Advanced Scenarios
 
-Using the format of the Azure Landing Zones repository it is possible to extend the management groups defined and provide your own archetypes. You must maintain a local copy of the library for this purpose. Details will be provided at a later stage on how to customize this for different scenarios including:
-
-- Modifying the management group structure (add new groups and archetypes)
-- Add/Remove policies from an archetype
+Using the format of the Azure Landing Zones repository it is possible to enable some advanced scenarios. Many of these are based around customization to the recommended ALZ management group structure. It is recommended to maintain your own fork of the ALZ Library in some of these cases.
 
 ### Maintaining multiple ALZ/AMBA environments
 
@@ -218,7 +215,7 @@ Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type ALZ -PacEnv
 
 ### Using a custom library for custom management group structures
 
-Azure environments may not always be aligned with the default management group structure suggested by Azure Landing Zones. In this case it is required to maintain your own version of the Azure Landing Zone library repository and make changes in there to the default structure. This will increase the overall complexity in maintaining synchronisation as you will have to manage any updates to the forked repository.
+Azure environments may not always be aligned with the default management group structure suggested by Azure Landing Zones. In this case it is required to maintain your own version of the Azure Landing Zone library repository and make changes in there to the default structure. This will increase the overall complexity in maintaining synchronization as you will have to manage any updates to the forked repository.
 
 In the example below it follows a typical customer customization where instead of having a corp/online management group structure it has been elected to use a non-production/production management group structure.
 
@@ -316,13 +313,13 @@ Sync-ALZPolicyFromLibrary.ps1 -DefinitionsRootFolder .\Definitions\ -Type ALZ -L
 
 ### Migrating from the legacy sync process to the new sync process
 
-The process to migrate from the legacy sync process to the new process mainly involves changed to how the assignment files are generated and maintained. If the environment structure is well-aligned to the Cloud Adoption Framework the process will be fairly seamless. For environments which aren't aligned it will present a little bit more of a challenge however the initial complexity is balanced by less maintenance in the future when synchronising.
+The process to migrate from the legacy sync process to the new process mainly involves changes to how the assignment files are generated and maintained. If the environment structure is well-aligned to the Cloud Adoption Framework the process will be fairly seamless. For environments which aren't aligned it will present a little bit more of a challenge however the initial complexity is balanced by less maintenance in the future when synchronizing.
 
 ### *Cloud Adoption Framework Aligned*
 
 Use the process [documented here](integrating-with-alz-library.md#using-the-new-azure-landing-zone-library-sync-process).
 
-Ensure that the management groups and the parameter values are updated in the newly generated structure file. When synchronising and running the build plan changes should be fairly minimal as all the assignments already exist - but any discrepancies should be examined as to why changes are being made.
+Ensure that the management groups and the parameter values are updated in the newly generated structure file. When synchronizing and running the build plan changes should be fairly minimal as all the assignments already exist - but any discrepancies should be examined as to why changes are being made.
 
 ### *Cloud Adoption Framework Unaligned*
 
