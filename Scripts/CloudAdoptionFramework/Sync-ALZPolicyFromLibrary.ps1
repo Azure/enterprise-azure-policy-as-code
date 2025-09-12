@@ -277,7 +277,7 @@ try {
     if ($CreateGuardrailAssignments -and $Type -eq "ALZ") {
         foreach ($deployment in $structureFile.enforceGuardrails.deployments) {
             foreach ($file in Get-ChildItem "$LibraryPath/platform/$($Type.ToLower())/policy_set_definitions" -Recurse -File -Include *.json) {
-                if (($file.Name -match "^Enforce-Guardrails") -and ($file.Name.Split(".")[0] -in $deployment.policy_set_names)) {
+                if (($file.Name -match "^Enforce-(Guardrails|Encryption)") -and ($file.Name.Split(".")[0] -in $deployment.policy_set_names)) {
                     $fileContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json -Depth 100
 
                     $baseTemplate = [ordered]@{
