@@ -202,7 +202,7 @@ foreach ($parameter in $policyDefaults) {
 # Build Guardrail Deployment Object
 
 if ($Type -eq "ALZ") {
-    $guardRailPolicyFileNames = Get-ChildItem $LibraryPath\platform\$($Type.ToLower())\policy_set_definitions\*.json | Where-Object { $_.Name -match "^Enforce-Guardrails-" } | Select-Object -ExpandProperty Name
+    $guardRailPolicyFileNames = Get-ChildItem $LibraryPath\platform\$($Type.ToLower())\policy_set_definitions\*.json | Where-Object { ($_.Name -match "^Enforce-(Guardrails|Encryption)-") } | Select-Object -ExpandProperty Name
     $policySetNames = $guardRailPolicyFileNames | Foreach-Object { $_.Split(".")[0] }
     $obj = @{
         policy_set_names = $policySetNames
