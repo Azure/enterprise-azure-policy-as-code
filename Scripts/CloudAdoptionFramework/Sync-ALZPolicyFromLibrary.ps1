@@ -284,7 +284,7 @@ try {
                         "`$schema"      = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json"
                         nodeName        = "$($fileContent.name)"
                         assignment      = [ordered]@{
-                            name        = $fileContent.Name -replace "Enforce-Guardrails", "GR"
+                            name        = $fileContent.Name -replace "Enforce-Guardrails", "GR" -replace "Enforce-Encryption", "EN"
                             displayName = $fileContent.properties.displayName
                             description = $fileContent.properties.description
                         }
