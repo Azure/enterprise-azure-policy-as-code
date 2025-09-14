@@ -1,0 +1,21 @@
+name: Check ALZ Release
+
+on:
+    workflow_dispatch:
+
+permissions:
+    issues: write
+
+jobs:
+    check-and-create-issue:
+        runs-on: windows-latest
+        steps:
+            - name: Run Script
+              shell: pwsh
+              run: |
+                $response = ((iwr "https://api.github.com/repos/Azure/Azure-Landing-Zones-Library/releases/latest").Content | ConvertFrom-Json | Select-Object -ExpandProperty published_at) -gt (Get-Date).AddDays(-1)
+                echo "response=$response" >> $GITHUB_OUTPUT
+            - name: Create Issue
+              if: ${{ steps.run-script.outputs.response == 'True' }}
+              run: |
+                gh issue create --title "New ALZ Release Published" --body "A new release has been published in the Azure Landing Zones Library. Please review and update the Enterprise-Scale Policy as Code library accordingly."
