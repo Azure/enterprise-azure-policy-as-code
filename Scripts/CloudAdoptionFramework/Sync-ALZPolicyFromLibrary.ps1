@@ -154,7 +154,7 @@ catch {
 try {
     foreach ($file in Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/archetype_definitions" -Recurse -File -Include *.json) {
         $archetypeContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
-        foreach ($requiredAssignment in $archetypeContent.policy_assignments) {
+        foreach ($requiredAssignment in ($archetypeContent.policy_assignments | Where-Object { ($_ -notmatch "^Enforce-(GR|Encrypt)-\w+0") })) {
             switch ($Type) {
                 "ALZ" { $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_assignments" | Where-Object { $_.BaseName.Split(".")[0] -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json }
                 "AMBA" { $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_assignments" | Where-Object { $_.BaseName.Split(".")[0].Replace("_", "-") -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json }
@@ -277,14 +277,14 @@ try {
     if ($CreateGuardrailAssignments -and $Type -eq "ALZ") {
         foreach ($deployment in $structureFile.enforceGuardrails.deployments) {
             foreach ($file in Get-ChildItem "$LibraryPath/platform/$($Type.ToLower())/policy_set_definitions" -Recurse -File -Include *.json) {
-                if (($file.Name -match "^Enforce-Guardrails") -and ($file.Name.Split(".")[0] -in $deployment.policy_set_names)) {
+                if (($file.Name -match "^Enforce-(Guardrails|Encryption)-") -and ($file.Name.Split(".")[0] -in $deployment.policy_set_names)) {
                     $fileContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json -Depth 100
 
                     $baseTemplate = [ordered]@{
                         "`$schema"      = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json"
                         nodeName        = "$($fileContent.name)"
                         assignment      = [ordered]@{
-                            name        = $fileContent.Name -replace "Enforce-Guardrails", "GR"
+                            name        = $fileContent.Name -replace "Enforce-Guardrails", "GR" -replace "Enforce-Encryption", "EN"
                             displayName = $fileContent.properties.displayName
                             description = $fileContent.properties.description
                         }
