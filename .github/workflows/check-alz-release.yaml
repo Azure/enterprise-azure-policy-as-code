@@ -1,0 +1,27 @@
+name: Check ALZ Release
+
+on:
+    schedule:
+        - cron: '0 8 * * *'  # Every day at 8 AM
+permissions:
+    issues: write
+
+jobs:
+    check-and-create-issue:
+        runs-on: windows-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Run Script
+              id: run-script
+              shell: pwsh
+              run: |
+                $response = ((iwr "https://api.github.com/repos/Azure/Azure-Landing-Zones-Library/releases/latest").Content | ConvertFrom-Json | Select-Object -ExpandProperty published_at) -gt (Get-Date).AddDays(-1)
+                Write-Output $response
+                echo "response=$response" >> $env:GITHUB_OUTPUT
+            - name: Create Issue
+              if: ${{ steps.run-script.outputs.response == 'True' }}
+              run: |
+                gh issue create --title "New ALZ Release Published" --body "A new release has been published in the Azure Landing Zones Library. Please review and update the Enterprise-Scale Policy as Code library accordingly."
+              env:
+                GH_TOKEN: ${{ github.token }}
