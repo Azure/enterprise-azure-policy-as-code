@@ -15,7 +15,7 @@ jobs:
               run: |
                 $response = ((iwr "https://api.github.com/repos/Azure/Azure-Landing-Zones-Library/releases/latest").Content | ConvertFrom-Json | Select-Object -ExpandProperty published_at) -gt (Get-Date).AddDays(-5)
                 Write-Output $response
-                echo "response=$response" >> $GITHUB_OUTPUT
+                echo "response=$response" >> $env:GITHUB_OUTPUT
             - name: Create Issue
               if: ${{ steps.run-script.outputs.response == 'True' }}
               run: |
