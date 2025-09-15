@@ -20,3 +20,5 @@ jobs:
               if: ${{ steps.run-script.outputs.response == 'True' }}
               run: |
                 gh issue create --title "New ALZ Release Published" --body "A new release has been published in the Azure Landing Zones Library. Please review and update the Enterprise-Scale Policy as Code library accordingly."
+              env:
+                GH_TOKEN: ${{ github.token }}
