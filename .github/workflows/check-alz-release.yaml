@@ -1,7 +1,8 @@
 name: Check ALZ Release
 
 on:
-    workflow_dispatch:
+    schedule:
+        - cron: '0 8 * * *'  # Every day at 8 AM
 permissions:
     issues: write
 
@@ -15,7 +16,7 @@ jobs:
               id: run-script
               shell: pwsh
               run: |
-                $response = ((iwr "https://api.github.com/repos/Azure/Azure-Landing-Zones-Library/releases/latest").Content | ConvertFrom-Json | Select-Object -ExpandProperty published_at) -gt (Get-Date).AddDays(-5)
+                $response = ((iwr "https://api.github.com/repos/Azure/Azure-Landing-Zones-Library/releases/latest").Content | ConvertFrom-Json | Select-Object -ExpandProperty published_at) -gt (Get-Date).AddDays(-1)
                 Write-Output $response
                 echo "response=$response" >> $env:GITHUB_OUTPUT
             - name: Create Issue
