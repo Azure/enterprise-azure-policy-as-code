@@ -10,6 +10,7 @@ jobs:
         runs-on: windows-latest
         steps:
             - name: Run Script
+              id: run-script
               shell: pwsh
               run: |
                 $response = ((iwr "https://api.github.com/repos/Azure/Azure-Landing-Zones-Library/releases/latest").Content | ConvertFrom-Json | Select-Object -ExpandProperty published_at) -gt (Get-Date).AddDays(-5)
