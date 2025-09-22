@@ -212,7 +212,7 @@ function Get-AzPolicyResources {
         Write-Information "    Principal Ids         = $($numberPrincipalIds)"
         Write-Information "    With Role Assignments = $($numberPrincipalIdsWithRoleAssignments)"
         Write-Information "    Role Assignments      = $($deployedPolicyResources.numberOfRoleAssignments)"
-        if ($PacEnvironment.managingTenantId) {
+        if ($PacEnvironment.managedTenantId) {
             Write-Information "    Remote Role Assignments = $($deployedPolicyResources.remoteAssignmentsCount)"
         }
     }

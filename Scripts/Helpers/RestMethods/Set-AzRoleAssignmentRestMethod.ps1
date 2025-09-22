@@ -2,9 +2,10 @@ function Set-AzRoleAssignmentRestMethod {
     [CmdletBinding()]
     param (
         $RoleAssignment,
-        [string] $ApiVersion
+        $PacEnvironment
     )
 
+    $ApiVersion = $PacEnvironment.apiVersions.roleAssignments
     $properties = $RoleAssignment.properties
     $path = $null
     $scope = $RoleAssignment.scope
@@ -20,7 +21,7 @@ function Set-AzRoleAssignmentRestMethod {
     $body = @{
         properties = $RoleAssignment.properties
     }
-    if ($body.properties.crossTenant -eq $true) {
+    if (($body.properties.crossTenant -eq $true) -or ($null -ne $PacEnvironment.managedTenantId -and $roleAssignment.properties.description -notLike "*additional Role*")) {
         $body.properties["delegatedManagedIdentityResourceId"] = $roleassignment.assignmentId
     }
 

@@ -22,7 +22,7 @@ function Get-AzPolicyAssignments {
     $uniquePrincipalIds = @{}
     foreach ($policyResource in $policyResources) {
         $resourceTenantId = $policyResource.tenantId
-        if ($resourceTenantId -in @($null, "", $environmentTenantId)) {
+        if (($resourceTenantId -in @($null, "", $environmentTenantId)) -or $null -ne $PacEnvironment.managedTenantId) {
             $id = $policyResource.id
             $testId = $id
             $properties = Get-PolicyResourceProperties $policyResource
@@ -151,9 +151,8 @@ function Get-AzPolicyAssignments {
             $null = $roleDefinitions.AddRange($roleDefinitionsLocal)
         }
             
-        if ($null -ne $PacEnvironment.managingTenantId) {
-            foreach ($subscription in $PacEnvironment.managingTenantRootScope) {
-                $remoteAssignments = Get-AzRoleAssignmentsRestMethod -Scope $subscription -ApiVersion $PacEnvironment.apiVersions.roleAssignments -Tenant $PacEnvironment.managingTenantId
+        if ($null -ne $PacEnvironment.managedTenantId) {
+                $remoteAssignments = Get-AzRoleAssignmentsRestMethod -Scope $PacEnvironment.deploymentRootScope -ApiVersion $PacEnvironment.apiVersions.roleAssignments -Tenant $PacEnvironment.managedTenantId
                 foreach ($assignment in $remoteAssignments) {
                     #if the remote assignment is attached to a principal we are looking at then add to the known role assignments object ($roleAssignments)
                     if ($uniquePrincipalIds.ContainsKey($assignment.properties.principalId)) {
@@ -175,8 +174,7 @@ function Get-AzPolicyAssignments {
                         $DeployedPolicyResources.remoteAssignmentsCount += 1
                     }
                 }
-            }
-            Write-Information "Retrieved $($DeployedPolicyResources.remoteAssignmentsCount) remote Role Assignments"  
+            Write-Information "Retrieved $($DeployedPolicyResources.remoteAssignmentsCount) remote/managed Role Assignments"  
         }
            
         $roleDefinitionsHt = $DeployedPolicyResources.roleDefinitions

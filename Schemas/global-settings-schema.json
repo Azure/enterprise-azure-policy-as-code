@@ -32,21 +32,8 @@
                     "managedIdentityLocation": {
                         "type": "string"
                     },
-                    "managingTenant": {
-                        "type": "array",
-                        "item": [
-                            {
-                                "managingTenantId": "string"
-                            },
-                            {
-                                "managingTenantRootScopes": "array"
-                            }
-                        ],
-                        "additionalProperties": false,
-                        "required": [
-                            "managingTenantId",
-                            "managingTenantRootScopes"
-                        ]
+                    "managedTenantId": {
+                        "type": "string"
                     },
                     "deploymentRootScope": {
                         "type": "string"
