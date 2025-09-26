@@ -84,7 +84,7 @@
         "questionIncrement": 1,
         "displayText": "Modify Names for CAF3 Hierarchy in Primary Tenant - Prefix",
         "bodyHeader": "Add a prefix to apply to Management Groups created in the Main Tenant Intermediate Root Management Group hierarchy.",
-        "bodyText": "In order to prevent naming collisions, a prefix and/or suffix can be specified in order to help ensure a unique name value. For Example, a prefix of 'New' would result in the 'Sandbox' Managment Group being updated to 'NewSandbox'",
+        "bodyText": "In order to prevent naming collisions, a prefix and/or suffix can be specified in order to help ensure a unique name value. For Example, a prefix of 'New' would result in the 'Sandbox' Management Group being updated to 'NewSandbox'",
         "dataRequest": "Please input a prefix for the Caf3Hierarchy that will be created in the primary tenant intermediate root group...",
         "links": [
             "https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/design-area/resource-org-management-groups#management-groups-in-the-azure-landing-zone-accelerator-and-alz-bicep-repository"
@@ -98,7 +98,7 @@
         "questionIncrement": 2,
         "displayText": "Modify Names for CAF3 Hierarchy in Primary Tenant - Suffix",
         "bodyHeader": "If desired, add a suffix to apply to Management Groups created in the Main Tenant Intermediate Root Management Group hierarchy.",
-        "bodyText": "In order to prevent naming collisions, a prefix and/or suffix can be specified in order to help ensure a unique name value. For Example, a suffix of 'Caf' would result in the 'SandboxCaf' Managment Group being updated to 'Sandbox-epac'",
+        "bodyText": "In order to prevent naming collisions, a prefix and/or suffix can be specified in order to help ensure a unique name value. For Example, a suffix of 'Caf' would result in the 'SandboxCaf' Management Group being updated to 'Sandbox-epac'",
         "dataRequest": "Please input a suffix for the Caf3Hierarchy that will be created in the primary tenant intermediate root group...",
         "links": [
             "https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/design-area/resource-org-management-groups#management-groups-in-the-azure-landing-zone-accelerator-and-alz-bicep-repository"
@@ -159,7 +159,7 @@
         "questionIncrement": 1,
         "displayText": "Modify Names for EPAC Environment - Prefix",
         "bodyHeader": "Add a prefix to apply to Management Groups created to mimic the Main Tenant Intermediate Root Management Group hierarchy",
-        "bodyText": "This management group hierarchy will be used to test deployments for the Main Tenant Intermediate Root Management Group hierarchy. In order to prevent naming collisions, a prefix and/or suffix can be specified in order to help ensure a unique name value.For Example, a prefix of 'epac-' would result in the 'Sandbox' Managment Group being updated to 'epac-Sandbox'",
+        "bodyText": "This management group hierarchy will be used to test deployments for the Main Tenant Intermediate Root Management Group hierarchy. In order to prevent naming collisions, a prefix and/or suffix can be specified in order to help ensure a unique name value.For Example, a prefix of 'epac-' would result in the 'Sandbox' Management Group being updated to 'epac-Sandbox'",
         "dataRequest": "Please input a prefix for the EPAC Hierarchy that will be created to support pipeline operations...",
         "links": [
             "https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/design-area/resource-org-management-groups#management-groups-in-the-azure-landing-zone-accelerator-and-alz-bicep-repository",
@@ -175,7 +175,7 @@
         "questionIncrement": 2,
         "displayText": "Modify Names for EPAC Environment - Suffix",
         "bodyHeader": "Choose a suffix and/or prefix to apply to the EPAC Development Management Group hierarchy",
-        "bodyText": "This management group hierarchy will be used to test deployments for the Main Tenant Intermediate Root Management Group hierarchy. In order to prevent naming collisions, a prefix and/or suffix MUST be specified in order to help ensure a unique name value. For Example, a suffix of '-epacdev' would result in the 'Sandbox' Managment Group being updated to 'Sandbox-epacdev' in the EPAC development envirnoment.",
+        "bodyText": "This management group hierarchy will be used to test deployments for the Main Tenant Intermediate Root Management Group hierarchy. In order to prevent naming collisions, a prefix and/or suffix MUST be specified in order to help ensure a unique name value. For Example, a suffix of '-epacdev' would result in the 'Sandbox' Management Group being updated to 'Sandbox-epacdev' in the EPAC development envirnoment.",
         "dataRequest": "Please input a suffix for the EPAC Hierarchy that will be created to support pipeline operations...",
         "links": [
             "https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/design-area/resource-org-management-groups#management-groups-in-the-azure-landing-zone-accelerator-and-alz-bicep-repository",

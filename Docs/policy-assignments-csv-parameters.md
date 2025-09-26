@@ -16,7 +16,7 @@ To address the problem of reading and maintaining hundreds or thousands of JSON 
 
 ### From a list of deployed Policy Assignments
 
-If you want to switch from JSON to CSV or start EPAC from an existing deployment, [generate this CSV file frm your already deployed Assignment(s)](operational-scripts-documenting-policy.md#assignment-documentation).
+If you want to switch from JSON to CSV or start EPAC from an existing deployment, [generate this CSV file from your already deployed Assignment(s)](operational-scripts-documenting-policy.md#assignment-documentation).
 
 ## CSV File
 

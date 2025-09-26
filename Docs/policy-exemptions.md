@@ -38,7 +38,7 @@ Exemption_00000000000001,My display Name,Mitigated,,,,,,
 
 ## Exemption Folder Structure
 
-Exemptions can be defined as JSON or CSV files (we recommend that you use JSON files). The names of the definition files don't matter. If multiple files exists in a folder, the lists from all the files are added together.
+Exemptions can be defined as JSON or CSV files (we recommend that you use JSON files). The names of the definition files don't matter. If multiple files exist in a folder, the lists from all the files are added together.
 
 The pacEnvironment (see global-settings.jsonc) is represented with a folder structure under the folder policyExemptions, such as epac-dev, tenant, ... A missing folder indicates that the pacEnvironment's Exemptions are not managed by this solution. To extract existing exemptions, the operations script Get-AzExemptions.ps1 can be used to generate JSON and CSV files. The output may be used to start the Exemption definitions. This same output is also created when [Extract existing Policy Resources from an Environment](epac-extracting-policy-resources.md).
 
