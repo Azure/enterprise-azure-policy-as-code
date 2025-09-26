@@ -4,7 +4,8 @@ function Get-PolicyAssignmentsDetails {
         [array] $AssignmentArray,
         [string] $PacEnvironmentSelector,
         [hashtable] $PolicyResourceDetails,
-        [hashtable] $CachedAssignmentsDetails
+        [hashtable] $CachedAssignmentsDetails,
+        [switch] $StrictMode
     )
 
     $assignmentsDetailsHt = @{}
@@ -44,7 +45,13 @@ function Get-PolicyAssignmentsDetails {
                     $null = $assignmentsDetailsHt.Add($assignmentId, $combinedDetail)
                 }
                 else {
-                    Write-Error "Assignment '$assignmentId' uses an unknown Policy Set '$($policySetId)'. This should not be possible!" -ErrorAction Stop
+                    if ($StrictMode) {
+                        Write-Error "Assignment '$assignmentId' uses an unknown Policy Set '$($policySetId)'. This should not be possible!" -ErrorAction Stop
+                    }
+                    else {
+                        Write-Warning "Assignment '$assignmentId' uses an unknown Policy Set '$($policySetId)'. Skipping this assignment."
+                        continue
+                    }
                 }
                 
                 $entry = @{
@@ -55,11 +62,23 @@ function Get-PolicyAssignmentsDetails {
                 }
             }
             elseif ($policySetId.Contains("policyDefinitions", [StringComparison]::InvariantCultureIgnoreCase)) {
-                $combinedDetail = Get-DeepCloneAsOrderedHashtable $policiesDetails.$policySetId
-                $combinedDetail.assignmentId = $assignmentId
-                $combinedDetail.assignment = $assignment
-                $combinedDetail.policyDefinitionId = $policySetId
-                $null = $assignmentsDetailsHt.Add($assignmentId, $combinedDetail)
+                # Policy Definition
+                if ($policiesDetails.ContainsKey($policySetId)) {
+                    $combinedDetail = Get-DeepCloneAsOrderedHashtable $policiesDetails.$policySetId
+                    $combinedDetail.assignmentId = $assignmentId
+                    $combinedDetail.assignment = $assignment
+                    $combinedDetail.policyDefinitionId = $policySetId
+                    $null = $assignmentsDetailsHt.Add($assignmentId, $combinedDetail)
+                }
+                else {
+                    if ($StrictMode) {
+                        Write-Error "Assignment '$assignmentId' uses an unknown Policy Definition '$($policySetId)'. This should not be possible!" -ErrorAction Stop
+                    }
+                    else {
+                        Write-Warning "Assignment '$assignmentId' uses an unknown Policy Definition '$($policySetId)'. Skipping this assignment."
+                        continue
+                    }
+                }
                 $entry = @{
                     shortName          = $shortName
                     itemId             = $assignmentId

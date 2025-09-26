@@ -380,7 +380,7 @@ function Out-DocumentationForPolicyAssignments {
                                 $hasParameters = $true
                                 $markdownMaxParameterLength = 42
                                 if ($DocumentationSpecification.markdownMaxParameterLength) {
-                                    $markdownMaxParameterLength = $DocumentationSpecification.markdownMaxParameterLength
+                                    $markdownMaxParameterLength = [int]($DocumentationSpecification.markdownMaxParameterLength | Select-Object -First 1)
                                     if ($markdownMaxParameterLength -lt 16) {
                                         Write-Error "markdownMaxParameterLength must be at least 16; it is $markdownMaxParameterLength" -ErrorAction Stop
                                     }

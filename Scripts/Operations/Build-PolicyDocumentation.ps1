@@ -20,6 +20,9 @@
 .PARAMETER IncludeManualPolicies
     Include Policies with effect Manual. Default: do not include Policies with effect Manual.
 
+.PARAMETER StrictMode
+    When enabled (default), the script will fail with an error if Policy Definitions referenced by assignments are not found. When disabled, shows warnings and continues.
+
 .EXAMPLE
     Build-PolicyDocumentation.ps1 -DefinitionsRootFolder "C:\PAC\Definitions" -OutputFolder "C:\PAC\Output" -Interactive
     Builds documentation from instructions in policyDocumentations folder reading the deployed Policy Resources from the EPAC environment.
@@ -31,6 +34,10 @@
 .EXAMPLE
     Build-PolicyDocumentation.ps1 -DefinitionsRootFolder "C:\PAC\Definitions" -OutputFolder "C:\PAC\Output" -Interactive -SuppressConfirmation
     Builds documentation from instructions in policyDocumentations folder reading the deployed Policy Resources from the EPAC environment. The script prompts for the PAC environment and uses the default definitions and output folders. It suppresses prompt for confirmation to delete existing file in interactive mode.
+
+.EXAMPLE
+    Build-PolicyDocumentation.ps1 -StrictMode:$false
+    Builds documentation in non-strict mode. The script will show warnings and continue if any Policy Definitions referenced by assignments are not found, instead of failing with an error.
 
 .LINK
     https://azure.github.io/enterprise-azure-policy-as-code/#deployment-scripts
@@ -64,7 +71,10 @@ param (
     [string] $pacSelector,
 
     [parameter(Mandatory = $false, HelpMessage = "Will only document assignments that are managed by your defined PAC Owner", Position = 0)]
-    [switch] $OnlyCheckManagedAssignments
+    [switch] $OnlyCheckManagedAssignments,
+
+    [parameter(Mandatory = $false, HelpMessage = "When enabled (default), the script will fail with an error if Policy Definitions referenced by assignments are not found. When disabled, shows warnings and continues.")]
+    [switch] $StrictMode = $true
 )
 
 # Dot Source Helper Scripts
@@ -298,7 +308,8 @@ foreach ($file in $files) {
                     -PacEnvironmentSelector $currentPacEnvironmentSelector `
                     -AssignmentArray $assignmentArray `
                     -PolicyResourceDetails $policyResourceDetails `
-                    -CachedAssignmentsDetails $cachedAssignmentsDetails
+                    -CachedAssignmentsDetails $cachedAssignmentsDetails `
+                    -StrictMode:$StrictMode
 
                 # Flatten Policy lists in Assignments and reconcile the most restrictive effect for each Policy
                 $flatPolicyList = Convert-PolicyResourcesDetailsToFlatList `
@@ -489,7 +500,8 @@ foreach ($file in $files) {
                     -PacEnvironmentSelector $currentPacEnvironmentSelector `
                     -AssignmentArray $assignmentArray `
                     -PolicyResourceDetails $policyResourceDetails `
-                    -CachedAssignmentsDetails $cachedAssignmentsDetails
+                    -CachedAssignmentsDetails $cachedAssignmentsDetails `
+                    -StrictMode:$StrictMode
 
                 # Remove entries if not managed by PAC
                 if ($OnlyCheckManagedAssignments) {
