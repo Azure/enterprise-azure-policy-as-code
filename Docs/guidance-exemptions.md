@@ -37,7 +37,7 @@ In these cases, find each listing for affected assignments in the CSV/JSON file,
 
 1. Export Current Exemptions for pacSelector
 1. Update Content
-    1. Replace Root Management Group Name (Tenant GUID) with current assignment location (Tenant Intermediate Root Management Group Name):
+    1. Replace Root Management Group Name (Tenant GUID) with current assignment location (Tenant Intermediate Root management Group Name):
         1. ```"policyAssignmentId"```
         1. Epac Managed Exemptions: ```metadata\epacMetadata\"policyAssignmentId"```
     1. Replace temporary pacSelector with main pacSelector:
