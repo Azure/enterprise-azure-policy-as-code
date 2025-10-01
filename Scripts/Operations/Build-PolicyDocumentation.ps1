@@ -383,8 +383,30 @@ foreach ($file in $files) {
 
             # Create artificial Environment Categories based on Assignment Scope
             $environmentCategories = @()
+            
+            # Get the current documentAllAssignments configuration (could be object or array)
+            $currentConfig = $documentationSpec.documentAssignments.documentAllAssignments
+            if ($currentConfig -is [array]) {
+                $excludeScopeTypes = $currentConfig[0].excludeScopeTypes
+            } else {
+                $excludeScopeTypes = $currentConfig.excludeScopeTypes
+            }
+            
+            Write-Information "DEBUG: excludeScopeTypes = $($excludeScopeTypes -join ', ')"
+            Write-Information "DEBUG: currentConfig type = $($currentConfig.GetType().Name)"
+            
             foreach ($key in $policyResourceDetails.policyAssignments.keys) {
-                if ($environmentCategories.environmentCategory -notContains ($policyResourceDetails.policyAssignments.$key.scopeDisplayName)) {
+                $scopeType = $policyResourceDetails.policyAssignments.$key.scopeType
+                
+                # Check if this scopeType should be excluded
+                $shouldExcludeScope = $false
+                if ($null -ne $excludeScopeTypes -and $scopeType -in $excludeScopeTypes) {
+                    $shouldExcludeScope = $true
+                    Write-Information "DEBUG: Excluding assignment $key with scopeType: $scopeType"
+                }
+                
+                if (-not $shouldExcludeScope -and $environmentCategories.environmentCategory -notContains ($policyResourceDetails.policyAssignments.$key.scopeDisplayName)) {
+                    Write-Information "DEBUG: Including assignment $key with scopeType: $scopeType, scopeDisplayName: $($policyResourceDetails.policyAssignments.$key.scopeDisplayName)"
                     $environmentCategories += New-Object PSObject -Property @{
                         pacEnvironment            = $pacEnvironmentSelector
                         environmentCategory       = $policyResourceDetails.policyAssignments.$key.scopeDisplayName
@@ -398,13 +420,33 @@ foreach ($file in $files) {
             # Assignment by environmentCategory
             foreach ($environment in $environmentCategories) {
                 foreach ($key in $policyResourceDetails.policyAssignments.keys) {
+                    $scopeType = $policyResourceDetails.policyAssignments.$key.scopeType
+                    
+                    # Get the current documentAllAssignments configuration (could be object or array)
+                    $currentConfig = $documentationSpec.documentAssignments.documentAllAssignments
+                    if ($currentConfig -is [array]) {
+                        $excludeScopeTypes = $currentConfig[0].excludeScopeTypes
+                        $skipPolicyAssignments = $currentConfig[0].skipPolicyAssignments
+                        $skipPolicyDefinitions = $currentConfig[0].skipPolicyDefinitions
+                    } else {
+                        $excludeScopeTypes = $currentConfig.excludeScopeTypes
+                        $skipPolicyAssignments = $currentConfig.skipPolicyAssignments
+                        $skipPolicyDefinitions = $currentConfig.skipPolicyDefinitions
+                    }
+                    
+                    # Check if this scopeType should be excluded
+                    $shouldExcludeScope = $false
+                    if ($null -ne $excludeScopeTypes -and $scopeType -in $excludeScopeTypes) {
+                        $shouldExcludeScope = $true
+                    }
+                    
                     # Validate the categories match to the populate with an assignment
-                    if ($environment.environmentCategory -eq $policyResourceDetails.policyAssignments.$key.scopeDisplayName) {   
+                    if (-not $shouldExcludeScope -and $environment.environmentCategory -eq $policyResourceDetails.policyAssignments.$key.scopeDisplayName) {   
                         # Validate it is not in our list of skipAssignments
-                        if ($key -notin $documentationSpec.documentAssignments.documentAllAssignments.skipPolicyAssignments) {
+                        if ($key -notin $skipPolicyAssignments) {
                             $defID = $policyResourceDetails.policyAssignments.$key.properties.policyDefinitionId
                             # Validate it is not in our list of skipPolicyDefinitions
-                            if ($defID -notin $documentationSpec.documentAssignments.documentAllAssignments.skipPolicyDefinitions) {
+                            if ($defID -notin $skipPolicyDefinitions) {
                                 $suffix = [guid]::NewGuid().Guid.split("-")[0]
                                 $environment.representativeAssignments += New-Object PSObject -Property @{
                                     shortName = $policyResourceDetails.policyAssignments.$key.name + "_" + $suffix
