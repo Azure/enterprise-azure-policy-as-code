@@ -2,7 +2,7 @@ Param(
     [Parameter(Mandatory = $true)]
     [string] $DefinitionsRootFolder,
 
-    [ValidateSet("ALZ", "AMBA")]
+    [ValidateSet('ALZ', 'FSI', 'AMBA', 'SLZ')]
     [string] $Type = "ALZ",
  
     [Parameter(Mandatory = $true)]
