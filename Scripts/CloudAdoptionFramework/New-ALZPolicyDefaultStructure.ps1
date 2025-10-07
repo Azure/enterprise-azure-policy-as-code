@@ -149,11 +149,17 @@ foreach ($parameter in $policyDefaults) {
         $assignment = $parameter.policy_assignments[0]
 
         $assignmentFileName = ("$($assignment.policy_assignment_name).alz_policy_assignment.json")
-        if ($Type -eq "AMBA") {
+        if ($Type -in ("AMBA", "SLZ", "FSI")) {
             $assignmentFileName = $assignmentFileName -replace ("-", "_")
         }
         $file = Get-ChildItem -Recurse -Path $LibraryPath -Filter "$assignmentFileName" -File | Select-Object -First 1
-        $jsonContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
+        try {
+            $jsonContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
+        }
+        catch {
+            Write-Warning "Could not find assignment file: $assignmentFileName"
+            continue
+        }
         $tempDefaultParamValue = $jsonContent.properties.parameters.$parameterAssignmentName.value
     
         $obj = @(
@@ -180,7 +186,13 @@ foreach ($parameter in $policyDefaults) {
                 $assignmentFileName = $assignmentFileName -replace ("-", "_")
             }
             $file = Get-ChildItem -Recurse -Path $LibraryPath -Filter "$assignmentFileName" -File | Select-Object -First 1
-            $jsonContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
+            try {
+                $jsonContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
+            }
+            catch {
+                Write-Warning "Could not find assignment file: $assignmentFileName"
+                continue
+            }
             $tempDefaultParamValue = $jsonContent.properties.parameters.$parameterAssignmentName.value
     
             $obj = @(

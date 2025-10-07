@@ -2,7 +2,7 @@ Param(
     [Parameter(Mandatory = $true)]
     [string] $DefinitionsRootFolder,
 
-    [ValidateSet("ALZ", "AMBA")]
+    [ValidateSet("ALZ", "AMBA", "FSI", "SLZ")]
     [string] $Type = "ALZ",
  
     [Parameter(Mandatory = $true)]
@@ -158,6 +158,8 @@ try {
             switch ($Type) {
                 "ALZ" { $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_assignments" | Where-Object { $_.BaseName.Split(".")[0] -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json }
                 "AMBA" { $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_assignments" | Where-Object { $_.BaseName.Split(".")[0].Replace("_", "-") -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json }
+                "SLZ" { $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_assignments" | Where-Object { $_.BaseName.Split(".")[0].Replace("_", "-") -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json }
+                "FSI" { $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_assignments" | Where-Object { $_.BaseName.Split(".")[0].Replace("_", "-") -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json }
                 default { $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_assignments" | Where-Object { $_.BaseName.Split(".")[0] -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json }
             }
         
@@ -207,10 +209,28 @@ try {
             if ($scopeTrim -eq "landing_zones") {
                 $scopeTrim = "landingzones"
             }
-            $scope = [ordered]@{
-                $PacEnvironmentSelector = @(
-                    $structureFile.managementGroupNameMappings.$scopeTrim.value
-                )
+            if ($scopeTrim -eq "global") {
+                $scopeTrim = "mcfs"
+            }
+            if ($Type -eq "FSI" -and $scopeTrim -ne "confidential") {
+                $scopeTrim = "fsi"
+            }
+            if ($scopeTrim -eq "confidential") {
+                $scopes = foreach ($key in $structureFile.managementGroupNameMappings.psObject.Properties.Name) {
+                    if ($structureFile.managementGroupNameMappings.$key.management_group_function -match $scopeTrim) {
+                        $structureFile.managementGroupNameMappings.$key.value
+                    }
+                }
+                $scope = [ordered]@{
+                    $PacEnvironmentSelector = $scopes
+                }
+            }
+            else {
+                $scope = [ordered]@{
+                    $PacEnvironmentSelector = @(
+                        $structureFile.managementGroupNameMappings.$scopeTrim.value
+                    )
+                }
             }
             $baseTemplate.Add("scope", $scope)
 
