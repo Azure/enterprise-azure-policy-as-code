@@ -56,7 +56,7 @@ function Out-PolicyExemptions {
         label      = "policyDefinitionReferenceIds"
         expression = {
             if ($_.policyDefinitionReferenceIds) {
-            ($_.policyDefinitionReferenceIds -join "&").ToString()
+                ($_.policyDefinitionReferenceIds -join "&").ToString()
             }
             else {
                 ''
@@ -166,6 +166,20 @@ function Out-PolicyExemptions {
                     }
                     $array.Metadata = $orderedMeta
                 }
+                # Logic to order resourceSelectors
+                if ($null -ne $array.resourceSelectors) {         
+                    $array.resourceSelectors = $array.resourceSelectors | ForEach-Object {
+                        [PSCustomObject]@{
+                            name      = $_.name
+                            selectors = ($_.selectors | ForEach-Object {
+                                    $obj = [ordered]@{ kind = $_.kind }
+                                    if ($_.in) { $obj["in"] = $_.in }
+                                    if ($_.notIn) { $obj["notIn"] = $_.notIn }
+                                    [PSCustomObject]$obj
+                                })
+                        }
+                    }
+                }
             }
             $jsonFile = "$stem.$FileExtension"
             if (Test-Path $jsonFile) {
@@ -204,6 +218,22 @@ function Out-PolicyExemptions {
                     }
                     $orderedMetadata = (ConvertTo-Json $orderedMeta -Depth 100 -Compress).ToString()
                     $array.Metadata = $orderedMetadata
+                }
+                # Logic to order resourceSelectors
+                if ($null -ne $array.resourceSelectors) {  
+                    $tempResourceSelectors = $array.resourceSelectors | ConvertFrom-Json -Depth 100       
+                    $tempResourceSelectors = $tempResourceSelectors | ForEach-Object {
+                        [PSCustomObject]@{
+                            name      = $_.name
+                            selectors = ($_.selectors | ForEach-Object {
+                                    $obj = [ordered]@{ kind = $_.kind }
+                                    if ($_.in) { $obj["in"] = $_.in }
+                                    if ($_.notIn) { $obj["notIn"] = $_.notIn }
+                                    [PSCustomObject]$obj
+                                })
+                        }
+                    }
+                    $array.resourceSelectors = (ConvertTo-Json $tempResourceSelectors -Depth 100 -Compress).ToString()
                 }
             }
             $csvFile = "$stem.csv"
@@ -258,6 +288,20 @@ function Out-PolicyExemptions {
                     }
                     $array.Metadata = $orderedMeta
                 }
+                # Logic to order resourceSelectors
+                if ($null -ne $array.resourceSelectors) {         
+                    $array.resourceSelectors = $array.resourceSelectors | ForEach-Object {
+                        [PSCustomObject]@{
+                            name      = $_.name
+                            selectors = ($_.selectors | ForEach-Object {
+                                    $obj = [ordered]@{ kind = $_.kind }
+                                    if ($_.in) { $obj["in"] = $_.in }
+                                    if ($_.notIn) { $obj["notIn"] = $_.notIn }
+                                    [PSCustomObject]$obj
+                                })
+                        }
+                    }
+                }
             }
             $jsonFile = "$stem.$FileExtension"
             if (Test-Path $jsonFile) {
@@ -298,6 +342,22 @@ function Out-PolicyExemptions {
                     }
                     $orderedMetadata = (ConvertTo-Json $orderedMeta -Depth 100 -Compress).ToString()
                     $array.Metadata = $orderedMetadata
+                }
+                # Logic to order resourceSelectors
+                if ($null -ne $array.resourceSelectors) {  
+                    $tempResourceSelectors = $array.resourceSelectors | ConvertFrom-Json -Depth 100       
+                    $tempResourceSelectors = $tempResourceSelectors | ForEach-Object {
+                        [PSCustomObject]@{
+                            name      = $_.name
+                            selectors = ($_.selectors | ForEach-Object {
+                                    $obj = [ordered]@{ kind = $_.kind }
+                                    if ($_.in) { $obj["in"] = $_.in }
+                                    if ($_.notIn) { $obj["notIn"] = $_.notIn }
+                                    [PSCustomObject]$obj
+                                })
+                        }
+                    }
+                    $array.resourceSelectors = (ConvertTo-Json $tempResourceSelectors -Depth 100 -Compress).ToString()
                 }
             }
             $csvFile = "$stem.csv"
