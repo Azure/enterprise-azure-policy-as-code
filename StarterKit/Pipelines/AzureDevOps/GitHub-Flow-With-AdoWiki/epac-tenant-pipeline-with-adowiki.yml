@@ -32,7 +32,7 @@ stages:
   - stage: Deploy
     displayName: "Deploy ${{ variables.pacEnvironmentSelector }}"
     dependsOn: Plan
-    condition: and(not(failed()), not(canceled()), or(eq(dependencies.Plan.outputs['Plan.Plan.deployPolicyChanges'], 'yes'), eq(dependencies.Plan.outputs['Plan.Plan.deployRoleChanges'], 'yes')), contains(variables['Build.SourceBranch'], 'refs/heads/main'))
+    condition: and(not(failed()), not(canceled()))
     variables:
       PAC_INPUT_FOLDER: "$(Pipeline.Workspace)/plans-${{ variables.pacEnvironmentSelector }}"
       localDeployPolicyChanges: $[stageDependencies.Plan.Plan.outputs['Plan.deployPolicyChanges']]
@@ -41,7 +41,7 @@ stages:
       - deployment: DeployPolicy
         displayName: "Deploy Policy Changes"
         environment: PAC-POLICY
-        condition: and(not(failed()), not(canceled()), eq(variables.localDeployPolicyChanges, 'yes'))
+        condition: and(not(failed()), not(canceled()), eq(variables['localDeployPolicyChanges'], 'yes'))
         strategy:
           runOnce:
             deploy:
@@ -54,7 +54,7 @@ stages:
         displayName: "Deploy Role Changes"
         dependsOn: DeployPolicy
         environment: PAC-POLICY
-        condition: and(not(failed()), not(canceled()), eq(variables.localDeployRoleChanges, 'yes'))
+        condition: and(not(failed()), not(canceled()), eq(variables['localDeployRoleChanges'], 'yes'))
         strategy:
           runOnce:
             deploy:
