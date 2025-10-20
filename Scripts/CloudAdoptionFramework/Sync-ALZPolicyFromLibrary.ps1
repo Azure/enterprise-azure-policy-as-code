@@ -120,6 +120,18 @@ foreach ($file in Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/
     }
     $baseTemplate.properties.policyDefinitions = $policyDefinitions
 
+    # Force property order
+    $orderedProps = [ordered]@{
+        description            = $baseTemplate.properties.description
+        displayName            = $baseTemplate.properties.displayName
+        metadata               = $baseTemplate.properties.metadata
+        parameters             = $baseTemplate.properties.parameters
+        policyDefinitions      = $baseTemplate.properties.policyDefinitions
+        policyType             = $baseTemplate.properties.policyType
+        policyDefinitionGroups = $baseTemplate.properties.policyDefinitionGroups
+    }
+    $baseTemplate.properties = $orderedProps
+
     $category = $baseTemplate.properties.Metadata.category
     ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace "\[\[", "[" `
         -replace "variables\('scope'\)", "'/providers/Microsoft.Management/managementGroups/$managementGroupId'" `
