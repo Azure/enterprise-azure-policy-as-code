@@ -171,10 +171,10 @@ function Get-AzPolicyAssignments {
                             crossTenant = $true
                         }
                         $null = $roleAssignments.Add($roleAssignmentObj)
-                        $DeployedPolicyResources.remoteAssignmentsCount += 1
+                        $DeployedPolicyResources.lighthouseAssignmentCount += 1
                     }
                 }
-            Write-Information "Retrieved $($DeployedPolicyResources.remoteAssignmentsCount) remote/managed Role Assignments"  
+            Write-Information "Retrieved $($DeployedPolicyResources.lighthouseAssignmentCount) Lighthouse Role Assignments"  
         }
            
         $roleDefinitionsHt = $DeployedPolicyResources.roleDefinitions
