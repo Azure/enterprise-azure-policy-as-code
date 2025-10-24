@@ -21,8 +21,10 @@ function Set-AzRoleAssignmentRestMethod {
     $body = @{
         properties = $RoleAssignment.properties
     }
-    if (($body.properties.crossTenant -eq $true) -or ($null -ne $PacEnvironment.managedTenantId -and $roleAssignment.properties.description -notLike "*additional Role*")) {
-        $body.properties["delegatedManagedIdentityResourceId"] = $roleassignment.assignmentId
+
+    $skipCondition = ($null -ne $PacEnvironment.managedTenantId -and $body.properties.crossTenant -eq $true)
+    if ((($body.properties.crossTenant -eq $true) -or ($null -ne $PacEnvironment.managedTenantId)) -and (-not $skipCondition)) { #-or ($null -ne $PacEnvironment.managedTenantId -and SOMETHING ELSE TO KNOW THE ASSIGNMENT IS GOING ACROSS)...... -and $roleAssignment.properties.description -notLike "*additional Role*")) {
+         $body.properties["delegatedManagedIdentityResourceId"] = $roleassignment.assignmentId
     }
 
 
