@@ -477,6 +477,10 @@ If you use single `definitionEntry`, place them normally. If you use a `definiti
 "enforcementMode": "DoNotEnforce",
 ```
 
+### Azure Virtual Network Manager policies
+
+When using EPAC to manage policy assignments for AVNM ensure that assignments have a `displayName` field before deploying. By default when exporting AVNM policies this field is null and a value must be provided before the assignment can be managed using EPAC. Adding a `displayName` does not affect the functionality of AVNM.
+
 ## Example assignment files
 
 ### Simple Policy Assignment (Allowed Locations)
