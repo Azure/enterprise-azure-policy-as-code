@@ -31,18 +31,29 @@ param (
     [string] $PipelinesFolder = "",
 
     [Parameter(Mandatory = $false, HelpMessage = "Type of DevOps pipeline to create AzureDevOps or GitHubActions?")]
-    [ValidateSet("AzureDevOps", "GitHubActions")]
+    [ValidateSet("AzureDevOps", "GitHubActions", "GithubActions")]
     # [string] $PipelineType = "AzureDevOps",
     [string] $PipelineType = "GitHubActions",
 
     [Parameter(Mandatory = $false, HelpMessage = "Implementing branching flow Release or GitHub")]
-    [ValidateSet("Release", "GitHub")]
+    [ValidateSet("Release", "GitHub", "Github")]
     [string] $BranchingFlow = "Release",
 
     [Parameter(Mandatory = $false, HelpMessage = "Using Powershell module or script?")]
-    [ValidateSet("Module", "Scripts")]
+    [ValidateSet("Module", "Scripts", "LocalScript")]
     [string] $ScriptType = "Module"
 )
+
+# Normalize parameter values for backward compatibility
+if ($PipelineType -eq "GithubActions") {
+    $PipelineType = "GitHubActions"
+}
+if ($BranchingFlow -eq "Github") {
+    $BranchingFlow = "GitHub"
+}
+if ($ScriptType -eq "LocalScript") {
+    $ScriptType = "Scripts"
+}
 
 if (!(Test-Path $StarterKitFolder)) {
     Write-Error "Starter kit folder not found"
