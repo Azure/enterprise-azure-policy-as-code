@@ -1,2 +1,6 @@
 Output/
 site/
+Module/EnterprisePolicyAsCode/functions/
+Module/EnterprisePolicyAsCode/internal/
+Module/EnterprisePolicyAsCode/policyAssignments/
+Module/EnterprisePolicyAsCode/*.psd1
