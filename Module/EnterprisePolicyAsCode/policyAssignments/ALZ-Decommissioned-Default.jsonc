@@ -1,0 +1,43 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
+    "nodeName": "/Decommissioned/",
+    "scope": {
+        "tenant1": [ // Replace with your EPAC environment name and validate the management group listed below exists
+            "/providers/Microsoft.Management/managementGroups/decommissioned"
+        ]
+    },
+    "children": [
+        {
+            "nodeName": "Guardrails",
+            "assignment": {
+                "name": "Enforce-ALZ-Decomm",
+                "displayName": "Enforce ALZ Decommissioned Guardrails",
+                "description": "This initiative will help enforce and govern subscriptions that are placed within the decommissioned Management Group as part of your Subscription decommissioning process. See https://aka.ms/alz/policies for more information."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-ALZ-Decomm"
+            },
+            "parameters": {
+                "listOfResourceTypesAllowed": [
+                    "microsoft.consumption/tags",
+                    "microsoft.authorization/roleassignments",
+                    "microsoft.authorization/roledefinitions",
+                    "microsoft.authorization/policyassignments",
+                    "microsoft.authorization/locks",
+                    "microsoft.authorization/policydefinitions",
+                    "microsoft.authorization/policysetdefinitions",
+                    "microsoft.resources/tags",
+                    "microsoft.authorization/roleeligibilityschedules",
+                    "microsoft.authorization/roleeligibilityscheduleinstances",
+                    "microsoft.authorization/roleassignmentschedules",
+                    "microsoft.authorization/roleassignmentscheduleinstances"
+                ]
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "ALZ Decommissioned Guardrails must be enforced."
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,473 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
+    "nodeName": "Guardrails",
+    "scope": {
+        "tenant1": [ // Replace with your EPAC environment name and validate the management group listed below exists
+            // By default in the portal experience the landing zones and platform management groups receive these policy assignments. Adjust as required.
+            "/providers/Microsoft.Management/managementGroups/landingzones",
+            "/providers/Microsoft.Management/managementGroups/platform"
+        ]
+    },
+    "children": [
+        {
+            "nodeName": "APIM",
+            "assignment": {
+                "name": "Enforce-GR-APIM",
+                "displayName": "Enforce recommended guardrails for API Management",
+                "description": "This initiative assignment enables additional ALZ guardrails for API Management."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-APIM",
+                "displayName": "Enforce recommended guardrails for API Management"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for API Management"
+                }
+            ]
+        },
+        {
+            "nodeName": "AppServices",
+            "assignment": {
+                "name": "Enforce-GR-AppServices",
+                "displayName": "Enforce recommended guardrails for App Services",
+                "description": "This initiative assignment enables additional ALZ guardrails for App Services."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-AppServices",
+                "displayName": "Enforce recommended guardrails for App Services"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for App Services"
+                }
+            ]
+        },
+        {
+            "nodeName": "Automation",
+            "assignment": {
+                "name": "Enforce-GR-Automation",
+                "displayName": "Enforce recommended guardrails for Automation Accounts",
+                "description": "This initiative assignment enables additional ALZ guardrails for Automation Accounts."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-Automation",
+                "displayName": "Enforce recommended guardrails for Automation Accounts"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for Automation Accounts"
+                }
+            ]
+        },
+        {
+            "nodeName": "BotServices",
+            "assignment": {
+                "name": "Enforce-GR-BotService",
+                "displayName": "Enforce recommended guardrails for Bot Service",
+                "description": "This initiative assignment enables additional ALZ guardrails for Bot Service."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-BotService",
+                "displayName": "Enforce recommended guardrails for Bot Service"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for Bot Service."
+                }
+            ]
+        },
+        {
+            "nodeName": "CogServ",
+            "assignment": {
+                "name": "Enforce-GR-CogServ",
+                "displayName": "Enforce recommended guardrails for Cognitive Services",
+                "description": "This initiative assignment enables additional ALZ guardrails for Cognitive Services."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-CognitiveServices",
+                "displayName": "Enforce recommended guardrails for Cognitive Services"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for Cognitive Services"
+                }
+            ]
+        },
+        {
+            "nodeName": "Compute",
+            "assignment": {
+                "name": "Enforce-GR-Compute",
+                "displayName": "Enforce recommended guardrails for Compute",
+                "description": "This initiative assignment enables additional ALZ guardrails for Compute."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-Compute",
+                "displayName": "Enforce recommended guardrails for Compute"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for Compute"
+                }
+            ]
+        },
+        {
+            "nodeName": "ContainerApps",
+            "assignment": {
+                "name": "Enforce-GR-ContApps",
+                "displayName": "Enforce recommended guardrails for Container Apps",
+                "description": "This initiative assignment enables additional ALZ guardrails for Container Apps."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-ContainerApps",
+                "displayName": "Enforce recommended guardrails for Container Apps"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for Container Apps"
+                }
+            ]
+        },
+        {
+            "nodeName": "ContainerInstances",
+            "assignment": {
+                "name": "Enforce-GR-ContInst",
+                "displayName": "Enforce recommended guardrails for Container Instances",
+                "description": "This initiative assignment enables additional ALZ guardrails for Container Instances."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-ContainerInstance",
+                "displayName": "Enforce recommended guardrails for Container Instances"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for Container Instances"
+                }
+            ]
+        },
+        {
+            "nodeName": "ContainerRegistry",
+            "assignment": {
+                "name": "Enforce-GR-ContReg",
+                "displayName": "Enforce recommended guardrails for Container Registry",
+                "description": "This initiative assignment enables additional ALZ guardrails for Container Registry."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-ContainerRegistry",
+                "displayName": "Enforce recommended guardrails for Container Registry"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for Container Registry"
+                }
+            ]
+        },
+        {
+            "nodeName": "CosmosDb",
+            "assignment": {
+                "name": "Enforce-GR-CosmosDb",
+                "displayName": "Enforce recommended guardrails for Cosmos DB",
+                "description": "This initiative assignment enables additional ALZ guardrails for Cosmos DB."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-CosmosDb",
+                "displayName": "Enforce recommended guardrails for Cosmos DB"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for Cosmos DB"
+                }
+            ]
+        },
+        {
+            "nodeName": "DataExpl",
+            "assignment": {
+                "name": "Enforce-GR-DataExpl",
+                "displayName": "Enforce recommended guardrails for Data Explorer",
+                "description": "This initiative assignment enables additional ALZ guardrails for Data Explorer."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-DataExplorer",
+                "displayName": "Enforce recommended guardrails for Data Explorer"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for Data Explorer"
+                }
+            ]
+        },
+        {
+            "nodeName": "DataFactory",
+            "assignment": {
+                "name": "Enforce-GR-DataFactory",
+                "displayName": "Enforce recommended guardrails for Data Factory",
+                "description": "This initiative assignment enables additional ALZ guardrails for Data Factory."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-DataFactory",
+                "displayName": "Enforce recommended guardrails for Data Factory"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for Data Factory"
+                }
+            ]
+        },
+        {
+            "nodeName": "EventGrid",
+            "assignment": {
+                "name": "Enforce-GR-EventGrid",
+                "displayName": "Enforce recommended guardrails for Event Grid",
+                "description": "This initiative assignment enables additional ALZ guardrails for Event Grid."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-EventGrid",
+                "displayName": "Enforce recommended guardrails for Event Grid"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for Event Grid"
+                }
+            ]
+        },
+        {
+            "nodeName": "EventHub",
+            "assignment": {
+                "name": "Enforce-GR-EventHub",
+                "displayName": "Enforce recommended guardrails for Event Hub",
+                "description": "This initiative assignment enables additional ALZ guardrails for Event Hub."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-EventHub",
+                "displayName": "Enforce recommended guardrails for Event Hub"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for Event Hub"
+                }
+            ]
+        },
+        {
+            "nodeName": "KeyVaultSup",
+            "assignment": {
+                "name": "Enforce-GR-KeyVaultSup",
+                "displayName": "Enforce recommended guardrails for Key Vault Supplementary",
+                "description": "This initiative assignment enables additional ALZ guardrails for Key Vault Supplementary."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-KeyVault-Sup",
+                "displayName": "Enforce recommended guardrails for Key Vault Supplementary"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for Key Vault Supplementary"
+                }
+            ]
+        },
+        {
+            "nodeName": "Kubernetes",
+            "assignment": {
+                "name": "Enforce-GR-Kubernetes",
+                "displayName": "Enforce recommended guardrails for Kubernetes.",
+                "description": "This initiative assignment enables additional ALZ guardrails for Kubernetes."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-Kubernetes",
+                "displayName": "Enforce recommended guardrails for Kubernetes"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for Kubernetes"
+                }
+            ]
+        },
+        {
+            "nodeName": "MachLearn",
+            "assignment": {
+                "name": "Enforce-GR-MachLearn",
+                "displayName": "Enforce recommended guardrails for Machine Learning.",
+                "description": "This initiative assignment enables additional ALZ guardrails for Machine Learning."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-MachineLearning",
+                "displayName": "Enforce recommended guardrails for Machine Learning"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for Machine Learning"
+                }
+            ]
+        },
+        {
+            "nodeName": "MySQL",
+            "assignment": {
+                "name": "Enforce-GR-MySQL",
+                "displayName": "Enforce recommended guardrails for MySQL.",
+                "description": "This initiative assignment enables additional ALZ guardrails for MySQL."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-MySQL",
+                "displayName": "Enforce recommended guardrails for MySQL"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for MySQL"
+                }
+            ]
+        },
+        {
+            "nodeName": "Network",
+            "assignment": {
+                "name": "Enforce-GR-Network",
+                "displayName": "Enforce recommended guardrails for Network and Networking services.",
+                "description": "This initiative assignment enables additional ALZ guardrails for Network and Networking services."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-Network",
+                "displayName": "Enforce recommended guardrails for Network and Networking services"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for Network and Networking services"
+                }
+            ]
+        },
+        {
+            "nodeName": "OpenAI",
+            "assignment": {
+                "name": "Enforce-GR-OpenAI",
+                "displayName": "Enforce recommended guardrails for OpenAI.",
+                "description": "This initiative assignment enables additional ALZ guardrails for OpenAI."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-OpenAI",
+                "displayName": "Enforce recommended guardrails for OpenAI"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for OpenAI"
+                }
+            ]
+        },
+        {
+            "nodeName": "PostgreSQL",
+            "assignment": {
+                "name": "Enforce-GR-PostgreSQL",
+                "displayName": "Enforce recommended guardrails for PostgreSQL.",
+                "description": "This initiative assignment enables additional ALZ guardrails for PostgreSQL."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-PostgreSQL",
+                "displayName": "Enforce recommended guardrails for PostgreSQL"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for PostgreSQL"
+                }
+            ]
+        },
+        {
+            "nodeName": "ServiceBus",
+            "assignment": {
+                "name": "Enforce-GR-ServiceBus",
+                "displayName": "Enforce recommended guardrails for Service Bus.",
+                "description": "This initiative assignment enables additional ALZ guardrails for Service Bus."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-ServiceBus",
+                "displayName": "Enforce recommended guardrails for Service Bus"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for Service Bus"
+                }
+            ]
+        },
+        {
+            "nodeName": "SQL",
+            "assignment": {
+                "name": "Enforce-GR-SQL",
+                "displayName": "Enforce recommended guardrails for SQL.",
+                "description": "This initiative assignment enables additional ALZ guardrails for SQL."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-SQL",
+                "displayName": "Enforce recommended guardrails for SQL"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for SQL"
+                }
+            ]
+        },
+        {
+            "nodeName": "Storage",
+            "assignment": {
+                "name": "Enforce-GR-Storage",
+                "displayName": "Enforce recommended guardrails for Storage.",
+                "description": "This initiative assignment enables additional ALZ guardrails for Storage."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-Storage",
+                "displayName": "Enforce recommended guardrails for Storage"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for Storage"
+                }
+            ]
+        },
+        {
+            "nodeName": "Synapse",
+            "assignment": {
+                "name": "Enforce-GR-Synapse",
+                "displayName": "Enforce recommended guardrails for Synapse.",
+                "description": "This initiative assignment enables additional ALZ guardrails for Synapse."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-Synapse",
+                "displayName": "Enforce recommended guardrails for Synapse"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for Synapse"
+                }
+            ]
+        },
+        {
+            "nodeName": "VirtualDesk",
+            "assignment": {
+                "name": "Enforce-GR-VirtualDesk",
+                "displayName": "Enforce recommended guardrails for Virtual Desktop.",
+                "description": "This initiative assignment enables additional ALZ guardrails for Virtual Desktop."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Guardrails-VirtualDesktop",
+                "displayName": "Enforce recommended guardrails for Virtual Desktop"
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "Recommended guardrails must be enforced for Virtual Desktop"
+                }
+            ]
+        },
+        {
+            "nodeName": "CMK",
+            "assignment": {
+                "name": "Enforce-Encrypt-CMK",
+                "displayName": "Enforce recommended guardrails for Customer Managed Keys",
+                "description": "This initiative assignment enables additional ALZ guardrails for Customer Managed Keys."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-Encryption-CMK",
+                "displayName": "Deny or Audit resources without Encryption with a customer-managed key (CMK)",
+                "nonComplianceMessages": [
+                    {
+                        "policyDefinitionReferenceId": null,
+                        "message": "Recommended guardrails must be enforced for Customer Managed Keys."
+                    }
+                ]
+            }
+        }
+    ]
+}

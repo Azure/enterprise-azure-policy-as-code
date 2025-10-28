@@ -1,0 +1,273 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
+    "nodeName": "/Corp/",
+    "scope": {
+        "tenant1": [ // Replace with your EPAC environment name and validate the management group listed below exists
+            "/providers/Microsoft.Management/managementGroups/corp"
+        ]
+    },
+    "children": [
+        {
+            "nodeName": "Networking/",
+            "children": [
+                {
+                    "nodeName": "PublicEndpoint",
+                    "assignment": {
+                        "name": "Deny-Public-Endpoints",
+                        "displayName": "Public network access should be disabled for PaaS services",
+                        "description": "This policy initiative is a group of policies that prevents creation of Azure PaaS services with exposed public endpoints"
+                    },
+                    "definitionEntry": {
+                        "policySetName": "Deny-PublicPaaSEndpoints",
+                        "displayName": "Deny Public PaaS Endpoints"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Public network access must be disabled for PaaS services."
+                        }
+                    ]
+                },
+                {
+                    "nodeName": "DNSZones",
+                    "assignment": {
+                        "name": "Deploy-Private-DNS-Zones",
+                        "displayName": "Configure Azure PaaS services to use private DNS zones",
+                        "description": "This policy initiative is a group of policies that ensures private endpoints to Azure PaaS services are integrated with Azure Private DNS zones."
+                    },
+                    "definitionEntry": {
+                        "policySetName": "Deploy-Private-DNS-Zones",
+                        "displayName": "Deploy Private DNS Zones"
+                    },
+                    "parameters": {
+                        // Replace --DNSZonePrefix-- with a value similar to 
+                        // "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myorg-dns/providers/Microsoft.Network/privateDnsZones/"
+                        // but modify to reference your connectivity subscription.
+                        // Also update additionalRoleAssignments block to ensure your connectivity subscription Id is referenced.
+                        // If you don't require this then remove the assignment block.
+                        "azureFilePrivateDnsZoneId": "--DNSZonePrefix--privatelink.afs.azure.net",
+                        "azureAutomationWebhookPrivateDnsZoneId": "--DNSZonePrefix--privatelink.azure-automation.net",
+                        "azureAutomationDSCHybridPrivateDnsZoneId": "--DNSZonePrefix--privatelink.azure-automation.net",
+                        "azureCosmosSQLPrivateDnsZoneId": "--DNSZonePrefix--privatelink.documents.azure.com",
+                        "azureCosmosMongoPrivateDnsZoneId": "--DNSZonePrefix--privatelink.mongo.cosmos.azure.com",
+                        "azureCosmosCassandraPrivateDnsZoneId": "--DNSZonePrefix--privatelink.cassandra.cosmos.azure.com",
+                        "azureCosmosGremlinPrivateDnsZoneId": "--DNSZonePrefix--privatelink.gremlin.cosmos.azure.com",
+                        "azureCosmosTablePrivateDnsZoneId": "--DNSZonePrefix--privatelink.table.cosmos.azure.com",
+                        "azureDataFactoryPrivateDnsZoneId": "--DNSZonePrefix--privatelink.datafactory.azure.net",
+                        "azureDataFactoryPortalPrivateDnsZoneId": "--DNSZonePrefix--privatelink.adf.azure.com",
+                        "azureDatabricksPrivateDnsZoneId": "--DNSZonePrefix--privatelink.azuredatabricks.net",
+                        "azureHDInsightPrivateDnsZoneId": "--DNSZonePrefix--privatelink.azurehdinsight.net",
+                        "azureMigratePrivateDnsZoneId": "--DNSZonePrefix--privatelink.prod.migration.windowsazure.com",
+                        "azureStorageBlobPrivateDnsZoneId": "--DNSZonePrefix--privatelink.blob.core.windows.net",
+                        "azureStorageBlobSecPrivateDnsZoneId": "--DNSZonePrefix--privatelink.blob.core.windows.net",
+                        "azureStorageQueuePrivateDnsZoneId": "--DNSZonePrefix--privatelink.queue.core.windows.net",
+                        "azureStorageQueueSecPrivateDnsZoneId": "--DNSZonePrefix--privatelink.queue.core.windows.net",
+                        "azureStorageFilePrivateDnsZoneId": "--DNSZonePrefix--privatelink.file.core.windows.net",
+                        "azureStorageStaticWebPrivateDnsZoneId": "--DNSZonePrefix--privatelink.web.core.windows.net",
+                        "azureStorageStaticWebSecPrivateDnsZoneId": "--DNSZonePrefix--privatelink.web.core.windows.net",
+                        "azureStorageDFSPrivateDnsZoneId": "--DNSZonePrefix--privatelink.dfs.core.windows.net",
+                        "azureStorageDFSSecPrivateDnsZoneId": "--DNSZonePrefix--privatelink.dfs.core.windows.net",
+                        "azureSynapseSQLPrivateDnsZoneId": "--DNSZonePrefix--privatelink.sql.azuresynapse.net",
+                        "azureSynapseSQLODPrivateDnsZoneId": "--DNSZonePrefix--privatelink.sql.azuresynapse.net",
+                        "azureSynapseDevPrivateDnsZoneId": "--DNSZonePrefix--privatelink.dev.azuresynapse.net",
+                        "azureMediaServicesKeyPrivateDnsZoneId": "--DNSZonePrefix--privatelink.media.azure.net",
+                        "azureMediaServicesLivePrivateDnsZoneId": "--DNSZonePrefix--privatelink.media.azure.net",
+                        "azureMediaServicesStreamPrivateDnsZoneId": "--DNSZonePrefix--privatelink.media.azure.net",
+                        "azureMonitorPrivateDnsZoneId1": "--DNSZonePrefix--privatelink.monitor.azure.com",
+                        "azureMonitorPrivateDnsZoneId2": "--DNSZonePrefix--privatelink.oms.opinsights.azure.com",
+                        "azureMonitorPrivateDnsZoneId3": "--DNSZonePrefix--privatelink.ods.opinsights.azure.com",
+                        "azureMonitorPrivateDnsZoneId4": "--DNSZonePrefix--privatelink.agentsvc.azure-automation.net",
+                        "azureMonitorPrivateDnsZoneId5": "--DNSZonePrefix--privatelink.blob.core.windows.net",
+                        "azureWebPrivateDnsZoneId": "--DNSZonePrefix--privatelink.webpubsub.azure.com",
+                        "azureBatchPrivateDnsZoneId": "--DNSZonePrefix--privatelink.batch.azure.com",
+                        "azureAppPrivateDnsZoneId": "--DNSZonePrefix--privatelink.azconfig.io",
+                        "azureAsrPrivateDnsZoneId": "--DNSZonePrefix--privatelink.siterecovery.windowsazure.com",
+                        "azureIotPrivateDnsZoneId": "--DNSZonePrefix--privatelink.azure-devices-provisioning.net",
+                        "azureKeyVaultPrivateDnsZoneId": "--DNSZonePrefix--privatelink.vaultcore.azure.net",
+                        "azureSignalRPrivateDnsZoneId": "--DNSZonePrefix--privatelink.service.signalr.net",
+                        "azureAppServicesPrivateDnsZoneId": "--DNSZonePrefix--privatelink.azurewebsites.net",
+                        "azureEventGridTopicsPrivateDnsZoneId": "--DNSZonePrefix--privatelink.eventgrid.azure.net",
+                        "azureDiskAccessPrivateDnsZoneId": "--DNSZonePrefix--privatelink.blob.core.windows.net",
+                        "azureCognitiveServicesPrivateDnsZoneId": "--DNSZonePrefix--privatelink.cognitiveservices.azure.com",
+                        "azureIotHubsPrivateDnsZoneId": "--DNSZonePrefix--privatelink.azure-devices.net",
+                        "azureEventGridDomainsPrivateDnsZoneId": "--DNSZonePrefix--privatelink.eventgrid.azure.net",
+                        "azureRedisCachePrivateDnsZoneId": "--DNSZonePrefix--privatelink.redis.cache.windows.net",
+                        "azureAcrPrivateDnsZoneId": "--DNSZonePrefix--privatelink.azurecr.io",
+                        "azureEventHubNamespacePrivateDnsZoneId": "--DNSZonePrefix--privatelink.servicebus.windows.net",
+                        "azureMachineLearningWorkspacePrivateDnsZoneId": "--DNSZonePrefix--privatelink.api.azureml.ms",
+                        "azureMachineLearningWorkspaceSecondPrivateDnsZoneId": "--DNSZonePrefix--privatelink.notebooks.azure.net",
+                        "azureServiceBusNamespacePrivateDnsZoneId": "--DNSZonePrefix--privatelink.servicebus.windows.net",
+                        "azureCognitiveSearchPrivateDnsZoneId": "--DNSZonePrefix--privatelink.search.windows.net",
+                        "azureBotServicePrivateDnsZoneId": "--DNSZonePrefix--privatelink.directline.botframework.com",
+                        "azureManagedGrafanaWorkspacePrivateDnsZoneId": "--DNSZonePrefix--privatelink.grafana.azure.com",
+                        "azureVirtualDesktopHostpoolPrivateDnsZoneId": "--DNSZonePrefix--privatelink.wvd.microsoft.com",
+                        "azureVirtualDesktopWorkspacePrivateDnsZoneId": "--DNSZonePrefix--privatelink.wvd.microsoft.com",
+                        "azureIotDeviceupdatePrivateDnsZoneId": "--DNSZonePrefix--privatelink.azure-devices.net",
+                        "azureArcGuestconfigurationPrivateDnsZoneId": "--DNSZonePrefix--privatelink.guestconfiguration.azure.com",
+                        "azureArcHybridResourceProviderPrivateDnsZoneId": "--DNSZonePrefix--privatelink.his.arc.azure.com",
+                        "azureArcKubernetesConfigurationPrivateDnsZoneId": "--DNSZonePrefix--privatelink.dp.kubernetesconfiguration.azure.com",
+                        "azureIotCentralPrivateDnsZoneId": "--DNSZonePrefix--privatelink.azureiotcentral.com",
+                        "azureStorageTablePrivateDnsZoneId": "--DNSZonePrefix--privatelink.table.core.windows.net",
+                        "azureStorageTableSecondaryPrivateDnsZoneId": "--DNSZonePrefix--privatelink.table.core.windows.net",
+                        "azureSiteRecoveryBackupPrivateDnsZoneID": "--DNSZonePrefix--privatelink.--REGION-SHORT-CODE--.backup.windowsazure.com",
+                        "azureSiteRecoveryBlobPrivateDnsZoneID": "--DNSZonePrefix--privatelink.blob.core.windows.net",
+                        "azureSiteRecoveryQueuePrivateDnsZoneID": "--DNSZonePrefix--privatelink.queue.core.windows.net"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Azure PaaS services must use private DNS zones."
+                        }
+                    ],
+                    "additionalRoleAssignments": {
+                        "*": [
+                            {
+                                "roleDefinitionId": "/providers/microsoft.authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7",
+                                "scope": "/subscriptions/connectivity--subscription--id" // Replace with your connectivity subscription Id
+                            }
+                        ]
+                    }
+                },
+                {
+                    "nodeName": "NoPublicIP",
+                    "assignment": {
+                        "name": "Deny-Public-IP-On-NIC",
+                        "description": "This policy denies network interfaces from having a public IP associated to it under the assigned scope.",
+                        "displayName": "Deny network interfaces having a public IP associated"
+                    },
+                    "definitionEntry": {
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/83a86a26-fd1f-447c-b59d-e51f44264114"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Network interfaces must not have a public IP associated."
+                        }
+                    ]
+                },
+                {
+                    "nodeName": "DenyNetworking",
+                    "assignment": {
+                        "name": "Deny-HybridNetworking",
+                        "description": "Denies deployment of vWAN/ER/VPN gateway resources in the Corp landing zone.",
+                        "displayName": "Deny the deployment of vWAN/ER/VPN gateway resources"
+                    },
+                    "definitionEntry": {
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/6c112d4e-5bc7-47ae-a041-ea2d9dccd749",
+                        "displayName": "Not allowed resource types"
+                    },
+                    "parameters": {
+                        "listOfResourceTypesNotAllowed": [
+                            "microsoft.network/expressroutecircuits",
+                            "microsoft.network/expressroutegateways",
+                            "microsoft.network/expressrouteports",
+                            "microsoft.network/virtualwans",
+                            "microsoft.network/virtualhubs",
+                            "microsoft.network/vpngateways",
+                            "microsoft.network/p2svpngateways",
+                            "microsoft.network/vpnsites",
+                            "microsoft.network/virtualnetworkgateways"
+                        ]
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "vWAN/ER/VPN gateway resources must not be deployed in the Corp landing zone."
+                        }
+                    ]
+                },
+                {
+                    "nodeName": "PLink",
+                    "assignment": {
+                        "name": "Audit-PeDnsZones",
+                        "description": "Audits the deployment of Private Link Private DNS Zone resources in the Corp landing zone.",
+                        "displayName": "Audit Private Link Private DNS Zone resources"
+                    },
+                    "definitionEntry": {
+                        "policyName": "Audit-PrivateLinkDnsZones"
+                    },
+                    "parameters": {
+                        // Replace the ---location--- with the location of the Private Link Private DNS Zone resource
+                        // Replace the ---short-code-location--- with the location short code of the Private Link Private DNS Zone resource e.g. "ae" for Australia East
+                        "privateLinkDnsZones": [
+                            "privatelink.---short-code-location---.backup.windowsazure.com",
+                            "privatelink.---location---.azmk8s.io",
+                            "privatelink.---location---.batch.azure.com",
+                            "privatelink.---location---.kusto.windows.net",
+                            "privatelink.adf.azure.com",
+                            "privatelink.afs.azure.net",
+                            "privatelink.agentsvc.azure-automation.net",
+                            "privatelink.analysis.windows.net",
+                            "privatelink.api.azureml.ms",
+                            "privatelink.azconfig.io",
+                            "privatelink.azure-api.net",
+                            "privatelink.azure-automation.net",
+                            "privatelink.azurecr.io",
+                            "privatelink.azure-devices.net",
+                            "privatelink.azure-devices-provisioning.net",
+                            "privatelink.azuredatabricks.net",
+                            "privatelink.azurehdinsight.net",
+                            "privatelink.azurehealthcareapis.com",
+                            "privatelink.azureiotcentral.com",
+                            "privatelink.azurestaticapps.net",
+                            "privatelink.azuresynapse.net",
+                            "privatelink.azurewebsites.net",
+                            "privatelink.batch.azure.com",
+                            "privatelink.blob.core.windows.net",
+                            "privatelink.cassandra.cosmos.azure.com",
+                            "privatelink.cognitiveservices.azure.com",
+                            "privatelink.database.windows.net",
+                            "privatelink.datafactory.azure.net",
+                            "privatelink.dev.azuresynapse.net",
+                            "privatelink.dfs.core.windows.net",
+                            "privatelink.dicom.azurehealthcareapis.com",
+                            "privatelink.digitaltwins.azure.net",
+                            "privatelink.directline.botframework.com",
+                            "privatelink.documents.azure.com",
+                            "privatelink.dp.kubernetesconfiguration.azure.com",
+                            "privatelink.eventgrid.azure.net",
+                            "privatelink.file.core.windows.net",
+                            "privatelink.grafana.azure.com",
+                            "privatelink.gremlin.cosmos.azure.com",
+                            "privatelink.guestconfiguration.azure.com",
+                            "privatelink.his.arc.azure.com",
+                            "privatelink.kubernetesconfiguration.azure.com",
+                            "privatelink.managedhsm.azure.net",
+                            "privatelink.mariadb.database.azure.com",
+                            "privatelink.media.azure.net",
+                            "privatelink.mongo.cosmos.azure.com",
+                            "privatelink.monitor.azure.com",
+                            "privatelink.mysql.database.azure.com",
+                            "privatelink.notebooks.azure.net",
+                            "privatelink.ods.opinsights.azure.com",
+                            "privatelink.oms.opinsights.azure.com",
+                            "privatelink.pbidedicated.windows.net",
+                            "privatelink.postgres.database.azure.com",
+                            "privatelink.prod.migration.windowsazure.com",
+                            "privatelink.purview.azure.com",
+                            "privatelink.purviewstudio.azure.com",
+                            "privatelink.queue.core.windows.net",
+                            "privatelink.redis.cache.windows.net",
+                            "privatelink.redisenterprise.cache.azure.net",
+                            "privatelink.search.windows.net",
+                            "privatelink.service.signalr.net",
+                            "privatelink.servicebus.windows.net",
+                            "privatelink.siterecovery.windowsazure.com",
+                            "privatelink.sql.azuresynapse.net",
+                            "privatelink.table.core.windows.net",
+                            "privatelink.table.cosmos.azure.com",
+                            "privatelink.tip1.powerquery.microsoft.com",
+                            "privatelink.token.botframework.com",
+                            "privatelink.vaultcore.azure.net",
+                            "privatelink.web.core.windows.net",
+                            "privatelink.webpubsub.azure.com",
+                            "privatelink.wvd.microsoft.com",
+                            "privatelink-global.wvd.microsoft.com"
+                        ]
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Private Link Private DNS Zone resources must be deployed in the Corp landing zone."
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

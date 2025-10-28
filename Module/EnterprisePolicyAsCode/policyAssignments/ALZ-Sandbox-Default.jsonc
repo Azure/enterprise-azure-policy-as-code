@@ -1,0 +1,40 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
+    "nodeName": "/Sandbox/",
+    "scope": {
+        "tenant1": [ // Replace with your EPAC environment name and validate the management group listed below exists
+            "/providers/Microsoft.Management/managementGroups/sandbox"
+        ]
+    },
+    "children": [
+        {
+            "nodeName": "Guardrails",
+            "assignment": {
+                "name": "Enforce-ALZ-Sandbox",
+                "displayName": "Enforce ALZ Sandbox Guardrails",
+                "description": "This initiative will help enforce and govern subscriptions that are placed within the Sandbox Management Group. See https://aka.ms/alz/policies for more information."
+            },
+            "definitionEntry": {
+                "policySetName": "Enforce-ALZ-Sandbox"
+            },
+            "parameters": {
+                "listOfResourceTypesNotAllowed": [
+                    "microsoft.network/expressroutecircuits",
+                    "microsoft.network/expressroutegateways",
+                    "microsoft.network/expressrouteports",
+                    "microsoft.network/virtualwans",
+                    "microsoft.network/virtualhubs",
+                    "microsoft.network/vpngateways",
+                    "microsoft.network/p2svpngateways",
+                    "microsoft.network/vpnsites",
+                    "microsoft.network/virtualnetworkgateways"
+                ]
+            },
+            "nonComplianceMessages": [
+                {
+                    "message": "ALZ Sandbox Guardrails must be enforced."
+                }
+            ]
+        }
+    ]
+}

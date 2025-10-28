@@ -1,0 +1,301 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
+    "nodeName": "/Platform/",
+    "scope": {
+        "tenant1": [ // Replace with your EPAC environment name and validate the management group listed below exists
+            "/providers/Microsoft.Management/managementGroups/platform"
+        ]
+    },
+    // Ensure that this whole file is reviewed for parameters and ensure DCRs, managed identities, and log analytics workspace are deployed
+    // Sources for the DCRs which need to be deployed are in the individual assignment parameter comments
+    "parameters": {
+        "userAssignedIdentityResourceId": "", // Replace with the resource Id of the user assigned managed identity
+        "bringYourOwnUserAssignedManagedIdentity": true,
+        "enableProcessesAndDependencies": true,
+        "restrictBringYourOwnUserAssignedIdentityToSubscription": false,
+        "scopeToSupportedImages": false
+    },
+    "children": [
+        {
+            "nodeName": "KeyVault/",
+            "children": [
+                {
+                    "nodeName": "GuardRails",
+                    "assignment": {
+                        "name": "Enforce-GR-KeyVault-PLT",
+                        "displayName": "Enforce recommended guardrails for Azure Key Vault",
+                        "description": "This initiative assignment enables recommended ALZ guardrails for Azure Key Vault."
+                    },
+                    "definitionEntry": {
+                        "policySetName": "Enforce-Guardrails-KeyVault",
+                        "displayName": "Key Vault Guardrails"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Recommended guardrails must be enforced for Azure Key Vault."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "nodeName": "Security",
+            "children": [
+                {
+                    "nodeName": "DefenderSQL",
+                    "assignment": {
+                        "name": "Deploy-MDFC-SQL-AMA-PLT",
+                        "displayName": "Configure SQL VMs and Arc-enabled SQL Servers to install Microsoft Defender for SQL and AMA with a user-defined LA workspace",
+                        "description": "Microsoft Defender for SQL collects events from the agents and uses them to provide security alerts and tailored hardening tasks (recommendations). Creates a resource group and a Data Collection Rule in the same region as the user-defined Log Analytics workspace."
+                    },
+                    "definitionEntry": {
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/de01d381-bae9-4670-8870-786f89f49e26",
+                        "displayName": "Configure SQL VMs and Arc-enabled SQL Servers to install Microsoft Defender for SQL and AMA with a user-defined LA workspace",
+                        "nonComplianceMessages": [
+                            {
+                                "policyDefinitionReferenceId": null,
+                                "message": "Microsoft Defender for SQL must be deployed."
+                            }
+                        ]
+                    },
+                    "parameters": {
+                        "dcrResourceId": "", // Resource Id for the deployed DCR - see https://github.com/Azure/Enterprise-Scale/blob/main/eslzArm/resourceGroupTemplates/dataCollectionRule-DefenderSQL.json
+                        "userWorkspaceResourceId": "", //Log analytics workspace Id
+                        "workspaceRegion": "", // Log analytics workspace region
+                        "enableCollectionOfSqlQueriesForSecurityResearch": false,
+                        "bringYourOwnDcr": true // Ensure the DCR is deployed
+                    }
+                }
+            ]
+        },
+        {
+            "nodeName": "Monitoring",
+            "children": [
+                {
+                    "nodeName": "VM",
+                    "assignment": {
+                        "name": "Deploy-VM-Monitoring",
+                        "displayName": "Enable Azure Monitor for VMs",
+                        "description": "Enable Azure Monitor for the virtual machines (VMs) in the specified scope (management group, subscription or resource group). Takes Log Analytics workspace as parameter."
+                    },
+                    "definitionEntry": {
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/924bfe3a-762f-40e7-86dd-5c8b95eb09e6",
+                        "displayName": "Enable Azure Monitor for VMs with Azure Monitoring Agent(AMA)",
+                        "nonComplianceMessages": [
+                            {
+                                "policyDefinitionReferenceId": null,
+                                "message": "Azure Monitor must be enabled for Virtual Machines."
+                            }
+                        ]
+                    },
+                    "parameters": {
+                        "dcrResourceId": "" // Resource Id for the deployed DCR - see https://github.com/Azure/Enterprise-Scale/blob/main/eslzArm/resourceGroupTemplates/dataCollectionRule-VmInsights.json
+                    }
+                },
+                {
+                    "nodeName": "VMSS",
+                    "assignment": {
+                        "name": "Deploy-VMSS-Monitoring",
+                        "displayName": "Enable Azure Monitor for Virtual Machine Scale Sets",
+                        "description": "Enable Azure Monitor for the Virtual Machine Scale Sets in the specified scope (Management group, Subscription or resource group). Takes Log Analytics workspace as parameter. Note: if your scale set upgradePolicy is set to Manual, you need to apply the extension to the all VMs in the set by calling upgrade on them. In CLI this would be az vmss update-instances."
+                    },
+                    "definitionEntry": {
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/f5bf694c-cca7-4033-b883-3a23327d5485",
+                        "displayName": "Enable Azure Monitor for VMSS with Azure Monitoring Agent(AMA)",
+                        "nonComplianceMessages": [
+                            {
+                                "policyDefinitionReferenceId": null,
+                                "message": "Azure Monitor must be enabled for Virtual Machines Scales Sets."
+                            }
+                        ]
+                    },
+                    "parameters": {
+                        "dcrResourceId": "" // Resource Id for the deployed DCR - see https://github.com/Azure/Enterprise-Scale/blob/main/eslzArm/resourceGroupTemplates/dataCollectionRule-VmInsights.json
+                    }
+                },
+                {
+                    "nodeName": "Arc",
+                    "assignment": {
+                        "name": "Deploy-vmHybr-Monitoring",
+                        "displayName": "Enable Azure Monitor for Hybrid Virtual Machines",
+                        "description": "Enable Azure Monitor for Hybrid Virtual Machines in the specified scope (Management group, Subscription or resource group)."
+                    },
+                    "definitionEntry": {
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/2b00397d-c309-49c4-aa5a-f0b2c5bc6321",
+                        "displayName": "Enable Azure Monitor for Hybrid VMs with AMA",
+                        "nonComplianceMessages": [
+                            {
+                                "policyDefinitionReferenceId": null,
+                                "message": "Azure Monitor must be enabled for Hybrid Virtual Machines."
+                            }
+                        ]
+                    },
+                    "parameters": {
+                        "dcrResourceId": "" // Resource Id for the deployed DCR - see https://github.com/Azure/Enterprise-Scale/blob/main/eslzArm/resourceGroupTemplates/dataCollectionRule-VmInsights.json
+                    }
+                },
+                {
+                    "nodeName": "UAMIAMA",
+                    "assignment": {
+                        "name": "DenyAction-DeleteUAMIAMA",
+                        "displayName": "Do not allow deletion of the User Assigned Managed Identity used by AMA",
+                        "description": "This policy provides a safeguard against accidental removal of the User Assigned Managed Identity used by AMA by blocking delete calls using deny action effect."
+                    },
+                    "definitionEntry": {
+                        "policyName": "DenyAction-DeleteResources",
+                        "displayName": "Do not allow deletion of specified resource and resource type"
+                    },
+                    "parameters": {
+                        "effect": "DenyAction",
+                        "resourceType": "Microsoft.ManagedIdentity/userAssignedIdentities",
+                        "resourceName": "" // Resource name for the user-assigned managed identity
+                    }
+                }
+            ]
+        },
+        {
+            "nodeName": "ChangeTracking",
+            "children": [
+                {
+                    "nodeName": "VM",
+                    "assignment": {
+                        "name": "Deploy-VM-ChangeTrack",
+                        "displayName": "Enable ChangeTracking and Inventory for virtual machines",
+                        "description": "Enable ChangeTracking and Inventory for virtual machines. Takes Data Collection Rule ID as parameter and asks for an option to input applicable locations and user-assigned identity for Azure Monitor Agent."
+                    },
+                    "definitionEntry": {
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/92a36f05-ebc9-4bba-9128-b47ad2ea3354",
+                        "displayName": "[Preview]: Enable ChangeTracking and Inventory for virtual machines",
+                        "nonComplianceMessages": [
+                            {
+                                "policyDefinitionReferenceId": null,
+                                "message": "Change Tracking must be enabled for Virtual Machines."
+                            }
+                        ]
+                    },
+                    "parameters": {
+                        "dcrResourceId": "" // Resource Id for the deployed DCR - see https://github.com/Azure/Enterprise-Scale/blob/main/eslzArm/resourceGroupTemplates/dataCollectionRule-CT.json
+                    }
+                },
+                {
+                    "nodeName": "VMSS",
+                    "assignment": {
+                        "name": "Deploy-VMSS-ChangeTrack",
+                        "displayName": "Enable ChangeTracking and Inventory for virtual machine scale sets",
+                        "description": "Enable ChangeTracking and Inventory for virtual machine scale sets. Takes Data Collection Rule ID as parameter and asks for an option to input applicable locations and user-assigned identity for Azure Monitor Agent."
+                    },
+                    "definitionEntry": {
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/c4a70814-96be-461c-889f-2b27429120dc",
+                        "displayName": "[Preview]: Enable ChangeTracking and Inventory for virtual machine scale sets",
+                        "nonComplianceMessages": [
+                            {
+                                "policyDefinitionReferenceId": null,
+                                "message": "Change Tracking must be enabled for Virtual Machines Scales Sets."
+                            }
+                        ]
+                    },
+                    "parameters": {
+                        "dcrResourceId": "" // Resource Id for the deployed DCR - see https://github.com/Azure/Enterprise-Scale/blob/main/eslzArm/resourceGroupTemplates/dataCollectionRule-CT.json
+                    }
+                },
+                {
+                    "nodeName": "Arc",
+                    "assignment": {
+                        "name": "Deploy-vmArc-ChangeTrack",
+                        "displayName": "Enable ChangeTracking and Inventory for Arc-enabled virtual machines",
+                        "description": "Enable ChangeTracking and Inventory for Arc-enabled virtual machines. Takes Data Collection Rule ID as parameter and asks for an option to input applicable locations."
+                    },
+                    "definitionEntry": {
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/53448c70-089b-4f52-8f38-89196d7f2de1",
+                        "displayName": "[Preview]: Enable ChangeTracking and Inventory for Arc-enabled virtual machines",
+                        "nonComplianceMessages": [
+                            {
+                                "policyDefinitionReferenceId": null,
+                                "message": "Change Tracking must be enabled for Arc-enabled Virtual Machines."
+                            }
+                        ]
+                    },
+                    "parameters": {
+                        "dcrResourceId": "" // Resource Id for the deployed DCR - see https://github.com/Azure/Enterprise-Scale/blob/main/eslzArm/resourceGroupTemplates/dataCollectionRule-CT.json
+                    }
+                }
+            ]
+        },
+        {
+            "nodeName": "Updates",
+            "children": [
+                {
+                    "nodeName": "UpdateManager",
+                    "assignment": {
+                        "name": "Enable-AUM-Updates-PLT",
+                        "displayName": "Configure periodic checking for missing system updates on azure virtual machines and Arc-enabled virtual machines.",
+                        "description": "Configure auto-assessment (every 24 hours) for OS updates. You can control the scope of assignment according to machine subscription, resource group, location or tag. Learn more about this for Windows: https://aka.ms/computevm-windowspatchassessmentmode, for Linux: https://aka.ms/computevm-linuxpatchassessmentmode."
+                    },
+                    "definitionEntry": {
+                        "policySetName": "Deploy-AUM-CheckUpdates",
+                        "displayName": "Configure periodic checking for missing system updates on azure virtual machines and Arc-enabled virtual machines",
+                        "nonComplianceMessages": [
+                            {
+                                "policyDefinitionReferenceId": null,
+                                "message": "Periodic checking of missing updates must be enabled."
+                            }
+                        ]
+                    },
+                    "parameters": {
+                        "tagValues": {},
+                        "locations": [],
+                        "tagOperator": "Any",
+                        "assessmentMode": "AutomaticByPlatform"
+                    }
+                }
+            ]
+        },
+        {
+            "nodeName": "Backup",
+            "children": [
+                {
+                    "nodeName": "ASR",
+                    "assignment": {
+                        "name": "Enforce-ASR-PLT",
+                        "displayName": "Enforce enhanced recovery and backup policies",
+                        "description": "This initiative assignment enables recommended ALZ guardrails for Azure Recovery Services."
+                    },
+                    "definitionEntry": {
+                        "policySetName": "Enforce-Backup",
+                        "displayName": "Enforce enhanced recovery and backup policies",
+                        "nonComplianceMessages": [
+                            {
+                                "policyDefinitionReferenceId": null,
+                                "message": "Recommended guardrails must be enforced for Azure Recovery Services (Backup and Site Recovery)."
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "nodeName": "Networking",
+            "children": [
+                {
+                    "nodeName": "Subnets",
+                    "assignment": {
+                        "name": "Enforce-Snet-Private-PLT",
+                        "displayName": "Subnets should be private",
+                        "description": "Ensure your subnets are secure by default by preventing default outbound access. For more information go to https://aka.ms/defaultoutboundaccessretirement"
+                    },
+                    "definitionEntry": {
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/7bca8353-aa3b-429b-904a-9229c4385837",
+                        "displayName": "Subnets should be private",
+                        "nonComplianceMessages": [
+                            {
+                                "policyDefinitionReferenceId": null,
+                                "message": "Subnets should be private."
+                            }
+                        ]
+                    },
+                    "enforcementMode": "DoNotEnforce"
+                }
+            ]
+        }
+    ]
+}

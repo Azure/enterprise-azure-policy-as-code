@@ -1,0 +1,387 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
+    "nodeName": "/Root/",
+    "scope": {
+        "tenant1": [ // Replace with your EPAC environment name and validate the management group listed below exists
+            "/providers/Microsoft.Management/managementGroups/intermediatelevelmanagementgroup"
+        ]
+    },
+    "parameters": {
+        "logAnalytics": "", // Replace with your central Log Analytics workspace ID
+        "logAnalytics_1": "", // Replace with your central Log Analytics workspace ID
+        "emailSecurityContact": "", // Security contact email address for Microsoft Defender for Cloud
+        "ascExportResourceGroupName": "asc-export", // Resource group to export Microsoft Defender for Cloud data to
+        "ascExportResourceGroupLocation": "", // Location of the resource group to export Microsoft Defender for Cloud data to
+        "createResourceGroup": "true" // A new resource group will be created if set to true for ascExportResourceGroupName
+    },
+    "children": [
+        {
+            "nodeName": "Security/",
+            "children": [
+                {
+                    "nodeName": "ASB",
+                    "assignment": {
+                        "name": "Deploy-ASC-Monitoring",
+                        "displayName": "Microsoft Cloud Security Benchmark",
+                        "description": "Microsoft Cloud Security Benchmark policy initiative"
+                    },
+                    "definitionEntry": {
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
+                        "displayName": "Microsoft Cloud Security Benchmark"
+                    },
+                    "parameters": {},
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Microsoft Cloud Security Benchmark must be met."
+                        }
+                    ]
+                },
+                {
+                    "nodeName": "MDFC",
+                    "assignment": {
+                        "name": "Deploy-MDFC-Config-H224",
+                        "displayName": "Deploy Microsoft Defender for Cloud configuration",
+                        "description": "Deploy Microsoft Defender for Cloud and Security Contacts"
+                    },
+                    "definitionEntry": {
+                        "policySetName": "Deploy-MDFC-Config_20240319",
+                        "displayName": "Microsoft Defender For Cloud"
+                    },
+                    "parameters": {
+                        "enableAscForServers": "DeployIfNotExists", // Adjust parameter values to control Microsoft Defender for Cloud configuration Disabled/Disabled
+                        "enableAscForCosmosDbs": "DeployIfNotExists",
+                        "enableAscForAppServices": "DeployIfNotExists",
+                        "enableAscForStorage": "DeployIfNotExists",
+                        "enableAscForOssDb": "DeployIfNotExists",
+                        "enableAscForKeyVault": "DeployIfNotExists",
+                        "enableAscForArm": "DeployIfNotExists",
+                        "enableAscForSqlOnVm": "DeployIfNotExists",
+                        "enableAscForContainers": "DeployIfNotExists",
+                        "enableAscForServersVulnerabilityAssessments": "DeployIfNotExists",
+                        "enableAscForSql": "DeployIfNotExists",
+                        "enableAscForCspm": "DeployIfNotExists"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Microsoft Defender for Cloud and Security Contacts must be deployed."
+                        }
+                    ]
+                },
+                {
+                    "nodeName": "MDFE",
+                    "assignment": {
+                        "name": "Deploy-MDEndpoints",
+                        "displayName": "[Preview]: Deploy Microsoft Defender for Endpoint agent",
+                        "description": "Deploy Microsoft Defender for Endpoint agent on applicable images."
+                    },
+                    "definitionEntry": {
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/e20d08c5-6d64-656d-6465-ce9e37fd0ebc",
+                        "displayName": "Microsoft Defender for Endpoint agent"
+                    },
+                    "parameters": {
+                        "microsoftDefenderForEndpointWindowsVmAgentDeployEffect": "DeployIfNotExists",
+                        "microsoftDefenderForEndpointLinuxVmAgentDeployEffect": "DeployIfNotExists",
+                        "microsoftDefenderForEndpointWindowsArcAgentDeployEffect": "DeployIfNotExists",
+                        "microsoftDefenderForEndpointLinuxArcAgentDeployEffect": "DeployIfNotExists"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Microsoft Defender for Endpoint agent must be deployed on applicable images."
+                        }
+                    ]
+                },
+                {
+                    "nodeName": "MDAMA",
+                    "assignment": {
+                        "name": "Deploy-MDEndpointsAMA",
+                        "displayName": "Configure multiple Microsoft Defender for Endpoint integration settings with Microsoft Defender for Cloud",
+                        "description": "Configure the multiple Microsoft Defender for Endpoint integration settings with Microsoft Defender for Cloud (WDATP, WDATP_EXCLUDE_LINUX_PUBLIC_PREVIEW, WDATP_UNIFIED_SOLUTION etc.). See: https://learn.microsoft.com/azure/defender-for-cloud/integration-defender-for-endpoint for more information."
+                    },
+                    "definitionEntry": {
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/77b391e3-2d5d-40c3-83bf-65c846b3c6a3",
+                        "displayName": "Configure multiple Microsoft Defender for Endpoint integration settings with Microsoft Defender for Cloud",
+                        "nonComplianceMessages": [
+                            {
+                                "policyDefinitionReferenceId": null,
+                                "message": "Microsoft Defender for Endpoint must be deployed."
+                            }
+                        ]
+                    }
+                },
+                {
+                    "nodeName": "MDFEOSSDB",
+                    "assignment": {
+                        "name": "Deploy-MDFC-OssDb",
+                        "displayName": "Configure Advanced Threat Protection to be enabled on open-source relational databases",
+                        "description": "Enable Advanced Threat Protection on your non-Basic tier open-source relational databases to detect anomalous activities indicating unusual and potentially harmful attempts to access or exploit databases. See https://aka.ms/AzDforOpenSourceDBsDocu."
+                    },
+                    "definitionEntry": {
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/e77fc0b3-f7e9-4c58-bc13-cb753ed8e46e",
+                        "displayName": "Microsoft Defender for Endpoint open-source relational databases"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Advanced Threat Protection must be enabled on open-source relational databases."
+                        }
+                    ]
+                },
+                {
+                    "nodeName": "MDFCSQLATP",
+                    "assignment": {
+                        "name": "Deploy-MDFC-SqlAtp",
+                        "displayName": "Configure Azure Defender to be enabled on SQL Servers and SQL Managed Instances",
+                        "description": "Enable Azure Defender on your SQL Servers and SQL Managed Instances to detect anomalous activities indicating unusual and potentially harmful attempts to access or exploit databases."
+                    },
+                    "definitionEntry": {
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/9cb3cc7a-b39b-4b82-bc89-e5a5d9ff7b97",
+                        "displayName": "Microsoft Defender for SQL Servers and SQL Managed Instances"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Azure Defender must be enabled on SQL Servers and SQL Managed Instances."
+                        }
+                    ]
+                },
+                {
+                    "nodeName": "ACSB",
+                    "assignment": {
+                        "name": "Enforce-ACSB",
+                        "displayName": "Enforce Azure Compute Security Baseline compliance auditing",
+                        "description": "This initiative assignment enables Azure Compute Security Baseline compliance auditing for Windows and Linux virtual machines."
+                    },
+                    "definitionEntry": {
+                        "policySetName": "Enforce-ACSB",
+                        "displayName": "Azure Compute Security Baseline"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Azure Compute Security Baseline compliance auditing must be enforced."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "nodeName": "Logging/",
+            "children": [
+                {
+                    "nodeName": "ActivityLogs",
+                    "assignment": {
+                        "name": "Deploy-AzActivity-Log",
+                        "displayName": "Configure Azure Activity logs to stream to specified Log Analytics workspace",
+                        "description": "Deploys the diagnostic settings for Azure Activity to stream subscriptions audit logs to a Log Analytics workspace to monitor subscription-level events"
+                    },
+                    "definitionEntry": {
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/2465583e-4e78-4c15-b6be-a36cbc7c8b0f",
+                        "displayName": "Activity Logs"
+                    },
+                    "parameters": {},
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Azure Activity logs must be configured to stream to specified Log Analytics workspace."
+                        }
+                    ]
+                },
+                {
+                    "nodeName": "ResourceDiagnostics",
+                    "assignment": {
+                        "name": "Deploy-Diag-Logs",
+                        "displayName": "Enable allLogs category group resource logging for supported resources to Log Analytics",
+                        "description": "Resource logs should be enabled to track activities and events that take place on your resources and give you visibility and insights into any changes that occur. This initiative deploys diagnostic setting using the allLogs category group to route logs to an Event Hub for all supported resources."
+                    },
+                    "definitionEntry": {
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/0884adba-2312-4468-abeb-5422caed1038",
+                        "displayName": "Enable allLogs category group resource logging for supported resources to Log Analytics"
+                    },
+                    "parameters": {},
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Diagnostic settings must be deployed to Azure services to forward logs to Log Analytics."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "nodeName": "Compute/",
+            "children": [
+                {
+                    "nodeName": "DenyUnmanagedDisk",
+                    "assignment": {
+                        "name": "Deny-UnmanagedDisk",
+                        "displayName": "Deny virtual machines and virtual machine scale sets that do not use managed disk",
+                        "description": "Deny virtual machines that do not use managed disk. It checks the managed disk property on virtual machine OS Disk fields."
+                    },
+                    "definitionEntry": {
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/06a78e20-9358-41c9-923c-fb736d382a4d",
+                        "displayName": "Unmanaged Disks"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Virtual machines and virtual machine scales sets must use a managed disk."
+                        }
+                    ],
+                    "overrides": [
+                        {
+                            "kind": "policyEffect",
+                            "value": "Deny"
+                        }
+                    ]
+                },
+                {
+                    "nodeName": "TrustedLaunch",
+                    "assignment": {
+                        "name": "Audit-TrustedLaunch",
+                        "displayName": "Audit virtual machines for Trusted Launch support",
+                        "description": "Trusted Launch improves security of a Virtual Machine which requires VM SKU, OS Disk & OS Image to support it (Gen 2). To learn more about Trusted Launch, visit https://aka.ms/trustedlaunch."
+                    },
+                    "definitionEntry": {
+                        "policySetName": "Audit-TrustedLaunch",
+                        "displayName": "Audit virtual machines for Trusted Launch support"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "policyDefinitionReferenceId": null,
+                            "message": "Trusted Launch must be used on supported virtual machines for enhanced security."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "nodeName": "Platform/",
+            "children": [
+                {
+                    "nodeName": "DenyClassicResources",
+                    "assignment": {
+                        "name": "Deny-Classic-Resources",
+                        "displayName": "Deny the deployment of classic resources",
+                        "description": "Denies deployment of classic resource types under the assigned scope."
+                    },
+                    "definitionEntry": {
+                        "policyName": "6c112d4e-5bc7-47ae-a041-ea2d9dccd749",
+                        "displayName": "Not allowed resource types"
+                    },
+                    "parameters": {
+                        "listOfResourceTypesNotAllowed": [
+                            "Microsoft.ClassicCompute/capabilities",
+                            "Microsoft.ClassicCompute/checkDomainNameAvailability",
+                            "Microsoft.ClassicCompute/domainNames",
+                            "Microsoft.ClassicCompute/domainNames/capabilities",
+                            "Microsoft.ClassicCompute/domainNames/internalLoadBalancers",
+                            "Microsoft.ClassicCompute/domainNames/serviceCertificates",
+                            "Microsoft.ClassicCompute/domainNames/slots",
+                            "Microsoft.ClassicCompute/domainNames/slots/roles",
+                            "Microsoft.ClassicCompute/domainNames/slots/roles/metricDefinitions",
+                            "Microsoft.ClassicCompute/domainNames/slots/roles/metrics",
+                            "Microsoft.ClassicCompute/moveSubscriptionResources",
+                            "Microsoft.ClassicCompute/operatingSystemFamilies",
+                            "Microsoft.ClassicCompute/operatingSystems",
+                            "Microsoft.ClassicCompute/operations",
+                            "Microsoft.ClassicCompute/operationStatuses",
+                            "Microsoft.ClassicCompute/quotas",
+                            "Microsoft.ClassicCompute/resourceTypes",
+                            "Microsoft.ClassicCompute/validateSubscriptionMoveAvailability",
+                            "Microsoft.ClassicCompute/virtualMachines",
+                            "Microsoft.ClassicCompute/virtualMachines/diagnosticSettings",
+                            "Microsoft.ClassicCompute/virtualMachines/metricDefinitions",
+                            "Microsoft.ClassicCompute/virtualMachines/metrics",
+                            "Microsoft.ClassicInfrastructureMigrate/classicInfrastructureResources",
+                            "Microsoft.ClassicNetwork/capabilities",
+                            "Microsoft.ClassicNetwork/expressRouteCrossConnections",
+                            "Microsoft.ClassicNetwork/expressRouteCrossConnections/peerings",
+                            "Microsoft.ClassicNetwork/gatewaySupportedDevices",
+                            "Microsoft.ClassicNetwork/networkSecurityGroups",
+                            "Microsoft.ClassicNetwork/operations",
+                            "Microsoft.ClassicNetwork/quotas",
+                            "Microsoft.ClassicNetwork/reservedIps",
+                            "Microsoft.ClassicNetwork/virtualNetworks",
+                            "Microsoft.ClassicNetwork/virtualNetworks/remoteVirtualNetworkPeeringProxies",
+                            "Microsoft.ClassicNetwork/virtualNetworks/virtualNetworkPeerings",
+                            "Microsoft.ClassicStorage/capabilities",
+                            "Microsoft.ClassicStorage/checkStorageAccountAvailability",
+                            "Microsoft.ClassicStorage/disks",
+                            "Microsoft.ClassicStorage/images",
+                            "Microsoft.ClassicStorage/operations",
+                            "Microsoft.ClassicStorage/osImages",
+                            "Microsoft.ClassicStorage/osPlatformImages",
+                            "Microsoft.ClassicStorage/publicImages",
+                            "Microsoft.ClassicStorage/quotas",
+                            "Microsoft.ClassicStorage/storageAccounts",
+                            "Microsoft.ClassicStorage/storageAccounts/blobServices",
+                            "Microsoft.ClassicStorage/storageAccounts/fileServices",
+                            "Microsoft.ClassicStorage/storageAccounts/metricDefinitions",
+                            "Microsoft.ClassicStorage/storageAccounts/metrics",
+                            "Microsoft.ClassicStorage/storageAccounts/queueServices",
+                            "Microsoft.ClassicStorage/storageAccounts/services",
+                            "Microsoft.ClassicStorage/storageAccounts/services/diagnosticSettings",
+                            "Microsoft.ClassicStorage/storageAccounts/services/metricDefinitions",
+                            "Microsoft.ClassicStorage/storageAccounts/services/metrics",
+                            "Microsoft.ClassicStorage/storageAccounts/tableServices",
+                            "Microsoft.ClassicStorage/storageAccounts/vmImages",
+                            "Microsoft.ClassicStorage/vmImages",
+                            "Microsoft.ClassicSubscription/operations"
+                        ]
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Classic resources must not be deployed."
+                        }
+                    ]
+                },
+                {
+                    "nodeName": "UnusedResources",
+                    "assignment": {
+                        "name": "Audit-UnusedResources",
+                        "displayName": "Unused resources driving cost should be avoided",
+                        "description": "This Policy initiative is a group of Policy definitions that help optimize cost by detecting unused but chargeable resources. Leverage this Policy initiative as a cost control to reveal orphaned resources that are driving cost."
+                    },
+                    "definitionEntry": {
+                        "policySetName": "Audit-UnusedResourcesCostOptimization",
+                        "displayName": "Unused Resources"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Unused resources driving cost must be avoided."
+                        }
+                    ]
+                },
+                {
+                    "nodeName": "ZoneResiliency",
+                    "assignment": {
+                        "name": "Audit-ZoneResiliency",
+                        "displayName": "Resources should be Zone Resilient",
+                        "description": "Resources should be Zone Resilient."
+                    },
+                    "definitionEntry": {
+                        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/130fb88f-0fc9-4678-bfe1-31022d71c7d5"
+                    },
+                    "parameters": {
+                        "allow": "Both"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Resources must be Zone Resilient."
+                        }
+                    ]
+                },
+                {
+                    "nodeName": "RGLocation",
+                    "assignment": {
+                        "name": "Audit-ResourceRGLocation",
+                        "displayName": "Resource Group and Resource locations should match",
+                        "description": "Resource Group and Resource locations should match."
+                    },
+                    "definitionEntry": {
+                        "policyId": "/providers/Microsoft.Authorization/policyDefinitions/0a914e76-4921-4c19-b460-a2d36003525a"
+                    },
+                    "nonComplianceMessages": [
+                        {
+                            "message": "Resources must be deployed in the same region as the Resource Group."
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
