@@ -271,7 +271,7 @@
         ],
         "menuOptions": {
             "Module": "This choice will require that the EnterprisePolicyAsCode module in PSGallery be available in the pipeline(s).",
-            "LocalScript": "This choice will require a local copy of the EPAC source code be available to the pipeline(s)."
+            "Script": "This choice will require a local copy of the EPAC source code be available to the pipeline(s)."
         }
     },
     // "pipelineFlow": { // TODO: Update Release bodyText information when additional pacSelectors become available in the next release.
