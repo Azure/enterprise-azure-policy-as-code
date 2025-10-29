@@ -1,4 +1,11 @@
-# Integrating EPAC with the Azure Landing Zones Library (Legacy)
+# Integrating EPAC with the Azure Landing Zones Library (Legacy - Deprecated)
+
+> [!CAUTION]
+> **This integration approach is deprecated and no longer maintained.**  
+> The `Sync-ALZPolicies` command and associated workflows have been removed.  
+> Please use the [new Azure Landing Zones Library integration](integrating-with-alz-library.md) using `Sync-ALZPolicyFromLibrary` instead.
+
+This page is retained for historical reference only.
 
 ## Scenario 1 - Existing Deployment
 
@@ -103,12 +110,15 @@ To deploy the ALZ policies using EPAC follow the steps below.
 
 3. Update the `global-settings.json` file in the Definitions folder as described [here](settings-global-setting-file.md)
 
-4. Synchronize the policies from the upstream repository. You should ensure that you are running the latest version of the EPAC module before running this script each time.
+4. ~~Synchronize the policies from the upstream repository. You should ensure that you are running the latest version of the EPAC module before running this script each time.~~
 
-    ```ps1
+    > [!WARNING]
+    > The `Sync-ALZPolicies` command has been removed. Please use the [new approach](integrating-with-alz-library.md) with `Sync-ALZPolicyFromLibrary`.
+
+    ~~```ps1
     Sync-ALZPolicies -DefinitionsRootFolder .\Definitions -CloudEnvironment AzureCloud
     # Also accepts AzureUSGovernment or AzureChinaCloud
-    ```
+    ```~~
 
 5. Update the assignments scopes. Each assignment file has a default scope assigned to it - this need to be updated to reflect your environment and `global-settings.jsonc` file.
 
@@ -164,37 +174,43 @@ To deploy the ALZ policies using EPAC follow the steps below.
 
 ## Keeping up to date with changes manually
 
-The Azure Landing Zone deployment contains several policies that help provide guardrails to an environment, and the team that works on these policies is always providing updates to the original content to keep in line with Microsoft's best practices and road maps. The EPAC solution contains a function to help synchronize changes from the upstream project.
+> [!WARNING]
+> The `Sync-ALZPolicies` command has been removed. Please use the [new approach](integrating-with-alz-library.md) with `Sync-ALZPolicyFromLibrary`.
 
-To pull the latest changes from the upstream repository - use the code below.
+~~The Azure Landing Zone deployment contains several policies that help provide guardrails to an environment, and the team that works on these policies is always providing updates to the original content to keep in line with Microsoft's best practices and road maps. The EPAC solution contains a function to help synchronize changes from the upstream project.~~
 
-```ps1
+~~To pull the latest changes from the upstream repository - use the code below.~~
+
+~~```ps1
 Sync-ALZPolicies -DefinitionsRootFolder .\Definitions -CloudEnvironment AzureCloud # Also accepts AzureUSGovernment or AzureChinaCloud
-```
+```~~
 
-Carefully review the proposed changes before deploying them. It is best to make sure you're project is stored in source control so you can easily see which files have changed before deployment.
-
-> [!WARNING]
-> If you have followed Scenario 1 above, the first time you run the `Sync-ALZPolicies`, there will be many changes recorded due to formatting. Review the files completely before deploying.
+~~Carefully review the proposed changes before deploying them. It is best to make sure you're project is stored in source control so you can easily see which files have changed before deployment.~~
 
 > [!WARNING]
-> Assignments deployed via the ALZ accelerators are kept in sync with the EnterprisePolicyAsCode module so ensure you have the latest PowerShell module installed before running `Sync-ALZPolicies`
+> ~~If you have followed Scenario 1 above, the first time you run the `Sync-ALZPolicies`, there will be many changes recorded due to formatting. Review the files completely before deploying.~~
+
+> [!WARNING]
+> ~~Assignments deployed via the ALZ accelerators are kept in sync with the EnterprisePolicyAsCode module so ensure you have the latest PowerShell module installed before running `Sync-ALZPolicies`~~
 
 > [!TIP]
-> Rename or copy the default ALZ assignment files - when you do a sync, it makes it easier to compare changes.
+> ~~Rename or copy the default ALZ assignment files - when you do a sync, it makes it easier to compare changes.~~
 
 ## Keeping up to date with GitHub Actions
 
-There is a GitHub action workflow which executes the above script. The process for configuring it is below.
+> [!WARNING]
+> The `alz-sync.yaml` workflow has been removed as the `Sync-ALZPolicies` command is no longer available. Please use the [new approach](integrating-with-alz-library.md) with `Sync-ALZPolicyFromLibrary`.
 
-1. Copy the `alz-sync.yaml` file from [here](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/StarterKit/Pipelines/GitHubActions/alz-sync.yaml) to `.github\workflows\alz-sync.yaml` in your repository.
-2. Update the `env:` section with details below
+~~There is a GitHub action workflow which executes the above script. The process for configuring it is below.~~
 
-    | Environment Variable Name | Value | Notes |
-    |---|---|---|
-    | REVIEWER | Add a GitHub user to review the PR |
-    | definitionsRootFolder | The folder containing `global-settings.jsonc` and definitions |
+~~1. Copy the `alz-sync.yaml` file from [here](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/StarterKit/Pipelines/GitHubActions/alz-sync.yaml) to `.github\workflows\alz-sync.yaml` in your repository.~~
+~~2. Update the `env:` section with details below~~
 
-3. Run the workflow - new policies will be synced from the source.
-4. Before merging the PR - checkout the branch and confirm that changes. Note that the sync script will overwrite the default assignments so ensure you compare for new functionality before reverting.
-5. When changes are confirmed - merge the PR.
+    ~~| Environment Variable Name | Value | Notes |~~
+    ~~|---|---|---|~~
+    ~~| REVIEWER | Add a GitHub user to review the PR |~~
+    ~~| definitionsRootFolder | The folder containing `global-settings.jsonc` and definitions |~~
+
+~~3. Run the workflow - new policies will be synced from the source.~~
+~~4. Before merging the PR - checkout the branch and confirm that changes. Note that the sync script will overwrite the default assignments so ensure you compare for new functionality before reverting.~~
+~~5. When changes are confirmed - merge the PR.~~
