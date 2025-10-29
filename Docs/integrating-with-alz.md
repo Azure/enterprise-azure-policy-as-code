@@ -203,7 +203,7 @@ Sync-ALZPolicies -DefinitionsRootFolder .\Definitions -CloudEnvironment AzureClo
 
 ~~There is a GitHub action workflow which executes the above script. The process for configuring it is below.~~
 
-~~1. Copy the `alz-sync.yaml` file from [here](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/StarterKit/Pipelines/GitHubActions/alz-sync.yaml) to `.github\workflows\alz-sync.yaml` in your repository.~~
+~~1. Copy the `alz-sync.yaml` file (now removed) to `.github\workflows\alz-sync.yaml` in your repository.~~
 ~~2. Update the `env:` section with details below~~
 
     ~~| Environment Variable Name | Value | Notes |~~
