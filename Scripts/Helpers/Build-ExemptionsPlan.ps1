@@ -715,11 +715,11 @@ function Build-ExemptionsPlan {
                                             $null = $filteredPolicyAssignments.Add($clonedCalculatedPolicyAssignment)
                                         }
                                         else {
-                                            Write-ModernStatus -Message "Exemption scope = '$($currentScope)' is in the notScopes list for Assignment '$($calculatedPolicyAssignment.id)'." -Status "warning" -Indent 4
+                                            Write-ModernStatus -Message "Exemption scope = '$($currentScope)' is in the notScopes list for Assignment  `n      '$($calculatedPolicyAssignment.id)'." -Status "warning" -Indent 4
                                         }
                                     }
                                     else {
-                                        Write-ModernStatus -Message "Assignment scope = '$($policyAssignmentScope)' is not in the current scope tree for root $($PacEnvironment.deploymentRootScope), skipping assignment." -Status "warning" -Indent 4
+                                        Write-ModernStatus -Message "Assignment scope = '$($policyAssignmentScope)' is not in the current scope tree for root  `n      $($PacEnvironment.deploymentRootScope), skipping assignment." -Status "warning" -Indent 4
                                     }
                                 }
                             }
