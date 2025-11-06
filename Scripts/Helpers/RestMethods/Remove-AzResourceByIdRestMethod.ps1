@@ -9,7 +9,7 @@ function Remove-AzResourceByIdRestMethod {
     )
 
     # Write log info
-    Write-Information $Id
+    Write-ModernStatus -Message "Removing resource: $Id" -Status "warning" -Indent 4
 
     # Invoke the REST API
     $path = "$($Id)?api-version=$($ApiVersion)"

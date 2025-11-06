@@ -25,7 +25,7 @@ function Set-AzRoleAssignmentRestMethod {
     }
 
 
-    Write-Information "Assignment '$($RoleAssignment.assignmentDisplayName)', principalId $($properties.principalId), role '$($RoleAssignment.roleDisplayName)' at $($scope)"
+    Write-ModernStatus -Message "Setting role assignment: '$($RoleAssignment.assignmentDisplayName)' - $($RoleAssignment.roleDisplayName) at $($scope)" -Status "info" -Indent 4
 
     # Invoke the REST API
     $bodyJson = ConvertTo-Json $body -Depth 100 -Compress

@@ -14,9 +14,8 @@ function Build-AssignmentPlan {
         [hashtable] $DeprecatedHash
     )
 
-    Write-Information "==================================================================================================="
-    Write-Information "Processing Policy Assignments JSON files in folder '$AssignmentsRootFolder'"
-    Write-Information "==================================================================================================="
+    Write-ModernSection -Title "Processing Policy Assignments" -Color Yellow
+    Write-ModernStatus -Message "Source folder: $AssignmentsRootFolder" -Status "info" -Indent 2
 
     $assignmentFiles = @()
     $assignmentFiles += Get-ChildItem -Path $AssignmentsRootFolder -Recurse -File -Filter "*.json"
@@ -24,7 +23,7 @@ function Build-AssignmentPlan {
     $csvFiles = Get-ChildItem -Path $AssignmentsRootFolder -Recurse -File -Filter "*.csv"
     $parameterFilesCsv = @{}
     if ($assignmentFiles.Length -gt 0) {
-        Write-Information "Number of Policy Assignment files = $($assignmentFiles.Length)"
+        Write-ModernStatus -Message "Found $($assignmentFiles.Length) assignment files" -Status "success" -Indent 2
         foreach ($csvFile in $csvFiles) {
             $parameterFilesCsv.Add($csvFile.Name, $csvFile.FullName)
         }
@@ -50,7 +49,6 @@ function Build-AssignmentPlan {
             }
         }
 
-        # Write-Information ""
         $assignmentObject = $null
         try {
             $assignmentObject = $Json | ConvertFrom-Json -Depth 100 -AsHashtable
@@ -356,8 +354,7 @@ function Build-AssignmentPlan {
     }
 
     if ($isUserAssignedAny) {
-        Write-Warning "EPAC does not manage role assignments for Policy Assignments with user-assigned Managed Identities."
+        Write-ModernStatus -Message "User-assigned Managed Identities detected - EPAC does not manage their role assignments" -Status "warning" -Indent 2
     }
-    Write-Information "Number of unchanged Policy Assignments = $($Assignments.numberUnchanged)"
-    Write-Information ""
+    Write-ModernStatus -Message "Unchanged assignments: $($Assignments.numberUnchanged)" -Status "info" -Indent 2
 }

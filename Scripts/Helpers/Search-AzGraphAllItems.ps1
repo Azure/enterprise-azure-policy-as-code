@@ -51,7 +51,7 @@ function Search-AzGraphAllItems {
                 $contentString = $response.Content -join ""
                 $contentObj = ConvertFrom-Json -InputObject $contentString
                 if ($contentObj.error.details[0].code -eq "ResponsePayloadTooLarge") {
-                    Write-Host "Payload too large detected. Adjusting request and retrying..."
+                    Write-ModernStatus -Message "Payload too large detected - adjusting request and retrying..." -Status "warning" -Indent 4
                     $ProgressIncrement = [Convert]::ToInt32([math]::Floor($ProgressIncrement / 2))
                     # Modify body to include pagination options
                     $body = @{
@@ -67,7 +67,7 @@ function Search-AzGraphAllItems {
             }
         }
         catch {
-            Write-Warning "Recovering Data Stream Error: $_"
+            Write-ModernStatus -Message "Data stream error (attempt $($dsi + 1)): $_" -Status "warning" -Indent 4
             $dsi++
         }
     }until($dsi -eq 5 -or ($response.StatusCode -ge 200 -and $response.StatusCode -lt 300))
@@ -75,7 +75,7 @@ function Search-AzGraphAllItems {
         Write-Error "Failed to recover data stream after 5 attempts, information may be incomplete. Consider exiting running the script again."
     }
     elseif ($dsi -gt 1) {
-        Write-Information "Data Stream recovered after $dsi attempts"
+        Write-ModernStatus -Message "Data stream recovered after $dsi attempts" -Status "success" -Indent 4
     }
     $statusCode = $response.StatusCode
     $content = $response.Content
@@ -88,7 +88,7 @@ function Search-AzGraphAllItems {
     if ($count -gt 0) {
         $null = $data.AddRange($result.data)
         if ($data.count % $ProgressIncrement -eq 0) {
-            Write-Information "Retrieved $($data.count) $ProgressItemName"
+            Write-ModernStatus -Message "Retrieved $($data.count) $ProgressItemName" -Status "info" -Indent 4
         }
         while ($result.ContainsKey("`$skipToken")) {
             # More data available, $skipToken will allow the next query in this loop to continue where the last invocation ended
@@ -107,7 +107,7 @@ function Search-AzGraphAllItems {
             if ($count -gt 0) {
                 $null = $data.AddRange($result.data)
                 if ($data.count % $ProgressIncrement -eq 0) {
-                    Write-Information "Retrieved $($data.count) $ProgressItemName"
+                    Write-ModernStatus -Message "Retrieved $($data.count) $ProgressItemName" -Status "info" -Indent 4
                 }
             }
             else {
@@ -116,11 +116,11 @@ function Search-AzGraphAllItems {
         }
         $count = $data.Count
         if ($count % $ProgressIncrement -ne 0) {
-            Write-Information "Retrieved $($count) $ProgressItemName"
+            Write-ModernStatus -Message "Retrieved $($count) $ProgressItemName" -Status "success" -Indent 4
         }
     }
     else {
-        Write-Information "No $ProgressItemName found"
+        Write-ModernStatus -Message "No $ProgressItemName found" -Status "info" -Indent 4
     }
     Write-Output $data -NoEnumerate
 }

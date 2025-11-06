@@ -18,19 +18,20 @@ function Get-GlobalSettings {
     $InputFolder = $folders.inputFolder
     $globalSettingsFile = $folders.globalSettingsFile
 
-    Write-Information ""
-    Write-Information "==================================================================================================="
-    Write-Information "Read global settings from '$globalSettingsFile'."
-    Write-Information "==================================================================================================="
+    Write-ModernSection -Title "Global Settings Configuration" -Color Blue
+    Write-ModernStatus -Message "Reading global settings from: $globalSettingsFile" -Status "info" -Indent 2
 
     $Json = Get-Content -Path $globalSettingsFile -Raw -ErrorAction Stop
     $settings = @{}
     try {
         $settings = $Json | ConvertFrom-Json -AsHashTable
+        Write-ModernStatus -Message "Successfully parsed global settings JSON" -Status "success" -Indent 2
     }
     catch {
         Write-Error "Assignment JSON file '$($globalSettingsFile)' is not valid." -ErrorAction Stop
     }
+
+    Write-ModernProgress -Activity "Validating Global Settings Configuration"
 
     $telemetryOptOut = $settings.telemetryOptOut
     $telemetryEnabled = $true
@@ -287,7 +288,7 @@ function Get-GlobalSettings {
                                     $null = $globalExcludedScopesManagementGroupsList.Add($excludedScope)
                                 }
                                 else {
-                                    Write-Host "Global settings error: pacEnvironment $pacSelector field desiredState.excludedScopes ($excludedScope) must be a valid scope."
+                                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.excludedScopes ($excludedScope) must be a valid scope."
                                 }
                             }
                         }
@@ -364,15 +365,16 @@ function Get-GlobalSettings {
         }
     }
 
+    Write-ModernStatus -Message "Global settings validation complete" -Status "success" -Indent 2
     Write-ErrorsFromErrorInfo -ErrorInfo $errorInfo -ErrorAction Stop
 
+    Write-ModernSection -Title "Configuration Summary" -Color Green
     $prompt = $pacEnvironmentSelectors -join ", "
-    Write-Information "PAC Environments: $($prompt)"
-    Write-Information "PAC Owner Id: $pacOwnerId"
-    Write-Information "Definitions root folder: $DefinitionsRootFolder"
-    Write-Information "Input folder: $InputFolder"
-    Write-Information "Output folder: $OutputFolder"
-    Write-Information ""
+    Write-ModernStatus -Message "PAC Environments: $($prompt)" -Status "info" -Indent 2
+    Write-ModernStatus -Message "PAC Owner Id: $pacOwnerId" -Status "info" -Indent 2
+    Write-ModernStatus -Message "Definitions root folder: $DefinitionsRootFolder" -Status "info" -Indent 2
+    Write-ModernStatus -Message "Input folder: $InputFolder" -Status "info" -Indent 2
+    Write-ModernStatus -Message "Output folder: $OutputFolder" -Status "info" -Indent 2
     
 
     $policyDocumentationsFolder = "$DefinitionsRootFolder/policyDocumentations"

@@ -8,7 +8,7 @@ function Set-AzPolicyAssignmentRestMethod {
     # Write log info
     $id = $AssignmentObj.id
     $displayName = $AssignmentObj.displayName
-    Write-Information "$displayName - $id"
+    Write-ModernStatus -Message "Setting policy assignment: $displayName" -Status "info" -Indent 4
 
     # Fix parameters to the weird way assignments uses JSON
     $parametersTemp = Get-DeepCloneAsOrderedHashtable $AssignmentObj.parameters
@@ -59,7 +59,7 @@ function Set-AzPolicyAssignmentRestMethod {
     $statusCode = $response.StatusCode
     if ($statusCode -ge 300 -or $statusCode -lt 200) {
         $content = $response.Content
-        Write-Information "assignment: $assignmentJson"
+        Write-ModernStatus -Message "Assignment details: $assignmentJson" -Status "error" -Indent 6
         Write-Error "Definition error $($statusCode) -- $($AssignmentObj.displayName) --$($content)" -ErrorAction Stop
     }
 }

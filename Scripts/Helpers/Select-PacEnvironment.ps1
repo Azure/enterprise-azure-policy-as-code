@@ -35,7 +35,7 @@ function Select-PacEnvironment {
                     $pacEnvironment = $pacEnvironments[$PacEnvironmentSelector]
                 }
                 else {
-                    Write-Information "Invalid selection entered."
+                    Write-ModernStatus -Message "Invalid selection entered. Please try again." -Status "warning" -Indent 2
                 }
             }
         }
@@ -49,11 +49,12 @@ function Select-PacEnvironment {
             Write-Error "Policy as Code environment selector $PacEnvironmentSelector is not valid" -ErrorAction Stop
         }
     }
-    Write-Information "Environment Selected: $PacEnvironmentSelector"
-    Write-Information "    Cloud                 = $($pacEnvironment.cloud)"
-    Write-Information "    TenantId              = $($pacEnvironment.tenantId)"
-    Write-Information "    Deployment Root Scope = $($pacEnvironment.deploymentRootScope)"
-    Write-Information ""
+    
+    Write-ModernSection -Title "PAC Environment Selected" -Color Green
+    Write-ModernStatus -Message "Environment: $PacEnvironmentSelector" -Status "success" -Indent 2
+    Write-ModernStatus -Message "Cloud: $($pacEnvironment.cloud)" -Status "info" -Indent 2
+    Write-ModernStatus -Message "Tenant ID: $($pacEnvironment.tenantId)" -Status "info" -Indent 2
+    Write-ModernStatus -Message "Deployment Root Scope: $($pacEnvironment.deploymentRootScope)" -Status "info" -Indent 2
 
 
     $OutputFolder = $globalSettings.outputFolder
