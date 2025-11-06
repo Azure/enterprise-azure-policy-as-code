@@ -84,7 +84,7 @@ $InformationPreference = "Continue"
 $scriptStartTime = Get-Date
 
 # Display welcome header
-Write-ModernHeader -Title "Enterprise Policy as Code (EPAC)" -Subtitle "Building Deployment Plans" -HeaderColor Magenta -SubtitleColor DarkMagenta
+Write-ModernHeader -Title "Enterprise Policy as Code (EPAC)" -Subtitle "Building Deployment Plans" -HeaderColor Magenta -SubtitleColor Magenta
 
 $pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -Interactive $Interactive
 $null = Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -Interactive $pacEnvironment.interactive -DeploymentDefaultContext $pacEnvironment.defaultContext
@@ -449,7 +449,7 @@ if ($buildSelections.buildAny) {
         }
     }
 
-    Write-ModernHeader -Title "EPAC Deployment Plan Summary" -Subtitle "Policy as Code Resource Analysis" -HeaderColor Cyan
+    Write-ModernHeader -Title "EPAC Deployment Plan Summary" -Subtitle "Policy as Code Resource Analysis" -HeaderColor Magenta -SubtitleColor Magenta
 
     if ($buildSelections.buildPolicyDefinitions) {
         $policyChanges = @{

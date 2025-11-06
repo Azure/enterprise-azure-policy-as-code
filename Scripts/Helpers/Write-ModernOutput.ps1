@@ -66,7 +66,7 @@ function Write-ModernCountSummary {
         [int]$Indent = 2
     )
     
-    Write-ModernSection -Title "$Type Summary" -Color Blue
+    Write-ModernSection -Title "$Type Summary" -Color Magenta
     
     if ($Unchanged -gt 0) {
         Write-ModernStatus -Message "$Unchanged resources unchanged" -Status "info" -Indent $Indent
