@@ -13,11 +13,20 @@
 .PARAMETER OutputFolder
     Output folder path for plan files. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER or './Output'.
 
+.PARAMETER BuildExemptionsOnly
+    If set, only build the exemptions plan.
+
+.PARAMETER SkipExemptions
+    If set, do not build the exemptions plan.
+
 .PARAMETER Interactive
     Script is used interactively. Script can prompt the interactive user for input.
 
 .PARAMETER DevOpsType
     If set, outputs variables consumable by conditions in a DevOps pipeline. Valid values are '', 'ado' and 'gitlab'.
+
+.PARAMETER SkipNotScopedExemptions
+    If set, skip exemptions that are not scoped.
 
 .EXAMPLE
     .\Build-DeploymentPlans.ps1 -PacEnvironmentSelector "dev"
