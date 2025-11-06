@@ -239,7 +239,6 @@ foreach ($resourceType in $resourceTypes) {
         # Default mode - include all managed resources
         $shouldInclude = $true
     }
-    
     if ($shouldInclude) {
         # Special handling for exemptions
         if ($resourceType.Name -eq "Policy Exemptions") {
