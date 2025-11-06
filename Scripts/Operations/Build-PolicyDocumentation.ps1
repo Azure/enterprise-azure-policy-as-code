@@ -100,11 +100,11 @@ else {
 
 # Telemetry
 if ($globalSettings.telemetryEnabled) {
-    Write-Information "Telemetry is enabled"
+    Write-ModernStatus -Message "Telemetry is enabled" -Status "info" -Indent 2
     Submit-EPACTelemetry -Cuapid "pid-2dc29bae-2448-4d7f-b911-418421e83900" -DeploymentRootScope $pacEnvironment.deploymentRootScope
 }
 else {
-    Write-Information "Telemetry is disabled"
+    Write-ModernStatus -Message "Telemetry is disabled" -Status "info" -Indent 2
 }
 Write-Information ""
 
@@ -117,9 +117,8 @@ $pacEnvironment = $null
 #endregion Initialize
 
 Write-Information ""
-Write-Information "==================================================================================================="s
-Write-Information "Processing documentation definitions in folder '$definitionsFolder'"
-Write-Information "==================================================================================================="
+Write-ModernSection -Title "Processing Documentation Definitions" -Color Blue
+Write-ModernStatus -Message "Source folder: $definitionsFolder" -Status "info" -Indent 2
 if (!(Test-Path $definitionsFolder -PathType Container)) {
     Write-Error "Policy documentation specification folder 'policyDocumentations not found.  This EPAC instance cannot generate documentation." -ErrorAction Stop
 }
@@ -130,7 +129,7 @@ $filesRaw += Get-ChildItem -Path $definitionsFolder -Recurse -File -Filter "*.js
 $files = @()
 $files += ($filesRaw  | Sort-Object -Property Name)
 if ($files.Length -gt 0) {
-    Write-Information "Number of documentation definition files = $($files.Length)"
+    Write-ModernStatus -Message "Found $($files.Length) documentation definition files" -Status "success" -Indent 2
 }
 else {
     Write-Error "No documentation definition files found!" -ErrorAction Stop
@@ -158,7 +157,7 @@ foreach ($file in $files) {
             }
             1 {
                 $processThisFile = $false
-                Write-Information "Skipping file '$($file.Name)'"
+                Write-ModernStatus -Message "Skipping file: $($file.Name)" -Status "skip" -Indent 4
             }
             2 {
                 $processThisFile = $true
@@ -168,7 +167,7 @@ foreach ($file in $files) {
     }
 
     if ($processThisFile) {
-        Write-Information "Reading and Processing '$($file.Name)'"
+        Write-ModernStatus -Message "Reading and processing: $($file.Name)" -Status "info" -Indent 4
         $json = Get-Content -Path $file.FullName -Raw -ErrorAction Stop
         try {
             $documentationSpec = $json | ConvertFrom-Json
@@ -331,7 +330,7 @@ foreach ($file in $files) {
             foreach ($documentationSpecification in $documentationSpecifications) {
                 $documentationType = $documentationSpecification.type
                 if ($null -ne $documentationType) {
-                    Write-Information "Field documentationType ($($documentationType)) is deprecated"
+                    Write-ModernStatus -Message "Field documentationType ($documentationType) is deprecated" -Status "warning" -Indent 6
                 }
                 Out-DocumentationForPolicyAssignments `
                     -OutputPath $outputPath `
@@ -388,7 +387,8 @@ foreach ($file in $files) {
             $currentConfig = $documentationSpec.documentAssignments.documentAllAssignments
             if ($currentConfig -is [array]) {
                 $excludeScopeTypes = $currentConfig[0].excludeScopeTypes
-            } else {
+            }
+            else {
                 $excludeScopeTypes = $currentConfig.excludeScopeTypes
             }
             
@@ -428,7 +428,8 @@ foreach ($file in $files) {
                         $excludeScopeTypes = $currentConfig[0].excludeScopeTypes
                         $skipPolicyAssignments = $currentConfig[0].skipPolicyAssignments
                         $skipPolicyDefinitions = $currentConfig[0].skipPolicyDefinitions
-                    } else {
+                    }
+                    else {
                         $excludeScopeTypes = $currentConfig.excludeScopeTypes
                         $skipPolicyAssignments = $currentConfig.skipPolicyAssignments
                         $skipPolicyDefinitions = $currentConfig.skipPolicyDefinitions
@@ -595,11 +596,11 @@ foreach ($file in $files) {
 
                 $documentationType = $documentationSpecification.type
                 if ($null -ne $documentationType) {
-                    Write-Information "Field documentationType ($($documentationType)) is deprecated"
+                    Write-ModernStatus -Message "Field documentationType ($documentationType) is deprecated" -Status "warning" -Indent 6
                 }
                 Out-DocumentationForPolicyAssignments `
-                    -OutputPath $outputPath `
-                    -OutputPathServices $outputPathServices `
+                    -OutputPath $outputPath
+                -OutputPathServices $outputPathServices `
                     -WindowsNewLineCells:$WindowsNewLineCells `
                     -DocumentationSpecification $documentationSpecification `
                     -AssignmentsByEnvironment $assignmentsByEnvironment `

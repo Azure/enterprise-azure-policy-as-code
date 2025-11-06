@@ -331,7 +331,7 @@ if ($buildSelections.buildAny) {
     }
 
     if ($buildSelections.buildPolicyDefinitions) {
-        Write-ModernProgress -Activity "Analyzing Policy Definitions"
+        #Write-ModernProgress -Activity "Analyzing Policy Definitions"
         # Process Policies
         Build-PolicyPlan `
             -DefinitionsRootFolder $policyDefinitionsFolder `
@@ -369,7 +369,7 @@ if ($buildSelections.buildAny) {
     }
 
     if ($buildSelections.buildPolicySetDefinitions) {
-        Write-ModernProgress -Activity "Analyzing Policy Set Definitions"
+        #Write-ModernProgress -Activity "Analyzing Policy Set Definitions"
         # Process Policy Sets
         Build-PolicySetPlan `
             -DefinitionsRootFolder $policySetDefinitionsFolder `
@@ -401,7 +401,7 @@ if ($buildSelections.buildAny) {
     }
 
     if ($buildSelections.buildPolicyAssignments) {
-        Write-ModernProgress -Activity "Analyzing Policy Assignments"
+        #Write-ModernProgress -Activity "Analyzing Policy Assignments"
         # Process Assignment JSON files
         Build-AssignmentPlan `
             -AssignmentsRootFolder $policyAssignmentsFolder `
@@ -418,7 +418,7 @@ if ($buildSelections.buildAny) {
     }
 
     if ($buildSelections.buildPolicyExemptions) {
-        Write-ModernProgress -Activity "Analyzing Policy Exemptions"
+        #Write-ModernProgress -Activity "Analyzing Policy Exemptions"
         # Process Exemption JSON files
         if ($SkipNotScopedExemptions) {
             Build-ExemptionsPlan `
