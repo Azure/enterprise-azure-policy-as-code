@@ -43,6 +43,7 @@ For saving the output related to ```Build-DeploymentPlans``` there is global var
 | `OutputFolder` | Output folder path for plan files. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER` or `./Output`. |
 | `DevOpsType` | If set, outputs variables consumable by conditions in a DevOps pipeline. Default: not set. |
 | `BuildExemptionsOnly` | If set, only builds the Exemptions plan. This useful to fast-track Exemption when utilizing [Release Flow](#advanced-cicd-with-release-flow) Default: not set. |
+| `SkipExemptions`| If set exemptions will not be built as part of the plan. |
 
 ### Policy Deployment
 Deploys Policies, Policy Sets, Policy Assignments, and Policy Exemptions at their desired scope based on the plan.
@@ -62,6 +63,7 @@ Deploys Policies, Policy Sets, Policy Assignments, and Policy Exemptions at thei
 | `DefinitionsRootFolder` | Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER` or `./Definitions`. It must contain the file `global-settings.jsonc`. |
 | `Interactive` | Defaults to `$false`. |
 | `InputFolder` | Input folder path for plan files. Defaults to environment variable `$env:PAC_INPUT_FOLDER`, `$env:PAC_OUTPUT_FOLDER` or `./Output`. |
+| `SkipExemptions` | If set exemptions will not be deployed. |
 
 ### Role Deployment
 Creates the role assignments for the Managed Identities required for `DeployIfNotExists` and `Modify` Policies.
