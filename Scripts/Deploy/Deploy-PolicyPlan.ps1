@@ -108,7 +108,6 @@ else {
             }
         }
     }
-    
     $table = ConvertTo-HashTable $plan.assignments.delete
     $table += ConvertTo-HashTable $plan.assignments.replace
     if ($table.psbase.Count -gt 0) {
