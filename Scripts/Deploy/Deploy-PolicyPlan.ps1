@@ -16,6 +16,9 @@
 .PARAMETER Interactive
     Use switch to indicate interactive use
 
+.PARAMETER SkipExemptions
+    If set, do not deploy the exemptions plan.
+
 .EXAMPLE
     Deploy-PolicyPlan.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\git\policy-as-code\Definitions" -InputFolder "C:\git\policy-as-code\Output" -Interactive
     Deploys Policy resources from a plan file.
