@@ -159,9 +159,30 @@ function Get-AzPolicyResources {
         }
         Write-ModernStatus -Message "Built-in: $($counters.builtIn)" -Status "info" -Indent 3
         Write-ModernStatus -Message "Managed ($($managedByAny)):" -Status "info" -Indent 3
-        Write-ModernStatus -Message "This PaC: $($managedBy.thisPaC)" -Status "success" -Indent 6
-        Write-ModernStatus -Message "Other PaC: $($managedBy.otherPaC)" -Status "warning" -Indent 6
-        Write-ModernStatus -Message "Unknown: $($managedBy.unknown)" -Status "warning" -Indent 6
+        
+        # Check if thisPaC is greater than 0 to set status
+        if ($($managedBy.thisPaC) -gt 0) {
+            Write-ModernStatus -Message "This PaC: $($managedBy.thisPaC)" -Status "success" -Indent 6
+        }
+        else {
+            Write-ModernStatus -Message "This PaC: $($managedBy.thisPaC)" -Status "info" -Indent 6
+        }
+        
+        # Check if otherPaC is greater than 0 to set status
+        if ($($managedBy.otherPaC) -gt 0) {
+            Write-ModernStatus -Message "Other PaC: $($managedBy.otherPaC)" -Status "warning" -Indent 6
+        }
+        else {
+            Write-ModernStatus -Message "Other PaC: $($managedBy.otherPaC)" -Status "info" -Indent 6
+        }
+
+        # Check if unknown is greater than 0 to set status
+        if ($($managedBy.unknown) -gt 0) {
+            Write-ModernStatus -Message "Unknown: $($managedBy.unknown)" -Status "warning" -Indent 6
+        }
+        else {
+            Write-ModernStatus -Message "Unknown: $($managedBy.unknown)" -Status "info" -Indent 6
+        }
         Write-ModernStatus -Message "Inherited: $($counters.inherited)" -Status "info" -Indent 3
         Write-ModernStatus -Message "Excluded: $($counters.excluded)" -Status "skip" -Indent 3
     }
@@ -171,9 +192,29 @@ function Get-AzPolicyResources {
     $managedByAny = $managedBy.thisPaC + $managedBy.otherPaC + $managedBy.unknown + $managedBy.dfcSecurityPolicies + $managedBy.dfcDefenderPlans
     Write-ModernStatus -Message "`nPolicy Assignments:" -Status default -Indent 2
     Write-ModernStatus -Message "Managed ($($managedByAny)):" -Status "info" -Indent 3
-    Write-ModernStatus -Message "This PaC: $($managedBy.thisPaC)" -Status "success" -Indent 6
-    Write-ModernStatus -Message "Other PaC: $($managedBy.otherPaC)" -Status "warning" -Indent 6
-    Write-ModernStatus -Message "Unknown: $($managedBy.unknown)" -Status "warning" -Indent 6
+    # Check if thisPaC is greater than 0 to set status
+    if ($($managedBy.thisPaC) -gt 0) {
+        Write-ModernStatus -Message "This PaC: $($managedBy.thisPaC)" -Status "success" -Indent 6
+    }
+    else {
+        Write-ModernStatus -Message "This PaC: $($managedBy.thisPaC)" -Status "info" -Indent 6
+    }
+        
+    # Check if otherPaC is greater than 0 to set status
+    if ($($managedBy.otherPaC) -gt 0) {
+        Write-ModernStatus -Message "Other PaC: $($managedBy.otherPaC)" -Status "warning" -Indent 6
+    }
+    else {
+        Write-ModernStatus -Message "Other PaC: $($managedBy.otherPaC)" -Status "info" -Indent 6
+    }
+
+    # Check if unknown is greater than 0 to set status
+    if ($($managedBy.unknown) -gt 0) {
+        Write-ModernStatus -Message "Unknown: $($managedBy.unknown)" -Status "warning" -Indent 6
+    }
+    else {
+        Write-ModernStatus -Message "Unknown: $($managedBy.unknown)" -Status "info" -Indent 6
+    }
     Write-ModernStatus -Message "DfC Security Policies: $($managedBy.dfcSecurityPolicies)" -Status "info" -Indent 6
     Write-ModernStatus -Message "DfC Defender Plans: $($managedBy.dfcDefenderPlans)" -Status "info" -Indent 6
     Write-ModernStatus -Message "With identity: $($counters.withIdentity)" -Status "info" -Indent 3
@@ -185,10 +226,37 @@ function Get-AzPolicyResources {
         $managedByAny = $managedBy.thisPaC + $managedBy.otherPaC + $managedBy.unknown
         Write-ModernStatus -Message "`nPolicy Exemptions:" -Status default -Indent 2
         Write-ModernStatus -Message "Managed ($($managedByAny)):" -Status "info" -Indent 3
-        Write-ModernStatus -Message "This PaC: $($managedBy.thisPaC)" -Status "success" -Indent 6
-        Write-ModernStatus -Message "Other PaC: $($managedBy.otherPaC)" -Status "warning" -Indent 6
-        Write-ModernStatus -Message "Unknown: $($managedBy.unknown)" -Status "warning" -Indent 6
-        Write-ModernStatus -Message "Expired: $($counters.expired)" -Status "error" -Indent 3
+        
+        # Check if thisPaC is greater than 0 to set status
+        if ($($managedBy.thisPaC) -gt 0) {
+            Write-ModernStatus -Message "This PaC: $($managedBy.thisPaC)" -Status "success" -Indent 6
+        }
+        else {
+            Write-ModernStatus -Message "This PaC: $($managedBy.thisPaC)" -Status "info" -Indent 6
+        }
+        
+        # Check if otherPaC is greater than 0 to set status
+        if ($($managedBy.otherPaC) -gt 0) {
+            Write-ModernStatus -Message "Other PaC: $($managedBy.otherPaC)" -Status "warning" -Indent 6
+        }
+        else {
+            Write-ModernStatus -Message "Other PaC: $($managedBy.otherPaC)" -Status "info" -Indent 6
+        }
+
+        # Check if unknown is greater than 0 to set status
+        if ($($managedBy.unknown) -gt 0) {
+            Write-ModernStatus -Message "Unknown: $($managedBy.unknown)" -Status "warning" -Indent 6
+        }
+        else {
+            Write-ModernStatus -Message "Unknown: $($managedBy.unknown)" -Status "info" -Indent 6
+        }
+        # Check if expired is greater than 0 to set status
+        if ($($counters.expired) -gt 0) {
+            Write-ModernStatus -Message "Expired: $($counters.expired)" -Status "error" -Indent 3
+        }
+        else {
+            Write-ModernStatus -Message "Expired: $($counters.expired)" -Status "info" -Indent 3
+        }
         Write-ModernStatus -Message "Excluded: $($counters.excluded)" -Status "skip" -Indent 3
     }
 
