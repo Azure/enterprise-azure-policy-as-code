@@ -1,0 +1,2 @@
+name,displayName,description,exemptionCategory,expiresOn,scope,policyAssignmentId,policyDefinitionReferenceIds,resourceSelectors,metadata,assignmentScopeValidation
+000000001,test,test,waiver,2024-12-31,/providers/Microsoft.Management/managementGroups/68b133a0-68af-43fa-a9c3-d1b9bf296ea5,/providers/microsoft.management/managementgroups/68b133a0-68af-43fa-a9c3-d1b9bf296ea5/providers/microsoft.authorization/policyassignments/global-tagging2

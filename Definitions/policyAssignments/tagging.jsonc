@@ -1,0 +1,78 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
+    "nodeName": "/TaggingRequirements/",
+    "definitionEntry": {
+        "policySetName": "EnforceGlobalTaggingRequirements-PolicySet-20250121",
+        "nonComplianceMessages": [
+            {
+                "message": "You do not meet all tagging requirements, check policy assignment 'DEMO - Enforce Global Tagging Requirements'"
+            }
+        ]
+    },
+    "children": [
+        {
+            "nodeName": "Tenant/",
+            "assignment": {
+                "name": "Global-Tagging", //24 character limit
+                "displayName": "DEMO - Enforce Global Tagging Requirements",
+                "description": "Tagging requirements for Azure resources."
+            },
+            "enforcementMode": "Default",
+            "parameters": {},
+            "scope": {
+                "tenant": [
+                    "/providers/Microsoft.Management/managementGroups/68b133a0-68af-43fa-a9c3-d1b9bf296ea5"
+                ],
+                "managed-tenant-1": [
+                    "/subscriptions/58abd941-daf6-497a-9866-71fbd0199a6d"
+                ]
+            },
+            "additionalRoleAssignments": {
+                "tenant": [
+                    {
+                        "roleDefinitionId": "/providers/microsoft.authorization/roleDefinitions/92b92042-07d9-4307-87f7-36a593fc5850",
+                        "scope": "/subscriptions/5e81976f-4b4e-4f2b-bb61-b9e4a1959baa"
+                    }
+                ],
+                "managed-tenant-1": [
+                    {
+                        "roleDefinitionId": "/providers/microsoft.authorization/roleDefinitions/92b92042-07d9-4307-87f7-36a593fc5850",
+                        "scope": "/subscriptions/5e81976f-4b4e-4f2b-bb61-b9e4a1959baa"
+                    }
+                ]
+            }
+        },
+        {
+            "nodeName": "Tenant/",
+            "assignment": {
+                "name": "Global-Tagging2", //24 character limit
+                "displayName": "DEMO - Enforce Global Tagging Requirements",
+                "description": "Tagging requirements for Azure resources."
+            },
+            "enforcementMode": "Default",
+            "parameters": {},
+            "scope": {
+                "tenant": [
+                    "/providers/Microsoft.Management/managementGroups/68b133a0-68af-43fa-a9c3-d1b9bf296ea5"
+                ],
+                "managed-tenant-1": [
+                    "/subscriptions/58abd941-daf6-497a-9866-71fbd0199a6d"
+                ]
+            },
+            "additionalRoleAssignments": {
+                "tenant": [
+                    {
+                        "roleDefinitionId": "/providers/microsoft.authorization/roleDefinitions/92b92042-07d9-4307-87f7-36a593fc5850",
+                        "scope": "/subscriptions/5e81976f-4b4e-4f2b-bb61-b9e4a1959baa"
+                    }
+                ],
+                "managed-tenant-1": [
+                    {
+                        "roleDefinitionId": "/providers/microsoft.authorization/roleDefinitions/92b92042-07d9-4307-87f7-36a593fc5850",
+                        "scope": "/subscriptions/5e81976f-4b4e-4f2b-bb61-b9e4a1959baa"
+                    }
+                ]
+            }
+        }
+    ]
+}

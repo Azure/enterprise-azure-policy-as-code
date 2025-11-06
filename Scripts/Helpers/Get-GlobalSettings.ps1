@@ -368,7 +368,7 @@ function Get-GlobalSettings {
     Write-ModernStatus -Message "Global settings validation complete" -Status "success" -Indent 2
     Write-ErrorsFromErrorInfo -ErrorInfo $errorInfo -ErrorAction Stop
 
-    Write-ModernSection -Title "Configuration Summary" -Color Green
+    Write-ModernSection -Title "Configuration Summary" -Color Blue
     $prompt = $pacEnvironmentSelectors -join ", "
     Write-ModernStatus -Message "PAC Environments: $($prompt)" -Status "info" -Indent 2
     Write-ModernStatus -Message "PAC Owner Id: $pacOwnerId" -Status "info" -Indent 2

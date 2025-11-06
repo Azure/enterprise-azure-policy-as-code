@@ -9,7 +9,18 @@ function Write-AssignmentDetails {
 
     $shortScope = $Scope -replace "/providers/Microsoft.Management", ""
     if ($Prefix -ne "") {
-        Write-ModernStatus -Message "$($Prefix): $($DisplayName) at $($shortScope)" -Status "info" -Indent 4
+        if ($Prefix -like "*update*") {
+            Write-ModernStatus -Message "$($Prefix): $($DisplayName) at $($shortScope)" -Status "update" -Indent 4
+        }
+        elseif ($Prefix -like "*new*") {
+            Write-ModernStatus -Message "$($Prefix): $($DisplayName) at $($shortScope)" -Status "success" -Indent 4
+        }
+        elseif ($Prefix -like "*delete*") {
+            Write-ModernStatus -Message "$($Prefix): $($DisplayName) at $($shortScope)" -Status "error" -Indent 4
+        }
+        else{
+            Write-ModernStatus -Message "$($Prefix): $($DisplayName) at $($shortScope)" -Status "error" -Indent 4
+        }
     }
     else {
         Write-ModernStatus -Message "$($DisplayName) at $($shortScope)" -Status "info" -Indent 4

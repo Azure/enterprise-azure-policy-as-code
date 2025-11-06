@@ -1,0 +1,23 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-set-definition-schema.json",
+    "name": "EnforceGlobalTaggingRequirements-PolicySet-20250121",
+    "properties": {
+        "displayName": "TAGGING - Ensforce Global Tagging Requirements",
+        "description": "Tagging requirements for Azure resources.",
+        "metadata": {
+            "version": "1.0.0",
+            "category": "Tagging"
+        },
+        "policyDefinitions": [
+            {
+                "policyDefinitionReferenceId": "AddDateCreatedTag",
+                "policyDefinitionName": "AddDateCreatedTag-Definition-20240819",
+                "parameters": {
+                    "effect": {
+                        "value": "Modify"
+                    }
+                }
+            }
+        ]
+    }
+}

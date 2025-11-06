@@ -45,6 +45,7 @@ function Write-ModernStatus {
     
     $prefix = " " * $Indent
     switch ($Status.ToLower()) {
+        "update" { Write-Host "$prefix⭮ $Message" -ForegroundColor Cyan }
         "success" { Write-Host "$prefix✓ $Message" -ForegroundColor Green }
         "warning" { Write-Host "$prefix⚠ $Message" -ForegroundColor Yellow }
         "error" { Write-Host "$prefix✗ $Message" -ForegroundColor Red }
@@ -90,10 +91,10 @@ function Write-ModernCountSummary {
         Write-ModernStatus -Message "$TotalChanges total changes:" -Status "info" -Indent $Indent
         
         if ($Changes.ContainsKey('new') -and $Changes.new -gt 0) {
-            Write-ModernStatus -Message "$($Changes.new) new" -Status "info" -Indent ($Indent + 2)
+            Write-ModernStatus -Message "$($Changes.new) new" -Status "success" -Indent ($Indent + 2)
         }
         if ($Changes.ContainsKey('update') -and $Changes.update -gt 0) {
-            Write-ModernStatus -Message "$($Changes.update) updates" -Status "info" -Indent ($Indent + 2)
+            Write-ModernStatus -Message "$($Changes.update) updates" -Status "update" -Indent ($Indent + 2)
         }
         if ($Changes.ContainsKey('replace') -and $Changes.replace -gt 0) {
             Write-ModernStatus -Message "$($Changes.replace) replacements" -Status "warning" -Indent ($Indent + 2)

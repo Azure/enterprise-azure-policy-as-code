@@ -14,7 +14,7 @@ function Build-ExemptionsPlan {
         [switch]$SkipNotScopedExemptions
     )
 
-    Write-ModernSection -Title "Processing Policy Exemptions" -Color Cyan
+    Write-ModernSection -Title "Processing Policy Exemptions" -Color Blue
     Write-ModernStatus -Message "Source folder: $ExemptionsRootFolder" -Status "info" -Indent 2
 
     #region read files and cache data structures
@@ -59,10 +59,6 @@ function Build-ExemptionsPlan {
             $extension = $file.Extension
             $fullName = $file.FullName
             # $fileName = $file.Name
-            Write-Information ""
-            Write-Information "---------------------------------------------------------------------------------------------------"
-            Write-Information "Processing file '$($fullName)'"
-            Write-Information "---------------------------------------------------------------------------------------------------"
             $errorInfo = New-ErrorInfo -FileName $fullName
             $exemptionsArray = [System.Collections.ArrayList]::new()
             $isCsvFile = $false
@@ -332,11 +328,11 @@ function Build-ExemptionsPlan {
                             $calculatedPolicyAssignments = $byAssignmentIdCalculatedAssignments.$policyAssignmentId
                             if ($null -eq $calculatedPolicyAssignments -or $calculatedPolicyAssignments.Count -eq 0) {
                                 $calculatedPolicyAssignments = @()
-                                Write-Warning "Row $($entryNumber): No assignment found for policyAssignmentId '$policyAssignmentId', skipping row"
+                                Write-ModernStatus -Message "Row $($entryNumber): No assignment found for policyAssignmentId '$policyAssignmentId', skipping row" -Status "warning" -Indent 4
                             }
                         }
                         else {
-                            Write-Warning "Row $($entryNumber): policyAssignmentId '$policyAssignmentId' not found in current root scope $($PacEnvironment.deploymentRootScope), skipping row"
+                            Write-ModernStatus -Message "Row $($entryNumber): policyAssignmentId '$policyAssignmentId' not found in current root scope $($PacEnvironment.deploymentRootScope), skipping row" -Status "warning" -Indent 4
                         }
                     }
                     elseif ($null -ne $policyDefinitionName) {
@@ -346,13 +342,13 @@ function Build-ExemptionsPlan {
                             -PolicyDefinitionsScopes $PacEnvironment.policyDefinitionsScopes `
                             -AllDefinitions $AllDefinitions.policydefinitions
                         if ($null -eq $policyDefinitionId) {
-                            Write-Warning "Row $($entryNumber): policyDefinitionName '$policyDefinitionName' not found in current root scope $($PacEnvironment.deploymentRootScope), skipping row"
+                            Write-ModernStatus -Message "Row $($entryNumber): policyDefinitionName '$policyDefinitionName' not found in current root scope $($PacEnvironment.deploymentRootScope), skipping row" -Status "warning" -Indent 4
                         }
                         else {
                             $calculatedPolicyAssignments = $byPolicyIdCalculatedAssignments.$policyDefinitionId
                             if ($null -eq $calculatedPolicyAssignments -or $calculatedPolicyAssignments.Count -eq 0) {
                                 $calculatedPolicyAssignments = @()
-                                Write-Warning "Row $($entryNumber): No assignments found for policyDefinitionName '$policyDefinitionName', skipping row"
+                                Write-ModernStatus -Message "Row $($entryNumber): No assignments found for policyDefinitionName '$policyDefinitionName', skipping row" -Status "warning" -Indent 4
                             }
                         }
                     }
@@ -364,13 +360,13 @@ function Build-ExemptionsPlan {
                             -AllDefinitions $AllDefinitions.policydefinitions
                         if ($null -eq $policyDefinitionId) {
                             $calculatedPolicyAssignments = @()
-                            Write-Warning "Row $($entryNumber): policyDefinitionId '$($epacMetadataDefinitionSpecification.policyDefinitionId)' not found in current root scope $($PacEnvironment.deploymentRootScope), skipping row"
+                            Write-ModernStatus -Message "Row $($entryNumber): policyDefinitionId '$($epacMetadataDefinitionSpecification.policyDefinitionId)' not found in current root scope $($PacEnvironment.deploymentRootScope), skipping row" -Indent 4
                         }
                         else {
                             $calculatedPolicyAssignments = $byPolicyIdCalculatedAssignments.$policyDefinitionId
                             if ($null -eq $calculatedPolicyAssignments -or $calculatedPolicyAssignments.Count -eq 0) {
                                 $calculatedPolicyAssignments = @()
-                                Write-Warning "Row $($entryNumber): No assignments found for policyDefinitionId '$($epacMetadataDefinitionSpecification.policyDefinitionId)', skipping row"
+                                Write-ModernStatus -Message "Row $($entryNumber): No assignments found for policyDefinitionId '$($epacMetadataDefinitionSpecification.policyDefinitionId)', skipping row" -Status "warning" -Indent 4
                             }
                         }
                     }
@@ -381,13 +377,13 @@ function Build-ExemptionsPlan {
                             -PolicyDefinitionsScopes $PacEnvironment.policyDefinitionsScopes `
                             -AllPolicySetDefinitions $AllDefinitions.policysetdefinitions
                         if ($null -eq $policySetDefinitionId) {
-                            Write-Warning "Row $($entryNumber): policySetDefinitionName '$policySetDefinitionName' not found in current root scope $($PacEnvironment.deploymentRootScope), skipping row"
+                            Write-ModernStatus -Message "Row $($entryNumber): policySetDefinitionName '$policySetDefinitionName' not found in current root scope $($PacEnvironment.deploymentRootScope), skipping row" -Status "warning" -Indent 4
                         }
                         else {
                             $calculatedPolicyAssignments = $byPolicySetIdCalculatedAssignments.$policySetDefinitionId
                             if ($null -eq $calculatedPolicyAssignments -or $calculatedPolicyAssignments.Count -eq 0) {
                                 $calculatedPolicyAssignments = @()
-                                Write-Warning "Row $($entryNumber): No assignments found for policySetDefinitionName '$policySetDefinitionName', skipping row"
+                                Write-ModernStatus -Message "Row $($entryNumber): No assignments found for policySetDefinitionName '$policySetDefinitionName', skipping row" -Status "warning" -Indent 4
                             }
                         }
                     }
@@ -398,13 +394,13 @@ function Build-ExemptionsPlan {
                             -PolicyDefinitionsScopes $PacEnvironment.policyDefinitionsScopes `
                             -AllPolicySetDefinitions $AllDefinitions.policysetdefinitions
                         if ($null -eq $policySetDefinitionId) {
-                            Write-Warning "Row $($entryNumber): policySetDefinitionId '$($epacMetadataDefinitionSpecification.policySetDefinitionId)' not found in current root scope $($PacEnvironment.deploymentRootScope), skipping row"
+                            Write-ModernStatus -Message "Row $($entryNumber): policySetDefinitionId '$($epacMetadataDefinitionSpecification.policySetDefinitionId)' not found in current root scope $($PacEnvironment.deploymentRootScope), skipping row" -Status "warning" -Indent 4
                         }
                         else {
                             $calculatedPolicyAssignments = $byPolicySetIdCalculatedAssignments.$policySetDefinitionId
                             if ($null -eq $calculatedPolicyAssignments -or $calculatedPolicyAssignments.Count -eq 0) {
                                 $calculatedPolicyAssignments = @()
-                                Write-Warning "Row $($entryNumber): No assignments found for policySetDefinitionId '$($epacMetadataDefinitionSpecification.policySetDefinitionId)', skipping row"
+                                Write-ModernStatus -Message "Row $($entryNumber): No assignments found for policySetDefinitionId '$($epacMetadataDefinitionSpecification.policySetDefinitionId)', skipping row" -Status "warning" -Indent 4
                             }
                         }
                     }
@@ -517,15 +513,15 @@ function Build-ExemptionsPlan {
                         $daysUntilExpired = (New-TimeSpan -Start $now -End $expiresOn).Days
                         if ($expired) {
                             if ($daysUntilExpired -eq 0) {
-                                Write-Warning "Exemption entry $($entryNumber): Exemption '$name' in definitions expired today."
+                                Write-ModernStatus -Message "Exemption entry $($entryNumber): Exemption '$name' in definitions expired today." -Status "warning" -Indent 4
                             }
                             else {
-                                Write-Warning "Exemption entry $($entryNumber): Exemption '$name' in definitions expired $( - $daysUntilExpired) days ago."
+                                Write-ModernStatus -Message "Exemption entry $($entryNumber): Exemption '$name' in definitions expired $( - $daysUntilExpired) days ago." -Status "warning" -Indent 4
                             }
                             $Exemptions.numberOfExpired++
                         }
                         elseif ($daysUntilExpired -le 15) {
-                            Write-Warning "Exemption entry $($entryNumber): Exemption '$name' in definitions expires in $daysUntilExpired days."
+                            Write-ModernStatus -Message "Exemption entry $($entryNumber): Exemption '$name' in definitions expires in $daysUntilExpired days." -Status "warning" -Indent 4
                         }
                     }
                 }
@@ -634,7 +630,7 @@ function Build-ExemptionsPlan {
                                         $resourceIdsBySubscriptionId.Add($subscriptionId, $resourceIds)
                                     }
                                     if ($resourceStatus -eq "individualResourceDoesNotExists") {
-                                        Write-Warning "Row $($entryNumber): Resource '$currentScope' does not exist, skipping entry."
+                                        Write-ModernStatus -Message "Row $($entryNumber): Resource '$currentScope' does not exist, skipping entry." -Status "warning" -Indent 4
                                         $Exemptions.numberOfOrphans++
                                     }
                                 }
@@ -652,7 +648,7 @@ function Build-ExemptionsPlan {
                                 $scopeIsRoleDefinition = $true
                             }
                             else {
-                                Write-Warning "Exemption entry $($entryNumber): Exemption scope $($currentScope) not found in current scope tree for root $($PacEnvironment.deploymentRootScope), skipping entry."
+                                Write-ModernStatus -Message "Exemption entry $($entryNumber): Exemption scope $($currentScope) not found in current scope tree for root `n      $($PacEnvironment.deploymentRootScope), skipping entry." -Status "warning" -Indent 4
                                 $scopeIsValid = $false
                             }       
                         }
@@ -661,7 +657,7 @@ function Build-ExemptionsPlan {
                                 isExcluded  = $false
                                 parentTable = @{}
                             }
-                            Write-Verbose "Exemption entry $($entryNumber): Unvalidated Exemption scope $($currentScope) not found in current scope tree for root $($PacEnvironment.deploymentRootScope)."
+                            Write-ModernStatus -Message "Exemption entry $($entryNumber): Unvalidated Exemption scope $($currentScope) not found in current scope tree for root $($PacEnvironment.deploymentRootScope)." -Status "warning" -Indent 4
                         }
 
                         #region filter assignments in the current scope tree or are not in excluded scopes
@@ -677,10 +673,10 @@ function Build-ExemptionsPlan {
                                 $policyAssignmentScope = $calculatedPolicyAssignment.scope
                                 $assignmentScopeDetails = $ScopeTable.$policyAssignmentScope
                                 if ($null -eq $assignmentScopeDetails) {
-                                    Write-Verbose "Assignment scope = '$($policyAssignmentScope)' not found in current scope tree for root $($PacEnvironment.deploymentRootScope), skipping assignment."
+                                    Write-ModernStatus -Message "Assignment scope = '$($policyAssignmentScope)' not found in current scope tree for root $($PacEnvironment.deploymentRootScope), skipping assignment." -Status "warning" -Indent 4
                                 }
                                 elseif ($assignmentScopeDetails.isExcluded) {
-                                    Write-Verbose "Assignment scope = '$($policyAssignmentScope)' is in a globally excluded scope"
+                                    Write-ModernStatus -Message "Assignment scope = '$($policyAssignmentScope)' is in a globally excluded scope" -Status "warning" -Indent 4
                                 }
                                 elseif ($scopeIsValid) {
                                     if (!$scopeIsRoleDefinition) {
@@ -719,18 +715,18 @@ function Build-ExemptionsPlan {
                                             $null = $filteredPolicyAssignments.Add($clonedCalculatedPolicyAssignment)
                                         }
                                         else {
-                                            Write-Verbose "Exemption scope = '$($currentScope)' is in the notScopes list for Assignment '$($calculatedPolicyAssignment.id)'."
+                                            Write-ModernStatus -Message "Exemption scope = '$($currentScope)' is in the notScopes list for Assignment '$($calculatedPolicyAssignment.id)'." -Status "warning" -Indent 4
                                         }
                                     }
                                     else {
-                                        Write-Verbose "Assignment scope = '$($policyAssignmentScope)' is not in the current scope tree for root $($PacEnvironment.deploymentRootScope), skipping assignment."
+                                        Write-ModernStatus -Message "Assignment scope = '$($policyAssignmentScope)' is not in the current scope tree for root $($PacEnvironment.deploymentRootScope), skipping assignment." -Status "warning" -Indent 4
                                     }
                                 }
                             }
                             foreach ($uniqueAssignmentName in $uniqueAssignmentNames.Keys) {
                                 $listOfAssignmentsWithSameName = $uniqueAssignmentNames.$uniqueAssignmentName
                                 if ($listOfAssignmentsWithSameName.Count -gt 1) {
-                                    Write-Warning "Exemption entry $($entryNumber): Multiple assignments with the same name '$uniqueAssignmentName' found; using ordinals to disambiguate."
+                                    Write-ModernStatus -Message "Exemption entry $($entryNumber): Multiple assignments with the same name '$uniqueAssignmentName' found; using ordinals to disambiguate." -Status "warning" -Indent 4
                                     $ordinal = 0
                                     foreach ($calculatedPolicyAssignment in $listOfAssignmentsWithSameName) {
                                         $ordinalString = $ordinal.ToString("[00]")
@@ -740,7 +736,7 @@ function Build-ExemptionsPlan {
                                 }
                             }
                             if ($filteredPolicyAssignments.Count -eq 0) {
-                                Write-Warning "Exemption entry $($entryNumber): No assignments found for exemption scope $($currentScope), skipping entry."
+                                Write-ModernStatus -Message "Exemption entry $($entryNumber): No assignments found for exemption scope `n      $($currentScope), skipping entry." -Status "warning" -Indent 4
                                 $Exemptions.numberOfOrphans++
                                 continue
                             }
@@ -946,13 +942,11 @@ function Build-ExemptionsPlan {
                                     # Replaced Assignment
                                     if ($reasonStrings.Count -gt 0) {
                                         $reasonString = "assignmentId changed, $($reasonStrings -join ", ")"
-                                        Write-Verbose "Skip replace ($reasonString): '$($exemptionDisplayName)' at scope '$($currentScope)'"
-                                        $Exemptions.numberUnchanged += 1
+                                        Write-ModernStatus -Message "Skip replace ($reasonString): '$($exemptionDisplayName)' at scope '$($currentScope)'" -Status "warning" -Indent 4
+                                        $Exemptions.numberUnchanged++
                                     }
                                     else {
-                                        Write-Information "Replace (assignmentId changed) '$($exemptionDisplayName)' at scope '$($currentScope)'"
-                                        Write-Information "    assignmentId '$($deployedManagedExemption.policyAssignmentId)' to '$($policyAssignmentId)'"
-                                        Write-Verbose "    $exemptionId"
+                                        Write-ModernStatus -Message "Replace (assignmentId changed) '$($exemptionDisplayName)' at scope '$($currentScope)'`n      assignmentId '$($deployedManagedExemption.policyAssignmentId)' to '$($policyAssignmentId)'`n      $exemptionId" -Status "update" -Indent 4
                                         $null = $Exemptions.replace.Add($exemptionId, $exemption)
                                         $Exemptions.numberOfChanges++
                                     }
@@ -961,13 +955,11 @@ function Build-ExemptionsPlan {
                                     # Replaced Assignment
                                     if ($reasonStrings.Count -gt 0) {
                                         $reasonString = "replaced assignment, $($reasonStrings -join ", ")"
-                                        Write-Verbose "Skip replace ($reasonString): '$($exemptionDisplayName)' at scope '$($currentScope)'"
-                                        $Exemptions.numberUnchanged += 1
+                                        Write-ModernStatus -Message "Skip replace ($reasonString): '$($exemptionDisplayName)' at scope '$($currentScope)'" -Status "warning" -Indent 4
+                                        $Exemptions.numberUnchanged++
                                     }
                                     else {
-                                        Write-Information "Replace (replaced assignment) '$($exemptionDisplayName)' ($($exemptionName)) at scope '$($currentScope)'"
-                                        Write-Information "    assignmentId '$($policyAssignmentId)'"
-                                        Write-Verbose "    $exemptionId"
+                                        Write-ModernStatus -Message "Replace (replaced assignment) '$($exemptionDisplayName)' ($($exemptionName)) at scope '$($currentScope)'`n      assignmentId '$($policyAssignmentId)'`n      $exemptionId" -Status "update" -Indent 4
                                         $null = $Exemptions.replace.Add($exemptionId, $exemption)
                                         $Exemptions.numberOfChanges++
                                     }
@@ -995,7 +987,7 @@ function Build-ExemptionsPlan {
                                     if ($displayNameMatches -and $descriptionMatches -and $exemptionCategoryMatches -and $expiresOnMatches `
                                             -and $policyDefinitionReferenceIdsMatches -and $metadataMatches -and !$changePacOwnerId -and !$clearExpiration `
                                             -and $assignmentScopeValidationMatches -and $resourceSelectorsMatches) {
-                                        $Exemptions.numberUnchanged += 1
+                                        $Exemptions.numberUnchanged++
                                     }
                                     else {
                                         # One or more properties have changed
@@ -1033,13 +1025,12 @@ function Build-ExemptionsPlan {
                                         $changesString = $changesStrings -join ", "
                                         if ($reasonStrings.Count -gt 0) {
                                             $reasonString = "$($reasonStrings -join ", "), $changesString"
-                                            Write-Verbose "Skip update ($reasonString): '$($exemptionDisplayName)' at scope '$($currentScope)'"
-                                            $Exemptions.numberUnchanged += 1
+                                            Write-ModernStatus -Message "Skip update ($reasonString): '$($exemptionDisplayName)' at scope '$($currentScope)'" -Status "warning" -Indent 4
+                                            $Exemptions.numberUnchanged++
                                         }
                                         else {
                                             $Exemptions.numberOfChanges++
-                                            Write-Information "Update ($changesString): '$($exemptionDisplayName)' at scope '$($currentScope)'"
-                                            Write-Verbose "    $exemptionId"
+                                            Write-ModernStatus -Message "Update ($changesString): '$($exemptionDisplayName)' at scope '$($currentScope)'`n      $exemptionId" -Status "update" -Indent 4
                                             $null = $Exemptions.update.Add($exemptionId, $exemption)
                                         }
                                     }
@@ -1048,14 +1039,12 @@ function Build-ExemptionsPlan {
                             else {
                                 if ($reasonStrings.Count -gt 0) {
                                     $reasonString = $reasonStrings -join ", "
-                                    Write-Information "Skip new exemption ($reasonString): '$($exemptionDisplayName)' at scope '$($currentScope)'"
-                                    Write-Verbose "    $exemptionId"
+                                    Write-ModernStatus -Message "Skip new exemption ($reasonString): '$($exemptionDisplayName)' at scope '$($currentScope)'`n      $exemptionId" -Status "update" -Indent 4
                                 }
                                 else {
                                     # Create Exemption
-                                    Write-Information "New '$($exemptionDisplayName)' at scope '$($currentScope)'"
-                                    Write-Verbose "    $exemptionId"
-                                    $null = $Exemptions.new.Add($exemptionId, $exemption)
+                                    Write-ModernStatus -Message "New '$($exemptionDisplayName)' at scope '$($currentScope)'`n      $exemptionId" -Status "success" -Indent 4
+                                    $null = $Exemptions.new.Add($exemptionId, $exemptionDisplayName)
                                     $Exemptions.numberOfChanges++
                                 }
                             }

@@ -174,4 +174,4 @@ Write-ModernStatus -Message "Plan file: $planFile" -Status "success" -Indent 2
 Write-ModernCountSummary -Title "Role Assignment Changes" -Added $addedRoleAssignments.psbase.Count -Updated $updatedRoleAssignments.psbase.Count -Removed $removedRoleAssignments.psbase.Count -Indent 2
 Write-ModernStatus -Message "Execution time: $($executionTime.ToString('mm\:ss'))" -Status "info" -Indent 2
 Write-ModernStatus -Message "All role assignments have been successfully deployed" -Status "success" -Indent 2
-}
+
