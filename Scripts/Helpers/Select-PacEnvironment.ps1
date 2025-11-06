@@ -50,9 +50,9 @@ function Select-PacEnvironment {
         }
     }
     Write-Information "Environment Selected: $PacEnvironmentSelector"
-    Write-Information "    cloud      = $($pacEnvironment.cloud)"
-    Write-Information "    tenant     = $($pacEnvironment.tenantId)"
-    Write-Information "    root scope = $($pacEnvironment.deploymentRootScope)"
+    Write-Information "    Cloud                 = $($pacEnvironment.cloud)"
+    Write-Information "    TenantId              = $($pacEnvironment.tenantId)"
+    Write-Information "    Deployment Root Scope = $($pacEnvironment.deploymentRootScope)"
     Write-Information ""
 
 
