@@ -227,7 +227,6 @@ elseif ($SkipExemptions) {
 # Process each resource type based on build mode
 foreach ($resourceType in $resourceTypes) {
     $shouldInclude = $false
-    
     # Determine if this resource type should be included based on build mode
     if ($BuildExemptionsOnly) {
         $shouldInclude = $resourceType.IncludeInExemptionsOnly
