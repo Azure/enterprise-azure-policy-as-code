@@ -46,6 +46,9 @@ param (
     [Parameter(HelpMessage = "Use switch to indicate interactive use")]
     [switch] $Interactive,
 
+    [Parameter(HelpMessage = "If set do not deploy the exemptions plan.")]
+    [switch] $SkipExemptions,
+
     [Parameter(HelpMessage = "Set true to fail the pipeline and deployment if a 403 error occurs during creation and updates of exemptions.")]
     [bool] $FailOnExemptionError = $false
 )
@@ -90,20 +93,22 @@ else {
 
     #region delete exemptions, assignment, definitions
 
-    $table = ConvertTo-HashTable $plan.exemptions.delete
-    $table += ConvertTo-HashTable $plan.exemptions.replace
-    if ($table.psbase.Count -gt 0) {
-        Write-Information ""
-        Write-Information "==================================================================================================="
-        Write-Information "Delete orphaned, deleted, expired and replaced Exemptions ($($table.psbase.Count))"
-        Write-Information "---------------------------------------------------------------------------------------------------"
-        foreach ($id in $table.Keys) {
-            $entry = $table.$id
-            Write-Information "$($entry.displayName) - $($id)"
-            Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policyExemptions
+    if (-not $SkipExemptions) {
+        $table = ConvertTo-HashTable $plan.exemptions.delete
+        $table += ConvertTo-HashTable $plan.exemptions.replace
+        if ($table.psbase.Count -gt 0) {
+            Write-Information ""
+            Write-Information "==================================================================================================="
+            Write-Information "Delete orphaned, deleted, expired and replaced Exemptions ($($table.psbase.Count))"
+            Write-Information "---------------------------------------------------------------------------------------------------"
+            foreach ($id in $table.Keys) {
+                $entry = $table.$id
+                Write-Information "$($entry.displayName) - $($id)"
+                Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policyExemptions
+            }
         }
     }
-
+    
     $table = ConvertTo-HashTable $plan.assignments.delete
     $table += ConvertTo-HashTable $plan.assignments.replace
     if ($table.psbase.Count -gt 0) {
@@ -203,17 +208,19 @@ else {
         }
     }
 
-    $table = ConvertTo-HashTable $plan.exemptions.new
-    $table += ConvertTo-HashTable $plan.exemptions.replace
-    $table += ConvertTo-HashTable $plan.exemptions.update
-    if ($table.psbase.Count -gt 0) {
-        Write-Information ""
-        Write-Information "==================================================================================================="
-        Write-Information "Create and update Exemptions ($($table.psbase.Count))"
-        Write-Information "---------------------------------------------------------------------------------------------------"
-        foreach ($exemptionId in $table.Keys) {
-            $entry = $table.$exemptionId
-            Set-AzPolicyExemptionRestMethod -ExemptionObj $entry -ApiVersion $pacEnvironment.apiVersions.policyExemptions -FailOnExemptionError $FailOnExemptionError
+    if (-not $SkipExemptions) {
+        $table = ConvertTo-HashTable $plan.exemptions.new
+        $table += ConvertTo-HashTable $plan.exemptions.replace
+        $table += ConvertTo-HashTable $plan.exemptions.update
+        if ($table.psbase.Count -gt 0) {
+            Write-Information ""
+            Write-Information "==================================================================================================="
+            Write-Information "Create and update Exemptions ($($table.psbase.Count))"
+            Write-Information "---------------------------------------------------------------------------------------------------"
+            foreach ($exemptionId in $table.Keys) {
+                $entry = $table.$exemptionId
+                Set-AzPolicyExemptionRestMethod -ExemptionObj $entry -ApiVersion $pacEnvironment.apiVersions.policyExemptions -FailOnExemptionError $FailOnExemptionError
+            }
         }
     }
     Write-Information ""

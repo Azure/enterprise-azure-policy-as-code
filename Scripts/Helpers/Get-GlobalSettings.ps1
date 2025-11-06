@@ -22,7 +22,6 @@ function Get-GlobalSettings {
     Write-Information "==================================================================================================="
     Write-Information "Read global settings from '$globalSettingsFile'."
     Write-Information "==================================================================================================="
-    Write-Information "PowerShell Versions: $($PSVersionTable.PSVersion)"
 
     $Json = Get-Content -Path $globalSettingsFile -Raw -ErrorAction Stop
     $settings = @{}

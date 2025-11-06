@@ -48,6 +48,9 @@ param (
     [Parameter(HelpMessage = "If set, only build the exemptions plan.")]
     [switch] $BuildExemptionsOnly,
 
+    [Parameter(HelpMessage = "If set, do not build the exemptions plan.")]
+    [switch] $SkipExemptions,
+
     [Parameter(HelpMessage = "Script is used interactively. Script can prompt the interactive user for input.")]
     [switch] $Interactive,
 
@@ -172,56 +175,103 @@ elseif (!(Test-Path $policyExemptionsFolderForPacEnvironment -PathType Container
     $exemptionsAreNotManagedMessage = "Policy Exemptions folder '$policyExemptionsFolderForPacEnvironment' for PaC environment $($pacEnvironment.pacSelector) not found. Exemptions not managed by this EPAC instance."
     $exemptionsAreManaged = $false
 }
-$localBuildExemptionsOnly = $BuildExemptionsOnly
-# $localBuildExemptionsOnly = $true
-# $VerbosePreference = "Continue"
-if ($localBuildExemptionsOnly) {
+
+# Validate parameter conflicts
+if ($BuildExemptionsOnly -and $SkipExemptions) {
+    Write-Error -Message "The parameters -BuildExemptionsOnly and -SkipExemptions cannot be used together. Exiting..."
+    exit
+}
+
+# Define resource types and their configuration
+$resourceTypes = @(
+    @{
+        Name                    = "Policy definitions"
+        BuildFlag               = "buildPolicyDefinitions"
+        Folder                  = $policyDefinitionsFolder
+        IncludeInExemptionsOnly = $false
+        IncludeInSkipExemptions = $true
+    },
+    @{
+        Name                    = "Policy Set definitions"
+        BuildFlag               = "buildPolicySetDefinitions"
+        Folder                  = $policySetDefinitionsFolder
+        IncludeInExemptionsOnly = $false
+        IncludeInSkipExemptions = $true
+    },
+    @{
+        Name                    = "Policy Assignments"
+        BuildFlag               = "buildPolicyAssignments"
+        Folder                  = $policyAssignmentsFolder
+        IncludeInExemptionsOnly = $false
+        IncludeInSkipExemptions = $true
+    },
+    @{
+        Name                    = "Policy Exemptions"
+        BuildFlag               = "buildPolicyExemptions"
+        Folder                  = $null  # Special handling required
+        IncludeInExemptionsOnly = $true
+        IncludeInSkipExemptions = $false
+        IsManaged               = $exemptionsAreManaged
+        NotManagedMessage       = $exemptionsAreNotManagedMessage
+    }
+)
+
+# Determine build mode and add appropriate warning
+if ($BuildExemptionsOnly) {
     $null = $warningMessages.Add("Building only the Exemptions plan. Policy, Policy Set, and Assignment plans will not be built.")
-    if ($exemptionsAreManaged) {
-        $buildSelections.buildPolicyExemptions = $true
-        $buildSelections.buildAny = $true
-    }
-    else {
-        $null = $warningMessages.Add($exemptionsAreNotManagedMessage)
-        $null = $warningMessages.Add("Policy Exemptions plan will not be built. Exiting...")
-    }
-    $buildSelections.buildPolicyDefinitions = $false
-    $buildSelections.buildPolicySetDefinitions = $false
-    $buildSelections.buildPolicyAssignments = $false
 }
-else {
-    if (!(Test-Path $policyDefinitionsFolder -PathType Container)) {
-        $null = $warningMessages.Add("Policy definitions '$policyDefinitionsFolder' folder not found. Policy definitions not managed by this EPAC instance.")
+elseif ($SkipExemptions) {
+    $null = $warningMessages.Add("Building only Policy, Policy Set, and Assignment plans. Exemption plans will not be built.")
+}
+
+# Process each resource type based on build mode
+foreach ($resourceType in $resourceTypes) {
+    $shouldInclude = $false
+    
+    # Determine if this resource type should be included based on build mode
+    if ($BuildExemptionsOnly) {
+        $shouldInclude = $resourceType.IncludeInExemptionsOnly
+    }
+    elseif ($SkipExemptions) {
+        $shouldInclude = $resourceType.IncludeInSkipExemptions
     }
     else {
-        $buildSelections.buildPolicyDefinitions = $true
-        $buildSelections.buildAny = $true
+        # Default mode - include all managed resources
+        $shouldInclude = $true
     }
-    if (!(Test-Path $policySetDefinitionsFolder -PathType Container)) {
-        $null = $warningMessages.Add("Policy Set definitions '$policySetDefinitionsFolder' folder not found. Policy Set definitions not managed by this EPAC instance.")
-    }
-    else {
-        $buildSelections.buildPolicySetDefinitions = $true
-        $buildSelections.buildAny = $true
-    }
-    if (!(Test-Path $policyAssignmentsFolder -PathType Container)) {
-        $null = $warningMessages.Add("Policy Assignments '$policyAssignmentsFolder' folder not found. Policy Assignments not managed by this EPAC instance.")
-    }
-    else {
-        $buildSelections.buildPolicyAssignments = $true
-        $buildSelections.buildAny = $true
-    }
-    if ($exemptionsAreManaged) {
-        $buildSelections.buildPolicyExemptions = $true
-        $buildSelections.buildAny = $true
-    }
-    else {
-        $null = $warningMessages.Add($exemptionsAreNotManagedMessage)
-    }
-    if (-not $buildSelections.buildAny) {
-        $null = $warningMessages.Add("No Policies, Policy Set, Assignment, or Exemptions managed by this EPAC instance found. No plans will be built. Exiting...")
+    
+    if ($shouldInclude) {
+        # Special handling for exemptions
+        if ($resourceType.Name -eq "Policy Exemptions") {
+            if ($resourceType.IsManaged) {
+                $buildSelections[$resourceType.BuildFlag] = $true
+                $buildSelections.buildAny = $true
+            }
+            else {
+                $null = $warningMessages.Add($resourceType.NotManagedMessage)
+                if ($BuildExemptionsOnly) {
+                    $null = $warningMessages.Add("Policy Exemptions plan will not be built. Exiting...")
+                }
+            }
+        }
+        else {
+            # Standard folder-based resource types
+            if (Test-Path $resourceType.Folder -PathType Container) {
+                $buildSelections[$resourceType.BuildFlag] = $true
+                $buildSelections.buildAny = $true
+            }
+            else {
+                $null = $warningMessages.Add("$($resourceType.Name) '$($resourceType.Folder)' folder not found. $($resourceType.Name) not managed by this EPAC instance.")
+            }
+        }
     }
 }
+
+# Final validation - ensure at least one resource type is being built
+if (-not $buildSelections.buildAny) {
+    $null = $warningMessages.Add("No Policies, Policy Set, Assignment, or Exemptions managed by this EPAC instance found. No plans will be built. Exiting...")
+}
+
 if ($warningMessages.Count -gt 0) {
     foreach ($warningMessage in $warningMessages) {
         Write-Warning $warningMessage
