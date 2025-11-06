@@ -46,7 +46,7 @@ param (
     [Parameter(HelpMessage = "Use switch to indicate interactive use")]
     [switch] $Interactive,
 
-    [Parameter(HelpMessage = "If set do not deploy the exemptions plan.")]
+    [Parameter(HelpMessage = "If set, do not deploy the exemptions plan.")]
     [switch] $SkipExemptions,
 
     [Parameter(HelpMessage = "Set true to fail the pipeline and deployment if a 403 error occurs during creation and updates of exemptions.")]
