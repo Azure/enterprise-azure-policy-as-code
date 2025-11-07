@@ -1,0 +1,195 @@
+{
+    "// Theme Configuration": "Copy this file to .epac/theme.json to customize output themes",
+    "// Available themes": [
+        "default",
+        "high-contrast",
+        "screen-reader"
+    ],
+    "// You can modify existing themes or add new ones": "",
+    "themeName": "default",
+    "themes": {
+        "default": {
+            "name": "Default Modern Theme",
+            "description": "Standard colorful theme with Unicode characters",
+            "characters": {
+                "header": {
+                    "topLeft": "┏",
+                    "topRight": "┓",
+                    "bottomLeft": "┗",
+                    "bottomRight": "┛",
+                    "horizontal": "━",
+                    "vertical": "┃"
+                },
+                "section": {
+                    "arrow": "▶",
+                    "underline": "━"
+                },
+                "status": {
+                    "success": "✓",
+                    "warning": "⚠",
+                    "error": "✗",
+                    "info": "•",
+                    "skip": "⊘",
+                    "update": "⭮",
+                    "processing": "🔄"
+                }
+            },
+            "colors": {
+                "header": {
+                    "primary": "Cyan",
+                    "secondary": "DarkCyan"
+                },
+                "section": "Blue",
+                "status": {
+                    "success": "Green",
+                    "warning": "Yellow",
+                    "error": "Red",
+                    "info": "White",
+                    "skip": "DarkGray",
+                    "update": "Cyan",
+                    "processing": "Yellow"
+                }
+            }
+        },
+        "high-contrast": {
+            "name": "High Contrast Theme",
+            "description": "High contrast theme for low vision users",
+            "characters": {
+                "header": {
+                    "topLeft": "+",
+                    "topRight": "+",
+                    "bottomLeft": "+",
+                    "bottomRight": "+",
+                    "horizontal": "-",
+                    "vertical": "|"
+                },
+                "section": {
+                    "arrow": ">>",
+                    "underline": "="
+                },
+                "status": {
+                    "success": "[OK]",
+                    "warning": "[WARN]",
+                    "error": "[ERROR]",
+                    "info": "[INFO]",
+                    "skip": "[SKIP]",
+                    "update": "[UPDATE]",
+                    "processing": "[PROC]"
+                }
+            },
+            "colors": {
+                "header": {
+                    "primary": "White",
+                    "secondary": "Gray"
+                },
+                "section": "White",
+                "status": {
+                    "success": "White",
+                    "warning": "Black",
+                    "error": "White",
+                    "info": "Gray",
+                    "skip": "DarkGray",
+                    "update": "White",
+                    "processing": "Gray"
+                }
+            },
+            "backgroundColors": {
+                "status": {
+                    "success": "DarkGreen",
+                    "warning": "DarkYellow",
+                    "error": "DarkRed",
+                    "info": "",
+                    "skip": "",
+                    "update": "DarkBlue",
+                    "processing": ""
+                }
+            }
+        },
+        "screen-reader": {
+            "name": "Screen Reader Optimized",
+            "description": "Text-only theme optimized for screen readers",
+            "characters": {
+                "header": {
+                    "topLeft": "",
+                    "topRight": "",
+                    "bottomLeft": "",
+                    "bottomRight": "",
+                    "horizontal": "",
+                    "vertical": ""
+                },
+                "section": {
+                    "arrow": "SECTION:",
+                    "underline": ""
+                },
+                "status": {
+                    "success": "SUCCESS:",
+                    "warning": "WARNING:",
+                    "error": "ERROR:",
+                    "info": "INFO:",
+                    "skip": "SKIPPED:",
+                    "update": "UPDATED:",
+                    "processing": "PROCESSING:"
+                }
+            },
+            "colors": {
+                "header": {
+                    "primary": "White",
+                    "secondary": "White"
+                },
+                "section": "White",
+                "status": {
+                    "success": "White",
+                    "warning": "White",
+                    "error": "White",
+                    "info": "White",
+                    "skip": "White",
+                    "update": "White",
+                    "processing": "White"
+                }
+            }
+        },
+        "custom-example": {
+            "name": "Custom Theme Example",
+            "description": "Example of a custom theme - modify colors and characters as needed",
+            "characters": {
+                "header": {
+                    "topLeft": "╔",
+                    "topRight": "╗",
+                    "bottomLeft": "╚",
+                    "bottomRight": "╝",
+                    "horizontal": "═",
+                    "vertical": "║"
+                },
+                "section": {
+                    "arrow": "►",
+                    "underline": "─"
+                },
+                "status": {
+                    "success": "✅",
+                    "warning": "⚠️",
+                    "error": "❌",
+                    "info": "ℹ️",
+                    "skip": "⏭️",
+                    "update": "🔄",
+                    "processing": "⏳"
+                }
+            },
+            "colors": {
+                "header": {
+                    "primary": "Magenta",
+                    "secondary": "DarkMagenta"
+                },
+                "section": "DarkBlue",
+                "status": {
+                    "success": "DarkGreen",
+                    "warning": "DarkYellow",
+                    "error": "DarkRed",
+                    "info": "Gray",
+                    "skip": "DarkGray",
+                    "update": "DarkCyan",
+                    "processing": "DarkYellow"
+                }
+            }
+        }
+    }
+}
