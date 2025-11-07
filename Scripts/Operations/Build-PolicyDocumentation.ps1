@@ -73,8 +73,8 @@ param (
     [parameter(Mandatory = $false, HelpMessage = "Will only document assignments that are managed by your defined PAC Owner", Position = 0)]
     [switch] $OnlyCheckManagedAssignments,
 
-    [parameter(Mandatory = $false, HelpMessage = "When enabled (default), the script will fail with an error if Policy Definitions referenced by assignments are not found. When disabled, shows warnings and continues.")]
-    [switch] $StrictMode = $true
+    [parameter(Mandatory = $false, HelpMessage = "When enabled, the script will fail with an error if Policy Definitions referenced by assignments are not found. When disabled, shows warnings and continues.")]
+    [switch] $StrictMode = $false
 )
 
 # Dot Source Helper Scripts
@@ -106,7 +106,6 @@ if ($globalSettings.telemetryEnabled) {
 else {
     Write-ModernStatus -Message "Telemetry is disabled" -Status "info" -Indent 2
 }
-Write-Information ""
 
 # Caching information to optimize different outputs
 $cachedPolicyResourceDetails = @{}
@@ -116,7 +115,6 @@ $pacEnvironment = $null
 
 #endregion Initialize
 
-Write-Information ""
 Write-ModernSection -Title "Processing Documentation Definitions" -Color Blue
 Write-ModernStatus -Message "Source folder: $definitionsFolder" -Status "info" -Indent 2
 if (!(Test-Path $definitionsFolder -PathType Container)) {
@@ -392,9 +390,6 @@ foreach ($file in $files) {
                 $excludeScopeTypes = $currentConfig.excludeScopeTypes
             }
             
-            Write-Information "DEBUG: excludeScopeTypes = $($excludeScopeTypes -join ', ')"
-            Write-Information "DEBUG: currentConfig type = $($currentConfig.GetType().Name)"
-            
             foreach ($key in $policyResourceDetails.policyAssignments.keys) {
                 $scopeType = $policyResourceDetails.policyAssignments.$key.scopeType
                 
@@ -402,11 +397,9 @@ foreach ($file in $files) {
                 $shouldExcludeScope = $false
                 if ($null -ne $excludeScopeTypes -and $scopeType -in $excludeScopeTypes) {
                     $shouldExcludeScope = $true
-                    Write-Information "DEBUG: Excluding assignment $key with scopeType: $scopeType"
                 }
                 
                 if (-not $shouldExcludeScope -and $environmentCategories.environmentCategory -notContains ($policyResourceDetails.policyAssignments.$key.scopeDisplayName)) {
-                    Write-Information "DEBUG: Including assignment $key with scopeType: $scopeType, scopeDisplayName: $($policyResourceDetails.policyAssignments.$key.scopeDisplayName)"
                     $environmentCategories += New-Object PSObject -Property @{
                         pacEnvironment            = $pacEnvironmentSelector
                         environmentCategory       = $policyResourceDetails.policyAssignments.$key.scopeDisplayName
@@ -599,8 +592,8 @@ foreach ($file in $files) {
                     Write-ModernStatus -Message "Field documentationType ($documentationType) is deprecated" -Status "warning" -Indent 6
                 }
                 Out-DocumentationForPolicyAssignments `
-                    -OutputPath $outputPath
-                -OutputPathServices $outputPathServices `
+                    -OutputPath $outputPath `
+                    -OutputPathServices $outputPathServices `
                     -WindowsNewLineCells:$WindowsNewLineCells `
                     -DocumentationSpecification $documentationSpecification `
                     -AssignmentsByEnvironment $assignmentsByEnvironment `
@@ -610,4 +603,5 @@ foreach ($file in $files) {
             }
         }
     }
+    Write-Information ""
 }
