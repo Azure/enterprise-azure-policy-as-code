@@ -2,6 +2,7 @@
     "// Theme Configuration": "Copy this file to .epac/theme.json to customize output themes",
     "// Available themes": [
         "default",
+        "enhanced",
         "high-contrast",
         "screen-reader"
     ],
@@ -45,6 +46,49 @@
                     "warning": "Yellow",
                     "error": "Red",
                     "info": "White",
+                    "skip": "DarkGray",
+                    "update": "Cyan",
+                    "processing": "Yellow"
+                }
+            }
+        },
+        "enhanced": {
+            "name": "Enhanced Visual Theme",
+            "description": "Modern theme with emojis and enhanced visual indicators",
+            "characters": {
+                "header": {
+                    "topLeft": "╭",
+                    "topRight": "╮",
+                    "bottomLeft": "╰",
+                    "bottomRight": "╯",
+                    "horizontal": "─",
+                    "vertical": "│"
+                },
+                "section": {
+                    "arrow": " ",
+                    "underline": "─"
+                },
+                "status": {
+                    "success": " ",
+                    "warning": " ",
+                    "error": " ",
+                    "info": " ",
+                    "skip": " ",
+                    "update": " ",
+                    "processing": " "
+                }
+            },
+            "colors": {
+                "header": {
+                    "primary": "Magenta",
+                    "secondary": "DarkMagenta"
+                },
+                "section": "Cyan",
+                "status": {
+                    "success": "Green",
+                    "warning": "Yellow",
+                    "error": "Red",
+                    "info": "Blue",
                     "skip": "DarkGray",
                     "update": "Cyan",
                     "processing": "Yellow"
