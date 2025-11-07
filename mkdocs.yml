@@ -36,6 +36,7 @@ nav:
       - Global Settings: settings-global-setting-file.md
       - Desired State: settings-desired-state.md
       - DfC Assignments: settings-dfc-assignments.md
+      - Output Themes: settings-output-themes.md
   - Azure Landing Zones:
       - ALZ Overview: integrating-with-alz-overview.md
       - ALZ Policy Integration (New): integrating-with-alz-library.md
