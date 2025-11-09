@@ -1,8 +1,5 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://example.com/alz-policy-default-structure.schema.json",
-  "title": "Azure Landing Zone Policy Default Structure",
-  "description": "Schema for Azure Landing Zone policy default structure configuration",
   "type": "object",
   "properties": {
     "managementGroupNameMappings": {
@@ -22,7 +19,10 @@
               "description": "The full resource path to the management group"
             }
           },
-          "required": ["management_group_function", "value"],
+          "required": [
+            "management_group_function",
+            "value"
+          ],
           "additionalProperties": false
         }
       },
@@ -30,7 +30,10 @@
     },
     "enforcementMode": {
       "type": "string",
-      "enum": ["Default", "DoNotEnforce"],
+      "enum": [
+        "Default",
+        "DoNotEnforce"
+      ],
       "description": "Default enforcement mode for policies"
     },
     "defaultParameterValues": {
@@ -67,12 +70,24 @@
                   "value": {
                     "description": "The parameter value (can be any type)",
                     "oneOf": [
-                      {"type": "string"},
-                      {"type": "number"},
-                      {"type": "boolean"},
-                      {"type": "null"},
-                      {"type": "object"},
-                      {"type": "array"}
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "object"
+                      },
+                      {
+                        "type": "array"
+                      }
                     ]
                   },
                   "parameter_name": {
@@ -80,11 +95,18 @@
                     "description": "The name of the parameter in the policy"
                   }
                 },
-                "required": ["value", "parameter_name"],
+                "required": [
+                  "value",
+                  "parameter_name"
+                ],
                 "additionalProperties": false
               }
             },
-            "required": ["policy_assignment_name", "description", "parameters"],
+            "required": [
+              "policy_assignment_name",
+              "description",
+              "parameters"
+            ],
             "additionalProperties": false
           }
         }
@@ -118,15 +140,22 @@
                 "description": "Array of policy set names to enforce"
               }
             },
-            "required": ["scope", "policy_set_names"],
+            "required": [
+              "scope",
+              "policy_set_names"
+            ],
             "additionalProperties": false
           }
         }
       },
-      "required": ["deployments"],
+      "required": [
+        "deployments"
+      ],
       "additionalProperties": false
     }
   },
-  "required": ["managementGroupNameMappings", "enforcementMode"],
-  "additionalProperties": false
+  "required": [
+    "managementGroupNameMappings",
+    "enforcementMode"
+  ]
 }
