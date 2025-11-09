@@ -2,7 +2,9 @@ function Set-AzRoleAssignmentRestMethod {
     [CmdletBinding()]
     param (
         $RoleAssignment,
-        $PacEnvironment
+        $PacEnvironment,
+        [Parameter(Mandatory = $false)]
+        [bool] $skipDelegated = $false
     )
 
     $ApiVersion = $PacEnvironment.apiVersions.roleAssignments
@@ -22,13 +24,13 @@ function Set-AzRoleAssignmentRestMethod {
         properties = $RoleAssignment.properties
     }
 
-    $skipCondition = ($null -ne $PacEnvironment.managedTenantId -and $body.properties.crossTenant -eq $true)
-    if ((($body.properties.crossTenant -eq $true) -or ($null -ne $PacEnvironment.managedTenantId)) -and (-not $skipCondition)) { #-or ($null -ne $PacEnvironment.managedTenantId -and SOMETHING ELSE TO KNOW THE ASSIGNMENT IS GOING ACROSS)...... -and $roleAssignment.properties.description -notLike "*additional Role*")) {
-         $body.properties["delegatedManagedIdentityResourceId"] = $roleassignment.assignmentId
+    if (!$skipDelegated) {
+        Write-Information "Assignment '$($RoleAssignment.assignmentDisplayName)', principalId $($properties.principalId), role '$($RoleAssignment.roleDisplayName)' at $($scope)"
     }
 
-
-    Write-Information "Assignment '$($RoleAssignment.assignmentDisplayName)', principalId $($properties.principalId), role '$($RoleAssignment.roleDisplayName)' at $($scope)"
+    if ($PacEnvironment.managedTenantId -and !$skipDelegated) {
+        $body.properties["delegatedManagedIdentityResourceId"] = $roleassignment.assignmentId
+    }
 
     # Invoke the REST API
     $bodyJson = ConvertTo-Json $body -Depth 100 -Compress
@@ -50,6 +52,10 @@ function Set-AzRoleAssignmentRestMethod {
         }
         elseif ($statusCode -eq 403 -and $response.content -match "has an authorization with ABAC condition that is not fulfilled to perform action") {
             Write-Error "Error, ABAC Permissions Issue. Please review permissions for service principal at scope $($RoleAssignment.scope) -- $($response.content)"
+        }
+        elseif ($PacEnvironment.managedTenantId -and $statusCode -eq 400 -and $response.content -match "delegatedManagedIdentityResourceId in the request is set to") {
+            $body.properties.Remove("delegatedManagedIdentityResourceId")
+            Set-AzRoleAssignmentRestMethod -RoleAssignment $RoleAssignment -PacEnvironment $PacEnvironment -skipDelegated $true
         }
         else {
             $content = $response.Content
