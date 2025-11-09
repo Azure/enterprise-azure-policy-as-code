@@ -14,9 +14,23 @@
               "description": "The functional description of the management group"
             },
             "value": {
-              "type": "string",
-              "pattern": "^/providers/Microsoft\\.Management/managementGroups/[a-zA-Z0-9_-]+$",
-              "description": "The full resource path to the management group"
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^/providers/Microsoft\\.Management/managementGroups/[a-zA-Z0-9_-]+$",
+                  "description": "A single management group resource path"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^/providers/Microsoft\\.Management/managementGroups/[a-zA-Z0-9_-]+$"
+                  },
+                  "minItems": 1,
+                  "description": "An array of management group resource paths"
+                }
+              ],
+              "description": "The full resource path(s) to the management group(s). Can be a single string or array of strings."
             }
           },
           "required": [
