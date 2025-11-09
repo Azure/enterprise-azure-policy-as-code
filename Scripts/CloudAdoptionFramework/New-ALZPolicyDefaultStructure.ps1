@@ -65,6 +65,7 @@ if ($LibraryPath -eq "") {
 }
 
 $jsonOutput = [ordered]@{
+    "`$schema"                  = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-structure-schema.json"
     managementGroupNameMappings = [ordered]@{}
     enforcementMode             = "Default"
     defaultParameterValues      = [ordered]@{}
