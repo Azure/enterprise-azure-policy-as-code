@@ -168,34 +168,6 @@ Optimized for screen reader users:
   ERROR: 1 error occurred
   ```
 
-## Accessibility Features
-
-### Color Blindness Support
-
-The high-contrast theme addresses common color vision deficiencies:
-
-- **Protanopia/Deuteranopia (red-green blind)**: Uses blue/yellow/white backgrounds instead of red-green combinations
-- **Tritanopia (blue-yellow blind)**: Text labels provide meaning independent of color
-- **Monochromacy**: Text-based status indicators work without any color vision
-
-### Low Vision Support
-
-High contrast features for better visibility:
-
-- **Background colors**: White/black text on dark colored backgrounds
-- **Simplified characters**: ASCII characters instead of Unicode symbols
-- **Higher contrast ratios**: Maximum brightness differences
-- **Larger status indicators**: Text-based labels instead of single symbols
-
-### Screen Reader Optimization
-
-Clean output for assistive technology:
-
-- **No decorative characters**: Eliminates Unicode box drawing and symbols
-- **Semantic labels**: Clear text descriptions (SUCCESS:, WARNING:, ERROR:)
-- **Consistent structure**: Predictable layout for navigation
-- **No visual formatting**: Pure text content
-
 ## Theme Customization
 
 ### Switching Themes
