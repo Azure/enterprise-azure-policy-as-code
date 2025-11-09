@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/alz-policy-default-structure.schema.json",
+  "title": "Azure Landing Zone Policy Default Structure",
+  "description": "Schema for Azure Landing Zone policy default structure configuration",
+  "type": "object",
+  "properties": {
+    "managementGroupNameMappings": {
+      "type": "object",
+      "description": "Mappings of management group names to their configurations",
+      "patternProperties": {
+        "^[a-zA-Z0-9_-]+$": {
+          "type": "object",
+          "properties": {
+            "management_group_function": {
+              "type": "string",
+              "description": "The functional description of the management group"
+            },
+            "value": {
+              "type": "string",
+              "pattern": "^/providers/Microsoft\\.Management/managementGroups/[a-zA-Z0-9_-]+$",
+              "description": "The full resource path to the management group"
+            }
+          },
+          "required": ["management_group_function", "value"],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "enforcementMode": {
+      "type": "string",
+      "enum": ["Default", "DoNotEnforce"],
+      "description": "Default enforcement mode for policies"
+    },
+    "defaultParameterValues": {
+      "type": "object",
+      "description": "Default parameter values for policy assignments",
+      "patternProperties": {
+        "^[a-zA-Z0-9_-]+$": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "policy_assignment_name": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "description": "Single policy assignment name"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Array of policy assignment names"
+                  }
+                ]
+              },
+              "description": {
+                "type": "string",
+                "description": "Description of the parameter"
+              },
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "description": "The parameter value (can be any type)",
+                    "oneOf": [
+                      {"type": "string"},
+                      {"type": "number"},
+                      {"type": "boolean"},
+                      {"type": "null"},
+                      {"type": "object"},
+                      {"type": "array"}
+                    ]
+                  },
+                  "parameter_name": {
+                    "type": "string",
+                    "description": "The name of the parameter in the policy"
+                  }
+                },
+                "required": ["value", "parameter_name"],
+                "additionalProperties": false
+              }
+            },
+            "required": ["policy_assignment_name", "description", "parameters"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "enforceGuardrails": {
+      "type": "object",
+      "description": "Configuration for guardrail enforcement",
+      "properties": {
+        "deployments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "scope": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^/providers/Microsoft\\.Management/managementGroups/[a-zA-Z0-9_-]+$",
+                  "description": "Management group scope for the deployment"
+                },
+                "description": "Array of management group scopes"
+              },
+              "policy_set_names": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Name of the policy set to enforce"
+                },
+                "description": "Array of policy set names to enforce"
+              }
+            },
+            "required": ["scope", "policy_set_names"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["deployments"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["managementGroupNameMappings", "enforcementMode"],
+  "additionalProperties": false
+}
