@@ -14,7 +14,7 @@ function Build-AssignmentPlan {
         [hashtable] $DeprecatedHash
     )
 
-    Write-ModernSection -Title "Processing Policy Assignments" -Color Yellow
+    Write-ModernSection -Title "Processing Policy Assignments" -Color Blue
     Write-ModernStatus -Message "Source folder: $AssignmentsRootFolder" -Status "info" -Indent 2
 
     $assignmentFiles = @()

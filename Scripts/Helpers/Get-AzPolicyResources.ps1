@@ -143,53 +143,121 @@ function Get-AzPolicyResources {
         }
     }
 
-    Write-ModernSection -Title "Policy Resource Summary" -Color Green
+    Write-ModernSection -Title "Policy Resource Summary" -Color Blue
 
     foreach ($kind in @("policydefinitions", "policysetdefinitions")) {
         $deployedPolicyTable = $deployedPolicyResources.$kind
         $counters = $deployedPolicyTable.counters
         $managedBy = $counters.managedBy
         $managedByAny = $managedBy.thisPaC + $managedBy.otherPaC + $managedBy.unknown
-        
+
         if ($kind -eq "policydefinitions") {
-            Write-ModernStatus -Message "Policy Definitions:" -Status "info" -Indent 2
+            Write-ModernStatus -Message "Policy Definitions:" -Status default -Indent 0
         }
         else {
-            Write-ModernStatus -Message "Policy Set Definitions:" -Status "info" -Indent 2
+            Write-ModernStatus -Message "`nPolicy Set Definitions:" -Status default -Indent 2
         }
-        Write-ModernStatus -Message "Built-in: $($counters.builtIn)" -Status "info" -Indent 4
-        Write-ModernStatus -Message "Managed ($($managedByAny)):" -Status "info" -Indent 4
-        Write-ModernStatus -Message "This PaC: $($managedBy.thisPaC)" -Status "success" -Indent 6
-        Write-ModernStatus -Message "Other PaC: $($managedBy.otherPaC)" -Status "warning" -Indent 6
-        Write-ModernStatus -Message "Unknown: $($managedBy.unknown)" -Status "warning" -Indent 6
-        Write-ModernStatus -Message "Inherited: $($counters.inherited)" -Status "info" -Indent 4
-        Write-ModernStatus -Message "Excluded: $($counters.excluded)" -Status "skip" -Indent 4
+        Write-ModernStatus -Message "Built-in: $($counters.builtIn)" -Status "info" -Indent 3
+        Write-ModernStatus -Message "Managed ($($managedByAny)):" -Status "info" -Indent 3
+        
+        # Check if thisPaC is greater than 0 to set status
+        if ($($managedBy.thisPaC) -gt 0) {
+            Write-ModernStatus -Message "This PaC: $($managedBy.thisPaC)" -Status "success" -Indent 6
+        }
+        else {
+            Write-ModernStatus -Message "This PaC: $($managedBy.thisPaC)" -Status "info" -Indent 6
+        }
+        
+        # Check if otherPaC is greater than 0 to set status
+        if ($($managedBy.otherPaC) -gt 0) {
+            Write-ModernStatus -Message "Other PaC: $($managedBy.otherPaC)" -Status "warning" -Indent 6
+        }
+        else {
+            Write-ModernStatus -Message "Other PaC: $($managedBy.otherPaC)" -Status "info" -Indent 6
+        }
+
+        # Check if unknown is greater than 0 to set status
+        if ($($managedBy.unknown) -gt 0) {
+            Write-ModernStatus -Message "Unknown: $($managedBy.unknown)" -Status "warning" -Indent 6
+        }
+        else {
+            Write-ModernStatus -Message "Unknown: $($managedBy.unknown)" -Status "info" -Indent 6
+        }
+        Write-ModernStatus -Message "Inherited: $($counters.inherited)" -Status "info" -Indent 3
+        Write-ModernStatus -Message "Excluded: $($counters.excluded)" -Status "skip" -Indent 3
     }
 
     $counters = $deployedPolicyResources.policyassignments.counters
     $managedBy = $counters.managedBy
     $managedByAny = $managedBy.thisPaC + $managedBy.otherPaC + $managedBy.unknown + $managedBy.dfcSecurityPolicies + $managedBy.dfcDefenderPlans
-    Write-ModernStatus -Message "Policy Assignments:" -Status "info" -Indent 2
-    Write-ModernStatus -Message "Managed ($($managedByAny)):" -Status "info" -Indent 4
-    Write-ModernStatus -Message "This PaC: $($managedBy.thisPaC)" -Status "success" -Indent 6
-    Write-ModernStatus -Message "Other PaC: $($managedBy.otherPaC)" -Status "warning" -Indent 6
-    Write-ModernStatus -Message "Unknown: $($managedBy.unknown)" -Status "warning" -Indent 6
+    Write-ModernStatus -Message "`nPolicy Assignments:" -Status default -Indent 2
+    Write-ModernStatus -Message "Managed ($($managedByAny)):" -Status "info" -Indent 3
+    # Check if thisPaC is greater than 0 to set status
+    if ($($managedBy.thisPaC) -gt 0) {
+        Write-ModernStatus -Message "This PaC: $($managedBy.thisPaC)" -Status "success" -Indent 6
+    }
+    else {
+        Write-ModernStatus -Message "This PaC: $($managedBy.thisPaC)" -Status "info" -Indent 6
+    }
+        
+    # Check if otherPaC is greater than 0 to set status
+    if ($($managedBy.otherPaC) -gt 0) {
+        Write-ModernStatus -Message "Other PaC: $($managedBy.otherPaC)" -Status "warning" -Indent 6
+    }
+    else {
+        Write-ModernStatus -Message "Other PaC: $($managedBy.otherPaC)" -Status "info" -Indent 6
+    }
+
+    # Check if unknown is greater than 0 to set status
+    if ($($managedBy.unknown) -gt 0) {
+        Write-ModernStatus -Message "Unknown: $($managedBy.unknown)" -Status "warning" -Indent 6
+    }
+    else {
+        Write-ModernStatus -Message "Unknown: $($managedBy.unknown)" -Status "info" -Indent 6
+    }
     Write-ModernStatus -Message "DfC Security Policies: $($managedBy.dfcSecurityPolicies)" -Status "info" -Indent 6
     Write-ModernStatus -Message "DfC Defender Plans: $($managedBy.dfcDefenderPlans)" -Status "info" -Indent 6
-    Write-ModernStatus -Message "With identity: $($counters.withIdentity)" -Status "info" -Indent 4
-    Write-ModernStatus -Message "Excluded: $($counters.excluded)" -Status "skip" -Indent 4
+    Write-ModernStatus -Message "With identity: $($counters.withIdentity)" -Status "info" -Indent 3
+    Write-ModernStatus -Message "Excluded: $($counters.excluded)" -Status "skip" -Indent 3
 
     if (!$skipExemptionsLocal) {
         $counters = $deployedPolicyResources.policyexemptions.counters
         $managedBy = $counters.managedBy
         $managedByAny = $managedBy.thisPaC + $managedBy.otherPaC + $managedBy.unknown
-        Write-ModernStatus -Message "Policy Exemptions:" -Status "info" -Indent 2
-        Write-ModernStatus -Message "Managed ($($managedByAny)):" -Status "info" -Indent 4
-        Write-ModernStatus -Message "This PaC: $($managedBy.thisPaC)" -Status "success" -Indent 6
-        Write-ModernStatus -Message "Other PaC: $($managedBy.otherPaC)" -Status "warning" -Indent 6
-        Write-ModernStatus -Message "Unknown: $($managedBy.unknown)" -Status "warning" -Indent 6
-        Write-ModernStatus -Message "Expired: $($counters.expired)" -Status "error" -Indent 4
-        Write-ModernStatus -Message "Excluded: $($counters.excluded)" -Status "skip" -Indent 4
+        Write-ModernStatus -Message "`nPolicy Exemptions:" -Status default -Indent 2
+        Write-ModernStatus -Message "Managed ($($managedByAny)):" -Status "info" -Indent 3
+        
+        # Check if thisPaC is greater than 0 to set status
+        if ($($managedBy.thisPaC) -gt 0) {
+            Write-ModernStatus -Message "This PaC: $($managedBy.thisPaC)" -Status "success" -Indent 6
+        }
+        else {
+            Write-ModernStatus -Message "This PaC: $($managedBy.thisPaC)" -Status "info" -Indent 6
+        }
+        
+        # Check if otherPaC is greater than 0 to set status
+        if ($($managedBy.otherPaC) -gt 0) {
+            Write-ModernStatus -Message "Other PaC: $($managedBy.otherPaC)" -Status "warning" -Indent 6
+        }
+        else {
+            Write-ModernStatus -Message "Other PaC: $($managedBy.otherPaC)" -Status "info" -Indent 6
+        }
+
+        # Check if unknown is greater than 0 to set status
+        if ($($managedBy.unknown) -gt 0) {
+            Write-ModernStatus -Message "Unknown: $($managedBy.unknown)" -Status "warning" -Indent 6
+        }
+        else {
+            Write-ModernStatus -Message "Unknown: $($managedBy.unknown)" -Status "info" -Indent 6
+        }
+        # Check if expired is greater than 0 to set status
+        if ($($counters.expired) -gt 0) {
+            Write-ModernStatus -Message "Expired: $($counters.expired)" -Status "error" -Indent 3
+        }
+        else {
+            Write-ModernStatus -Message "Expired: $($counters.expired)" -Status "info" -Indent 3
+        }
+        Write-ModernStatus -Message "Excluded: $($counters.excluded)" -Status "skip" -Indent 3
     }
 
     if (!$SkipRoleAssignments) {
@@ -198,15 +266,15 @@ function Get-AzPolicyResources {
         $numberPrincipalIdsWithRoleAssignments = $managedRoleAssignmentsByPrincipalId.Count
         if ($numberPrincipalIds -ne $numberPrincipalIdsWithRoleAssignments) {
             Write-ModernStatus -Message "Role assignment retrieval incomplete ($($numberPrincipalIds) in assignments, $($numberPrincipalIdsWithRoleAssignments) retrieved)" -Status "warning" -Indent 2
-            Write-ModernStatus -Message "This is likely due to missing permissions for the SPN running the pipeline" -Status "warning" -Indent 4
+            Write-ModernStatus -Message "This is likely due to missing permissions for the SPN running the pipeline" -Status "warning" -Indent 3
             $deployedPolicyResources.roleAssignmentsNotRetrieved = $numberPrincipalIdsWithRoleAssignments -eq 0
         }
-        Write-ModernStatus -Message "Role Assignments:" -Status "info" -Indent 2
-        Write-ModernStatus -Message "Principal IDs: $($numberPrincipalIds)" -Status "info" -Indent 4
-        Write-ModernStatus -Message "With Role Assignments: $($numberPrincipalIdsWithRoleAssignments)" -Status "info" -Indent 4
-        Write-ModernStatus -Message "Total Role Assignments: $($deployedPolicyResources.numberOfRoleAssignments)" -Status "info" -Indent 4
+        Write-ModernStatus -Message "`nRole Assignments:"  -Status default  -Indent 2
+        Write-ModernStatus -Message "Principal IDs: $($numberPrincipalIds)" -Status "info" -Indent 3
+        Write-ModernStatus -Message "With Role Assignments: $($numberPrincipalIdsWithRoleAssignments)" -Status "info" -Indent 3
+        Write-ModernStatus -Message "Total Role Assignments: $($deployedPolicyResources.numberOfRoleAssignments)" -Status "info" -Indent 3
         if ($PacEnvironment.managingTenantId) {
-            Write-ModernStatus -Message "Remote Role Assignments: $($deployedPolicyResources.remoteAssignmentsCount)" -Status "info" -Indent 4
+            Write-ModernStatus -Message "`nRemote Role Assignments: $($deployedPolicyResources.remoteAssignmentsCount)" -Status "info" -Indent 3
         }
     }    return $deployedPolicyResources
 }

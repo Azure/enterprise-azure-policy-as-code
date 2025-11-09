@@ -75,7 +75,7 @@ $pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRoot
 $null = Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -Interactive $pacEnvironment.interactive -DeploymentDefaultContext $pacEnvironment.defaultContext
 
 # Display environment information
-Write-ModernSection -Title "Environment Configuration" -Color Cyan
+Write-ModernSection -Title "Environment Configuration" -Color Blue
 Write-ModernStatus -Message "PAC Environment: $($pacEnvironment.pacSelector)" -Status "info" -Indent 2
 Write-ModernStatus -Message "Deployment Root: $($pacEnvironment.deploymentRootScope)" -Status "info" -Indent 2
 Write-ModernStatus -Message "Input Folder: $InputFolder" -Status "info" -Indent 2

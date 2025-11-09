@@ -12,9 +12,8 @@ function Out-PolicyExemptions {
     )
 
     $numberOfExemptions = $Exemptions.Count
-    Write-Information "==================================================================================================="
-    Write-Information "Output Exemption list ($numberOfExemptions)"
-    Write-Information "==================================================================================================="
+    Write-ModernSection -Title "Outputting Policy Exemptions" -Color Blue
+    Write-ModernStatus -Message "Found $numberOfExemptions exemptions" -Status "success" -Indent 2
 
     $pacSelector = $PacEnvironment.pacSelector
     $outputPath = "$PolicyExemptionsFolder/$pacSelector"
@@ -137,9 +136,9 @@ function Out-PolicyExemptions {
         #region Active Exemptions
 
         $stem = "$outputPath/active-exemptions"
-        Write-Information "==================================================================================================="
-        Write-Information "Output $numberOfExemptions active (not expired or orphaned) Exemptions for epac environment '$pacSelector'"
-        Write-Information "==================================================================================================="
+        Write-ModernSection -Title "Active Exemptions" -Color Green
+        Write-ModernStatus -Message "Environment: $pacSelector" -Status "info" -Indent 2
+        Write-ModernStatus -Message "Outputting $numberOfExemptions active exemptions (not expired or orphaned)" -Status "success" -Indent 2
         if ($OutputJson) {
             $selectedArray = $selectedExemptions | Where-Object status -in @("active", "active-expiring-within-15-days") | Select-Object -Property name, `
                 displayName, `
@@ -257,9 +256,9 @@ function Out-PolicyExemptions {
         #region All Exemptions
 
         $stem = "$outputPath/all-exemptions"
-        Write-Information "==================================================================================================="
-        Write-Information "Output $numberOfExemptions Exemptions (all) for epac environment '$pacSelector'"
-        Write-Information "==================================================================================================="
+        Write-ModernSection -Title "All Exemptions" -Color Yellow
+        Write-ModernStatus -Message "Environment: $pacSelector" -Status "info" -Indent 2
+        Write-ModernStatus -Message "Outputting $numberOfExemptions exemptions (all statuses)" -Status "success" -Indent 2
         if ($OutputJson) {
             $selectedArray = $selectedExemptions | Select-Object -Property name, `
                 displayName, `

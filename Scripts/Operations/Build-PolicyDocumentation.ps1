@@ -73,8 +73,8 @@ param (
     [parameter(Mandatory = $false, HelpMessage = "Will only document assignments that are managed by your defined PAC Owner", Position = 0)]
     [switch] $OnlyCheckManagedAssignments,
 
-    [parameter(Mandatory = $false, HelpMessage = "When enabled (default), the script will fail with an error if Policy Definitions referenced by assignments are not found. When disabled, shows warnings and continues.")]
-    [switch] $StrictMode = $true
+    [parameter(Mandatory = $false, HelpMessage = "When enabled, the script will fail with an error if Policy Definitions referenced by assignments are not found. When disabled, shows warnings and continues.")]
+    [switch] $StrictMode = $false
 )
 
 # Dot Source Helper Scripts
@@ -100,13 +100,12 @@ else {
 
 # Telemetry
 if ($globalSettings.telemetryEnabled) {
-    Write-Information "Telemetry is enabled"
+    Write-ModernStatus -Message "Telemetry is enabled" -Status "info" -Indent 2
     Submit-EPACTelemetry -Cuapid "pid-2dc29bae-2448-4d7f-b911-418421e83900" -DeploymentRootScope $pacEnvironment.deploymentRootScope
 }
 else {
-    Write-Information "Telemetry is disabled"
+    Write-ModernStatus -Message "Telemetry is disabled" -Status "info" -Indent 2
 }
-Write-Information ""
 
 # Caching information to optimize different outputs
 $cachedPolicyResourceDetails = @{}
@@ -116,10 +115,8 @@ $pacEnvironment = $null
 
 #endregion Initialize
 
-Write-Information ""
-Write-Information "==================================================================================================="s
-Write-Information "Processing documentation definitions in folder '$definitionsFolder'"
-Write-Information "==================================================================================================="
+Write-ModernSection -Title "Processing Documentation Definitions" -Color Blue
+Write-ModernStatus -Message "Source folder: $definitionsFolder" -Status "info" -Indent 2
 if (!(Test-Path $definitionsFolder -PathType Container)) {
     Write-Error "Policy documentation specification folder 'policyDocumentations not found.  This EPAC instance cannot generate documentation." -ErrorAction Stop
 }
@@ -130,7 +127,7 @@ $filesRaw += Get-ChildItem -Path $definitionsFolder -Recurse -File -Filter "*.js
 $files = @()
 $files += ($filesRaw  | Sort-Object -Property Name)
 if ($files.Length -gt 0) {
-    Write-Information "Number of documentation definition files = $($files.Length)"
+    Write-ModernStatus -Message "Found $($files.Length) documentation definition files" -Status "success" -Indent 2
 }
 else {
     Write-Error "No documentation definition files found!" -ErrorAction Stop
@@ -158,7 +155,7 @@ foreach ($file in $files) {
             }
             1 {
                 $processThisFile = $false
-                Write-Information "Skipping file '$($file.Name)'"
+                Write-ModernStatus -Message "Skipping file: $($file.Name)" -Status "skip" -Indent 4
             }
             2 {
                 $processThisFile = $true
@@ -168,7 +165,7 @@ foreach ($file in $files) {
     }
 
     if ($processThisFile) {
-        Write-Information "Reading and Processing '$($file.Name)'"
+        Write-ModernStatus -Message "Reading and processing: $($file.Name)" -Status "info" -Indent 4
         $json = Get-Content -Path $file.FullName -Raw -ErrorAction Stop
         try {
             $documentationSpec = $json | ConvertFrom-Json
@@ -331,7 +328,7 @@ foreach ($file in $files) {
             foreach ($documentationSpecification in $documentationSpecifications) {
                 $documentationType = $documentationSpecification.type
                 if ($null -ne $documentationType) {
-                    Write-Information "Field documentationType ($($documentationType)) is deprecated"
+                    Write-ModernStatus -Message "Field documentationType ($documentationType) is deprecated" -Status "warning" -Indent 6
                 }
                 Out-DocumentationForPolicyAssignments `
                     -OutputPath $outputPath `
@@ -388,12 +385,10 @@ foreach ($file in $files) {
             $currentConfig = $documentationSpec.documentAssignments.documentAllAssignments
             if ($currentConfig -is [array]) {
                 $excludeScopeTypes = $currentConfig[0].excludeScopeTypes
-            } else {
+            }
+            else {
                 $excludeScopeTypes = $currentConfig.excludeScopeTypes
             }
-            
-            Write-Information "DEBUG: excludeScopeTypes = $($excludeScopeTypes -join ', ')"
-            Write-Information "DEBUG: currentConfig type = $($currentConfig.GetType().Name)"
             
             foreach ($key in $policyResourceDetails.policyAssignments.keys) {
                 $scopeType = $policyResourceDetails.policyAssignments.$key.scopeType
@@ -402,11 +397,9 @@ foreach ($file in $files) {
                 $shouldExcludeScope = $false
                 if ($null -ne $excludeScopeTypes -and $scopeType -in $excludeScopeTypes) {
                     $shouldExcludeScope = $true
-                    Write-Information "DEBUG: Excluding assignment $key with scopeType: $scopeType"
                 }
                 
                 if (-not $shouldExcludeScope -and $environmentCategories.environmentCategory -notContains ($policyResourceDetails.policyAssignments.$key.scopeDisplayName)) {
-                    Write-Information "DEBUG: Including assignment $key with scopeType: $scopeType, scopeDisplayName: $($policyResourceDetails.policyAssignments.$key.scopeDisplayName)"
                     $environmentCategories += New-Object PSObject -Property @{
                         pacEnvironment            = $pacEnvironmentSelector
                         environmentCategory       = $policyResourceDetails.policyAssignments.$key.scopeDisplayName
@@ -428,7 +421,8 @@ foreach ($file in $files) {
                         $excludeScopeTypes = $currentConfig[0].excludeScopeTypes
                         $skipPolicyAssignments = $currentConfig[0].skipPolicyAssignments
                         $skipPolicyDefinitions = $currentConfig[0].skipPolicyDefinitions
-                    } else {
+                    }
+                    else {
                         $excludeScopeTypes = $currentConfig.excludeScopeTypes
                         $skipPolicyAssignments = $currentConfig.skipPolicyAssignments
                         $skipPolicyDefinitions = $currentConfig.skipPolicyDefinitions
@@ -595,7 +589,7 @@ foreach ($file in $files) {
 
                 $documentationType = $documentationSpecification.type
                 if ($null -ne $documentationType) {
-                    Write-Information "Field documentationType ($($documentationType)) is deprecated"
+                    Write-ModernStatus -Message "Field documentationType ($documentationType) is deprecated" -Status "warning" -Indent 6
                 }
                 Out-DocumentationForPolicyAssignments `
                     -OutputPath $outputPath `
@@ -609,4 +603,5 @@ foreach ($file in $files) {
             }
         }
     }
+    Write-Information ""
 }

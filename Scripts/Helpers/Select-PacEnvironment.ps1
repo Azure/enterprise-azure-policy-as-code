@@ -50,7 +50,7 @@ function Select-PacEnvironment {
         }
     }
     
-    Write-ModernSection -Title "PAC Environment Selected" -Color Green
+    Write-ModernSection -Title "PAC Environment Selected" -Color Blue
     Write-ModernStatus -Message "Environment: $PacEnvironmentSelector" -Status "success" -Indent 2
     Write-ModernStatus -Message "Cloud: $($pacEnvironment.cloud)" -Status "info" -Indent 2
     Write-ModernStatus -Message "Tenant ID: $($pacEnvironment.tenantId)" -Status "info" -Indent 2

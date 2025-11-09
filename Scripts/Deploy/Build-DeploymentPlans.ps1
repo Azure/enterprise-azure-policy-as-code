@@ -84,13 +84,13 @@ $InformationPreference = "Continue"
 $scriptStartTime = Get-Date
 
 # Display welcome header
-Write-ModernHeader -Title "Enterprise Policy as Code (EPAC)" -Subtitle "Building Deployment Plans" -HeaderColor Magenta -SubtitleColor DarkMagenta
+Write-ModernHeader -Title "Enterprise Policy as Code (EPAC)" -Subtitle "Building Deployment Plans" -HeaderColor Magenta -SubtitleColor Magenta
 
 $pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -Interactive $Interactive
 $null = Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -Interactive $pacEnvironment.interactive -DeploymentDefaultContext $pacEnvironment.defaultContext
 
 # Display environment information
-Write-ModernSection -Title "Environment Configuration" -Color Cyan
+Write-ModernSection -Title "Environment Configuration" -Color Blue
 Write-ModernStatus -Message "PAC Environment: $($pacEnvironment.pacSelector)" -Status "info" -Indent 2
 Write-ModernStatus -Message "Deployment Root: $($pacEnvironment.deploymentRootScope)" -Status "info" -Indent 2
 Write-ModernStatus -Message "Tenant ID: $($pacEnvironment.tenantId)" -Status "info" -Indent 2
@@ -331,7 +331,7 @@ if ($buildSelections.buildAny) {
     }
 
     if ($buildSelections.buildPolicyDefinitions) {
-        Write-ModernProgress -Activity "Analyzing Policy Definitions"
+        #Write-ModernProgress -Activity "Analyzing Policy Definitions"
         # Process Policies
         Build-PolicyPlan `
             -DefinitionsRootFolder $policyDefinitionsFolder `
@@ -369,7 +369,7 @@ if ($buildSelections.buildAny) {
     }
 
     if ($buildSelections.buildPolicySetDefinitions) {
-        Write-ModernProgress -Activity "Analyzing Policy Set Definitions"
+        #Write-ModernProgress -Activity "Analyzing Policy Set Definitions"
         # Process Policy Sets
         Build-PolicySetPlan `
             -DefinitionsRootFolder $policySetDefinitionsFolder `
@@ -401,7 +401,7 @@ if ($buildSelections.buildAny) {
     }
 
     if ($buildSelections.buildPolicyAssignments) {
-        Write-ModernProgress -Activity "Analyzing Policy Assignments"
+        #Write-ModernProgress -Activity "Analyzing Policy Assignments"
         # Process Assignment JSON files
         Build-AssignmentPlan `
             -AssignmentsRootFolder $policyAssignmentsFolder `
@@ -418,7 +418,7 @@ if ($buildSelections.buildAny) {
     }
 
     if ($buildSelections.buildPolicyExemptions) {
-        Write-ModernProgress -Activity "Analyzing Policy Exemptions"
+        #Write-ModernProgress -Activity "Analyzing Policy Exemptions"
         # Process Exemption JSON files
         if ($SkipNotScopedExemptions) {
             Build-ExemptionsPlan `
@@ -449,7 +449,7 @@ if ($buildSelections.buildAny) {
         }
     }
 
-    Write-ModernHeader -Title "EPAC Deployment Plan Summary" -Subtitle "Policy as Code Resource Analysis" -HeaderColor Cyan
+    Write-ModernHeader -Title "EPAC Deployment Plan Summary" -Subtitle "Policy as Code Resource Analysis" -HeaderColor Magenta -SubtitleColor Magenta
 
     if ($buildSelections.buildPolicyDefinitions) {
         $policyChanges = @{

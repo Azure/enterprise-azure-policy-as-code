@@ -15,7 +15,8 @@ function Out-DocumentationForPolicyAssignments {
     [string[]] $environmentCategories = $DocumentationSpecification.environmentCategories
     [string] $title = $DocumentationSpecification.title
 
-    Write-Information "Generating Policy Assignment documentation for '$title', files '$fileNameStem'."
+    Write-ModernSection -Title "Generating Policy Assignment documentation for '$title'" -Color Green
+    Write-ModernStatus -Message "$fileNameStem" -Status "info" -Indent 2
 
     # Checking parameters
     if ($null -eq $fileNameStem -or $fileNameStem -eq "") {
@@ -640,4 +641,6 @@ function Out-DocumentationForPolicyAssignments {
         git push origin "$branch"
         Set-Location "../../"
     }
+    
+    Write-ModernStatus -Message "Complete" -Status "success" -Indent 2
 }

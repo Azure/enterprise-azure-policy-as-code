@@ -184,7 +184,7 @@ function Build-PolicyPlan {
                     $null = $ReplaceDefinitions.Add($id, $definition)
                 }
                 else {
-                    Write-ModernStatus -Message "Update ($changesString): $($displayName)" -Status "info" -Indent 4
+                    Write-ModernStatus -Message "Update ($changesString): $($displayName)" -Status "update" -Indent 4
                     $null = $definitionsUpdate.Add($id, $definition)
                 }
             }
@@ -230,6 +230,7 @@ function Build-PolicyPlan {
     $Definitions.numberUnchanged = $definitionsUnchanged
     $Definitions.numberOfChanges = $Definitions.new.Count + $Definitions.update.Count + $Definitions.replace.Count + $Definitions.delete.Count
 
-    Write-ModernCountSummary -Operation "Policy Definitions" -Unchanged $Definitions.numberUnchanged
+    Write-ModernStatus -Message "Unchanged Policy Definitions: $($Definitions.numberUnchanged)" -Status "status" -Indent 4
+    # Write-ModernCountSummary -Operation "Policy Definitions" -Unchanged $Definitions.numberUnchanged
     Write-Information ""
 }

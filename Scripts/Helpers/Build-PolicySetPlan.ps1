@@ -10,7 +10,7 @@ function Build-PolicySetPlan {
         [hashtable] $PolicyRoleIds
     )
 
-    Write-ModernSection -Title "Processing Policy Set Definitions" -Color Green
+    Write-ModernSection -Title "Processing Policy Set Definitions" -Color Blue
     Write-ModernStatus -Message "Source folder: $DefinitionsRootFolder" -Status "info" -Indent 2
 
     # Process Policy Set JSON files if any
@@ -273,7 +273,7 @@ function Build-PolicySetPlan {
                     $null = $ReplaceDefinitions.Add($id, $definition)
                 }
                 else {
-                    Write-ModernStatus -Message "Update ($changesString): $($displayName)" -Status "info" -Indent 4
+                    Write-ModernStatus -Message "Update ($changesString): $($displayName)" -Status "update" -Indent 4
                     $null = $Definitions.update.Add($id, $definition)
                 }
             }
@@ -318,6 +318,7 @@ function Build-PolicySetPlan {
         }
     }
 
-    Write-ModernCountSummary -Operation "Policy Set Definitions" -Unchanged $Definitions.numberUnchanged
+    Write-ModernStatus -Message "Unchanged Policy Set Definitions: $($Definitions.numberUnchanged)" -Status "status" -Indent 4
+    # Write-ModernCountSummary -Operation "Policy Set Definitions" -Unchanged $Definitions.numberUnchanged
     Write-Information ""
 }
