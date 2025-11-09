@@ -65,6 +65,15 @@ Modify the default enforcement mode
 "enforcementMode": "Default" // Can be Default or DoNotEnforce
 ```
 
+### Schema
+
+A schema is available to add to existing policy structure files. Add the key as below.
+
+```json
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-structure-schema.json"
+```
+
 ### Sync with ALZ Policy Repo
 
 The next command will generate policy assignments based on the values in this file so ensure they are correct for your environment.
