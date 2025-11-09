@@ -246,7 +246,14 @@ try {
             if ($scopeTrim -eq "confidential") {
                 $scopes = foreach ($key in $structureFile.managementGroupNameMappings.psObject.Properties.Name) {
                     if ($structureFile.managementGroupNameMappings.$key.management_group_function -match $scopeTrim) {
-                        $structureFile.managementGroupNameMappings.$key.value
+                        # Handle both string and array values
+                        $value = $structureFile.managementGroupNameMappings.$key.value
+                        if ($value -is [array]) {
+                            $value
+                        }
+                        else {
+                            $value
+                        }
                     }
                 }
                 $scope = [ordered]@{
@@ -254,10 +261,19 @@ try {
                 }
             }
             else {
-                $scope = [ordered]@{
-                    $PacEnvironmentSelector = @(
-                        $structureFile.managementGroupNameMappings.$scopeTrim.value
-                    )
+                # Handle both string and array values for regular scope mappings
+                $scopeValue = $structureFile.managementGroupNameMappings.$scopeTrim.value
+                if ($scopeValue -is [array]) {
+                    $scope = [ordered]@{
+                        $PacEnvironmentSelector = $scopeValue
+                    }
+                }
+                else {
+                    $scope = [ordered]@{
+                        $PacEnvironmentSelector = @(
+                            $scopeValue
+                        )
+                    }
                 }
             }
             $baseTemplate.Add("scope", $scope)
