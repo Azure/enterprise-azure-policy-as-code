@@ -33,16 +33,13 @@ function Set-AzRoleAssignmentRestMethod {
 
     # Process response
     $statusCode = $response.StatusCode
-    if ($statusCode -eq 200){
-        Write-ModernStatus -Message "Created role assignment for principal: $principalId" -Status "success" -Indent 2
-    }
-    elseif ($statusCode -lt 200 -or $statusCode -ge 300) {
+    if ($statusCode -lt 200 -or $statusCode -ge 300) {
         if ($statusCode -eq 409) {
             if ($response.content -match "ScopeLocked") {
                 Write-ModernStatus -Message "Scope at $($RoleAssignment.scope) is locked, cannot update role assignment" -Status "warning" -Indent 2
             }
             else {
-                Write-ModernStatus -Message "Role assignment already exists (ignore): $($RoleAssignment.assignmentDisplayName)" -Status "warning" -Indent 2
+                Write-ModernStatus -Message "Role assignment already exists (ignore): $($RoleAssignment.assignmentDisplayName)" -Status "warning" -Indent 8
             }
         }
         elseif ($statusCode -eq 403 -and $response.content -match "does not have authorization to perform action") {
@@ -59,5 +56,8 @@ function Set-AzRoleAssignmentRestMethod {
             $content = $response.Content
             Write-ModernStatus -Message "Error, continue deployment: $($statusCode) -- $($content)" -Status "error" -Indent 2
         }
+    }
+    else {
+        Write-ModernStatus -Message "Created role assignment for principal: $principalId" -Status "success" -Indent 8
     }
 }

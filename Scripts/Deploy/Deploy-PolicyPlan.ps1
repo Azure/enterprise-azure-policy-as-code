@@ -200,7 +200,7 @@ else {
             $entry = $table.$id
             Write-ModernStatus -Message "Processing: $($entry.displayName)" -Status "pending" -Indent 2
             Set-AzPolicyAssignmentRestMethod -Assignment $entry -ApiVersion $pacEnvironment.apiVersions.policyAssignments
-            Write-ModernStatus -Message "Completed: $($entry.displayName)" -Status "success" -Indent 2
+            Write-ModernStatus -Message "Completed: $($entry.displayName)" -Status "success" -Indent 4
         }
     }
 
