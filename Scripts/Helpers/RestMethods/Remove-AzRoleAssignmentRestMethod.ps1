@@ -16,20 +16,27 @@ function Remove-AzRoleAssignmentRestMethod {
 
     # Call REST API to delete role assignment
     if (!$TenantId) {
+        $checkExists = Invoke-AzRestMethod -Path "$($RoleAssignmentId)?api-version=$ApiVersion" -Method GET -ErrorAction SilentlyContinue
+        if ($checkExists.StatusCode -eq 200 -or $checkCrossExists.StatusCode -eq 200) {
         $response = Invoke-AzRestMethod -Path "$($RoleAssignmentId)?api-version=$ApiVersion" -Method Delete
+        }
+        else {
+            Write-ModernStatus -Message "Role assignment already deleted (ignore)" -Status "warning" -Indent 6
+            Write-Information ""
+            return
+        }
     }
     else {
-        # When crorss tenant deleting, if the role is not there anymore, the error returned is a 403 or 404. To avoid failing the deployment in this case, first check if the role assignment exists.
+        # When cross tenant deleting, if the role is not there anymore, the error returned is a 403 or 404. To avoid failing the deployment in this case, first check if the role assignment exists.
         $checkExists = Invoke-AzRestMethod -Path "$($RoleAssignmentId)?api-version=$ApiVersion" -Method GET -ErrorAction SilentlyContinue
-        if ($checkExists.StatusCode -eq 200) {
+        $checkCrossExists = Invoke-AzRestMethod -Path "$($RoleAssignmentId)?api-version=$ApiVersion&tenantId=$($TenantId)" -Method GET -ErrorAction SilentlyContinue
+        if ($checkExists.StatusCode -eq 200 -or $checkCrossExists.StatusCode -eq 200) {
             $response = Invoke-AzRestMethod -Path "$($RoleAssignmentId)?api-version=$ApiVersion&tenantId=$($TenantId)" -Method Delete #-Payload $bodyJson
         }
         else {
             Write-ModernStatus -Message "Role assignment already deleted (ignore)" -Status "warning" -Indent 6
-            $response = [PSCustomObject]@{
-                StatusCode = 200
-                Content    = "OK"
-            }
+            Write-Information ""
+            return
         }
     }
 
@@ -43,5 +50,9 @@ function Remove-AzRoleAssignmentRestMethod {
         else {
             Write-Error "Role assignment deletion failed with error $($statusCode) -- $($content)" -ErrorAction Stop
         }
+    }
+    else {
+        Write-ModernStatus -Message "Removed role successfully" -Status "success" -Indent 6
+        Write-Information ""
     }
 }

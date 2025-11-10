@@ -37,16 +37,26 @@ function Set-AzRoleAssignmentRestMethod {
         if ($statusCode -eq 409) {
             if ($response.content -match "ScopeLocked") {
                 Write-ModernStatus -Message "Scope at $($RoleAssignment.scope) is locked, cannot update role assignment" -Status "warning" -Indent 2
+                Write-Information ""
             }
             else {
-                Write-ModernStatus -Message "Role assignment already exists (ignore): $($RoleAssignment.assignmentDisplayName)" -Status "warning" -Indent 8
+                Write-ModernStatus -Message "Role assignment already exists (ignore): $($RoleAssignment.assignmentDisplayName)" -Status "warning" -Indent 6
+                Write-Information ""
             }
         }
         elseif ($statusCode -eq 403 -and $response.content -match "does not have authorization to perform action") {
             Write-ModernStatus -Message "Error, Permissions Issue. Please review permissions for service principal at scope $($RoleAssignment.scope) -- $($response.content)" -Status "error" -Indent 2
+            Write-Information ""
         }
         elseif ($statusCode -eq 403 -and $response.content -match "has an authorization with ABAC condition that is not fulfilled to perform action") {
-            Write-ModernStatus -Message "Error, ABAC Permissions Issue. Please review permissions for service principal at scope $($RoleAssignment.scope) -- $($response.content)" -Status "error" -Indent 2
+            if ($skipDelegated -eq $false) {
+                $PacEnvironment.managedTenantId = "temp"
+                Set-AzRoleAssignmentRestMethod -RoleAssignment $RoleAssignment -PacEnvironment $PacEnvironment -skipDelegated $false
+            }
+            else {
+                Write-ModernStatus -Message "Error, ABAC Permissions Issue. Please review permissions for service principal at scope $($RoleAssignment.scope) -- $($response.content)" -Status "error" -Indent 2
+                Write-Information ""
+            }
         }
         elseif ($PacEnvironment.managedTenantId -and $statusCode -eq 400 -and $response.content -match "delegatedManagedIdentityResourceId in the request is set to") {
             $body.properties.Remove("delegatedManagedIdentityResourceId")
@@ -55,9 +65,11 @@ function Set-AzRoleAssignmentRestMethod {
         else {
             $content = $response.Content
             Write-ModernStatus -Message "Error, continue deployment: $($statusCode) -- $($content)" -Status "error" -Indent 2
+            Write-Information ""
         }
     }
     else {
-        Write-ModernStatus -Message "Created role assignment for principal: $principalId" -Status "success" -Indent 8
+        Write-ModernStatus -Message "Created role assignment for principal: $principalId" -Status "success" -Indent 6
+        Write-Information ""
     }
 }

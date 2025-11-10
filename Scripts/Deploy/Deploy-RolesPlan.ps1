@@ -99,7 +99,7 @@ if ($removedRoleAssignments.psbase.Count -gt 0) {
     Write-ModernSection -Title "Removing Obsolete Role Assignments ($($removedRoleAssignments.psbase.Count) items)" -Color Red
     foreach ($roleAssignment in $removedRoleAssignments) {
         $roleDisplayText = "`n      Principal: $($roleAssignment.principalId)`n      Role: $($roleAssignment.roleDisplayName)`n      Scope: $($roleAssignment.scope)"
-        Write-ModernStatus -Message "Removing: $roleDisplayText" -Status "pending" -Indent 2
+        Write-ModernStatus -Message "Removing Role Assignment: $roleDisplayText" -Status "pending" -Indent 2
         if (!$roleAssignment.crossTenant) {
             $null = Remove-AzRoleAssignmentRestMethod -RoleAssignmentId $roleAssignment.id -ApiVersion $pacEnvironment.apiVersions.roleAssignments
         }
@@ -112,8 +112,6 @@ if ($removedRoleAssignments.psbase.Count -gt 0) {
             }
             $null = Remove-AzRoleAssignmentRestMethod -RoleAssignmentId $roleAssignment.id -TenantId $pacEnvironment.managedTenantId -ApiVersion $pacEnvironment.apiVersions.roleAssignments -AssignmentId $assignmentId
         }
-        Write-ModernStatus -Message "Removed role successfully" -Status "success" -Indent 6
-        Write-Information ""
     }
 }
 
@@ -155,7 +153,7 @@ if ($addedRoleAssignments.psbase.Count -gt 0) {
         elseif (-not $assignmentById.ContainsKey($policyAssignmentId)) {
             $null = $assignmentById.Add($policyAssignmentId, $principalId)
         }
-        Write-ModernStatus -Message "Creating role assignment for`n      Principal: $principalId`n      Scope: $($roleAssignment.scope)" -Status "pending" -Indent 2
+        Write-ModernStatus -Message "Creating role assignment:`n      Principal: $principalId`n      Role: $($roleAssignment.roleDisplayName)`n      Scope: $($roleAssignment.scope)" -Status "pending" -Indent 2
         Set-AzRoleAssignmentRestMethod -RoleAssignment $roleAssignment -PacEnvironment $pacEnvironment
     }
 }
