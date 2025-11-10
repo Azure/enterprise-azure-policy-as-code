@@ -7,12 +7,12 @@ function Remove-AzRoleAssignmentRestMethod {
         [string] $AssignmentId
     )
 
-    $body = @{
-        properties = @{
-            delegatedManagedIdentityResourceId = $AssignmentId
-        }
-    }
-    $bodyJson = ConvertTo-Json $body -Depth 100 -Compress
+    # $body = @{
+    #     properties = @{
+    #         delegatedManagedIdentityResourceId = $AssignmentId
+    #     }
+    # }
+    # $bodyJson = ConvertTo-Json $body -Depth 100 -Compress
 
     # Call REST API to delete role assignment
     if (!$TenantId) {
