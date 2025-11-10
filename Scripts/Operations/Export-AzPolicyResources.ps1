@@ -159,8 +159,8 @@ if ($Mode -eq 'export' -or $Mode -eq 'exportFromRawFiles') {
     Write-Information ""
     Write-ModernSection -Title "Exporting Policy Resources" -Color Blue
     Write-ModernStatus -Message "WARNING! This script assumes:" -Status "warning" -Indent 2
-    Write-ModernStatus -Message "• Policies and Policy Sets with the same name define the same properties independent of scope and EPAC environment" -Status "warning" -Indent 2
-    Write-ModernStatus -Message "• Ignores (default) Assignments auto-assigned by Security Center unless -IncludeAutoAssigned is used" -Status "warning" -Indent 2
+    Write-ModernStatus -Message "Policies and Policy Sets with the same name define the same properties independent of scope and EPAC environment" -Status "warning" -Indent 4
+    Write-ModernStatus -Message "Ignores (default) Assignments auto-assigned by Security Center unless -IncludeAutoAssigned is used" -Status "warning" -Indent 4
 }
 else {
     Write-Information ""
