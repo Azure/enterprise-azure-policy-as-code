@@ -119,11 +119,10 @@ else {
     $table = ConvertTo-HashTable $plan.assignments.delete
     $table += ConvertTo-HashTable $plan.assignments.replace
     if ($table.psbase.Count -gt 0) {
-        Write-ModernSection -Title "Deleting Policy Assignments" -Color Red
-        Write-ModernStatus -Message "Removing $($table.psbase.Count) removed and replaced assignments" -Status "info" -Indent 2
+        Write-ModernSection -Title "Deleting Policy Assignments ($($table.psbase.Count) items)" -Color Red
         foreach ($id in $table.Keys) {
             $entry = $table.$id
-            Write-ModernStatus -Message "$($entry.displayName) - $($id)" -Status "info" -Indent 4
+            Write-ModernStatus -Message "$($entry.displayName)" -Status "info" -Indent 2
             Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policyAssignments
         }
     }
@@ -163,6 +162,7 @@ else {
             Write-ModernStatus -Message "Processing: $($entry.displayName)" -Status "pending" -Indent 2
             Set-AzPolicyDefinitionRestMethod -Definition $entry -ApiVersion $pacEnvironment.apiVersions.policyDefinitions
             Write-ModernStatus -Message "Completed: $($entry.displayName)" -Status "success" -Indent 2
+            Write-Information ""
         }
     }
 
@@ -176,6 +176,7 @@ else {
             Write-ModernStatus -Message "Processing: $($entry.displayName)" -Status "pending" -Indent 2
             Set-AzPolicySetDefinitionRestMethod -Definition $entry -ApiVersion $pacEnvironment.apiVersions.policySetDefinitions
             Write-ModernStatus -Message "Completed: $($entry.displayName)" -Status "success" -Indent 2
+            Write-Information ""
         }
     }
 
@@ -200,7 +201,8 @@ else {
             $entry = $table.$id
             Write-ModernStatus -Message "Processing: $($entry.displayName)" -Status "pending" -Indent 2
             Set-AzPolicyAssignmentRestMethod -Assignment $entry -ApiVersion $pacEnvironment.apiVersions.policyAssignments
-            Write-ModernStatus -Message "Completed: $($entry.displayName)" -Status "success" -Indent 2
+            Write-ModernStatus -Message "Completed: $($entry.displayName)" -Status "success" -Indent 4
+            Write-Information ""
         }
     }
 
@@ -215,6 +217,7 @@ else {
                 Write-ModernStatus -Message "Processing: $($entry.displayName)" -Status "pending" -Indent 2
                 Set-AzPolicyExemptionRestMethod -ExemptionObj $entry -ApiVersion $pacEnvironment.apiVersions.policyExemptions -FailOnExemptionError $FailOnExemptionError
                 Write-ModernStatus -Message "Completed: $($entry.displayName)" -Status "success" -Indent 2
+                Write-Information ""
             }
         }
     }

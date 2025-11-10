@@ -240,7 +240,7 @@ function Write-ModernCountSummary {
     }
     
     if ($TotalChanges -eq 0) {
-        Write-ModernStatus -Message "No changes required" -Status "success" -Indent $Indent
+        Write-ModernStatus -Message "No changes required" -Status "info" -Indent $Indent
     }
     else {
         Write-ModernStatus -Message "$TotalChanges total changes:" -Status "info" -Indent $Indent
@@ -258,7 +258,7 @@ function Write-ModernCountSummary {
             Write-ModernStatus -Message "$($Changes.delete) deletions" -Status "error" -Indent ($Indent + 2)
         }
         if ($Changes.ContainsKey('add') -and $Changes.add -gt 0) {
-            Write-ModernStatus -Message "$($Changes.add) additions" -Status "info" -Indent ($Indent + 2)
+            Write-ModernStatus -Message "$($Changes.add) additions" -Status "success" -Indent ($Indent + 2)
         }
         if ($Changes.ContainsKey('remove') -and $Changes.remove -gt 0) {
             Write-ModernStatus -Message "$($Changes.remove) removals" -Status "error" -Indent ($Indent + 2)

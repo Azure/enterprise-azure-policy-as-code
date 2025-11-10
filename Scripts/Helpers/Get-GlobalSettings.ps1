@@ -31,8 +31,6 @@ function Get-GlobalSettings {
         Write-Error "Assignment JSON file '$($globalSettingsFile)' is not valid." -ErrorAction Stop
     }
 
-    Write-ModernProgress -Activity "Validating Global Settings Configuration"
-
     $telemetryOptOut = $settings.telemetryOptOut
     $telemetryEnabled = $true
     if ($null -ne $telemetryOptOut) {
@@ -89,22 +87,13 @@ function Get-GlobalSettings {
                 Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector does not contain required managedIdentityLocation field."
             }
 
-            $managingTenantId = $pacEnvironment.managingTenant.managingTenantId
-            $managingTenantRootScope = $pacEnvironment.managingTenant.managingTenantRootScope
-            if ($null -ne $managingTenantId) {
-                if ($null -eq $pacEnvironment.managingTenant.managingTenantRootScope) {
-                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector element managingTenantRootScope must have a valid value when managingTenantID has a value."
-                }
+            $managedTenantId = $pacEnvironment.managedTenantId
+            if ($null -ne $managedTenantId) {
                 $objectGuid = [System.Guid]::empty
                 # Returns True if successfully parsed, otherwise returns False.
-                $isGUID = [System.Guid]::TryParse($managingTenantId, [System.Management.Automation.PSReference]$objectGuid)
+                $isGUID = [System.Guid]::TryParse($managedTenantId, [System.Management.Automation.PSReference]$objectGuid)
                 if ($isGUID -ne $true) {
-                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field managingTenant ($managingTenantId) must be a GUID."
-                }
-            }
-            elseif ($null -ne $managingTenantRootScope) {
-                if ($null -eq $managingTenantId) {
-                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector element managingTenantID must be a valid GUID when managingTenantRootScope has a value."
+                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field managedTenantId ($managedTenantId) must be a GUID."
                 }
             }
 
@@ -346,8 +335,7 @@ function Get-GlobalSettings {
                 deployedBy                          = $deployedBy
                 cloud                               = $cloud
                 tenantId                            = $tenantId
-                managingTenantId                    = $managingTenantId
-                managingTenantRootScope             = $managingTenantRootScope
+                managedTenantId                     = $managedTenantId
                 deploymentRootScope                 = $deploymentRootScope
                 defaultContext                      = $defaultContext
                 policyDefinitionsScopes             = $policyDefinitionsScopes

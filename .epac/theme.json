@@ -62,10 +62,10 @@
                 },
                 "status": {
                     "success": "✅",
-                    "warning": "⚠️",
+                    "warning": "⚠️ ",
                     "error": "❌",
-                    "info": "ℹ️",
-                    "skip": "⏭️",
+                    "info": "ℹ️ ",
+                    "skip": "⏭️ ",
                     "update": "🔄",
                     "processing": "⏳"
                 }

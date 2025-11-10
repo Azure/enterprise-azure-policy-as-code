@@ -29,6 +29,7 @@ function Select-PacEnvironment {
         else {
             $prompt = $globalSettings.pacEnvironmentPrompt
             while ($null -eq $pacEnvironment) {
+                Write-Information ""
                 $PacEnvironmentSelector = Read-Host "Select Policy as Code environment [$prompt]"
                 if ($pacEnvironments.ContainsKey($PacEnvironmentSelector)) {
                     # valid input

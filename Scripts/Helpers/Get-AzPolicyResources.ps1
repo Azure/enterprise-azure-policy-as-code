@@ -84,7 +84,7 @@ function Get-AzPolicyResources {
         roleAssignmentsByPrincipalId = @{}
         numberOfRoleAssignments      = 0
         numberOfPrincipleIds         = 0
-        remoteAssignmentsCount       = 0
+        lighthouseAssignmentCount    = 0
         roleDefinitions              = @{}
         roleAssignmentsNotRetrieved  = $false
         excludedScopes               = $excludedScopes
@@ -155,7 +155,8 @@ function Get-AzPolicyResources {
             Write-ModernStatus -Message "Policy Definitions:" -Status default -Indent 0
         }
         else {
-            Write-ModernStatus -Message "`nPolicy Set Definitions:" -Status default -Indent 2
+            Write-Information ""
+            Write-ModernStatus -Message "Policy Set Definitions:" -Status default -Indent 0
         }
         Write-ModernStatus -Message "Built-in: $($counters.builtIn)" -Status "info" -Indent 3
         Write-ModernStatus -Message "Managed ($($managedByAny)):" -Status "info" -Indent 3
@@ -190,7 +191,8 @@ function Get-AzPolicyResources {
     $counters = $deployedPolicyResources.policyassignments.counters
     $managedBy = $counters.managedBy
     $managedByAny = $managedBy.thisPaC + $managedBy.otherPaC + $managedBy.unknown + $managedBy.dfcSecurityPolicies + $managedBy.dfcDefenderPlans
-    Write-ModernStatus -Message "`nPolicy Assignments:" -Status default -Indent 2
+    Write-Information ""
+    Write-ModernStatus -Message "Policy Assignments:" -Status default -Indent 0
     Write-ModernStatus -Message "Managed ($($managedByAny)):" -Status "info" -Indent 3
     # Check if thisPaC is greater than 0 to set status
     if ($($managedBy.thisPaC) -gt 0) {
@@ -224,7 +226,8 @@ function Get-AzPolicyResources {
         $counters = $deployedPolicyResources.policyexemptions.counters
         $managedBy = $counters.managedBy
         $managedByAny = $managedBy.thisPaC + $managedBy.otherPaC + $managedBy.unknown
-        Write-ModernStatus -Message "`nPolicy Exemptions:" -Status default -Indent 2
+        Write-Information ""
+        Write-ModernStatus -Message "Policy Exemptions:" -Status default -Indent 0
         Write-ModernStatus -Message "Managed ($($managedByAny)):" -Status "info" -Indent 3
         
         # Check if thisPaC is greater than 0 to set status
@@ -269,12 +272,14 @@ function Get-AzPolicyResources {
             Write-ModernStatus -Message "This is likely due to missing permissions for the SPN running the pipeline" -Status "warning" -Indent 3
             $deployedPolicyResources.roleAssignmentsNotRetrieved = $numberPrincipalIdsWithRoleAssignments -eq 0
         }
-        Write-ModernStatus -Message "`nRole Assignments:"  -Status default  -Indent 2
+        Write-Information ""
+        Write-ModernStatus -Message "Role Assignments:"  -Status default  -Indent 0
         Write-ModernStatus -Message "Principal IDs: $($numberPrincipalIds)" -Status "info" -Indent 3
         Write-ModernStatus -Message "With Role Assignments: $($numberPrincipalIdsWithRoleAssignments)" -Status "info" -Indent 3
         Write-ModernStatus -Message "Total Role Assignments: $($deployedPolicyResources.numberOfRoleAssignments)" -Status "info" -Indent 3
-        if ($PacEnvironment.managingTenantId) {
-            Write-ModernStatus -Message "`nRemote Role Assignments: $($deployedPolicyResources.remoteAssignmentsCount)" -Status "info" -Indent 3
-        }
+        # if ($PacEnvironment.managedTenantId) {
+        #     Write-Information ""
+        #     Write-ModernStatus -Message "Remote Role Assignments: $($deployedPolicyResources.lighthouseAssignmentCount)" -Status "info" -Indent 3
+        # }
     }    return $deployedPolicyResources
 }

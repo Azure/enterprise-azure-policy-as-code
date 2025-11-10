@@ -98,15 +98,20 @@ $removedRoleAssignments = $plan.roleAssignments.removed
 if ($removedRoleAssignments.psbase.Count -gt 0) {
     Write-ModernSection -Title "Removing Obsolete Role Assignments ($($removedRoleAssignments.psbase.Count) items)" -Color Red
     foreach ($roleAssignment in $removedRoleAssignments) {
-        $roleDisplayText = "Principal: $($roleAssignment.principalId), Role: $($roleAssignment.roleDisplayName), Scope: $($roleAssignment.scope)"
-        Write-ModernStatus -Message "Removing: $roleDisplayText" -Status "pending" -Indent 2
+        $roleDisplayText = "`n      Principal: $($roleAssignment.principalId)`n      Role: $($roleAssignment.roleDisplayName)`n      Scope: $($roleAssignment.scope)"
+        Write-ModernStatus -Message "Removing Role Assignment: $roleDisplayText" -Status "pending" -Indent 2
         if (!$roleAssignment.crossTenant) {
             $null = Remove-AzRoleAssignmentRestMethod -RoleAssignmentId $roleAssignment.id -ApiVersion $pacEnvironment.apiVersions.roleAssignments
         }
         else {
-            $null = Remove-AzRoleAssignmentRestMethod -RoleAssignmentId $roleAssignment.id -TenantId $pacEnvironment.managingTenantId -ApiVersion $pacEnvironment.apiVersions.roleAssignments
+            if ($roleAssignment.description -match "'(/subscriptions/[^']+)'") {
+                $assignmentId = $matches[1]
+            }
+            else {
+                Write-Error "AssignmentId not found in description '$($roleAssignment.description)' for cross tenant role removal.  Please report as a bug"
+            }
+            $null = Remove-AzRoleAssignmentRestMethod -RoleAssignmentId $roleAssignment.id -TenantId $pacEnvironment.managedTenantId -ApiVersion $pacEnvironment.apiVersions.roleAssignments -AssignmentId $assignmentId
         }
-        Write-ModernStatus -Message "Removed: $roleDisplayText" -Status "success" -Indent 2
     }
 }
 
@@ -148,9 +153,8 @@ if ($addedRoleAssignments.psbase.Count -gt 0) {
         elseif (-not $assignmentById.ContainsKey($policyAssignmentId)) {
             $null = $assignmentById.Add($policyAssignmentId, $principalId)
         }
-        Write-ModernStatus -Message "Creating role assignment for principal: $principalId" -Status "pending" -Indent 2
-        Set-AzRoleAssignmentRestMethod -RoleAssignment $roleAssignment -ApiVersion $pacEnvironment.apiVersions.roleAssignments
-        Write-ModernStatus -Message "Created role assignment for principal: $principalId" -Status "success" -Indent 2
+        Write-ModernStatus -Message "Creating role assignment:`n      Principal: $principalId`n      Role: $($roleAssignment.roleDisplayName)`n      Scope: $($roleAssignment.scope)" -Status "pending" -Indent 2
+        Set-AzRoleAssignmentRestMethod -RoleAssignment $roleAssignment -PacEnvironment $pacEnvironment
     }
 }
 if ($updatedRoleAssignments.psbase.Count -gt 0) {
@@ -159,8 +163,7 @@ if ($updatedRoleAssignments.psbase.Count -gt 0) {
     # Get identities for policy assignments from plan or by calling the REST API to retrieve the Policy Assignment
     foreach ($roleAssignment in $updatedRoleAssignments) {
         Write-ModernStatus -Message "Updating role assignment: $($roleAssignment.properties.principalId)" -Status "pending" -Indent 2
-        Set-AzRoleAssignmentRestMethod -RoleAssignment $roleAssignment -ApiVersion $pacEnvironment.apiVersions.roleAssignments
-        Write-ModernStatus -Message "Updated role assignment: $($roleAssignment.properties.principalId)" -Status "success" -Indent 2
+        Set-AzRoleAssignmentRestMethod -RoleAssignment $roleAssignment -PacEnvironment $pacEnvironment
     }
 }
 
@@ -174,4 +177,3 @@ Write-ModernStatus -Message "Plan file: $planFile" -Status "success" -Indent 2
 Write-ModernCountSummary -Title "Role Assignment Changes" -Added $addedRoleAssignments.psbase.Count -Updated $updatedRoleAssignments.psbase.Count -Removed $removedRoleAssignments.psbase.Count -Indent 2
 Write-ModernStatus -Message "Execution time: $($executionTime.ToString('mm\:ss'))" -Status "info" -Indent 2
 Write-ModernStatus -Message "All role assignments have been successfully deployed" -Status "success" -Indent 2
-

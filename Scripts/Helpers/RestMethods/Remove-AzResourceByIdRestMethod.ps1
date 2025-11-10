@@ -9,7 +9,7 @@ function Remove-AzResourceByIdRestMethod {
     )
 
     # Write log info
-    Write-ModernStatus -Message "Removing resource: $Id" -Status "warning" -Indent 4
+    Write-ModernStatus -Message "Removing resource: $Id" -Status "info" -Indent 4
 
     # Invoke the REST API
     $path = "$($Id)?api-version=$($ApiVersion)"
@@ -22,9 +22,16 @@ function Remove-AzResourceByIdRestMethod {
         $content = $response.Content
         if ($content.Contains("ScopeLocked", [StringComparison]::InvariantCultureIgnoreCase)) {
             Write-Warning "Ignoring scope locked error: $($statusCode) -- $($content)"
+            Write-Information ""
         }
         else {
             Write-Error "Remove Az Resource error $($statusCode) -- $($content)"
+            Write-Information ""
         }
     }
+    else {
+        Write-ModernStatus -Message "Resource removed: $Id" -Status "success" -Indent 4
+        Write-Information ""
+    }
+
 }
