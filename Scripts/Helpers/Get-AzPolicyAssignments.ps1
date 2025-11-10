@@ -174,7 +174,7 @@ function Get-AzPolicyAssignments {
                         $DeployedPolicyResources.lighthouseAssignmentCount += 1
                     }
                 }
-            Write-Information "Retrieved $($DeployedPolicyResources.lighthouseAssignmentCount) Lighthouse Role Assignments"  
+            Write-ModernStatus -Message "Retrieved $($DeployedPolicyResources.lighthouseAssignmentCount) Lighthouse Role Assignments"  -Status "success" -Indent 4 
         }
            
         $roleDefinitionsHt = $DeployedPolicyResources.roleDefinitions

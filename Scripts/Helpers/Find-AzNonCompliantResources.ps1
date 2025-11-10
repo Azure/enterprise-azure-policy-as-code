@@ -13,9 +13,7 @@ function Find-AzNonCompliantResources {
         [string] $OnlyDefaultEnforcementMode
     )
 
-    Write-Information "==================================================================================================="
-    Write-Information "Retrieve Policy Compliance List"
-    Write-Information "==================================================================================================="
+    Write-ModernSection -Title "Retrieving Policy Compliance List" -Indent 0
     $effectFilter = ""
     if ($PolicyEffectFilter -and $ExcludeManualPolicyEffect) {
         Write-Error "Parameter PolicyEffectFilter cannot be used with parameter ExcludeManualPolicyEffect" -ErrorAction Stop
@@ -74,9 +72,8 @@ policyresources
     else {
         $query = "policyresources | where type == `"microsoft.policyinsights/policystates`""
     }
-    Write-Information "Az Graph Query: '$query'"
+    Write-ModernStatus -Message "Azure Resource Graph Query: '$query'" -Status "processing" -Indent 2
     $result = @() + (Search-AzGraphAllItems -Query $query -ProgressItemName "Policy compliance records")
-    Write-Information ""
 
     $rawNonCompliantList = [System.Collections.ArrayList]::new()
     $deployedPolicyResources = $null
@@ -140,8 +137,7 @@ policyresources
         }
 
     }
-    Write-Information "Found $($rawNonCompliantList.Count) non-compliant resources"
-    Write-Information ""
+    Write-ModernStatus -Message "Found $($rawNonCompliantList.Count) non-compliant resources" -Status "info" -Indent 2
 
     return $rawNonCompliantList, $deployedPolicyResources, $scopeTable
 }

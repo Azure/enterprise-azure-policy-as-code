@@ -15,7 +15,8 @@ function Out-DocumentationForPolicyAssignments {
     [string[]] $environmentCategories = $DocumentationSpecification.environmentCategories
     [string] $title = $DocumentationSpecification.title
 
-    Write-Information "Generating Policy Assignment documentation for '$title', files '$fileNameStem'."
+    Write-ModernSection -Title "Generating Policy Assignment documentation for '$title'" -Color Green
+    Write-ModernStatus -Message "$fileNameStem" -Status "info" -Indent 2
 
     # Checking parameters
     if ($null -eq $fileNameStem -or $fileNameStem -eq "") {
@@ -380,7 +381,7 @@ function Out-DocumentationForPolicyAssignments {
                                 $hasParameters = $true
                                 $markdownMaxParameterLength = 42
                                 if ($DocumentationSpecification.markdownMaxParameterLength) {
-                                    $markdownMaxParameterLength = $DocumentationSpecification.markdownMaxParameterLength
+                                    $markdownMaxParameterLength = [int]($DocumentationSpecification.markdownMaxParameterLength | Select-Object -First 1)
                                     if ($markdownMaxParameterLength -lt 16) {
                                         Write-Error "markdownMaxParameterLength must be at least 16; it is $markdownMaxParameterLength" -ErrorAction Stop
                                     }
@@ -640,4 +641,6 @@ function Out-DocumentationForPolicyAssignments {
         git push origin "$branch"
         Set-Location "../../"
     }
+    
+    Write-ModernStatus -Message "Complete" -Status "success" -Indent 2
 }

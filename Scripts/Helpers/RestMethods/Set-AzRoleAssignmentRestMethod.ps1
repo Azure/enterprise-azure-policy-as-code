@@ -8,7 +8,6 @@ function Set-AzRoleAssignmentRestMethod {
     )
 
     $ApiVersion = $PacEnvironment.apiVersions.roleAssignments
-    $properties = $RoleAssignment.properties
     $path = $null
     $scope = $RoleAssignment.scope
     if ($null -ne $RoleAssignment.id) {
@@ -24,10 +23,6 @@ function Set-AzRoleAssignmentRestMethod {
         properties = $RoleAssignment.properties
     }
 
-    if (!$skipDelegated) {
-        Write-Information "Assignment '$($RoleAssignment.assignmentDisplayName)', principalId $($properties.principalId), role '$($RoleAssignment.roleDisplayName)' at $($scope)"
-    }
-
     if ($PacEnvironment.managedTenantId -and !$skipDelegated) {
         $body.properties["delegatedManagedIdentityResourceId"] = $roleassignment.assignmentId
     }
@@ -38,20 +33,23 @@ function Set-AzRoleAssignmentRestMethod {
 
     # Process response
     $statusCode = $response.StatusCode
-    if ($statusCode -lt 200 -or $statusCode -ge 300) {
+    if ($statusCode -eq 200){
+        Write-ModernStatus -Message "Created role assignment for principal: $principalId" -Status "success" -Indent 2
+    }
+    elseif ($statusCode -lt 200 -or $statusCode -ge 300) {
         if ($statusCode -eq 409) {
             if ($response.content -match "ScopeLocked") {
-                Write-Warning "Scope at $($RoleAssignment.scope) is locked, cannot update role assignment"
+                Write-ModernStatus -Message "Scope at $($RoleAssignment.scope) is locked, cannot update role assignment" -Status "warning" -Indent 2
             }
             else {
-                Write-Warning "Role assignment already exists (ignore): $($RoleAssignment.assignmentDisplayName)"
-            }     
+                Write-ModernStatus -Message "Role assignment already exists (ignore): $($RoleAssignment.assignmentDisplayName)" -Status "warning" -Indent 2
+            }
         }
         elseif ($statusCode -eq 403 -and $response.content -match "does not have authorization to perform action") {
-            Write-Error "Error, Permissions Issue. Please review permissions for service principal at scope $($RoleAssignment.scope) -- $($response.content)"
+            Write-ModernStatus -Message "Error, Permissions Issue. Please review permissions for service principal at scope $($RoleAssignment.scope) -- $($response.content)" -Status "error" -Indent 2
         }
         elseif ($statusCode -eq 403 -and $response.content -match "has an authorization with ABAC condition that is not fulfilled to perform action") {
-            Write-Error "Error, ABAC Permissions Issue. Please review permissions for service principal at scope $($RoleAssignment.scope) -- $($response.content)"
+            Write-ModernStatus -Message "Error, ABAC Permissions Issue. Please review permissions for service principal at scope $($RoleAssignment.scope) -- $($response.content)" -Status "error" -Indent 2
         }
         elseif ($PacEnvironment.managedTenantId -and $statusCode -eq 400 -and $response.content -match "delegatedManagedIdentityResourceId in the request is set to") {
             $body.properties.Remove("delegatedManagedIdentityResourceId")
@@ -59,7 +57,7 @@ function Set-AzRoleAssignmentRestMethod {
         }
         else {
             $content = $response.Content
-            Write-Warning "Error, continue deployment: $($statusCode) -- $($content)"
+            Write-ModernStatus -Message "Error, continue deployment: $($statusCode) -- $($content)" -Status "error" -Indent 2
         }
     }
 }

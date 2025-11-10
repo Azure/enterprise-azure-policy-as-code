@@ -14,6 +14,9 @@ Param(
     [string] $PacEnvironmentSelector
 )
 
+# Dot Source Helper Scripts
+. "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
+
 if ($DefinitionsRootFolder -eq "") {
     if ($null -eq $env:PAC_DEFINITIONS_FOLDER) {
         if ($ModuleRoot) {
@@ -32,7 +35,7 @@ if ($DefinitionsRootFolder -eq "") {
 if ($Tag -eq "") {
     switch ($Type) {
         'ALZ' {
-            $Tag = "platform/alz/2025.02.0"
+            $Tag = "platform/alz/2025.09.3"
         }
         'FSI' {
             $Tag = "platform/fsi/2025.03.0"
@@ -41,17 +44,28 @@ if ($Tag -eq "") {
             $Tag = "platform/amba/2025.05.0"
         }
         'SLZ' {
-            $Tag = "platform/slz/2025.03.0"
+            $Tag = "platform/slz/2025.10.1"
         }
     }
 }
 
+Write-ModernHeader -Title "Creating Policy Default Structure" -Subtitle "Type: $Type, Tag: $Tag"
+
 if ($LibraryPath -eq "") {
     $LibraryPath = Join-Path -Path (Get-Location) -ChildPath "temp"
+    Write-ModernStatus -Message "Cloning Azure Landing Zones Library repository..." -Status "processing" -Indent 2
     git clone --config advice.detachedHead=false --depth 1 --branch $Tag https://github.com/Azure/Azure-Landing-Zones-Library.git $LibraryPath
+    if ($LASTEXITCODE -eq 0) {
+        Write-ModernStatus -Message "Repository cloned successfully" -Status "success" -Indent 4
+    }
+    else {
+        Write-ModernStatus -Message "Failed to clone repository" -Status "error" -Indent 4
+        exit 1
+    }
 }
 
 $jsonOutput = [ordered]@{
+    "`$schema"                  = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-structure-schema.json"
     managementGroupNameMappings = [ordered]@{}
     enforcementMode             = "Default"
     defaultParameterValues      = [ordered]@{}
@@ -60,6 +74,7 @@ $jsonOutput = [ordered]@{
     }
 }
 
+Write-ModernSection -Title "Processing Management Group Names" -Indent 0
 # Get Management Group Names
 
 $archetypeDefinitionFile = Get-Content -Path "$LibraryPath\platform\$($Type.ToLower())\architecture_definitions\$($Type.ToLower()).alz_architecture_definition.json" | ConvertFrom-Json
@@ -73,6 +88,7 @@ foreach ($mg in $archetypeDefinitionFile.management_groups) {
     $jsonOutput.managementGroupNameMappings.Add($mg.id, $obj)
 }
 
+Write-ModernSection -Title "Building Parameter Values" -Indent 0
 # Static Parameter Values
 
 $additionalValues = @(
@@ -149,11 +165,17 @@ foreach ($parameter in $policyDefaults) {
         $assignment = $parameter.policy_assignments[0]
 
         $assignmentFileName = ("$($assignment.policy_assignment_name).alz_policy_assignment.json")
-        if ($Type -eq "AMBA") {
+        if ($Type -in ("AMBA", "SLZ", "FSI")) {
             $assignmentFileName = $assignmentFileName -replace ("-", "_")
         }
         $file = Get-ChildItem -Recurse -Path $LibraryPath -Filter "$assignmentFileName" -File | Select-Object -First 1
-        $jsonContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
+        try {
+            $jsonContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
+        }
+        catch {
+            Write-ModernStatus -Message "Could not find assignment file: $assignmentFileName" -Status "warning" -Indent 4
+            continue
+        }
         $tempDefaultParamValue = $jsonContent.properties.parameters.$parameterAssignmentName.value
     
         $obj = @(
@@ -180,7 +202,13 @@ foreach ($parameter in $policyDefaults) {
                 $assignmentFileName = $assignmentFileName -replace ("-", "_")
             }
             $file = Get-ChildItem -Recurse -Path $LibraryPath -Filter "$assignmentFileName" -File | Select-Object -First 1
-            $jsonContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
+            try {
+                $jsonContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
+            }
+            catch {
+                Write-ModernStatus -Message "Could not find assignment file: $assignmentFileName" -Status "warning" -Indent 6
+                continue
+            }
             $tempDefaultParamValue = $jsonContent.properties.parameters.$parameterAssignmentName.value
     
             $obj = @(
@@ -199,6 +227,7 @@ foreach ($parameter in $policyDefaults) {
     }
 }
 
+Write-ModernSection -Title "Building Guardrail Deployment Object" -Indent 0
 # Build Guardrail Deployment Object
 
 if ($Type -eq "ALZ") {
@@ -214,7 +243,7 @@ if ($Type -eq "ALZ") {
     $jsonOutput.enforceGuardrails.deployments += $obj
 }
 
-
+Write-ModernSection -Title "Writing Output Files" -Indent 0
 # Ensure the output directory exists
 $outputDirectory = "$DefinitionsRootFolder\policyStructures"
 if (-not (Test-Path -Path $outputDirectory)) {
@@ -223,12 +252,16 @@ if (-not (Test-Path -Path $outputDirectory)) {
 
 if ($PacEnvironmentSelector) {
     Out-File "$outputDirectory\$($Type.ToLower()).policy_default_structure.$PacEnvironmentSelector.jsonc" -InputObject ($jsonOutput | ConvertTo-Json -Depth 10) -Encoding utf8 -Force
+    Write-ModernStatus -Message "Default structure file: $outputDirectory\$($Type.ToLower()).policy_default_structure.$PacEnvironmentSelector.jsonc" -Status "success" -Indent 2
 }
 else {
     Out-File "$outputDirectory\$($Type.ToLower()).policy_default_structure.jsonc" -InputObject ($jsonOutput | ConvertTo-Json -Depth 10) -Encoding utf8 -Force
+    Write-ModernStatus -Message "Default structure file: $outputDirectory\$($Type.ToLower()).policy_default_structure.jsonc" -Status "success" -Indent 2
 }
 
 $tempPath = Join-Path -Path (Get-Location) -ChildPath "temp"
 if ($LibraryPath -eq $tempPath) {
     Remove-Item $LibraryPath -Recurse -Force -ErrorAction SilentlyContinue
 }
+
+Write-ModernStatus -Message "ALZ Policy default structure created successfully" -Status "success" -Indent 0

@@ -12,9 +12,8 @@ function Out-PolicyExemptions {
     )
 
     $numberOfExemptions = $Exemptions.Count
-    Write-Information "==================================================================================================="
-    Write-Information "Output Exemption list ($numberOfExemptions)"
-    Write-Information "==================================================================================================="
+    Write-ModernSection -Title "Outputting Policy Exemptions" -Color Blue
+    Write-ModernStatus -Message "Found $numberOfExemptions exemptions" -Status "success" -Indent 2
 
     $pacSelector = $PacEnvironment.pacSelector
     $outputPath = "$PolicyExemptionsFolder/$pacSelector"
@@ -56,7 +55,7 @@ function Out-PolicyExemptions {
         label      = "policyDefinitionReferenceIds"
         expression = {
             if ($_.policyDefinitionReferenceIds) {
-            ($_.policyDefinitionReferenceIds -join "&").ToString()
+                ($_.policyDefinitionReferenceIds -join "&").ToString()
             }
             else {
                 ''
@@ -137,9 +136,9 @@ function Out-PolicyExemptions {
         #region Active Exemptions
 
         $stem = "$outputPath/active-exemptions"
-        Write-Information "==================================================================================================="
-        Write-Information "Output $numberOfExemptions active (not expired or orphaned) Exemptions for epac environment '$pacSelector'"
-        Write-Information "==================================================================================================="
+        Write-ModernSection -Title "Active Exemptions" -Color Green
+        Write-ModernStatus -Message "Environment: $pacSelector" -Status "info" -Indent 2
+        Write-ModernStatus -Message "Outputting $numberOfExemptions active exemptions (not expired or orphaned)" -Status "success" -Indent 2
         if ($OutputJson) {
             $selectedArray = $selectedExemptions | Where-Object status -in @("active", "active-expiring-within-15-days") | Select-Object -Property name, `
                 displayName, `
@@ -165,6 +164,20 @@ function Out-PolicyExemptions {
                         epacMetadata = $meta['epacMetadata']
                     }
                     $array.Metadata = $orderedMeta
+                }
+                # Logic to order resourceSelectors
+                if ($null -ne $array.resourceSelectors) {         
+                    $array.resourceSelectors = $array.resourceSelectors | ForEach-Object {
+                        [PSCustomObject]@{
+                            name      = $_.name
+                            selectors = ($_.selectors | ForEach-Object {
+                                    $obj = [ordered]@{ kind = $_.kind }
+                                    if ($_.in) { $obj["in"] = $_.in }
+                                    if ($_.notIn) { $obj["notIn"] = $_.notIn }
+                                    [PSCustomObject]$obj
+                                })
+                        }
+                    }
                 }
             }
             $jsonFile = "$stem.$FileExtension"
@@ -204,6 +217,22 @@ function Out-PolicyExemptions {
                     }
                     $orderedMetadata = (ConvertTo-Json $orderedMeta -Depth 100 -Compress).ToString()
                     $array.Metadata = $orderedMetadata
+                }
+                # Logic to order resourceSelectors
+                if ($null -ne $array.resourceSelectors) {  
+                    $tempResourceSelectors = $array.resourceSelectors | ConvertFrom-Json -Depth 100       
+                    $tempResourceSelectors = $tempResourceSelectors | ForEach-Object {
+                        [PSCustomObject]@{
+                            name      = $_.name
+                            selectors = ($_.selectors | ForEach-Object {
+                                    $obj = [ordered]@{ kind = $_.kind }
+                                    if ($_.in) { $obj["in"] = $_.in }
+                                    if ($_.notIn) { $obj["notIn"] = $_.notIn }
+                                    [PSCustomObject]$obj
+                                })
+                        }
+                    }
+                    $array.resourceSelectors = (ConvertTo-Json $tempResourceSelectors -Depth 100 -Compress).ToString()
                 }
             }
             $csvFile = "$stem.csv"
@@ -227,9 +256,9 @@ function Out-PolicyExemptions {
         #region All Exemptions
 
         $stem = "$outputPath/all-exemptions"
-        Write-Information "==================================================================================================="
-        Write-Information "Output $numberOfExemptions Exemptions (all) for epac environment '$pacSelector'"
-        Write-Information "==================================================================================================="
+        Write-ModernSection -Title "All Exemptions" -Color Yellow
+        Write-ModernStatus -Message "Environment: $pacSelector" -Status "info" -Indent 2
+        Write-ModernStatus -Message "Outputting $numberOfExemptions exemptions (all statuses)" -Status "success" -Indent 2
         if ($OutputJson) {
             $selectedArray = $selectedExemptions | Select-Object -Property name, `
                 displayName, `
@@ -257,6 +286,20 @@ function Out-PolicyExemptions {
                         epacMetadata = $meta['epacMetadata']
                     }
                     $array.Metadata = $orderedMeta
+                }
+                # Logic to order resourceSelectors
+                if ($null -ne $array.resourceSelectors) {         
+                    $array.resourceSelectors = $array.resourceSelectors | ForEach-Object {
+                        [PSCustomObject]@{
+                            name      = $_.name
+                            selectors = ($_.selectors | ForEach-Object {
+                                    $obj = [ordered]@{ kind = $_.kind }
+                                    if ($_.in) { $obj["in"] = $_.in }
+                                    if ($_.notIn) { $obj["notIn"] = $_.notIn }
+                                    [PSCustomObject]$obj
+                                })
+                        }
+                    }
                 }
             }
             $jsonFile = "$stem.$FileExtension"
@@ -298,6 +341,22 @@ function Out-PolicyExemptions {
                     }
                     $orderedMetadata = (ConvertTo-Json $orderedMeta -Depth 100 -Compress).ToString()
                     $array.Metadata = $orderedMetadata
+                }
+                # Logic to order resourceSelectors
+                if ($null -ne $array.resourceSelectors) {  
+                    $tempResourceSelectors = $array.resourceSelectors | ConvertFrom-Json -Depth 100       
+                    $tempResourceSelectors = $tempResourceSelectors | ForEach-Object {
+                        [PSCustomObject]@{
+                            name      = $_.name
+                            selectors = ($_.selectors | ForEach-Object {
+                                    $obj = [ordered]@{ kind = $_.kind }
+                                    if ($_.in) { $obj["in"] = $_.in }
+                                    if ($_.notIn) { $obj["notIn"] = $_.notIn }
+                                    [PSCustomObject]$obj
+                                })
+                        }
+                    }
+                    $array.resourceSelectors = (ConvertTo-Json $tempResourceSelectors -Depth 100 -Compress).ToString()
                 }
             }
             $csvFile = "$stem.csv"

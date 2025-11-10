@@ -15,8 +15,8 @@ function Out-DocumentationForPolicySets {
     $title = $DocumentationSpecification.title
     $environmentColumnsInCsv = $DocumentationSpecification.environmentColumnsInCsv
 
-
-    Write-Information "Generating Policy Set documentation for '$title', files '$FileNameStem'."
+    Write-ModernSection -Title "Generating Policy Set documentation for '$title'" -Color Green
+    Write-ModernStatus -Message "$fileNameStem" -Status "info" -Indent 2
 
     #region Markdown
 
@@ -472,7 +472,7 @@ function Out-DocumentationForPolicySets {
     # Output file
     $outputFilePath = "$($OutputPath -replace '[/\\]$', '')/$FileNameStem.jsonc"
     $sb.ToString() | Out-File $outputFilePath -Force
-
+    Write-ModernStatus -Message "Complete" -Status "success" -Indent 2
     #endregion
 
 }
