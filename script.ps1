@@ -1,0 +1,1 @@
+.\Scripts\CloudAdoptionFramework\Sync-ALZPolicyFromLibrary.ps1 -DefinitionsRootFolder ..\issue1051\Definitions -Type ALZ -PacEnvironmentSelector dev -EnableOverrides -LibraryPath ..\Azure-Landing-Zones-Library
