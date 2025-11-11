@@ -2,54 +2,41 @@
 
 ## Overview
 
-While EPAC is not currently able to handle all use cases for Lighthouse integration, there are two specific use cases requested through GitHub issues that have been accounted for. The following is offered as guidance around those use cases. It is possible that the work done to account for these use cases may allow for other, untested functionality; so trying different permutations of the below-mentioned pacSelector settings may result in additional, undocumented functionality.
+EPAC is able to handle most use cases as it pertains to Azure Lighthouse.  Specifically the complexities of cross-tenant role assignments.  Below is an example use case outlining how to configure the ability to to make an additional role assignment at a scope in a managing tenant when deploying a policy to your managed subscription through EPAC
 
-## Use-case 1: Additional role assignment from managing tenant to managed subscriptions
+## Use-case 1: Additional role assignment from managed subscriptions to managing tenant
 
-There are instances where you may need to make additional role assignments to managed subscriptions while assigning policy at your managing tenant. The guidance below covers a specific use case and all EPAC configurations necessary to achieve it.
+There are instances where you may need to make additional role assignments to your managing tenant while assigning policy at your managed subscription. The guidance below covers a specific use case and all EPAC configurations necessary to achieve it.
 
 ### Use-case
 
-When assigning Deploy Diagnostic Settings type policies at a scope in your managing tenant, you want to write the diagnostics data to a managed (Lighthouse-joined) subscription.
+When assigning Deploy Diagnostic Settings type policies at a scope in your managed subscription using EPAC, you want to write the diagnostics data to a log analytics workspace in your managing tenant.
 
 ### Configurations
 
 1. pacSelector Configuration.
 
-In your global settings file, find the specific pacEnvironments that will have diagnostic settings policy deployed to them, where the diagnostics data needs to be written to a Lighthouse-managed subscription. Add the following to that pacSelector in the global settings file:
+In your global settings file, update the lighthouse pacSelector to have the managingTenantID.  This lets EPAC know that this is a lighthouse "cast" tenant.
 
-                "managedTenant": {
-                    "managedTenantId": "00000000-1111-2222-3333-444444444444",
-                    "managedTenantScopes": [
-                        "/subscriptions/00000000-1111-2222-3333-444444444444",
-                        "/subscriptions/00000000-1111-2222-3333-444444444444"
-                    ]
-                },
+                "pacSelector": "epac-Managed",
+                "cloud": "AzureCloud",
+                "tenantId": "b729f34b-bc9a-4e55-b94e-63c03c65d113",
+                "deploymentRootScope": "/subscriptions/6c0b3a4a-4c56-4866-8083-bb72aa71f174",
+                "managedTenantId": "b617e3d0-18db-4bb6-afa1-662c906c2549",
+                "managedIdentityLocation": "eastus2",
 
 - **managedTenantId** - The tenant containing the lighthouse managed (joined) subsciptions.
-- **managedTenantScopes** - A list of all subscriptions that may need "remote" role assignments made to them.  These would be the subscriptions that contain, for example, the Log Analytics Workspace or Storage Account that your are writing diagnostics data to across tenants.  Every subscription where this pacEnvironment may need to make a role assignment to must be listed.
 
-1. In the assignment file, add an additionalRoleAssignments section for the file or node so that the assignment knows that for assigning this policy, at this (managing) pacEnvironment, it needs to perform an additional role assignment at the remote (managed) scope. The scope of the assignment must be included in the managedTenantScopes for the pacEnvironment in the globalSettings file.
+1. In the assignment file, add an additionalRoleAssignments section for the file or node so that the assignment knows that when assigning this policy at the managed scope pacEnvironment, it needs to perform an additional role assignment at the managing scope. 
 
                 "additionalRoleAssignments": {
                     "managingTenantScopeEnv": [
                         {
                             "roleDefinitionId": "/providers/microsoft.authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f606fba81ae7",
                             "scope": "/subscriptions/00000000-1111-2222-3333-444444444444",
-                            "crossTenant": true
                         }
                     ]
                 },
-        
-## Use-case 2: Make Role Assignments at Lighthouse-Managed Scopes While Deploying to the Cast Instance of That Subscription in Your Tenant
-
-This feature is primarily meant for MSPs managing customer subscriptions. While the complete implementation is not perfect, this is due to a deficiency in Lighthouse functionality. Guidance on the best way to work around that with EPAC is provided.
-
-### Use-case
-
-This feature allows users to assign policies with role assignments to managed subscriptions without direct access to the customer tenant.
-
-### Configurations
 
 **Lighthouse Setup**
 
@@ -104,19 +91,12 @@ After the Lighthouse portion is complete you will need to set things up in EPAC 
             "cloud": "AzureCloud",
             "tenantId": "00000000-1111-2222-3333-444444444444",                                <----My Tenant
             "deploymentRootScope": "/subscriptions/999999-8888-7777-6666-555555555555",        <----Customer subscription
-            "managedSubscription": true,                                                       <----Indicates this is a managed subscription
-            "managedIdentityLocation": "eastus2",
-            "managedTenant": {
-                "managedTenantId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",                     <----Customer tenant ID
-                "managedTenantScopes": [
-                    "/subscriptions/999999-8888-7777-6666-555555555555"                        <----Customer subscription
-                ]
-            },
+            "managedTenantId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",                         <----Customer tenant ID
             "desiredState": {
                 "strategy": "full",
                 "keepDfcSecurityAssignments": false
             },
-            "deployedBy": "My Org Admins"                                                      <----Friendly name to indicate who is deploying policy
+            "deployedBy": "My Org Admins"
         },
 ```
 

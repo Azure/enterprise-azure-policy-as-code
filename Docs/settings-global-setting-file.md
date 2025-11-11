@@ -103,9 +103,7 @@ Optional:
     - Policy Definitions, Policy Set Definitions and Policy Exemptions - `metadata.deployedBy`.
     - Policy Assignments - `metadata.assignedBy` since Azure Portal displays it as 'Assigned by'.
     - Role Assignments - add the value to the `description` field since Role assignments do not contain `metadata`.
-  - `managedTenant`: Used when the `pacEnvironment` is in a lighthouse managed tenant, [see this example](#example-for-lighthouse-managed-tenant) It must contain:
-    - `managingTenantId` - The tenantId of the managing tenant.
-    - `managingTenantRootScope` - An array of all subscriptions that will need `additionalRoleAssignments` deployed to them.
+  - `managedTenantId`: Used when the `pacEnvironment` is in a lighthouse managed tenant.
   - `defaultContext`: In rare cases (typically only when deploying to a lighthouse managed tenant) the default context (Get-azContext) of a user/SPN running a plan will  
 be set to a subscription where that user/SPN does not have sufficient privileges.  Some checks have been built in so that in some cases when this happens EPAC is able to fix the context issue.  When it is not, a `defaultContext` subscription name must be provided.  This can be any subscription within the `deploymentRootScope`.
   - `keepDfcPlanAssignments`: [Managing Defender for Cloud Assignments](settings-dfc-assignments.md).
@@ -180,14 +178,8 @@ Resource Group patterns allow us to exclude "special" managed Resource Groups. T
         {
             "pacSelector": "lightHouseTenant",
             "cloud": "AzureCloud",
-            "tenantId": "22000000-0000-0000-0000-000000000000",
-            "managingTenant": {
-                "managingTenantId": "11000000-0000-0000-0000-000000000000",
-                "managingTenantRootScope": [
-                    "/subscriptions/00000000-0000-0000-0000-000000000000",
-                    "/subscriptions/00000000-0000-0000-0000-000000000000"
-                ]
-            },
+            "tenantId": "11000000-0000-0000-0000-000000000000",
+            "managedTenantId": "22000000-0000-0000-0000-000000000000",
             "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/Contoso-Root",
             "desiredState": {
                 "strategy": "full",
