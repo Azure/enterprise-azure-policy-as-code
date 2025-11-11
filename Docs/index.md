@@ -1,4 +1,4 @@
-![EPAC](Images/epac_banner_svg.svg)
+![EPAC](Images/epac_banner_updated.svg)
 
 Enterprise Azure Policy as Code (EPAC for short) is a number of PowerShell scripts which can be used in CI/CD based system or a semi-automated use to deploy Policies, Policy Sets, Policy Assignments, Policy Exemptions and Role Assignments. It also contains operational scripts to simplify operational tasks.
 
