@@ -1,5 +1,13 @@
 # Upcoming changes in v11.0.0
 
+- New modern look. Updated the output from the EPAC commands to look more modern and added accessibility features.
+- Changes to support for Azure Lighthouse (see below)
+- Changes to the ALZ sync process to support easier customization via a single file and not a forked repository
+    - Ignore archetypes
+    - Add custom management groups
+    - Add/Modify parameters for individual assignments
+    - Schema file for the structure file
+
 > [!CAUTION]
 > Read the **breaking changes** below carefully and adjust your environment accordingly.
 
