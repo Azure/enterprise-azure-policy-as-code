@@ -1,4 +1,4 @@
-# Enterprise Azure Policy as Code Overview
+![EPAC](Images/epac_banner_thin.svg)
 
 Enterprise Azure Policy as Code (EPAC for short) is a number of PowerShell scripts which can be used in CI/CD based system or a semi-automated use to deploy Policies, Policy Sets, Policy Assignments, Policy Exemptions and Role Assignments. It also contains operational scripts to simplify operational tasks.
 
@@ -6,8 +6,16 @@ Enterprise Azure Policy as Code (EPAC for short) is a number of PowerShell scrip
 
 ### v11.0.0 is Coming!
 
+- New modern look. Updated the output from the EPAC commands to look more modern and added accessibility features.
+- Changes to support for Azure Lighthouse (see below)
+- Changes to the ALZ sync process to support easier customization via a single file and not a forked repository
+    - Ignore archetypes
+    - Add custom management groups
+    - Add/Modify parameters for individual assignments
+    - Schema file for the structure file
+
 > [!CAUTION]
-> Review the Breaking changes in v11.0.0 carefully to avoid issues with your EPAC instance. The changes are [documented here](start-changes.md).
+> Changes to Lighthouse deployments via EPAC in v11.0.0. Review the upcoming changes to avoid issues with your EPAC instance. The changes are [documented here](start-changes.md).
 
 For all EPAC changes and newest updates, please visit our [GitHub Releases Page](https://github.com/Azure/enterprise-azure-policy-as-code/releases).
 

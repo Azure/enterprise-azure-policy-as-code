@@ -54,7 +54,7 @@
 			ProjectUri   = 'https://github.com/Azure/enterprise-azure-policy-as-code'
 			
 			# A URL to an icon representing this module.
-			IconUri      = 'https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/refs/heads/main/Docs/Images/10316-icon-service-Policy.svg'
+			IconUri      = 'https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/refs/heads/main/Docs/Images/epac_svg.svg'
 			
 			# ReleaseNotes of this module
 			ReleaseNotes = 'https://github.com/Azure/enterprise-azure-policy-as-code/releases'

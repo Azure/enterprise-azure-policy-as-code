@@ -8,11 +8,6 @@
     - Add/Modify parameters for individual assignments
     - Schema file for the structure file
 
-> [!CAUTION]
-> Read the **breaking changes** below carefully and adjust your environment accordingly.
-
-## Breaking Changes in v11.0.0
-
 ### Changes in Lighthouse Deployments
 
 EPAC is introducing updates that affect how role assignments are handled across managing and managed Lighthouse tenants. While EPAC does not yet support all Lighthouse scenarios, two specific use cases have been implemented based on GitHub issue feedback. These changes will break existing configurations that do not follow the new guidance detailed in [Lighthouse Subscription Management with EPAC](guidance-lighthouse.md).
