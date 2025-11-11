@@ -8,9 +8,6 @@
     - Add/Modify parameters for individual assignments
     - Schema file for the structure file
 
-> [!CAUTION]
-> Read the **breaking changes** below carefully and adjust your environment accordingly.
-
 ## Breaking Changes in v11.0.0
 
 ### Changes in Lighthouse Deployments
