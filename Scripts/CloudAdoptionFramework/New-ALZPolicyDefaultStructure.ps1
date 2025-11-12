@@ -38,7 +38,7 @@ if ($Tag -eq "") {
             $Tag = "platform/fsi/2025.03.0"
         }
         'AMBA' {
-            $Tag = "platform/amba/2025.05.0"
+            $Tag = "platform/amba/2025.11.0"
         }
         'SLZ' {
             $Tag = "platform/slz/2025.10.1"
