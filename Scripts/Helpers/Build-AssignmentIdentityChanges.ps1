@@ -4,7 +4,8 @@ function Build-AssignmentIdentityChanges {
         $Existing,
         $Assignment,
         $ReplacedAssignment,
-        $DeployedRoleAssignmentsByPrincipalId
+        $DeployedRoleAssignmentsByPrincipalId,
+        $ScopeTable
     )
 
     $existingIdentity = $Existing.identity

@@ -156,7 +156,8 @@ function Build-AssignmentPlan {
                     -Existing $deployedPolicyAssignment `
                     -Assignment $assignment `
                     -ReplacedAssignment ($replacedDefinition -or $changedPolicyDefinitionId) `
-                    -DeployedRoleAssignmentsByPrincipalId $deployedRoleAssignmentsByPrincipalId
+                    -DeployedRoleAssignmentsByPrincipalId $deployedRoleAssignmentsByPrincipalId `
+                    -ScopeTable $ScopeTable
                 if ($identityStatus.requiresRoleChanges) {
                     $null = $RoleAssignments.added.AddRange($identityStatus.added)
                     $null = $RoleAssignments.updated.AddRange($identityStatus.updated)
