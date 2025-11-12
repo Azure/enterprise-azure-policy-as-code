@@ -159,7 +159,7 @@ else {
             $entry = $table.$id
             Write-ModernStatus -Message "Processing: $($entry.displayName)" -Status "pending" -Indent 2
             Set-AzPolicyDefinitionRestMethod -Definition $entry -ApiVersion $pacEnvironment.apiVersions.policyDefinitions
-            Write-ModernStatus -Message "Completed: $($entry.displayName)" -Status "success" -Indent 2
+            Write-ModernStatus -Message "Completed: $($entry.displayName)" -Status "success" -Indent 4
             Write-Information ""
         }
     }
@@ -173,7 +173,7 @@ else {
             $entry = $table.$id
             Write-ModernStatus -Message "Processing: $($entry.displayName)" -Status "pending" -Indent 2
             Set-AzPolicySetDefinitionRestMethod -Definition $entry -ApiVersion $pacEnvironment.apiVersions.policySetDefinitions
-            Write-ModernStatus -Message "Completed: $($entry.displayName)" -Status "success" -Indent 2
+            Write-ModernStatus -Message "Completed: $($entry.displayName)" -Status "success" -Indent 4
             Write-Information ""
         }
     }
