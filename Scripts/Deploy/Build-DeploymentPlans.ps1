@@ -295,7 +295,7 @@ if ($warningMessages.Count -gt 0) {
         Write-ModernStatus -Message $warningMessage -Status "warning" -Indent 2
 
         if ($DevOpsType -eq "ado") {
-            Write-Host "##vso[task.logissue type=warning]$warningMessage"
+            Write-Host "     ##vso[task.logissue type=warning]"
         }
     }
 }
