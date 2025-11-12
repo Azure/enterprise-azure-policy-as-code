@@ -1,5 +1,8 @@
 # Integrating EPAC with the Azure Landing Zones Library (New)
 
+> [!TIP]
+> With EPAC version 11 it is now easier to maintain custom configurations to help with the Azure Landing Zone sync process. Legacy methods will still work however it is recommended to update your policy structure file to the new method.
+
 ## Pre-requisites
 
 To use the ALZ policies in an environment successfully there are some Azure Resources that need to be created. This is normally completed by using one of the ALZ accelerators to deploy the environment however if you have written your own code or modified the default deployment ensure you have the following resources in place to support the ALZ policies.
@@ -152,6 +155,165 @@ alz.policy_default_structure.<PAC SELECTOR>.jsonc
 
 2. When syncing policies run the `Sync-ALZPolicyFromLibrary` once for each PAC Environment. A folder specific for that Pac Selector will now be placed within the ALZ Type.
 
+### Custom management group structure (Requires EPAC v11)
+
+Azure environments may not always be aligned with the default management group structure suggested by Azure Landing Zones. In this case you can modify the policy structure file to include new management groups and ignore existing ones from the CAF aligned groups.
+
+In the example below it follows a typical customer customization where instead of having a corp/online management group structure it has been elected to use a non-production/production management group structure.
+
+The updated management group structure would follow similar to below:-
+
+```
+--Azure Landing Zones MG
+ |_Non-Production MG
+ |_ Production MG
+```
+
+To enable this scenario we need to add the custom archetypes to the policy structure file using the new `overrides` key as below:-
+
+```json
+{
+  "overrides":{
+    "archetypes": {
+      "custom": [
+        {
+          "name": "production",
+          "type": "new",
+          "policy_assignments": [
+            "Audit-PeDnsZones",
+            "Deny-HybridNetworking",
+            "Deny-Public-Endpoints",
+            "Deny-Public-IP-On-NIC",
+            "Deploy-Private-DNS-Zones"
+          ]
+        },
+        {
+          "name": "non-production",
+          "type": "new",
+          "policy_assignments": [
+            "Audit-PeDnsZones",
+            "Deny-HybridNetworking",
+            "Deny-Public-Endpoints",
+            "Deny-Public-IP-On-NIC",
+            "Deploy-Private-DNS-Zones"
+          ]
+        }
+      ]
+    }
+  }
+}
+```
+
+We also have to add the new management groups to the `managementGroupNameMappings` key so that EPAC knows which scope to assign the assignments to.
+
+```json
+{
+  "managementGroupNameMappings": {
+    "production": {
+      "management_group_function": "Production",
+      "value": [
+        "/providers/Microsoft.Management/managementGroups/production",
+        "/providers/Microsoft.Management/managementGroups/prod"
+      ]
+    },
+    "nonproduction": {
+      "management_group_function": "Non-Production",
+      "value": "/providers/Microsoft.Management/managementGroups/nonproduction"
+    }
+  }
+}
+```
+
+Now run the sync process using a command similar to below. Ensure the `-EnableOverrides` parameter is added.
+
+```ps1
+Sync-ALZPolicyFromLibrary.ps1 -DefinitionsRootFolder .\Definitions\ -Type ALZ -PacEnvironmentSelector epac-dev -EnableOverrides
+```
+
+### Customize an existing archetype (Requires EPAC v11)
+
+An existing archetype can be customized by adding or removing policy assignments - to do this use a block like below in the `overrides` key.
+
+```json
+{
+  "overrides":{
+    "archetypes": {
+      "custom": [
+        {
+          "name": "identity",
+          "type": "existing",
+          "policy_assignments_to_add": [
+            "Audit-PeDnsZones"
+          ],
+          "policy_assignments_to_remove": [
+            "Deny-Public-IP"
+          ]
+        }
+      ]
+    }
+  }
+}
+```
+
+### Ignore an archetype (Requires EPAC v11)
+
+To stop assignments for an archetype from being created add the archetype name to the `overrides` key as below.
+
+```json
+{
+  "overrides": {
+    "archetypes": {
+      "ignore": [
+        "corp",
+        "online",
+        "security"
+      ]
+    }
+  }
+}
+```
+Run a sync using the `-EnableOverrides` parameter and any assignments aligned to these archetypes will not have files created. 
+
+### Modify a parameter for a specific archetype (Requires EPAC v11)
+
+To specify or modify a parameter for a specific archetype you can specify it using the `overrides` key in the policy structure file. The example below shows how to overwrite the Log Analytics workspace for a specific policy assignment.
+
+```jsonc
+{
+  "overrides": {
+    "parameters": {
+      "root": [ // Archetype Id
+        {
+          "policy_assignment_name": "Deploy-AzActivity-Log",
+          "parameters": [
+            {
+              "parameter_name": "logAnalytics",
+              "value": "/subscriptions/11111111-1111-1111-1111-11111111111/resourcegroups/placeholder/providers/Microsoft.OperationalInsights/workspaces/placeholder-la"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
+```
+
+Run a sync using the `-EnableOverrides` parameter and the parameters will be updated. This can be used to override parameters in the `defaultParameterValues` section. 
+
+### Assign an archetype to multiple management groups (Requires EPAC v11)
+
+Management group name mappings now accept an array of values instead of just a string. This allows you to assign an archetypes default assignments to multiple scopes. 
+
+```json
+"corp": {
+      "management_group_function": "Corp",
+      "value": [
+        "/providers/Microsoft.Management/managementGroups/corp-mg-1",
+        "/providers/Microsoft.Management/managementGroups/corp-mg-2"
+      ]
+    }
+```
+
 ### Disabling / Changing specific parameters
 
 If you need to disable a single policy parameter, such as the 'effect' for a specific policy within an assignment, add that parameter to your default file structure to ensure it is not overwritten when running the **Sync-ALZPolicyFromLibrary** command.
@@ -213,7 +375,7 @@ Example to generate assignments with guardrails assignments included.
 Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type ALZ -PacEnvironmentSelector "epac-dev" -CreateGuardrailAssignments
 ```
 
-### Using a custom library for custom management group structures
+### Using a custom library for custom management group structures (Required EPAC v10 - migrate to the new process above)
 
 Azure environments may not always be aligned with the default management group structure suggested by Azure Landing Zones. In this case it is required to maintain your own version of the Azure Landing Zone library repository and make changes in there to the default structure. This will increase the overall complexity in maintaining synchronization as you will have to manage any updates to the forked repository.
 
