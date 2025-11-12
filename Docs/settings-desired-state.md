@@ -10,19 +10,21 @@ Desired State strategy enables you to adjust the default behavior to fit more co
 `pacEnvironments` must contain a `desiredState` element.
 
 **Required**:
-  - `strategy`: The strategy to use for managing Policy resources. The following values are supported:
-    - `full`: EPAC manages all Policy resources in the `deploymentRootScope` and its children. EPAC deletes any Policy resources not defined in the EPAC repo.
-    - `ownedOnly`: EPAC manages only Policy resources defined in the EPAC repo. EPAC does not delete any Policy resources not defined in the EPAC repo.
-  - `keepDfcSecurityAssignments`: It is recommended that Security and Compliance Initiatives are managed at management group levels with EPAC. Please read [Managing Defender for Cloud Assignments](settings-dfc-assignments.md).
+
+- `strategy`: The strategy to use for managing Policy resources. The following values are supported:
+- `full`: EPAC manages all Policy resources in the `deploymentRootScope` and its children. EPAC deletes any Policy resources not defined in the EPAC repo.
+- `ownedOnly`: EPAC manages only Policy resources defined in the EPAC repo. EPAC does not delete any Policy resources not defined in the EPAC repo.
+- `keepDfcSecurityAssignments`: It is recommended that Security and Compliance Initiatives are managed at management group levels with EPAC. Please read [Managing Defender for Cloud Assignments](settings-dfc-assignments.md).
 
 **Optional**:
-  - `excludedScopes`: An array of scopes to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
-  - `excludedPolicyDefinitions`: An array of Policy Definitions to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
-  - `excludedPolicySetDefinitions`: An array of Policy Set Definitions to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
-  - `excludedPolicyAssignments`: An array of Policy Assignments to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
-  - `doNotDisableDeprecatedPolicies`: Automatically set deprecated policies' policy effect to "Disabled". This setting can be used to override that behavior by setting it to `true`. Default is `false`.
-  - `excludeSubscriptions`: Exclude all subscription under the deployment root scope. Designed for environments containing many frequently updated subscriptions that are not requiring management and where using ```excludedScopes``` would be impractical to maintain. If resource groups are added ```excludedScopes``` they will be ignored as this setting will take precedence by virtue of the fact that it excludes all Subscriptions, which by definition contain all Resource Groups. It will not effect excluded management group scopes. Default is `false`
-  - `keepDfcPlanAssignments`: Choose whether EPAC should delete Azure Policies deployed by Defender for Cloud that are associated with DFC Plans. Once the policies are deleted, the action is irreversible. This is only recommended if you are confident that you are managing and deploying the policies through EPAC, rather than relying on Defender for Cloud to manage the Azure Policies related to each plan. Default for this is always 'True'.
+
+- `excludedScopes`: An array of scopes to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
+- `excludedPolicyDefinitions`: An array of Policy Definitions to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
+- `excludedPolicySetDefinitions`: An array of Policy Set Definitions to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
+- `excludedPolicyAssignments`: An array of Policy Assignments to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
+- `doNotDisableDeprecatedPolicies`: Automatically set deprecated policies' policy effect to "Disabled". This setting can be used to override that behavior by setting it to `true`. Default is `false`.
+- `excludeSubscriptions`: Exclude all subscription under the deployment root scope. Designed for environments containing many frequently updated subscriptions that are not requiring management and where using ```excludedScopes``` would be impractical to maintain. If resource groups are added ```excludedScopes``` they will be ignored as this setting will take precedence by virtue of the fact that it excludes all Subscriptions, which by definition contain all Resource Groups. It will not effect excluded management group scopes. Default is `false`
+- `keepDfcPlanAssignments`: Choose whether EPAC should delete Azure Policies deployed by Defender for Cloud that are associated with DFC Plans. Once the policies are deleted, the action is irreversible. This is only recommended if you are confident that you are managing and deploying the policies through EPAC, rather than relying on Defender for Cloud to manage the Azure Policies related to each plan. Default for this is always 'True'.
 
 The following example shows the `desiredState` element with all properties set:
 
