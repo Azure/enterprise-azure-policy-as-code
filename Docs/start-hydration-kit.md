@@ -8,7 +8,7 @@ The `Install-HydrationEpac` command builds a basic EPAC implementation for local
 
 ## Prerequisites
 
-- Review the [Start Implementing](./start-implementing.md) to ensure you are familiar with the core EPAC concepts, have the prerequisite software installed and have the required Azure permissions.
+- Review the [Overview and Prerequisites](./start-implementing.md) to ensure you are familiar with the core EPAC concepts, have the prerequisite software installed and have the required Azure permissions.
 - To run the Hydration Kit, permissions to create Management Groups at the **Tenant Root Level** is also required.
   - The `Management Group Contributor` built-in RBAC role contains the required permissions.
   - The Hydration Kit creates additional Management Groups for EPAC development.
