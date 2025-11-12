@@ -206,7 +206,24 @@ try {
         }
         $archetypeArray += $customArchetype
     }
-    foreach ($archetype in $archetypeArray) {
+    # Modify default archetypes if requested
+    $finalArchetypeArray = @()
+    # Modify anything that is existing
+    foreach ($archetype in $archetypeArray | Where-Object { $_.type -eq "existing" }) {
+        $archetypeObj = @{
+            name               = $archetype.name
+            policy_assignments = $archetypeArray | Where-Object { $_.name -eq $archetype.name -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
+        }
+        if ($archetype.policy_assignments_to_add) {
+            $archetypeObj.policy_assignments += $archetype.policy_assignments_to_add
+        }
+        $finalArchetypeArray += $archetypeObj
+    }
+    foreach ($archetype in $archetypeArray | Where-Object { $_.type -ne "existing" -and $_.name -notin ($finalArchetypeArray.name) }) {
+        $finalArchetypeArray += $archetype
+    }
+
+    foreach ($archetype in $finalArchetypeArray) {
         if ($archetype.name -in $ignoreArchetypes) {
             Write-ModernStatus -Message "Ignoring archetype: $($archetype.name)" -Status "info" -Indent 2
             continue
@@ -367,7 +384,6 @@ try {
                     
                 
             }
-        
 
             $category = $structureFile.managementGroupNameMappings.$scopeTrim.management_group_function
             ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$defaultStructurePAC/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue

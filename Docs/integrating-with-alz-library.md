@@ -178,6 +178,7 @@ To enable this scenario we need to add the custom archetypes to the policy struc
       "custom": [
         {
           "name": "production",
+          "type": "new",
           "policy_assignments": [
             "Audit-PeDnsZones",
             "Deny-HybridNetworking",
@@ -188,6 +189,7 @@ To enable this scenario we need to add the custom archetypes to the policy struc
         },
         {
           "name": "non-production",
+          "type": "new",
           "policy_assignments": [
             "Audit-PeDnsZones",
             "Deny-HybridNetworking",
@@ -226,6 +228,31 @@ Now run the sync process using a command similar to below. Ensure the `-EnableOv
 
 ```ps1
 Sync-ALZPolicyFromLibrary.ps1 -DefinitionsRootFolder .\Definitions\ -Type ALZ -PacEnvironmentSelector epac-dev -EnableOverrides
+```
+
+### Customize an existing archetype (Requires EPAC v11)
+
+An existing archetype can be customized by adding or removing policy assignments - to do this use a block like below in the `overrides` key.
+
+```json
+{
+  "overrides":{
+    "archetypes": {
+      "custom": [
+        {
+          "name": "identity",
+          "type": "existing",
+          "policy_assignments_to_add": [
+            "Audit-PeDnsZones"
+          ],
+          "policy_assignments_to_remove": [
+            "Deny-Public-IP"
+          ]
+        }
+      ]
+    }
+  }
+}
 ```
 
 ### Ignore an archetype (Requires EPAC v11)
