@@ -8,9 +8,6 @@ function Remove-AzResourceByIdRestMethod {
         [string] $ApiVersion
     )
 
-    # Write log info
-    Write-ModernStatus -Message "Removing resource: $Id" -Status "info" -Indent 4
-
     # Invoke the REST API
     $path = "$($Id)?api-version=$($ApiVersion)"
     # Write-Information "DELETE $path"
@@ -30,7 +27,7 @@ function Remove-AzResourceByIdRestMethod {
         }
     }
     else {
-        Write-ModernStatus -Message "Resource removed: $Id" -Status "success" -Indent 4
+        Write-ModernStatus -Message "Resource removed successfully" -Status "success" -Indent 4
         Write-Information ""
     }
 

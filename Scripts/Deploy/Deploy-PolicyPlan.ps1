@@ -134,7 +134,6 @@ else {
         Write-ModernStatus -Message "Removing $($table.psbase.Count) removed and replaced policy sets" -Status "info" -Indent 2
         foreach ($id in $table.Keys) {
             $entry = $table.$id
-            Write-Information "$($entry.displayName) - $($id)"
             Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policySetDefinitions
         }
     }
@@ -144,9 +143,8 @@ else {
         Write-ModernSection -Title "Deleting Replaced Policies ($($table.psbase.Count) items)" -Color Red
         foreach ($id in $table.Keys) {
             $entry = $table.$id
-            Write-ModernStatus -Message "Removing: $($entry.displayName)" -Status "pending" -Indent 2
+            Write-ModernStatus -Message "Removing:`n    Display Name: $($entry.displayName)`n    ID: $id" -Status "pending" -Indent 2
             Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policyDefinitions
-            Write-ModernStatus -Message "Removed: $($entry.displayName)" -Status "success" -Indent 2
         }
     }
 
@@ -186,9 +184,8 @@ else {
         Write-ModernSection -Title "Deleting Obsolete Policies ($($table.psbase.Count) items)" -Color Red
         foreach ($id in $table.Keys) {
             $entry = $table.$id
-            Write-ModernStatus -Message "Removing: $($entry.displayName)" -Status "pending" -Indent 2
+            Write-ModernStatus -Message "Removing:`n    Display Name: $($entry.displayName)`n    ID: $id" -Status "pending" -Indent 2
             Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policyDefinitions
-            Write-ModernStatus -Message "Removed: $($entry.displayName)" -Status "success" -Indent 2
         }
     }
 

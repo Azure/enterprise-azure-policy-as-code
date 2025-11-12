@@ -24,8 +24,3 @@ function Get-AzRoleAssignmentsRestMethod {
     $roleAssignments = $content | ConvertFrom-Json -Depth 100
     Write-Output $roleAssignments.value -NoEnumerate
 }
-
-# $roleAssignments1 = Get-AzRoleAssignmentsRestMethod -ApiVersion "2022-04-01" -Scope "/subscriptions/d1f55a08-5325-4bd8-910f-f8e1456c8c0f"
-# $null = $null
-# $roleAssignments2 = Get-AzRoleAssignmentsRestMethod -ApiVersion "2022-04-01" -Scope "/providers/Microsoft.Management/managementGroups/mg-Dev"
-# $null = $null
