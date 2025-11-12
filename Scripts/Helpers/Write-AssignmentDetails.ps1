@@ -4,9 +4,11 @@ function Write-AssignmentDetails {
         $DisplayName,
         $Scope,
         $Prefix,
-        $IdentityStatus
+        $IdentityStatus,
+        $ScopeTable
     )
 
+    $tenantScopes = $ScopeTable.keys
     $shortScope = $Scope -replace "/providers/Microsoft.Management", ""
     if ($Prefix -ne "") {
         if ($Prefix -like "*update*") {
@@ -18,7 +20,7 @@ function Write-AssignmentDetails {
         elseif ($Prefix -like "*delete*") {
             Write-ModernStatus -Message "$($Prefix): $($DisplayName) at $($shortScope)" -Status "error" -Indent 4
         }
-        else{
+        else {
             Write-ModernStatus -Message "$($Prefix): $($DisplayName) at $($shortScope)" -Status "error" -Indent 4
         }
     }
@@ -35,6 +37,9 @@ function Write-AssignmentDetails {
             else {
                 Write-ModernStatus -Message "Update role assignment description: $($role.roleDisplayName) at $($roleShortScope) (remote)" -Status "warning" -Indent 6
             }
+            if ($tenantScopes -notcontains $roleScope) {
+                Write-ModernStatus -Message "Role assignments to external scopes may cause false positives!" -Status "warning" -Indent 8
+            }
         }
         foreach ($role in $IdentityStatus.added) {
             $roleScope = $role.scope
@@ -45,6 +50,9 @@ function Write-AssignmentDetails {
             else {
                 Write-ModernStatus -Message "Add role: $($role.roleDisplayName) at $($roleShortScope) (remote)" -Status "success" -Indent 6
             }
+            if ($tenantScopes -notcontains $roleScope) {
+                Write-ModernStatus -Message "Role assignments to external scopes may cause false positives!" -Status "warning" -Indent 8
+            }
         }
         foreach ($role in $IdentityStatus.removed) {
             $roleScope = $role.scope
@@ -54,6 +62,9 @@ function Write-AssignmentDetails {
             }
             else {
                 Write-ModernStatus -Message "Remove role: $($role.roleDisplayName) at $($roleShortScope) (remote)" -Status "error" -Indent 6
+            }
+            if ($tenantScopes -notcontains $roleScope) {
+                Write-ModernStatus -Message "Role assignments to external scopes may cause false positives!" -Status "warning" -Indent 8
             }
         }
     }
