@@ -182,7 +182,7 @@ catch {
 }
 
 if ($EnableOverrides) {
-    Write-ModernStatus -Message "Overrides enabled: Custom policy definitions and assignments will be used where available." -Status "info" -Indent 2
+    Write-ModernStatus -Message "Overrides enabled: Custom management group structures and assignments will be used where available." -Status "info" -Indent 2
     if ($structureFile.overrides.archetypes.ignore) {
         $ignoreArchetypes = $structureFile.overrides.archetypes.ignore
     }
