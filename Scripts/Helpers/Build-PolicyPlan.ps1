@@ -230,7 +230,6 @@ function Build-PolicyPlan {
     $Definitions.numberUnchanged = $definitionsUnchanged
     $Definitions.numberOfChanges = $Definitions.new.Count + $Definitions.update.Count + $Definitions.replace.Count + $Definitions.delete.Count
 
-    Write-ModernStatus -Message "Unchanged Policy Definitions: $($Definitions.numberUnchanged)" -Status "status" -Indent 4
-    # Write-ModernCountSummary -Operation "Policy Definitions" -Unchanged $Definitions.numberUnchanged
+    Write-ModernStatus -Message "Unchanged Policy Definitions: $($Definitions.numberUnchanged)" -Status "status" -Indent 2
     Write-Information ""
 }

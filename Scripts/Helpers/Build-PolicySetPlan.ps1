@@ -318,7 +318,7 @@ function Build-PolicySetPlan {
         }
     }
 
-    Write-ModernStatus -Message "Unchanged Policy Set Definitions: $($Definitions.numberUnchanged)" -Status "status" -Indent 4
+    Write-ModernStatus -Message "Unchanged Policy Set Definitions: $($Definitions.numberUnchanged)" -Status "status" -Indent 2
     # Write-ModernCountSummary -Operation "Policy Set Definitions" -Unchanged $Definitions.numberUnchanged
     Write-Information ""
 }
