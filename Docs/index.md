@@ -4,6 +4,10 @@ Enterprise Azure Policy as Code (EPAC for short) is a number of PowerShell scrip
 
 ## Latest Updates
 
+### 📺 YouTube series for EPAC
+
+Make sure you [check out the series](https://www.youtube.com/channel/UCtkZkkgT-mp6PcmvfqlwvBQ) of videos explaining how to implement EPAC in your environment. New videos to be added soon!
+
 ### v11.0.0 is Here!
 
 - New modern look. Updated the output from the EPAC commands to look more modern and added accessibility features.
