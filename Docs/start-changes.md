@@ -1,4 +1,4 @@
-# Upcoming changes in v11.0.0
+# Changes in v11.0.0
 
 - New modern look. Updated the output from the EPAC commands to look more modern and added accessibility features.
 - Changes to support for Azure Lighthouse (see below)

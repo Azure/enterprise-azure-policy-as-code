@@ -4,7 +4,7 @@ Enterprise Azure Policy as Code (EPAC for short) is a number of PowerShell scrip
 
 ## Latest Updates
 
-### v11.0.0 is Coming!
+### v11.0.0 is Here!
 
 - New modern look. Updated the output from the EPAC commands to look more modern and added accessibility features.
 - Changes to support for Azure Lighthouse (see below)

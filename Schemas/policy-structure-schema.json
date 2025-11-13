@@ -1,0 +1,341 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "managementGroupNameMappings": {
+            "type": "object",
+            "description": "Mappings of management group names to their configurations",
+            "patternProperties": {
+                "^[a-zA-Z0-9_-]+$": {
+                    "type": "object",
+                    "properties": {
+                        "management_group_function": {
+                            "type": "string",
+                            "description": "The functional description of the management group"
+                        },
+                        "value": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^/providers/Microsoft\\.Management/managementGroups/[a-zA-Z0-9_-]+$",
+                                    "description": "The full resource path to the management group"
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "pattern": "^/providers/Microsoft\\.Management/managementGroups/[a-zA-Z0-9_-]+$"
+                                    },
+                                    "description": "Array of resource paths to management groups"
+                                }
+                            ]
+                        }
+                    },
+                    "required": [
+                        "management_group_function",
+                        "value"
+                    ],
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "enforcementMode": {
+            "type": "string",
+            "enum": [
+                "Default",
+                "DoNotEnforce"
+            ],
+            "description": "Default enforcement mode for policies"
+        },
+        "defaultParameterValues": {
+            "type": "object",
+            "description": "Default parameter values for policy assignments",
+            "patternProperties": {
+                "^[a-zA-Z0-9_-]+$": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "policy_assignment_name": {
+                                "oneOf": [
+                                    {
+                                        "type": "string",
+                                        "description": "Single policy assignment name"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "Array of policy assignment names"
+                                    }
+                                ]
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "Description of the parameter"
+                            },
+                            "parameters": {
+                                "type": "object",
+                                "properties": {
+                                    "value": {
+                                        "description": "The parameter value (can be any type)",
+                                        "oneOf": [
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "number"
+                                            },
+                                            {
+                                                "type": "boolean"
+                                            },
+                                            {
+                                                "type": "null"
+                                            },
+                                            {
+                                                "type": "object"
+                                            },
+                                            {
+                                                "type": "array"
+                                            }
+                                        ]
+                                    },
+                                    "parameter_name": {
+                                        "type": "string",
+                                        "description": "The name of the parameter in the policy"
+                                    }
+                                },
+                                "required": [
+                                    "value",
+                                    "parameter_name"
+                                ],
+                                "additionalProperties": false
+                            }
+                        },
+                        "required": [
+                            "policy_assignment_name",
+                            "description",
+                            "parameters"
+                        ],
+                        "additionalProperties": false
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        "enforceGuardrails": {
+            "type": "object",
+            "description": "Configuration for guardrail enforcement",
+            "properties": {
+                "deployments": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "scope": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "pattern": "^/providers/Microsoft\\.Management/managementGroups/[a-zA-Z0-9_-]+$",
+                                    "description": "Management group scope for the deployment"
+                                },
+                                "description": "Array of management group scopes"
+                            },
+                            "policy_set_names": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "description": "Name of the policy set to enforce"
+                                },
+                                "description": "Array of policy set names to enforce"
+                            }
+                        },
+                        "required": [
+                            "scope",
+                            "policy_set_names"
+                        ],
+                        "additionalProperties": false
+                    }
+                }
+            },
+            "required": [
+                "deployments"
+            ],
+            "additionalProperties": false
+        },
+        "overrides": {
+            "type": "object",
+            "description": "Override configurations for archetypes and parameters",
+            "properties": {
+                "archetypes": {
+                    "type": "object",
+                    "description": "Archetype override configurations",
+                    "properties": {
+                        "ignore": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "description": "List of archetypes to ignore"
+                        },
+                        "custom": {
+                            "type": "array",
+                            "description": "Custom archetype definitions",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "Name of the custom archetype"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "new",
+                                            "existing"
+                                        ],
+                                        "description": "Type of archetype - 'new' creates a new archetype, 'existing' modifies an existing one"
+                                    },
+                                    "policy_assignments": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "List of policy assignments for new archetypes"
+                                    },
+                                    "policy_assignments_to_add": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "List of policy assignments to add to existing archetypes"
+                                    },
+                                    "policy_assignments_to_remove": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "List of policy assignments to remove from existing archetypes"
+                                    }
+                                },
+                                "required": [
+                                    "name",
+                                    "type"
+                                ],
+                                "oneOf": [
+                                    {
+                                        "properties": {
+                                            "type": {
+                                                "const": "new"
+                                            }
+                                        },
+                                        "required": [
+                                            "policy_assignments"
+                                        ]
+                                    },
+                                    {
+                                        "properties": {
+                                            "type": {
+                                                "const": "existing"
+                                            }
+                                        },
+                                        "anyOf": [
+                                            {
+                                                "required": [
+                                                    "policy_assignments_to_add"
+                                                ]
+                                            },
+                                            {
+                                                "required": [
+                                                    "policy_assignments_to_remove"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "additionalProperties": false
+                            }
+                        }
+                    },
+                    "required": [
+                        "ignore",
+                        "custom"
+                    ],
+                    "additionalProperties": false
+                },
+                "parameters": {
+                    "type": "object",
+                    "description": "Parameter overrides by scope",
+                    "patternProperties": {
+                        "^[a-zA-Z0-9_-]+$": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "policy_assignment_name": {
+                                        "type": "string",
+                                        "description": "Name of the policy assignment"
+                                    },
+                                    "parameters": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "parameter_name": {
+                                                    "type": "string",
+                                                    "description": "Name of the parameter to override"
+                                                },
+                                                "value": {
+                                                    "description": "Override value for the parameter",
+                                                    "oneOf": [
+                                                        {
+                                                            "type": "string"
+                                                        },
+                                                        {
+                                                            "type": "number"
+                                                        },
+                                                        {
+                                                            "type": "boolean"
+                                                        },
+                                                        {
+                                                            "type": "null"
+                                                        },
+                                                        {
+                                                            "type": "object"
+                                                        },
+                                                        {
+                                                            "type": "array"
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "parameter_name",
+                                                "value"
+                                            ],
+                                            "additionalProperties": false
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "policy_assignment_name",
+                                    "parameters"
+                                ],
+                                "additionalProperties": false
+                            }
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "required": [
+        "managementGroupNameMappings",
+        "enforcementMode"
+    ],
+    "additionalProperties": false
+}
