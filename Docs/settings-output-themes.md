@@ -21,6 +21,9 @@ your-epac-repo/
 └── ...
 ```
 
+> [!TIP]
+> A working example theme configuration is included in the EPAC repository at [`.epac/theme.json`](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/.epac/theme.json). You can use this as a reference for implementing your own custom themes.
+
 ### Basic Configuration
 
 The theme file structure follows this format:
@@ -42,7 +45,9 @@ The theme file structure follows this format:
 
 ### Example Configuration
 
-Copy the following example to `.epac/theme.json` and customize as needed:
+The EPAC repository includes a complete example at [`.epac/theme.json`](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/.epac/theme.json). You can copy this file to your own repository and customize as needed:
+
+**Basic example:**
 
 ```json
 {
