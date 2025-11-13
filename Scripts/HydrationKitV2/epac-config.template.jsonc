@@ -1,0 +1,27 @@
+{
+    // EPAC Hydration Configuration Template
+    // Copy this file and customize for your environment
+    // Required: Your organization's root Management Group ID
+    "tenantIntermediateRoot": "contoso",
+    // Optional: Friendly name for your main EPAC environment (default: "tenant01")
+    "pacSelector": "tenant01",
+    // Optional: Azure region for Managed Identities (default: "eastus")
+    "managedIdentityLocation": "eastus",
+    // Optional: Import existing policy assignments (default: false)
+    "importExistingPolicies": true,
+    // Optional: CI/CD platform - "GitHub", "AzureDevOps", or "None" (default: "None")
+    "pipelinePlatform": "None",
+    // Optional: Pipeline template type - "Simple" or "StarterKit" (default: "Simple")
+    // Simple: Basic single-file pipeline for quick start
+    // StarterKit: Full EPAC pipeline templates with advanced features (recommended for production)
+    "pipelineType": "Simple",
+    // Optional: Branching flow for StarterKit pipelines - "GitHub" or "Release" (default: "GitHub")
+    // GitHub: GitHub Flow (main + feature branches, simpler workflow)
+    // Release: Release Flow (main + release + feature branches, more controlled releases)
+    "branchingFlow": "GitHub",
+    // Optional: Use PowerShell module instead of local scripts (default: false)
+    "useModuleNotScript": false,
+    // Optional: Paths (defaults shown)
+    "definitionsRootFolder": "./Definitions",
+    "outputFolder": "./Output"
+}
