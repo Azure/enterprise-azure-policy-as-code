@@ -1,0 +1,19 @@
+
+# tags:
+#     - epac
+    
+variables:
+  ENVIRONMENT: "epac-dev"
+  PAC_OUTPUT_FOLDER: ./Output
+  PAC_DEFINITIONS_FOLDER: ./Definitions
+  
+include:
+- local: '/Pipelines/core-scripts/plan.yml'
+  inputs:
+    environment: $ENVIRONMENT
+- local: '/Pipelines/core-scripts/deploy-policy.yml'
+  inputs:
+    environment: $ENVIRONMENT
+- local: '/Pipelines/core-scripts/deploy-roles.yml'
+  inputs:
+    environment: $ENVIRONMENT
