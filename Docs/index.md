@@ -18,6 +18,14 @@ Make sure you [check out the series](https://www.youtube.com/channel/UCtkZkkgT-m
     - Add/Modify parameters for individual assignments
     - Schema file for the structure file
 
+- New modern look. Updated the output from the EPAC commands to look more modern and added accessibility features.
+- Changes to support for Azure Lighthouse (see below)
+- Changes to the ALZ sync process to support easier customization via a single file and not a forked repository
+    - Ignore archetypes
+    - Add custom management groups
+    - Add/Modify parameters for individual assignments
+    - Schema file for the structure file
+
 > [!CAUTION]
 > Changes to Lighthouse deployments via EPAC in v11.0.0. Review the upcoming changes to avoid issues with your EPAC instance. The changes are [documented here](start-changes.md).
 
