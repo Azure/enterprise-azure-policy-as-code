@@ -240,7 +240,7 @@ An existing archetype can be customized by adding or removing policy assignments
     "archetypes": {
       "custom": [
         {
-          "name": "identity",
+          "name": "identity", // Name of the built-in archetype to customize
           "type": "existing",
           "policy_assignments_to_add": [
             "Audit-PeDnsZones"
