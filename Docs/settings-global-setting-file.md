@@ -4,9 +4,11 @@
 
 `global-settings.jsonc` has following sections explained below:
 
-- `telemetryOptOut` if set to true disables the collection of usage data for the EPAC repo. The default is false. See [Usage Tracking](index.md#telemetry-tracking-using-customer-usage-attribution-pid) for more information.
-- `pacOwnerId` uniquely identifies deployments from a specific repo. We recommend using a GUID.
-- `pacEnvironments` defines the EPAC environments.
+| Setting | Description |
+|---------|-------------|
+| `telemetryOptOut` | If set to true disables the collection of usage data for the EPAC repo. The default is false. See [Usage Tracking](index.md#telemetry-tracking-using-customer-usage-attribution-pid) for more information. |
+| `pacOwnerId` | Uniquely identifies deployments from a specific repo. We recommend using a GUID. |
+| `pacEnvironments` | Defines the EPAC environments. |
 
 ### Example with Required Elements
 
@@ -82,31 +84,45 @@ EPAC has a concept of an environment identified by a string (unique per reposito
 
 `pacEnvironments` entries associate:
 
-Required:
-  - `pacSelector`: the logical name of the EPAC environment. This should be lower case whenever used throughout an EPAC project.
-  - `cloud`: select cloud environments.
-  - `tenantId`: enables multi-tenant scenarios.
-  - `deploymentRootScope`: the deployment scope for Policy and Policy Set definitions. Policy Assignments can only defined at this scope and child scopes (recursive). The format for each scope level is as follows:
-    - Management Group: `/providers/Microsoft.Management/managementGroups/{management-group-name}`
-    - Subscription: `/subscriptions/{subscription-id}`
-    - Resource Group: `/subscriptions/{subscription-id}/resourceGroups/{resource-group-name}`
-  - `desiredState`:  defines the desired state strategy.
-    - `strategy`: see [Desired State Strategy](settings-desired-state.md).
-    - `keepDfcSecurityAssignments`: see [Managing Defender for Cloud Policy Assignments](settings-dfc-assignments.md).
-    - `doNotDisableDeprecatedPolicies`: Automatically set deprecated policies' policy effect to "Disabled". This setting can be used to override that behavior by setting it to `true`. Default is `false`.
-  - `managedIdentityLocation`: see [DeployIfNotExists and Modify Policy Assignments need `managedIdentityLocation`](#deployifnotexists-and-modify-policy-assignments-need-managedidentitylocation)
+### Required Parameters
 
-Optional:
-  - `globalNotScopes`: see [Excluding scopes for all Assignments with `globalNotScopes`](#excluding-scopes-for-all-assignments-with-globalnotscopes)
-  - `skipResourceValidationForExemptions`: disables checking the resource existence for Policy Exemptions. Default is false. This can be useful if you have a massive amount of exemptions and the validation is taking too long.
-  - `deployedBy`: populates the `metadata` fields. It defaults to `epac/$pacOwnerId/$pacSelector`. We recommend to use the default.
-    - Policy Definitions, Policy Set Definitions and Policy Exemptions - `metadata.deployedBy`.
-    - Policy Assignments - `metadata.assignedBy` since Azure Portal displays it as 'Assigned by'.
-    - Role Assignments - add the value to the `description` field since Role assignments do not contain `metadata`.
-  - `managedTenantId`: Used when the `pacEnvironment` is in a lighthouse managed tenant.
-  - `defaultContext`: In rare cases (typically only when deploying to a lighthouse managed tenant) the default context (Get-azContext) of a user/SPN running a plan will  
-be set to a subscription where that user/SPN does not have sufficient privileges.  Some checks have been built in so that in some cases when this happens EPAC is able to fix the context issue.  When it is not, a `defaultContext` subscription name must be provided.  This can be any subscription within the `deploymentRootScope`.
-  - `keepDfcPlanAssignments`: [Managing Defender for Cloud Assignments](settings-dfc-assignments.md).
+| Parameter | Description |
+|-----------|-------------|
+| `pacSelector` | The logical name of the EPAC environment. This should be lower case whenever used throughout an EPAC project. |
+| `cloud` | Select cloud environments. |
+| `tenantId` | Enables multi-tenant scenarios. |
+| `deploymentRootScope` | The deployment scope for Policy and Policy Set definitions. Policy Assignments can only defined at this scope and child scopes (recursive). See deployment scope formats below. |
+| `desiredState.strategy` | Defines the desired state strategy. See [Desired State Strategy](settings-desired-state.md). |
+| `keepDfcSecurityAssignments` | See [Managing Defender for Cloud Policy Assignments](settings-dfc-assignments.md). |
+| `doNotDisableDeprecatedPolicies` | Automatically set deprecated policies' policy effect to "Disabled". This setting can be used to override that behavior by setting it to `true`. Default is `false`. |
+| `managedIdentityLocation` | See [DeployIfNotExists and Modify Policy Assignments need `managedIdentityLocation`](#deployifnotexists-and-modify-policy-assignments-need-managedidentitylocation) |
+
+#### Deployment Scope Formats
+
+| Scope Level | Format |
+|-------------|--------|
+| Management Group | `/providers/Microsoft.Management/managementGroups/{management-group-name}` |
+| Subscription | `/subscriptions/{subscription-id}` |
+| Resource Group | `/subscriptions/{subscription-id}/resourceGroups/{resource-group-name}` |
+
+### Optional Parameters
+
+| Parameter | Description |
+|-----------|-------------|
+| `globalNotScopes` | See [Excluding scopes for all Assignments with `globalNotScopes`](#excluding-scopes-for-all-assignments-with-globalnotscopes) |
+| `skipResourceValidationForExemptions` | Disables checking the resource existence for Policy Exemptions. Default is false. This can be useful if you have a massive amount of exemptions and the validation is taking too long. |
+| `deployedBy` | Populates the `metadata` fields. It defaults to `epac/$pacOwnerId/$pacSelector`. We recommend to use the default. |
+| `managedTenantId` | Used when the `pacEnvironment` is in a lighthouse managed tenant. |
+| `defaultContext` | In rare cases (typically only when deploying to a lighthouse managed tenant) the default context (Get-azContext) of a user/SPN running a plan will be set to a subscription where that user/SPN does not have sufficient privileges. Some checks have been built in so that in some cases when this happens EPAC is able to fix the context issue. When it is not, a `defaultContext` subscription name must be provided. This can be any subscription within the `deploymentRootScope`. |
+| `keepDfcPlanAssignments` | [Managing Defender for Cloud Assignments](settings-dfc-assignments.md). |
+
+#### Metadata Field Usage
+
+| Resource Type | Metadata Field | Description |
+|---------------|----------------|-------------|
+| Policy Definitions, Policy Set Definitions, Policy Exemptions | `metadata.deployedBy` | Populated with the `deployedBy` value |
+| Policy Assignments | `metadata.assignedBy` | Populated with the `deployedBy` value (Azure Portal displays it as 'Assigned by') |
+| Role Assignments | `description` | The value is added to the description field since Role assignments do not contain metadata |
 
 ### DeployIfNotExists and Modify Policy Assignments need `managedIdentityLocation`
 

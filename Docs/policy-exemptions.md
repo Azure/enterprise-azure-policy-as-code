@@ -53,18 +53,6 @@ Definitions
       <name>.csv of <name>.json
 ```
 
-## JSON Schema
-
-The GitHub repo contains a JSON schema which can be used in tools such as [VS Code](https://code.visualstudio.com/Docs/languages/json#_json-schemas-and-settings) to provide code completion.
-
-To utilize the schema add a ```$schema``` tag to the JSON file.
-
-```
-{
-  "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-exemption-schema.json"
-}
-```
-
 ## Defining Exemptions
 
 > [!TIP]

@@ -72,18 +72,6 @@ Custom definitions are uploaded to Azure at the time of initial deployment to a 
 ],
 ```
 
-## JSON Schema
-
-The GitHub repo contains a JSON schema which can be used in tools such as [VS Code](https://code.visualstudio.com/Docs/languages/json#_json-schemas-and-settings) to provide code completion.
-
-To utilize the schema add a ```$schema``` tag to the JSON file.
-
-```
-{
-  "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-set-definition-schema.json"
-}
-```
-
 ## Recommendations
 
 - `"name"` is required and should be unique. It can be a GUID or a unique short name.

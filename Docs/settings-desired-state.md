@@ -9,20 +9,31 @@ Desired State strategy enables you to adjust the default behavior to fit more co
 
 `pacEnvironments` must contain a `desiredState` element.
 
-**Required**:
-  - `strategy`: The strategy to use for managing Policy resources. The following values are supported:
-    - `full`: EPAC manages all Policy resources in the `deploymentRootScope` and its children. EPAC deletes any Policy resources not defined in the EPAC repo.
-    - `ownedOnly`: EPAC manages only Policy resources defined in the EPAC repo. EPAC does not delete any Policy resources not defined in the EPAC repo.
-  - `keepDfcSecurityAssignments`: It is recommended that Security and Compliance Initiatives are managed at management group levels with EPAC. Please read [Managing Defender for Cloud Assignments](settings-dfc-assignments.md).
+### Required Properties
 
-**Optional**:
-  - `excludedScopes`: An array of scopes to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
-  - `excludedPolicyDefinitions`: An array of Policy Definitions to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
-  - `excludedPolicySetDefinitions`: An array of Policy Set Definitions to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
-  - `excludedPolicyAssignments`: An array of Policy Assignments to exclude from management by EPAC. The default is an empty array. Wild cards are supported.
-  - `doNotDisableDeprecatedPolicies`: Automatically set deprecated policies' policy effect to "Disabled". This setting can be used to override that behavior by setting it to `true`. Default is `false`.
-  - `excludeSubscriptions`: Exclude all subscription under the deployment root scope. Designed for environments containing many frequently updated subscriptions that are not requiring management and where using ```excludedScopes``` would be impractical to maintain. If resource groups are added ```excludedScopes``` they will be ignored as this setting will take precedence by virtue of the fact that it excludes all Subscriptions, which by definition contain all Resource Groups. It will not effect excluded management group scopes. Default is `false`
-  - `keepDfcPlanAssignments`: Choose whether EPAC should delete Azure Policies deployed by Defender for Cloud that are associated with DFC Plans. Once the policies are deleted, the action is irreversible. This is only recommended if you are confident that you are managing and deploying the policies through EPAC, rather than relying on Defender for Cloud to manage the Azure Policies related to each plan. Default for this is always 'True'.
+| Property | Description |
+|----------|-------------|
+| `strategy` | The strategy to use for managing Policy resources. See [Strategy Values](#strategy-values) below. |
+| `keepDfcSecurityAssignments` | It is recommended that Security and Compliance Initiatives are managed at management group levels with EPAC. Please read [Managing Defender for Cloud Assignments](settings-dfc-assignments.md). |
+
+#### Strategy Values
+
+| Value | Description |
+|-------|-------------|
+| `full` | EPAC manages all Policy resources in the `deploymentRootScope` and its children. EPAC deletes any Policy resources not defined in the EPAC repo. |
+| `ownedOnly` | EPAC manages only Policy resources defined in the EPAC repo. EPAC does not delete any Policy resources not defined in the EPAC repo. |
+
+### Optional Properties
+
+| Property | Description | Default |
+|----------|-------------|----------|
+| `excludedScopes` | An array of scopes to exclude from management by EPAC. Wild cards are supported. | Empty array |
+| `excludedPolicyDefinitions` | An array of Policy Definitions to exclude from management by EPAC. Wild cards are supported. | Empty array |
+| `excludedPolicySetDefinitions` | An array of Policy Set Definitions to exclude from management by EPAC. Wild cards are supported. | Empty array |
+| `excludedPolicyAssignments` | An array of Policy Assignments to exclude from management by EPAC. Wild cards are supported. | Empty array |
+| `doNotDisableDeprecatedPolicies` | Automatically set deprecated policies' policy effect to "Disabled". This setting can be used to override that behavior by setting it to `true`. | `false` |
+| `excludeSubscriptions` | Exclude all subscription under the deployment root scope. Designed for environments containing many frequently updated subscriptions that are not requiring management and where using `excludedScopes` would be impractical to maintain. If resource groups are added `excludedScopes` they will be ignored as this setting will take precedence by virtue of the fact that it excludes all Subscriptions, which by definition contain all Resource Groups. It will not effect excluded management group scopes. | `false` |
+| `keepDfcPlanAssignments` | Choose whether EPAC should delete Azure Policies deployed by Defender for Cloud that are associated with DFC Plans. Once the policies are deleted, the action is irreversible. This is only recommended if you are confident that you are managing and deploying the policies through EPAC, rather than relying on Defender for Cloud to manage the Azure Policies related to each plan. | `true` |
 
 The following example shows the `desiredState` element with all properties set:
 
@@ -145,12 +156,17 @@ You use `globalNotScopes` to exclude a child scope from management by EPAC. The 
 
 This happens when EPAC `strategy` is `full` and some child scopes contain Policy resources not managed by an EPAC repo (delivered through some other deployment method). You can exclude them based on:
 
-- Scopes (Management Groups, subscriptions and Resource Groups) through `desiredState.excludedScopes`
-  - `desiredState.excludeSubscriptions` is the preferred way to exclude all Subscriptions within a pacSelector
-  - `"/subscriptions/subscriptionsPattern/*"` is also a valid `excludedScopes` value, but is more commonly used for name based filtering
-- Policy Definitions through `desiredState.excludedPolicyDefinitions`
-- Policy Set Definitions through `desiredState.excludedPolicySetDefinitions`
-- Policy Assignments through `desiredState.excludedPolicyAssignments`
+#### Exclusion Methods
+
+| Exclusion Type | Property | Description |
+|----------------|----------|-------------|
+| Scopes | `desiredState.excludedScopes` | Management Groups, subscriptions and Resource Groups |
+| Subscriptions | `desiredState.excludeSubscriptions` | Preferred way to exclude all Subscriptions within a pacSelector |
+| Policy Definitions | `desiredState.excludedPolicyDefinitions` | Exclude specific Policy Definitions |
+| Policy Set Definitions | `desiredState.excludedPolicySetDefinitions` | Exclude specific Policy Set Definitions |
+| Policy Assignments | `desiredState.excludedPolicyAssignments` | Exclude specific Policy Assignments |
+
+> **Note:** `"/subscriptions/subscriptionsPattern/*"` is also a valid `excludedScopes` value, but is more commonly used for name based filtering
 
 You can exclude any combination of `excludedScopes`, `excludedPolicyDefinitions`, `excludedPolicySetDefinitions` and `excludedPolicyAssignments`. Any of the strings can contain simple wild cards. See [PolicyAssignment](./policy-assignments.md) documentation for further information.
 
