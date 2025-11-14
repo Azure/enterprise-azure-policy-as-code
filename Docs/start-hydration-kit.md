@@ -8,7 +8,7 @@ The `Install-HydrationEpac` command builds a basic EPAC implementation for local
 
 ## Prerequisites
 
-- Review the [Start Implementing](./start-implementing.md) to ensure you are familiar with the core EPAC concepts, have the prerequisite software installed and have the required Azure permissions.
+- Review the [Overview and Prerequisites](./start-implementing.md) to ensure you are familiar with the core EPAC concepts, have the prerequisite software installed and have the required Azure permissions.
 - To run the Hydration Kit, permissions to create Management Groups at the **Tenant Root Level** is also required.
   - The `Management Group Contributor` built-in RBAC role contains the required permissions.
   - The Hydration Kit creates additional Management Groups for EPAC development.
@@ -143,7 +143,7 @@ The installer builds out the repo insofar as CLI based deployment using a highly
 
 - Review additional settings available for configuration in the [global-settings file](./settings-global-setting-file.md)
 - Create additional policy objects such as custom policies, additional policy assignments, and exemptions.
-    1. Integrate [Azure Landing Zones (ALZ)](integrating-with-alz.md)
+    1. Integrate [Azure Landing Zones (ALZ)](integrating-with-alz-overview.md)
     1. Create custom [Policy definitions](policy-definitions.md)
     1. Create custom [Policy Set definitions](policy-set-definitions.md)
     1. Create new [Policy Assignments](policy-assignments.md)
