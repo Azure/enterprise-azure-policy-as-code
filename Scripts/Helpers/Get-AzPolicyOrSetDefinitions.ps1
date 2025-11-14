@@ -39,7 +39,7 @@ function Get-AzPolicyOrSetDefinitions {
     $policyResources = Search-AzGraphAllItems -Query $query -ProgressItemName $progressItemName -ProgressIncrement $progressIncrement
     foreach ($policyResource in $policyResources) {
         $resourceTenantId = $policyResource.tenantId
-        if ($resourceTenantId -in @($null, "", $environmentTenantId)) {
+        if (($resourceTenantId -in @($null, "", $environmentTenantId)) -or $null -ne $PacEnvironment.managedTenantId) {
             $id = $policyResource.id
             $testId = $id
             $included, $resourceIdParts = Confirm-PolicyResourceExclusions `

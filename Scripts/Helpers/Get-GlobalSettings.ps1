@@ -18,15 +18,14 @@ function Get-GlobalSettings {
     $InputFolder = $folders.inputFolder
     $globalSettingsFile = $folders.globalSettingsFile
 
-    Write-Information ""
-    Write-Information "==================================================================================================="
-    Write-Information "Read global settings from '$globalSettingsFile'."
-    Write-Information "==================================================================================================="
+    Write-ModernSection -Title "Global Settings Configuration" -Color Blue
+    Write-ModernStatus -Message "Reading global settings from: $globalSettingsFile" -Status "info" -Indent 2
 
     $Json = Get-Content -Path $globalSettingsFile -Raw -ErrorAction Stop
     $settings = @{}
     try {
         $settings = $Json | ConvertFrom-Json -AsHashTable
+        Write-ModernStatus -Message "Successfully parsed global settings JSON" -Status "success" -Indent 2
     }
     catch {
         Write-Error "Assignment JSON file '$($globalSettingsFile)' is not valid." -ErrorAction Stop
@@ -88,22 +87,13 @@ function Get-GlobalSettings {
                 Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector does not contain required managedIdentityLocation field."
             }
 
-            $managingTenantId = $pacEnvironment.managingTenant.managingTenantId
-            $managingTenantRootScope = $pacEnvironment.managingTenant.managingTenantRootScope
-            if ($null -ne $managingTenantId) {
-                if ($null -eq $pacEnvironment.managingTenant.managingTenantRootScope) {
-                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector element managingTenantRootScope must have a valid value when managingTenantID has a value."
-                }
+            $managedTenantId = $pacEnvironment.managedTenantId
+            if ($null -ne $managedTenantId) {
                 $objectGuid = [System.Guid]::empty
                 # Returns True if successfully parsed, otherwise returns False.
-                $isGUID = [System.Guid]::TryParse($managingTenantId, [System.Management.Automation.PSReference]$objectGuid)
+                $isGUID = [System.Guid]::TryParse($managedTenantId, [System.Management.Automation.PSReference]$objectGuid)
                 if ($isGUID -ne $true) {
-                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field managingTenant ($managingTenantId) must be a GUID."
-                }
-            }
-            elseif ($null -ne $managingTenantRootScope) {
-                if ($null -eq $managingTenantId) {
-                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector element managingTenantID must be a valid GUID when managingTenantRootScope has a value."
+                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field managedTenantId ($managedTenantId) must be a GUID."
                 }
             }
 
@@ -287,7 +277,7 @@ function Get-GlobalSettings {
                                     $null = $globalExcludedScopesManagementGroupsList.Add($excludedScope)
                                 }
                                 else {
-                                    Write-Host "Global settings error: pacEnvironment $pacSelector field desiredState.excludedScopes ($excludedScope) must be a valid scope."
+                                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.excludedScopes ($excludedScope) must be a valid scope."
                                 }
                             }
                         }
@@ -345,8 +335,7 @@ function Get-GlobalSettings {
                 deployedBy                          = $deployedBy
                 cloud                               = $cloud
                 tenantId                            = $tenantId
-                managingTenantId                    = $managingTenantId
-                managingTenantRootScope             = $managingTenantRootScope
+                managedTenantId                     = $managedTenantId
                 deploymentRootScope                 = $deploymentRootScope
                 defaultContext                      = $defaultContext
                 policyDefinitionsScopes             = $policyDefinitionsScopes
@@ -364,15 +353,16 @@ function Get-GlobalSettings {
         }
     }
 
+    Write-ModernStatus -Message "Global settings validation complete" -Status "success" -Indent 2
     Write-ErrorsFromErrorInfo -ErrorInfo $errorInfo -ErrorAction Stop
 
+    Write-ModernSection -Title "Configuration Summary" -Color Blue
     $prompt = $pacEnvironmentSelectors -join ", "
-    Write-Information "PAC Environments: $($prompt)"
-    Write-Information "PAC Owner Id: $pacOwnerId"
-    Write-Information "Definitions root folder: $DefinitionsRootFolder"
-    Write-Information "Input folder: $InputFolder"
-    Write-Information "Output folder: $OutputFolder"
-    Write-Information ""
+    Write-ModernStatus -Message "PAC Environments: $($prompt)" -Status "info" -Indent 2
+    Write-ModernStatus -Message "PAC Owner Id: $pacOwnerId" -Status "info" -Indent 2
+    Write-ModernStatus -Message "Definitions root folder: $DefinitionsRootFolder" -Status "info" -Indent 2
+    Write-ModernStatus -Message "Input folder: $InputFolder" -Status "info" -Indent 2
+    Write-ModernStatus -Message "Output folder: $OutputFolder" -Status "info" -Indent 2
     
 
     $policyDocumentationsFolder = "$DefinitionsRootFolder/policyDocumentations"

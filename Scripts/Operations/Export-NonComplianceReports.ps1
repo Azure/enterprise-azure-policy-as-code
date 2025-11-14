@@ -134,11 +134,11 @@ $account = Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId 
 
 # Telemetry
 if ($pacEnvironment.telemetryEnabled) {
-    Write-Information "Telemetry is enabled"
+    Write-ModernStatus -Message "Telemetry is enabled" -Status "info" -Indent 2
     Submit-EPACTelemetry -Cuapid "pid-f464b017-898b-4156-9da5-af932831fa2f" -DeploymentRootScope $pacEnvironment.deploymentRootScope
 }
 else {
-    Write-Information "Telemetry is disabled"
+    Write-ModernStatus -Message "Telemetry is disabled" -Status "info" -Indent 2
 }
 Write-Information ""
 
@@ -156,16 +156,15 @@ $rawNonCompliantList, $deployedPolicyResources, $scopeTable = Find-AzNonComplian
     -ExcludeManualPolicyEffect:$excludeManualPolicyEffect `
     -RemediationOnly:$remediationOnly
 
-Write-Information "==================================================================================================="
-Write-Information "Collating non-compliant resources into simplified lists"
-Write-Information "==================================================================================================="
+Write-ModernHeader -Title "Exporting Non-Compliance Reports" -Subtitle "Collating resources into simplified lists"
+Write-ModernSection -Title "Processing Compliance Data" -Indent 0
 
 $total = $rawNonCompliantList.Count
 if ($total -eq 0) {
-    Write-Information "No non-compliant resources found"
+    Write-ModernStatus -Message "No non-compliant resources found" -Status "success" -Indent 2
 }
 else {
-    Write-Information "Processing $total non-compliant records"
+    Write-ModernStatus -Message "Processing $total non-compliant records" -Status "processing" -Indent 2
 
     #source
     $allPolicyDefinitions = $deployedPolicyResources.policydefinitions.all
@@ -582,23 +581,20 @@ else {
 
         $counter++
         if ($counter % 5000 -eq 0) {
-            Write-Information "Processed $counter of $total"
+            Write-ModernProgress -Current $counter -Total $total -Activity "Processing compliance records" -Indent 4
         }
     }
     if ($counter % 5000 -ne 0) {
-        Write-Information "Processed $counter of $total"
+        Write-ModernProgress -Current $counter -Total $total -Activity "Processing compliance records" -Indent 4
     }
-    Write-Information ""
 
-    Write-Information "==================================================================================================="
-    Write-Information "Output CSV files"
-    Write-Information "==================================================================================================="
+    Write-ModernSection -Title "Output CSV files" -Indent 0
 
     #region summary CSV
 
     #region summary by Policy CSV
     $summaryCsvPath = Join-Path $pacEnvironment.outputFolder "non-compliance-report" "summary-by-policy.csv"
-    Write-Information "Writing summary by Policy to $summaryCsvPath"
+    Write-ModernStatus -Message "Creating summary by Policy" -Status "processing" -Indent 2
     $sortedSummaryList = $summaryListByPolicy | Sort-Object { $_.category }, { $_.policyDefinitionName } | ForEach-Object {
         $groupNamesHashtable = $_.groupNames
         $summaryGroupNames = $groupNamesHashtable.Keys -join $separator
@@ -621,11 +617,12 @@ else {
     }
     $null = New-Item -Path $summaryCsvPath -ItemType File -Force | Out-Null
     $sortedSummaryList | Export-Csv -Path $summaryCsvPath -NoTypeInformation -Force -Encoding $encoding
+    Write-ModernStatus -Message "Summary by Policy file: $summaryCsvPath" -Status "success" -Indent 4
     #endregion summary by Policy CSV
 
     #region summary by Resource CSV
     $summaryCsvPath = Join-Path $pacEnvironment.outputFolder "non-compliance-report" "summary-by-resource.csv"
-    Write-Information "Writing summary by Resource to $summaryCsvPath"
+    Write-ModernStatus -Message "Creating summary by Resource" -Status "processing" -Indent 2
     $sortedSummaryList = $summaryListByResource | Sort-Object { $_.resourceId }, { $_.category } | ForEach-Object {
         $normalizedSummary = [ordered]@{
             "Resource Id"        = $_.resourceId
@@ -646,6 +643,7 @@ else {
     }
     $null = New-Item -Path $summaryCsvPath -ItemType File -Force | Out-Null
     $sortedSummaryList | Export-Csv -Path $summaryCsvPath -NoTypeInformation -Force -Encoding $encoding
+    Write-ModernStatus -Message "Summary by Resource file: $summaryCsvPath" -Status "success" -Indent 4
     #endregion summary by Resource CSV
     
     #endregion summary CSV
@@ -654,7 +652,7 @@ else {
 
     #region simplified details by Policy CSV
     $detailsCsvPath = Join-Path $pacEnvironment.outputFolder "non-compliance-report" "details-by-policy.csv"
-    Write-Information "Writing simplified details by Policy to $detailsCsvPath"
+    Write-ModernStatus -Message "Creating simplified details by Policy" -Status "processing" -Indent 2
     $sortedDetailsList = $detailsListByPolicy | Sort-Object { $_.category }, { $_.policyName }, { $_.resourceId } | ForEach-Object {
         $assignmentsHashtable = $_.assignments
         $assignments = $assignmentsHashtable.Keys -join $separator
@@ -681,11 +679,12 @@ else {
     }
     $null = New-Item -Path $detailsCsvPath -ItemType File -Force
     $sortedDetailsList | Export-Csv -Path $detailsCsvPath -NoTypeInformation -Force -Encoding $encoding
+    Write-ModernStatus -Message "Details by Policy file: $detailsCsvPath" -Status "success" -Indent 4
     #endregion simplified details by Policy CSV
 
     #region simplified details by Resource Id CSV
     $detailsCsvPath = Join-Path $pacEnvironment.outputFolder "non-compliance-report" "details-by-resource.csv"
-    Write-Information "Writing simplified details by Resource Id to $detailsCsvPath"
+    Write-ModernStatus -Message "Creating simplified details by Resource Id" -Status "processing" -Indent 2
     $sortedDetailsList = $detailsListByResource | Sort-Object { $_.resourceId }, { $_.category }, { $_.policyName } | ForEach-Object {
         $normalizedDetails = [ordered]@{
             "Resource Id"        = $_.resourceId
@@ -706,6 +705,7 @@ else {
     }
     $null = New-Item -Path $detailsCsvPath -ItemType File -Force
     $sortedDetailsList | Export-Csv -Path $detailsCsvPath -NoTypeInformation -Force -Encoding $encoding
+    Write-ModernStatus -Message "Details by Resource file: $detailsCsvPath" -Status "success" -Indent 4
     #endregion simplified details by Resource Id CSV
 
     #endregion simplified details CSV
@@ -714,7 +714,7 @@ else {
 
     #region full details by Policy Assignment CSV
     $detailsCsvPath = Join-Path $pacEnvironment.outputFolder "non-compliance-report" "full-details-by-assignment.csv"
-    Write-Information "Writing full details by Assignment to $detailsCsvPath"
+    Write-ModernStatus -Message "Creating full details by Assignment" -Status "processing" -Indent 2
     $sortedDetailsList = $fullDetailsList | Sort-Object { $_.assignmentName }, { $_.assignmentScope }, { $_.category }, { $_.policyName }, { $_.referenceId }, { $_.resourceId } | ForEach-Object {
         $groupNamesHashtable = $_.groupNames
         $detailsGroupNames = $groupNamesHashtable.Keys -join $separator
@@ -742,11 +742,12 @@ else {
     }
     $null = New-Item -Path $detailsCsvPath -ItemType File -Force
     $sortedDetailsList | Export-Csv -Path $detailsCsvPath -NoTypeInformation -Force -Encoding $encoding
+    Write-ModernStatus -Message "Full details by Assignment file: $detailsCsvPath" -Status "success" -Indent 4
     #endregion full details by Policy Assignment CSV
 
     #region full details by Resource Id CSV
     $detailsCsvPath = Join-Path $pacEnvironment.outputFolder "non-compliance-report" "full-details-by-resource.csv"
-    Write-Information "Writing full details by Resource Id to $detailsCsvPath"
+    Write-ModernStatus -Message "Creating full details by Resource Id" -Status "processing" -Indent 2
     $sortedDetailsList = $fullDetailsList | Sort-Object { $_.resourceId }, { $_.category }, { $_.policyName }, { $_.assignmentName }, { $_.referenceId }, { $_.assignmentScope } | ForEach-Object {
         $normalizedDetails = [ordered]@{
             "Resource Id"        = $_.resourceId
@@ -772,7 +773,10 @@ else {
     }
     $null = New-Item -Path $detailsCsvPath -ItemType File -Force
     $sortedDetailsList | Export-Csv -Path $detailsCsvPath -NoTypeInformation -Force -Encoding $encoding
+    Write-ModernStatus -Message "Full details by Resource file: $detailsCsvPath" -Status "success" -Indent 4
     #endregion full details by Resource Id CSV
 
     #endregion full details CSV
+    
+    Write-ModernStatus -Message "Non-compliance reports exported successfully" -Status "success" -Indent 0
 }

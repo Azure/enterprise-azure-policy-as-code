@@ -5,9 +5,8 @@ function Convert-PolicyResourcesToDetails {
         [hashtable] $AllPolicySetDefinitions
     )
 
-    Write-Information "==================================================================================================="
-    Write-Information "Pre-calculating parameters for Policy and Policy Set definitions"
-    Write-Information "==================================================================================================="
+    Write-ModernSection -Title "Pre-calculating Policy Parameters" -Color Blue
+    Write-ModernStatus -Message "Processing Policy and Policy Set definitions for effect analysis" -Status "info" -Indent 2
 
     # Convert Policy Definitions to Details
     $policyDetails = @{}
@@ -33,7 +32,7 @@ function Convert-PolicyResourcesToDetails {
         $funcConvertToHashTable = ${function:ConvertTo-HashTable}.ToString()
         
         # loop through each chunk of Policy definitions and process in parallel
-        Write-Information "Processing $($AllPolicyDefinitions.psbase.Count) Policy definitions in $throttleLimit parallel threads."
+        Write-ModernStatus -Message "Processing $($AllPolicyDefinitions.psbase.Count) Policy definitions using $throttleLimit parallel threads" -Status "info" -Indent 2
         $chunks | ForEach-Object -ThrottleLimit $chunks.count -Parallel {
             # import dot sourced functions into context
             if ($null -eq ${function:Get-PolicyResourceProperties}) {
@@ -58,7 +57,7 @@ function Convert-PolicyResourcesToDetails {
     }
     else {
         # non-parallel processing
-        Write-Information "Calculating effect parameters for $($AllPolicyDefinitions.psbase.Count) Policies."
+        Write-ModernStatus -Message "Calculating effect parameters for $($AllPolicyDefinitions.psbase.Count) Policies (single-threaded)" -Status "info" -Indent 2
         foreach ($policyId in $AllPolicyDefinitions.Keys) {
             $policy = $AllPolicyDefinitions.$policyId
             Convert-PolicyToDetails `
@@ -91,7 +90,7 @@ function Convert-PolicyResourcesToDetails {
         $funcConvertToHashTable = ${function:ConvertTo-HashTable}.ToString()
         
         # loop through each chunk of Policy definitions and process in parallel
-        Write-Information "Processing $($AllPolicySetDefinitions.psbase.Count) Policy Set definitions in $throttleLimit parallel threads."
+        Write-ModernStatus -Message "Processing $($AllPolicySetDefinitions.psbase.Count) Policy Set definitions using $throttleLimit parallel threads" -Status "info" -Indent 2
         $chunks | ForEach-Object -ThrottleLimit $chunks.count -Parallel {
             # import dot sourced functions into context
             if ($null -eq ${function:Get-PolicyResourceProperties}) {
@@ -118,7 +117,7 @@ function Convert-PolicyResourcesToDetails {
     }
     else {
         # non-parallel processing
-        Write-Information "Calculating effect parameters for $($AllPolicySetDefinitions.psbase.Count) Policy Sets."
+        Write-ModernStatus -Message "Calculating effect parameters for $($AllPolicySetDefinitions.psbase.Count) Policy Sets (single-threaded)" -Status "info" -Indent 2
         foreach ($policySetId in $AllPolicySetDefinitions.Keys) {
             $policySet = $AllPolicySetDefinitions.$policySetId
             Convert-PolicySetToDetails `
@@ -128,7 +127,8 @@ function Convert-PolicyResourcesToDetails {
                 -PolicyDetails $policyDetails
         }
     }
-    Write-Information ""
+
+    Write-ModernStatus -Message "Policy parameter pre-calculation complete" -Status "success" -Indent 2
 
     # Assemble result
     $combinedPolicyDetails = @{

@@ -59,7 +59,7 @@ function Get-AzPolicyExemptions {
 
     foreach ($policyResource in $policyResources) {
         $resourceTenantId = $policyResource.tenantId
-        if ($resourceTenantId -in @($null, "", $environmentTenantId)) {
+        if (($resourceTenantId -in @($null, "", $environmentTenantId)) -or $null -ne $PacEnvironment.managedTenantId) {
             $properties = Get-PolicyResourceProperties $policyResource
 
             $id = $policyResource.id

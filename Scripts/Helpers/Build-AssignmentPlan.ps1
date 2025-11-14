@@ -14,9 +14,8 @@ function Build-AssignmentPlan {
         [hashtable] $DeprecatedHash
     )
 
-    Write-Information "==================================================================================================="
-    Write-Information "Processing Policy Assignments JSON files in folder '$AssignmentsRootFolder'"
-    Write-Information "==================================================================================================="
+    Write-ModernSection -Title "Processing Policy Assignments" -Color Blue
+    Write-ModernStatus -Message "Source folder: $AssignmentsRootFolder" -Status "info" -Indent 2
 
     $assignmentFiles = @()
     $assignmentFiles += Get-ChildItem -Path $AssignmentsRootFolder -Recurse -File -Filter "*.json"
@@ -24,7 +23,7 @@ function Build-AssignmentPlan {
     $csvFiles = Get-ChildItem -Path $AssignmentsRootFolder -Recurse -File -Filter "*.csv"
     $parameterFilesCsv = @{}
     if ($assignmentFiles.Length -gt 0) {
-        Write-Information "Number of Policy Assignment files = $($assignmentFiles.Length)"
+        Write-ModernStatus -Message "Found $($assignmentFiles.Length) assignment files" -Status "success" -Indent 2
         foreach ($csvFile in $csvFiles) {
             $parameterFilesCsv.Add($csvFile.Name, $csvFile.FullName)
         }
@@ -50,7 +49,6 @@ function Build-AssignmentPlan {
             }
         }
 
-        # Write-Information ""
         $assignmentObject = $null
         try {
             $assignmentObject = $Json | ConvertFrom-Json -Depth 100 -AsHashtable
@@ -178,7 +176,7 @@ function Build-AssignmentPlan {
                     $Assignments.numberUnchanged++
                     if ($identityStatus.requiresRoleChanges) {
                         # role assignments for Managed Identity changed - caused by a mangedIdentityLocation changed or a previously failed role assignment failure
-                        Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix "Update($($identityStatus.changedIdentityStrings -join ','))" -IdentityStatus $identityStatus
+                        Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix "Update($($identityStatus.changedIdentityStrings -join ','))" -IdentityStatus $identityStatus -ScopeTable $ScopeTable
                     }
                     else {
                         # Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix "Unchanged" -IdentityStatus $identityStatus
@@ -245,7 +243,7 @@ function Build-AssignmentPlan {
                         Write-Error "Duplicate Policy Assignment ID '$id' found in the JSON files." -ErrorAction Stop
                     }
                     $null = $updateCollection.Add($id, $assignment)
-                    Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix $prefixText -IdentityStatus $identityStatus
+                    Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix $prefixText -IdentityStatus $identityStatus -ScopeTable $ScopeTable
                     $Assignments.numberOfChanges++
                 }
             }
@@ -265,7 +263,7 @@ function Build-AssignmentPlan {
                 if ($identityStatus.isUserAssigned) {
                     $isUserAssignedAny = $true
                 }
-                Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix "New" -IdentityStatus $identityStatus
+                Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix "New" -IdentityStatus $identityStatus -ScopeTable $ScopeTable
             }
         }
     }
@@ -302,7 +300,7 @@ function Build-AssignmentPlan {
                 if ($identityStatus.isUserAssigned) {
                     $isUserAssignedAny = $true
                 }
-                Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix "Delete" -IdentityStatus $identityStatus
+                Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix "Delete" -IdentityStatus $identityStatus -ScopeTable $ScopeTable
                 $splat = @{
                     id          = $id
                     name        = $name
@@ -332,22 +330,22 @@ function Build-AssignmentPlan {
                     }
                     otherPaC {
                         if ($VerbosePreference -eq "Continue") {
-                            Write-AssignmentDetails -DisplayName $displayName -Scope $shortScope -Prefix "Skipping delete (owned by other PaC):" -IdentityStatus $identityStatus
+                            Write-AssignmentDetails -DisplayName $displayName -Scope $shortScope -Prefix "Skipping delete (owned by other PaC):" -IdentityStatus $identityStatus -ScopeTable $ScopeTable
                         }
                     }
                     unknownOwner {
                         if ($VerbosePreference -eq "Continue") {
-                            Write-AssignmentDetails -DisplayName $displayName -Scope $shortScope -Prefix "Skipping delete owned by unknown (strategy $strategy):" -IdentityStatus $identityStatus
+                            Write-AssignmentDetails -DisplayName $displayName -Scope $shortScope -Prefix "Skipping delete owned by unknown (strategy $strategy):" -IdentityStatus $identityStatus -ScopeTable $ScopeTable
                         }
                     }
                     managedByDfcSecurityPolicies {
                         if ($VerbosePreference -eq "Continue") {
-                            Write-AssignmentDetails -DisplayName $displayName -Scope $shortScope -Prefix "Skipping delete (DfC Security Policies):" -IdentityStatus $identityStatus
+                            Write-AssignmentDetails -DisplayName $displayName -Scope $shortScope -Prefix "Skipping delete (DfC Security Policies):" -IdentityStatus $identityStatus -ScopeTable $ScopeTable
                         }
                     }
                     managedByDfcDefenderPlans {
                         if ($VerbosePreference -eq "Continue") {
-                            Write-AssignmentDetails -DisplayName $displayName -Scope $shortScope -Prefix "Skipping delete (DfC Defender Plans):" -IdentityStatus $identityStatus
+                            Write-AssignmentDetails -DisplayName $displayName -Scope $shortScope -Prefix "Skipping delete (DfC Defender Plans):" -IdentityStatus $identityStatus -ScopeTable $ScopeTable
                         }
                     }
                 }
@@ -356,8 +354,7 @@ function Build-AssignmentPlan {
     }
 
     if ($isUserAssignedAny) {
-        Write-Warning "EPAC does not manage role assignments for Policy Assignments with user-assigned Managed Identities."
+        Write-ModernStatus -Message "User-assigned Managed Identities detected - EPAC does not manage their role assignments" -Status "warning" -Indent 2
     }
-    Write-Information "Number of unchanged Policy Assignments = $($Assignments.numberUnchanged)"
-    Write-Information ""
+    Write-ModernStatus -Message "Unchanged assignments: $($Assignments.numberUnchanged)" -Status "info" -Indent 2
 }

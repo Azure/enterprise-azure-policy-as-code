@@ -7,7 +7,7 @@ function Set-AzPolicyDefinitionRestMethod {
 
     # Write log info
     $displayName = $DefinitionObj.displayName
-    Write-Information $displayName
+    Write-ModernStatus -Message "Setting policy definition: $displayName" -Status "info" -Indent 4
 
     # Build the REST API body
     $properties = @{

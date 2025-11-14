@@ -1,0 +1,29 @@
+spec:
+  inputs:
+    environment:
+
+---
+image: mcr.microsoft.com/powershell:latest
+
+stages:
+  - plan
+  - deployPolicy
+  - deployRoles
+
+plan:
+  stage: plan
+  id_tokens:
+    GITLAB_OIDC_TOKEN:
+      aud: api://AzureADTokenExchange
+  script:
+    - |
+      pwsh -c '
+      Install-Module -Name Az.Accounts -Force;
+      Install-Module -Name Az.ResourceGraph -Force;
+      Install-Module -Name Az.Resources -Force -AllowClobber;'
+    - pwsh -c "Connect-AzAccount -Tenant $AZURE_TENANT_ID -ApplicationId $EPAC_PLAN -FederatedToken $GITLAB_OIDC_TOKEN > \$null 2>&1"
+    # Instead of calling the module cmdlet, call your local script
+    - pwsh -File Scripts/Deploy/Build-DeploymentPlans.ps1 -PacEnvironmentSelector $ENVIRONMENT -DefinitionsRootFolder Definitions -devOpsType gitlab -outputFolder $PAC_OUTPUT_FOLDER
+  artifacts:
+    paths:
+      - $PAC_OUTPUT_FOLDER

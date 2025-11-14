@@ -1,0 +1,35 @@
+spec:
+  inputs:
+    environment:
+
+---
+image: mcr.microsoft.com/powershell:latest
+
+stages:
+  - plan
+  - deployPolicy
+  - deployRoles
+
+deployPolicy:
+  stage: deployPolicy
+  id_tokens:
+    GITLAB_OIDC_TOKEN:
+      aud: api://AzureADTokenExchange
+  dependencies:
+    - plan
+  when:
+    manual
+  script:
+    - |
+      if [ ! -f "./Output/plans-$ENVIRONMENT/policy-plan.json" ]; then
+        echo "File not found, skipping the job."
+        exit 0
+      fi
+    - |
+      pwsh -c '
+      Install-Module -Name Az.Accounts -Force;
+      Install-Module -Name Az.ResourceGraph -Force;
+      Install-Module -Name Az.Resources -Force -AllowClobber;'
+    - pwsh -c "Connect-AzAccount -Tenant $AZURE_TENANT_ID -ApplicationId $EPAC_POLICY -FederatedToken $GITLAB_OIDC_TOKEN > \$null 2>&1"
+    # Swap out the module cmdlet for your local script
+    - pwsh -File Scripts/Deploy/Deploy-PolicyPlan.ps1 -PacEnvironmentSelector $ENVIRONMENT -DefinitionsRootFolder Definitions -inputFolder $PAC_OUTPUT_FOLDER

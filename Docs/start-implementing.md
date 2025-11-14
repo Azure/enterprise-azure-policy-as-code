@@ -151,7 +151,7 @@ The `global-settings` file, would then look something like this:
 
 ### Managed Identities
 
-DeployifNotExists (DINE) policies require a managed identity to function. If you are not familiar with this, please review the [Azure Policy documentation](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/effect-deploy-if-not-exists). For each `pacEnvironment` we will need to specify a *default* Azure Location (e.g. EastUS) where managed identities used by Azure Policy will be created.
+DeployIfNotExists (DINE) policies require a managed identity to function. If you are not familiar with this, please review the [Azure Policy documentation](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/effect-deploy-if-not-exists). For each `pacEnvironment` we will need to specify a *default* Azure Location (e.g. EastUS) where managed identities used by Azure Policy will be created.
 
 ```json
 {

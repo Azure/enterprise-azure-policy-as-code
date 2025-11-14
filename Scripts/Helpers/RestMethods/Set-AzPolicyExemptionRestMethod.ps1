@@ -9,7 +9,7 @@ function Set-AzPolicyExemptionRestMethod {
     # Write log info
     $displayName = $ExemptionObj.displayName
     $id = $ExemptionObj.id
-    Write-Information "$displayName($id)"
+    Write-ModernStatus -Message "Setting policy exemption: $displayName" -Status "info" -Indent 4
 
     # Build the REST API body
     $properties = @{

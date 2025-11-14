@@ -1,8 +1,6 @@
 # CI/CD Overview
 
-Since EPAC is based on PowerShell scripts, any CI/CD tool with the ability to execute scripts can be used. The starter kits currently include pipeline definitions for Azure DevOps and GitHub Actions. Additional starter kits are being implemented and will be added in future releases.
-
-The authors are interested in supporting other deployment pipelines. If you have developed pipelines for other technologies, such as GitLab, Jenkins, etc., please contribute them to the project as additional starter kits.
+EPAC is written in PowerShell and any CI/CD tool with the ability to execute PowerShell can be used. The starter kits currently include pipeline definitions for Azure DevOps, GitHub Actions and GitLab. 
 
 This repository contains starter pipelines and instructions for can be found here:
 
@@ -11,7 +9,7 @@ This repository contains starter pipelines and instructions for can be found her
 
 ## General EPAC Deployment Steps
 
-EPAC has three major steps in the Deployment process for each environment.
+EPAC has three major steps in the deployment process for each environment.
 - Build Deployment Plans
 - Policy Deployment
 - Role Deployment

@@ -90,18 +90,6 @@ Assignment JSON is hierarchical for efficient definitions, avoiding duplication 
 
 ![Assignment File Overview Diagram](Images/PaC-Assignment-Structure.png)
 
-### JSON Schema
-
-The GitHub repo contains a JSON schema which can be used in tools such as [VS Code](https://code.visualstudio.com/Docs/languages/json#_json-schemas-and-settings) to provide code completion.
-
-To utilize the schema add a ```$schema``` tag to the JSON file.
-
-```
-{
-  "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json"
-}
-```
-
 ## Policy Assignment File Folder Structure Guidelines
 
 In any EPAC deployment you will have a number of assignment files. When a deployment plan is built EPAC does a recursive search for all the files in the `policyAssignments` folder. This means that you are free to use any folder structure you think is appropriate to help organise the files. For example if you have a multi-tenant or multi-environment setup you might choose to create folders representing each tenant or environment and then store the assignment files for each environment in that folder.

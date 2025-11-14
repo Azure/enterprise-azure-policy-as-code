@@ -134,16 +134,16 @@ $invalidChars += (":[]()$".ToCharArray())
 
 # Telemetry
 if ($globalSettings.telemetryEnabled) {
-    Write-Information "Telemetry is enabled"
+    Write-ModernStatus -Message "Telemetry is enabled" -Status "info" -Indent 2
     Submit-EPACTelemetry -Cuapid "pid-dc5b73fd-e93c-40ca-8fef-976762d1d30" -DeploymentRootScope $pacEnvironment.deploymentRootScope
 }
 else {
-    Write-Information "Telemetry is disabled"
+    Write-ModernStatus -Message "Telemetry is disabled" -Status "info" -Indent 2
 }
 Write-Information ""
 
 # Check if we have a valid mode
-Write-Information "Mode: $Mode"
+Write-ModernStatus -Message "Operating mode: $Mode" -Status "info" -Indent 2
 if ($Mode -eq 'export' -or $Mode -eq 'exportFromRawFiles') {
     if (Test-Path $definitionsFolder) {
         if ($Interactive) {
@@ -157,19 +157,14 @@ if ($Mode -eq 'export' -or $Mode -eq 'exportFromRawFiles') {
     }
 
     Write-Information ""
-    Write-Information "==================================================================================================="
-    Write-Information "Exporting Policy resources"
-    Write-Information "==================================================================================================="
-    Write-Information "WARNING! This script::"
-    Write-Information "* Assumes Policies and Policy Sets with the same name define the same properties independent of scope and EPAC environment."
-    Write-Information "* Ignores (default) Assignments auto-assigned by Security Center unless -IncludeAutoAssigned is used."
-    Write-Information "==================================================================================================="
+    Write-ModernSection -Title "Exporting Policy Resources" -Color Blue
+    Write-ModernStatus -Message "WARNING! This script assumes:" -Status "warning" -Indent 2
+    Write-ModernStatus -Message "Policies and Policy Sets with the same name define the same properties independent of scope and EPAC environment" -Status "warning" -Indent 4
+    Write-ModernStatus -Message "Ignores (default) Assignments auto-assigned by Security Center unless -IncludeAutoAssigned is used" -Status "warning" -Indent 4
 }
 else {
     Write-Information ""
-    Write-Information "==================================================================================================="
-    Write-Information "Collecting Policy resources (raw)"
-    Write-Information "==================================================================================================="
+    Write-ModernSection -Title "Collecting Policy Resources (Raw)" -Color Blue
 }
 
 $policyPropertiesByName = @{}
@@ -344,13 +339,12 @@ if ($Mode -ne 'exportFromRawFiles') {
 else {
     # read file and put in the data structure for the next section
     Write-Information ""
-    Write-Information "==================================================================================================="
-    Write-Information "Reading raw Policy Resource files in folder '$rawFolder'"
-    Write-Information "==================================================================================================="
+    Write-ModernSection -Title "Reading Raw Policy Resource Files" -Color Green
+    Write-ModernStatus -Message "Source folder: $rawFolder" -Status "info" -Indent 2
     $rawFiles = @()
     $rawFiles += Get-ChildItem -Path $rawFolder -Recurse -File -Filter "*.json"
     if ($rawFiles.Length -gt 0) {
-        Write-Information "Number of raw files = $($rawFiles.Length)"
+        Write-ModernStatus -Message "Found $($rawFiles.Length) raw files" -Status "success" -Indent 2
     }
     else {
         Write-Error "No raw files found!" -ErrorAction Stop
@@ -386,9 +380,9 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
         #region Policy definitions
 
         Write-Information ""
-        Write-Information "==================================================================================================="
-        Write-Information "Processing $($policyDefinitions.psbase.Count) Policies from EPAC environment '$pacSelector'"
-        Write-Information "==================================================================================================="
+        Write-ModernSection -Title "Processing Policy Definitions" -Color Blue
+        Write-ModernStatus -Message "Environment: $pacSelector" -Status "info" -Indent 2
+        Write-ModernStatus -Message "Found $($policyDefinitions.psbase.Count) policies" -Status "success" -Indent 2
 
         foreach ($policyDefinition in $policyDefinitions.Values) {
             $properties = Get-PolicyResourceProperties -PolicyResource $policyDefinition
@@ -478,9 +472,9 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
         #region Policy Set definitions
 
         Write-Information ""
-        Write-Information "==================================================================================================="
-        Write-Information "Processing $($policySetDefinitions.psbase.Count) Policy Sets from EPAC environment '$pacSelector'"
-        Write-Information "==================================================================================================="
+        Write-ModernSection -Title "Processing Policy Set Definitions" -Color Blue
+        Write-ModernStatus -Message "Environment: $pacSelector" -Status "info" -Indent 2
+        Write-ModernStatus -Message "Found $($policySetDefinitions.psbase.Count) policy sets" -Status "success" -Indent 2
 
         foreach ($policySetDefinition in $policySetDefinitions.Values) {
             $properties = Get-PolicyResourceProperties -PolicyResource $policySetDefinition
@@ -595,9 +589,9 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
         #region Policy Assignments collate multiple entries by policyDefinitionId
 
         Write-Information ""
-        Write-Information "==================================================================================================="
-        Write-Information "Collating $($policyAssignments.psbase.Count) Policy Assignments from EPAC environment '$pacSelector'"
-        Write-Information "==================================================================================================="
+        Write-ModernSection -Title "Collating Policy Assignments" -Color Blue
+        Write-ModernStatus -Message "Environment: $pacSelector" -Status "info" -Indent 2
+        Write-ModernStatus -Message "Found $($policyAssignments.psbase.Count) policy assignments" -Status "success" -Indent 2
 
         foreach ($policyAssignment in $policyAssignments.Values) {
             $id = $policyAssignment.id
@@ -606,7 +600,7 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
 
             if ($policyAssignment.pacOwner -eq "managedByDfcSecurityPolicies" -or $policyAssignment.pacOwner -eq "managedByDfcDefenderPlans") {
                 if (!$includeAutoAssignedLocal) {
-                    Write-Warning "Skip DfC Assignment: $($properties.displayName)($id)"
+                    Write-ModernStatus -Message "Skipping DfC assignment: $($properties.displayName) ($id)" -Status "skip" -Indent 4
                     continue
                 }
             }
@@ -846,9 +840,8 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
 #region prep tree for collapsing nodes
 
 Write-Information ""
-Write-Information "==================================================================================================="
-Write-Information "Optimizing $($assignmentsByPolicyDefinition.psbase.Count) Policy Assignment trees"
-Write-Information "==================================================================================================="
+Write-ModernSection -Title "Optimizing Policy Assignment Trees" -Color Yellow
+Write-ModernStatus -Message "Processing $($assignmentsByPolicyDefinition.psbase.Count) assignment trees" -Status "info" -Indent 2
 
 foreach ($policyDefinitionKey in $assignmentsByPolicyDefinition.Keys) {
     $perDefinition = $assignmentsByPolicyDefinition.$policyDefinitionKey
@@ -865,9 +858,8 @@ foreach ($policyDefinitionKey in $assignmentsByPolicyDefinition.Keys) {
 #region create assignment files (one per definition id), use clusters to collapse tree
 
 Write-Information ""
-Write-Information "==================================================================================================="
-Write-Information "Creating $($assignmentsByPolicyDefinition.psbase.Count) Policy Assignment files"
-Write-Information "==================================================================================================="
+Write-ModernSection -Title "Creating Policy Assignment Files" -Color Green
+Write-ModernStatus -Message "Generating $($assignmentsByPolicyDefinition.psbase.Count) assignment files" -Status "info" -Indent 2
 
 foreach ($policyDefinitionKey in $assignmentsByPolicyDefinition.Keys) {
     $perDefinition = $assignmentsByPolicyDefinition.$policyDefinitionKey
@@ -883,8 +875,6 @@ foreach ($policyDefinitionKey in $assignmentsByPolicyDefinition.Keys) {
 #region Output Ownership CSV file
 
 Write-Information ""
-Write-Information "==================================================================================================="
-Write-Information "Creating Ownership CSV file"
-Write-Information "==================================================================================================="
+Write-ModernSection -Title "Creating Ownership CSV File" -Color Green
 $null = New-Item $ownershipCsvPath -Force -ItemType File
 $allRows | Export-Csv -Path $ownershipCsvPath -NoTypeInformation -Encoding UTF8

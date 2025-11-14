@@ -6,10 +6,10 @@ function Build-ScopeTableForDeploymentRootScope {
 
     $deploymentRootScope = $PacEnvironment.deploymentRootScope
     $tenantId = $PacEnvironment.tenantId
-    Write-Information ""
-    Write-Information "==================================================================================================="
-    Write-Information "Get scope tree for EPAC environment '$($PacEnvironment.pacSelector)' at root scope $($deploymentRootScope -replace '/providers/Microsoft.Management','')"
-    Write-Information "==================================================================================================="
+    
+    Write-ModernSection -Title "Building Scope Tree" -Color Blue
+    Write-ModernStatus -Message "Environment: $($PacEnvironment.pacSelector)" -Status "info" -Indent 2
+    Write-ModernStatus -Message "Root scope: $($deploymentRootScope -replace '/providers/Microsoft.Management','')" -Status "info" -Indent 2
 
     $scopeTable = @{}
     $tenantId = $PacEnvironment.tenantId
@@ -40,7 +40,7 @@ function Build-ScopeTableForDeploymentRootScope {
         -Query $resourceGroupQuery `
         -ScopeSplat $scopeSplat `
         -ProgressItemName "Resource Groups"
-    Write-Information "Processing $($resourceGroups.Count) Resource Groups..."
+    Write-ModernStatus -Message "Processing $($resourceGroups.Count) Resource Groups..." -Status "info" -Indent 2
     foreach ($resourceGroup in $resourceGroups) {
         $subscriptionId = $resourceGroup.subscriptionId
         $id = $resourceGroup.id
@@ -135,17 +135,16 @@ function Build-ScopeTableForDeploymentRootScope {
     }
     #endregion process subscriptions and/or management groups
 
-    Write-Information ""
-    Write-Information "Scope tree for EPAC environment '$($PacEnvironment.pacSelector)' at root scope $($deploymentRootScope -replace '/providers/Microsoft.Management','') complete."
+    Write-ModernSection -Title "Scope Tree Complete" -Color Green
     if ($numberOfManagementGroups -gt 0) {
         $numberOfManagementGroups-- # subtract 1 for the root scope
-        Write-Information "    Management groups = $($numberOfManagementGroups)"
+        Write-ModernStatus -Message "Management groups: $($numberOfManagementGroups)" -Status "success" -Indent 2
     }
     if ($deploymentRootScope.StartsWith("/subscriptions/")) {
         $numberOfSubscriptions-- # subtract 1 for the root scope
     }
-    Write-Information "    Subscriptions     = $($numberOfSubscriptions)"
-    Write-Information "    Resource groups   = $($numberofResourceGroups)"
+    Write-ModernStatus -Message "Subscriptions: $($numberOfSubscriptions)" -Status "success" -Indent 2
+    Write-ModernStatus -Message "Resource groups: $($numberofResourceGroups)" -Status "success" -Indent 2
 
     return $scopeTable
 }

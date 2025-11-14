@@ -10,19 +10,18 @@ function Build-PolicySetPlan {
         [hashtable] $PolicyRoleIds
     )
 
-    Write-Information "==================================================================================================="
-    Write-Information "Processing Policy Set JSON files in folder '$DefinitionsRootFolder'"
-    Write-Information "==================================================================================================="
+    Write-ModernSection -Title "Processing Policy Set Definitions" -Color Blue
+    Write-ModernStatus -Message "Source folder: $DefinitionsRootFolder" -Status "info" -Indent 2
 
     # Process Policy Set JSON files if any
     $definitionFiles = @()
     $definitionFiles += Get-ChildItem -Path $DefinitionsRootFolder -Recurse -File -Filter "*.json"
     $definitionFiles += Get-ChildItem -Path $DefinitionsRootFolder -Recurse -File -Filter "*.jsonc"
     if ($definitionFiles.Length -gt 0) {
-        Write-Information "Number of Policy Set files = $($definitionFiles.Length)"
+        Write-ModernStatus -Message "Found $($definitionFiles.Length) policy set files" -Status "success" -Indent 2
     }
     else {
-        Write-Warning "No Policy Set files found! Deleting any custom Policy Set definitions."
+        Write-ModernStatus -Message "No policy set files found - all custom definitions will be deleted" -Status "warning" -Indent 2
     }
 
     $managedDefinitions = $DeployedDefinitions.managed
@@ -269,18 +268,18 @@ function Build-PolicySetPlan {
 
                 if ($incompatible -or $containsReplacedPolicy) {
                     # Check if parameters are compatible with an update or id the set includes at least one Policy which is being replaced.
-                    Write-Information "Replace ($changesString) '$($displayName)'"
+                    Write-ModernStatus -Message "Replace ($changesString): $($displayName)" -Status "warning" -Indent 4
                     $null = $Definitions.replace.Add($id, $definition)
                     $null = $ReplaceDefinitions.Add($id, $definition)
                 }
                 else {
-                    Write-Information "Update ($changesString) '$($displayName)'"
+                    Write-ModernStatus -Message "Update ($changesString): $($displayName)" -Status "update" -Indent 4
                     $null = $Definitions.update.Add($id, $definition)
                 }
             }
         }
         else {
-            Write-Information "New '$($displayName)'"
+            Write-ModernStatus -Message "New: $($displayName)" -Status "success" -Indent 4
             $null = $Definitions.new.Add($id, $definition)
             $Definitions.numberOfChanges++
 
@@ -298,7 +297,7 @@ function Build-PolicySetPlan {
             # always delete if owned by this Policy as Code solution
             # never delete if owned by another Policy as Code solution
             # if strategy is "full", delete with unknown owner (missing pacOwnerId)
-            Write-Information "Delete '$($deleteCandidateProperties.displayName)'"
+            Write-ModernStatus -Message "Delete: $($deleteCandidateProperties.displayName)" -Status "error" -Indent 4
             $splat = @{
                 id          = $id
                 name        = $deleteCandidate.name
@@ -314,11 +313,12 @@ function Build-PolicySetPlan {
         }
         else {
             if ($VerbosePreference -eq "Continue") {
-                Write-Information "No delete($pacOwner,$strategy) '$($displayName)'"
+                Write-ModernStatus -Message "Skip delete ($pacOwner,$strategy): $($displayName)" -Status "skip" -Indent 4
             }
         }
     }
 
-    Write-Information "Number of unchanged Policy SetPolicy Sets definition = $($Definitions.numberUnchanged)"
+    Write-ModernStatus -Message "Unchanged Policy Set Definitions: $($Definitions.numberUnchanged)" -Status "status" -Indent 2
+    # Write-ModernCountSummary -Operation "Policy Set Definitions" -Unchanged $Definitions.numberUnchanged
     Write-Information ""
 }
