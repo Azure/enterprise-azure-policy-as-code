@@ -103,7 +103,7 @@ You now have the working basics of an EPAC deployment running through the CLI. T
 
 - Review additional settings available for configuration in the [global-settings file](./settings-global-setting-file.md)
 - Create additional policy objects such as custom policies, additional policy assignments, and exemptions. 
-    1. Integrate [Azure Landing Zones (ALZ)](integrating-with-alz-library.md)
+    1. Integrate [Azure Landing Zones (ALZ)](integrating-with-alz-library-overview.md)
     1. Create custom [Policy definitions](policy-definitions.md)
     1. Create custom [Policy Set definitions](policy-set-definitions.md)
     1. Create new [Policy Assignments](policy-assignments.md)
