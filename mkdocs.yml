@@ -39,7 +39,7 @@ nav:
       - Output Themes: settings-output-themes.md
   - Azure Landing Zones:
       - ALZ Overview: integrating-with-alz-overview.md
-      - ALZ Policy Integration (New): integrating-with-alz-library.md
+      - ALZ Policy Integration: integrating-with-alz-library.md
   - Define Policy Resources:
       - Policy Definitions: policy-definitions.md
       - Policy Set Definitions: policy-set-definitions.md
