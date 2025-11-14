@@ -187,7 +187,7 @@ function Build-AssignmentDefinitionNode {
             $currentParameterHash = $parameterHash.$parameterName
             if ($null -ne $currentParameterHash.name) {
                 if ($DeprecatedHash.ContainsKey($($currentParameterHash.name)) -and $currentParameterHash.parameters.$parameterName.isEffect) {
-                    $null = $deprecatedInJSON.Add("Assignment: '$($assignment.name)' with Parameter: '$parameterName' ($($currentParameterHash))")
+                    $null = $deprecatedInJSON.Add("Assignment '$($assignment.name)' contains deprecated JSON effect Parameter: '$parameterName'")
                     if (!$PacEnvironment.desiredState.doNotDisableDeprecatedPolicies) {
                         $rawParameterValue = "Disabled"
                     }
@@ -198,9 +198,8 @@ function Build-AssignmentDefinitionNode {
         }
     }
     if ($deprecatedInJSON.Count -gt 0) {
-        Write-Warning "Node $($nodeName): Assignment contains JSON effect parameter for Policies that has been deprecated in the Policy Sets. Update Policy Sets."
         foreach ($deprecated in $deprecatedInJSON) {
-            Write-Information "    $($deprecated)"
+            Write-ModernStatus -Message "$deprecated" -Status "warning" -Indent 2
         }
     }
     #endregion parameters in JSON; parameters defined at a deeper level override previous parameters (union operator)
@@ -311,22 +310,25 @@ function Build-AssignmentDefinitionNode {
                 }
             }
         }
-        if ($rowHashtable.Count -gt 0) {
-            Write-Warning "Node $($nodeName): CSV parameterFile '$parameterFileName' contains rows for Policies not included in any of the Policy Sets. Remove the obsolete rows or regenerate the CSV file."
-            foreach ($displayString in $rowHashtable.Values) {
-                Write-Information "    $($displayString)"
+        if ($rowHashtable.Count -gt 0 -or $missingInCsv.Count -gt 0 -or $deprecatedInCSV.Count -gt 0) {
+            Write-ModernStatus -Message "Issues found with Parameter File '$parameterFileName'. Update or regenerate CSV." -Status "warning" -Indent 2
+            if ($rowHashtable.Count -gt 0) {
+                Write-ModernStatus -Message "Contains rows not referenced in any Policy Set." -Status "warning" -Indent 4
+                foreach ($displayString in $rowHashtable.Values) {
+                    Write-Information "        $($displayString)"
+                }
             }
-        }
-        if ($missingInCsv.Count -gt 0) {
-            Write-Warning "Node $($nodeName): CSV parameterFile '$parameterFileName' is missing rows for Policies included in the Policy Sets. Regenerate the CSV file."
-            foreach ($missing in $missingInCsv) {
-                Write-Information "    $($missing)"
+            if ($missingInCsv.Count -gt 0) {
+                Write-ModernStatus -Message "Missing rows for policies in Policy Sets." -Status "warning" -Indent 4
+                foreach ($missing in $missingInCsv) {
+                    Write-Information "        $($missing)"
+                }
             }
-        }
-        if ($deprecatedInCSV.Count -gt 0) {
-            Write-Warning "Node $($nodeName): CSV parameterFile '$parameterFileName' contains rows for Policies that have been deprecated in the Policy Sets. Update Policy Sets."
-            foreach ($deprecated in $deprecatedInCSV) {
-                Write-Information "    $($deprecated)"
+            if ($deprecatedInCSV.Count -gt 0) {
+                Write-ModernStatus -Message "Contains rows for deprecated policies in Policy Sets." -Status "warning" -Indent 4
+                foreach ($deprecated in $deprecatedInCSV) {
+                    Write-Information "        $($deprecated)"
+                }
             }
         }
     }

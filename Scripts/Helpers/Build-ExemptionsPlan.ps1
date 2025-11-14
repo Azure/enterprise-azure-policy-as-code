@@ -1117,7 +1117,7 @@ function Build-ExemptionsPlan {
     #endregion delete removed, orphaned and expired exemptions
 
     if ($Exemptions.numberUnchanged -gt 0) {
-        Write-Information "$($Exemptions.numberUnchanged) unchanged Exemptions"
+        Write-ModernStatus -Message "$($Exemptions.numberUnchanged) unchanged Exemptions" -Status "info" -Indent 2
     }
     Write-Information ""
 }
