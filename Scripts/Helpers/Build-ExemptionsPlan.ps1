@@ -946,7 +946,7 @@ function Build-ExemptionsPlan {
                                         $Exemptions.numberUnchanged++
                                     }
                                     else {
-                                        Write-ModernStatus -Message "Replace (assignmentId changed) '$($exemptionDisplayName)' at scope '$($currentScope)'`n      assignmentId '$($deployedManagedExemption.policyAssignmentId)' to '$($policyAssignmentId)'`n      $exemptionId" -Status "update" -Indent 4
+                                        Write-ModernStatus -Message "Replace (assignmentId changed) '$($exemptionDisplayName)' at scope '$($currentScope)'`n      assignmentId '$($deployedManagedExemption.policyAssignmentId)' to '$($policyAssignmentId)'" -Status "update" -Indent 4
                                         $null = $Exemptions.replace.Add($exemptionId, $exemption)
                                         $Exemptions.numberOfChanges++
                                     }
@@ -959,7 +959,7 @@ function Build-ExemptionsPlan {
                                         $Exemptions.numberUnchanged++
                                     }
                                     else {
-                                        Write-ModernStatus -Message "Replace (replaced assignment) '$($exemptionDisplayName)' ($($exemptionName)) at scope '$($currentScope)'`n      assignmentId '$($policyAssignmentId)'`n      $exemptionId" -Status "update" -Indent 4
+                                        Write-ModernStatus -Message "Replace (replaced assignment) '$($exemptionDisplayName)' ($($exemptionName)) at scope '$($currentScope)'`n      assignmentId '$($policyAssignmentId)'" -Status "update" -Indent 4
                                         $null = $Exemptions.replace.Add($exemptionId, $exemption)
                                         $Exemptions.numberOfChanges++
                                     }
@@ -1030,7 +1030,7 @@ function Build-ExemptionsPlan {
                                         }
                                         else {
                                             $Exemptions.numberOfChanges++
-                                            Write-ModernStatus -Message "Update ($changesString): '$($exemptionDisplayName)' at scope '$($currentScope)'`n      $exemptionId" -Status "update" -Indent 4
+                                            Write-ModernStatus -Message "Update ($changesString): '$($exemptionDisplayName)' at scope '$($currentScope)'" -Status "update" -Indent 4
                                             $null = $Exemptions.update.Add($exemptionId, $exemption)
                                         }
                                     }
@@ -1039,12 +1039,12 @@ function Build-ExemptionsPlan {
                             else {
                                 if ($reasonStrings.Count -gt 0) {
                                     $reasonString = $reasonStrings -join ", "
-                                    Write-ModernStatus -Message "Skip new exemption ($reasonString): '$($exemptionDisplayName)' at scope '$($currentScope)'`n      $exemptionId" -Status "update" -Indent 4
+                                    Write-ModernStatus -Message "Skip new exemption ($reasonString): '$($exemptionDisplayName)' at scope '$($currentScope)'" -Status "update" -Indent 4
                                 }
                                 else {
                                     # Create Exemption
-                                    Write-ModernStatus -Message "New '$($exemptionDisplayName)' at scope '$($currentScope)'`n      $exemptionId" -Status "success" -Indent 4
-                                    $null = $Exemptions.new.Add($exemptionId, $exemptionDisplayName)
+                                    Write-ModernStatus -Message "New '$($exemptionDisplayName)' at scope '$($currentScope)'" -Status "success" -Indent 4
+                                    $null = $Exemptions.new.Add($exemptionId, $exemption)
                                     $Exemptions.numberOfChanges++
                                 }
                             }
@@ -1104,7 +1104,7 @@ function Build-ExemptionsPlan {
         }
         if ($shallDelete) {
             # check fo special Exemption cases
-            Write-Information "Delete '$($exemption.displayName)' at scope '$($exemption.scope)', $reason"
+            Write-ModernStatus -Message "Delete '$($exemption.displayName)' at scope '$($exemption.scope)'" -Status "error" -Indent 4
             Write-Verbose "    $exemptionId"
             $null = $Exemptions.delete[$exemptionId] = $exemption
             $Exemptions.numberOfChanges++
