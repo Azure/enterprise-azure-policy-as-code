@@ -163,7 +163,7 @@ In the example below it follows a typical customer customization where instead o
 
 The updated management group structure would follow similar to below:-
 
-```
+```text
 --Azure Landing Zones MG
  |_Non-Production MG
  |_ Production MG
@@ -278,7 +278,7 @@ Run a sync using the `-EnableOverrides` parameter and any assignments aligned to
 
 To specify or modify a parameter for a specific archetype you can specify it using the `overrides` key in the policy structure file. The example below shows how to overwrite the Log Analytics workspace for a specific policy assignment.
 
-```jsonc
+```json
 {
   "overrides": {
     "parameters": {
