@@ -47,8 +47,6 @@ $functionNames | Foreach-Object {
 
 Get-ChildItem -Path .\Scripts\HydrationKit\*.ps1 -Recurse -File | Copy-Item -Destination .\Module\EnterprisePolicyAsCode\functions
 
-Copy-Item -Path .\Scripts\CloudAdoptionFramework\policyAssignments -Destination .\Module\EnterprisePolicyAsCode -Force -Recurse
-
 (Get-Content -Path .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1) -replace "FunctionsToExport = ''", "FunctionsToExport = @($((Get-ChildItem -Path .\Module\EnterprisePolicyAsCode\functions | Select-Object -ExpandProperty BaseName) | Join-String -Separator "," -DoubleQuote))" | Set-Content .\Module\EnterprisePolicyAsCode\EnterprisePolicyAsCode.psd1
 
 if ($isPreRelease) {
