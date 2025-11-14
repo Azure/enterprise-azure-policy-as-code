@@ -18,9 +18,9 @@ function Test-EpacPrerequisites {
 
     $results = @{
         AzureConnection = $false
-        WriteAccess = $false
-        Errors = @()
-        Warnings = @()
+        WriteAccess     = $false
+        Errors          = @()
+        Warnings        = @()
     }
 
     # Check Azure connection
@@ -28,14 +28,17 @@ function Test-EpacPrerequisites {
         $context = Get-AzContext
         if ($context) {
             $results.AzureConnection = $true
-            Write-Verbose "✓ Connected to Azure (Tenant: $($context.Tenant.Id))"
+            Write-ModernStatus -Message "Azure PowerShell module found" -Status "success" -Indent 2
+            Write-Verbose "Connected to Azure (Tenant: $($context.Tenant.Id))"
         }
         else {
             $results.Errors += "Not connected to Azure. Run: Connect-AzAccount"
+            Write-ModernStatus -Message "Not connected to Azure" -Status "error" -Indent 2
         }
     }
     catch {
         $results.Errors += "Azure connection check failed: $_"
+        Write-ModernStatus -Message "Azure connection check failed" -Status "error" -Indent 2
     }
 
     # Check write access to current directory
@@ -44,10 +47,11 @@ function Test-EpacPrerequisites {
         "test" | Out-File $testFile -ErrorAction Stop
         Remove-Item $testFile -Force -ErrorAction SilentlyContinue
         $results.WriteAccess = $true
-        Write-Verbose "✓ Write access confirmed"
+        Write-ModernStatus -Message "Write access confirmed" -Status "success" -Indent 2
     }
     catch {
         $results.Errors += "No write access to current directory: $_"
+        Write-ModernStatus -Message "No write access to current directory" -Status "error" -Indent 2
     }
 
     # Quick mode skips non-essential checks
@@ -56,9 +60,10 @@ function Test-EpacPrerequisites {
         $epacModule = Get-Module -ListAvailable -Name EnterprisePolicyAsCode
         if (!$epacModule) {
             $results.Warnings += "EnterprisePolicyAsCode module not found. Some features may be limited."
+            Write-ModernStatus -Message "EPAC module not found (optional)" -Status "warning" -Indent 2
         }
         else {
-            Write-Verbose "✓ EPAC module available: v$($epacModule.Version)"
+            Write-ModernStatus -Message "EPAC module available: v$($epacModule.Version)" -Status "success" -Indent 2
         }
     }
 

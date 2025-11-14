@@ -27,6 +27,7 @@ nav:
   - Getting Started:
       - Overview and Prerequisites: start-implementing.md
       - Hydration Kit: start-hydration-kit.md
+      - Hydration Kit V2: start-hydration-kit-v2.md
       - Manual Configuration: manual-configuration.md
       - Extracting Policy Resources: start-extracting-policy-resources.md
       - Forking GitHub Repo: start-forking-github-repo.md

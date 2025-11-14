@@ -12,7 +12,7 @@
     This will be the deploymentRootScope for your main EPAC environment.
 
 .PARAMETER PacSelector
-    Friendly name for your main EPAC environment. Defaults to "tenant01".
+    Friendly name for your main EPAC environment. Defaults to "tenant".
 
 .PARAMETER ManagedIdentityLocation
     Azure region for Managed Identities used by DINE/Modify policies. If not specified,
@@ -26,6 +26,10 @@
 
 .PARAMETER ImportExistingPolicies
     Switch to import existing policy assignments from the specified scope.
+
+.PARAMETER CreateDevEnvironment
+    Switch to create an epac-dev environment for testing. Creates a separate Management Group
+    and pacEnvironment configuration for safe policy testing before production deployment.
 
 .PARAMETER PipelinePlatform
     DevOps platform: 'GitHub', 'AzureDevOps', or 'None'. Defaults to 'None'.
@@ -50,6 +54,11 @@
     Setup with policy import and full StarterKit GitHub Actions pipelines.
 
 .EXAMPLE
+    Install-EpacHydration -TenantIntermediateRoot "contoso" -CreateDevEnvironment -PipelinePlatform GitHub
+    
+    Setup with a separate epac-dev environment for testing policies safely.
+
+.EXAMPLE
     Install-EpacHydration -TenantIntermediateRoot "contoso" -PipelinePlatform AzureDevOps -PipelineType StarterKit -BranchingFlow Release
     
     Setup with Azure DevOps pipelines using Release Flow branching strategy.
@@ -70,7 +79,7 @@ function Install-EpacHydration {
         [string] $TenantIntermediateRoot,
 
         [Parameter(Mandatory = $false)]
-        [string] $PacSelector = "tenant01",
+        [string] $PacSelector = "tenant",
 
         [Parameter(Mandatory = $false)]
         [string] $ManagedIdentityLocation,
@@ -83,6 +92,9 @@ function Install-EpacHydration {
 
         [Parameter(Mandatory = $false)]
         [switch] $ImportExistingPolicies,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $CreateDevEnvironment,
 
         [Parameter(Mandatory = $false)]
         [ValidateSet('GitHub', 'AzureDevOps', 'None')]
@@ -134,8 +146,11 @@ function Install-EpacHydration {
             if (!$PSBoundParameters.ContainsKey('ManagedIdentityLocation') -and $config.managedIdentityLocation) {
                 $ManagedIdentityLocation = $config.managedIdentityLocation
             }
-            if (!$PSBoundParameters.ContainsKey('ImportExistingPolicies') -and $config.importExistingPolicies) {
-                $ImportExistingPolicies = $config.importExistingPolicies
+            if (!$PSBoundParameters.ContainsKey('ImportExistingPolicies') -and $null -ne $config.importExistingPolicies) {
+                $ImportExistingPolicies = [bool]$config.importExistingPolicies
+            }
+            if (!$PSBoundParameters.ContainsKey('CreateDevEnvironment') -and $null -ne $config.createDevEnvironment) {
+                $CreateDevEnvironment = [bool]$config.createDevEnvironment
             }
             if (!$PSBoundParameters.ContainsKey('PipelinePlatform') -and $config.pipelinePlatform) {
                 $PipelinePlatform = $config.pipelinePlatform
@@ -146,8 +161,8 @@ function Install-EpacHydration {
             if (!$PSBoundParameters.ContainsKey('BranchingFlow') -and $config.branchingFlow) {
                 $BranchingFlow = $config.branchingFlow
             }
-            if (!$PSBoundParameters.ContainsKey('UseModuleNotScript') -and $config.useModuleNotScript) {
-                $UseModuleNotScript = $config.useModuleNotScript
+            if (!$PSBoundParameters.ContainsKey('UseModuleNotScript') -and $null -ne $config.useModuleNotScript) {
+                $UseModuleNotScript = [bool]$config.useModuleNotScript
             }
             if (!$PSBoundParameters.ContainsKey('DefinitionsRootFolder') -and $config.definitionsRootFolder) {
                 $DefinitionsRootFolder = $config.definitionsRootFolder
@@ -170,17 +185,6 @@ function Install-EpacHydration {
                     Write-Error "TenantIntermediateRoot cannot be empty"
                     return
                 }
-            }
-        }
-
-        # Prompt for ImportExistingPolicies if running interactively without config file and not already set
-        if (!$PSBoundParameters.ContainsKey('ImportExistingPolicies') -and !$ConfigFile -and !$NonInteractive) {
-            Write-Host ""
-            Write-ModernStatus -Message "Would you like to import existing policy assignments from your environment?" -Status "info" -Indent 2
-            Write-ModernStatus -Message "This will export current policies for review and migration to EPAC" -Status "info" -Indent 2
-            $importChoice = Read-Host "Import existing policies? (y/N)"
-            if ($importChoice -eq 'y' -or $importChoice -eq 'Y' -or $importChoice -eq 'yes' -or $importChoice -eq 'Yes') {
-                $ImportExistingPolicies = $true
             }
         }
 
@@ -229,9 +233,9 @@ function Install-EpacHydration {
             return
         }
 
-        # Step 3: Deploy Azure Resources
-        Write-ModernSection -Title "Step 3/5: Creating Azure Management Group Structure" -Indent 0
-        $deployResult = Deploy-EpacResources -Configuration $epacConfig
+        # Step 3: Verify/Create Azure Resources
+        Write-ModernSection -Title "Step 3/5: Verifying Azure Management Group Structure" -Indent 0
+        $deployResult = Deploy-EpacResources -Configuration $epacConfig -SkipDevEnvironment:(-not $CreateDevEnvironment)
         if (!$deployResult.Success) {
             Write-Error "Resource deployment failed: $($deployResult.Message)"
             return
@@ -239,10 +243,21 @@ function Install-EpacHydration {
 
         # Step 4: Initialize Repository Structure
         Write-ModernSection -Title "Step 4/5: Creating Repository Structure and Files" -Indent 0
-        $repoResult = Initialize-EpacRepository -Configuration $epacConfig
+        $repoResult = Initialize-EpacRepository -Configuration $epacConfig -IncludeDevEnvironment:$CreateDevEnvironment
         if (!$repoResult.Success) {
             Write-Error "Repository initialization failed: $($repoResult.Message)"
             return
+        }
+
+        # Prompt for ImportExistingPolicies after repository is initialized (if running interactively)
+        if (!$PSBoundParameters.ContainsKey('ImportExistingPolicies') -and !$ConfigFile -and !$NonInteractive) {
+            Write-Host ""
+            Write-ModernStatus -Message "Would you like to import existing policy assignments from your environment?" -Status "info" -Indent 2
+            Write-ModernStatus -Message "This will export current policies for review and migration to EPAC" -Status "info" -Indent 2
+            $importChoice = Read-Host "Import existing policies? (y/N)"
+            if ($importChoice -eq 'y' -or $importChoice -eq 'Y' -or $importChoice -eq 'yes' -or $importChoice -eq 'Yes') {
+                $ImportExistingPolicies = $true
+            }
         }
 
         # Step 5: Optional Enhancements
@@ -284,28 +299,88 @@ function Install-EpacHydration {
         Write-ModernStatus -Message "Tenant: $($epacConfig.TenantId)" -Status "info" -Indent 2
         Write-ModernStatus -Message "Root MG: $TenantIntermediateRoot" -Status "info" -Indent 2
         Write-ModernStatus -Message "PacSelector: $PacSelector" -Status "info" -Indent 2
-        Write-ModernStatus -Message "EPAC-Dev Root: $($epacConfig.EpacDevRoot)" -Status "info" -Indent 2
+        if ($CreateDevEnvironment) {
+            Write-ModernStatus -Message "Dev Environment: $($epacConfig.EpacDevRoot) (created)" -Status "info" -Indent 2
+        }
         Write-ModernStatus -Message "Definitions: $DefinitionsRootFolder" -Status "info" -Indent 2
         Write-ModernStatus -Message "Output: $OutputFolder" -Status "info" -Indent 2
 
         Write-ModernSection -Title "Next Steps" -Indent 0
-        Write-ModernStatus -Message "1. Review generated files in: $DefinitionsRootFolder" -Status "info" -Indent 2
-        Write-ModernStatus -Message "2. Test deployment to epac-dev:" -Status "info" -Indent 2
-        Write-ModernStatus -Message "Build-DeploymentPlans -PacEnvironmentSelector epac-dev" -Status "info" -Indent 5
-        Write-ModernStatus -Message "Deploy-PolicyPlan -PacEnvironmentSelector epac-dev" -Status "info" -Indent 5
-        Write-ModernStatus -Message "Deploy-RolesPlan -PacEnvironmentSelector epac-dev" -Status "info" -Indent 5
         
-        if ($PipelinePlatform -eq 'None') {
-            Write-ModernStatus -Message "3. Optional: Create CI/CD pipeline:" -Status "info" -Indent 2
-            Write-ModernStatus -Message "New-EpacPipeline -Platform GitHub" -Status "info" -Indent 5
+        $stepNumber = 1
+        
+        # Step 1: Review generated files
+        Write-ModernStatus -Message "$stepNumber. Review generated files:" -Status "info" -Indent 2
+        Write-ModernStatus -Message "Definitions folder: $DefinitionsRootFolder" -Status "info" -Indent 5
+        Write-ModernStatus -Message "Global settings: $DefinitionsRootFolder/global-settings.jsonc" -Status "info" -Indent 5
+        if ($ImportExistingPolicies) {
+            Write-ModernStatus -Message "Exported policies: $OutputFolder/export-*" -Status "info" -Indent 5
         }
-
-        Write-ModernStatus -Message "Documentation: https://aka.ms/epac" -Status "info" -Indent 2
-
+        $stepNumber++
+        
+        # Step 2: Conditional deployment guidance
+        if ($CreateDevEnvironment) {
+            Write-ModernStatus -Message "$stepNumber. Test deployment in dev environment:" -Status "info" -Indent 2
+            Write-ModernStatus -Message "Build-DeploymentPlans -PacEnvironmentSelector epac-dev" -Status "info" -Indent 5
+            Write-ModernStatus -Message "Deploy-PolicyPlan -PacEnvironmentSelector epac-dev" -Status "info" -Indent 5
+            Write-ModernStatus -Message "Deploy-RolesPlan -PacEnvironmentSelector epac-dev" -Status "info" -Indent 5
+            $stepNumber++
+            
+            Write-ModernStatus -Message "$stepNumber. After testing, deploy to production:" -Status "info" -Indent 2
+            Write-ModernStatus -Message "Build-DeploymentPlans -PacEnvironmentSelector $PacSelector" -Status "info" -Indent 5
+            Write-ModernStatus -Message "Deploy-PolicyPlan -PacEnvironmentSelector $PacSelector" -Status "info" -Indent 5
+            $stepNumber++
+        }
+        else {
+            Write-ModernStatus -Message "$stepNumber. Build and deploy policies:" -Status "info" -Indent 2
+            Write-ModernStatus -Message "Build-DeploymentPlans -PacEnvironmentSelector $PacSelector" -Status "info" -Indent 5
+            Write-ModernStatus -Message "Deploy-PolicyPlan -PacEnvironmentSelector $PacSelector" -Status "info" -Indent 5
+            $stepNumber++
+        }
+        
         # Generate configuration template file with the values used
-        Write-ModernSection -Title "Configuration Template" -Indent 0
         $configTemplatePath = Join-Path $OutputFolder "epac-hydration-config.jsonc"
         
+        # Step 3: Configuration for adding features
+        Write-ModernSection -Title "Add Optional Features" -Indent 0
+        Write-ModernStatus -Message "Configuration file saved: $configTemplatePath" -Status "success" -Indent 2
+        Write-ModernStatus -Message "To add features, edit the config file and rerun the hydration:" -Status "info" -Indent 2
+        Write-Host ""
+        
+        # Conditional feature suggestions
+        $featuresAvailable = @()
+        
+        if (!$CreateDevEnvironment) {
+            Write-ModernStatus -Message "→ Add Dev Environment for testing:" -Status "info" -Indent 2
+            Write-ModernStatus -Message "Set 'createDevEnvironment': true in $configTemplatePath" -Status "info" -Indent 4
+            $featuresAvailable += "dev environment"
+        }
+        
+        if (!$ImportExistingPolicies) {
+            Write-ModernStatus -Message "→ Import existing policies:" -Status "info" -Indent 2
+            Write-ModernStatus -Message "Set 'importExistingPolicies': true in $configTemplatePath" -Status "info" -Indent 4
+            $featuresAvailable += "policy import"
+        }
+        
+        if ($PipelinePlatform -eq 'None') {
+            Write-ModernStatus -Message "→ Add CI/CD pipelines:" -Status "info" -Indent 2
+            Write-ModernStatus -Message "Set 'pipelinePlatform': 'GitHub' or 'AzureDevOps' in $configTemplatePath" -Status "info" -Indent 4
+            Write-ModernStatus -Message "Set 'pipelineType': 'Simple' or 'StarterKit' in $configTemplatePath" -Status "info" -Indent 4
+            $featuresAvailable += "pipelines"
+        }
+        
+        if ($featuresAvailable.Count -gt 0) {
+            Write-Host ""
+            Write-ModernStatus -Message "Then rerun: Install-EpacHydration -ConfigFile '$configTemplatePath'" -Status "info" -Indent 2
+        }
+        else {
+            Write-ModernStatus -Message "All optional features are already configured!" -Status "success" -Indent 2
+        }
+        
+        Write-Host ""
+        Write-ModernStatus -Message "Documentation: https://aka.ms/epac" -Status "info" -Indent 2
+
+        # Save configuration template file with the values used
         $configTemplate = @"
 {
   // EPAC Hydration Kit Configuration Template
@@ -316,12 +391,12 @@ function Install-EpacHydration {
   // This will be the deploymentRootScope for your main EPAC environment
   "tenantIntermediateRoot": "$TenantIntermediateRoot",
 
-  // Optional: Friendly name for your main EPAC environment (default: "tenant01")
+  // Optional: Friendly name for your main EPAC environment (default: "tenant")
   "pacSelector": "$PacSelector",
 
   // Optional: Azure region for Managed Identities used by DINE/Modify policies
   // If not specified and running interactively, you will be prompted
-  "managedIdentityLocation": "$ManagedIdentityLocation",
+  "managedIdentityLocation": "$($epacConfig.ManagedIdentityLocation)",
 
   // Optional: Path to the Definitions directory (default: "./Definitions")
   "definitionsRootFolder": "$DefinitionsRootFolder",
@@ -332,6 +407,10 @@ function Install-EpacHydration {
   // Optional: Import existing policy assignments from the specified scope
   // Set to true to import existing policies (default: false)
   "importExistingPolicies": $(if ($ImportExistingPolicies) { 'true' } else { 'false' }),
+
+  // Optional: Create a separate epac-dev environment for testing
+  // Set to true to create epac-dev Management Group and pacEnvironment (default: false)
+  "createDevEnvironment": $(if ($CreateDevEnvironment) { 'true' } else { 'false' }),
 
   // Optional: DevOps platform for CI/CD pipeline generation
   // Valid values: "GitHub", "AzureDevOps", "None" (default: "None")
@@ -357,8 +436,7 @@ function Install-EpacHydration {
 
         try {
             $configTemplate | Out-File -FilePath $configTemplatePath -Force -Encoding utf8
-            Write-ModernStatus -Message "Configuration template saved: $configTemplatePath" -Status "success" -Indent 2
-            Write-ModernStatus -Message "Rerun with: Install-EpacHydration -ConfigFile '$configTemplatePath' -NonInteractive" -Status "info" -Indent 2
+            Write-Verbose "Configuration template saved: $configTemplatePath"
         }
         catch {
             Write-ModernStatus -Message "Failed to save configuration template: $_" -Status "warning" -Indent 2

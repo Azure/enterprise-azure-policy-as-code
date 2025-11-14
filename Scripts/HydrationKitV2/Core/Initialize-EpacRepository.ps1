@@ -4,13 +4,16 @@
 
 .DESCRIPTION
     Creates the Definitions folder structure and generates the global-settings.jsonc file
-    with the configured EPAC environments.
+    with the configured EPAC environments. Optionally includes an epac-dev environment.
 #>
 function Initialize-EpacRepository {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
-        [PSCustomObject] $Configuration
+        [PSCustomObject] $Configuration,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $IncludeDevEnvironment
     )
 
     $PSDefaultParameterValues = @{
@@ -53,39 +56,28 @@ function Initialize-EpacRepository {
         
         $globalSettingsPath = Join-Path $Configuration.DefinitionsRootFolder "global-settings.jsonc"
         
-        $globalSettings = @{
-            pacOwnerId      = $Configuration.PacOwnerId
-            pacEnvironments = @(
-                @{
-                    pacSelector              = $Configuration.PacSelector
-                    cloud                    = $Configuration.CloudName
-                    tenantId                 = $Configuration.TenantId
-                    deploymentRootScope      = "/providers/Microsoft.Management/managementGroups/$($Configuration.TenantIntermediateRoot)"
-                    desiredState             = @{
-                        strategy                   = $Configuration.DesiredState
-                        keepDfcSecurityAssignments = $false
-                    }
-                    managedIdentityLocations = @{
-                        globalLocations = @($Configuration.ManagedIdentityLocation)
-                    }
-                },
-                @{
-                    pacSelector              = $Configuration.EpacDevSelector
-                    cloud                    = $Configuration.CloudName
-                    tenantId                 = $Configuration.TenantId
-                    deploymentRootScope      = "/providers/Microsoft.Management/managementGroups/$($Configuration.EpacDevRoot)"
-                    desiredState             = @{
-                        strategy                   = $Configuration.DesiredState
-                        keepDfcSecurityAssignments = $false
-                    }
-                    managedIdentityLocations = @{
-                        globalLocations = @($Configuration.ManagedIdentityLocation)
-                    }
-                }
-            )
+        # Build dev environment section if requested
+        $devEnvironmentSection = if ($IncludeDevEnvironment) {
+            @"
+,
+    {
+      // Development/testing environment (optional)
+      "pacSelector": "$($Configuration.EpacDevSelector)",
+      "cloud": "$($Configuration.CloudName)",
+      "tenantId": "$($Configuration.TenantId)",
+      "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/$($Configuration.EpacDevRoot)",
+      "desiredState": {
+        "strategy": "$($Configuration.DesiredState)",
+        "keepDfcSecurityAssignments": true
+      },
+      "managedIdentityLocation": "$($Configuration.ManagedIdentityLocation)"
+    }
+"@
+        }
+        else {
+            ""
         }
 
-        # Convert to JSONC (JSON with comments)
         $jsonContent = @"
 {
   // EPAC Environment Configuration
@@ -108,19 +100,7 @@ function Initialize-EpacRepository {
         "keepDfcSecurityAssignments": false
       },
       "managedIdentityLocation": "$($Configuration.ManagedIdentityLocation)"
-    },
-    {
-      // Development/testing environment
-      "pacSelector": "$($Configuration.EpacDevSelector)",
-      "cloud": "$($Configuration.CloudName)",
-      "tenantId": "$($Configuration.TenantId)",
-      "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/$($Configuration.EpacDevRoot)",
-      "desiredState": {
-        "strategy": "$($Configuration.DesiredState)",
-        "keepDfcSecurityAssignments": false
-      },
-      "managedIdentityLocation": "$($Configuration.ManagedIdentityLocation)"
-    }
+    }$devEnvironmentSection
   ]
 }
 "@

@@ -3,14 +3,18 @@
     Deploys Azure Management Group structure for EPAC.
 
 .DESCRIPTION
-    Creates the Tenant Intermediate Root (if needed) and epac-dev environment
-    by copying the management group hierarchy for testing purposes.
+    Optionally creates the epac-dev environment by copying the management group
+    hierarchy for testing purposes. In most cases, the intermediate root already
+    exists and only the dev environment needs to be created.
 #>
 function Deploy-EpacResources {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
-        [PSCustomObject] $Configuration
+        [PSCustomObject] $Configuration,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $SkipDevEnvironment
     )
 
     $PSDefaultParameterValues = @{
@@ -20,89 +24,77 @@ function Deploy-EpacResources {
     try {
         Write-Verbose "Starting Azure resource deployment..."
         $results = @{
-            TenantIntermediateRootCreated = $false
-            EpacDevCreated                = $false
-            Errors                        = @()
+            EpacDevCreated = $false
+            Errors         = @()
         }
 
-        # Create Tenant Intermediate Root if it doesn't exist
-        if (!$Configuration.TenantIntermediateRootExists) {
-            Write-ModernStatus -Message "Creating Tenant Intermediate Root: $($Configuration.TenantIntermediateRoot)" -Status "processing" -Indent 2
+        # Verify the Tenant Intermediate Root exists
+        Write-ModernStatus -Message "Verifying Management Group: $($Configuration.TenantIntermediateRoot)" -Status "processing" -Indent 2
+        
+        $tenantMg = Get-AzManagementGroup -GroupId $Configuration.TenantIntermediateRoot -ErrorAction SilentlyContinue
+        if (!$tenantMg) {
+            $results.Errors += "Management Group '$($Configuration.TenantIntermediateRoot)' not found. Please create it first or use an existing Management Group ID."
+            Write-ModernStatus -Message "Management Group not found: $($Configuration.TenantIntermediateRoot)" -Status "error" -Indent 4
             
+            return @{
+                Success = $false
+                Message = $results.Errors[-1]
+                Results = $results
+            }
+        }
+        
+        Write-ModernStatus -Message "Management Group verified: $($Configuration.TenantIntermediateRoot)" -Status "success" -Indent 4
+
+        # Create epac-dev environment if requested
+        if (-not $SkipDevEnvironment) {
+            Write-ModernStatus -Message "Creating EPAC-Dev environment: $($Configuration.EpacDevRoot)" -Status "processing" -Indent 2
+        
             try {
-                $null = New-AzManagementGroup -GroupId $Configuration.TenantIntermediateRoot -ErrorAction Stop
+                # Use the existing Copy-HydrationManagementGroupHierarchy if available
+                $copyCmd = Get-Command Copy-HydrationManagementGroupHierarchy -ErrorAction SilentlyContinue
+            
+                if ($copyCmd) {
+                    # Use existing EPAC command
+                    Write-Verbose "  Using Copy-HydrationManagementGroupHierarchy..."
+                    $copyResult = Copy-HydrationManagementGroupHierarchy `
+                        -SourceGroupName $Configuration.TenantIntermediateRoot `
+                        -DestinationParentGroupName $Configuration.EpacDevParent `
+                        -Prefix $Configuration.EpacDevPrefix `
+                        -ErrorAction Stop
                 
-                # Wait for propagation
-                $maxAttempts = 10
-                $attempt = 0
-                do {
-                    Start-Sleep -Seconds 2
-                    $mg = Get-AzManagementGroup -GroupId $Configuration.TenantIntermediateRoot -ErrorAction SilentlyContinue
-                    $attempt++
-                } while (!$mg -and $attempt -lt $maxAttempts)
-                
-                if ($mg) {
-                    $results.TenantIntermediateRootCreated = $true
-                    Write-ModernStatus -Message "Created Management Group: $($Configuration.TenantIntermediateRoot)" -Status "success" -Indent 4
+                    $results.EpacDevCreated = $true
+                    Write-Verbose "  ✓ Created EPAC-Dev hierarchy"
                 }
                 else {
-                    throw "Management Group created but not found after $maxAttempts attempts"
+                    # Fallback: Simple copy without full hierarchy
+                    Write-Verbose "  Creating simple EPAC-Dev root (full hierarchy copy not available)..."
+                
+                    $epacDevMg = Get-AzManagementGroup -GroupId $Configuration.EpacDevRoot -ErrorAction SilentlyContinue
+                    if (!$epacDevMg) {
+                        $null = New-AzManagementGroup `
+                            -GroupId $Configuration.EpacDevRoot `
+                            -ParentId "/providers/Microsoft.Management/managementGroups/$($Configuration.EpacDevParent)" `
+                            -ErrorAction Stop
+                    
+                        # Wait for propagation
+                        Start-Sleep -Seconds 3
+                        $results.EpacDevCreated = $true
+                        Write-Verbose "  ✓ Created EPAC-Dev root Management Group"
+                        Write-Warning "  Note: Full hierarchy copy requires EPAC module. Only root MG created."
+                    }
+                    else {
+                        Write-Verbose "  EPAC-Dev root already exists"
+                        $results.EpacDevCreated = $true
+                    }
                 }
             }
             catch {
-                $results.Errors += "Failed to create Tenant Intermediate Root: $_"
+                $results.Errors += "Failed to create EPAC-Dev environment: $_"
                 Write-Warning $results.Errors[-1]
             }
         }
         else {
-            Write-ModernStatus -Message "Tenant Intermediate Root already exists: $($Configuration.TenantIntermediateRoot)" -Status "info" -Indent 2
-        }
-
-        # Create epac-dev environment by copying the hierarchy
-        Write-ModernStatus -Message "Creating EPAC-Dev environment: $($Configuration.EpacDevRoot)" -Status "processing" -Indent 2
-        
-        try {
-            # Use the existing Copy-HydrationManagementGroupHierarchy if available
-            $copyCmd = Get-Command Copy-HydrationManagementGroupHierarchy -ErrorAction SilentlyContinue
-            
-            if ($copyCmd) {
-                # Use existing EPAC command
-                Write-Verbose "  Using Copy-HydrationManagementGroupHierarchy..."
-                $copyResult = Copy-HydrationManagementGroupHierarchy `
-                    -SourceGroupName $Configuration.TenantIntermediateRoot `
-                    -DestinationParentGroupName $Configuration.EpacDevParent `
-                    -Prefix $Configuration.EpacDevPrefix `
-                    -ErrorAction Stop
-                
-                $results.EpacDevCreated = $true
-                Write-Verbose "  ✓ Created EPAC-Dev hierarchy"
-            }
-            else {
-                # Fallback: Simple copy without full hierarchy
-                Write-Verbose "  Creating simple EPAC-Dev root (full hierarchy copy not available)..."
-                
-                $epacDevMg = Get-AzManagementGroup -GroupId $Configuration.EpacDevRoot -ErrorAction SilentlyContinue
-                if (!$epacDevMg) {
-                    $null = New-AzManagementGroup `
-                        -GroupId $Configuration.EpacDevRoot `
-                        -ParentId "/providers/Microsoft.Management/managementGroups/$($Configuration.EpacDevParent)" `
-                        -ErrorAction Stop
-                    
-                    # Wait for propagation
-                    Start-Sleep -Seconds 3
-                    $results.EpacDevCreated = $true
-                    Write-Verbose "  ✓ Created EPAC-Dev root Management Group"
-                    Write-Warning "  Note: Full hierarchy copy requires EPAC module. Only root MG created."
-                }
-                else {
-                    Write-Verbose "  EPAC-Dev root already exists"
-                    $results.EpacDevCreated = $true
-                }
-            }
-        }
-        catch {
-            $results.Errors += "Failed to create EPAC-Dev environment: $_"
-            Write-Warning $results.Errors[-1]
+            Write-ModernStatus -Message "Skipping EPAC-Dev environment creation (not requested)" -Status "skip" -Indent 2
         }
 
         # Return results

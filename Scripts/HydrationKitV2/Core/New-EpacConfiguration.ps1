@@ -13,7 +13,7 @@ function New-EpacConfiguration {
         [string] $TenantIntermediateRoot,
 
         [Parameter(Mandatory = $false)]
-        [string] $PacSelector = "tenant01",
+        [string] $PacSelector = "tenant",
 
         [Parameter(Mandatory = $false)]
         [string] $ManagedIdentityLocation,
@@ -47,24 +47,69 @@ function New-EpacConfiguration {
         # Validate or prompt for Managed Identity Location
         if (!$ManagedIdentityLocation) {
             if ($NonInteractive) {
-                # Use a sensible default based on common regions
-                $ManagedIdentityLocation = "eastus"
-                Write-Verbose "Using default Managed Identity location: $ManagedIdentityLocation"
+                # Try to suggest location based on existing resource groups
+                Write-Verbose "Attempting to determine suggested region from existing resource groups..."
+                try {
+                    $suggestedLocation = Get-AzResourceGroup | Group-Object -Property Location | Sort-Object -Property Count -Descending | Select-Object -First 1 | Select-Object -ExpandProperty Name
+                    if ($suggestedLocation) {
+                        $ManagedIdentityLocation = $suggestedLocation
+                        Write-Verbose "Using suggested Managed Identity location based on existing resources: $ManagedIdentityLocation"
+                    }
+                    else {
+                        $ManagedIdentityLocation = "eastus"
+                        Write-Verbose "No resource groups found, using default: $ManagedIdentityLocation"
+                    }
+                }
+                catch {
+                    $ManagedIdentityLocation = "eastus"
+                    Write-Verbose "Could not determine suggested location, using default: $ManagedIdentityLocation"
+                }
             }
             else {
-                # Get available locations and prompt
-                Write-ModernStatus -Message "Fetching available Azure regions..." -Status "processing" -Indent 2
+                # Get available locations and suggest based on existing resource groups
+                Write-ModernStatus -Message "Determining suggested region..." -Status "processing" -Indent 2
+                
+                $suggestedLocation = $null
+                try {
+                    $suggestedLocation = Get-AzResourceGroup | Group-Object -Property Location | Sort-Object -Property Count -Descending | Select-Object -First 1 | Select-Object -ExpandProperty Name
+                }
+                catch {
+                    Write-Verbose "Could not determine suggested location from resource groups"
+                }
+                
                 $locations = Get-AzLocation | Select-Object -ExpandProperty Location | Sort-Object
                 
                 Write-Host ""
+                if ($suggestedLocation) {
+                    Write-ModernStatus -Message "Suggested region (most used): $suggestedLocation" -Status "info" -Indent 2
+                }
                 Write-ModernStatus -Message "Common regions:" -Status "info" -Indent 2
                 $commonRegions = @('eastus', 'westus', 'eastus2', 'westeurope', 'northeurope', 'uksouth')
                 $availableCommon = $commonRegions | Where-Object { $locations -contains $_ }
                 $availableCommon | ForEach-Object { Write-ModernStatus -Message $_ -Status "info" -Indent 4 }
                 Write-Host ""
+                
+                $promptMessage = if ($suggestedLocation) {
+                    "Enter Managed Identity location [default: $suggestedLocation]"
+                }
+                else {
+                    "Enter Managed Identity location (e.g., eastus)"
+                }
+                
                 do {
-                    $ManagedIdentityLocation = Read-Host "Enter Managed Identity location (e.g., eastus)"
-                    if ($locations -notcontains $ManagedIdentityLocation) {
+                    $userInput = Read-Host $promptMessage
+                    if ([string]::IsNullOrWhiteSpace($userInput) -and $suggestedLocation) {
+                        $ManagedIdentityLocation = $suggestedLocation
+                    }
+                    elseif ([string]::IsNullOrWhiteSpace($userInput)) {
+                        Write-Warning "Location is required. Please enter a valid Azure region."
+                        $ManagedIdentityLocation = $null
+                    }
+                    else {
+                        $ManagedIdentityLocation = $userInput
+                    }
+                    
+                    if ($ManagedIdentityLocation -and ($locations -notcontains $ManagedIdentityLocation)) {
                         Write-Warning "Location '$ManagedIdentityLocation' not found. Please choose from available regions."
                         $ManagedIdentityLocation = $null
                     }
