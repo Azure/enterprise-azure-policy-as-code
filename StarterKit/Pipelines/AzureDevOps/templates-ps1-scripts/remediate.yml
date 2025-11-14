@@ -1,0 +1,18 @@
+parameters:
+  - name: serviceConnection
+    type: string
+  - name: pacEnvironmentSelector
+    type: string
+
+steps:
+  - checkout: self
+  - task: AzurePowerShell@5
+    name: PolicyRemediation
+    displayName: Policy Remediation
+    inputs:
+      azureSubscription: ${{ parameters.serviceConnection }}
+      azurePowerShellVersion: LatestVersion
+      pwsh: true
+      ScriptPath: "Scripts/Operations/New-AzRemediationTasks.ps1"
+      ScriptArguments:
+        -PacEnvironmentSelector ${{ parameters.pacEnvironmentSelector }} -OnlyCheckManagedAssignments -Interactive $false -InformationAction Continue

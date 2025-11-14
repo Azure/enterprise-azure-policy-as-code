@@ -1,0 +1,38 @@
+# This pipeline is used to deploy Policies, Initiative definitions and Assignments into Azure.
+name: EPAC PROD Exemptions Workflow
+
+on:
+  push:
+    branches:
+      - releases-exemptions-only/*
+
+env:
+  PAC_OUTPUT_FOLDER: ./Output
+  PAC_DEFINITIONS_FOLDER: ./Definitions
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  plan:
+    name: Plan prod Exemptions Only
+    uses: ./.github/workflows/plan-exemptions-only.yml
+    with:
+      pacEnvironmentSelector: prod
+      planGitHubEnvironment: PROD-PLAN
+      PAC_OUTPUT_FOLDER: ./Output
+      PAC_DEFINITIONS_FOLDER: ./Definitions
+    secrets: inherit
+
+  deployPolicy:
+    name: Deploy prod Exemptions Only
+    needs: plan
+    if: needs.plan.outputs.deployPolicyChanges == 'yes' && startsWith(github.ref, 'refs/heads/releases-exemptions-only/')
+    uses: ./.github/workflows/deploy-policy.yml
+    with:
+      pacEnvironmentSelector: prod
+      planGitHubEnvironment: PROD-DEPLOY-POLICY
+      PAC_INPUT_FOLDER: ./Output
+      PAC_DEFINITIONS_FOLDER: ./Definitions
+    secrets: inherit

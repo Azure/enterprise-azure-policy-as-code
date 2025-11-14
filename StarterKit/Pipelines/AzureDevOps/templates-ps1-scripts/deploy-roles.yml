@@ -1,0 +1,20 @@
+parameters:
+  - name: serviceConnection
+    type: string
+  - name: pacEnvironmentSelector
+    type: string
+
+steps:
+  - checkout: self
+  - download: current
+    artifact: "plans-${{ parameters.pacEnvironmentSelector }}"
+  - task: AzurePowerShell@5
+    name: Deploy
+    displayName: Deploy Roles
+    inputs:
+      azureSubscription: ${{ parameters.serviceConnection }}
+      pwsh: true
+      azurePowerShellVersion: LatestVersion
+      ScriptPath: "Scripts/Deploy/Deploy-RolesPlan.ps1"
+      ScriptArguments:
+        -PacEnvironmentSelector ${{ parameters.pacEnvironmentSelector }} -InformationAction Continue

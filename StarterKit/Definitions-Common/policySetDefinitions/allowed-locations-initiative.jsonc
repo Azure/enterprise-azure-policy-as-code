@@ -1,0 +1,44 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-set-definition-schema.json",
+  "name": "e14e5d7c-9551-4ae2-b8fa-b5d6b9b3c677",
+  "type": "Microsoft.Authorization/policySetDefinitions",
+  "properties": {
+    "displayName": "Allowed Locations Initiative",
+    "description": "This initiative contains the policies necessary to limit Azure region deployments for all resources and resource groups.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Org Governance"
+    },
+    "parameters": {
+      "AllowedLocations": {
+        "type": "Array",
+        "defaultValue": [
+          "centralus",
+          "eastus",
+          "eastus2",
+          "southcentralus"
+        ]
+      }
+    },
+    "policyDefinitions": [
+      {
+        "policyDefinitionReferenceId": "allowed-locations-resources",
+        "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/e56962a6-4747-49cd-b67b-bf8b01975c4c",
+        "parameters": {
+          "listOfAllowedLocations": {
+            "value": "[parameters('AllowedLocations')]"
+          }
+        }
+      },
+      {
+        "policyDefinitionReferenceId": "allowed-locations-resource-groups",
+        "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/e765b5de-1225-4ba3-bd56-1ac6695af988",
+        "parameters": {
+          "listOfAllowedLocations": {
+            "value": "[parameters('AllowedLocations')]"
+          }
+        }
+      }
+    ]
+  }
+}

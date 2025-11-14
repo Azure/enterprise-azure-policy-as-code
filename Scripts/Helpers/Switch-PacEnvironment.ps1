@@ -1,25 +1,24 @@
-#Requires -PSEdition Core
-
 function Switch-PacEnvironment {
     [CmdletBinding()]
     param (
-        [int] $definitionStartingLine,
-        [int] $definitionEndingLine,
-        [hashtable] $pacEnvironments,
-        [string] $pacEnvironmentSelector,
-        [bool] $interactive
+        [hashtable] $PacEnvironments,
+        [string] $PacEnvironmentSelector,
+        [bool] $Interactive
     )
 
 
     $pacEnvironment = @{}
-    if ($pacEnvironments.ContainsKey($pacEnvironmentSelector)) {
-        $pacEnvironment = $pacEnvironments.$pacEnvironmentSelector
+    if ($PacEnvironments.ContainsKey($PacEnvironmentSelector)) {
+        $pacEnvironment = $PacEnvironments.$PacEnvironmentSelector
     }
     else {
-        Write-Error "    pacEnvironment '$pacEnvironmentSelector' in definition on lines $definitionStartingLine - $definitionEndingLine does not exist" -ErrorAction Stop
+        Write-Error "    pacEnvironment '$PacEnvironmentSelector' does not exist" -ErrorAction Stop
     }
-    Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -interactive $interactive
-    $pacEnvironmentSelector = $pacEnvironmentSelector
+    $null = Set-AzCloudTenantSubscription `
+        -Cloud $pacEnvironment.cloud `
+        -TenantId $pacEnvironment.tenantId `
+        -Interactive $Interactive
+    # -subscriptionId $pacEnvironment.defaultSubscriptionId `
 
     return $pacEnvironment
 }

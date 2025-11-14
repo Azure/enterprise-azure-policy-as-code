@@ -1,5 +1,10 @@
+<#
+.SYNOPSIS
+    Gets all aliases and outputs them to a CSV file.
+#>
+
 [System.Collections.ArrayList] $allRows = [System.Collections.ArrayList]::new()
-$aliasesByResourceType = Get-azpolicyalias | ConvertTo-Json -Depth 100 | ConvertFrom-Json -AsHashtable
+$aliasesByResourceType = Get-AzPolicyAlias | ConvertTo-Json -Depth 100 | ConvertFrom-Json -AsHashTable
 
 foreach ($resourceTypeEntry in $aliasesByResourceType) {
     $namespace = $resourceTypeEntry.Namespace

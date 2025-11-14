@@ -1,5 +1,36 @@
-#Requires -PSEdition Core
+<#
+.SYNOPSIS
+    Retrieves Policy Exemptions from an EPAC environment and saves them to files.
 
+.PARAMETER PacEnvironmentSelector
+    Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.    
+
+.PARAMETER DefinitionsRootFolder    
+    Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
+
+.PARAMETER OutputFolder
+    Output Folder. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER or './Outputs'.
+
+.PARAMETER Interactive
+    Set to false if used non-interactive
+
+.PARAMETER FileExtension
+    File extension type for the output files. Valid values are json and jsonc. Defaults to json.
+
+.PARAMETER ActiveExemptionsOnly
+    Set to true to only generate files for active (not expired and not orphaned) exemptions. Defaults to false.
+
+.EXAMPLE
+    .\Get-AzExemptions.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\Src\Definitions" -OutputFolder "C:\Src\Outputs" -Interactive $true -FileExtension "jsonc"
+    Retrieves Policy Exemptions from an EPAC environment and saves them to files.
+
+.EXAMPLE
+    .\Get-AzExemptions.ps1 -Interactive $true
+    Retrieves Policy Exemptions from an EPAC environment and saves them to files. The script prompts for the PAC environment and uses the default definitions and output folders.
+
+.LINK
+    https://azure.github.io/enterprise-azure-policy-as-code/policy-exemptions/
+#>
 [CmdletBinding()]
 param(
     [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
@@ -12,111 +43,47 @@ param(
     [string] $OutputFolder,
 
     [Parameter(Mandatory = $false, HelpMessage = "Set to false if used non-interactive")]
-    [bool] $interactive = $true
+    [bool] $Interactive = $true,
+
+    [ValidateSet("json", "jsonc")]
+    [Parameter(Mandatory = $false, HelpMessage = "File extension type for the output files. Defaults to '.jsonc'.")]
+    [string] $FileExtension = "json",
+
+    [Parameter(Mandatory = $false, HelpMessage = "Set to true to only generate files for active (not expired and not orphaned) exemptions. Defaults to false.")]
+    [switch] $ActiveExemptionsOnly
 )
 
-. "$PSScriptRoot/../Helpers/Get-PacFolders.ps1"
-. "$PSScriptRoot/../Helpers/Get-GlobalSettings.ps1"
-. "$PSScriptRoot/../Helpers/Select-PacEnvironment.ps1"
-. "$PSScriptRoot/../Helpers/Get-AzPolicyInitiativeDefinitions.ps1"
-. "$PSScriptRoot/../Helpers/Get-AzAssignmentsAtScopeRecursive.ps1"
-. "$PSScriptRoot/../Helpers/Get-AzScopeTree.ps1"
-. "$PSScriptRoot/../Helpers/ConvertTo-HashTable.ps1"
-. "$PSScriptRoot/../Helpers/Invoke-AzCli.ps1"
-. "$PSScriptRoot/../Helpers/Split-AssignmentIdForAzCli.ps1"
-. "$PSScriptRoot/../Helpers/Set-AzCloudTenantSubscription.ps1"
-. "$PSScriptRoot/../Helpers/Confirm-ActiveAzExemptions.ps1"
+# Dot Source Helper Scripts
+. "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
 
 $InformationPreference = "Continue"
-Invoke-AzCli config set extension.use_dynamic_install=yes_without_prompt -SuppressOutput
-$pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -definitionsRootFolder $DefinitionsRootFolder -outputFolder $OutputFolder -interactive $interactive
-Set-AzCloudTenantSubscription -cloud $pacEnvironment.cloud -tenantId $pacEnvironment.tenantId -subscriptionId $pacEnvironment.defaultSubscriptionId -interactive $pacEnvironment.interactive
+$pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -Interactive $Interactive
+$null = Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -Interactive $pacEnvironment.interactive
+$policyExemptionsFolder = "$($pacEnvironment.outputFolder)/policyExemptions"
 
-$rootScopeId = $pacEnvironment.rootScopeId
-$rootScope = $pacEnvironment.rootScope
-$outputPath = "$($pacEnvironment.outputFolder)/Exemptions/$($pacEnvironment.pacEnvironmentSelector)"
-if (-not (Test-Path $outputPath)) {
-    New-Item $outputPath -Force -ItemType directory
+Write-ModernHeader -Title "Retrieving Policy Exemptions" -Subtitle $($pacEnvironment.displayName)
+
+# Telemetry
+if ($pacEnvironment.telemetryEnabled) {
+    Write-ModernStatus -Message "Telemetry is enabled" -Status "info" -Indent 2
+    Submit-EPACTelemetry -Cuapid "pid-3f02e7d5-1cf5-490a-a95c-3d49f0673093" -DeploymentRootScope $pacEnvironment.deploymentRootScope
+}
+else {
+    Write-ModernStatus -Message "Telemetry is disabled" -Status "info" -Indent 2
 }
 
+Write-ModernSection -Title "Loading Azure Policy Resources" -Indent 0
+$scopeTable = Build-ScopeTableForDeploymentRootScope -PacEnvironment $pacEnvironment
+$deployedPolicyResources = Get-AzPolicyResources -PacEnvironment $pacEnvironment -ScopeTable $scopeTable -SkipRoleAssignments
+$exemptions = $deployedPolicyResources.policyExemptions.managed
 
-$allAzPolicyInitiativeDefinitions = Get-AzPolicyInitiativeDefinitions -rootScope $rootScope -rootScopeId $rootScopeId
-$allPolicyDefinitions = $allAzPolicyInitiativeDefinitions.builtInPolicyDefinitions + $allAzPolicyInitiativeDefinitions.existingCustomPolicyDefinitions
-$allInitiativeDefinitions = $allAzPolicyInitiativeDefinitions.builtInInitiativeDefinitions + $allAzPolicyInitiativeDefinitions.existingCustomInitiativeDefinitions
+Write-ModernSection -Title "Generating Exemption Reports" -Indent 0
 
-$scopeTreeInfo = Get-AzScopeTree `
-    -tenantId $pacEnvironment.tenantId `
-    -scopeParam $rootScope `
-    -defaultSubscriptionId $pacEnvironment.defaultSubscriptionId
-
-$assignments, $null, $exemptions = Get-AzAssignmentsAtScopeRecursive `
-    -scopeTreeInfo $scopeTreeInfo `
-    -notScopeIn $pacEnvironment.globalNotScopeList `
-    -includeResourceGroups $false `
-    -getAssignments $true `
-    -getExemptions $true `
-    -expiringInDays $expiringInDays `
-    -getRemediations $false `
-    -allPolicyDefinitions $allPolicyDefinitions `
-    -allInitiativeDefinitions $allInitiativeDefinitions `
-    -supressRoleAssignments
-
-$numberOfExemptions = $exemptions.Count
-Write-Information "==================================================================================================="
-Write-Information "Output Exemption list ($numberOfExemptions)"
-Write-Information "==================================================================================================="
-
-$exemptionsResult = Confirm-ActiveAzExemptions -exemptions $exemptions -assignments $assignments
-$policyDefinitionReferenceIdsTransform = @{label = "policyDefinitionReferenceIds"; expression = { ($_.policyDefinitionReferenceIds -join ",").ToString() } }
-$metadataTransform = @{label = "metadata"; expression = { IF ($_.metadata) { (ConvertTo-Json $_.metadata -Depth 100 -Compress).ToString() } Else { '' } } }
-$expiresInDaysTransform = @{label = "expiresInDays"; expression = { IF ($_.expiresInDays -eq [Int32]::MaxValue) { 'n/a' } Else { $_.expiresInDays } } }
-foreach ($key in $exemptionsResult.Keys) {
-    [hashtable] $exemptions = $exemptionsResult.$key
-    Write-Information "Output $key Exemption list ($($exemptions.Count))"
-
-    $valueArray = @() + $exemptions.Values
-
-    if ($valueArray.Count -gt 0) {
-
-        $stem = "$outputPath/$($key)-exemptions"
-
-        # JSON Output
-        $jsonArray = @() + $valueArray | Select-Object -Property `
-            name, `
-            displayName, `
-            description, `
-            exemptionCategory, `
-            expiresOn, `
-            status, `
-            $expiresInDaysTransform, `
-            scope, `
-            policyAssignmentId, `
-            policyDefinitionReferenceIds, `
-            metadata
-        $jsonFile = "$($stem).json"
-        if (Test-Path $jsonFile) {
-            Remove-Item $jsonFile
-        }
-        ConvertTo-Json $jsonArray -Depth 100 | Out-File $jsonFile -Force
-
-        # Spreadsheet outputs (CSV)
-        $excelArray = @() + $valueArray | Select-Object -Property `
-            name, `
-            displayName, `
-            description, `
-            exemptionCategory, `
-            expiresOn, `
-            status, `
-            $expiresInDaysTransform, `
-            scope, `
-            policyAssignmentId, `
-            $policyDefinitionReferenceIdsTransform, `
-            $metadataTransform
-
-        $csvFile = "$($stem).csv"
-        if (Test-Path $csvFile) {
-            Remove-Item $csvFile
-        }
-        $excelArray | ConvertTo-Csv -UseQuotes AsNeeded | Out-File $csvFile -Force
-    }
-}
+Out-PolicyExemptions `
+    -PacEnvironment $pacEnvironment `
+    -Exemptions $exemptions `
+    -PolicyExemptionsFolder $policyExemptionsFolder `
+    -OutputJson `
+    -OutputCsv `
+    -FileExtension $FileExtension `
+    -ActiveExemptionsOnly:$ActiveExemptionsOnly

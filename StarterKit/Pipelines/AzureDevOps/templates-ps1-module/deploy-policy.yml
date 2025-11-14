@@ -1,0 +1,21 @@
+parameters:
+  - name: serviceConnection
+    type: string
+  - name: pacEnvironmentSelector
+    type: string
+
+steps:
+  - checkout: self
+  - download: current
+    artifact: "plans-${{ parameters.pacEnvironmentSelector }}"
+  - pwsh: |
+      Install-Module EnterprisePolicyAsCode -Force
+  - task: AzurePowerShell@5
+    displayName: Deploy Policy
+    inputs:
+      azureSubscription: ${{ parameters.serviceConnection }}
+      pwsh: true
+      azurePowerShellVersion: LatestVersion
+      ScriptType: InlineScript
+      Inline: |
+        Deploy-PolicyPlan -PacEnvironmentSelector ${{ parameters.pacEnvironmentSelector }} -InformationAction Continue

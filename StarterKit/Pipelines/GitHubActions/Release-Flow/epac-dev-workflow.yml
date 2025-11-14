@@ -1,0 +1,82 @@
+# This pipeline is used to deploy Policies, Initiative definitions and Assignments into Azure.
+name: EPAC Dev Workflow
+
+on:
+  push:
+    branches:
+      - feature/**
+    paths:
+      - 'Definitions/**'
+      - '.github/**'
+  workflow_dispatch:
+
+env:
+  PAC_OUTPUT_FOLDER: ./Output
+  PAC_DEFINITIONS_FOLDER: ./Definitions
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  plan:
+    name: Plan epac-dev
+    uses: ./.github/workflows/plan.yml
+    with:
+      pacEnvironmentSelector: epac-dev
+      planGitHubEnvironment: PAC-DEV
+      PAC_OUTPUT_FOLDER: ./Output
+      PAC_DEFINITIONS_FOLDER: ./Definitions
+    secrets: inherit
+
+  deployPolicy:
+    name: Deploy epac-dev Policy Changes
+    needs: plan
+    if: needs.plan.outputs.deployPolicyChanges == 'yes'
+    uses: ./.github/workflows/deploy-policy.yml
+    with:
+      pacEnvironmentSelector: epac-dev
+      planGitHubEnvironment: PAC-DEV
+      PAC_INPUT_FOLDER: ./Output
+      PAC_DEFINITIONS_FOLDER: ./Definitions
+    secrets: inherit
+
+  deployRoles:
+    name: Deploy epac-dev Role Changes
+    needs: plan
+    if: needs.plan.outputs.deployRoleChanges == 'yes'
+    uses: ./.github/workflows/deploy-roles.yml
+    with:
+      pacEnvironmentSelector: epac-dev
+      planGitHubEnvironment: PAC-DEV
+      PAC_INPUT_FOLDER: ./Output
+      PAC_DEFINITIONS_FOLDER: ./Definitions
+    secrets: inherit
+
+  nonprodPlan:
+    name: Plan nonprod
+    needs: [deployPolicy, deployRoles]
+    if: |
+      always()
+      && !contains(needs.*.result,'failure')    
+    uses: ./.github/workflows/plan.yml
+    with:
+      pacEnvironmentSelector: nonprod
+      planGitHubEnvironment: NONPROD-PLAN
+      PAC_OUTPUT_FOLDER: ./Output
+      PAC_DEFINITIONS_FOLDER: ./Definitions
+    secrets: inherit
+
+  prodPlan:
+    name: Plan prod
+    needs: [deployPolicy, deployRoles]
+    if: |
+      always()
+      && !contains(needs.*.result,'failure')
+    uses: ./.github/workflows/plan.yml
+    with:
+      pacEnvironmentSelector: prod
+      planGitHubEnvironment: PROD-PLAN
+      PAC_OUTPUT_FOLDER: ./Output
+      PAC_DEFINITIONS_FOLDER: ./Definitions
+    secrets: inherit

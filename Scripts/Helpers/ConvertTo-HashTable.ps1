@@ -1,23 +1,28 @@
-#Requires -PSEdition Core
-
 function ConvertTo-HashTable {
     [CmdletBinding()]
     param
     (
         [parameter(Position = 0, ValueFromPipeline = $true)]
-        [PSObject] $InputObject = $null
+        $InputObject = $null
     )
-    $hashTable = @{}
+
+    $hashTable = [ordered]@{}
     if ($null -ne $InputObject) {
-        if ($InputObject -is [hashtable]) {
-            $hashTable = $InputObject.Clone()
+        if ($InputObject -is [System.Collections.IDictionary]) {
+            if ($InputObject -is [hashtable]) {
+                return $InputObject
+            }
+            else {
+                foreach ($key in $InputObject.Keys) {
+                    $null = $hashTable[$key] = $InputObject[$key]
+                }
+            }
         }
-        else {
-            foreach ($property in $InputObject.PSObject.Properties) {
+        elseif ($InputObject.psobject.Properties) {
+            foreach ($property in $InputObject.psobject.Properties) {
                 $hashTable[$property.Name] = $property.Value
             }
         }
     }
     return $hashTable
-
 }

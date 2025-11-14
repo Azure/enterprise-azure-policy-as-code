@@ -1,0 +1,34 @@
+# Example pipeline for deploying policies and roles using Federated Login
+# The variables $AZURE_TENANT_ID and $AZURE_CLIENT_ID are set in the GitLab CI/CD settings
+
+spec:
+  inputs:
+    epac-dev:
+      default: false
+      type: boolean
+      description: "Enable to deploy to the 'epac-dev' environment"
+    epac-prod:
+      default: false
+      type: boolean
+      description: "Enable to deploy to the 'epac-prod' environment"
+---
+
+stages:
+  - epac-dev
+  - epac-prod
+
+epac-dev:
+  stage: epac-dev
+  trigger:
+    include:
+      - local: '/Pipelines/epac-dev.yml'
+  rules:
+    - if: '"$[[ inputs.epac-dev ]]" == "true"'
+
+epac-prod: 
+  stage: epac-prod
+  trigger:
+    include:
+      - local: '/Pipelines/epac-prod.yml'
+  rules:
+    - if: '"$[[ inputs.epac-prod ]]" == "true"'

@@ -1,0 +1,68 @@
+site_name: Enterprise Policy As Code (EPAC)
+site_url: https://azure.github.io/enterprise-azure-policy-as-code/
+repo_url: https://github.com/Azure/enterprise-azure-policy-as-code
+docs_dir: Docs
+theme:
+  logo: Images/epac_svg.svg
+  favicon: Images/epac_svg.svg
+  language: en
+  name: material
+  font:
+    text: Roboto
+  palette:
+    primary: black
+    accent: blue
+  features:
+    - navigation.instant
+    - navigation.indexes
+    - navigation.sections:
+        level: 1
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - content.code.annotate
+    - content.tabs.link
+    - content.code.copy
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Overview and Prerequisites: start-implementing.md
+      - Hydration Kit: start-hydration-kit.md
+      - Manual Configuration: manual-configuration.md
+      - Extracting Policy Resources: start-extracting-policy-resources.md
+      - Forking GitHub Repo: start-forking-github-repo.md
+      - Advanced Configuration: advanced-configuration.md
+      - Upcoming Changes in v11.0.0: start-changes.md
+  - Settings and Desired State:
+      - Global Settings: settings-global-setting-file.md
+      - Desired State: settings-desired-state.md
+      - DfC Assignments: settings-dfc-assignments.md
+      - Output Themes: settings-output-themes.md
+  - Azure Landing Zones:
+      - ALZ Overview: integrating-with-alz-overview.md
+      - ALZ Policy Integration: integrating-with-alz-library.md
+  - Define Policy Resources:
+      - Policy Definitions: policy-definitions.md
+      - Policy Set Definitions: policy-set-definitions.md
+      - Policy Assignment Files: policy-assignments.md
+      - CSV Assignment Parameters: policy-assignments-csv-parameters.md
+      - Policy Exemptions: policy-exemptions.md
+  - CI/CD Integration:
+      - CI/CD Overview: ci-cd-overview.md
+      - App Registrations Setup: ci-cd-app-registrations.md
+      - Branching Flows: ci-cd-branching-flows.md
+      - Azure DevOps Pipelines: ci-cd-ado-pipelines.md
+      - GitHub Actions: ci-cd-github-actions.md
+  - Operational Scripts:
+      - Scripts Overview: operational-scripts.md
+      - Documenting Policy: operational-scripts-documenting-policy.md
+      - Reference: operational-scripts-reference.md
+  - Operator Guidance:
+      - Remediation Enforcement: guidance-remediation.md
+      - Exclusion Management: guidance-scope-exclusions.md
+      - Exemption Updates: guidance-exemptions.md
+      - Lighhouse Subscription Management: guidance-lighthouse.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences

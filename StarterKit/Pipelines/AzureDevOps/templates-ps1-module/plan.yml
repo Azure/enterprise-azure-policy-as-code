@@ -1,0 +1,22 @@
+parameters:
+  - name: serviceConnection
+    type: string
+  - name: pacEnvironmentSelector
+    type: string
+
+steps:
+  - checkout: self
+  - pwsh: |
+      Install-Module EnterprisePolicyAsCode -Force
+  - task: AzurePowerShell@5
+    name: Plan
+    inputs:
+      azureSubscription: ${{ parameters.serviceConnection }}
+      azurePowerShellVersion: LatestVersion
+      pwsh: true
+      ScriptType: InlineScript
+      Inline: |
+        Build-DeploymentPlans -PacEnvironmentSelector ${{ parameters.pacEnvironmentSelector }} -DevOpsType "ado" -InformationAction Continue
+  - publish: "$(PAC_OUTPUT_FOLDER)"
+    artifact: "plans-${{ parameters.pacEnvironmentSelector }}"
+    condition: and(succeeded(), or(eq(variables['Plan.deployPolicyChanges'], 'yes'), eq(variables['Plan.deployRoleChanges'], 'yes')))

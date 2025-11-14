@@ -1,0 +1,50 @@
+name: 'Reusable Workflow: Deploy Policy'
+
+on:
+  workflow_call:
+    inputs:
+      pacEnvironmentSelector:
+        required: true
+        type: string
+      planGitHubEnvironment:
+        required: true
+        type: string
+      PAC_INPUT_FOLDER:
+        required: true
+        type: string
+      PAC_DEFINITIONS_FOLDER:
+        required: true
+        type: string
+
+env:
+  PAC_INPUT_FOLDER: ${{ inputs.PAC_INPUT_FOLDER }}
+  PAC_DEFINITIONS_FOLDER: ${{ inputs.PAC_DEFINITIONS_FOLDER }}
+
+jobs:
+  deployPolicy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.planGitHubEnvironment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Artifact
+        # If you are using GHES, use v3 instead of v4. See https://github.com/actions/download-artifact#v4---whats-new for more information.
+        uses: actions/download-artifact@v4
+        with:
+          name: plans-${{ inputs.pacEnvironmentSelector }}
+          path: ${{ inputs.PAC_INPUT_FOLDER }}
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          enable-AzPSSession: true
+          allow-no-subscriptions: true
+
+      - name: Deploy Policy
+        uses: azure/powershell@v2
+        with:
+          inlineScript: 'Scripts/Deploy/Deploy-PolicyPlan.ps1 -PacEnvironmentSelector ${{ inputs.pacEnvironmentSelector }} -InformationAction Continue'
+          azPSVersion: "latest"

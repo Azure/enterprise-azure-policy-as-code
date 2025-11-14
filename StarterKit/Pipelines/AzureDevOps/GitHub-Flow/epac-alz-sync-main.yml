@@ -1,0 +1,27 @@
+# This is the main pipeline entry point for EPAC ALZ sync.
+# It calls the reusable pipeline template and passes parameters for modular execution.
+trigger: none
+pr: none
+
+schedules:
+  - cron: "0 3 1 */3 *"
+    displayName: Quarterly EPAC ALZ Sync
+    branches:
+      include:
+        - main
+    always: true # Always run this schedule
+
+stages:
+  - stage: EPACSync
+    displayName: 'EPAC ALZ Library Sync'
+    jobs:
+      - template: ../templates/alz-sync.yaml
+        parameters:
+          epacVersion: 'latest'
+          definitionsRootFolder: './Definitions'
+          projectName: 'EPAC'
+          gitUserEmail: 'epac.alz@example.com'
+          gitUserName: 'EPAC ALZ Sync Bot'
+          pacEnvironmentSelector: 'epac-prod'
+          alzLibraryType: 'ALZ'  # Or 'AMBA'
+          storyId: '412'  # Optional: Link created work item task to an existing story in Azure DevOps.

@@ -1,0 +1,125 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
+    // Modify Policies for required tags --- use this comment to trigger deployment
+    "nodeName": "/Tags/",
+    "parameters": {
+        "excludedRG": [
+            "synapseworkspace-managedrg-*",
+            "databricks-rg-*",
+            "managed*",
+            "DefaultResourceGroup*",
+            "NetworkWatcherRG*",
+            "LogAnalyticsDefaultR*",
+            "Orca-Security*",
+            "rg-terraform*",
+            "cloud-shell-storage*"
+        ]
+    },
+    "children": [
+        {
+            "nodeName": "required-and-inherit/",
+            "scope": {
+                "epac-dev": [
+                    "/providers/Microsoft.Management/managementGroups/mg-epac-dev"
+                ],
+                "tenant": [
+                    "/providers/Microsoft.Management/managementGroups/mg-enterprise"
+                ]
+            },
+            "definitionEntryList": [
+                {
+                    "policyName": "7ce92201-8036-4d55-938e-0dce0a5bc475",
+                    "displayName": "Require Tag on Resource Group with dynamic notScope",
+                    "assignment": {
+                        "name": "rgtag-",
+                        "displayName": "Require Tag on Resource Group - ",
+                        "description": "Require Tag for Resource Groups when any resource group (not listed in in excludedRg) is created or updated - "
+                    }
+                },
+                {
+                    "policyName": "5cc2cbfc-e306-4ec6-a141-eea3c79bb2ae",
+                    "displayName": "Inherit Tag from Resource Group with dynamic notScope",
+                    "assignment": {
+                        "name": "taginh-",
+                        "displayName": "Inherit Tag from Resource Group - ",
+                        "description": "Modify Tag to comply with governance goal of enforcing Tags by inheriting Tags from RG - "
+                    }
+                }
+            ],
+            "children": [
+                {
+                    "nodeName": "Example",
+                    "assignment": {
+                        "name": "Example",
+                        "displayName": "Example",
+                        "description": "Example"
+                    },
+                    "parameters": {
+                        "tagName": "Example"
+                    }
+                },
+                {
+                    "nodeName": "Environment",
+                    "assignment": {
+                        "name": "Environment",
+                        "displayName": "Environment",
+                        "description": "Environment"
+                    },
+                    "parameters": {
+                        "tagName": "Environment"
+                    }
+                }
+            ]
+        },
+        {
+            "nodeName": "Environment/",
+            "definitionEntry": {
+                "policyName": "2076e19d-45f9-4564-a459-bb5a0aeaff85",
+                "displayName": "Add/Replace Tag on Resource Group with dynamic notScope"
+            },
+            "parameters": {
+                "tagName": "Environment"
+            },
+            "children": [
+                {
+                    "nodeName": "PROD",
+                    "assignment": {
+                        "name": "prod-env-tag",
+                        "displayName": "Prod Environment Tag",
+                        "description": "Set Tag Environment to PROD"
+                    },
+                    "parameters": {
+                        "tagValue": "PROD"
+                    },
+                    "scope": {
+                        "epac-dev": [
+                            "/providers/Microsoft.Management/managementGroups/mg-epac-dev-prod"
+                        ],
+                        "tenant": [
+                            "/providers/Microsoft.Management/managementGroups/mg-prod"
+                        ]
+                    }
+                },
+                {
+                    "nodeName": "NONPROD",
+                    "assignment": {
+                        "name": "prod-env-tag",
+                        "displayName": "NonProd Environment Tag",
+                        "description": "Set Tag Environment to NONPROD"
+                    },
+                    "parameters": {
+                        "tagValue": "NONPROD"
+                    },
+                    "scope": {
+                        "epac-dev": [
+                            "/providers/Microsoft.Management/managementGroups/mg-epac-dev-nonprod"
+                        ],
+                        "tenant": [
+                            "/providers/Microsoft.Management/managementGroups/mg-nonprod"
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

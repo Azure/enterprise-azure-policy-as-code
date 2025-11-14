@@ -1,0 +1,229 @@
+{
+    "name": "3fbd9091-1965-4a8f-babb-7c8e97c95d80",
+    "properties": {
+        "displayName": "MDC Workload Protection Enrollment Policy Set",
+        "description": " Policy Set enrolls subscriptions in every available Microsoft Defender for Cloud Workload Protection.",
+        "metadata": {
+            "version": "1.0.0",
+            "category": "Security Center"
+        },
+        "parameters": {
+            "workLoadProtectionList": {
+                "type": "Array",
+                "metadata": {
+                    "displayName": "Workload Protection List",
+                    "description": "List of workloads to enroll in Microsoft Defender for Cloud Workload Protection. Note: StorageAccounts-Basic and StorageAccounts-Full are mutually exclusive."
+                },
+                "allowedValues": [
+                    "AppServices",
+                    "Arm",
+                    "CloudPosture",
+                    "ContainerRegistry",
+                    "Containers",
+                    "CosmosDbs",
+                    "Dns",
+                    "KeyVaults",
+                    "KubernetesService",
+                    "OpenSourceRelationalDatabases",
+                    "SqlServers",
+                    "SqlServerVirtualMachines",
+                    "VirtualMachines",
+                    "StorageAccounts-Basic",
+                    "StorageAccounts-Full"
+                ],
+                "defaultValue": [
+                    "AppServices",
+                    "Arm",
+                    "CloudPosture",
+                    "ContainerRegistry",
+                    "Containers",
+                    "CosmosDbs",
+                    "Dns",
+                    "KeyVaults",
+                    "KubernetesService",
+                    "OpenSourceRelationalDatabases",
+                    "SqlServers",
+                    "SqlServerVirtualMachines",
+                    "VirtualMachines",
+                    "StorageAccounts-Basic"
+                ]
+            }
+        },
+        "policyDefinitions": [
+            {
+                "policyDefinitionReferenceId": "AppServices",
+                "policyDefinitionName": "90c1d98c-7ad3-4ea3-89c4-6abd261e437",
+                "parameters": {
+                    "effect": {
+                        "value": "[if(contains(parameters('workLoadProtectionList'),'AppServices'),'DeployIfNotExists','Disabled')]"
+                    },
+                    "workLoadProtection": {
+                        "value": "AppServices"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "Arm",
+                "policyDefinitionName": "90c1d98c-7ad3-4ea3-89c4-6abd261e437",
+                "parameters": {
+                    "effect": {
+                        "value": "[if(contains(parameters('workLoadProtectionList'),'Arm'),'DeployIfNotExists','Disabled')]"
+                    },
+                    "workLoadProtection": {
+                        "value": "Arm"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "CloudPosture",
+                "policyDefinitionName": "90c1d98c-7ad3-4ea3-89c4-6abd261e437",
+                "parameters": {
+                    "effect": {
+                        "value": "[if(contains(parameters('workLoadProtectionList'),'CloudPosture'),'DeployIfNotExists','Disabled')]"
+                    },
+                    "workLoadProtection": {
+                        "value": "CloudPosture"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "ContainerRegistry",
+                "policyDefinitionName": "90c1d98c-7ad3-4ea3-89c4-6abd261e437",
+                "parameters": {
+                    "effect": {
+                        "value": "[if(contains(parameters('workLoadProtectionList'),'ContainerRegistry'),'DeployIfNotExists','Disabled')]"
+                    },
+                    "workLoadProtection": {
+                        "value": "ContainerRegistry"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "Containers",
+                "policyDefinitionName": "90c1d98c-7ad3-4ea3-89c4-6abd261e437",
+                "parameters": {
+                    "effect": {
+                        "value": "[if(contains(parameters('workLoadProtectionList'),'Containers'),'DeployIfNotExists','Disabled')]"
+                    },
+                    "workLoadProtection": {
+                        "value": "Containers"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "CosmosDbs",
+                "policyDefinitionName": "90c1d98c-7ad3-4ea3-89c4-6abd261e437",
+                "parameters": {
+                    "effect": {
+                        "value": "[if(contains(parameters('workLoadProtectionList'),'CosmosDbs'),'DeployIfNotExists','Disabled')]"
+                    },
+                    "workLoadProtection": {
+                        "value": "CosmosDbs"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "Dns",
+                "policyDefinitionName": "90c1d98c-7ad3-4ea3-89c4-6abd261e437",
+                "parameters": {
+                    "effect": {
+                        "value": "[if(contains(parameters('workLoadProtectionList'),'Dns'),'DeployIfNotExists','Disabled')]"
+                    },
+                    "workLoadProtection": {
+                        "value": "Dns"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "KeyVaults",
+                "policyDefinitionName": "90c1d98c-7ad3-4ea3-89c4-6abd261e437",
+                "parameters": {
+                    "effect": {
+                        "value": "[if(contains(parameters('workLoadProtectionList'),'KeyVaults'),'DeployIfNotExists','Disabled')]"
+                    },
+                    "workLoadProtection": {
+                        "value": "KeyVaults"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "KubernetesService",
+                "policyDefinitionName": "90c1d98c-7ad3-4ea3-89c4-6abd261e437",
+                "parameters": {
+                    "effect": {
+                        "value": "[if(contains(parameters('workLoadProtectionList'),'KubernetesService'),'DeployIfNotExists','Disabled')]"
+                    },
+                    "workLoadProtection": {
+                        "value": "KubernetesService"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "OpenSourceRelationalDatabases",
+                "policyDefinitionName": "90c1d98c-7ad3-4ea3-89c4-6abd261e437",
+                "parameters": {
+                    "effect": {
+                        "value": "[if(contains(parameters('workLoadProtectionList'),'OpenSourceRelationalDatabases'),'DeployIfNotExists','Disabled')]"
+                    },
+                    "workLoadProtection": {
+                        "value": "OpenSourceRelationalDatabases"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "SqlServers",
+                "policyDefinitionName": "90c1d98c-7ad3-4ea3-89c4-6abd261e437",
+                "parameters": {
+                    "effect": {
+                        "value": "[if(contains(parameters('workLoadProtectionList'),'SqlServers'),'DeployIfNotExists','Disabled')]"
+                    },
+                    "workLoadProtection": {
+                        "value": "VirtualMachines"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "SqlServerVirtualMachines",
+                "policyDefinitionName": "90c1d98c-7ad3-4ea3-89c4-6abd261e437",
+                "parameters": {
+                    "effect": {
+                        "value": "[if(contains(parameters('workLoadProtectionList'),'SqlServerVirtualMachines'),'DeployIfNotExists','Disabled')]"
+                    },
+                    "workLoadProtection": {
+                        "value": "VirtualMachines"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "VirtualMachines",
+                "policyDefinitionName": "90c1d98c-7ad3-4ea3-89c4-6abd261e437",
+                "parameters": {
+                    "effect": {
+                        "value": "[if(contains(parameters('workLoadProtectionList'),'change'),'DeployIfNotExists','Disabled')]"
+                    },
+                    "workLoadProtection": {
+                        "value": "VirtualMachines"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "StorageAccounts-Basic",
+                "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/17bc14a7-92e1-4551-8b8c-80f36953e166",
+                "parameters": {
+                    "effect": {
+                        "value": "[if(and(contains(parameters('workLoadProtectionList'),'StorageAccounts-Basic'),not(contains(parameters('workLoadProtectionList'),'StorageAccounts-Full'))),'DeployIfNotExists','Disabled')]"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "StorageAccounts-Full",
+                "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/cfdc5972-75b3-4418-8ae1-7f5c36839390",
+                "parameters": {
+                    "effect": {
+                        "value": "[if(contains(parameters('workLoadProtectionList'),'StorageAccounts-Full'),'DeployIfNotExists','Disabled')]"
+                    }
+                }
+            }
+        ]
+    }
+}

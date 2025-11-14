@@ -1,0 +1,116 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+        "exemptions": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "displayName": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "exemptionCategory": {
+                        "type": "string"
+                    },
+                    "expiresOn": {
+                        "type": "string"
+                    },
+                    "scope": {
+                        "type": "string"
+                    },
+                    "scopes": {
+                        "type": "array"
+                    },
+                    "policyAssignmentId": {
+                        "type": "string"
+                    },
+                    "policyDefinitionReferenceIds": {
+                        "type": "array"
+                    },
+                    "policyDefinitionId": {
+                        "type": "string"
+                    },
+                    "policyDefinitionName": {
+                        "type": "string"
+                    },
+                    "policySetDefinitionId": {
+                        "type": "string"
+                    },
+                    "policySetDefinitionName": {
+                        "type": "string"
+                    },
+                    "resourceSelectors": {
+                        "type": "array"
+                    },
+                    "assignmentScopeValidation": {
+                        "type": "string"
+                    },
+                    "metadata": {
+                        "type": "object"
+                    }
+                },
+                "additionalProperties": false,
+                "allOf": [
+                    {
+                        "oneOf": [
+                            {
+                                "required": [
+                                    "policyAssignmentId"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "policyDefinitionId"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "policyDefinitionName"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "policySetDefinitionId"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "policySetDefinitionName"
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "oneOf": [
+                            {
+                                "required": [
+                                    "scope"
+                                ]
+                            },
+                            {
+                                "required": [
+                                    "scopes"
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "required": [
+                    "name",
+                    "displayName",
+                    "exemptionCategory"
+                ]
+            }
+        }
+    },
+    "required": [
+        "exemptions"
+    ]
+}
