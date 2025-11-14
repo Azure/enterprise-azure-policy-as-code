@@ -1,4 +1,4 @@
-# Integrating EPAC with the Azure Landing Zones Library (New)
+# Integrating EPAC with the Azure Landing Zones Library
 
 > [!TIP]
 > With EPAC version 11 it is now easier to maintain custom configurations to help with the Azure Landing Zone sync process. Legacy methods will still work however it is recommended to update your policy structure file to the new method.
