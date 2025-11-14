@@ -107,11 +107,11 @@ else {
         $table = ConvertTo-HashTable $plan.exemptions.delete
         $table += ConvertTo-HashTable $plan.exemptions.replace
         if ($table.psbase.Count -gt 0) {
-            Write-ModernSection -Title "Deleting Policy Exemptions" -Color Red
+            Write-ModernSection -Title "Deleting Policy Exemptions ($($table.psbase.Count) items)" -Color Red
             Write-ModernStatus -Message "Removing $($table.psbase.Count) orphaned, deleted, expired and replaced exemptions" -Status "info" -Indent 2
             foreach ($id in $table.Keys) {
                 $entry = $table.$id
-                Write-ModernStatus -Message "$($entry.displayName) - $($id)" -Status "info" -Indent 4
+                Write-ModernStatus -Message "$($entry.displayName) ($($entry.name)) at scope: $($entry.scope)" -Status "info" -Indent 4
                 Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policyExemptions
             }
         }
@@ -213,7 +213,7 @@ else {
                 $entry = $table.$exemptionId
                 Write-ModernStatus -Message "Processing: $($entry.displayName)" -Status "pending" -Indent 2
                 Set-AzPolicyExemptionRestMethod -ExemptionObj $entry -ApiVersion $pacEnvironment.apiVersions.policyExemptions -FailOnExemptionError $FailOnExemptionError
-                Write-ModernStatus -Message "Completed: $($entry.displayName)" -Status "success" -Indent 2
+                Write-ModernStatus -Message "Completed Successfully!" -Status "success" -Indent 4
                 Write-Information ""
             }
         }

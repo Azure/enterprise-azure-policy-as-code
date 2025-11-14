@@ -27,7 +27,7 @@ function Remove-AzResourceByIdRestMethod {
         }
     }
     else {
-        Write-ModernStatus -Message "Resource removed successfully" -Status "success" -Indent 4
+        Write-ModernStatus -Message "Resource Removed Successfully!" -Status "success" -Indent 4
         Write-Information ""
     }
 
