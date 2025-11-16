@@ -254,6 +254,33 @@ An existing archetype can be customized by adding or removing policy assignments
   }
 }
 ```
+### Create a new archetype based on an existing archetype (Requires EPAC v11)
+
+You can create a new archetype based on an existing by using a structure similar to the block below.
+
+```json
+{
+  "overrides":{
+    "archetypes": {
+      "custom": [
+        {
+          "name": "custom_identity", // Name of the built-in archetype to customize
+          "type": "existing",
+          "based_on": "identity",
+          "policy_assignments_to_add": [
+            "Audit-PeDnsZones"
+          ],
+          "policy_assignments_to_remove": [
+            "Deny-Public-IP"
+          ]
+        }
+      ]
+    }
+  }
+}
+```
+
+You will need to add the new archetype to the management group name mappings and include the assigned scope. 
 
 ### Ignore an archetype (Requires EPAC v11)
 
@@ -342,6 +369,7 @@ By default ALZ specifies deploying all the guardrail policies to the `platform` 
 To modify this behavior you can update/modify the scopes in the `deployment.scopes` entry - or if you want to deploy different guardrails to different scopes simply create another entry within the `enforceGuardrails.deployment` array similar to below.
 
 ```json
+```json
 "enforceGuardrails": {
     "deployments": [
       {
@@ -371,6 +399,7 @@ To modify this behavior you can update/modify the scopes in the `deployment.scop
 Example to generate assignments with guardrails assignments included.
 
 ```ps1
+```ps1
 # Sync the ALZ policies and assign to the "epac-dev" PAC environment.
 Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type ALZ -PacEnvironmentSelector "epac-dev" -CreateGuardrailAssignments
 ```
@@ -392,6 +421,26 @@ The updated management group structure would follow similar to below:-
 1. Create a fork of the [Azure Landing Zone Library](https://github.com/Azure/Azure-Landing-Zones-Library) and clone it locally. When later running the `New-ALZPolicyDefaultStructure` and `Sync-ALZPolicyFromLibrary` commands you will need to ensure the `-LibraryPath` parameter points to this cloned repo.
 2. For ALZ there are two files which need to be updated - firstly we need to add the new management group archetypes into the `\platform\alz\architecture_definitions\alz.alz_architecture_definition.json` file. In this example I will remove the `corp` and `online` entries from this file and replace them with a non-production and production key as below:-
 
+```json
+{
+      "archetypes": [
+        "non-production"
+      ],
+      "display_name": "Non-Production",
+      "exists": false,
+      "id": "non-production",
+      "parent_id": "landingzones"
+    },
+    {
+      "archetypes": [
+        "production"
+      ],
+      "display_name": "Production",
+      "exists": false,
+      "id": "production",
+      "parent_id": "landingzones"
+    }
+```
     ```json
     {
           "archetypes": [
@@ -416,6 +465,22 @@ The updated management group structure would follow similar to below:-
 3. Now that the new archetypes have been added there needs to be archetype definition files created - which tie together which assignments are associated to these archetypes. For this example we will apply the same assignments as what would have been applied to the `corp` management group to the new management groups.
 4. In the forked repository in the folder `\platform\alz\archetype_definitions` we can copy the `corp.alz_archetype_definition.json` file twice and rename it to `non-production.alz_archetype_definition.json` and `production.alz_archetype_definition.json`. For each file update the `name` key in the file to match e.g.
 
+```json
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/Azure-Landing-Zones-Library/main/schemas/archetype_definition.json",
+  "name": "production",
+  "policy_assignments": [
+    "Audit-PeDnsZones",
+    "Deny-HybridNetworking",
+    "Deny-Public-Endpoints",
+    "Deny-Public-IP-On-NIC",
+    "Deploy-Private-DNS-Zones"
+  ],
+  "policy_definitions": [],
+  "policy_set_definitions": [],
+  "role_definitions": []
+}
+```
     ```json
     {
       "$schema": "https://raw.githubusercontent.com/Azure/Azure-Landing-Zones-Library/main/schemas/archetype_definition.json",
@@ -442,19 +507,22 @@ The updated management group structure would follow similar to below:-
 
     This file will contain the new management groups in the structure file as below:-
 
-    ```json
-    "non-production": {
-      "value": "/providers/Microsoft.Management/managementGroups/non-production",
-      "management_group_function": "Non-Production"
-    },
-    "production": {
-      "value": "/providers/Microsoft.Management/managementGroups/production",
-      "management_group_function": "Production"
-    }
-    ```
+```json
+"non-production": {
+  "value": "/providers/Microsoft.Management/managementGroups/non-production",
+  "management_group_function": "Non-Production"
+},
+"production": {
+  "value": "/providers/Microsoft.Management/managementGroups/production",
+  "management_group_function": "Production"
+}
+```
 
 7. Run the sync command to import the policies and generate the assignments - for example:-
 
+```ps1
+Sync-ALZPolicyFromLibrary.ps1 -DefinitionsRootFolder .\Definitions\ -Type ALZ -LibraryPath ..\alz-library-fork\ -PacEnvironmentSelector epac-dev
+```
     ```ps1
     Sync-ALZPolicyFromLibrary.ps1 -DefinitionsRootFolder .\Definitions\ -Type ALZ -LibraryPath ..\alz-library-fork\ -PacEnvironmentSelector epac-dev
     ```
@@ -470,6 +538,13 @@ The updated management group structure would follow similar to below:-
         ]
       }
     ```
+```json
+"scope": {
+    "epac-dev": [
+      "/providers/Microsoft.Management/managementGroups/non-production"
+    ]
+  }
+```
 
 9. When maintaining parity with updates from the ALZ team including policy changes and new assignments it will be necessary to sync your forked repo and carefully check the incoming changes.
 

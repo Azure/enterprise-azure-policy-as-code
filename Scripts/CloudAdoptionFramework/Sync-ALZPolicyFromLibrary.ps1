@@ -210,15 +210,46 @@ try {
     $finalArchetypeArray = @()
     # Modify anything that is existing
     foreach ($archetype in $archetypeArray | Where-Object { $_.type -eq "existing" }) {
-        $archetypeObj = @{
-            name               = $archetype.name
-            policy_assignments = $archetypeArray | Where-Object { $_.name -eq $archetype.name -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
+        if ($archetype.PSObject.properties.name -contains "based_on") {
+            $archetypeObj = @{
+                name               = $archetype.name
+                policy_assignments = $archetypeArray | Where-Object { $_.name -eq $archetype.based_on -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
+            }
+        }
+        else {
+            $archetypeObj = @{
+                name               = $archetype.name
+                policy_assignments = $archetypeArray | Where-Object { $_.name -eq $archetype.name -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
+            }
         }
         if ($archetype.policy_assignments_to_add) {
             $archetypeObj.policy_assignments += $archetype.policy_assignments_to_add
         }
-        $finalArchetypeArray += $archetypeObj
+        if (-not($archetypeObj.policy_assignments | Measure-Object).Count -eq 0) {
+            $finalArchetypeArray += $archetypeObj
+        }
+        
     }
+    #Check again for new archetypes based on a custom archetype
+    foreach ($archetype in $archetypeArray | Where-Object { $_.type -eq "existing" -and $_.name -notin ($finalArchetypeArray.name) }) {
+        if ($archetype.PSObject.properties.name -contains "based_on") {
+            $archetypeObj = @{
+                name               = $archetype.name
+                policy_assignments = $finalArchetypeArray | Where-Object { $_.name -eq $archetype.based_on -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
+            }
+        }
+        if ($archetype.policy_assignments_to_add) {
+            $archetypeObj.policy_assignments += $archetype.policy_assignments_to_add
+        }
+        if (-not($archetypeObj.policy_assignments | Measure-Object).Count -eq 0) {
+            $finalArchetypeArray += $archetypeObj
+        }
+        else {
+            Write-ModernStatus -Message "Archetype '$($archetype.name)' has no policy assignments after modifications. Skipping." -Status "warning" -Indent 2
+        }
+    }
+    
+    # Add any new archetypes
     foreach ($archetype in $archetypeArray | Where-Object { $_.type -ne "existing" -and $_.name -notin ($finalArchetypeArray.name) }) {
         $finalArchetypeArray += $archetype
     }
