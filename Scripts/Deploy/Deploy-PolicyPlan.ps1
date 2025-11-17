@@ -130,10 +130,10 @@ else {
     $table = ConvertTo-HashTable $plan.policySetDefinitions.delete
     $table += ConvertTo-HashTable $plan.policySetDefinitions.replace
     if ($table.psbase.Count -gt 0) {
-        Write-ModernSection -Title "Deleting Policy Set Definitions" -Color Red
-        Write-ModernStatus -Message "Removing $($table.psbase.Count) removed and replaced policy sets" -Status "info" -Indent 2
+        Write-ModernSection -Title "Deleting Policy Set Definitions ($($table.psbase.Count) items)" -Color Red
         foreach ($id in $table.Keys) {
             $entry = $table.$id
+            Write-ModernStatus -Message "$($entry.displayName)" -Status "info" -Indent 2
             Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policySetDefinitions
         }
     }
@@ -157,7 +157,6 @@ else {
         Write-ModernSection -Title "Creating and Updating Policies ($($table.psbase.Count) items)" -Color Blue
         foreach ($id in $table.Keys) {
             $entry = $table.$id
-            Write-ModernStatus -Message "Processing: $($entry.displayName)" -Status "pending" -Indent 2
             Set-AzPolicyDefinitionRestMethod -Definition $entry -ApiVersion $pacEnvironment.apiVersions.policyDefinitions
             Write-ModernStatus -Message "Completed: $($entry.displayName)" -Status "success" -Indent 4
             Write-Information ""
@@ -171,7 +170,6 @@ else {
         Write-ModernSection -Title "Creating and Updating Policy Sets ($($table.psbase.Count) items)" -Color Green
         foreach ($id in $table.Keys) {
             $entry = $table.$id
-            Write-ModernStatus -Message "Processing: $($entry.displayName)" -Status "pending" -Indent 2
             Set-AzPolicySetDefinitionRestMethod -Definition $entry -ApiVersion $pacEnvironment.apiVersions.policySetDefinitions
             Write-ModernStatus -Message "Completed: $($entry.displayName)" -Status "success" -Indent 4
             Write-Information ""
@@ -196,7 +194,6 @@ else {
         Write-ModernSection -Title "Creating and Updating Assignments ($($table.psbase.Count) items)" -Color Yellow
         foreach ($id in $table.Keys) {
             $entry = $table.$id
-            Write-ModernStatus -Message "Processing: $($entry.displayName)" -Status "pending" -Indent 2
             Set-AzPolicyAssignmentRestMethod -Assignment $entry -ApiVersion $pacEnvironment.apiVersions.policyAssignments
             Write-ModernStatus -Message "Completed: $($entry.displayName)" -Status "success" -Indent 4
             Write-Information ""

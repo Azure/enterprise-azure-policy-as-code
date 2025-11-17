@@ -69,7 +69,7 @@ function Set-AzRoleAssignmentRestMethod {
         }
     }
     else {
-        Write-ModernStatus -Message "Created role assignment for principal: $principalId" -Status "success" -Indent 6
+        Write-ModernStatus -Message "Created role assignment for principal successfully!" -Status "success" -Indent 6
         Write-Information ""
     }
 }
