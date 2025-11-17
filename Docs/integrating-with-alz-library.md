@@ -18,7 +18,7 @@ To use the ALZ policies in an environment successfully there are some Azure Reso
 This file contains information that drives the sync process. The file includes management group IDs, default enforcement mode, and parameter values. **It must be generated at least once before executing the sync process.**
 
 1. Ensure that the EPAC module is up to date - required minimum version to use these features is 10.9.0.
-2. Use the `New-ALZPolicyDefaultStructure` command to clone the library repository and create the default file `alz.policy_default_structure.jsonc`. There are examples below on how to run this command - you will only need to run one of these depending on your requirements.
+2. Use the code below to clone the library repository and create the default file. There are examples below on how to run this command - you will only need to run one of these depending on your requirements.
 
     ```ps1
     # Create a Pac Environment default file for ALZ policies using the latest release of the ALZ Library release
@@ -264,9 +264,9 @@ You can create a new archetype based on an existing by using a structure similar
     "archetypes": {
       "custom": [
         {
-          "name": "custom_identity", // Name of the built-in archetype to customize
+          "name": "custom_identity", 
           "type": "existing",
-          "based_on": "identity",
+          "based_on": "identity", // Name of the built-in archetype to customize
           "policy_assignments_to_add": [
             "Audit-PeDnsZones"
           ],
