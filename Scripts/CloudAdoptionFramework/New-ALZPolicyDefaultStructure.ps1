@@ -163,11 +163,7 @@ foreach ($parameter in $policyDefaults) {
         # Grab the first policy assignment to grab default value of the parameter
         $parameterAssignmentName = $parameter.policy_assignments[0].parameter_names[0]
         $assignment = $parameter.policy_assignments[0]
-
         $assignmentFileName = ("$($assignment.policy_assignment_name).alz_policy_assignment.json")
-        if ($Type -in ("AMBA", "SLZ", "FSI")) {
-            $assignmentFileName = $assignmentFileName -replace ("-", "_")
-        }
         $file = Get-ChildItem -Recurse -Path $LibraryPath -Filter "$assignmentFileName" -File | Select-Object -First 1
         try {
             $jsonContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
