@@ -37,7 +37,7 @@ function Find-AzNonCompliantResources {
                     }
                 }
                 else {
-                    if ($filterValue -in @("audit", "deny", "append", "modify", "auditifnotexists", "deployifnotexists", "denyaction", "manual")) {
+                    if ($filterValue -cin @("audit", "deny", "append", "modify", "auditifnotexists", "deployifnotexists", "denyaction", "manual")) {
                         $effectFilter += "properties.policyDefinitionAction == `"$filterValue`" or "
                     }
                     else {
@@ -70,7 +70,7 @@ policyresources
 "@
     }
     else {
-        $query = "policyresources | where type == `"microsoft.policyinsights/policystates`""
+        $query = "policyresources | where type == `"microsoft.policyinsights/policystates`" and properties.complianceState == `"NonCompliant`"$($effectFilter)"
     }
     Write-ModernStatus -Message "Azure Resource Graph Query: '$query'" -Status "processing" -Indent 2
     $result = @() + (Search-AzGraphAllItems -Query $query -ProgressItemName "Policy compliance records")
