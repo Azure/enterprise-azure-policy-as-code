@@ -101,10 +101,6 @@ function Install-EpacHydration {
         [string] $PipelinePlatform = 'None',
 
         [Parameter(Mandatory = $false)]
-        [ValidateSet('Simple', 'StarterKit')]
-        [string] $PipelineType = 'Simple',
-
-        [Parameter(Mandatory = $false)]
         [ValidateSet('GitHub', 'Release')]
         [string] $BranchingFlow = 'GitHub',
 
@@ -154,9 +150,6 @@ function Install-EpacHydration {
             }
             if (!$PSBoundParameters.ContainsKey('PipelinePlatform') -and $config.pipelinePlatform) {
                 $PipelinePlatform = $config.pipelinePlatform
-            }
-            if (!$PSBoundParameters.ContainsKey('PipelineType') -and $config.pipelineType) {
-                $PipelineType = $config.pipelineType
             }
             if (!$PSBoundParameters.ContainsKey('BranchingFlow') -and $config.branchingFlow) {
                 $BranchingFlow = $config.branchingFlow
@@ -282,7 +275,6 @@ function Install-EpacHydration {
             $pipelineResult = New-EpacPipeline `
                 -Platform $PipelinePlatform `
                 -Configuration $epacConfig `
-                -PipelineType $PipelineType `
                 -BranchingFlow $BranchingFlow `
                 -UseModule:$UseModuleNotScript
             if (!$pipelineResult.Success) {
