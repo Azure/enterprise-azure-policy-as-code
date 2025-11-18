@@ -198,6 +198,10 @@
                                         ],
                                         "description": "Type of archetype - 'new' creates a new archetype, 'existing' modifies an existing one"
                                     },
+                                    "based_on": {
+                                        "type": "string",
+                                        "description": "Name of the existing archetype this custom archetype is based on"
+                                    },
                                     "policy_assignments": {
                                         "type": "array",
                                         "items": {
