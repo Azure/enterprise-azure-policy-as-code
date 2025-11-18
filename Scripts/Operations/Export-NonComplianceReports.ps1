@@ -97,6 +97,18 @@ param(
     [string[]] $PolicyAssignmentFilter = $null,
 
     [Parameter(Mandatory = $false, HelpMessage = "Filter by Policy Effect")]
+    [ValidateScript( {
+            $allowedEffects = @("audit", "deny", "deployifnotexists", "modify", "append", "auditifnotexists", "manual", "disabled")
+            foreach ($effect in $_) {
+                if ($effect -cnotin $allowedEffects) {
+                    throw "Invalid policy effect: $effect. Valid effects are: $($allowedEffects -join ', ')"
+                }
+                if ($effect -cne $effect.ToLower()) {
+                    throw "Policy effect '$effect' must be lowercase"
+                }
+            }
+            return $true
+        })]
     [string[]] $PolicyEffectFilter = $null,
 
     [Parameter(Mandatory = $false, HelpMessage = "Switch parameter to filter out Policy Effect Manual")]
