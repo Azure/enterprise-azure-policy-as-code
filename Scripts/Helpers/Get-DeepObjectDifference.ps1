@@ -160,9 +160,35 @@ function Get-DeepObjectDifference {
     else {
         # Simple comparison for non-hashtable objects
         if ($OldObject -ne $NewObject) {
+            # Convert complex objects to JSON for proper display
+            $oldFormatted = $OldObject
+            $newFormatted = $NewObject
+            
+            # Check if old value is a complex object that should be JSON-formatted
+            if ($null -ne $OldObject -and ($OldObject -is [hashtable] -or $OldObject -is [System.Collections.IDictionary] -or $OldObject -is [PSCustomObject])) {
+                try {
+                    $oldFormatted = ($OldObject | ConvertTo-Json -Compress -Depth 10 -ErrorAction Stop)
+                }
+                catch {
+                    # If JSON conversion fails, keep the original
+                    $oldFormatted = $OldObject
+                }
+            }
+            
+            # Check if new value is a complex object that should be JSON-formatted
+            if ($null -ne $NewObject -and ($NewObject -is [hashtable] -or $NewObject -is [System.Collections.IDictionary] -or $NewObject -is [PSCustomObject])) {
+                try {
+                    $newFormatted = ($NewObject | ConvertTo-Json -Compress -Depth 10 -ErrorAction Stop)
+                }
+                catch {
+                    # If JSON conversion fails, keep the original
+                    $newFormatted = $NewObject
+                }
+            }
+            
             $differences[$Path] = @{
-                old = $OldObject
-                new = $NewObject
+                old = $oldFormatted
+                new = $newFormatted
                 change = "modified"
             }
         }
