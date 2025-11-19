@@ -335,7 +335,8 @@
                 }
             },
             "additionalProperties": false
-        }
+        },
+        "$schema": { "type": "string" }
     },
     "required": [
         "managementGroupNameMappings",
