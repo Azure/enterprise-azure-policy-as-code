@@ -65,6 +65,7 @@ $scriptRoot = Split-Path $PSScriptRoot -Parent
 . "$PSScriptRoot/Get-CalculatedPolicyAssignmentsAndReferenceIds.ps1"
 . "$PSScriptRoot/Get-CustomMetadata.ps1"
 . "$PSScriptRoot/Get-DeepCloneAsOrderedHashtable.ps1"
+. "$PSScriptRoot/Get-DeepObjectDifference.ps1"
 . "$PSScriptRoot/Get-DefinitionsFullPath.ps1"
 . "$PSScriptRoot/Get-DeploymentPlan.ps1"
 . "$PSScriptRoot/Get-GlobalSettings.ps1"
@@ -110,6 +111,7 @@ $scriptRoot = Split-Path $PSScriptRoot -Parent
 . "$PSScriptRoot/Write-AssignmentDetails.ps1"
 . "$PSScriptRoot/Write-ErrorsFromErrorInfo.ps1"
 . "$PSScriptRoot/Write-ModernOutput.ps1"
+. "$PSScriptRoot/Write-PolicyChangeLog.ps1"
 
 . "$PSScriptRoot/RestMethods/Get-AzManagementGroupRestMethod.ps1" 
 . "$PSScriptRoot/RestMethods/Get-AzPolicyAssignmentRestMethod.ps1"
