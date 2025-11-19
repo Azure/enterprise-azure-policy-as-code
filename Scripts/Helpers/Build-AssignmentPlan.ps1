@@ -269,7 +269,7 @@ function Build-AssignmentPlan {
                         
                         $action = if ($identityStatus.replaced) { "Replace" } else { "Update" }
                         Write-PolicyChangeLog -LogFilePath $ChangeLogFilePath -Action $action -ResourceType "Assignment" `
-                            -Name $name -DisplayName $displayName -Changes $detailedChanges
+                            -Name $id -DisplayName $displayName -Changes $detailedChanges
                     }
                 }
             }
@@ -294,7 +294,7 @@ function Build-AssignmentPlan {
                 # Log detailed change information
                 if ($ChangeLogFilePath) {
                     Write-PolicyChangeLog -LogFilePath $ChangeLogFilePath -Action "New" -ResourceType "Assignment" `
-                        -Name $name -DisplayName $displayName -NewValue $assignment
+                        -Name $id -DisplayName $displayName -NewValue $assignment
                 }
             }
         }
@@ -347,7 +347,7 @@ function Build-AssignmentPlan {
                 # Log detailed change information
                 if ($ChangeLogFilePath) {
                     Write-PolicyChangeLog -LogFilePath $ChangeLogFilePath -Action "Delete" -ResourceType "Assignment" `
-                        -Name $name -DisplayName $displayName -OldValue $deleteCandidateProperties
+                        -Name $id -DisplayName $displayName -OldValue $deleteCandidateProperties
                 }
             }
             else {

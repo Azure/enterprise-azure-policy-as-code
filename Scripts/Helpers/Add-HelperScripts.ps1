@@ -110,6 +110,7 @@ $scriptRoot = Split-Path $PSScriptRoot -Parent
 . "$PSScriptRoot/Write-AssignmentDetails.ps1"
 . "$PSScriptRoot/Write-ErrorsFromErrorInfo.ps1"
 . "$PSScriptRoot/Write-ModernOutput.ps1"
+. "$PSScriptRoot/Write-PolicyChangeLog.ps1"
 
 . "$PSScriptRoot/RestMethods/Get-AzManagementGroupRestMethod.ps1" 
 . "$PSScriptRoot/RestMethods/Get-AzPolicyAssignmentRestMethod.ps1"
