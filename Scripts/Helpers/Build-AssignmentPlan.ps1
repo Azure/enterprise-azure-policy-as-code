@@ -254,7 +254,7 @@ function Build-AssignmentPlan {
                         # Log displayName changes
                         if (!$displayNameMatches) {
                             $detailedChanges["displayName"] = @{
-                                old = $existingProperties.displayName
+                                old = $deployedPolicyAssignmentProperties.displayName
                                 new = $displayName
                             }
                         }
@@ -262,7 +262,7 @@ function Build-AssignmentPlan {
                         # Log description changes
                         if (!$descriptionMatches) {
                             $detailedChanges["description"] = @{
-                                old = $existingProperties.description
+                                old = $deployedPolicyAssignmentProperties.description
                                 new = $description
                             }
                         }
