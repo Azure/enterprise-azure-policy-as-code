@@ -9,7 +9,7 @@ function Write-PolicyChangeLog {
         [string] $Action,
         
         [Parameter(Mandatory = $true)]
-        [ValidateSet("Policy", "PolicySet", "Assignment", "Exemption")]
+        [ValidateSet("Policy", "PolicySet", "Assignment", "Exemption", "RoleAssignment")]
         [string] $ResourceType,
         
         [Parameter(Mandatory = $true)]

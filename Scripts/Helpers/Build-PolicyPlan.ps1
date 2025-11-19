@@ -224,6 +224,16 @@ function Build-PolicyPlan {
                             }
                         }
                         
+                        # Log policy rule changes (complex object)
+                        if (!$policyRuleMatches) {
+                            $policyRuleDifferences = Get-DeepObjectDifference -OldObject $deployedDefinitionProperties.policyRule -NewObject $policyRule
+                            if ($policyRuleDifferences.Count -gt 0) {
+                                $detailedChanges["policyRule"] = @{
+                                    differences = $policyRuleDifferences
+                                }
+                            }
+                        }
+                        
                         Write-PolicyChangeLog -LogFilePath $ChangeLogFilePath -Action "Replace" -ResourceType "Policy" `
                             -Name $name -DisplayName $displayName -Changes $detailedChanges
                     }
@@ -268,6 +278,16 @@ function Build-PolicyPlan {
                             if ($parameterDifferences.Count -gt 0) {
                                 $detailedChanges["parameters"] = @{
                                     differences = $parameterDifferences
+                                }
+                            }
+                        }
+                        
+                        # Log policy rule changes (complex object)
+                        if (!$policyRuleMatches) {
+                            $policyRuleDifferences = Get-DeepObjectDifference -OldObject $deployedDefinitionProperties.policyRule -NewObject $policyRule
+                            if ($policyRuleDifferences.Count -gt 0) {
+                                $detailedChanges["policyRule"] = @{
+                                    differences = $policyRuleDifferences
                                 }
                             }
                         }
