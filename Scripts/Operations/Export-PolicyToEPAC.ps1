@@ -232,10 +232,15 @@ elseif ($PolicySetDefinitionId) {
     $policyBuiltInType = $policyResponse.policyType
     $policyDefinitionArray = @()
     foreach ($policyDef in $policyResponse.PolicyDefinition) {
-        $tempParam = $policyDef.parameters
+        if ( $null -ne $policyDef.parameters) {
+            $tempParam = $policyDef.parameters
+        }
+        else {
+            $tempParam = @{}
+        }
         $orderedPolicyDefinitions = [ordered]@{
             "policyDefinitionReferenceId" = "$($policyDef.policyDefinitionReferenceId)"
-            "PolicyDefinitionId"          = "$($policyDef.PolicyDefinitionId)"
+            "policyDefinitionId"          = "$($policyDef.policyDefinitionId)"
             "definitionVersion"           = "$($policyDef.definitionVersion)"
             "parameters"                  = $tempParam
             "groupNames"                  = "$($policyDef.groupNames)"
@@ -525,10 +530,15 @@ elseif ($ALZPolicySetDefinitionId) {
     $policyBuiltInType = $policyResponse.policyType
     $policyDefinitionArray = @()
     foreach ($policyDef in $policyResponse.PolicyDefinitions) {
-        $tempParam = $policyDef.parameters
+        if ( $null -ne $policyDef.parameters) {
+            $tempParam = $policyDef.parameters
+        }
+        else {
+            $tempParam = @{}
+        }
         $orderedPolicyDefinitions = [ordered]@{
             "policyDefinitionReferenceId" = "$($policyDef.policyDefinitionReferenceId)"
-            "PolicyDefinitionId"          = "$($policyDef.PolicyDefinitionId)"
+            "policyDefinitionId"          = "$($policyDef.PolicyDefinitionId)"
             "definitionVersion"           = "$($policyDef.definitionVersion)"
             "parameters"                  = $tempParam
             "groupNames"                  = "$($policyDef.groupNames)"
