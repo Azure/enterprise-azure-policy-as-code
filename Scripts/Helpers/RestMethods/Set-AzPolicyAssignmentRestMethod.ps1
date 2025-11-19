@@ -8,7 +8,7 @@ function Set-AzPolicyAssignmentRestMethod {
     # Write log info
     $id = $AssignmentObj.id
     $displayName = $AssignmentObj.displayName
-    Write-ModernStatus -Message "Setting policy assignment: $displayName" -Status "info" -Indent 4
+    Write-ModernStatus -Message "Setting policy assignment: $displayName" -Status "info" -Indent 2
 
     # Fix parameters to the weird way assignments uses JSON
     $parametersTemp = Get-DeepCloneAsOrderedHashtable $AssignmentObj.parameters

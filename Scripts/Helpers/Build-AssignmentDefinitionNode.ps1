@@ -313,21 +313,21 @@ function Build-AssignmentDefinitionNode {
         if ($rowHashtable.Count -gt 0 -or $missingInCsv.Count -gt 0 -or $deprecatedInCSV.Count -gt 0) {
             Write-ModernStatus -Message "Issues found with Parameter File '$parameterFileName'. Update or regenerate CSV." -Status "warning" -Indent 2
             if ($rowHashtable.Count -gt 0) {
-                Write-ModernStatus -Message "Contains rows not referenced in any Policy Set." -Status "warning" -Indent 4
+                Write-ModernStatus -Message "Contains rows not referenced in any Policy Set:" -Status "warning" -Indent 4
                 foreach ($displayString in $rowHashtable.Values) {
-                    Write-Information "        $($displayString)"
+                    Write-Information "         $($displayString)"
                 }
             }
             if ($missingInCsv.Count -gt 0) {
-                Write-ModernStatus -Message "Missing rows for policies in Policy Sets." -Status "warning" -Indent 4
+                Write-ModernStatus -Message "Missing rows for policies in Policy Sets:" -Status "warning" -Indent 4
                 foreach ($missing in $missingInCsv) {
-                    Write-Information "        $($missing)"
+                    Write-Information "         $($missing)"
                 }
             }
             if ($deprecatedInCSV.Count -gt 0) {
-                Write-ModernStatus -Message "Contains rows for deprecated policies in Policy Sets." -Status "warning" -Indent 4
+                Write-ModernStatus -Message "Contains rows for deprecated policies in Policy Sets:" -Status "warning" -Indent 4
                 foreach ($deprecated in $deprecatedInCSV) {
-                    Write-Information "        $($deprecated)"
+                    Write-Information "         $($deprecated)"
                 }
             }
         }

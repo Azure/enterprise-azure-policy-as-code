@@ -100,7 +100,7 @@
                                     ]
                                 },
                                 "type": {
-                                    "const": "string"
+                                    "enum": ["string", "String"]
                                 }
                             },
                             "required": [
