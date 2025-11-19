@@ -31,7 +31,7 @@ nav:
       - Extracting Policy Resources: start-extracting-policy-resources.md
       - Forking GitHub Repo: start-forking-github-repo.md
       - Advanced Configuration: advanced-configuration.md
-      - Upcoming Changes in v11.0.0: start-changes.md
+      - Changes in v11.0.0: start-changes.md
   - Settings and Desired State:
       - Global Settings: settings-global-setting-file.md
       - Desired State: settings-desired-state.md

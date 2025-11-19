@@ -142,23 +142,45 @@ function Write-ModernHeader {
     
     $border = $headerChars.horizontal * ($maxLength + 4)
     
+    # Capture output for epacInfoStream
+    $outputLines = @()
+    $outputLines += ""
+    
     Write-Host ""
     if ($headerChars.topLeft -and $headerChars.topRight) {
-        Write-Host "$($headerChars.topLeft)$border$($headerChars.topRight)" -ForegroundColor $headerColors.primary
-        Write-Host "$($headerChars.vertical)  $($Title.PadRight($maxLength))  $($headerChars.vertical)" -ForegroundColor $headerColors.primary
+        $line1 = "$($headerChars.topLeft)$border$($headerChars.topRight)"
+        $line2 = "$($headerChars.vertical)  $($Title.PadRight($maxLength))  $($headerChars.vertical)"
+        $line4 = "$($headerChars.bottomLeft)$border$($headerChars.bottomRight)"
+        
+        Write-Host $line1 -ForegroundColor $headerColors.primary
+        Write-Host $line2 -ForegroundColor $headerColors.primary
+        $outputLines += $line1
+        $outputLines += $line2
+        
         if ($Subtitle) {
-            Write-Host "$($headerChars.vertical)  $($Subtitle.PadRight($maxLength))  $($headerChars.vertical)" -ForegroundColor $headerColors.secondary
+            $line3 = "$($headerChars.vertical)  $($Subtitle.PadRight($maxLength))  $($headerChars.vertical)"
+            Write-Host $line3 -ForegroundColor $headerColors.secondary
+            $outputLines += $line3
         }
-        Write-Host "$($headerChars.bottomLeft)$border$($headerChars.bottomRight)" -ForegroundColor $headerColors.primary
+        Write-Host $line4 -ForegroundColor $headerColors.primary
+        $outputLines += $line4
     }
     else {
         # Screen reader mode - no box drawing
         Write-Host $Title -ForegroundColor $headerColors.primary
+        $outputLines += $Title
         if ($Subtitle) {
             Write-Host $Subtitle -ForegroundColor $headerColors.secondary
+            $outputLines += $Subtitle
         }
     }
     Write-Host ""
+    $outputLines += ""
+    
+    # Append to global epacInfoStream
+    if (Get-Variable -Name epacInfoStream -Scope Global -ErrorAction SilentlyContinue) {
+        $Global:epacInfoStream += $outputLines
+    }
 }
 
 function Write-ModernSection {
@@ -173,11 +195,24 @@ function Write-ModernSection {
     
     $prefix = " " * $Indent
     
+    $line1 = "$prefix$($sectionChars.arrow) $Title"
+    
     Write-Host ""
-    Write-Host "$prefix$($sectionChars.arrow) $Title" -ForegroundColor $sectionColor
+    Write-Host $line1 -ForegroundColor $sectionColor
+    
+    # Capture output for epacInfoStream
+    $outputLines = @("", $line1)
+    
     if ($sectionChars.underline) {
         $underline = $sectionChars.underline * ($Title.Length + 2)
-        Write-Host "$prefix$underline" -ForegroundColor $sectionColor
+        $line2 = "$prefix$underline"
+        Write-Host $line2 -ForegroundColor $sectionColor
+        $outputLines += $line2
+    }
+    
+    # Append to global epacInfoStream
+    if (Get-Variable -Name epacInfoStream -Scope Global -ErrorAction SilentlyContinue) {
+        $Global:epacInfoStream += $outputLines
     }
 }
 
@@ -200,13 +235,20 @@ function Write-ModernStatus {
     $statusChar = if ($statusChars.$statusLower) { $statusChars.$statusLower } else { $statusChars.info }
     $statusColor = if ($statusColors.$statusLower) { $statusColors.$statusLower } else { $statusColors.info }
     
+    $outputLine = "$prefix$statusChar $Message"
+    
     # Check for background color support
     if ($backgroundColors -and $backgroundColors.$statusLower -and $backgroundColors.$statusLower -ne "") {
         $backgroundColor = $backgroundColors.$statusLower
-        Write-Host "$prefix$statusChar $Message" -ForegroundColor $statusColor -BackgroundColor $backgroundColor
+        Write-Host $outputLine -ForegroundColor $statusColor -BackgroundColor $backgroundColor
     }
     else {
-        Write-Host "$prefix$statusChar $Message" -ForegroundColor $statusColor
+        Write-Host $outputLine -ForegroundColor $statusColor
+    }
+    
+    # Append to global epacInfoStream
+    if (Get-Variable -Name epacInfoStream -Scope Global -ErrorAction SilentlyContinue) {
+        $Global:epacInfoStream += $outputLine
     }
 }
 
@@ -221,6 +263,7 @@ function Write-ModernCountSummary {
         [int]$Indent = 2
     )
     
+    # This function calls other Write-Modern* functions which will handle appending to epacInfoStream
     Write-ModernSection -Title "$Type Summary" -Indent 0
     
     if ($Unchanged -gt 0) {
@@ -284,6 +327,12 @@ function Write-ModernProgress {
     
     $percentage = if ($Total -gt 0) { [math]::Round(($Current / $Total) * 100) } else { 0 }
     $progressText = "$Activity ($Current/$Total - $percentage%)"
+    $outputLine = "$prefix$progressChar $progressText"
     
-    Write-Host "$prefix$progressChar $progressText" -ForegroundColor $progressColor
+    Write-Host $outputLine -ForegroundColor $progressColor
+    
+    # Append to global epacInfoStream
+    if (Get-Variable -Name epacInfoStream -Scope Global -ErrorAction SilentlyContinue) {
+        $Global:epacInfoStream += $outputLine
+    }
 }

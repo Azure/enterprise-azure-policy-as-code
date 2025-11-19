@@ -50,6 +50,7 @@ $PSDefaultParameterValues = @{
 }
 
 Clear-Variable -Name epacInfoStream -Scope global -Force -ErrorAction SilentlyContinue
+$Global:epacInfoStream = @()
 
 # Dot Source Helper Scripts
 . "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
@@ -162,7 +163,7 @@ if ($updatedRoleAssignments.psbase.Count -gt 0) {
 
     # Get identities for policy assignments from plan or by calling the REST API to retrieve the Policy Assignment
     foreach ($roleAssignment in $updatedRoleAssignments) {
-        Write-ModernStatus -Message "Updating role assignment: $($roleAssignment.properties.principalId)" -Status "pending" -Indent 2
+        Write-ModernStatus -Message "Updating role assignment:`n      Principal: $principalId`n      Role: $($roleAssignment.roleDisplayName)`n      Scope: $($roleAssignment.scope)" -Status "pending" -Indent 2
         Set-AzRoleAssignmentRestMethod -RoleAssignment $roleAssignment -PacEnvironment $pacEnvironment
     }
 }

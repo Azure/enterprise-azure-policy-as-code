@@ -75,6 +75,7 @@ function Build-HydrationDeploymentPlans {
     }
 
     Clear-Variable -Name epacInfoStream -Scope global -Force -ErrorAction SilentlyContinue
+    $Global:epacInfoStream = @()
 
     # Dot Source Helper Scripts
     # TODO: Not necessary as a function, reinstate when returned to Deploy folder
