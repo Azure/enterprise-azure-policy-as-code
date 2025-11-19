@@ -183,6 +183,50 @@ function Build-PolicyPlan {
                     Write-ModernStatus -Message "Replace ($changesString): $($displayName)" -Status "warning" -Indent 4
                     $null = $definitionsReplace.Add($id, $definition)
                     $null = $ReplaceDefinitions.Add($id, $definition)
+                    
+                    # Log detailed change information for replace operations
+                    if ($ChangeLogFilePath) {
+                        $detailedChanges = @{}
+                        
+                        # Log displayName changes
+                        if (!$displayNameMatches) {
+                            $detailedChanges["displayName"] = @{
+                                old = $deployedDefinitionProperties.displayName
+                                new = $displayName
+                            }
+                        }
+                        
+                        # Log description changes
+                        if (!$descriptionMatches) {
+                            $detailedChanges["description"] = @{
+                                old = $deployedDefinitionProperties.description
+                                new = $description
+                            }
+                        }
+                        
+                        # Log metadata changes (complex object)
+                        if (!$metadataMatches) {
+                            $metadataDifferences = Get-DeepObjectDifference -OldObject $deployedDefinitionProperties.metadata -NewObject $metadata
+                            if ($metadataDifferences.Count -gt 0) {
+                                $detailedChanges["metadata"] = @{
+                                    differences = $metadataDifferences
+                                }
+                            }
+                        }
+                        
+                        # Log parameters changes (complex object) - always log for incompatible changes
+                        if (!$parametersMatch) {
+                            $parameterDifferences = Get-DeepObjectDifference -OldObject $deployedDefinitionProperties.parameters -NewObject $parameters
+                            if ($parameterDifferences.Count -gt 0) {
+                                $detailedChanges["parameters"] = @{
+                                    differences = $parameterDifferences
+                                }
+                            }
+                        }
+                        
+                        Write-PolicyChangeLog -LogFilePath $ChangeLogFilePath -Action "Replace" -ResourceType "Policy" `
+                            -Name $name -DisplayName $displayName -Changes $detailedChanges
+                    }
                 }
                 else {
                     Write-ModernStatus -Message "Update ($changesString): $($displayName)" -Status "update" -Indent 4
