@@ -297,6 +297,26 @@ function Build-PolicySetPlan {
                             }
                         }
                         
+                        # Log metadata changes (complex object)
+                        if (!$metadataMatches) {
+                            $metadataDifferences = Get-DeepObjectDifference -OldObject $deployedDefinitionProperties.metadata -NewObject $metadata
+                            if ($metadataDifferences.Count -gt 0) {
+                                $detailedChanges["metadata"] = @{
+                                    differences = $metadataDifferences
+                                }
+                            }
+                        }
+                        
+                        # Log parameters changes (complex object)
+                        if (!$parametersMatch -and !$incompatible) {
+                            $parameterDifferences = Get-DeepObjectDifference -OldObject $deployedDefinitionProperties.parameters -NewObject $parameters
+                            if ($parameterDifferences.Count -gt 0) {
+                                $detailedChanges["parameters"] = @{
+                                    differences = $parameterDifferences
+                                }
+                            }
+                        }
+                        
                         Write-PolicyChangeLog -LogFilePath $ChangeLogFilePath -Action "Update" -ResourceType "PolicySet" `
                             -Name $name -DisplayName $displayName -Changes $detailedChanges
                     }

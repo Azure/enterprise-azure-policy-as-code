@@ -267,6 +267,26 @@ function Build-AssignmentPlan {
                             }
                         }
                         
+                        # Log metadata changes (complex object)
+                        if (!$metadataMatches) {
+                            $metadataDifferences = Get-DeepObjectDifference -OldObject $deployedPolicyAssignmentProperties.metadata -NewObject $metadata
+                            if ($metadataDifferences.Count -gt 0) {
+                                $detailedChanges["metadata"] = @{
+                                    differences = $metadataDifferences
+                                }
+                            }
+                        }
+                        
+                        # Log parameters changes (complex object)
+                        if (!$parametersMatch) {
+                            $parameterDifferences = Get-DeepObjectDifference -OldObject $deployedPolicyAssignmentProperties.parameters -NewObject $parameters
+                            if ($parameterDifferences.Count -gt 0) {
+                                $detailedChanges["parameters"] = @{
+                                    differences = $parameterDifferences
+                                }
+                            }
+                        }
+                        
                         $action = if ($identityStatus.replaced) { "Replace" } else { "Update" }
                         Write-PolicyChangeLog -LogFilePath $ChangeLogFilePath -Action $action -ResourceType "Assignment" `
                             -Name $id -DisplayName $displayName -Changes $detailedChanges
