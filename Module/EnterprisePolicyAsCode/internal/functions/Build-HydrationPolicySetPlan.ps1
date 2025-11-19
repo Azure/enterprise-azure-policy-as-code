@@ -1,4 +1,4 @@
-function Build-PolicySetPlan {
+function Build-HydrationPolicySetPlan {
     [CmdletBinding()]
     param (
         [string] $DefinitionsRootFolder,
@@ -8,21 +8,28 @@ function Build-PolicySetPlan {
         [hashtable] $AllDefinitions,
         [hashtable] $ReplaceDefinitions,
         [hashtable] $PolicyRoleIds,
-        [string] $ChangeLogFilePath
+        [System.Collections.Specialized.OrderedDictionary] $DetailedRecord,
+        [switch] $ExtendedReporting
     )
 
-    Write-ModernSection -Title "Processing Policy Set Definitions" -Color Blue
-    Write-ModernStatus -Message "Source folder: $DefinitionsRootFolder" -Status "info" -Indent 2
+    Write-Information "==================================================================================================="
+    Write-Information "Processing Policy Set JSON files in folder '$DefinitionsRootFolder'"
+    Write-Information "==================================================================================================="
+
+    if($ExtendedReporting){
+        $allPolicySetRecords = [ordered]@{}
+        $rRoot = (Resolve-Path (Split-Path (Split-Path $DefinitionsRootFolder))).Path
+    }
 
     # Process Policy Set JSON files if any
     $definitionFiles = @()
     $definitionFiles += Get-ChildItem -Path $DefinitionsRootFolder -Recurse -File -Filter "*.json"
     $definitionFiles += Get-ChildItem -Path $DefinitionsRootFolder -Recurse -File -Filter "*.jsonc"
     if ($definitionFiles.Length -gt 0) {
-        Write-ModernStatus -Message "Found $($definitionFiles.Length) policy set files" -Status "success" -Indent 2
+        Write-Information "Number of Policy Set files = $($definitionFiles.Length)"
     }
     else {
-        Write-ModernStatus -Message "No policy set files found - all custom definitions will be deleted" -Status "warning" -Indent 2
+        Write-Warning "No Policy Set files found! Deleting any custom Policy Set definitions."
     }
 
     $managedDefinitions = $DeployedDefinitions.managed
@@ -34,22 +41,26 @@ function Build-PolicySetPlan {
 
     foreach ($file in $definitionFiles) {
         $Json = Get-Content -Path $file.FullName -Raw -ErrorAction Stop
-
         $definitionObject = $null
         try {
             $definitionObject = $Json | ConvertFrom-Json -Depth 100
         }
         catch {
-            Write-Error "Assignment JSON file '$($file.Name)' is not valid." -ErrorAction Stop
+            Write-Error "PolicySet JSON file '$($file.Name)' is not valid." -ErrorAction Stop
         }
-
+        if($ExtendedReporting){
+            Remove-Variable fileRecord -ErrorAction SilentlyContinue
+            $fileRecord = Get-DeepCloneAsOrderedHashtable -InputObject $DetailedRecord
+            $relativePath = -join(".",$file.FullName.Substring(($rRoot).Length))
+        }
+        Remove-Variable definitionProperties -ErrorAction SilentlyContinue
         $definitionProperties = Get-PolicyResourceProperties -PolicyResource $definitionObject
         $name = $definitionObject.name
         $id = "$deploymentRootScope/providers/Microsoft.Authorization/policySetDefinitions/$name"
         $displayName = $definitionProperties.displayName
         $description = $definitionProperties.description
+        Remove-Variable metadata -ErrorAction SilentlyContinue
         $metadata = Get-DeepCloneAsOrderedHashtable $definitionProperties.metadata
-        $version = $definitionProperties.version
         $parameters = $definitionProperties.parameters
         $policyDefinitions = $definitionProperties.policyDefinitions
         $policyDefinitionGroups = $definitionProperties.policyDefinitionGroups
@@ -97,6 +108,10 @@ function Build-PolicySetPlan {
         }
 
         # Calculate included policyDefinitions
+        Remove-Variable validPolicyDefinitions -ErrorAction SilentlyContinue
+        Remove-Variable policyDefinitionsFinal -ErrorAction SilentlyContinue
+        Remove-Variable policyRoleIdsInSet -ErrorAction SilentlyContinue
+        Remove-Variable usedPolicyGroupDefinitions -ErrorAction SilentlyContinue
         $validPolicyDefinitions, $policyDefinitionsFinal, $policyRoleIdsInSet, $usedPolicyGroupDefinitions = Build-PolicySetPolicyDefinitionIds `
             -DisplayName $displayName `
             -PolicyDefinitions $policyDefinitions `
@@ -183,7 +198,6 @@ function Build-PolicySetPlan {
             displayName            = $displayName
             description            = $description
             metadata               = $metadata
-            version                = $version
             parameters             = $parameters
             policyDefinitions      = $policyDefinitionsFinal
             policyDefinitionGroups = $policyDefinitionGroupsFinal
@@ -193,6 +207,7 @@ function Build-PolicySetPlan {
 
         if ($managedDefinitions.ContainsKey($id)) {
             # Update or replace scenarios
+            Remove-Variable deployedDefinition -ErrorAction SilentlyContinue
             $deployedDefinition = $managedDefinitions[$id]
             $deployedDefinition = Get-PolicyResourceProperties -PolicyResource $deployedDefinition
 
@@ -202,28 +217,42 @@ function Build-PolicySetPlan {
             # Check if Policy Set in Azure is the same as in the JSON file
             $displayNameMatches = $deployedDefinition.displayName -eq $displayName
             $descriptionMatches = $deployedDefinition.description -eq $description
+            Remove-Variable metadataMatches -ErrorAction SilentlyContinue
+            Remove-Variable changePacOwnerId -ErrorAction SilentlyContinue
             $metadataMatches, $changePacOwnerId = Confirm-MetadataMatches `
                 -ExistingMetadataObj $deployedDefinition.metadata `
                 -DefinedMetadataObj $metadata
+            Remove-Variable parametersMatch -ErrorAction SilentlyContinue
+            Remove-Variable incompatible -ErrorAction SilentlyContinue
             $parametersMatch, $incompatible = Confirm-ParametersDefinitionMatch `
                 -ExistingParametersObj $deployedDefinition.parameters `
                 -DefinedParametersObj $parameters
+            Remove-Variable policyDefinitionsMatch -ErrorAction SilentlyContinue # TODO: THis is where it breaks
             $policyDefinitionsMatch = Confirm-PolicyDefinitionsInPolicySetMatch `
                 $deployedDefinition.policyDefinitions `
-                $policyDefinitionsFinal `
-                $AllDefinitions.policydefinitions
+                $policyDefinitionsFinal
+            Remove-Variable policyDefinitionGroupsMatch -ErrorAction SilentlyContinue
             $policyDefinitionGroupsMatch = Confirm-ObjectValueEqualityDeep `
                 $deployedDefinition.policyDefinitionGroups `
                 $policyDefinitionGroupsFinal
-            $deletedPolicyDefinitionGroups = !$policyDefinitionGroupsMatch -and ($null -eq $policyDefinitionGroupsFinal -or $policyDefinitionGroupsFinal.Length -eq 0)
-
+            $deletedPolicyDefinitionGroups = !$policyDefinitionGroupsMatch -and ($null -eq $policyDefinitionGroupsFinal -or $policyDefinitionGroupsFinal.Length -eq 0)            
             # Update Policy Set in Azure if necessary
             $containsReplacedPolicy = $false
+            if($ExtendedReporting){
+                $replacedPolicyList = @()
+            }
             foreach ($policyDefinitionEntry in $policyDefinitionsFinal) {
                 $policyId = $policyDefinitionEntry.policyDefinitionId
                 if ($ReplaceDefinitions.ContainsKey($policyId)) {
                     $containsReplacedPolicy = $true
-                    break
+                    if(!$ExtendedReporting){
+                        break
+                    }
+                    else{
+                        # Capture full list of replaced policies for ExtendedReporting
+                        $replacedPolicyList += $policyId
+                        break
+                    }
                 }
             }
             if (!$containsReplacedPolicy -and $displayNameMatches -and $descriptionMatches -and $metadataMatches -and !$changePacOwnerId -and $parametersMatch -and $policyDefinitionsMatch -and $policyDefinitionGroupsMatch) {
@@ -269,49 +298,100 @@ function Build-PolicySetPlan {
 
                 if ($incompatible -or $containsReplacedPolicy) {
                     # Check if parameters are compatible with an update or id the set includes at least one Policy which is being replaced.
-                    Write-ModernStatus -Message "Replace ($changesString): $($displayName)" -Status "warning" -Indent 4
+                    Write-Information "Replace ($changesString) '$($displayName)'"
                     $null = $Definitions.replace.Add($id, $definition)
                     $null = $ReplaceDefinitions.Add($id, $definition)
                 }
                 else {
-                    Write-ModernStatus -Message "Update ($changesString): $($displayName)" -Status "update" -Indent 4
+                    Write-Information "Update ($changesString) '$($displayName)'"
                     $null = $Definitions.update.Add($id, $definition)
-                    
-                    # Log detailed change information for updates
-                    if ($ChangeLogFilePath) {
-                        $detailedChanges = @{}
-                        
-                        # Log displayName changes
-                        if (!$displayNameMatches) {
-                            $detailedChanges["displayName"] = @{
-                                old = $deployedDefinitionProperties.displayName
-                                new = $displayName
-                            }
-                        }
-                        
-                        # Log description changes
-                        if (!$descriptionMatches) {
-                            $detailedChanges["description"] = @{
-                                old = $deployedDefinitionProperties.description
-                                new = $description
-                            }
-                        }
-                        
-                        Write-PolicyChangeLog -LogFilePath $ChangeLogFilePath -Action "Update" -ResourceType "PolicySet" `
-                            -Name $name -DisplayName $displayName -Changes $detailedChanges
+                }
+                if($ExtendedReporting){
+                    # Define Changed Object Data for ExtendedReporting
+                    # Populate Data Fields
+                    $fileRecord.Set_Item('name', $name)
+                    $fileRecord.Set_Item('definitionType', 'policySet')
+                    $fileRecord.Set_Item('id', $id)
+                    $fileRecord.Set_Item('changes', $changesString)
+                    $fileRecord.Set_Item('changeList', $changesStrings)
+                    $fileRecord.Set_Item('fileRelativePath', $relativePath)
+                    if ($incompatible) {
+                        $fileRecord.Set_Item('parametersChanged', $incompatible)
+                        $fileRecord.Set_Item('oldParameters', $deployedDefinition.parameters)
+                        $fileRecord.Set_Item('newParameters', $parameters)
                     }
+                    if($containsReplacedPolicy){
+                        $fileRecord.Set_Item('replacedPolicy', $containsReplacedPolicy)
+                        $fileRecord.Set_Item('replacedPolicyList', $replacedPolicyList)
+                    }
+                    if (!$policyDefinitionsMatch) {
+                        $fileRecord.Set_Item('updatedMemberPolicyDefinitions',!($policyDefinitionsMatch))
+                        $fileRecord.Set_Item('oldPolicyDefinitions', "Review replacedPolicyList contents for a list of definitions to review specific changes, review current deployed definition for policySet in Azure.")
+                        $fileRecord.Set_Item('newPolicyDefinitions', "Review replacedPolicyList contents for a list of definitions to review specific changes, review definition file for policySet in repo.")
+                    }
+                    if (!$displayNameMatches) {
+                        $fileRecord.Set_Item('displayNameChanged', (!($displayNameMatches)))
+                        $fileRecord.Set_Item('oldDisplayName', $deployedDefinition.displayName)
+                        $fileRecord.Set_Item('newDisplayName', $displayName)
+                    }
+                    if (!$descriptionMatches) {
+                        $fileRecord.Set_Item('descriptionChanged', !($descriptionMatches))
+                        $fileRecord.Set_Item('oldDescription', $deployedDefinition.description)
+                        $fileRecord.Set_Item('newDescription', $description)
+                    }
+                    if ($changePacOwnerId) {
+                        $fileRecord.Set_Item('ownerChanged', $changePacOwnerId)
+                        $fileRecord.Set_Item('oldOwner', $deployedDefinition.metadata.pacOwnerId)
+                        $fileRecord.Set_Item('newOwner', $metadata.pacOwnerId)
+                    }
+                    if (!$metadataMatches) {
+                        $fileRecord.Set_Item('metadataChanged', !($metadataMatches))
+                        $fileRecord.Set_Item('oldMetadata', $deployedDefinition.metadata)
+                        $fileRecord.Set_Item('newMetadata', $metadata)
+                        $metadataComparison = Compare-HydrationMetadata -oldKeys $deployedDefinition.metadata -newKeys $metadata
+                        try{
+                            $fileRecord.Set_Item('metadataComparison', $metadataComparison)
+
+                        }
+                        catch{
+                            Write-Error "Failed to set metadataComparison for $($fileRecord.id) with $($metadataComparison)"
+                        }
+                    }
+                    if (!$parametersMatch -and !$incompatible) { # I don't think this is really useful, we don't test on it anywhere, we test on incompatible... which appears to be the same intended outcome.
+                        $fileRecord.Set_Item('parametersChanged', !($parametersMatch))
+                        $fileRecord.Set_Item('oldParameters', $deployedDefinition.parameters)
+                        $fileRecord.Set_Item('newParameters', $parameters)
+                    }
+                    if (!$policyDefinitionGroupsMatch) {
+                        if ($deletedPolicyDefinitionGroups) {
+                            $fileRecord.Set_Item('deletedPolicyDefinitionGroups', $deletedPolicyDefinitionGroups)
+                        }
+                        $fileRecord.Set_Item('oldPolicyDefinitionGroups', $deployedDefinition.policyDefinitionGroups)
+                        $fileRecord.Set_Item('newPolicyDefinitionGroups', $policyDefinitionGroupsFinal)
+                    }
+                    # Update evaluationResult
+                    if ($incompatible -or $containsReplacedPolicy) {
+                        # Check if parameters are compatible with an update or id the set includes at least one Policy which is being replaced.
+                        $fileRecord.Set_Item('evaluationResult', 'replace')
+                    }
+                    else {
+                        $fileRecord.Set_Item('evaluationResult', 'update')
+                    }
+                    $allPolicySetRecords.add($(@($relativePath,$fileRecord.id) -join "_"),$fileRecord)                    
                 }
             }
         }
         else {
-            Write-ModernStatus -Message "New: $($displayName)" -Status "success" -Indent 4
+            Write-Information "New '$($displayName)'"
             $null = $Definitions.new.Add($id, $definition)
             $Definitions.numberOfChanges++
-            
-            # Log detailed change information
-            if ($ChangeLogFilePath) {
-                Write-PolicyChangeLog -LogFilePath $ChangeLogFilePath -Action "New" -ResourceType "PolicySet" `
-                    -Name $name -DisplayName $displayName -NewValue $definition
+            if($ExtendedReporting){
+                $fileRecord.Set_Item('name', $name)
+                $fileRecord.Set_Item('definitionType', 'policySet')
+                $fileRecord.Set_Item('evaluationResult', 'new')
+                $fileRecord.Set_Item('id', $id)
+                $fileRecord.Set_Item('fileRelativePath', $relativePath)
+                $allPolicySetRecords.add($(@($relativePath,$fileRecord.id) -join "_"),$fileRecord)
             }
         }
     }
@@ -327,7 +407,7 @@ function Build-PolicySetPlan {
             # always delete if owned by this Policy as Code solution
             # never delete if owned by another Policy as Code solution
             # if strategy is "full", delete with unknown owner (missing pacOwnerId)
-            Write-ModernStatus -Message "Delete: $($deleteCandidateProperties.displayName)" -Status "error" -Indent 4
+            Write-Information "Delete '$($deleteCandidateProperties.displayName)'"
             $splat = @{
                 id          = $id
                 name        = $deleteCandidate.name
@@ -336,25 +416,45 @@ function Build-PolicySetPlan {
             }
             $null = $Definitions.delete.Add($id, $splat)
             $Definitions.numberOfChanges++
-            
-            # Log detailed change information
-            if ($ChangeLogFilePath) {
-                Write-PolicyChangeLog -LogFilePath $ChangeLogFilePath -Action "Delete" -ResourceType "PolicySet" `
-                    -Name $deleteCandidate.name -DisplayName $displayName -OldValue $deleteCandidateProperties
-            }
             if ($AllDefinitions.policydefinitions.ContainsKey($id)) {
                 # should always be true
                 $null = $AllDefinitions.policydefinitions.Remove($id)
             }
+            if($ExtendedReporting){
+                # Add record for any items that remain that will be deleted
+                Remove-Variable detailRecord -ErrorAction SilentlyContinue
+                $detailRecord = Get-DeepCloneAsOrderedHashtable -InputObject $DetailedRecord
+                $detailRecord.Set_Item('name', $name)
+                $detailRecord.Set_Item('id', $id)
+                $detailRecord.Set_Item('evaluationResult', 'delete')
+                $detailRecord.Set_Item('fileRelativePath', "n/a")
+                $detailRecord.Set_Item('definitionType', 'policySet')
+                $detailRecord.Set_Item('fileRelativePath', 'noPolicySetFile')
+                $allPolicySetRecords.add($(@($relativePath,$detailRecord.id) -join "_"),$detailRecord)
+
+            }
         }
         else {
             if ($VerbosePreference -eq "Continue") {
-                Write-ModernStatus -Message "Skip delete ($pacOwner,$strategy): $($displayName)" -Status "skip" -Indent 4
+                Write-Information "No delete($pacOwner,$strategy) '$($displayName)'"
+            }
+            if($ExtendedReporting){
+                # Add record for any items that remain that will not be deleted
+                Remove-Variable detailRecord -ErrorAction SilentlyContinue
+                $detailRecord = Get-DeepCloneAsOrderedHashtable -InputObject $DetailedRecord
+                $detailRecord.Set_Item('name', $name)
+                $detailRecord.Set_Item('id', $id)
+                $detailRecord.Set_Item('evaluationResult', 'outOfScope-notFullDesiredState')
+                $detailRecord.Set_Item('fileRelativePath', "n/a")
+                $detailRecord.Set_Item('definitionType', 'policySet')
+                $detailRecord.Set_Item('fileRelativePath', 'noPolicySetFile')
+                $allPolicySetRecords.add($(@("NoPolicySetFile",$detailRecord.id) -join "_"),$detailRecord)
             }
         }
     }
-
-    Write-ModernStatus -Message "Unchanged Policy Set Definitions: $($Definitions.numberUnchanged)" -Status "status" -Indent 2
-    # Write-ModernCountSummary -Operation "Policy Set Definitions" -Unchanged $Definitions.numberUnchanged
+    foreach($pSetRec in $allPolicySetRecords.keys){
+        $detailedRecordList.Add($pSetRec,$allPolicySetRecords.$pSetRec)
+    }
+    Write-Information "Number of unchanged Policy SetPolicy Sets definition = $($Definitions.numberUnchanged)"
     Write-Information ""
 }

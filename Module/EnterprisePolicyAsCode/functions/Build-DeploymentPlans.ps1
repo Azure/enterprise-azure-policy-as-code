@@ -1,44 +1,32 @@
-#Requires -PSEdition Core
+function Build-DeploymentPlans {
 
 <#
-.SYNOPSIS
     Builds the deployment plans for the Policy as Code (PAC) environment.
 
-.PARAMETER PacEnvironmentSelector
     Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.
 
-.PARAMETER DefinitionsRootFolder
     Definitions folder path. Defaults to environment variable `$env:PAC_DEFINITIONS_FOLDER or './Definitions'.
 
-.PARAMETER OutputFolder
     Output folder path for plan files. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER or './Output'.
 
-.PARAMETER BuildExemptionsOnly
     If set, only build the exemptions plan.
 
-.PARAMETER SkipExemptions
     If set, do not build the exemptions plan.
 
-.PARAMETER Interactive
     Script is used interactively. Script can prompt the interactive user for input.
 
-.PARAMETER DevOpsType
     If set, outputs variables consumable by conditions in a DevOps pipeline. Valid values are '', 'ado' and 'gitlab'.
 
-.PARAMETER SkipNotScopedExemptions
     If set, skip exemptions that are not scoped.
 
-.EXAMPLE
     .\Build-DeploymentPlans.ps1 -PacEnvironmentSelector "dev"
 
     Builds the deployment plans for the Policy as Code (PAC) environment 'dev'.
 
-.EXAMPLE
     .\Build-DeploymentPlans.ps1 -PacEnvironmentSelector "dev" -DevOpsType "ado"
 
     Builds the deployment plans for the Policy as Code (PAC) environment 'dev' and outputs variables consumable by conditions in an Azure DevOps pipeline.
 
-.LINK
     https://azure.github.io/enterprise-azure-policy-as-code/#deployment-scripts
 
 #>
@@ -77,7 +65,6 @@ $PSDefaultParameterValues = @{
 Clear-Variable -Name epacInfoStream -Scope global -Force -ErrorAction SilentlyContinue
 
 # Dot Source Helper Scripts
-. "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
 
 # Initialize
 $InformationPreference = "Continue"
@@ -574,3 +561,4 @@ switch ($DevOpsType) {
 $totalTime = (Get-Date) - $scriptStartTime
 Write-ModernHeader -Title "EPAC Build Complete" -Subtitle "Deployment plans generated successfully" -HeaderColor Green -SubtitleColor DarkGreen
 Write-ModernStatus -Message "Total execution time: $($totalTime.ToString('mm\:ss\.fff'))" -Status "info"
+}
