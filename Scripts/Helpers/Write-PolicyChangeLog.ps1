@@ -77,11 +77,15 @@ Name: $Name
                     $change = $Changes[$changeKey]
                     $logEntry += "`n`n  Field: $changeKey"
                     
-                    if ($null -ne $change.old) {
-                        $logEntry += "`n  Old Value: $($change.old)"
+                    # Always show old value, even if empty or null
+                    if ($change.ContainsKey('old')) {
+                        $oldValueText = if ($null -eq $change.old -or $change.old -eq '') { '(empty)' } else { $change.old }
+                        $logEntry += "`n  Old Value: $oldValueText"
                     }
-                    if ($null -ne $change.new) {
-                        $logEntry += "`n  New Value: $($change.new)"
+                    # Always show new value, even if empty or null
+                    if ($change.ContainsKey('new')) {
+                        $newValueText = if ($null -eq $change.new -or $change.new -eq '') { '(empty)' } else { $change.new }
+                        $logEntry += "`n  New Value: $newValueText"
                     }
                 }
             }
@@ -94,11 +98,15 @@ Name: $Name
                     $change = $Changes[$changeKey]
                     $logEntry += "`n`n  Field: $changeKey"
                     
-                    if ($null -ne $change.old) {
-                        $logEntry += "`n  Old Value: $($change.old)"
+                    # Always show old value, even if empty or null
+                    if ($change.ContainsKey('old')) {
+                        $oldValueText = if ($null -eq $change.old -or $change.old -eq '') { '(empty)' } else { $change.old }
+                        $logEntry += "`n  Old Value: $oldValueText"
                     }
-                    if ($null -ne $change.new) {
-                        $logEntry += "`n  New Value: $($change.new)"
+                    # Always show new value, even if empty or null
+                    if ($change.ContainsKey('new')) {
+                        $newValueText = if ($null -eq $change.new -or $change.new -eq '') { '(empty)' } else { $change.new }
+                        $logEntry += "`n  New Value: $newValueText"
                     }
                 }
             }
