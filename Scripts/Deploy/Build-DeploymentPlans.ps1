@@ -311,6 +311,11 @@ if ($buildSelections.buildAny) {
     }
     $changeLogFilePath = "$outputFolderPath/policy-changes-log.txt"
     
+    # Delete existing log file to start fresh (overwrite instead of append)
+    if (Test-Path $changeLogFilePath) {
+        Remove-Item -Path $changeLogFilePath -Force
+    }
+    
     # get the scope table for the deployment root scope amd the resources
     $scopeTable = Build-ScopeTableForDeploymentRootScope -PacEnvironment $pacEnvironment
     $skipExemptions = -not $buildSelections.buildPolicyExemptions
