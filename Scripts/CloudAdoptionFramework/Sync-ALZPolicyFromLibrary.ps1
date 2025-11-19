@@ -311,6 +311,12 @@ try {
             if ($scopeTrim -eq "root") {
                 $scopeTrim = "alz"
             }
+            if ($scopeTrim -like "amba_*") {
+                $scopeTrim = $scopeTrim -replace "amba_", ""
+                if ($scopeTrim -eq "root") {
+                    $scopeTrim = "alz"
+                }
+            }
             if ($scopeTrim -eq "landing_zones") {
                 $scopeTrim = "landingzones"
             }
