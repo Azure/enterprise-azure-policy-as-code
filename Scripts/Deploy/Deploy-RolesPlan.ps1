@@ -50,6 +50,7 @@ $PSDefaultParameterValues = @{
 }
 
 Clear-Variable -Name epacInfoStream -Scope global -Force -ErrorAction SilentlyContinue
+$Global:epacInfoStream = @()
 
 # Dot Source Helper Scripts
 . "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
