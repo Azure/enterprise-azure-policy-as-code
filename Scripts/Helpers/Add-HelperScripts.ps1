@@ -65,6 +65,7 @@ $scriptRoot = Split-Path $PSScriptRoot -Parent
 . "$PSScriptRoot/Get-CalculatedPolicyAssignmentsAndReferenceIds.ps1"
 . "$PSScriptRoot/Get-CustomMetadata.ps1"
 . "$PSScriptRoot/Get-DeepCloneAsOrderedHashtable.ps1"
+. "$PSScriptRoot/Get-DeepObjectDifference.ps1"
 . "$PSScriptRoot/Get-DefinitionsFullPath.ps1"
 . "$PSScriptRoot/Get-DeploymentPlan.ps1"
 . "$PSScriptRoot/Get-GlobalSettings.ps1"
