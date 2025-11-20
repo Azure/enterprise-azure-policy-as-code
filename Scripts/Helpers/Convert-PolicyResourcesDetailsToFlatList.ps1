@@ -71,7 +71,7 @@ function Convert-PolicyResourcesDetailsToFlatList {
             $effectValue = $detail.effectValue
             $effectDefault = $detail.effectDefault
             $parameters = $detail.parameters
-            $isEffectParameterized = $effectReason -eq "PolicySet Default" -or $effectReason -eq "PolicySet No Default" -or $effectReason -eq "Assignment"
+            $isEffectParameterized = $effectReason -eq "Policy Default" -or $effectReason -eq "Policy No Default" -or $effectReason -eq "Assignment"
             $flatPolicyEntryKey = $policyId
             $flatPolicyReferencePath = ""
             if ($policiesWithMultipleReferenceIds.ContainsKey($policyId)) {
