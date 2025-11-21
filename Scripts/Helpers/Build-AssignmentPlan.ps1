@@ -156,7 +156,8 @@ function Build-AssignmentPlan {
                     -Existing $deployedPolicyAssignment `
                     -Assignment $assignment `
                     -ReplacedAssignment ($replacedDefinition -or $changedPolicyDefinitionId) `
-                    -DeployedRoleAssignmentsByPrincipalId $deployedRoleAssignmentsByPrincipalId
+                    -DeployedRoleAssignmentsByPrincipalId $deployedRoleAssignmentsByPrincipalId `
+                    -PacEnvironment $PacEnvironment
                 if ($identityStatus.requiresRoleChanges) {
                     $null = $RoleAssignments.added.AddRange($identityStatus.added)
                     $null = $RoleAssignments.updated.AddRange($identityStatus.updated)
@@ -255,7 +256,8 @@ function Build-AssignmentPlan {
                     -Existing $null `
                     -Assignment $assignment `
                     -ReplacedAssignment $false `
-                    -DeployedRoleAssignmentsByPrincipalId $deployedRoleAssignmentsByPrincipalId
+                    -DeployedRoleAssignmentsByPrincipalId $deployedRoleAssignmentsByPrincipalId `
+                    -PacEnvironment $PacEnvironment
                 if ($identityStatus.requiresRoleChanges) {
                     $null = $RoleAssignments.added.AddRange($identityStatus.added)
                     $RoleAssignments.numberOfChanges += ($identityStatus.numberOfChanges)
@@ -292,7 +294,8 @@ function Build-AssignmentPlan {
                     -Existing $deleteCandidate `
                     -Assignment $null `
                     -ReplacedAssignment $false `
-                    -DeployedRoleAssignmentsByPrincipalId $deployedRoleAssignmentsByPrincipalId
+                    -DeployedRoleAssignmentsByPrincipalId $deployedRoleAssignmentsByPrincipalId `
+                    -PacEnvironment $PacEnvironment
                 if ($identityStatus.requiresRoleChanges) {
                     $null = $RoleAssignments.removed.AddRange($identityStatus.removed)
                     $RoleAssignments.numberOfChanges += ($identityStatus.numberOfChanges)
