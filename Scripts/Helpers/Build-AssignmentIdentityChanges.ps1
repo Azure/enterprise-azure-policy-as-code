@@ -164,9 +164,13 @@ function Build-AssignmentIdentityChanges {
                         $deployedRoleDefinitionId = $deployedRoleAssignment.roleDefinitionId
                         if (($deployedScope -eq $requiredScope) -and ($deployedRoleDefinitionId -eq $requiredRoleDefinitionId)) {
                             $deployedDescription = $deployedRoleAssignment.description
-                            $descriptionEmpty = ([string]::IsNullOrEmpty($deployedDescription)) -and ($PacEnvironment.desiredState.ignoreEmptyRoleAssignmentDescriptions -eq $true)
-                            $descriptionMatches = $deployedDescription -eq $requiredDescription
-                            if (-not $descriptionEmpty -and -not $descriptionMatches) {
+                            if ($PacEnvironment.desiredState.ignoreEmptyRoleAssignmentDescriptions -eq $true) {
+                                if (([string]::IsNullOrEmpty($deployedDescription))) {
+                                    $matchFound = $true
+                                    break
+                                }
+                            }
+                            if ($deployedDescription -ne $requiredDescription) {
                                 $deployedRoleAssignmentWithUpdatedDescription = $deployedRoleAssignment
                             }
                             $matchFound = $true
