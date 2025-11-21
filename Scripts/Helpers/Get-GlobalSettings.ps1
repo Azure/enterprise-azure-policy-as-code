@@ -183,19 +183,20 @@ function Get-GlobalSettings {
             }
 
             $desiredState = @{
-                strategy                             = "undefined"
-                keepDfcSecurityAssignments           = $false
-                keepDfcPlanAssignments               = $false
-                cleanupObsoleteExemptions            = $false
-                excludedScopes                       = $excludedScopesList
-                globalExcludedScopesResourceGroups   = $globalExcludedScopesResourceGroupsList
-                globalExcludedScopesSubscriptions    = $globalExcludedScopesSubscriptionsList
-                globalExcludedScopesManagementGroups = $globalExcludedScopesManagementGroupsList
-                excludedPolicyDefinitions            = @()
-                excludedPolicySetDefinitions         = @()
-                excludedPolicyAssignments            = @()
-                excludeSubscriptions                 = $false
-                doNotDisableDeprecatedPolicies       = $false
+                strategy                              = "undefined"
+                keepDfcSecurityAssignments            = $false
+                keepDfcPlanAssignments                = $false
+                cleanupObsoleteExemptions             = $false
+                excludedScopes                        = $excludedScopesList
+                globalExcludedScopesResourceGroups    = $globalExcludedScopesResourceGroupsList
+                globalExcludedScopesSubscriptions     = $globalExcludedScopesSubscriptionsList
+                globalExcludedScopesManagementGroups  = $globalExcludedScopesManagementGroupsList
+                excludedPolicyDefinitions             = @()
+                excludedPolicySetDefinitions          = @()
+                excludedPolicyAssignments             = @()
+                excludeSubscriptions                  = $false
+                doNotDisableDeprecatedPolicies        = $false
+                ignoreEmptyRoleAssignmentDescriptions = $false
             }
             
             $desired = $pacEnvironment.desiredState
@@ -326,6 +327,10 @@ function Get-GlobalSettings {
                 }
                 else {
                     $doNotDisableDeprecatedPolicies = $false
+                }
+
+                if($desired.ignoreEmptyRoleAssignmentDescriptions -eq $true) {
+                    $desiredState.ignoreEmptyRoleAssignmentDescriptions = $true
                 }
             }
 

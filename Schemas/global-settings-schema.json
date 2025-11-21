@@ -95,6 +95,9 @@
                             },
                             "excludeSubscriptions": {
                                 "type": "boolean"
+                            },
+                            "ignoreEmptyRoleAssignmentDescriptions": {
+                                "type": "boolean"
                             }
                         },
                         "additionalProperties": false,
