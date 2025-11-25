@@ -231,8 +231,8 @@ try {
             }
             else {
                 $archetypeObj = @{
-                    name               = $archetype.name
-                    policy_assignments = $archetypeArray | Where-Object { $_.name -eq $archetype.name -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
+                    name               = $Type -eq "AMBA" ? "amba_$($archetype.name)" : $archetype.name
+                    policy_assignments = $archetypeArray | Where-Object { $_.name -match $archetype.name -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
                 } 
             }
         }
