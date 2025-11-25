@@ -47,6 +47,11 @@ Write-ModernHeader -Title "Syncing Policies From Library" -Subtitle "Type: $Type
 
 if ($LibraryPath -eq "") {
     $LibraryPath = Join-Path -Path (Get-Location) -ChildPath "temp"
+    # Check if the temp folder exists, and delete it if it does
+    if (Test-Path $LibraryPath) {
+        Write-ModernStatus -Message "Removing existing temp folder..." -Status "processing" -Indent 2
+        Remove-Item -Path $LibraryPath -Recurse -Force
+    }
     Write-ModernStatus -Message "Cloning Azure Landing Zones Library repository..." -Status "processing" -Indent 2
     git clone --config advice.detachedHead=false --depth 1 --branch $Tag https://github.com/Azure/Azure-Landing-Zones-Library.git $LibraryPath
     if ($LASTEXITCODE -eq 0) {
@@ -157,7 +162,7 @@ if (-not($SyncAssignmentsOnly)) {
         $category = $baseTemplate.properties.Metadata.category
         ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace "\[\[", "[" `
             -replace "variables\('scope'\)", "'/providers/Microsoft.Management/managementGroups/$managementGroupId'" `
-            -replace "', '", "" `
+            -replace "(?<!'true)', '(?!false)", "" `
             -replace "\[concat\(('(.+)')\)\]", "`$2" | New-Item -Path "$DefinitionsRootFolder/policySetDefinitions/$Type/$category" -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue
     }
     Write-ModernSection -Title "Creating Assignment Objects" -Indent 0
