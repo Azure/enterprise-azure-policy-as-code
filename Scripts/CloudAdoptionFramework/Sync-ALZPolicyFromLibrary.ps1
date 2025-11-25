@@ -15,7 +15,11 @@ Param(
     
     [switch] $CreateGuardrailAssignments,
 
-    [switch] $EnableOverrides
+    [switch] $EnableOverrides,
+
+    [switch] $SyncAssignmentsOnly
+
+
 )
 
 # Dot Source Helper Scripts
@@ -89,73 +93,75 @@ catch {
     Write-ModernStatus -Message "Telemetry could not be enabled: $($_.Exception.Message)" -Status "warning" -Indent 2
 }
 
-Write-ModernSection -Title "Creating Policy Definition Objects" -Indent 0
-#region Create policy definition objects
-foreach ($file in Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_definitions" -Recurse -File -Include *.json) {
-    $fileContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
-    $baseTemplate = [ordered]@{
-        '$schema'  = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json"
-        name       = $fileContent.name
-        properties = $fileContent.properties
+if (-not($SyncAssignmentsOnly)) {
+    Write-ModernSection -Title "Creating Policy Definition Objects" -Indent 0
+    #region Create policy definition objects
+    foreach ($file in Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_definitions" -Recurse -File -Include *.json) {
+        $fileContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
+        $baseTemplate = [ordered]@{
+            '$schema'  = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json"
+            name       = $fileContent.name
+            properties = $fileContent.properties
+        }
+        $category = $baseTemplate.properties.Metadata.category
+        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyDefinitions/$Type/$category" -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue
     }
-    $category = $baseTemplate.properties.Metadata.category
-    ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyDefinitions/$Type/$category" -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue
+    Write-ModernSection -Title "Creating Policy Set Definition Objects" -Indent 0
+    #endregion Create policy definition objects
+
+    #region Create policy set definition objects
+    foreach ($file in Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_set_definitions" -Recurse -File -Include *.json) {
+        $fileContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
+        $baseTemplate = [ordered]@{
+            "`$schema" = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-set-definition-schema.json"
+            name       = $fileContent.name
+            properties = [ordered]@{
+                description            = $fileContent.properties.description
+                displayName            = $fileContent.properties.displayName
+                metadata               = $fileContent.properties.metadata
+                parameters             = $fileContent.properties.parameters
+                policyType             = $fileContent.properties.policyType
+                policyDefinitionGroups = $fileContent.properties.policyDefinitionGroups
+            }
+        }
+        $policyDefinitions = @()
+        # Fix the policyDefinitionIds for custom policies
+        foreach ($policyDefinition in $fileContent.properties.policyDefinitions) {
+            $obj = [ordered]@{
+                parameters                  = $policyDefinition.parameters
+                groupNames                  = $policyDefinition.groupNames
+                policyDefinitionReferenceId = $policyDefinition.policyDefinitionReferenceId
+            }
+            if ($policyDefinition.policyDefinitionId -match "managementGroups") {
+                $obj.Add("policyDefinitionName", $policyDefinition.policyDefinitionId.split("/")[ - 1])
+            }
+            else {
+                $obj.Add("policyDefinitionId", $policyDefinition.policyDefinitionId)
+            }
+            $policyDefinitions += $obj
+        }
+        $baseTemplate.properties.policyDefinitions = $policyDefinitions
+
+        # Force property order
+        $orderedProps = [ordered]@{
+            description            = $baseTemplate.properties.description
+            displayName            = $baseTemplate.properties.displayName
+            metadata               = $baseTemplate.properties.metadata
+            parameters             = $baseTemplate.properties.parameters
+            policyDefinitions      = $baseTemplate.properties.policyDefinitions
+            policyType             = $baseTemplate.properties.policyType
+            policyDefinitionGroups = $baseTemplate.properties.policyDefinitionGroups
+        }
+        $baseTemplate.properties = $orderedProps
+
+        $category = $baseTemplate.properties.Metadata.category
+        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace "\[\[", "[" `
+            -replace "variables\('scope'\)", "'/providers/Microsoft.Management/managementGroups/$managementGroupId'" `
+            -replace "', '", "" `
+            -replace "\[concat\(('(.+)')\)\]", "`$2" | New-Item -Path "$DefinitionsRootFolder/policySetDefinitions/$Type/$category" -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue
+    }
+    Write-ModernSection -Title "Creating Assignment Objects" -Indent 0
 }
-Write-ModernSection -Title "Creating Policy Set Definition Objects" -Indent 0
-#endregion Create policy definition objects
-
-#region Create policy set definition objects
-foreach ($file in Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_set_definitions" -Recurse -File -Include *.json) {
-    $fileContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
-    $baseTemplate = [ordered]@{
-        "`$schema" = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-set-definition-schema.json"
-        name       = $fileContent.name
-        properties = [ordered]@{
-            description            = $fileContent.properties.description
-            displayName            = $fileContent.properties.displayName
-            metadata               = $fileContent.properties.metadata
-            parameters             = $fileContent.properties.parameters
-            policyType             = $fileContent.properties.policyType
-            policyDefinitionGroups = $fileContent.properties.policyDefinitionGroups
-        }
-    }
-    $policyDefinitions = @()
-    # Fix the policyDefinitionIds for custom policies
-    foreach ($policyDefinition in $fileContent.properties.policyDefinitions) {
-        $obj = [ordered]@{
-            parameters                  = $policyDefinition.parameters
-            groupNames                  = $policyDefinition.groupNames
-            policyDefinitionReferenceId = $policyDefinition.policyDefinitionReferenceId
-        }
-        if ($policyDefinition.policyDefinitionId -match "managementGroups") {
-            $obj.Add("policyDefinitionName", $policyDefinition.policyDefinitionId.split("/")[ - 1])
-        }
-        else {
-            $obj.Add("policyDefinitionId", $policyDefinition.policyDefinitionId)
-        }
-        $policyDefinitions += $obj
-    }
-    $baseTemplate.properties.policyDefinitions = $policyDefinitions
-
-    # Force property order
-    $orderedProps = [ordered]@{
-        description            = $baseTemplate.properties.description
-        displayName            = $baseTemplate.properties.displayName
-        metadata               = $baseTemplate.properties.metadata
-        parameters             = $baseTemplate.properties.parameters
-        policyDefinitions      = $baseTemplate.properties.policyDefinitions
-        policyType             = $baseTemplate.properties.policyType
-        policyDefinitionGroups = $baseTemplate.properties.policyDefinitionGroups
-    }
-    $baseTemplate.properties = $orderedProps
-
-    $category = $baseTemplate.properties.Metadata.category
-    ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace "\[\[", "[" `
-        -replace "variables\('scope'\)", "'/providers/Microsoft.Management/managementGroups/$managementGroupId'" `
-        -replace "', '", "" `
-        -replace "\[concat\(('(.+)')\)\]", "`$2" | New-Item -Path "$DefinitionsRootFolder/policySetDefinitions/$Type/$category" -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue
-}
-Write-ModernSection -Title "Creating Assignment Objects" -Indent 0
 #endregion Create policy set definition objects
 
 #region Create assignment objects
@@ -217,9 +223,17 @@ try {
             }
         }
         else {
-            $archetypeObj = @{
-                name               = $archetype.name
-                policy_assignments = $archetypeArray | Where-Object { $_.name -eq $archetype.name -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
+            if ($archetype.name -eq "landingzones") {
+                $archetypeObj = @{
+                    name               = $Type -eq "AMBA" ? "amba_landing_zones" : $archetype.name
+                    policy_assignments = $archetypeArray | Where-Object { $_.name -match "landing_zones" -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
+                }
+            }
+            else {
+                $archetypeObj = @{
+                    name               = $archetype.name
+                    policy_assignments = $archetypeArray | Where-Object { $_.name -eq $archetype.name -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
+                } 
             }
         }
         if ($archetype.policy_assignments_to_add) {
@@ -252,6 +266,11 @@ try {
     # Add any new archetypes
     foreach ($archetype in $archetypeArray | Where-Object { $_.type -ne "existing" -and $_.name -notin ($finalArchetypeArray.name) }) {
         $finalArchetypeArray += $archetype
+    }
+
+    # Get rid of a duplicate landing zones archetype if it exists
+    if ($finalArchetypeArray.name -contains "landingzones" -and $finalArchetypeArray.name -contains "landing_zones") {
+        $finalArchetypeArray = $finalArchetypeArray | Where-Object { $_.name -ne "landing_zones" }
     }
 
     foreach ($archetype in $finalArchetypeArray) {
