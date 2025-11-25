@@ -229,6 +229,12 @@ try {
                     policy_assignments = $archetypeArray | Where-Object { $_.name -match "landing_zones" -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
                 }
             }
+            elseif ($archetype.name -eq "alz") {
+                $archetypeObj = @{
+                    name               = $Type -eq "AMBA" ? "amba_root" : "root"
+                    policy_assignments = $archetypeArray | Where-Object { $_.name -match "root" -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
+                }
+            }
             else {
                 $archetypeObj = @{
                     name               = $Type -eq "AMBA" ? "amba_$($archetype.name)" : $archetype.name
@@ -245,7 +251,7 @@ try {
         
     }
     #Check again for new archetypes based on a custom archetype
-    foreach ($archetype in $archetypeArray | Where-Object { $_.type -eq "existing" -and $_.name -notin ($finalArchetypeArray.name) }) {
+    foreach ($archetype in $archetypeArray | Where-Object { $_.type -eq "existing" -and $_.name -notin ($finalArchetypeArray.name) -and $_.name -notmatch "alz" }) {
         if ($archetype.PSObject.properties.name -contains "based_on") {
             $archetypeObj = @{
                 name               = $archetype.name
