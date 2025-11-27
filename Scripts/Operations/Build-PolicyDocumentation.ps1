@@ -254,7 +254,7 @@ foreach ($file in $files) {
                 $itemList = $itemArrayList.ToArray()
 
                 # flatten structure and reconcile most restrictive effect for each policy
-                $flatPolicyList = Convert-PolicyResourcesDetailsToFlatList `
+                $flatPolicyList = Convert-PolicyResourcesDetailsToFlatList-Documentation `
                     -ItemList $itemList `
                     -Details $policySetDetails
 
@@ -309,7 +309,7 @@ foreach ($file in $files) {
                     -StrictMode:$StrictMode
 
                 # Flatten Policy lists in Assignments and reconcile the most restrictive effect for each Policy
-                $flatPolicyList = Convert-PolicyResourcesDetailsToFlatList `
+                $flatPolicyList = Convert-PolicyResourcesDetailsToFlatList-Documentation `
                     -ItemList $itemList `
                     -Details $assignmentsDetails
 
@@ -565,7 +565,7 @@ foreach ($file in $files) {
                 }
 
                 # Flatten Policy lists in Assignments and reconcile the most restrictive effect for each Policy
-                $flatPolicyList = Convert-PolicyResourcesDetailsToFlatList `
+                $flatPolicyList = Convert-PolicyResourcesDetailsToFlatList-Documentation `
                     -ItemList $itemList `
                     -Details $assignmentsDetails
 

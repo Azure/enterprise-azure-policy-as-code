@@ -1,5 +1,14 @@
 # Integrating EPAC with Azure Landing Zones
 
+<div style="margin: 30px 0; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+  <iframe src="https://www.youtube.com/embed/Q_Rt-IcXP94" 
+          style="position: absolute; top:0; left:0; width:100%; height:100%;" 
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+          allowfullscreen>
+  </iframe>
+</div>
+
 ## What are Azure Landing Zones (ALZ)?
 
 Azure Landing Zones (ALZ) are a set of best practices, templates, and resources provided by Microsoft to help organizations set up a secure, scalable, and compliant foundation in Azure. They are part of the broader Cloud Adoption Framework (CAF), which is Microsoft's guidance for cloud adoption across strategy, planning, readiness, governance, and management.
