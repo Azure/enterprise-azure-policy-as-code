@@ -1,5 +1,14 @@
 # Policy Set (Initiative) Definitions
 
+<div style="margin: 30px 0; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+  <iframe src="https://www.youtube.com/embed/IiK1z0ZeyAE" 
+          style="position: absolute; top:0; left:0; width:100%; height:100%;" 
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+          allowfullscreen>
+  </iframe>
+</div>
+
 ## Initiative (Policy Set) Definition Files
 
 Policy Set definition files are managed within the folder `policySetDefinitions` under `Definitions`. The definition files are structured based on the official [Azure Initiative definition structure](https://docs.microsoft.com/en-us/azure/governance/policy/concepts/initiative-definition-structure) published by Microsoft. There are numerous definition samples available on Microsoft's [GitHub repository for azure-policy](https://github.com/Azure/azure-policy/tree/master/built-in-policies/policySetDefinitions).

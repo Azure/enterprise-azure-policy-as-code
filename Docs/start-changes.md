@@ -1,5 +1,14 @@
 # Changes in v11.0.0
 
+<div style="margin: 30px 0; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+  <iframe src="https://www.youtube.com/embed/clRNxyx_rIY" 
+          style="position: absolute; top:0; left:0; width:100%; height:100%;" 
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+          allowfullscreen>
+  </iframe>
+</div>
+
 - New modern look. Updated the output from the EPAC commands to look more modern and added accessibility features.
 - Changes to support for Azure Lighthouse (see below)
 - Changes to the ALZ sync process to support easier customization via a single file and not a forked repository
