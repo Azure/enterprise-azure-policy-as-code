@@ -7,7 +7,8 @@ function Build-PolicySetPlan {
         [hashtable] $Definitions,
         [hashtable] $AllDefinitions,
         [hashtable] $ReplaceDefinitions,
-        [hashtable] $PolicyRoleIds
+        [hashtable] $PolicyRoleIds,
+        [string] $ChangeLogFilePath
     )
 
     Write-ModernSection -Title "Processing Policy Set Definitions" -Color Blue
@@ -271,10 +272,98 @@ function Build-PolicySetPlan {
                     Write-ModernStatus -Message "Replace ($changesString): $($displayName)" -Status "warning" -Indent 4
                     $null = $Definitions.replace.Add($id, $definition)
                     $null = $ReplaceDefinitions.Add($id, $definition)
+                    
+                    # Log detailed change information for replace operations
+                    if ($ChangeLogFilePath) {
+                        $detailedChanges = @{}
+                        
+                        # Log displayName changes
+                        if (!$displayNameMatches) {
+                            $detailedChanges["displayName"] = @{
+                                old = $deployedDefinitionProperties.displayName
+                                new = $displayName
+                            }
+                        }
+                        
+                        # Log description changes
+                        if (!$descriptionMatches) {
+                            $detailedChanges["description"] = @{
+                                old = $deployedDefinitionProperties.description
+                                new = $description
+                            }
+                        }
+                        
+                        # Log metadata changes (complex object)
+                        if (!$metadataMatches) {
+                            $metadataDifferences = Get-DeepObjectDifference -OldObject $deployedDefinitionProperties.metadata -NewObject $metadata
+                            if ($metadataDifferences.Count -gt 0) {
+                                $detailedChanges["metadata"] = @{
+                                    differences = $metadataDifferences
+                                }
+                            }
+                        }
+                        
+                        # Log parameters changes (complex object) - always log for incompatible changes
+                        if (!$parametersMatch) {
+                            $parameterDifferences = Get-DeepObjectDifference -OldObject $deployedDefinitionProperties.parameters -NewObject $parameters
+                            if ($parameterDifferences.Count -gt 0) {
+                                $detailedChanges["parameters"] = @{
+                                    differences = $parameterDifferences
+                                }
+                            }
+                        }
+                        
+                        Write-PolicyChangeLog -LogFilePath $ChangeLogFilePath -Action "Replace" -ResourceType "PolicySet" `
+                            -Name $name -DisplayName $displayName -Changes $detailedChanges
+                    }
                 }
                 else {
                     Write-ModernStatus -Message "Update ($changesString): $($displayName)" -Status "update" -Indent 4
                     $null = $Definitions.update.Add($id, $definition)
+                    
+                    # Log detailed change information for updates
+                    if ($ChangeLogFilePath) {
+                        $detailedChanges = @{}
+                        
+                        # Log displayName changes
+                        if (!$displayNameMatches) {
+                            $detailedChanges["displayName"] = @{
+                                old = $deployedDefinitionProperties.displayName
+                                new = $displayName
+                            }
+                        }
+                        
+                        # Log description changes
+                        if (!$descriptionMatches) {
+                            $detailedChanges["description"] = @{
+                                old = $deployedDefinitionProperties.description
+                                new = $description
+                            }
+                        }
+                        
+                        # Log metadata changes (complex object)
+                        if (!$metadataMatches) {
+                            $metadataDifferences = Get-DeepObjectDifference -OldObject $deployedDefinitionProperties.metadata -NewObject $metadata
+                            if ($metadataDifferences.Count -gt 0) {
+                                $detailedChanges["metadata"] = @{
+                                    differences = $metadataDifferences
+                                }
+                            }
+                        }
+                        
+                        # Log parameters changes (complex object)
+                        if (!$parametersMatch -and !$incompatible) {
+                            $parameterDifferences = Get-DeepObjectDifference -OldObject $deployedDefinitionProperties.parameters -NewObject $parameters
+                            if ($parameterDifferences.Count -gt 0) {
+                                $detailedChanges["parameters"] = @{
+                                    differences = $parameterDifferences
+                                }
+                            }
+                        }
+                        
+                        Write-PolicyChangeLog -LogFilePath $ChangeLogFilePath -Action "Update" -ResourceType "PolicySet" `
+                            -Name $name -DisplayName $displayName -Changes $detailedChanges
+                    }
                 }
             }
         }
@@ -282,7 +371,12 @@ function Build-PolicySetPlan {
             Write-ModernStatus -Message "New: $($displayName)" -Status "success" -Indent 4
             $null = $Definitions.new.Add($id, $definition)
             $Definitions.numberOfChanges++
-
+            
+            # Log detailed change information
+            if ($ChangeLogFilePath) {
+                Write-PolicyChangeLog -LogFilePath $ChangeLogFilePath -Action "New" -ResourceType "PolicySet" `
+                    -Name $name -DisplayName $displayName -NewValue $definition
+            }
         }
     }
 
@@ -306,6 +400,12 @@ function Build-PolicySetPlan {
             }
             $null = $Definitions.delete.Add($id, $splat)
             $Definitions.numberOfChanges++
+            
+            # Log detailed change information
+            if ($ChangeLogFilePath) {
+                Write-PolicyChangeLog -LogFilePath $ChangeLogFilePath -Action "Delete" -ResourceType "PolicySet" `
+                    -Name $deleteCandidate.name -DisplayName $displayName -OldValue $deleteCandidateProperties
+            }
             if ($AllDefinitions.policydefinitions.ContainsKey($id)) {
                 # should always be true
                 $null = $AllDefinitions.policydefinitions.Remove($id)

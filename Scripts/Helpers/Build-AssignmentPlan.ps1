@@ -11,7 +11,8 @@ function Build-AssignmentPlan {
         [hashtable] $ReplaceDefinitions,
         [hashtable] $PolicyRoleIds,
         [hashtable] $CombinedPolicyDetails,
-        [hashtable] $DeprecatedHash
+        [hashtable] $DeprecatedHash,
+        [string] $ChangeLogFilePath
     )
 
     Write-ModernSection -Title "Processing Policy Assignments" -Color Blue
@@ -245,6 +246,81 @@ function Build-AssignmentPlan {
                     $null = $updateCollection.Add($id, $assignment)
                     Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix $prefixText -IdentityStatus $identityStatus -ScopeTable $ScopeTable
                     $Assignments.numberOfChanges++
+                    
+                    # Log detailed change information for updates
+                    if ($ChangeLogFilePath) {
+                        $detailedChanges = @{}
+                        
+                        # Log displayName changes
+                        if (!$displayNameMatches) {
+                            $detailedChanges["displayName"] = @{
+                                old = $deployedPolicyAssignmentProperties.displayName
+                                new = $displayName
+                            }
+                        }
+                        
+                        # Log description changes
+                        if (!$descriptionMatches) {
+                            $detailedChanges["description"] = @{
+                                old = $deployedPolicyAssignmentProperties.description
+                                new = $description
+                            }
+                        }
+                        
+                        # Log metadata changes (complex object)
+                        if (!$metadataMatches) {
+                            $metadataDifferences = Get-DeepObjectDifference -OldObject $deployedPolicyAssignmentProperties.metadata -NewObject $metadata
+                            if ($metadataDifferences.Count -gt 0) {
+                                $detailedChanges["metadata"] = @{
+                                    differences = $metadataDifferences
+                                }
+                            }
+                        }
+                        
+                        # Log parameters changes (complex object)
+                        if (!$parametersMatch) {
+                            $parameterDifferences = Get-DeepObjectDifference -OldObject $deployedPolicyAssignmentProperties.parameters -NewObject $parameters
+                            if ($parameterDifferences.Count -gt 0) {
+                                $detailedChanges["parameters"] = @{
+                                    differences = $parameterDifferences
+                                }
+                            }
+                        }
+                        
+                        # Log role assignment changes
+                        if ($identityStatus.requiresRoleChanges) {
+                            if ($identityStatus.added.Count -gt 0) {
+                                foreach ($roleAssignment in $identityStatus.added) {
+                                    Write-PolicyChangeLog -LogFilePath $ChangeLogFilePath -Action "New" -ResourceType "RoleAssignment" `
+                                        -Name $roleAssignment.assignmentId -DisplayName "Role: $($roleAssignment.roleDefinitionName)" `
+                                        -NewValue $roleAssignment
+                                }
+                            }
+                            if ($identityStatus.updated.Count -gt 0) {
+                                foreach ($roleAssignment in $identityStatus.updated) {
+                                    Write-PolicyChangeLog -LogFilePath $ChangeLogFilePath -Action "Update" -ResourceType "RoleAssignment" `
+                                        -Name $roleAssignment.assignmentId -DisplayName "Role: $($roleAssignment.roleDefinitionName)" `
+                                        -Changes @{
+                                            description = @{
+                                                old = "(description updated)"
+                                                new = $roleAssignment.description
+                                            }
+                                        }
+                                }
+                            }
+                            if ($identityStatus.removed.Count -gt 0) {
+                                foreach ($roleAssignment in $identityStatus.removed) {
+                                    Write-PolicyChangeLog -LogFilePath $ChangeLogFilePath -Action "Delete" -ResourceType "RoleAssignment" `
+                                        -Name $roleAssignment.id -DisplayName "Role: $($roleAssignment.roleDefinitionName)" `
+                                        -OldValue $roleAssignment
+                                }
+                            }
+                        }
+                        
+                        $action = if ($identityStatus.replaced) { "Replace" } else { "Update" }
+                        Write-PolicyChangeLog -LogFilePath $ChangeLogFilePath -Action $action -ResourceType "Assignment" `
+                            -Name $id -DisplayName $displayName -Changes $detailedChanges
+                    }
                 }
             }
             else {
@@ -264,6 +340,21 @@ function Build-AssignmentPlan {
                     $isUserAssignedAny = $true
                 }
                 Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix "New" -IdentityStatus $identityStatus -ScopeTable $ScopeTable
+                
+                # Log detailed change information
+                if ($ChangeLogFilePath) {
+                    # Log role assignments for new assignment
+                    if ($identityStatus.requiresRoleChanges -and $identityStatus.added.Count -gt 0) {
+                        foreach ($roleAssignment in $identityStatus.added) {
+                            Write-PolicyChangeLog -LogFilePath $ChangeLogFilePath -Action "New" -ResourceType "RoleAssignment" `
+                                -Name $roleAssignment.assignmentId -DisplayName "Role: $($roleAssignment.roleDefinitionName)" `
+                                -NewValue $roleAssignment
+                        }
+                    }
+                    
+                    Write-PolicyChangeLog -LogFilePath $ChangeLogFilePath -Action "New" -ResourceType "Assignment" `
+                        -Name $id -DisplayName $displayName -NewValue $assignment
+                }
             }
         }
     }
@@ -311,7 +402,21 @@ function Build-AssignmentPlan {
                 $AllAssignments.Remove($id)
                 $Assignments.delete.Add($id, $splat)
                 $Assignments.numberOfChanges++
-
+                
+                # Log detailed change information
+                if ($ChangeLogFilePath) {
+                    # Log role assignment deletions
+                    if ($identityStatus.requiresRoleChanges -and $identityStatus.removed.Count -gt 0) {
+                        foreach ($roleAssignment in $identityStatus.removed) {
+                            Write-PolicyChangeLog -LogFilePath $ChangeLogFilePath -Action "Delete" -ResourceType "RoleAssignment" `
+                                -Name $roleAssignment.id -DisplayName "Role: $($roleAssignment.roleDefinitionName)" `
+                                -OldValue $roleAssignment
+                        }
+                    }
+                    
+                    Write-PolicyChangeLog -LogFilePath $ChangeLogFilePath -Action "Delete" -ResourceType "Assignment" `
+                        -Name $id -DisplayName $displayName -OldValue $deleteCandidateProperties
+                }
             }
             else {
                 $identityStatus = @{
