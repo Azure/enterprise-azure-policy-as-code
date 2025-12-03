@@ -326,6 +326,32 @@ To specify or modify a parameter for a specific archetype you can specify it usi
 
 Run a sync using the `-EnableOverrides` parameter and the parameters will be updated. This can be used to override parameters in the `defaultParameterValues` section. 
 
+### Modify a parameter for a guardrail assignment (Requires EPAC v11)
+
+To specify or modify a parameter for a guardrail assignment you can specify it using the `overrides` key in the policy structure file. The example below shows how to overwrite a parameter for a specific policy assignment.
+
+```json
+{
+  "overrides": {
+    "parameters": {
+      "guardrails": [ // Must be "guardrails
+        {
+          "policy_assignment_name": "GR-Network_20250326",
+          "parameters": [
+            {
+              "parameter_name": "vpnAzureAD",
+              "value": "Audit"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
+```
+
+Run a sync using the `-EnableOverrides` parameter and the parameters will be updated. This can be used to override parameters in the `defaultParameterValues` section. 
+
 ### Assign an archetype to multiple management groups (Requires EPAC v11)
 
 Management group name mappings now accept an array of values instead of just a string. This allows you to assign an archetypes default assignments to multiple scopes. 

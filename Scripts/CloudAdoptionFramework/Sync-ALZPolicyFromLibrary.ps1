@@ -490,6 +490,16 @@ try {
                         }
                     }
 
+                    if ($EnableOverrides) {
+                        if ($structureFile.overrides.parameters.guardrails) {
+                            foreach ($overrideParameters in $structureFile.overrides.parameters.guardrails | Where-Object { $_.policy_assignment_name -eq $baseTemplate.assignment.name }) {
+                                foreach ($param in $overrideParameters.parameters) {
+                                    $baseTemplate.parameters[$param.parameter_name] = $param.value
+                                }
+                            } 
+                        }
+                    }
+
                     $scope = [ordered]@{
                         $PacEnvironmentSelector = @(
                             $deployment.scope
