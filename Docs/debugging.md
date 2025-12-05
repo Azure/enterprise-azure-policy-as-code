@@ -49,3 +49,8 @@ Build-DeploymentPlans.ps1
     ├── Write-ModernCountSummary (change summaries)
     └── Submit-EPACTelemetry (telemetry, optional)
 ```
+
+## Notes
+
+- This process needs to be done locally, you should try and ensure when debugging that you have the same permissions as identity running EPAC in your CI/CD process
+- EPAC is very large with over 24000 lines of code - becoming familiar with the code takes a long time but we always welcome contributors to the project!
