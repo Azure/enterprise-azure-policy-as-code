@@ -368,6 +368,8 @@ Management group name mappings now accept an array of values instead of just a s
 
 ### Disabling / Changing specific parameters
 
+If you are using EPAC v11 please refer to the section above for modifying a parameter for a specific archetype as it works best for single parameters. If you have to modify the same parameter for a number of ALZ assignments you can use the process below. 
+
 If you need to disable a single policy parameter, such as the 'effect' for a specific policy within an assignment, add that parameter to your default file structure to ensure it is not overwritten when running the **Sync-ALZPolicyFromLibrary** command.
 
 An example of disabling the **"Configure Microsoft Defender for Key Vault plan"** in the **"Deploy-MDFC-Config-H224"** Policy Assignment.
