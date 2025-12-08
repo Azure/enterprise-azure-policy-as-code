@@ -423,7 +423,14 @@ try {
                         foreach ($overrideParameters in $structureFile.overrides.parameters.$($archetype.name) | Where-Object { $_.policy_assignment_name -eq $fileContent.name }) {
                             foreach ($param in $overrideParameters.parameters) {
                                 $baseTemplate.parameters[$param.parameter_name] = $param.value
+                            }                     
+                            # sort parameters alphabetically
+                            $sortedParams = [ordered]@{}
+                            foreach ($key in ($baseTemplate.parameters.Keys | Sort-Object)) {
+                                $sortedParams[$key] = $baseTemplate.parameters[$key]
                             }
+                            # Replace the original with the sorted version
+                            $baseTemplate.parameters = $sortedParams
                         }
                         
                     }
@@ -496,6 +503,13 @@ try {
                                 foreach ($param in $overrideParameters.parameters) {
                                     $baseTemplate.parameters[$param.parameter_name] = $param.value
                                 }
+                                # sort parameters alphabetically
+                                $sortedParams = [ordered]@{}
+                                foreach ($key in ($baseTemplate.parameters.Keys | Sort-Object)) {
+                                    $sortedParams[$key] = $baseTemplate.parameters[$key]
+                                }
+                                # Replace the original with the sorted version
+                                $baseTemplate.parameters = $sortedParams
                             } 
                         }
                     }
