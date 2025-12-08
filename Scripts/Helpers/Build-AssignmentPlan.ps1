@@ -287,6 +287,75 @@ function Build-AssignmentPlan {
                             }
                         }
                         
+                        # Log enforcementMode changes
+                        if (!$enforcementModeMatches) {
+                            $detailedChanges["enforcementMode"] = @{
+                                old = $deployedPolicyAssignmentProperties.enforcementMode
+                                new = $enforcementMode
+                            }
+                        }
+                        
+                        # Log definitionVersion changes
+                        if (!$definitionVersionMatches) {
+                            $detailedChanges["definitionVersion"] = @{
+                                old = $deployedPolicyAssignmentProperties.definitionVersion
+                                new = $definitionVersion
+                            }
+                        }
+                        
+                        # Log policyDefinitionId changes
+                        if ($changedPolicyDefinitionId) {
+                            $detailedChanges["policyDefinitionId"] = @{
+                                old = $deployedPolicyAssignmentProperties.policyDefinitionId
+                                new = $policyDefinitionId
+                            }
+                        }
+                        
+                        # Log notScopes changes (complex object)
+                        if (!$notScopesMatch) {
+                            $notScopesDifferences = Get-DeepObjectDifference -OldObject $deployedPolicyAssignmentProperties.notScopes -NewObject $notScopes
+                            if ($notScopesDifferences.Count -gt 0) {
+                                $detailedChanges["notScopes"] = @{
+                                    differences = $notScopesDifferences
+                                }
+                            }
+                        }
+                        
+                        # Log nonComplianceMessages changes (complex object)
+                        if (!$nonComplianceMessagesMatches) {
+                            $nonComplianceMessagesDifferences = Get-DeepObjectDifference -OldObject $deployedPolicyAssignmentProperties.nonComplianceMessages -NewObject $nonComplianceMessages
+                            if ($nonComplianceMessagesDifferences.Count -gt 0) {
+                                $detailedChanges["nonComplianceMessages"] = @{
+                                    differences = $nonComplianceMessagesDifferences
+                                }
+                            }
+                        }
+                        
+                        # Log overrides changes (complex object)
+                        if (!$overridesMatch) {
+                            $overridesDifferences = Get-DeepObjectDifference -OldObject $deployedPolicyAssignmentProperties.overrides -NewObject $overrides
+                            if ($overridesDifferences.Count -gt 0) {
+                                $detailedChanges["overrides"] = @{
+                                    differences = $overridesDifferences
+                                }
+                            }
+                        }
+                        
+                        # Log resourceSelectors changes (complex object)
+                        if (!$resourceSelectorsMatch) {
+                            $resourceSelectorsDifferences = Get-DeepObjectDifference -OldObject $deployedPolicyAssignmentProperties.resourceSelectors -NewObject $resourceSelectors
+                            if ($resourceSelectorsDifferences.Count -gt 0) {
+                                $detailedChanges["resourceSelectors"] = @{
+                                    differences = $resourceSelectorsDifferences
+                                }
+                            }
+                        }
+                        
+                        # Log pacOwnerId changes (part of metadata but tracked separately)
+                        if ($changePacOwnerId) {
+                            # This is already captured in metadata changes, no separate logging needed
+                        }
+                        
                         # Log identity changes
                         if ($identityStatus.changedIdentityStrings.Count -gt 0) {
                             foreach ($changeString in $identityStatus.changedIdentityStrings) {
