@@ -287,6 +287,40 @@ function Build-AssignmentPlan {
                             }
                         }
                         
+                        # Log identity changes
+                        if ($identityStatus.changedIdentityStrings.Count -gt 0) {
+                            foreach ($changeString in $identityStatus.changedIdentityStrings) {
+                                if ($changeString -match '^(.+?)\s+(.+)->(.+)$') {
+                                    # Pattern: "field oldValue->newValue"
+                                    $fieldName = $Matches[1].Trim()
+                                    $oldValue = $Matches[2].Trim()
+                                    $newValue = $Matches[3].Trim()
+                                    $detailedChanges[$fieldName] = @{
+                                        old = $oldValue
+                                        new = $newValue
+                                    }
+                                }
+                                elseif ($changeString -eq "removedIdentity") {
+                                    $detailedChanges["identity"] = @{
+                                        old = "Managed Identity"
+                                        new = "(removed)"
+                                    }
+                                }
+                                elseif ($changeString -eq "addedIdentity") {
+                                    $detailedChanges["identity"] = @{
+                                        old = "(none)"
+                                        new = "Managed Identity"
+                                    }
+                                }
+                                elseif ($changeString -eq "changed userAssignedIdentity") {
+                                    $detailedChanges["userAssignedIdentity"] = @{
+                                        old = "(previous user assigned identity)"
+                                        new = "(new user assigned identity)"
+                                    }
+                                }
+                            }
+                        }
+                        
                         # Log role assignment changes
                         if ($identityStatus.requiresRoleChanges) {
                             if ($identityStatus.added.Count -gt 0) {
