@@ -423,7 +423,14 @@ try {
                         foreach ($overrideParameters in $structureFile.overrides.parameters.$($archetype.name) | Where-Object { $_.policy_assignment_name -eq $fileContent.name }) {
                             foreach ($param in $overrideParameters.parameters) {
                                 $baseTemplate.parameters[$param.parameter_name] = $param.value
+                            }                     
+                            # sort parameters alphabetically
+                            $sortedParams = [ordered]@{}
+                            foreach ($key in ($baseTemplate.parameters.Keys | Sort-Object)) {
+                                $sortedParams[$key] = $baseTemplate.parameters[$key]
                             }
+                            # Replace the original with the sorted version
+                            $baseTemplate.parameters = $sortedParams
                         }
                         
                     }
@@ -487,6 +494,23 @@ try {
                         if ($structureFile.defaultParameterValues.$key.policy_assignment_name -eq $fileContent.name) {
                             $keyName = $structureFile.defaultParameterValues.$key.parameters.parameter_name
                             $baseTemplate.parameters.Add($keyName, $structureFile.defaultParameterValues.$key.parameters.value)
+                        }
+                    }
+
+                    if ($EnableOverrides) {
+                        if ($structureFile.overrides.parameters.guardrails) {
+                            foreach ($overrideParameters in $structureFile.overrides.parameters.guardrails | Where-Object { $_.policy_assignment_name -eq $baseTemplate.assignment.name }) {
+                                foreach ($param in $overrideParameters.parameters) {
+                                    $baseTemplate.parameters[$param.parameter_name] = $param.value
+                                }
+                                # sort parameters alphabetically
+                                $sortedParams = [ordered]@{}
+                                foreach ($key in ($baseTemplate.parameters.Keys | Sort-Object)) {
+                                    $sortedParams[$key] = $baseTemplate.parameters[$key]
+                                }
+                                # Replace the original with the sorted version
+                                $baseTemplate.parameters = $sortedParams
+                            } 
                         }
                     }
 

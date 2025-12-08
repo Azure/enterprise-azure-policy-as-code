@@ -163,7 +163,13 @@ function Build-AssignmentIdentityChanges {
                         $deployedRoleDefinitionId = $deployedRoleAssignment.roleDefinitionId
                         if (($deployedScope -eq $requiredScope) -and ($deployedRoleDefinitionId -eq $requiredRoleDefinitionId)) {
                             $deployedDescription = $deployedRoleAssignment.description
-                            if ($deployedDescription -ne $requiredDescription) {
+                            # Normalize descriptions for comparison (trim whitespace and handle null/empty)
+                            $normalizedDeployed = if ($null -eq $deployedDescription) { "" } else { $deployedDescription.Trim() }
+                            $normalizedRequired = if ($null -eq $requiredDescription) { "" } else { $requiredDescription.Trim() }
+                            
+                            # Only mark as updated if descriptions actually differ AND deployed description is not null/empty
+                            # (null/empty deployed descriptions indicate the role was created before EPAC started managing descriptions)
+                            if (($normalizedDeployed -ne $normalizedRequired) -and ($normalizedDeployed -ne "")) {
                                 $deployedRoleAssignmentWithUpdatedDescription = $deployedRoleAssignment
                             }
                             $matchFound = $true
