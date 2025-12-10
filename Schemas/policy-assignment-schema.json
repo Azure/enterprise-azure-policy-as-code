@@ -240,23 +240,7 @@
                                     "type": "string"
                                 }
                             }
-                        },
-                        "oneOf": [
-                            {
-                                "required": [
-                                    "policySetId"
-                                ]
-                            },
-                            {
-                                "required": [
-                                    "policySetName"
-                                ]
-                            }
-                        ],
-                        "required": [
-                            "effect",
-                            "policyDefinitionReferences"
-                        ]
+                        }
                     }
                 ]
             }

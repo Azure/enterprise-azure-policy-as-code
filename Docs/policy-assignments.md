@@ -393,14 +393,13 @@ Implement these steps as documented in [Managing Policy Assignment Parameters wi
 
 `overrides` are in the same [format as documented by Azure](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/assignment-structure#overrides-preview). They are  cumulative in each tree branch. The `selectors` element is only used for Assignments of Policy Sets. They are not valid for Assignments of a single Policy.
 
-If using `definitionEntryList`, you must add the `policyName`, `policyId`, `policySetName` or `policySetId` as used in the `definitionEntryList` item.
+If your assignment file is using the property `definitionEntry`, the following template is valid.
 
 ```json
 "overrides": [
     {
-        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f",
         "kind": "policyEffect",
-        "value": "AuditIfNotExists",
+        "value": "disabled",
         "selectors": [
             {
                 "kind": "policyDefinitionReferenceId",
@@ -410,17 +409,24 @@ If using `definitionEntryList`, you must add the `policyName`, `policyId`, `poli
                 ]
             }
         ]
-    },
+    }
+],
+```
+
+If your assignment file is using the property `definitionEntryList`, you must add the `policyName`, `policyId`, `policySetName` or `policySetId` as used in the `definitionEntryList` item.
+
+```json
+"overrides": [
     {
         "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f",
         "kind": "policyEffect",
-        "value": "AuditIfNotExists",
+        "value": "disabled",
         "selectors": [
             {
                 "kind": "policyDefinitionReferenceId",
                 "in": [
-                    "cddd188c-4b82-4c48-a19d-ddf74ee66a01",
-                    "3cf2ab00-13f1-4d0c-8971-2ac904541a7e"
+                    "331e8ea8-378a-410f-a2e5-ae22f38bb0da",
+                    "385f5831-96d4-41db-9a3c-cd3af78aaae6"
                 ]
             }
         ]
