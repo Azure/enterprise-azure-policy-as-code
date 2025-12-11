@@ -24,6 +24,31 @@ Analyzes changes in Policy definition, Policy Set definition, Policy Assignment 
 
 For saving the output related to ```Build-DeploymentPlans``` there is global variable called ```$epacInfoStream``` which captures all output from the commands. If required, this can be used as a PR message or to present a summary of the plan.
 
+> [!NOTE]
+> When policy changes are detected, a detailed change log file is created at `Output/plans-{environment}/policy-changes-log.txt`. This file contains:
+> - Complete JSON definitions for new policy objects
+> - Complete JSON definitions for deleted policy objects  
+> - Detailed field-by-field changes for policy updates showing both old and new values (currently includes displayName and description changes)
+> 
+> Example of update log entry:
+> ```
+> [2025-11-19 02:09:54] Update - Policy
+> Name: my-policy
+> Display Name: My Policy
+> 
+> Changes:
+> 
+>   Field: displayName
+>   Old Value: My Old Policy Name
+>   New Value: My Policy
+> 
+>   Field: description
+>   Old Value: This is the old description
+>   New Value: This is the updated description
+> ```
+> 
+> This detailed log is useful for change management processes and audit requirements.
+
 **Deployment Mechanism**
 
 |Deployment Mode | Command/Script |
