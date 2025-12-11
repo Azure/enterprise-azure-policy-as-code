@@ -284,6 +284,13 @@ function Build-AssignmentPlan {
                 -Strategy $strategy `
                 -KeepDfcSecurityAssignments $keepDfcSecurityAssignments `
                 -KeepDfcPlanAssignments $keepDfcPlanAssignments
+            # Check if this Policy Assignment is from the Enterprise Application 'Microsoft Authorization System Policy' (part of the product team)
+            if ( $deleteCandidateProperties.metadata.createdBy -eq "31a6387e-0946-459b-b041-22a447aafc42") {
+                # Check if these are the 2 required MFA Policies and ignore them
+                if ( ($id.split("/"))[-1] -in @("sys.mfa-write", "sys.mfa-delete")) {
+                    $shallDelete = $false
+                }
+            }
             if ($shallDelete) {
                 # always delete if owned by this Policy as Code solution
                 # never delete if owned by another Policy as Code solution
