@@ -284,7 +284,7 @@ function Build-AssignmentPlan {
                 -Strategy $strategy `
                 -KeepDfcSecurityAssignments $keepDfcSecurityAssignments `
                 -KeepDfcPlanAssignments $keepDfcPlanAssignments
-            # Check if this Policy Assignment is from the Enterprise Application 'Microsoft Authorization System Policy' (part of the product team)
+            # Check if this Policy Assignment type is "SystemHidden" and skip deletion - this seems to be only the case from Microsoft Managed Policies
             if ( $deleteCandidateProperties.assignmentType -eq "SystemHidden") {
                 $shallDelete = $false
                 # Commented out for now - Check if these are the 2 required MFA Policies and ignore them
