@@ -1,0 +1,52 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-set-definition-schema.json",
+    "name": "MFA-policySetDefinitio",
+    "properties": {
+        "displayName": "MFA - Enforce MFA for Azure Resources",
+        "description": "MFA - Enforce MFA for Azure Resources",
+        "metadata": {
+            "version": "1.0.0",
+            "category": "MFA"
+        },
+        "parameters": {
+            "MFA_CreateAndUpdate_effect": {
+                "allowedValues": [
+                    "Audit",
+                    "Deny",
+                    "Disabled"
+                ],
+                "defaultValue": "Audit",
+                "type": "string"
+            },
+            "MFA_Delete_effect": {
+                "allowedValues": [
+                    "AuditAction",
+                    "DenyAction",
+                    "Disabled"
+                ],
+                "defaultValue": "AuditAction",
+                "type": "string"
+            },
+        },
+        "policyDefinitions": [
+            {
+                "policyDefinitionReferenceId": "MFA_CreateAndUpdate",
+                "policyDefinitionName": "4e6c27d5-a6ee-49cf-b2b4-d8fe90fa2b8b",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('MFA_CreateAndUpdate_effect')]"
+                    }
+                }
+            },
+            {
+                "policyDefinitionReferenceId": "MFA_Delete",
+                "policyDefinitionName": "db4a9d17-db75-4f46-9fcb-9f9526604417",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('MFA_Delete_effect')]"
+                    }
+                }
+            }
+        ]
+    }
+}
