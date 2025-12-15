@@ -70,6 +70,14 @@ jobs:
                   body: closeMessage
                 });
                 
+                // Remove the label
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  name: label
+                });
+
                 // Close the issue
                 await github.rest.issues.update({
                   owner: context.repo.owner,
