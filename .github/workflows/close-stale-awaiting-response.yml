@@ -1,0 +1,81 @@
+name: Close Stale Awaiting Response Issues
+
+on:
+    schedule:
+        # Run daily at 00:00 UTC
+        - cron: "0 0 * * *"
+    workflow_dispatch:
+
+permissions:
+    issues: write
+
+jobs:
+    close-stale-issues:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Close stale awaiting response issues
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      const daysBeforeClose = 10;
+                      const label = 'awaiting response';
+                      const closeMessage = `This issue is being closed due to no response. If you still need assistance, please feel free to reopen this issue or create a new one.`;
+
+                      // Get all open issues with the "awaiting response" label
+                      const issues = await github.rest.issues.listForRepo({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        state: 'open',
+                        labels: label,
+                        per_page: 100
+                      });
+
+                      const now = new Date();
+
+                      for (const issue of issues.data) {
+                        // Get the timeline to find when the label was added
+                        const timeline = await github.rest.issues.listEventsForTimeline({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: issue.number,
+                          per_page: 100
+                        });
+                        
+                        // Find the most recent time the label was added
+                        let labelAddedDate = null;
+                        for (const event of timeline.data.reverse()) {
+                          if (event.event === 'labeled' && event.label && event.label.name === label) {
+                            labelAddedDate = new Date(event.created_at);
+                            break;
+                          }
+                        }
+                        
+                        if (!labelAddedDate) {
+                          console.log(`Issue #${issue.number}: Could not determine when label was added, skipping`);
+                          continue;
+                        }
+                        
+                        const daysSinceLabelAdded = (now - labelAddedDate) / (1000 * 60 * 60 * 24);
+                        
+                        console.log(`Issue #${issue.number}: Label added ${daysSinceLabelAdded.toFixed(1)} days ago`);
+                        
+                        if (daysSinceLabelAdded >= daysBeforeClose) {
+                          console.log(`Closing issue #${issue.number}`);
+                          
+                          // Post comment
+                          await github.rest.issues.createComment({
+                            owner: context.repo.owner,
+                            repo: context.repo.repo,
+                            issue_number: issue.number,
+                            body: closeMessage
+                          });
+                          
+                          // Close the issue
+                          await github.rest.issues.update({
+                            owner: context.repo.owner,
+                            repo: context.repo.repo,
+                            issue_number: issue.number,
+                            state: 'closed'
+                          });
+                        }
+                      }
