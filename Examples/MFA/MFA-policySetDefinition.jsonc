@@ -1,6 +1,6 @@
 {
     "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-set-definition-schema.json",
-    "name": "MFA-policySetDefinitio",
+    "name": "MFA-policySetDefinition",
     "properties": {
         "displayName": "MFA - Enforce MFA for Azure Resources",
         "description": "MFA - Enforce MFA for Azure Resources",
