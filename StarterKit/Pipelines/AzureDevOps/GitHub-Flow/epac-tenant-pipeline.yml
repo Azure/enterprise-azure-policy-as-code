@@ -64,3 +64,17 @@ stages:
                     serviceConnection: $(rolesServiceConnection)
                     pacEnvironmentSelector: ${{ variables.pacEnvironmentSelector }}
 
+      - stage: ComplianceScan
+        displayName: "🔍Run Azure Policy Compliance Scan"       
+        dependsOn: Deploy 
+        condition: succeeded()
+        variables:
+          - group: 'lib-prod-epac' # Variable group containing targetTenant variable
+        jobs:
+        - job: ComplianceScan
+          steps:
+          - template: ../templates/epac-compliance-scan.yaml
+            parameters:
+              serviceConnection: $(planServiceConnection) #runtime variable for service connection
+              pacEnvironmentSelector: ${{ variables.pacEnvironmentSelector }} #Compile time variable for environment selector
+

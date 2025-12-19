@@ -1,0 +1,47 @@
+# This template runs a multi-tenant Azure Policy compliance scan - Add as optional final stage to tenant pipeline to skip the 5 hour default scan schedule.
+# Parameters:
+# - targetTenant: Tenant ID to scope compliance scan (currently referenced from variable group variable to keep secure or can add your own parameter)
+parameters:
+  - name: serviceConnection
+    type: string
+  - name: pacEnvironmentSelector
+    type: string
+
+steps:
+  - task: AzurePowerShell@5
+    displayName: "Run multi-tenant compliance scan on ${{ parameters.pacEnvironmentSelector }} 🔍"
+    inputs:
+      azureSubscription: ${{ parameters.serviceConnection }}
+      pwsh: true
+      azurePowerShellVersion: LatestVersion
+      ScriptType: InlineScript
+      Inline: |
+        $targetTenant = "$(targetTenant)" 
+
+        if (-not $targetTenant) {
+          Write-Warning "❌ No tenant ID provided for compliance scan. Aborting."
+          exit 1
+        }
+
+        $jobEntries = @()
+        Get-AzSubscription | Where-Object { $_.HomeTenantId -eq $targetTenant } | ForEach-Object {
+            $subId = $_.Id
+            try {
+                Set-AzContext -SubscriptionId $subId -ErrorAction Stop
+                $job = Start-AzPolicyComplianceScan -AsJob -ErrorAction Stop
+
+                # Create a tracking object with both the job and sub ID
+                $jobEntries += [PSCustomObject]@{
+                    Job          = $job
+                    Subscription = $subId
+                }
+            } catch {
+                Write-Warning "Scan failed for Subscription $subId. Error: $_"
+            }
+        }
+
+        foreach ($entry in $jobEntries) {
+            Wait-Job -Id $entry.Job.Id -Timeout 300 | Out-Null
+            $status = Get-Job -Id $entry.Job.Id
+            Write-Host "Job ID: $($status.Id) | State: $($status.State) | Subscription ID: $($entry.Subscription)"
+        }
