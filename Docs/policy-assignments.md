@@ -327,6 +327,9 @@ If the additional assignment is to made to a managing tenant in the scenario whe
 
 Azure Policy can use a user-defined Managed Identity and EPAC allows you to use this functionality. You must specify the user-defined Managed Identity based on EPAC Environment or use `"*"` to use the same identity for all of the EPAC Environments (only possible in single tenant scenarios). Within each EPAC Environment entry, you can specify just the URI string indicating to use the same identity even if we are using a `definitionEntryList`, or in the case of a `definitionEntryList` can assign a different identity based on the definitionEntryList by specifying a matching `policyName`, `policyId`, `policySetName` or `policySetId`.
 
+> [!IMPORTANT]
+> When using user-assigned managed identities for remediation of DeployIfNotExists or Modify policies, the service principal running your CI/CD pipeline requires the `Managed Identity Operator` role or the specific permission `Microsoft.ManagedIdentity/userAssignedIdentities/assign/action` at the scope where the user-assigned managed identities are located. This permission allows the pipeline to assign the managed identity to the policy assignment. See [App Registration & Service Principal Setup](ci-cd-app-registrations.md) for more details on configuring service principal permissions.
+
 ```json
 "userAssignedIdentity": {
     // For single definitionEntry or when using the same identity for all definitions being assigned
