@@ -1,14 +1,12 @@
 name: Sync ALZ Policy Objects
 
-# DEPRECATED: This workflow uses an outdated sync process.
-# Please refer to the documentation for the new Azure Landing Zone Library sync process:
-# https://azure.github.io/enterprise-azure-policy-as-code/integrating-with-alz-library/
+# IMPORTANT: This workflow has been updated to use the new Azure Landing Zone Library sync process.
+# Before running this workflow, you must:
+# 1. Create a policy default structure file using New-ALZPolicyDefaultStructure
+#    Documentation: https://azure.github.io/enterprise-azure-policy-as-code/integrating-with-alz-library/
+# 2. Configure the environment variables below to match your environment
 #
-# The new process requires:
-# 1. Creating a policy default structure file using New-ALZPolicyDefaultStructure
-# 2. Using Sync-ALZPolicyFromLibrary instead of the removed Sync-ALZPolicies function
-#
-# For a working example, see the Azure DevOps pipeline template:
+# For a complete working example, see the Azure DevOps pipeline template:
 # StarterKit/Pipelines/AzureDevOps/GitHub-Flow/epac-alz-sync-pipeline.yml
 
 env:
