@@ -1,8 +1,19 @@
 name: Sync ALZ Policy Objects
 
+# IMPORTANT: This workflow has been updated to use the new Azure Landing Zone Library sync process.
+# Before running this workflow, you must:
+# 1. Create a policy default structure file using New-ALZPolicyDefaultStructure
+#    Documentation: https://azure.github.io/enterprise-azure-policy-as-code/integrating-with-alz-library/
+# 2. Configure the environment variables below to match your environment
+#
+# For a complete working example, see the Azure DevOps pipeline template:
+# StarterKit/Pipelines/AzureDevOps/GitHub-Flow/epac-alz-sync-pipeline.yml
+
 env:
   REVIEWER: anwather # Change this to your GitHub username
   DefinitionsRootFolder: Definitions # Change this to the folder where your policy definitions are stored
+  PacEnvironmentSelector: epac-dev # Change this to your PAC environment selector
+  ALZLibraryType: ALZ # Change this to ALZ, AMBA, or SLZ as needed
 
 on:
   workflow_dispatch
@@ -14,10 +25,12 @@ jobs:
         - name: Checkout
           uses: actions/checkout@v4
         - shell: pwsh
-          name: Install Required Modules
+          name: Install Required Modules and Sync
           run: |
             Install-Module EnterprisePolicyAsCode -Force
-            Sync-ALZPolicies -DefinitionsRootFolder $env:DefinitionsRootFolder
+            # Note: You must have a policy default structure file created before running this workflow
+            # See: https://azure.github.io/enterprise-azure-policy-as-code/integrating-with-alz-library/
+            Sync-ALZPolicyFromLibrary -DefinitionsRootFolder $env:DefinitionsRootFolder -Type $env:ALZLibraryType -PacEnvironmentSelector $env:PacEnvironmentSelector
             $branchName = "caf-sync-$(Get-Date -Format yyyy-MM-dd-HH-mm)"
             git config user.name "GitHub Actions Bot"
             git config user.email "<>"
