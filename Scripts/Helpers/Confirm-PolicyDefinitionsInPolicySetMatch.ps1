@@ -3,11 +3,17 @@ function Confirm-PolicyDefinitionsInPolicySetMatch {
     param (
         $Object1,
         $Object2,
-        $Definitions
+        $Definitions,
+        [bool] $GenerateDiff = $false
     )
 
+    $diff = @()
+    
     # check for null or empty scenarios
     if ($Object1 -eq $Object2) {
+        if ($GenerateDiff) {
+            return @{ match = $true; diff = $diff }
+        }
         return $true
     }
     if ($Object1 -and $Object1 -isnot [System.Collections.IList]) {
@@ -17,13 +23,86 @@ function Confirm-PolicyDefinitionsInPolicySetMatch {
         $Object2 = @($Object2)
     }
     if (($null -eq $Object1 -and $Object2.Count -eq 0) -or ($null -eq $Object2 -and $Object1.Count -eq 0)) {
+        if ($GenerateDiff) {
+            return @{ match = $true; diff = $diff }
+        }
         return $true
     }
     if ($null -eq $Object1 -or $null -eq $Object2) {
+        if ($GenerateDiff) {
+            return @{ match = $false; diff = $diff }
+        }
         return $false
     }
 
-    # compare the arrays, assuming that they are in the same order
+    # If generating diff, use identity-based comparison
+    if ($GenerateDiff) {
+        # Build hashtables using policyDefinitionId as key for identity-based comparison
+        $policies1 = @{}
+        $policies2 = @{}
+        
+        foreach ($item in $Object1) {
+            $policies1[$item.policyDefinitionId] = $item
+        }
+        foreach ($item in $Object2) {
+            $policies2[$item.policyDefinitionId] = $item
+        }
+        
+        # Find removed policies
+        foreach ($id in $policies1.Keys) {
+            if (!$policies2.ContainsKey($id)) {
+                $diff += New-DiffEntry -Operation "remove" -Path "/policyDefinitions[$id]" `
+                    -Before $policies1[$id] -Classification "array"
+            }
+        }
+        
+        # Find added and modified policies
+        foreach ($id in $policies2.Keys) {
+            if (!$policies1.ContainsKey($id)) {
+                $diff += New-DiffEntry -Operation "add" -Path "/policyDefinitions[$id]" `
+                    -After $policies2[$id] -Classification "array"
+            }
+            else {
+                $item1 = $policies1[$id]
+                $item2 = $policies2[$id]
+                
+                # Check for changes in policy definition
+                if ($item1.policyDefinitionReferenceId -ne $item2.policyDefinitionReferenceId) {
+                    $diff += New-DiffEntry -Operation "replace" -Path "/policyDefinitions[$id]/policyDefinitionReferenceId" `
+                        -Before $item1.policyDefinitionReferenceId -After $item2.policyDefinitionReferenceId -Classification "array"
+                }
+                
+                # Check for group name changes
+                if (!(Confirm-ObjectValueEqualityDeep $item1.groupNames $item2.groupNames)) {
+                    $diff += New-DiffEntry -Operation "replace" -Path "/policyDefinitions[$id]/groupNames" `
+                        -Before $item1.groupNames -After $item2.groupNames -Classification "array"
+                }
+                
+                # Check for parameter changes
+                $paramResult = Confirm-ParametersUsageMatches `
+                    -ExistingParametersObj $item1.parameters `
+                    -DefinedParametersObj $item2.parameters `
+                    -CompareValueEntryForExistingParametersObj `
+                    -CompareValueEntryForDefinedParametersObj `
+                    -GenerateDiff $true
+                
+                if ($paramResult.diff -and $paramResult.diff.Count -gt 0) {
+                    foreach ($paramDiff in $paramResult.diff) {
+                        $newPath = "/policyDefinitions[$id]$($paramDiff.path)"
+                        $diff += New-DiffEntry -Operation $paramDiff.op -Path $newPath `
+                            -Before $paramDiff.before -After $paramDiff.after -Classification $paramDiff.classification
+                    }
+                }
+            }
+        }
+        
+        return @{ 
+            match = ($diff.Count -eq 0)
+            diff  = $diff 
+        }
+    }
+
+    # Original index-based comparison when not generating diff
     if ($Object1.Count -ne $Object2.Count) {
         return $false
     }

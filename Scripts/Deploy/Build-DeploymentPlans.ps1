@@ -67,7 +67,11 @@ param (
     [ValidateSet("ado", "gitlab", "")]
     [string] $DevOpsType = "",
 
-    [switch]$SkipNotScopedExemptions
+    [switch]$SkipNotScopedExemptions,
+
+    [Parameter(HelpMessage = "Level of detail for diff output: summary (default, current behavior), standard (property-level changes), detailed (includes metadata/arrays), verbose (complete context).")]
+    [ValidateSet("summary", "standard", "detailed", "verbose")]
+    [string] $DiffGranularity = "summary"
 )
 
 $PSDefaultParameterValues = @{
@@ -89,6 +93,23 @@ Write-ModernHeader -Title "Enterprise Policy as Code (EPAC)" -Subtitle "Building
 
 $pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder -Interactive $Interactive
 $null = Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -Interactive $pacEnvironment.interactive -DeploymentDefaultContext $pacEnvironment.defaultContext
+
+# Resolve DiffGranularity with configuration precedence: CLI → env var → global-settings → default
+if ($PSBoundParameters.ContainsKey('DiffGranularity') -and $DiffGranularity -ne "summary") {
+    # CLI parameter explicitly provided, use it
+    Write-Information "Using DiffGranularity from CLI parameter: $DiffGranularity"
+}
+elseif ($env:EPAC_DIFF_GRANULARITY) {
+    # Environment variable set
+    $DiffGranularity = $env:EPAC_DIFF_GRANULARITY
+    Write-Information "Using DiffGranularity from environment variable: $DiffGranularity"
+}
+elseif ($pacEnvironment.outputPreferences -and $pacEnvironment.outputPreferences.diffGranularity) {
+    # Global settings configuration
+    $DiffGranularity = $pacEnvironment.outputPreferences.diffGranularity
+    Write-Information "Using DiffGranularity from global-settings: $DiffGranularity"
+}
+# else: use default "summary" (already set in parameter)
 
 # Display environment information
 Write-ModernSection -Title "Environment Configuration" -Color Blue

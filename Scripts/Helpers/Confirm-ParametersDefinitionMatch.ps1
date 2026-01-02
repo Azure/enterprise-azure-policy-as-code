@@ -2,10 +2,12 @@ function Confirm-ParametersDefinitionMatch {
     [CmdletBinding()]
     param(
         $ExistingParametersObj,
-        $DefinedParametersObj
+        $DefinedParametersObj,
+        [bool] $GenerateDiff = $false
     )
     $match = $true
     $incompatible = $false
+    $diff = @()
 
     $addedParameters = @{}
     if ($null -eq $ExistingParametersObj) {

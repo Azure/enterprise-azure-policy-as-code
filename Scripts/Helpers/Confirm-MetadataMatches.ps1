@@ -2,12 +2,22 @@ function Confirm-MetadataMatches {
     [CmdletBinding()]
     param(
         $ExistingMetadataObj,
-        $DefinedMetadataObj
+        $DefinedMetadataObj,
+        [bool] $GenerateDiff = $false
     )
 
     $match = $false
     $changePacOwnerId = $false
+    $diff = @()
+    
     if ($null -eq $ExistingMetadataObj) {
+        if ($GenerateDiff) {
+            return @{
+                match            = $false
+                changePacOwnerId = $true
+                diff             = $diff
+            }
+        }
         return $false, $true
     }
     $existingMetadata =  Get-DeepCloneAsOrderedHashtable $ExistingMetadataObj
@@ -46,8 +56,34 @@ function Confirm-MetadataMatches {
         $match = Confirm-ObjectValueEqualityDeep $existingMetadata $definedMetadata
     }
 
-    if (!$match) {
-        $null = $null
+    if (!$match -and $GenerateDiff) {
+        # Generate detailed diff for metadata changes
+        foreach ($key in $definedMetadata.Keys) {
+            if ($existingMetadata.ContainsKey($key)) {
+                if (!(Confirm-ObjectValueEqualityDeep $existingMetadata.$key $definedMetadata.$key)) {
+                    $diff += New-DiffEntry -Operation "replace" -Path "/metadata/$key" `
+                        -Before $existingMetadata.$key -After $definedMetadata.$key -Classification "metadata"
+                }
+            }
+            else {
+                $diff += New-DiffEntry -Operation "add" -Path "/metadata/$key" `
+                    -After $definedMetadata.$key -Classification "metadata"
+            }
+        }
+        foreach ($key in $existingMetadata.Keys) {
+            if (!$definedMetadata.ContainsKey($key)) {
+                $diff += New-DiffEntry -Operation "remove" -Path "/metadata/$key" `
+                    -Before $existingMetadata.$key -Classification "metadata"
+            }
+        }
+    }
+    
+    if ($GenerateDiff) {
+        return @{
+            match            = $match
+            changePacOwnerId = $changePacOwnerId
+            diff             = $diff
+        }
     }
     return $match, $changePacOwnerId
 }

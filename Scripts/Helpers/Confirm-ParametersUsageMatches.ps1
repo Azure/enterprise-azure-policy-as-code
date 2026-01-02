@@ -4,11 +4,13 @@ function Confirm-ParametersUsageMatches {
         $ExistingParametersObj,
         $DefinedParametersObj,
         [switch] $CompareValueEntryForExistingParametersObj,
-        [switch] $CompareValueEntryForDefinedParametersObj
+        [switch] $CompareValueEntryForDefinedParametersObj,
+        [bool] $GenerateDiff = $false
     )
 
     $existingParameters = ConvertTo-HashTable $ExistingParametersObj
     $definedParameters = ConvertTo-HashTable $DefinedParametersObj
+    $diff = @()
 
     $allKeys = $existingParameters.Keys + $definedParameters.Keys
     if ($existingParameters.psbase.Count -ne $definedParameters.psbase.Count) {
@@ -48,7 +50,20 @@ function Confirm-ParametersUsageMatches {
         }
         
         if (!(Confirm-ObjectValueEqualityDeep $existingParameterValue $definedParameterValue)) {
-            return $false
+            if ($GenerateDiff) {
+                $diff += New-DiffEntry -Operation "replace" -Path "/parameters/$existingParameterName/value" `
+                    -Before $existingParameterValue -After $definedParameterValue -Classification "parameter"
+            }
+            else {
+                return $false
+            }
+        }
+    }
+    
+    if ($GenerateDiff) {
+        return @{
+            match = ($diff.Count -eq 0)
+            diff  = $diff
         }
     }
     return $true

@@ -114,6 +114,29 @@
                     "desiredState"
                 ]
             }
+        },
+        "outputPreferences": {
+            "type": "object",
+            "description": "Output formatting and verbosity preferences for deployment plans",
+            "properties": {
+                "diffGranularity": {
+                    "type": "string",
+                    "description": "Level of detail for diff output in deployment plans",
+                    "enum": [
+                        "summary",
+                        "standard",
+                        "detailed",
+                        "verbose"
+                    ],
+                    "default": "summary"
+                },
+                "colorizedOutput": {
+                    "type": "boolean",
+                    "description": "Enable or disable colorized console output",
+                    "default": true
+                }
+            },
+            "additionalProperties": false
         }
     },
     "additionalProperties": false,
