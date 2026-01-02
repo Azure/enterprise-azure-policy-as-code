@@ -399,7 +399,8 @@ if ($buildSelections.buildAny) {
             -Definitions $policySetDefinitions `
             -AllDefinitions $allDefinitions `
             -ReplaceDefinitions $replaceDefinitions `
-            -PolicyRoleIds $policyRoleIds
+            -PolicyRoleIds $policyRoleIds `
+            -DiffGranularity $DiffGranularity
     }
 
     # Convert Policy and PolicySetDefinition to detailed Info
@@ -519,6 +520,23 @@ if ($buildSelections.buildAny) {
         Write-ModernCountSummary -Type "Policy Exemptions" -Unchanged $exemptions.numberUnchanged -TotalChanges $exemptions.numberOfChanges -Changes $exemptionChanges -Orphaned $exemptions.numberOfOrphans -Expired $exemptions.numberOfExpired
     }
 
+    # Render detailed diffs if granularity is not summary
+    if ($DiffGranularity -ne "summary") {
+        Write-ModernSection -Title "Detailed Changes" -Color Cyan
+        
+        if ($buildSelections.buildPolicySetDefinitions -and $policySetDefinitions.update.psbase.Count -gt 0) {
+            Write-ModernDiff -ResourceType "Policy Sets" -Resources $policySetDefinitions.update -Granularity $DiffGranularity -Indent 2
+        }
+        
+        # Add similar sections for other resource types when their plan builders are updated
+        # if ($buildSelections.buildPolicyDefinitions -and $policyDefinitions.update.psbase.Count -gt 0) {
+        #     Write-ModernDiff -ResourceType "Policies" -Resources $policyDefinitions.update -Granularity $DiffGranularity -Indent 2
+        # }
+        # if ($buildSelections.buildPolicyAssignments -and $assignments.update.psbase.Count -gt 0) {
+        #     Write-ModernDiff -ResourceType "Assignments" -Resources $assignments.update -Granularity $DiffGranularity -Indent 2
+        # }
+    }
+
 }
 
 Write-ModernSection -Title "Deployment Plan Output" -Color Green
@@ -561,6 +579,12 @@ else {
     Write-ModernStatus -Message "Role assignment stage skipped - no changes detected" -Status "skip" -Indent 2
 }
 
+# Export diff artifact if granularity is not summary
+if ($DiffGranularity -ne "summary" -and ($policyResourceChanges -gt 0 -or $roleAssignments.numberOfChanges -gt 0)) {
+    Export-PolicyDiffArtifact -PolicyPlan $policyPlan -RolesPlan $rolesPlan -OutputFolder $outputPath
+    Write-ModernStatus -Message "Diff artifact exported to: $outputPath/policy-diff.json" -Status "success" -Indent 2
+}
+
 Write-Host ""
 
 switch ($DevOpsType) {
@@ -581,3 +605,12 @@ switch ($DevOpsType) {
 $totalTime = (Get-Date) - $scriptStartTime
 Write-ModernHeader -Title "EPAC Build Complete" -Subtitle "Deployment plans generated successfully" -HeaderColor Green -SubtitleColor DarkGreen
 Write-ModernStatus -Message "Total execution time: $($totalTime.ToString('mm\:ss\.fff'))" -Status "info"
+
+# Write extended information to pipeline logs if needed
+if ($DevOpsType -ne "" -and ($policyResourceChanges -gt 0 -or $roleAssignments.numberOfChanges -gt 0)) {
+    Write-Information ""
+    Write-Information "=== Change Summary for Pipeline ==="
+    Write-Information "Policy changes: $policyResourceChanges"
+    Write-Information "Role changes: $($roleAssignments.numberOfChanges)"
+    Write-Information "==================================="
+}

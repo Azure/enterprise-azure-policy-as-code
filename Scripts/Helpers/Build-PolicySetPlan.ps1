@@ -7,8 +7,11 @@ function Build-PolicySetPlan {
         [hashtable] $Definitions,
         [hashtable] $AllDefinitions,
         [hashtable] $ReplaceDefinitions,
-        [hashtable] $PolicyRoleIds
+        [hashtable] $PolicyRoleIds,
+        [string] $DiffGranularity = "summary"
     )
+
+    $generateDiff = ($DiffGranularity -ne "summary")
 
     Write-ModernSection -Title "Processing Policy Set Definitions" -Color Blue
     Write-ModernStatus -Message "Source folder: $DefinitionsRootFolder" -Status "info" -Indent 2
@@ -201,16 +204,37 @@ function Build-PolicySetPlan {
             # Check if Policy Set in Azure is the same as in the JSON file
             $displayNameMatches = $deployedDefinition.displayName -eq $displayName
             $descriptionMatches = $deployedDefinition.description -eq $description
-            $metadataMatches, $changePacOwnerId = Confirm-MetadataMatches `
+            
+            $metadataResult = Confirm-MetadataMatches `
                 -ExistingMetadataObj $deployedDefinition.metadata `
-                -DefinedMetadataObj $metadata
-            $parametersMatch, $incompatible = Confirm-ParametersDefinitionMatch `
+                -DefinedMetadataObj $metadata `
+                -GenerateDiff $generateDiff
+            
+            $parametersResult = Confirm-ParametersDefinitionMatch `
                 -ExistingParametersObj $deployedDefinition.parameters `
-                -DefinedParametersObj $parameters
-            $policyDefinitionsMatch = Confirm-PolicyDefinitionsInPolicySetMatch `
+                -DefinedParametersObj $parameters `
+                -GenerateDiff $generateDiff
+            
+            $policyDefinitionsResult = Confirm-PolicyDefinitionsInPolicySetMatch `
                 $deployedDefinition.policyDefinitions `
                 $policyDefinitionsFinal `
-                $AllDefinitions.policydefinitions
+                $AllDefinitions.policydefinitions `
+                -GenerateDiff $generateDiff
+            
+            # Extract match results (support both old and new return formats)
+            if ($generateDiff) {
+                $metadataMatches = $metadataResult.match
+                $changePacOwnerId = $metadataResult.changePacOwnerId
+                $parametersMatch = $parametersResult.match
+                $incompatible = $parametersResult.incompatible
+                $policyDefinitionsMatch = $policyDefinitionsResult.match
+            }
+            else {
+                $metadataMatches, $changePacOwnerId = $metadataResult
+                $parametersMatch, $incompatible = $parametersResult
+                $policyDefinitionsMatch = $policyDefinitionsResult
+            }
+            
             $policyDefinitionGroupsMatch = Confirm-ObjectValueEqualityDeep `
                 $deployedDefinition.policyDefinitionGroups `
                 $policyDefinitionGroupsFinal
@@ -265,6 +289,36 @@ function Build-PolicySetPlan {
                     }
                 }
                 $changesString = $changesStrings -join ","
+
+                # Attach diff array if generating diffs
+                if ($generateDiff) {
+                    $diffArray = @()
+                    if (!$displayNameMatches) {
+                        $diffArray += New-DiffEntry -Operation "replace" -Path "/displayName" `
+                            -Before $deployedDefinition.displayName -After $displayName -Classification "core"
+                    }
+                    if (!$descriptionMatches) {
+                        $diffArray += New-DiffEntry -Operation "replace" -Path "/description" `
+                            -Before $deployedDefinition.description -After $description -Classification "core"
+                    }
+                    if ($metadataResult.diff) {
+                        $diffArray += $metadataResult.diff
+                    }
+                    if ($parametersResult.diff) {
+                        $diffArray += $parametersResult.diff
+                    }
+                    if ($policyDefinitionsResult.diff) {
+                        $diffArray += $policyDefinitionsResult.diff
+                    }
+                    if (!$policyDefinitionGroupsMatch) {
+                        $diffArray += New-DiffEntry -Operation "replace" -Path "/policyDefinitionGroups" `
+                            -Before $deployedDefinition.policyDefinitionGroups -After $policyDefinitionGroupsFinal -Classification "array"
+                    }
+                    
+                    if ($diffArray.Count -gt 0) {
+                        $definition.diff = $diffArray
+                    }
+                }
 
                 if ($incompatible -or $containsReplacedPolicy) {
                     # Check if parameters are compatible with an update or id the set includes at least one Policy which is being replaced.
