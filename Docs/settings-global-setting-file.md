@@ -25,6 +25,10 @@
 {
     "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/global-settings-schema.json",
     "pacOwnerId": "00000000-0000-0000-0000-000000000000",
+    "outputPreferences": {
+        "diffGranularity": "standard",
+        "colorizedOutput": true
+    },
     "pacEnvironments": [
         {
             "pacSelector": "epac-dev",
@@ -82,6 +86,22 @@ Starting with v8.0.0, Enterprise Policy as Code (EPAC) is tracking the usage usi
 ## Uniquely identify deployments with `pacOwnerId`
 
 `pacOwnerId` is required for [desired state handling](settings-desired-state.md) to distinguish Policy resources deployed via this EPAC repo, legacy technology, another EPAC repo, or another Policy as Code solution.
+
+## Configure Output Preferences with `outputPreferences`
+
+The `outputPreferences` section controls deployment plan output formatting and verbosity. This is optional and will use defaults if not specified.
+
+```json
+"outputPreferences": {
+    "diffGranularity": "standard",
+    "colorizedOutput": true
+}
+```
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `diffGranularity` | Controls the level of detail for diff output during deployment plan building. Valid values: `summary` (count-based changes only), `standard` (property-level changes with before/after values), `detailed` (includes metadata/arrays), `verbose` (complete context). See [Terraform-Style Diff Output](terraform-style-diff-output.md) for details. | `summary` |
+| `colorizedOutput` | Enable or disable colorized console output | `true` |
 
 ## Define EPAC Environments in `pacEnvironments`
 
