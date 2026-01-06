@@ -109,6 +109,7 @@ $scriptRoot = Split-Path $PSScriptRoot -Parent
 . "$PSScriptRoot/Switch-PacEnvironment.ps1"
 
 . "$PSScriptRoot/Write-AssignmentDetails.ps1"
+. "$PSScriptRoot/Write-DetailedDiff.ps1"
 . "$PSScriptRoot/Write-ErrorsFromErrorInfo.ps1"
 . "$PSScriptRoot/Write-ModernOutput.ps1"
 

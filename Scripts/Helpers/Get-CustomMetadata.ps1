@@ -5,20 +5,17 @@ function Get-CustomMetadata {
         $Remove = $null
     )
 
-    # remove system generated metadata
+    # Remove Azure system-generated metadata properties
+    # These are automatically managed by Azure and should not be compared
+    $systemManagedProperties = @("createdBy", "createdOn", "updatedBy", "updatedOn", "lastSyncedToArgOn")
+    
     $metadataTemp = ConvertTo-HashTable $Metadata
-    if ($metadataTemp.Keys -contains "createdBy") {
-        $metadataTemp.Remove("createdBy")
+    foreach ($property in $systemManagedProperties) {
+        if ($metadataTemp.Keys -contains $property) {
+            $metadataTemp.Remove($property)
+        }
     }
-    if ($metadataTemp.Keys -contains "createdOn") {
-        $metadataTemp.Remove("createdOn")
-    }
-    if ($metadataTemp.Keys -contains "updatedBy") {
-        $metadataTemp.Remove("updatedBy")
-    }
-    if ($metadataTemp.Keys -contains "updatedOn") {
-        $metadataTemp.Remove("updatedOn")
-    }
+    
     if ($null -ne $Remove) {
         $splits = $Remove -split ","
         foreach ($item in  $splits) {

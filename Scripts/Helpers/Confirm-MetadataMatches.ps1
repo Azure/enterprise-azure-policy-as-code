@@ -2,7 +2,8 @@ function Confirm-MetadataMatches {
     [CmdletBinding()]
     param(
         $ExistingMetadataObj,
-        $DefinedMetadataObj
+        $DefinedMetadataObj,
+        [switch] $SuppressPacOwnerIdMessage
     )
 
     $match = $false
@@ -13,27 +14,22 @@ function Confirm-MetadataMatches {
     $existingMetadata =  Get-DeepCloneAsOrderedHashtable $ExistingMetadataObj
     $definedMetadata = Get-DeepCloneAsOrderedHashtable $DefinedMetadataObj
 
-    # remove system generated metadata from consideration
-    if ($existingMetadata.ContainsKey("createdBy")) {
-        $existingMetadata.Remove("createdBy")
-    }
-    if ($existingMetadata.ContainsKey("createdOn")) {
-        $existingMetadata.Remove("createdOn")
-    }
-    if ($existingMetadata.ContainsKey("updatedBy")) {
-        $existingMetadata.Remove("updatedBy")
-    }
-    if ($existingMetadata.ContainsKey("updatedOn")) {
-        $existingMetadata.Remove("updatedOn")
-    }
-    if ($existingMetadata.ContainsKey("lastSyncedToArgOn")) {
-        $existingMetadata.Remove("lastSyncedToArgOn")
+    # Remove Azure system-generated metadata properties
+    # These are automatically managed by Azure and should not be compared
+    $systemManagedProperties = @("createdBy", "createdOn", "updatedBy", "updatedOn", "lastSyncedToArgOn")
+    
+    foreach ($property in $systemManagedProperties) {
+        if ($existingMetadata.ContainsKey($property)) {
+            $existingMetadata.Remove($property)
+        }
     }
 
     $existingPacOwnerId = $existingMetadata.pacOwnerId
     $definedPacOwnerId = $definedMetadata.pacOwnerId
     if ($existingPacOwnerId -ne $definedPacOwnerId) {
-        Write-Information "pacOwnerId has changed from '$existingPacOwnerId' to '$definedPacOwnerId'"
+        if (-not $SuppressPacOwnerIdMessage) {
+            Write-Information "pacOwnerId has changed from '$existingPacOwnerId' to '$definedPacOwnerId'"
+        }
         $changePacOwnerId = $true
     }
     if ($definedMetadata.ContainsKey("pacOwnerId")) {

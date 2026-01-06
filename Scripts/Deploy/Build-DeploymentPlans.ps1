@@ -67,7 +67,11 @@ param (
     [ValidateSet("ado", "gitlab", "")]
     [string] $DevOpsType = "",
 
-    [switch]$SkipNotScopedExemptions
+    [switch]$SkipNotScopedExemptions,
+
+    [Parameter(HelpMessage = "Specifies the level of detail in the deployment plan output. 'Standard' (default) shows a summary of changes. 'Detailed' shows line-by-line diffs similar to terraform plan.")]
+    [ValidateSet("Standard", "Detailed")]
+    [string] $DiffGranularity = "Standard"
 )
 
 $PSDefaultParameterValues = @{
@@ -340,7 +344,8 @@ if ($buildSelections.buildAny) {
             -Definitions $policyDefinitions `
             -AllDefinitions $allDefinitions `
             -ReplaceDefinitions $replaceDefinitions `
-            -PolicyRoleIds $policyRoleIds
+            -PolicyRoleIds $policyRoleIds `
+            -DiffGranularity $DiffGranularity
     }
 
     # Calculate roleDefinitionIds for built-in and inherited PolicySets
@@ -378,7 +383,8 @@ if ($buildSelections.buildAny) {
             -Definitions $policySetDefinitions `
             -AllDefinitions $allDefinitions `
             -ReplaceDefinitions $replaceDefinitions `
-            -PolicyRoleIds $policyRoleIds
+            -PolicyRoleIds $policyRoleIds `
+            -DiffGranularity $DiffGranularity
     }
 
     # Convert Policy and PolicySetDefinition to detailed Info
@@ -414,7 +420,8 @@ if ($buildSelections.buildAny) {
             -ReplaceDefinitions $replaceDefinitions `
             -PolicyRoleIds $policyRoleIds `
             -CombinedPolicyDetails $combinedPolicyDetails `
-            -DeprecatedHash $deprecatedHash
+            -DeprecatedHash $deprecatedHash `
+            -DiffGranularity $DiffGranularity
     }
 
     if ($buildSelections.buildPolicyExemptions) {
@@ -432,7 +439,8 @@ if ($buildSelections.buildAny) {
                 -Assignments $assignments `
                 -DeployedExemptions $deployedPolicyResources.policyExemptions `
                 -Exemptions $exemptions `
-                -SkipNotScopedExemptions
+                -SkipNotScopedExemptions `
+                -DiffGranularity $DiffGranularity
         }
         else {
             Build-ExemptionsPlan `
@@ -445,7 +453,8 @@ if ($buildSelections.buildAny) {
                 -CombinedPolicyDetails $combinedPolicyDetails `
                 -Assignments $assignments `
                 -DeployedExemptions $deployedPolicyResources.policyExemptions `
-                -Exemptions $exemptions
+                -Exemptions $exemptions `
+                -DiffGranularity $DiffGranularity
         }
     }
 
