@@ -7,8 +7,11 @@ function Build-PolicyPlan {
         [hashtable] $Definitions,
         [hashtable] $AllDefinitions,
         [hashtable] $ReplaceDefinitions,
-        [hashtable] $PolicyRoleIds
+        [hashtable] $PolicyRoleIds,
+        [string] $DiffGranularity = "summary"
     )
+
+    $generateDiff = ($DiffGranularity -ne "summary")
 
     Write-ModernSection -Title "Processing Policy Definitions" -Color Blue
     Write-ModernStatus -Message "Source folder: $DefinitionsRootFolder" -Status "info" -Indent 2
@@ -134,9 +137,12 @@ function Build-PolicyPlan {
             $displayNameMatches = $deployedDefinitionProperties.displayName -eq $displayName
             $descriptionMatches = $deployedDefinitionProperties.description -eq $description
             $modeMatches = $deployedDefinitionProperties.mode -eq $definition.Mode
-            $metadataMatches, $changePacOwnerId = Confirm-MetadataMatches `
+            $metadataResult = Confirm-MetadataMatches `
                 -ExistingMetadataObj $deployedDefinitionProperties.metadata `
-                -DefinedMetadataObj $metadata
+                -DefinedMetadataObj $metadata `
+                -GenerateDiff $generateDiff
+            $metadataMatches = $metadataResult.match
+            $changePacOwnerId = $metadataResult.changePacOwnerId
             $parametersMatch, $incompatible = Confirm-ParametersDefinitionMatch `
                 -ExistingParametersObj $deployedDefinitionProperties.parameters `
                 -DefinedParametersObj $parameters
@@ -177,6 +183,38 @@ function Build-PolicyPlan {
                 }
                 $changesString = $changesStrings -join ","
 
+                # Attach diff array if generating diffs
+                if ($generateDiff) {
+                    $diffArray = @()
+                    if (!$displayNameMatches) {
+                        $diffArray += New-DiffEntry -Operation "replace" -Path "/displayName" `
+                            -Before $deployedDefinitionProperties.displayName -After $displayName -Classification "core"
+                    }
+                    if (!$descriptionMatches) {
+                        $diffArray += New-DiffEntry -Operation "replace" -Path "/description" `
+                            -Before $deployedDefinitionProperties.description -After $description -Classification "core"
+                    }
+                    if (!$modeMatches) {
+                        $diffArray += New-DiffEntry -Operation "replace" -Path "/mode" `
+                            -Before $deployedDefinitionProperties.mode -After $mode -Classification "core"
+                    }
+                    if ($metadataResult.diff) {
+                        $diffArray += $metadataResult.diff
+                    }
+                    if (!$parametersMatch -and !$incompatible) {
+                        $diffArray += New-DiffEntry -Operation "replace" -Path "/parameters" `
+                            -Before $deployedDefinitionProperties.parameters -After $parameters -Classification "object"
+                    }
+                    if (!$policyRuleMatches) {
+                        $diffArray += New-DiffEntry -Operation "replace" -Path "/policyRule" `
+                            -Before $deployedDefinitionProperties.policyRule -After $policyRule -Classification "object"
+                    }
+                    
+                    if ($diffArray.Count -gt 0) {
+                        $definition.diff = $diffArray
+                    }
+                }
+
                 if ($incompatible) {
                     # check if parameters are compatible with an update. Otherwise the Policy will need to be deleted (and any PolicySets and Assignments referencing the Policy)
                     Write-ModernStatus -Message "Replace ($changesString): $($displayName)" -Status "warning" -Indent 4
@@ -207,7 +245,9 @@ function Build-PolicyPlan {
             # always delete if owned by this Policy as Code solution
             # never delete if owned by another Policy as Code solution
             # if strategy is "full", delete with unknown owner (missing pacOwnerId)
-            Write-ModernStatus -Message "Delete: $($deleteCandidateProperties.displayName)" -Status "error" -Indent 4
+            if (!$suppressOutput) {
+                Write-ModernStatus -Message "Delete: $($deleteCandidateProperties.displayName)" -Status "error" -Indent 4
+            }
             $splat = @{
                 id          = $id
                 name        = $deleteCandidate.name

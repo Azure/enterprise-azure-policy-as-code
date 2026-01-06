@@ -283,5 +283,6 @@ function Get-AzPolicyResources {
         #     Write-Information ""
         #     Write-ModernStatus -Message "Remote Role Assignments: $($deployedPolicyResources.lighthouseAssignmentCount)" -Status "info" -Indent 3
         # }
-    }    return $deployedPolicyResources
+    }    
+    return $deployedPolicyResources
 }

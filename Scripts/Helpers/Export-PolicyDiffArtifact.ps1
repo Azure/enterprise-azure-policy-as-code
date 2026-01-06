@@ -84,7 +84,7 @@ function Export-PolicyDiffArtifact {
                     if ($resource.Value.diff) {
                         $entry.diff = $resource.Value.diff
                     }
-                    $diffArtifact.policies.$action += $entry
+                    $diffArtifact.policies.$action += , $entry
                 }
             }
             
@@ -98,7 +98,7 @@ function Export-PolicyDiffArtifact {
                     if ($resource.Value.diff) {
                         $entry.diff = $resource.Value.diff
                     }
-                    $diffArtifact.policySets.$action += $entry
+                    $diffArtifact.policySets.$action += , $entry
                 }
             }
             
@@ -112,7 +112,7 @@ function Export-PolicyDiffArtifact {
                     if ($resource.Value.diff) {
                         $entry.diff = $resource.Value.diff
                     }
-                    $diffArtifact.assignments.$action += $entry
+                    $diffArtifact.assignments.$action += , $entry
                 }
             }
             
@@ -126,7 +126,7 @@ function Export-PolicyDiffArtifact {
                     if ($resource.Value.diff) {
                         $entry.diff = $resource.Value.diff
                     }
-                    $diffArtifact.exemptions.$action += $entry
+                    $diffArtifact.exemptions.$action += , $entry
                 }
             }
         }
@@ -157,6 +157,4 @@ function Export-PolicyDiffArtifact {
     # Write artifact to file
     $artifactPath = Join-Path $OutputFolder "policy-diff.json"
     $diffArtifact | ConvertTo-Json -Depth 100 | Out-File -FilePath $artifactPath -Encoding utf8 -Force
-    
-    Write-Information "Diff artifact exported to: $artifactPath"
 }

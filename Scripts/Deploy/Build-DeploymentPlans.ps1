@@ -111,6 +111,12 @@ elseif ($pacEnvironment.outputPreferences -and $pacEnvironment.outputPreferences
 }
 # else: use default "summary" (already set in parameter)
 
+# Set global variable for helper functions to check
+$Global:EPAC_DiffGranularity = $DiffGranularity
+
+# Set flag to suppress intermediate processing output for ChangeDetails mode
+$suppressProcessingOutput = ($DiffGranularity -eq "ChangeDetails")
+
 # Display environment information
 Write-ModernSection -Title "Environment Configuration" -Color Blue
 Write-ModernStatus -Message "PAC Environment: $($pacEnvironment.pacSelector)" -Status "info" -Indent 2
@@ -361,7 +367,8 @@ if ($buildSelections.buildAny) {
             -Definitions $policyDefinitions `
             -AllDefinitions $allDefinitions `
             -ReplaceDefinitions $replaceDefinitions `
-            -PolicyRoleIds $policyRoleIds
+            -PolicyRoleIds $policyRoleIds `
+            -DiffGranularity $DiffGranularity
     }
 
     # Calculate roleDefinitionIds for built-in and inherited PolicySets
@@ -436,7 +443,8 @@ if ($buildSelections.buildAny) {
             -ReplaceDefinitions $replaceDefinitions `
             -PolicyRoleIds $policyRoleIds `
             -CombinedPolicyDetails $combinedPolicyDetails `
-            -DeprecatedHash $deprecatedHash
+            -DeprecatedHash $deprecatedHash `
+            -DiffGranularity $DiffGranularity
     }
 
     if ($buildSelections.buildPolicyExemptions) {
@@ -454,7 +462,8 @@ if ($buildSelections.buildAny) {
                 -Assignments $assignments `
                 -DeployedExemptions $deployedPolicyResources.policyExemptions `
                 -Exemptions $exemptions `
-                -SkipNotScopedExemptions
+                -SkipNotScopedExemptions `
+                -DiffGranularity $DiffGranularity
         }
         else {
             Build-ExemptionsPlan `
@@ -467,7 +476,8 @@ if ($buildSelections.buildAny) {
                 -CombinedPolicyDetails $combinedPolicyDetails `
                 -Assignments $assignments `
                 -DeployedExemptions $deployedPolicyResources.policyExemptions `
-                -Exemptions $exemptions
+                -Exemptions $exemptions `
+                -DiffGranularity $DiffGranularity
         }
     }
 
@@ -524,17 +534,164 @@ if ($buildSelections.buildAny) {
     if ($DiffGranularity -ne "summary") {
         Write-ModernSection -Title "Detailed Changes" -Color Cyan
         
-        if ($buildSelections.buildPolicySetDefinitions -and $policySetDefinitions.update.psbase.Count -gt 0) {
-            Write-ModernDiff -ResourceType "Policy Sets" -Resources $policySetDefinitions.update -Granularity $DiffGranularity -Indent 2
+        # Policy Definitions
+        if ($buildSelections.buildPolicyDefinitions) {
+            if ($policyDefinitions.new.psbase.Count -gt 0) {
+                Write-ModernDiff -ResourceType "Policy Definitions" -Resources $policyDefinitions.new -Operation "new" -Granularity $DiffGranularity -Indent 2
+            }
+            if ($policyDefinitions.update.psbase.Count -gt 0) {
+                Write-ModernDiff -ResourceType "Policy Definitions" -Resources $policyDefinitions.update -Operation "update" -Granularity $DiffGranularity -Indent 2
+            }
+            if ($policyDefinitions.replace.psbase.Count -gt 0) {
+                Write-ModernDiff -ResourceType "Policy Definitions" -Resources $policyDefinitions.replace -Operation "replace" -Granularity $DiffGranularity -Indent 2
+            }
+            if ($policyDefinitions.delete.psbase.Count -gt 0) {
+                Write-ModernDiff -ResourceType "Policy Definitions" -Resources $policyDefinitions.delete -Operation "delete" -Granularity $DiffGranularity -Indent 2
+            }
         }
         
-        # Add similar sections for other resource types when their plan builders are updated
-        # if ($buildSelections.buildPolicyDefinitions -and $policyDefinitions.update.psbase.Count -gt 0) {
-        #     Write-ModernDiff -ResourceType "Policies" -Resources $policyDefinitions.update -Granularity $DiffGranularity -Indent 2
-        # }
-        # if ($buildSelections.buildPolicyAssignments -and $assignments.update.psbase.Count -gt 0) {
-        #     Write-ModernDiff -ResourceType "Assignments" -Resources $assignments.update -Granularity $DiffGranularity -Indent 2
-        # }
+        # Policy Set Definitions
+        if ($buildSelections.buildPolicySetDefinitions) {
+            if ($policySetDefinitions.new.psbase.Count -gt 0) {
+                Write-ModernDiff -ResourceType "Policy Set Definitions" -Resources $policySetDefinitions.new -Operation "new" -Granularity $DiffGranularity -Indent 2
+            }
+            if ($policySetDefinitions.update.psbase.Count -gt 0) {
+                Write-ModernDiff -ResourceType "Policy Set Definitions" -Resources $policySetDefinitions.update -Operation "update" -Granularity $DiffGranularity -Indent 2
+            }
+            if ($policySetDefinitions.replace.psbase.Count -gt 0) {
+                Write-ModernDiff -ResourceType "Policy Set Definitions" -Resources $policySetDefinitions.replace -Operation "replace" -Granularity $DiffGranularity -Indent 2
+            }
+            if ($policySetDefinitions.delete.psbase.Count -gt 0) {
+                Write-ModernDiff -ResourceType "Policy Set Definitions" -Resources $policySetDefinitions.delete -Operation "delete" -Granularity $DiffGranularity -Indent 2
+            }
+        }
+        
+        # Policy Assignments
+        if ($buildSelections.buildPolicyAssignments) {
+            if ($assignments.new.psbase.Count -gt 0) {
+                Write-ModernDiff -ResourceType "Policy Assignments" -Resources $assignments.new -Operation "new" -Granularity $DiffGranularity -Indent 2
+            }
+            if ($assignments.update.psbase.Count -gt 0) {
+                Write-ModernDiff -ResourceType "Policy Assignments" -Resources $assignments.update -Operation "update" -Granularity $DiffGranularity -Indent 2
+            }
+            if ($assignments.replace.psbase.Count -gt 0) {
+                Write-ModernDiff -ResourceType "Policy Assignments" -Resources $assignments.replace -Operation "replace" -Granularity $DiffGranularity -Indent 2
+            }
+            if ($assignments.delete.psbase.Count -gt 0) {
+                Write-ModernDiff -ResourceType "Policy Assignments" -Resources $assignments.delete -Operation "delete" -Granularity $DiffGranularity -Indent 2
+            }
+        }
+        
+        # Policy Exemptions
+        if ($buildSelections.buildPolicyExemptions) {
+            if ($exemptions.new.psbase.Count -gt 0) {
+                Write-ModernDiff -ResourceType "Policy Exemptions" -Resources $exemptions.new -Operation "new" -Granularity $DiffGranularity -Indent 2
+            }
+            if ($exemptions.update.psbase.Count -gt 0) {
+                Write-ModernDiff -ResourceType "Policy Exemptions" -Resources $exemptions.update -Operation "update" -Granularity $DiffGranularity -Indent 2
+            }
+            if ($exemptions.replace.psbase.Count -gt 0) {
+                Write-ModernDiff -ResourceType "Policy Exemptions" -Resources $exemptions.replace -Operation "replace" -Granularity $DiffGranularity -Indent 2
+            }
+            if ($exemptions.delete.psbase.Count -gt 0) {
+                Write-ModernDiff -ResourceType "Policy Exemptions" -Resources $exemptions.delete -Operation "delete" -Granularity $DiffGranularity -Indent 2
+            }
+        }
+        
+        # Role Assignments
+        if ($roleAssignments.added.Count -gt 0) {
+            Write-Host ""
+            $prefix = "  "
+            Write-Host "$($prefix)Role Assignments:" -ForegroundColor Cyan
+            
+            # Group role assignments by assignment ID
+            $groupedRoles = @{}
+            foreach ($role in $roleAssignments.added) {
+                $assignmentId = if ($role.assignmentId) { $role.assignmentId } else { "Unknown Assignment" }
+                if (-not $groupedRoles.ContainsKey($assignmentId)) {
+                    $groupedRoles[$assignmentId] = @()
+                }
+                $groupedRoles[$assignmentId] += $role
+            }
+            
+            # Display grouped role assignments
+            foreach ($assignmentId in ($groupedRoles.Keys | Sort-Object)) {
+                $roles = $groupedRoles[$assignmentId]
+                
+                # Extract assignment name from ID for cleaner display
+                $assignmentName = if ($assignmentId -match '/policyAssignments/([^/]+)$') {
+                    $matches[1]
+                } else {
+                    $assignmentId
+                }
+                
+                Write-Host ""
+                Write-Host "$($prefix)  For Policy Assignment: $assignmentName" -ForegroundColor Cyan
+                if ($assignmentId -ne "Unknown Assignment") {
+                    Write-Host "$($prefix)    $assignmentId" -ForegroundColor DarkGray
+                }
+                
+                foreach ($role in $roles) {
+                    $roleDisplayName = if ($role.displayName) { $role.displayName } else { "Role Assignment" }
+                    Write-Host "$($prefix)    ✓ Add: $roleDisplayName" -ForegroundColor Green
+                    
+                    # Handle missing principal ID (will be assigned during deployment)
+                    $principalIdDisplay = if ([string]::IsNullOrEmpty($role.principalId)) { 
+                        "<will be assigned during deployment>" 
+                    } else { 
+                        $role.principalId 
+                    }
+                    Write-Host "$($prefix)      • Principal ID: $principalIdDisplay" -ForegroundColor Gray
+                    Write-Host "$($prefix)      • Role: $($role.roleDisplayName)" -ForegroundColor Gray
+                    Write-Host "$($prefix)      • Scope: $($role.scope)" -ForegroundColor Gray
+                }
+            }
+            Write-Host ""
+        }
+        if ($roleAssignments.removed.Count -gt 0) {
+            if ($roleAssignments.added.Count -eq 0) {
+                Write-Host ""
+                $prefix = "  "
+                Write-Host "$($prefix)Role Assignments:" -ForegroundColor Cyan
+            }
+            
+            # Group role assignments by assignment ID for removals too
+            $groupedRoles = @{}
+            foreach ($role in $roleAssignments.removed) {
+                $assignmentId = if ($role.assignmentId) { $role.assignmentId } else { "Unknown Assignment" }
+                if (-not $groupedRoles.ContainsKey($assignmentId)) {
+                    $groupedRoles[$assignmentId] = @()
+                }
+                $groupedRoles[$assignmentId] += $role
+            }
+            
+            # Display grouped role assignments
+            foreach ($assignmentId in ($groupedRoles.Keys | Sort-Object)) {
+                $roles = $groupedRoles[$assignmentId]
+                
+                # Extract assignment name from ID for cleaner display
+                $assignmentName = if ($assignmentId -match '/policyAssignments/([^/]+)$') {
+                    $matches[1]
+                } else {
+                    $assignmentId
+                }
+                
+                Write-Host ""
+                Write-Host "$($prefix)  For Policy Assignment: $assignmentName" -ForegroundColor Cyan
+                if ($assignmentId -ne "Unknown Assignment") {
+                    Write-Host "$($prefix)    $assignmentId" -ForegroundColor DarkGray
+                }
+                
+                foreach ($role in $roles) {
+                    $roleDisplayName = if ($role.displayName) { $role.displayName } else { "Role Assignment" }
+                    Write-Host "$($prefix)    ✗ Remove: $roleDisplayName" -ForegroundColor Red
+                    Write-Host "$($prefix)      • Principal ID: $($role.principalId)" -ForegroundColor Gray
+                    Write-Host "$($prefix)      • Role: $($role.roleDisplayName)" -ForegroundColor Gray
+                    Write-Host "$($prefix)      • Scope: $($role.scope)" -ForegroundColor Gray
+                }
+            }
+            Write-Host ""
+        }
     }
 
 }
@@ -548,7 +705,9 @@ $policyResourceChanges += $exemptions.numberOfChanges
 $policyStage = "no"
 $planFile = $pacEnvironment.policyPlanOutputFile
 if ($policyResourceChanges -gt 0) {
-    Write-ModernStatus -Message "Policy deployment plan created: $planFile" -Status "success" -Indent 2
+    # Normalize path separators for consistent console output
+    $normalizedPlanFile = $planFile -replace '[\\/]+', [System.IO.Path]::DirectorySeparatorChar
+    Write-ModernStatus -Message "Policy deployment plan created: $normalizedPlanFile" -Status "success" -Indent 2
     if (-not (Test-Path $planFile)) {
         $null = (New-Item $planFile -Force)
     }
@@ -565,7 +724,9 @@ else {
 $roleStage = "no"
 $planFile = $pacEnvironment.rolesPlanOutputFile
 if ($roleAssignments.numberOfChanges -gt 0) {
-    Write-ModernStatus -Message "Role assignment plan created: $planFile" -Status "success" -Indent 2
+    # Normalize path separators for consistent console output
+    $normalizedPlanFile = $planFile -replace '[\\/]+', [System.IO.Path]::DirectorySeparatorChar
+    Write-ModernStatus -Message "Role assignment plan created: $normalizedPlanFile" -Status "success" -Indent 2
     if (-not (Test-Path $planFile)) {
         $null = (New-Item $planFile -Force)
     }
@@ -581,8 +742,13 @@ else {
 
 # Export diff artifact if granularity is not summary
 if ($DiffGranularity -ne "summary" -and ($policyResourceChanges -gt 0 -or $roleAssignments.numberOfChanges -gt 0)) {
+    # Extract output path from the policy plan file path (parent directory)
+    $outputPath = Split-Path -Parent $pacEnvironment.policyPlanOutputFile
     Export-PolicyDiffArtifact -PolicyPlan $policyPlan -RolesPlan $rolesPlan -OutputFolder $outputPath
-    Write-ModernStatus -Message "Diff artifact exported to: $outputPath/policy-diff.json" -Status "success" -Indent 2
+    $diffPath = Join-Path $outputPath "policy-diff.json"
+    # Normalize path separators for consistent console output
+    $normalizedDiffPath = $diffPath -replace '[\\/]+', [System.IO.Path]::DirectorySeparatorChar
+    Write-ModernStatus -Message "Diff artifact exported to: $normalizedDiffPath" -Status "success" -Indent 2
 }
 
 Write-Host ""

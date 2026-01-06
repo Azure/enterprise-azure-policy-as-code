@@ -7,9 +7,12 @@ function Build-ScopeTableForDeploymentRootScope {
     $deploymentRootScope = $PacEnvironment.deploymentRootScope
     $tenantId = $PacEnvironment.tenantId
     
-    Write-ModernSection -Title "Building Scope Tree" -Color Blue
-    Write-ModernStatus -Message "Environment: $($PacEnvironment.pacSelector)" -Status "info" -Indent 2
-    Write-ModernStatus -Message "Root scope: $($deploymentRootScope -replace '/providers/Microsoft.Management','')" -Status "info" -Indent 2
+    $suppressOutput = ($Global:EPAC_DiffGranularity -eq "ChangeDetails")
+    if (!$suppressOutput) {
+        Write-ModernSection -Title "Building Scope Tree" -Color Blue
+        Write-ModernStatus -Message "Environment: $($PacEnvironment.pacSelector)" -Status "info" -Indent 2
+        Write-ModernStatus -Message "Root scope: $($deploymentRootScope -replace '/providers/Microsoft.Management','')" -Status "info" -Indent 2
+    }
 
     $scopeTable = @{}
     $tenantId = $PacEnvironment.tenantId

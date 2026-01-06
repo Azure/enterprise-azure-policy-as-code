@@ -11,8 +11,11 @@ function Build-AssignmentPlan {
         [hashtable] $ReplaceDefinitions,
         [hashtable] $PolicyRoleIds,
         [hashtable] $CombinedPolicyDetails,
-        [hashtable] $DeprecatedHash
+        [hashtable] $DeprecatedHash,
+        [string] $DiffGranularity = "summary"
     )
+
+    $generateDiff = ($DiffGranularity -ne "summary")
 
     Write-ModernSection -Title "Processing Policy Assignments" -Color Blue
     Write-ModernStatus -Message "Source folder: $AssignmentsRootFolder" -Status "info" -Indent 2
@@ -135,13 +138,18 @@ function Build-AssignmentPlan {
                 $notScopesMatch = Confirm-ObjectValueEqualityDeep `
                     $deployedPolicyAssignmentProperties.notScopes `
                     $notScopes
-                $parametersMatch = Confirm-ParametersUsageMatches `
+                $paramResult = Confirm-ParametersUsageMatches `
                     -ExistingParametersObj $deployedPolicyAssignmentProperties.parameters `
                     -DefinedParametersObj $parameters `
-                    -CompareValueEntryForExistingParametersObj
-                $metadataMatches, $changePacOwnerId = Confirm-MetadataMatches `
+                    -CompareValueEntryForExistingParametersObj `
+                    -GenerateDiff:$generateDiff
+                $parametersMatch = $paramResult.match
+                $metadataResult = Confirm-MetadataMatches `
                     -ExistingMetadataObj $deployedPolicyAssignmentProperties.metadata `
-                    -DefinedMetadataObj $metadata
+                    -DefinedMetadataObj $metadata `
+                    -GenerateDiff:$generateDiff
+                $metadataMatches = $metadataResult.match
+                $changePacOwnerId = $metadataResult.changePacOwnerId
                 $enforcementModeMatches = $enforcementMode -eq $deployedPolicyAssignmentProperties.enforcementMode
                 $nonComplianceMessagesMatches = Confirm-ObjectValueEqualityDeep `
                     $deployedPolicyAssignmentProperties.nonComplianceMessages `
@@ -165,6 +173,52 @@ function Build-AssignmentPlan {
                 }
                 if ($identityStatus.isUserAssigned) {
                     $isUserAssignedAny = $true
+                }
+
+                # Generate detailed diffs if requested
+                if ($generateDiff -and !$match) {
+                    $diffArray = @()
+                    if (!$displayNameMatches) {
+                        $diffArray += New-DiffEntry -Operation "replace" -Path "/displayName" `
+                            -Before $deployedPolicyAssignmentProperties.displayName -After $displayName -Classification "core"
+                    }
+                    if (!$descriptionMatches) {
+                        $diffArray += New-DiffEntry -Operation "replace" -Path "/description" `
+                            -Before $deployedPolicyAssignmentProperties.description -After $description -Classification "core"
+                    }
+                    if ($metadataResult.diff) {
+                        $diffArray += $metadataResult.diff
+                    }
+                    if ($paramResult.diff) {
+                        $diffArray += $paramResult.diff
+                    }
+                    if (!$definitionVersionMatches) {
+                        $diffArray += New-DiffEntry -Operation "replace" -Path "/definitionVersion" `
+                            -Before $deployedPolicyAssignmentProperties.definitionVersion -After $definitionVersion -Classification "core"
+                    }
+                    if (!$enforcementModeMatches) {
+                        $diffArray += New-DiffEntry -Operation "replace" -Path "/enforcementMode" `
+                            -Before $deployedPolicyAssignmentProperties.enforcementMode -After $enforcementMode -Classification "core"
+                    }
+                    if (!$notScopesMatch) {
+                        $diffArray += New-DiffEntry -Operation "replace" -Path "/notScopes" `
+                            -Before $deployedPolicyAssignmentProperties.notScopes -After $notScopes -Classification "array"
+                    }
+                    if (!$nonComplianceMessagesMatches) {
+                        $diffArray += New-DiffEntry -Operation "replace" -Path "/nonComplianceMessages" `
+                            -Before $deployedPolicyAssignmentProperties.nonComplianceMessages -After $nonComplianceMessages -Classification "array"
+                    }
+                    if (!$overridesMatch) {
+                        $diffArray += New-DiffEntry -Operation "replace" -Path "/overrides" `
+                            -Before $deployedPolicyAssignmentProperties.overrides -After $overrides -Classification "array"
+                    }
+                    if (!$resourceSelectorsMatch) {
+                        $diffArray += New-DiffEntry -Operation "replace" -Path "/resourceSelectors" `
+                            -Before $deployedPolicyAssignmentProperties.resourceSelectors -After $resourceSelectors -Classification "array"
+                    }
+                    if ($diffArray.Count -gt 0) {
+                        $assignment.diff = $diffArray
+                    }
                 }
 
                 # Check if Policy assignment in Azure is the same as in the JSON file
@@ -238,6 +292,12 @@ function Build-AssignmentPlan {
                     if ($identityStatus.replaced) {
                         $prefixText = "Replace($changesString)"
                         $updateCollection = $Assignments.replace
+                        # Store replacement reason on assignment for display
+                        $assignment | Add-Member -MemberType NoteProperty -Name "replacementReason" -Value $changesStrings -Force
+                    }
+                    else {
+                        # Store change list for updates too
+                        $assignment | Add-Member -MemberType NoteProperty -Name "changeList" -Value $changesStrings -Force
                     }
                     if ($Assignments.update.ContainsKey($id) -or $Assignments.replace.ContainsKey($id)) {
                         Write-Error "Duplicate Policy Assignment ID '$id' found in the JSON files." -ErrorAction Stop
@@ -310,10 +370,17 @@ function Build-AssignmentPlan {
                 }
                 Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix "Delete" -IdentityStatus $identityStatus -ScopeTable $ScopeTable
                 $splat = @{
-                    id          = $id
-                    name        = $name
-                    scopeId     = $scope
-                    displayName = $displayName
+                    id                 = $id
+                    name               = $name
+                    scope              = $scope
+                    scopeId            = $scope
+                    displayName        = $displayName
+                    policyDefinitionId = $deleteCandidateProperties.policyDefinitionId
+                    enforcementMode    = $deleteCandidateProperties.enforcementMode
+                    description        = $deleteCandidateProperties.description
+                    metadata           = $deleteCandidateProperties.metadata
+                    identity           = $deleteCandidateProperties.identity
+                    pacOwner           = $pacOwner
                 }
 
                 $AllAssignments.Remove($id)

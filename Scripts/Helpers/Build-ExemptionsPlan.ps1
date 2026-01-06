@@ -11,8 +11,11 @@ function Build-ExemptionsPlan {
         $Assignments,
         $DeployedExemptions,
         $Exemptions,
-        [switch]$SkipNotScopedExemptions
+        [switch]$SkipNotScopedExemptions,
+        [string] $DiffGranularity = "summary"
     )
+
+    $generateDiff = ($DiffGranularity -ne "summary")
 
     Write-ModernSection -Title "Processing Policy Exemptions" -Color Blue
     Write-ModernStatus -Message "Source folder: $ExemptionsRootFolder" -Status "info" -Indent 2
@@ -957,6 +960,8 @@ function Build-ExemptionsPlan {
                                     else {
                                         Write-ModernStatus -Message "Replace (assignmentId changed) '$($exemptionDisplayName)' at scope '$($currentScope)'`n      assignmentId '$($deployedManagedExemption.policyAssignmentId)' to '$($policyAssignmentId)'" -Status "update" -Indent 4
                                         Write-Verbose "    $exemptionId"
+                                        # Store replacement reason
+                                        $exemption | Add-Member -MemberType NoteProperty -Name "replacementReason" -Value @("assignmentId") -Force
                                         $null = $Exemptions.replace.Add($exemptionId, $exemption)
                                         $Exemptions.numberOfChanges++
                                     }
@@ -970,6 +975,8 @@ function Build-ExemptionsPlan {
                                     }
                                     else {
                                         Write-ModernStatus -Message "Replace (replaced assignment) '$($exemptionDisplayName)' ($($exemptionName)) at scope '$($currentScope)'`n      assignmentId '$($policyAssignmentId)'" -Status "update" -Indent 4
+                                        # Store replacement reason
+                                        $exemption | Add-Member -MemberType NoteProperty -Name "replacementReason" -Value @("replacedAssignment") -Force
                                         $null = $Exemptions.replace.Add($exemptionId, $exemption)
                                         $Exemptions.numberOfChanges++
                                     }
@@ -987,16 +994,60 @@ function Build-ExemptionsPlan {
                                         $deployedPolicyDefinitionReferenceIdsArray = @($deployedPolicyDefinitionReferenceIdsArray)
                                     }
                                     $policyDefinitionReferenceIdsMatches = Confirm-ObjectValueEqualityDeep $deployedPolicyDefinitionReferenceIdsArray $policyDefinitionReferenceIdsAugmented
-                                    $metadataMatches, $changePacOwnerId = Confirm-MetadataMatches `
+                                    $metadataResult = Confirm-MetadataMatches `
                                         -ExistingMetadataObj $deployedManagedExemption.metadata `
-                                        -DefinedMetadataObj $clonedMetadata
+                                        -DefinedMetadataObj $clonedMetadata `
+                                        -GenerateDiff:$generateDiff
+                                    $metadataMatches = $metadataResult.match
+                                    $changePacOwnerId = $metadataResult.changePacOwnerId
                                     $assignmentScopeValidationMatches = ($deployedManagedExemption.assignmentScopeValidation -eq $assignmentScopeValidation) `
                                         -or ($null -eq $deployedManagedExemption.assignmentScopeValidation -and ($validateScope))
                                     $resourceSelectorsMatches = Confirm-ObjectValueEqualityDeep $deployedManagedExemption.resourceSelectors $resourceSelectors
-                                    # Update Exemption in Azure if necessary
-                                    if ($displayNameMatches -and $descriptionMatches -and $exemptionCategoryMatches -and $expiresOnMatches `
+                                    
+                                    # Generate detailed diffs if requested
+                                    $exemptionMatch = ($displayNameMatches -and $descriptionMatches -and $exemptionCategoryMatches -and $expiresOnMatches `
                                             -and $policyDefinitionReferenceIdsMatches -and $metadataMatches -and !$changePacOwnerId -and !$clearExpiration `
-                                            -and $assignmentScopeValidationMatches -and $resourceSelectorsMatches) {
+                                            -and $assignmentScopeValidationMatches -and $resourceSelectorsMatches)
+                                    if ($generateDiff -and !$exemptionMatch) {
+                                        $diffArray = @()
+                                        if (!$displayNameMatches) {
+                                            $diffArray += New-DiffEntry -Operation "replace" -Path "/displayName" `
+                                                -Before $deployedManagedExemption.displayName -After $exemptionDisplayName -Classification "core"
+                                        }
+                                        if (!$descriptionMatches) {
+                                            $diffArray += New-DiffEntry -Operation "replace" -Path "/description" `
+                                                -Before $deployedManagedExemption.description -After $exemptionDescription -Classification "core"
+                                        }
+                                        if ($metadataResult.diff) {
+                                            $diffArray += $metadataResult.diff
+                                        }
+                                        if (!$exemptionCategoryMatches) {
+                                            $diffArray += New-DiffEntry -Operation "replace" -Path "/exemptionCategory" `
+                                                -Before $deployedManagedExemption.exemptionCategory -After $exemptionCategory -Classification "core"
+                                        }
+                                        if ($clearExpiration -or !$expiresOnMatches) {
+                                            $diffArray += New-DiffEntry -Operation "replace" -Path "/expiresOn" `
+                                                -Before $deployedManagedExemption.expiresOn -After $expiresOn -Classification "core"
+                                        }
+                                        if (!$policyDefinitionReferenceIdsMatches) {
+                                            $diffArray += New-DiffEntry -Operation "replace" -Path "/policyDefinitionReferenceIds" `
+                                                -Before $deployedPolicyDefinitionReferenceIdsArray -After $policyDefinitionReferenceIdsAugmented -Classification "array"
+                                        }
+                                        if (!$assignmentScopeValidationMatches) {
+                                            $diffArray += New-DiffEntry -Operation "replace" -Path "/assignmentScopeValidation" `
+                                                -Before $deployedManagedExemption.assignmentScopeValidation -After $assignmentScopeValidation -Classification "core"
+                                        }
+                                        if (!$resourceSelectorsMatches) {
+                                            $diffArray += New-DiffEntry -Operation "replace" -Path "/resourceSelectors" `
+                                                -Before $deployedManagedExemption.resourceSelectors -After $resourceSelectors -Classification "array"
+                                        }
+                                        if ($diffArray.Count -gt 0) {
+                                            $exemption.diff = $diffArray
+                                        }
+                                    }
+
+                                    # Update Exemption in Azure if necessary
+                                    if ($exemptionMatch) {
                                         $Exemptions.numberUnchanged++
                                     }
                                     else {
