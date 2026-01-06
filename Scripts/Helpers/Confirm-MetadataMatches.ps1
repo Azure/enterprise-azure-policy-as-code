@@ -45,7 +45,7 @@ function Confirm-MetadataMatches {
     if ($existingPacOwnerId -ne $definedPacOwnerId) {
         # Only show verbose output if not using detailed diff mode
         if (-not (Get-Variable -Name EPAC_DiffGranularity -Scope Global -ValueOnly -ErrorAction SilentlyContinue) -or 
-            (Get-Variable -Name EPAC_DiffGranularity -Scope Global -ValueOnly -ErrorAction SilentlyContinue) -eq "summary") {
+            (Get-Variable -Name EPAC_DiffGranularity -Scope Global -ValueOnly -ErrorAction SilentlyContinue) -eq "standard") {
             Write-Information "pacOwnerId has changed from '$existingPacOwnerId' to '$definedPacOwnerId'"
         }
         $changePacOwnerId = $true

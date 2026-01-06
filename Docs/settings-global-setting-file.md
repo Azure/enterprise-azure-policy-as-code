@@ -100,7 +100,7 @@ The `outputPreferences` section controls deployment plan output formatting and v
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-| `diffGranularity` | Controls the level of detail for diff output during deployment plan building. Valid values: `summary` (count-based changes only), `standard` (property-level changes with before/after values), `detailed` (includes metadata/arrays), `verbose` (complete context). See [Terraform-Style Diff Output](terraform-style-diff-output.md) for details. | `summary` |
+| `diffGranularity` | Controls the level of detail for diff output during deployment plan building. Valid values: `standard` (count-based changes only, default), `detailed` (property-level changes with metadata/arrays). See [Terraform-Style Diff Output](terraform-style-diff-output.md) for details. | `standard` |
 | `colorizedOutput` | Enable or disable colorized console output | `true` |
 
 ## Define EPAC Environments in `pacEnvironments`

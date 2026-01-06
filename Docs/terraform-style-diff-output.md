@@ -1,10 +1,10 @@
 # Terraform-Style Diff Output
 
-The EPAC Build-DeploymentPlans script now supports Terraform-style diff output for visualizing changes at the property level before deployment. This feature provides detailed insights into what will change, helping teams review and validate policy updates with confidence.
+The EPAC Build-DeploymentPlans script supports Terraform-style diff output for visualizing changes at the property level before deployment. This feature provides detailed insights into what will change, helping teams review and validate policy updates with confidence.
 
 ## Overview
 
-By default, Build-DeploymentPlans operates in "summary" mode, showing only count-based change summaries (e.g., "5 updates, 2 new"). With the new `DiffGranularity` parameter, you can enable detailed property-level diffs similar to Terraform's plan output.
+By default, Build-DeploymentPlans operates in "standard" mode, showing count-based change summaries (e.g., "5 updates, 2 new"). With the `DiffGranularity` parameter set to "detailed", you can enable detailed property-level diffs similar to Terraform's plan output.
 
 ## Configuration
 
@@ -21,7 +21,7 @@ The diff granularity is determined in the following order:
 1. **CLI Parameter** - Explicitly provided `-DiffGranularity` parameter
 2. **Environment Variable** - `$env:EPAC_DIFF_GRANULARITY`
 3. **Global Settings** - `outputPreferences.diffGranularity` in `global-settings.jsonc`
-4. **Default** - `summary` (current behavior, no diff generation)
+4. **Default** - `standard` (count-based output, no property-level diff generation)
 
 ### Global Settings Configuration
 
@@ -31,7 +31,7 @@ Add to your `global-settings.jsonc`:
 {
   "pacOwnerId": "...",
   "outputPreferences": {
-    "diffGranularity": "standard",
+    "diffGranularity": "detailed",
     "colorizedOutput": true
   },
   "pacEnvironments": [...]
@@ -40,36 +40,31 @@ Add to your `global-settings.jsonc`:
 
 ## Granularity Levels
 
-### summary (default)
+### standard (default)
 
-Preserves exact current behavior:
+Count-based change summaries:
 - Count-based changes only
 - No diff computation overhead
-- Zero breaking changes
+- Minimal output for quick overview
 
 ```
 ⭮ Update (display,param): Policy Name
 ```
 
-### standard
+### detailed
 
 Property-level changes with before/after values:
 - Terraform-style output with +/- indicators
 - Omits unchanged nested objects
 - Best for typical review workflows
 
-```
-⭮ Update: Policy Name
-  ~ /displayName: "Old Name" → "New Name"
-  ~ /parameters/maxAge/value: 90 → 120
-```
-
 ### detailed
 
-All property changes including nested objects:
+All property changes with full context:
+- Terraform-style output with +/- indicators
 - Array element-by-element comparison
 - Metadata changes included
-- Full context for troubleshooting
+- Full context for troubleshooting and review
 
 ```
 ⭮ Update: enterprise-guardrails
@@ -79,13 +74,6 @@ All property changes including nested objects:
   + /policyDefinitions[denyPublicIP]
   - /policyDefinitions[requireTags]
 ```
-
-### verbose
-
-Complete before/after objects:
-- Include unchanged properties for context
-- Full metadata and timestamps
-- Maximum detail for debugging/compliance
 
 ## Features
 
@@ -124,7 +112,7 @@ All paths follow RFC 6902 JSON Pointer format:
 
 ### Diff Artifact Export
 
-When `DiffGranularity` is not "summary", an optional `policy-diff.json` artifact is created in the Output folder for CI/CD integration:
+When `DiffGranularity` is set to "detailed", an optional `policy-diff.json` artifact is created in the Output folder for CI/CD integration:
 
 ```
 Output/
@@ -164,21 +152,18 @@ Additional pipeline variables are available for DevOps workflows:
 ### CLI Usage
 
 ```powershell
-# Default behavior (no diff)
+# Default behavior (count-based output)
 ./Scripts/Deploy/Build-DeploymentPlans.ps1 -PacEnvironmentSelector prod
 
-# Standard diff output
-./Scripts/Deploy/Build-DeploymentPlans.ps1 -PacEnvironmentSelector prod -DiffGranularity standard
-
-# Detailed diff with artifact export
+# Detailed diff with property-level changes and artifact export
 ./Scripts/Deploy/Build-DeploymentPlans.ps1 -PacEnvironmentSelector prod -DiffGranularity detailed
 ```
 
 ### Environment Variable
 
 ```powershell
-# Set for all builds
-$env:EPAC_DIFF_GRANULARITY = "standard"
+# Set for detailed output on all builds
+$env:EPAC_DIFF_GRANULARITY = "detailed"
 ./Scripts/Deploy/Build-DeploymentPlans.ps1 -PacEnvironmentSelector prod
 ```
 
@@ -195,7 +180,7 @@ steps:
       filePath: 'Scripts/Deploy/Build-DeploymentPlans.ps1'
       arguments: >
         -PacEnvironmentSelector $(PacEnvironmentSelector)
-        -DiffGranularity standard
+        -DiffGranularity detailed
         -DevOpsType ado
 
   - task: PowerShell@2

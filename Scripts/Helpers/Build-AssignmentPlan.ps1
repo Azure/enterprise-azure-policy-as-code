@@ -15,10 +15,11 @@ function Build-AssignmentPlan {
         [string] $DiffGranularity = "summary"
     )
 
-    $generateDiff = ($DiffGranularity -ne "summary")
+    $generateDiff = ($DiffGranularity -ne "standard")
 
     Write-ModernSection -Title "Processing Policy Assignments" -Color Blue
-    Write-ModernStatus -Message "Source folder: $AssignmentsRootFolder" -Status "info" -Indent 2
+    $normalizedFolder = $AssignmentsRootFolder -replace '[\\/]+', [System.IO.Path]::DirectorySeparatorChar
+    Write-ModernStatus -Message "Source folder: $normalizedFolder" -Status "info" -Indent 2
 
     $assignmentFiles = @()
     $assignmentFiles += Get-ChildItem -Path $AssignmentsRootFolder -Recurse -File -Filter "*.json"

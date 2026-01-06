@@ -69,9 +69,9 @@ param (
 
     [switch]$SkipNotScopedExemptions,
 
-    [Parameter(HelpMessage = "Level of detail for diff output: summary (default, current behavior), standard (property-level changes), detailed (includes metadata/arrays), verbose (complete context).")]
-    [ValidateSet("summary", "standard", "detailed", "verbose")]
-    [string] $DiffGranularity = "summary"
+    [Parameter(HelpMessage = "Level of detail for diff output: standard (default, current behavior), detailed (property-level changes with metadata/arrays).")]
+    [ValidateSet("standard", "detailed")]
+    [string] $DiffGranularity = "standard"
 )
 
 $PSDefaultParameterValues = @{
@@ -95,7 +95,7 @@ $pacEnvironment = Select-PacEnvironment $PacEnvironmentSelector -DefinitionsRoot
 $null = Set-AzCloudTenantSubscription -Cloud $pacEnvironment.cloud -TenantId $pacEnvironment.tenantId -Interactive $pacEnvironment.interactive -DeploymentDefaultContext $pacEnvironment.defaultContext
 
 # Resolve DiffGranularity with configuration precedence: CLI → env var → global-settings → default
-if ($PSBoundParameters.ContainsKey('DiffGranularity') -and $DiffGranularity -ne "summary") {
+if ($PSBoundParameters.ContainsKey('DiffGranularity') -and $DiffGranularity -ne "standard") {
     # CLI parameter explicitly provided, use it
     Write-Information "Using DiffGranularity from CLI parameter: $DiffGranularity"
 }
@@ -530,8 +530,8 @@ if ($buildSelections.buildAny) {
         Write-ModernCountSummary -Type "Policy Exemptions" -Unchanged $exemptions.numberUnchanged -TotalChanges $exemptions.numberOfChanges -Changes $exemptionChanges -Orphaned $exemptions.numberOfOrphans -Expired $exemptions.numberOfExpired
     }
 
-    # Render detailed diffs if granularity is not summary
-    if ($DiffGranularity -ne "summary") {
+    # Render detailed diffs if granularity is detailed
+    if ($DiffGranularity -ne "standard") {
         Write-ModernSection -Title "Detailed Changes" -Color Cyan
         
         # Policy Definitions
@@ -740,8 +740,8 @@ else {
     Write-ModernStatus -Message "Role assignment stage skipped - no changes detected" -Status "skip" -Indent 2
 }
 
-# Export diff artifact if granularity is not summary
-if ($DiffGranularity -ne "summary" -and ($policyResourceChanges -gt 0 -or $roleAssignments.numberOfChanges -gt 0)) {
+# Export diff artifact if granularity is detailed
+if ($DiffGranularity -ne "standard" -and ($policyResourceChanges -gt 0 -or $roleAssignments.numberOfChanges -gt 0)) {
     # Extract output path from the policy plan file path (parent directory)
     $outputPath = Split-Path -Parent $pacEnvironment.policyPlanOutputFile
     Export-PolicyDiffArtifact -PolicyPlan $policyPlan -RolesPlan $rolesPlan -OutputFolder $outputPath

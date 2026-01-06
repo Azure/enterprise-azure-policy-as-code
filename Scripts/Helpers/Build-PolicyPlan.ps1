@@ -11,10 +11,11 @@ function Build-PolicyPlan {
         [string] $DiffGranularity = "summary"
     )
 
-    $generateDiff = ($DiffGranularity -ne "summary")
+    $generateDiff = ($DiffGranularity -ne "standard")
 
     Write-ModernSection -Title "Processing Policy Definitions" -Color Blue
-    Write-ModernStatus -Message "Source folder: $DefinitionsRootFolder" -Status "info" -Indent 2
+    $normalizedFolder = $DefinitionsRootFolder -replace '[\\/]+', [System.IO.Path]::DirectorySeparatorChar
+    Write-ModernStatus -Message "Source folder: $normalizedFolder" -Status "info" -Indent 2
 
     # Process Policy definitions JSON files, if any
     $definitionFiles = @()

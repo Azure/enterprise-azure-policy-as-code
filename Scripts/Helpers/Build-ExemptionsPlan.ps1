@@ -15,10 +15,11 @@ function Build-ExemptionsPlan {
         [string] $DiffGranularity = "summary"
     )
 
-    $generateDiff = ($DiffGranularity -ne "summary")
+    $generateDiff = ($DiffGranularity -ne "standard")
 
     Write-ModernSection -Title "Processing Policy Exemptions" -Color Blue
-    Write-ModernStatus -Message "Source folder: $ExemptionsRootFolder" -Status "info" -Indent 2
+    $normalizedFolder = $ExemptionsRootFolder -replace '[\\/]+', [System.IO.Path]::DirectorySeparatorChar
+    Write-ModernStatus -Message "Source folder: $normalizedFolder" -Status "info" -Indent 2
 
     #region read files and cache data structures
     [array] $exemptionFiles = @()

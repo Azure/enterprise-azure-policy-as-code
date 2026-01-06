@@ -19,7 +19,9 @@ function Get-GlobalSettings {
     $globalSettingsFile = $folders.globalSettingsFile
 
     Write-ModernSection -Title "Global Settings Configuration" -Color Blue
-    Write-ModernStatus -Message "Reading global settings from: $globalSettingsFile" -Status "info" -Indent 2
+    # Normalize path separators for consistent console output
+    $normalizedGlobalSettingsFile = $globalSettingsFile -replace '[\\/]+', [System.IO.Path]::DirectorySeparatorChar
+    Write-ModernStatus -Message "Reading global settings from: $normalizedGlobalSettingsFile" -Status "info" -Indent 2
 
     $Json = Get-Content -Path $globalSettingsFile -Raw -ErrorAction Stop
     $settings = @{}
@@ -360,9 +362,12 @@ function Get-GlobalSettings {
     $prompt = $pacEnvironmentSelectors -join ", "
     Write-ModernStatus -Message "PAC Environments: $($prompt)" -Status "info" -Indent 2
     Write-ModernStatus -Message "PAC Owner Id: $pacOwnerId" -Status "info" -Indent 2
-    Write-ModernStatus -Message "Definitions root folder: $DefinitionsRootFolder" -Status "info" -Indent 2
-    Write-ModernStatus -Message "Input folder: $InputFolder" -Status "info" -Indent 2
-    Write-ModernStatus -Message "Output folder: $OutputFolder" -Status "info" -Indent 2
+    $normalizedDefinitionsFolder = $DefinitionsRootFolder -replace '[\\/]+', [System.IO.Path]::DirectorySeparatorChar
+    $normalizedInputFolder = $InputFolder -replace '[\\/]+', [System.IO.Path]::DirectorySeparatorChar
+    $normalizedOutputFolder = $OutputFolder -replace '[\\/]+', [System.IO.Path]::DirectorySeparatorChar
+    Write-ModernStatus -Message "Definitions root folder: $normalizedDefinitionsFolder" -Status "info" -Indent 2
+    Write-ModernStatus -Message "Input folder: $normalizedInputFolder" -Status "info" -Indent 2
+    Write-ModernStatus -Message "Output folder: $normalizedOutputFolder" -Status "info" -Indent 2
     
 
     $policyDocumentationsFolder = "$DefinitionsRootFolder/policyDocumentations"

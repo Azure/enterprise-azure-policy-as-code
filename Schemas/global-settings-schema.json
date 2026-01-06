@@ -123,12 +123,10 @@
                     "type": "string",
                     "description": "Level of detail for diff output in deployment plans",
                     "enum": [
-                        "summary",
                         "standard",
-                        "detailed",
-                        "verbose"
+                        "detailed"
                     ],
-                    "default": "summary"
+                    "default": "standard"
                 },
                 "colorizedOutput": {
                     "type": "boolean",
