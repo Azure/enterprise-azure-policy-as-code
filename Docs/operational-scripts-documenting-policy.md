@@ -298,6 +298,10 @@ Build-PolicyDocumentation.ps1 -WikiClonePat $(WikiClonePat)
 
 You can push to Azure DevOps Wiki using a Service Principal by passing `-WikiSPN` to `Build-PolicyDocumentation.ps1`. The script acquires an Azure DevOps bearer token via `Get-AzAccessToken` for resource `499b84ac-1321-427f-aa17-267ca6975798` and uses it for `git clone`/`git push` to the Wiki repo.
 
+```
+Build-PolicyDocumentation.ps1 -WikiSPN
+```
+
 Prerequisites:
 - Azure DevOps organization is connected to your Microsoft Entra ID tenant used by the Service Principal.
 - The Service Principal is added to the Azure DevOps organization and granted access to the target project.
