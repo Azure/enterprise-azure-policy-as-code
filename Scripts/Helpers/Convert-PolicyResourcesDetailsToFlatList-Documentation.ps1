@@ -466,9 +466,6 @@ function Convert-PolicyResourcesDetailsToFlatList-Documentation {
             $flatPolicyEntry.policySetEffectStrings = $policySetEffectStrings
 
             $policySetList = $flatPolicyEntry.policySetList
-            if ($null -eq $policySetList.ContainsKey($shortName)){
-                $a = 1
-            }
             if ($policySetList.ContainsKey($shortName)) {
                 Write-Error "'$title' item array entry contains duplicate shortName ($shortName)." -ErrorAction Stop
             }

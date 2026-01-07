@@ -1,1 +1,0 @@
-&  'C:\MSFT-WORK\EPAC\SYNC\enterprise-azure-policy-as-code\Scripts\Operations\Build-PolicyDocumentation.ps1' -PacSelector "tenant"

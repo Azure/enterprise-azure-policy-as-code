@@ -17,7 +17,7 @@ function Out-DocumentationForPolicyAssignments {
     [string] $title = $DocumentationSpecification.title
 
     Write-ModernSection -Title "Generating Policy Assignment documentation for '$title'" -Color Green
-    Write-ModernStatus -Message "File Name:$fileNameStem" -Status "info" -Indent 2
+    Write-ModernStatus -Message "File Name: $fileNameStem" -Status "info" -Indent 2
 
     # Checking parameters
     if ($null -eq $fileNameStem -or $fileNameStem -eq "") {

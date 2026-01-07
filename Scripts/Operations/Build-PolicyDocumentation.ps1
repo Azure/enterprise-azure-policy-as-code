@@ -203,6 +203,42 @@ foreach ($file in $files) {
             Write-Error "JSON document must contain 'documentAssignments' and/or 'documentPolicySets' element(s)." -ErrorAction Stop
         }
 
+        # If processing a documentation subfolder, filter entries to matching pacEnvironment
+        $selectedFolderName = (Split-Path -Leaf $selectedDocumentationFolder)
+        $inSubfolder = ($selectedDocumentationFolder -ne $definitionsFolder)
+        if ($inSubfolder) {
+            # Filter documentPolicySets to only entries where pacEnvironment matches folder name
+            if ($null -ne $documentationSpec.documentPolicySets) {
+                $origCount = $documentationSpec.documentPolicySets.Count
+                $documentationSpec.documentPolicySets = $documentationSpec.documentPolicySets | Where-Object { $_.pacEnvironment -eq $selectedFolderName }
+                $newCount = if ($documentationSpec.documentPolicySets) { $documentationSpec.documentPolicySets.Count } else { 0 }
+                Write-ModernStatus -Message "Filtered documentPolicySets by folder '$selectedFolderName' (kept $newCount of $origCount)" -Status "info" -Indent 4
+            }
+
+            # Filter documentAllAssignments to only entries where pacEnvironment matches folder name
+            if ($null -ne $documentationSpec.documentAssignments -and $null -ne $documentationSpec.documentAssignments.documentAllAssignments) {
+                $docAll = $documentationSpec.documentAssignments.documentAllAssignments
+                if ($docAll -is [array]) {
+                    $origCount = $docAll.Count
+                    $docAll = $docAll | Where-Object { $_.pacEnvironment -eq $selectedFolderName }
+                    $newCount = $docAll.Count
+                    Write-ModernStatus -Message "Filtered documentAllAssignments by folder '$selectedFolderName' (kept $newCount of $origCount)" -Status "info" -Indent 4
+                }
+                else {
+                    if ($docAll.pacEnvironment -ne $selectedFolderName) {
+                        Write-ModernStatus -Message "documentAllAssignments pacEnvironment '$($docAll.pacEnvironment)' does not match folder '$selectedFolderName'; skipping." -Status "skip" -Indent 4
+                        $docAll = @()
+                    }
+                    else {
+                        # Normalize to array for downstream processing consistency
+                        $docAll = @($docAll)
+                        Write-ModernStatus -Message "documentAllAssignments matches folder '$selectedFolderName'" -Status "info" -Indent 4
+                    }
+                }
+                $documentationSpec.documentAssignments.documentAllAssignments = $docAll
+            }
+        }
+
         # Capture optional global documentation defaults
         $globalDocDefaults = $documentationSpec.globalDocumentationSpecifications
 
@@ -451,6 +487,12 @@ foreach ($file in $files) {
         }
 
         if ($documentationSpec.documentAssignments -and $documentationSpec.documentAssignments.documentAllAssignments) {
+            # Guard: if filtered to empty, skip documentAllAssignments processing
+            $docAllGuard = $documentationSpec.documentAssignments.documentAllAssignments
+            if ($docAllGuard -is [array] -and $docAllGuard.Count -eq 0) {
+                Write-ModernStatus -Message "No documentAllAssignments entries to process after filtering; skipping." -Status "skip" -Indent 4
+                continue
+            }
             # Load pacEnvironments from policy documentations folder
             $pacEnvironmentSelector = $documentationSpec.documentAssignments.documentAllAssignments.pacEnvironment
 
