@@ -240,6 +240,93 @@ Each file must contain one or both documentation topics, [`documentAssignments`]
     ]
 }
 ```
+## Automating Azure DevOps Wiki Markdown
+
+* EPAC can be used to automate the population of your Azure DevOps Wiki pages with the generated markdown files. To do this, you must call "Build-PolicyDocumentation" with the parameter either the "WikiSPN" or "WikiClonePat". 
+
+* To ensure your EPAC reaches your Wiki, you must configure the "markdownAdoWikiConfig" property within your policy documentation file.
+  * **adoOrganization**: Name of your ADO Organization
+  * **adoProject**: Name of your ADO Project
+  * **adoWiki**: Name of your Wiki (If Wiki was not manually set up, it will be created for you based on the name given here)
+
+```jsonc
+"markdownAdoWikiConfig": [
+                    {
+                        "adoOrganization": "MyOrganization",
+                        "adoProject": "EPAC",
+                        "adoWiki": "EPAC"
+                    }
+                ]
+```
+
+#### Using globalDocumentationSpecifications for ADO Wiki settings
+
+To avoid repeating the same Azure DevOps Wiki configuration in every specification, set `markdownAdoWiki` and `markdownAdoWikiConfig` once under `globalDocumentationSpecifications`. Both assignment and policy set documentation entries inherit these values unless they explicitly override them.
+
+Example:
+
+```jsonc
+{
+    "globalDocumentationSpecifications": {
+        "fileNameStem": "Azure-Policy-Assignments",
+        "title": "Current list of Azure Policies deployed",
+        "markdownAdoWiki": true,
+        "markdownAdoWikiConfig": [
+            {
+                "adoOrganization": "MyOrganization",
+                "adoProject": "EPAC",
+                "adoWiki": "EPAC"
+            }
+        ]
+    }
+}
+```
+
+You can still override `markdownAdoWiki` or `markdownAdoWikiConfig` in a specific `documentPolicySets[...]` item or inside `documentAssignments.documentationSpecifications[...]` when needed.
+
+### Personal Access Token (PAT)
+
+When leveraging a Personal Access Token to push to the ADO Project Wiki, the parameter's value should be the name of the Personal Access Token (PAT) set in your pipeline variable. Example:
+
+```
+Build-PolicyDocumentation.ps1 -WikiClonePat $(WikiClonePat)
+```
+
+* This PAT only requires "Read & write" permissions for "Code", as it will modify and push these markdown files to your Wiki. For more information, please see ["Azure DevOps: Use personal access tokens"](https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows)
+
+### Service Principal (SPN)
+
+You can push to Azure DevOps Wiki using a Service Principal by passing `-WikiSPN` to `Build-PolicyDocumentation.ps1`. The script acquires an Azure DevOps bearer token via `Get-AzAccessToken` for resource `499b84ac-1321-427f-aa17-267ca6975798` and uses it for `git clone`/`git push` to the Wiki repo.
+
+Prerequisites:
+- Azure DevOps organization is connected to your Microsoft Entra ID tenant used by the Service Principal.
+- The Service Principal is added to the Azure DevOps organization and granted access to the target project.
+    - Organization settings > Users > Add > Service principals (or add by Application ID).
+    - Grant project access (Project settings > Permissions) and repository permissions for the Wiki repo.
+- Repository permissions on the Wiki Git repo (`{adoWiki}.wiki`): Allow at least "Contribute" (and typically "Create branch").
+- Pipeline identity logs into Azure prior to running the script (for example with Azure DevOps task `AzurePowerShell@5` bound to a Service Connection using the SPN).
+- Outbound network access to `https://dev.azure.com/*` and `git` available in the agent.
+
+Script usage:
+- Add `markdownAdoWiki: true` and `markdownAdoWikiConfig` (globally or per spec as shown above).
+- Invoke: `Build-PolicyDocumentation.ps1 -PacSelector <your pac selector> -WikiSPN`.
+
+Minimal Azure DevOps pipeline example:
+
+```yaml
+steps:
+    - task: AzurePowerShell@5
+        displayName: Build policy documentation → ADO Wiki via SPN
+        inputs:
+            azureSubscription: $(ServiceConnectionName)   # SPN-based service connection
+            ScriptPath: Scripts/Operations/Build-PolicyDocumentation.ps1
+            ScriptArguments: -PacSelector <your pac selector> -WikiSPN
+            azurePowerShellVersion: LatestVersion
+```
+> [!NOTE]
+> **SPN must be discoverable:** The SPN must be discoverable in the Azure DevOps organization and have permissions to the `{adoWiki}.wiki` repository. If the Wiki does not exist, Azure DevOps creates it on first push when permissions allow.
+
+* For a full implementation using an example pipeline, please see ["EPAC GitHub: epac-tenant-pipeline-with-adowiki.yml"](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/StarterKit/Pipelines/AzureDevOps/GitHub-Flow-With-AdoWiki/epac-tenant-pipeline-with-adowiki.yml)
 
 ## Modifying the Markdown Output
 
@@ -257,33 +344,6 @@ Markdown processors vary slightly. This script has settings to tune the output t
 ```jsonc
 "markdownAdoWiki": true, // default is false, set to true to format headings for Azure DevOps Wiki and generate a table of contents
 ```
-
-### Automating Azure DevOps Wiki Markdown
-
-* EPAC can be used to automate the population of your Azure DevOps Wiki pages with the generated markdown files. To do this, you must call "Build-PolicyDocumentation" with the parameter "WikiClonePat". The parameter's value should be the name of the Personal Access Token (PAT) set in your pipeline variable. Example:
-
-```
-Build-PolicyDocumentation.ps1 -WikiClonePat $(WikiClonePat)
-```
-
-* This PAT only requires "Read & write" permissions for "Code", as it will modify and push these markdown files to your Wiki. For more information, please see ["Azure DevOps: Use personal access tokens"](https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops&tabs=Windows)
-
-* To ensure your EPAC reaches your Wiki, you must configure the "markdownAdoWikiConfig" property within your policy documentation file.
-  * **adoOrganization**: Name of your ADO Organization
-  * **adoProject**: Name of your ADO Project
-  * **adoWiki**: Name of your Wiki (If Wiki was not manually set up, it will be created for you based on the name given here)
-
-```jsonc
-"markdownAdoWikiConfig": [
-                    {
-                        "adoOrganization": "MyOrganization",
-                        "adoProject": "EPAC",
-                        "adoWiki": "EPAC"
-                    }
-                ]
-```
-
-* For a full implementation using an example pipeline, please see ["EPAC GitHub: epac-dev-pipeline-with-adowiki.yml"](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/StarterKit/Pipelines/GitHubActions/GitHub-Flow-With-ADOWiki/epac-dev-pipeline-with-adowiki.yml)
 
 ### Embedded HTML in Markdown Tables
 
