@@ -394,39 +394,39 @@ function Build-PolicySetPlan {
                 Write-ModernStatus -Message "[Policy Set Definition] Details for New Policy Set:" -Status "info" -Indent 6
                 
                 # Display Name
-                Write-Host "        + " -NoNewline -ForegroundColor Green
-                Write-Host "Display Name: " -NoNewline -ForegroundColor Gray
-                Write-Host "`"$displayName`"" -ForegroundColor Green
+                Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                Write-ColoredOutput -Message "Display Name: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message "`"$displayName`"" -ForegroundColor Green
                 
                 # Description
                 if ($description) {
-                    Write-Host "        + " -NoNewline -ForegroundColor Green
-                    Write-Host "Description: " -NoNewline -ForegroundColor Gray
-                    Write-Host "`"$description`"" -ForegroundColor Green
+                    Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                    Write-ColoredOutput -Message "Description: " -NoNewline -ForegroundColor Gray
+                    Write-ColoredOutput -Message "`"$description`"" -ForegroundColor Green
                 }
                 
                 # Policy Definitions
                 if ($definition.properties.policyDefinitions) {
                     $policyCount = $definition.properties.policyDefinitions.Count
-                    Write-Host "        + " -NoNewline -ForegroundColor Green
-                    Write-Host "Policy Definitions: " -NoNewline -ForegroundColor Gray
-                    Write-Host "$policyCount policy/policies" -ForegroundColor Green
+                    Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                    Write-ColoredOutput -Message "Policy Definitions: " -NoNewline -ForegroundColor Gray
+                    Write-ColoredOutput -Message "$policyCount policy/policies" -ForegroundColor Green
                 }
                 
                 # Policy Definition Groups if any
                 if ($definition.properties.policyDefinitionGroups) {
                     $groupCount = $definition.properties.policyDefinitionGroups.Count
-                    Write-Host "        + " -NoNewline -ForegroundColor Green
-                    Write-Host "Policy Definition Groups: " -NoNewline -ForegroundColor Gray
-                    Write-Host "$groupCount group(s)" -ForegroundColor Green
+                    Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                    Write-ColoredOutput -Message "Policy Definition Groups: " -NoNewline -ForegroundColor Gray
+                    Write-ColoredOutput -Message "$groupCount group(s)" -ForegroundColor Green
                 }
                 
                 # Parameters if any
                 if ($definition.properties.parameters) {
                     $paramCount = ($definition.properties.parameters.PSObject.Properties | Measure-Object).Count
-                    Write-Host "        + " -NoNewline -ForegroundColor Green
-                    Write-Host "Parameters: " -NoNewline -ForegroundColor Gray
-                    Write-Host "$paramCount parameter(s)" -ForegroundColor Green
+                    Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                    Write-ColoredOutput -Message "Parameters: " -NoNewline -ForegroundColor Gray
+                    Write-ColoredOutput -Message "$paramCount parameter(s)" -ForegroundColor Green
                 }
                 
                 # Metadata if any (excluding system properties)
@@ -439,13 +439,13 @@ function Build-PolicySetPlan {
                         }
                     }
                     if ($filteredMetadata.Count -gt 0) {
-                        Write-Host "        + " -NoNewline -ForegroundColor Green
-                        Write-Host "Metadata:" -ForegroundColor Gray
+                        Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                        Write-ColoredOutput -Message "Metadata:" -ForegroundColor Gray
                         foreach ($key in ($filteredMetadata.Keys | Sort-Object)) {
-                            Write-Host "            + " -NoNewline -ForegroundColor Green
-                            Write-Host "$key" -NoNewline -ForegroundColor White
-                            Write-Host " = " -NoNewline -ForegroundColor Gray
-                            Write-Host "`"$($filteredMetadata[$key])`"" -ForegroundColor Green
+                            Write-ColoredOutput -Message "            + " -NoNewline -ForegroundColor Green
+                            Write-ColoredOutput -Message "$key" -NoNewline -ForegroundColor White
+                            Write-ColoredOutput -Message " = " -NoNewline -ForegroundColor Gray
+                            Write-ColoredOutput -Message "`"$($filteredMetadata[$key])`"" -ForegroundColor Green
                         }
                     }
                 }
@@ -475,42 +475,42 @@ function Build-PolicySetPlan {
                 Write-ModernStatus -Message "[Policy Set Definition] Details for Deleted Policy Set:" -Status "info" -Indent 6
                 
                 # Display Name
-                Write-Host "        - " -NoNewline -ForegroundColor Red
-                Write-Host "Display Name: " -NoNewline -ForegroundColor Gray
-                Write-Host "`"$($deleteCandidateProperties.displayName)`"" -ForegroundColor Red
+                Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                Write-ColoredOutput -Message "Display Name: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message "`"$($deleteCandidateProperties.displayName)`"" -ForegroundColor Red
                 
                 # Description
                 if ($deleteCandidateProperties.description) {
-                    Write-Host "        - " -NoNewline -ForegroundColor Red
-                    Write-Host "Description: " -NoNewline -ForegroundColor Gray
-                    Write-Host "`"$($deleteCandidateProperties.description)`"" -ForegroundColor Red
+                    Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                    Write-ColoredOutput -Message "Description: " -NoNewline -ForegroundColor Gray
+                    Write-ColoredOutput -Message "`"$($deleteCandidateProperties.description)`"" -ForegroundColor Red
                 }
                 
                 # ID
-                Write-Host "        - " -NoNewline -ForegroundColor Red
-                Write-Host "ID: " -NoNewline -ForegroundColor Gray
-                Write-Host $id -ForegroundColor Red
+                Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                Write-ColoredOutput -Message "ID: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message $id -ForegroundColor Red
                 
                 # Number of policies in the set
                 if ($deleteCandidateProperties.policyDefinitions) {
                     $policyCount = $deleteCandidateProperties.policyDefinitions.Count
-                    Write-Host "        - " -NoNewline -ForegroundColor Red
-                    Write-Host "Policy Definitions: " -NoNewline -ForegroundColor Gray
-                    Write-Host "$policyCount policy/policies" -ForegroundColor Red
+                    Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                    Write-ColoredOutput -Message "Policy Definitions: " -NoNewline -ForegroundColor Gray
+                    Write-ColoredOutput -Message "$policyCount policy/policies" -ForegroundColor Red
                 }
                 
                 # Category from metadata if available
                 if ($deleteCandidateProperties.metadata -and $deleteCandidateProperties.metadata.category) {
-                    Write-Host "        - " -NoNewline -ForegroundColor Red
-                    Write-Host "Category: " -NoNewline -ForegroundColor Gray
-                    Write-Host "`"$($deleteCandidateProperties.metadata.category)`"" -ForegroundColor Red
+                    Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                    Write-ColoredOutput -Message "Category: " -NoNewline -ForegroundColor Gray
+                    Write-ColoredOutput -Message "`"$($deleteCandidateProperties.metadata.category)`"" -ForegroundColor Red
                 }
                 
                 # Version from metadata if available
                 if ($deleteCandidateProperties.metadata -and $deleteCandidateProperties.metadata.version) {
-                    Write-Host "        - " -NoNewline -ForegroundColor Red
-                    Write-Host "Version: " -NoNewline -ForegroundColor Gray
-                    Write-Host "`"$($deleteCandidateProperties.metadata.version)`"" -ForegroundColor Red
+                    Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                    Write-ColoredOutput -Message "Version: " -NoNewline -ForegroundColor Gray
+                    Write-ColoredOutput -Message "`"$($deleteCandidateProperties.metadata.version)`"" -ForegroundColor Red
                 }
                 
                 Write-Host ""
@@ -540,3 +540,5 @@ function Build-PolicySetPlan {
     # Write-ModernCountSummary -Operation "Policy Set Definitions" -Unchanged $Definitions.numberUnchanged
     Write-Information ""
 }
+
+

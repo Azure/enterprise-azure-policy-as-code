@@ -86,45 +86,45 @@ function Write-AssignmentDetails {
             $deployedProps = Get-PolicyResourceProperties -PolicyResource $DeployedAssignment
             
             # Display Name
-            Write-Host "        - " -NoNewline -ForegroundColor Red
-            Write-Host "Display Name: " -NoNewline -ForegroundColor Gray
-            Write-Host "`"$DisplayName`"" -ForegroundColor Red
+            Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+            Write-ColoredOutput -Message "Display Name: " -NoNewline -ForegroundColor Gray
+            Write-ColoredOutput -Message "`"$DisplayName`"" -ForegroundColor Red
             
             # Scope
-            Write-Host "        - " -NoNewline -ForegroundColor Red
-            Write-Host "Scope: " -NoNewline -ForegroundColor Gray
-            Write-Host $deployedProps.scope -ForegroundColor Red
+            Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+            Write-ColoredOutput -Message "Scope: " -NoNewline -ForegroundColor Gray
+            Write-ColoredOutput -Message $deployedProps.scope -ForegroundColor Red
             
             # Policy Definition ID
             if ($deployedProps.policyDefinitionId) {
-                Write-Host "        - " -NoNewline -ForegroundColor Red
-                Write-Host "Policy Definition ID: " -NoNewline -ForegroundColor Gray
-                Write-Host $deployedProps.policyDefinitionId -ForegroundColor Red
+                Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                Write-ColoredOutput -Message "Policy Definition ID: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message $deployedProps.policyDefinitionId -ForegroundColor Red
             }
             
             # Description
             if ($deployedProps.description) {
-                Write-Host "        - " -NoNewline -ForegroundColor Red
-                Write-Host "Description: " -NoNewline -ForegroundColor Gray
-                Write-Host "`"$($deployedProps.description)`"" -ForegroundColor Red
+                Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                Write-ColoredOutput -Message "Description: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message "`"$($deployedProps.description)`"" -ForegroundColor Red
             }
             
             # Enforcement Mode
             if ($deployedProps.enforcementMode) {
-                Write-Host "        - " -NoNewline -ForegroundColor Red
-                Write-Host "Enforcement Mode: " -NoNewline -ForegroundColor Gray
-                Write-Host "`"$($deployedProps.enforcementMode)`"" -ForegroundColor Red
+                Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                Write-ColoredOutput -Message "Enforcement Mode: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message "`"$($deployedProps.enforcementMode)`"" -ForegroundColor Red
             }
             
             # Identity
             if ($DeployedAssignment.identity) {
-                Write-Host "        - " -NoNewline -ForegroundColor Red
-                Write-Host "Identity Type: " -NoNewline -ForegroundColor Gray
-                Write-Host "`"$($DeployedAssignment.identity.type)`"" -ForegroundColor Red
+                Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                Write-ColoredOutput -Message "Identity Type: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message "`"$($DeployedAssignment.identity.type)`"" -ForegroundColor Red
                 if ($DeployedAssignment.identity.type -eq "SystemAssigned" -and $deployedProps.location) {
-                    Write-Host "        - " -NoNewline -ForegroundColor Red
-                    Write-Host "Identity Location: " -NoNewline -ForegroundColor Gray
-                    Write-Host "`"$($deployedProps.location)`"" -ForegroundColor Red
+                    Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                    Write-ColoredOutput -Message "Identity Location: " -NoNewline -ForegroundColor Gray
+                    Write-ColoredOutput -Message "`"$($deployedProps.location)`"" -ForegroundColor Red
                 }
             }
             
@@ -132,9 +132,9 @@ function Write-AssignmentDetails {
             if ($deployedProps.parameters) {
                 $paramCount = ($deployedProps.parameters.PSObject.Properties | Measure-Object).Count
                 if ($paramCount -gt 0) {
-                    Write-Host "        - " -NoNewline -ForegroundColor Red
-                    Write-Host "Parameters: " -NoNewline -ForegroundColor Gray
-                    Write-Host "$paramCount parameter(s)" -ForegroundColor Red
+                    Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                    Write-ColoredOutput -Message "Parameters: " -NoNewline -ForegroundColor Gray
+                    Write-ColoredOutput -Message "$paramCount parameter(s)" -ForegroundColor Red
                 }
             }
             
@@ -148,38 +148,38 @@ function Write-AssignmentDetails {
                     }
                 }
                 if ($filteredMetadata.Count -gt 0) {
-                    Write-Host "        - " -NoNewline -ForegroundColor Red
-                    Write-Host "Metadata: " -NoNewline -ForegroundColor Gray
-                    Write-Host "$($filteredMetadata.Count) item(s)" -ForegroundColor Red
+                    Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                    Write-ColoredOutput -Message "Metadata: " -NoNewline -ForegroundColor Gray
+                    Write-ColoredOutput -Message "$($filteredMetadata.Count) item(s)" -ForegroundColor Red
                 }
             }
             
             # Not Scopes count if any
             if ($deployedProps.notScopes -and $deployedProps.notScopes.Count -gt 0) {
-                Write-Host "        - " -NoNewline -ForegroundColor Red
-                Write-Host "Not Scopes: " -NoNewline -ForegroundColor Gray
-                Write-Host "$($deployedProps.notScopes.Count) scope(s)" -ForegroundColor Red
+                Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                Write-ColoredOutput -Message "Not Scopes: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message "$($deployedProps.notScopes.Count) scope(s)" -ForegroundColor Red
             }
             
             # Non-Compliance Messages count if any
             if ($deployedProps.nonComplianceMessages -and $deployedProps.nonComplianceMessages.Count -gt 0) {
-                Write-Host "        - " -NoNewline -ForegroundColor Red
-                Write-Host "Non-Compliance Messages: " -NoNewline -ForegroundColor Gray
-                Write-Host "$($deployedProps.nonComplianceMessages.Count) message(s)" -ForegroundColor Red
+                Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                Write-ColoredOutput -Message "Non-Compliance Messages: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message "$($deployedProps.nonComplianceMessages.Count) message(s)" -ForegroundColor Red
             }
             
             # Overrides count if any
             if ($deployedProps.overrides -and $deployedProps.overrides.Count -gt 0) {
-                Write-Host "        - " -NoNewline -ForegroundColor Red
-                Write-Host "Overrides: " -NoNewline -ForegroundColor Gray
-                Write-Host "$($deployedProps.overrides.Count) override(s)" -ForegroundColor Red
+                Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                Write-ColoredOutput -Message "Overrides: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message "$($deployedProps.overrides.Count) override(s)" -ForegroundColor Red
             }
             
             # Resource Selectors count if any
             if ($deployedProps.resourceSelectors -and $deployedProps.resourceSelectors.Count -gt 0) {
-                Write-Host "        - " -NoNewline -ForegroundColor Red
-                Write-Host "Resource Selectors: " -NoNewline -ForegroundColor Gray
-                Write-Host "$($deployedProps.resourceSelectors.Count) selector(s)" -ForegroundColor Red
+                Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                Write-ColoredOutput -Message "Resource Selectors: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message "$($deployedProps.resourceSelectors.Count) selector(s)" -ForegroundColor Red
             }
             
             Write-Host ""
@@ -193,52 +193,52 @@ function Write-AssignmentDetails {
             
             # Display scope
             if ($desiredProps.scope) {
-                Write-Host "        + " -NoNewline -ForegroundColor Green
-                Write-Host "Scope: " -NoNewline -ForegroundColor Gray
-                Write-Host $desiredProps.scope -ForegroundColor Green
+                Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                Write-ColoredOutput -Message "Scope: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message $desiredProps.scope -ForegroundColor Green
             }
             
             # Display policy definition with full path
             if ($desiredProps.policyDefinitionId) {
-                Write-Host "        + " -NoNewline -ForegroundColor Green
-                Write-Host "Policy Definition ID: " -NoNewline -ForegroundColor Gray
-                Write-Host $desiredProps.policyDefinitionId -ForegroundColor Green
+                Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                Write-ColoredOutput -Message "Policy Definition ID: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message $desiredProps.policyDefinitionId -ForegroundColor Green
             }
             
             # Display description
             if ($desiredProps.description) {
-                Write-Host "        + " -NoNewline -ForegroundColor Green
-                Write-Host "Description: " -NoNewline -ForegroundColor Gray
-                Write-Host "`"$($desiredProps.description)`"" -ForegroundColor Green
+                Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                Write-ColoredOutput -Message "Description: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message "`"$($desiredProps.description)`"" -ForegroundColor Green
             }
             
             # Display enforcement mode (always show, even if Default)
             $enforcementMode = if ($desiredProps.enforcementMode) { $desiredProps.enforcementMode } else { "Default" }
-            Write-Host "        + " -NoNewline -ForegroundColor Green
-            Write-Host "Enforcement Mode: " -NoNewline -ForegroundColor Gray
+            Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+            Write-ColoredOutput -Message "Enforcement Mode: " -NoNewline -ForegroundColor Gray
             $modeColor = if ($enforcementMode -eq "Default") { "Green" } else { "Yellow" }
             Write-Host "`"$enforcementMode`"" -ForegroundColor $modeColor
             
             # Display identity information
             if ($IdentityStatus.isUserAssigned) {
-                Write-Host "        + " -NoNewline -ForegroundColor Green
-                Write-Host "Identity Type: " -NoNewline -ForegroundColor Gray
-                Write-Host "`"UserAssigned`"" -ForegroundColor Green
+                Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                Write-ColoredOutput -Message "Identity Type: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message "`"UserAssigned`"" -ForegroundColor Green
             }
             elseif ($IdentityStatus.identityRequired) {
-                Write-Host "        + " -NoNewline -ForegroundColor Green
-                Write-Host "Identity Type: " -NoNewline -ForegroundColor Gray
-                Write-Host "`"SystemAssigned`"" -ForegroundColor Green
+                Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                Write-ColoredOutput -Message "Identity Type: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message "`"SystemAssigned`"" -ForegroundColor Green
                 if ($desiredProps.location) {
-                    Write-Host "        + " -NoNewline -ForegroundColor Green
-                    Write-Host "Identity Location: " -NoNewline -ForegroundColor Gray
-                    Write-Host "`"$($desiredProps.location)`"" -ForegroundColor Green
+                    Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                    Write-ColoredOutput -Message "Identity Location: " -NoNewline -ForegroundColor Gray
+                    Write-ColoredOutput -Message "`"$($desiredProps.location)`"" -ForegroundColor Green
                 }
             }
             
             # Display parameters if any
             if ($desiredProps.parameters -and $desiredProps.parameters.Count -gt 0) {
-                Write-Host "        Parameters:" -ForegroundColor Gray
+                Write-ColoredOutput -Message "        Parameters:" -ForegroundColor Gray
                 $normalizedParams = @{}
                 foreach ($key in $desiredProps.parameters.Keys) {
                     $param = $desiredProps.parameters[$key]
@@ -252,29 +252,29 @@ function Write-AssignmentDetails {
                 foreach ($key in ($normalizedParams.Keys | Sort-Object)) {
                     $value = $normalizedParams[$key]
                     if ($value -is [array]) {
-                        Write-Host "          • " -NoNewline -ForegroundColor DarkGray
-                        Write-Host "$key" -NoNewline -ForegroundColor White
-                        Write-Host " = [" -ForegroundColor Gray
+                        Write-ColoredOutput -Message "          • " -NoNewline -ForegroundColor DarkGray
+                        Write-ColoredOutput -Message "$key" -NoNewline -ForegroundColor White
+                        Write-ColoredOutput -Message " = [" -ForegroundColor Gray
                         foreach ($item in $value) {
                             Write-Host "              " -NoNewline
-                            Write-Host """$item""" -NoNewline -ForegroundColor Green
-                            Write-Host "," -ForegroundColor Gray
+                            Write-ColoredOutput -Message """$item""" -NoNewline -ForegroundColor Green
+                            Write-ColoredOutput -Message "," -ForegroundColor Gray
                         }
-                        Write-Host "            ]" -ForegroundColor Gray
+                        Write-ColoredOutput -Message "            ]" -ForegroundColor Gray
                     }
                     elseif ($value -is [hashtable] -or $value -is [PSCustomObject]) {
-                        Write-Host "          • " -NoNewline -ForegroundColor DarkGray
-                        Write-Host "$key" -NoNewline -ForegroundColor White
-                        Write-Host " = {" -ForegroundColor Gray
+                        Write-ColoredOutput -Message "          • " -NoNewline -ForegroundColor DarkGray
+                        Write-ColoredOutput -Message "$key" -NoNewline -ForegroundColor White
+                        Write-ColoredOutput -Message " = {" -ForegroundColor Gray
                         $valueJson = $value | ConvertTo-Json -Depth 10 -Compress
-                        Write-Host "              $valueJson" -ForegroundColor Green
-                        Write-Host "            }" -ForegroundColor Gray
+                        Write-ColoredOutput -Message "              $valueJson" -ForegroundColor Green
+                        Write-ColoredOutput -Message "            }" -ForegroundColor Gray
                     }
                     else {
-                        Write-Host "          • " -NoNewline -ForegroundColor DarkGray
-                        Write-Host "$key" -NoNewline -ForegroundColor White
-                        Write-Host " = " -NoNewline -ForegroundColor Gray
-                        Write-Host """$value""" -ForegroundColor Green
+                        Write-ColoredOutput -Message "          • " -NoNewline -ForegroundColor DarkGray
+                        Write-ColoredOutput -Message "$key" -NoNewline -ForegroundColor White
+                        Write-ColoredOutput -Message " = " -NoNewline -ForegroundColor Gray
+                        Write-ColoredOutput -Message """$value""" -ForegroundColor Green
                     }
                 }
             }
@@ -289,74 +289,74 @@ function Write-AssignmentDetails {
                     }
                 }
                 if ($filteredMetadata.Count -gt 0) {
-                    Write-Host "        + " -NoNewline -ForegroundColor Green
-                    Write-Host "Metadata:" -ForegroundColor Gray
+                    Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                    Write-ColoredOutput -Message "Metadata:" -ForegroundColor Gray
                     foreach ($key in ($filteredMetadata.Keys | Sort-Object)) {
-                        Write-Host "            + " -NoNewline -ForegroundColor Green
-                        Write-Host "$key" -NoNewline -ForegroundColor White
-                        Write-Host " = " -NoNewline -ForegroundColor Gray
-                        Write-Host "`"$($filteredMetadata[$key])`"" -ForegroundColor Green
+                        Write-ColoredOutput -Message "            + " -NoNewline -ForegroundColor Green
+                        Write-ColoredOutput -Message "$key" -NoNewline -ForegroundColor White
+                        Write-ColoredOutput -Message " = " -NoNewline -ForegroundColor Gray
+                        Write-ColoredOutput -Message "`"$($filteredMetadata[$key])`"" -ForegroundColor Green
                     }
                 }
             }
             
             # Display not scopes if any
             if ($desiredProps.notScopes -and $desiredProps.notScopes.Count -gt 0) {
-                Write-Host "        + " -NoNewline -ForegroundColor Green
-                Write-Host "Not Scopes:" -ForegroundColor Gray
+                Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                Write-ColoredOutput -Message "Not Scopes:" -ForegroundColor Gray
                 foreach ($notScope in $desiredProps.notScopes) {
-                    Write-Host "            + " -NoNewline -ForegroundColor Green
-                    Write-Host $notScope -ForegroundColor Green
+                    Write-ColoredOutput -Message "            + " -NoNewline -ForegroundColor Green
+                    Write-ColoredOutput -Message $notScope -ForegroundColor Green
                 }
             }
             
             # Display non-compliance messages if any
             if ($desiredProps.nonComplianceMessages -and $desiredProps.nonComplianceMessages.Count -gt 0) {
-                Write-Host "        + " -NoNewline -ForegroundColor Green
-                Write-Host "Non-Compliance Messages:" -ForegroundColor Gray
+                Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                Write-ColoredOutput -Message "Non-Compliance Messages:" -ForegroundColor Gray
                 foreach ($msg in $desiredProps.nonComplianceMessages) {
-                    Write-Host "            + " -NoNewline -ForegroundColor Green
+                    Write-ColoredOutput -Message "            + " -NoNewline -ForegroundColor Green
                     if ($msg.policyDefinitionReferenceId) {
-                        Write-Host "Policy Ref: " -NoNewline -ForegroundColor Gray
-                        Write-Host $msg.policyDefinitionReferenceId -NoNewline -ForegroundColor Green
-                        Write-Host " - " -NoNewline -ForegroundColor Gray
+                        Write-ColoredOutput -Message "Policy Ref: " -NoNewline -ForegroundColor Gray
+                        Write-ColoredOutput -Message $msg.policyDefinitionReferenceId -NoNewline -ForegroundColor Green
+                        Write-ColoredOutput -Message " - " -NoNewline -ForegroundColor Gray
                     }
-                    Write-Host $msg.message -ForegroundColor Green
+                    Write-ColoredOutput -Message $msg.message -ForegroundColor Green
                 }
             }
             
             # Display overrides if any
             if ($desiredProps.overrides -and $desiredProps.overrides.Count -gt 0) {
-                Write-Host "        + " -NoNewline -ForegroundColor Green
-                Write-Host "Overrides:" -ForegroundColor Gray
+                Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                Write-ColoredOutput -Message "Overrides:" -ForegroundColor Gray
                 foreach ($override in $desiredProps.overrides) {
-                    Write-Host "            + " -NoNewline -ForegroundColor Green
-                    Write-Host "Kind: " -NoNewline -ForegroundColor Gray
-                    Write-Host $override.kind -NoNewline -ForegroundColor Green
+                    Write-ColoredOutput -Message "            + " -NoNewline -ForegroundColor Green
+                    Write-ColoredOutput -Message "Kind: " -NoNewline -ForegroundColor Gray
+                    Write-ColoredOutput -Message $override.kind -NoNewline -ForegroundColor Green
                     if ($override.value) {
-                        Write-Host ", Value: " -NoNewline -ForegroundColor Gray
-                        Write-Host $override.value -ForegroundColor Green
+                        Write-ColoredOutput -Message ", Value: " -NoNewline -ForegroundColor Gray
+                        Write-ColoredOutput -Message $override.value -ForegroundColor Green
                     }
                     if ($override.selectors -and $override.selectors.Count -gt 0) {
-                        Write-Host "              Selectors: $($override.selectors.Count)" -ForegroundColor Gray
+                        Write-ColoredOutput -Message "              Selectors: $($override.selectors.Count)" -ForegroundColor Gray
                     }
                 }
             }
             
             # Display resource selectors if any
             if ($desiredProps.resourceSelectors -and $desiredProps.resourceSelectors.Count -gt 0) {
-                Write-Host "        + " -NoNewline -ForegroundColor Green
-                Write-Host "Resource Selectors:" -ForegroundColor Gray
+                Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                Write-ColoredOutput -Message "Resource Selectors:" -ForegroundColor Gray
                 foreach ($selector in $desiredProps.resourceSelectors) {
-                    Write-Host "            + " -NoNewline -ForegroundColor Green
+                    Write-ColoredOutput -Message "            + " -NoNewline -ForegroundColor Green
                     if ($selector.name) {
-                        Write-Host $selector.name -NoNewline -ForegroundColor Green
+                        Write-ColoredOutput -Message $selector.name -NoNewline -ForegroundColor Green
                         if ($selector.selectors -and $selector.selectors.Count -gt 0) {
-                            Write-Host " ($($selector.selectors.Count) selector(s))" -ForegroundColor Gray
+                            Write-ColoredOutput -Message " ($($selector.selectors.Count) selector(s))" -ForegroundColor Gray
                         }
                     }
                     else {
-                        Write-Host "$($selector.selectors.Count) selector(s)" -ForegroundColor Green
+                        Write-ColoredOutput -Message "$($selector.selectors.Count) selector(s)" -ForegroundColor Green
                     }
                 }
             }
@@ -471,3 +471,5 @@ function Write-AssignmentDetails {
         }
     }
 }
+
+

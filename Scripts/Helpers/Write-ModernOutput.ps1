@@ -1,6 +1,155 @@
 # Global variable to cache the loaded theme
 $script:LoadedTheme = $null
 
+# Global variable to detect CI/CD environment
+$script:IsCICD = $null
+
+function Test-CICDEnvironment {
+    <#
+    .SYNOPSIS
+    Detects if running in a CI/CD pipeline environment.
+    .DESCRIPTION
+    Checks environment variables to determine if running in GitHub Actions, Azure DevOps, GitLab CI, or other CI/CD systems.
+    #>
+    if ($null -ne $script:IsCICD) {
+        return $script:IsCICD
+    }
+    
+    $script:IsCICD = (
+        $env:GITHUB_ACTIONS -eq 'true' -or
+        $env:TF_BUILD -eq 'true' -or           # Azure DevOps
+        $env:GITLAB_CI -eq 'true' -or          # GitLab CI
+        $env:CI -eq 'true' -or                 # Generic CI indicator
+        $env:BUILD_ID -or                      # Jenkins
+        $env:CIRCLECI -eq 'true'               # CircleCI
+    )
+    
+    return $script:IsCICD
+}
+
+function ConvertTo-AnsiColorCode {
+    <#
+    .SYNOPSIS
+    Converts PowerShell color name to ANSI escape sequence.
+    .DESCRIPTION
+    Converts standard PowerShell color names (e.g., 'Red', 'Green', 'Yellow') to ANSI escape codes for use in CI/CD environments.
+    #>
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$ColorName,
+        
+        [Parameter(Mandatory = $false)]
+        [switch]$IsBackground
+    )
+    
+    # ANSI color codes
+    $foregroundCodes = @{
+        'Black'       = 30
+        'DarkRed'     = 31
+        'DarkGreen'   = 32
+        'DarkYellow'  = 33
+        'DarkBlue'    = 34
+        'DarkMagenta' = 35
+        'DarkCyan'    = 36
+        'Gray'        = 37
+        'DarkGray'    = 90
+        'Red'         = 91
+        'Green'       = 92
+        'Yellow'      = 93
+        'Blue'        = 94
+        'Magenta'     = 95
+        'Cyan'        = 96
+        'White'       = 97
+    }
+    
+    # Background codes are foreground + 10
+    $backgroundCodes = @{
+        'Black'       = 40
+        'DarkRed'     = 41
+        'DarkGreen'   = 42
+        'DarkYellow'  = 43
+        'DarkBlue'    = 44
+        'DarkMagenta' = 45
+        'DarkCyan'    = 46
+        'Gray'        = 47
+        'DarkGray'    = 100
+        'Red'         = 101
+        'Green'       = 102
+        'Yellow'      = 103
+        'Blue'        = 104
+        'Magenta'     = 105
+        'Cyan'        = 106
+        'White'       = 107
+    }
+    
+    $codes = if ($IsBackground) { $backgroundCodes } else { $foregroundCodes }
+    $code = $codes[$ColorName]
+    
+    if ($code) {
+        return $code
+    }
+    else {
+        # Default to white for foreground, black for background
+        return if ($IsBackground) { 40 } else { 97 }
+    }
+}
+
+function Write-ColoredOutput {
+    <#
+    .SYNOPSIS
+    Writes colored output that works in both interactive terminals and CI/CD pipelines.
+    .DESCRIPTION
+    Detects the environment and uses either Write-Host with -ForegroundColor (interactive)
+    or ANSI escape sequences (CI/CD) to ensure colors render properly.
+    #>
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Message,
+        
+        [Parameter(Mandatory = $false)]
+        [string]$ForegroundColor = 'White',
+        
+        [Parameter(Mandatory = $false)]
+        [string]$BackgroundColor = '',
+        
+        [Parameter(Mandatory = $false)]
+        [switch]$NoNewline
+    )
+    
+    if (Test-CICDEnvironment) {
+        # Use ANSI escape sequences for CI/CD
+        $ansiReset = "`e[0m"
+        $fgCode = ConvertTo-AnsiColorCode -ColorName $ForegroundColor
+        $output = "`e[${fgCode}m$Message$ansiReset"
+        
+        if ($BackgroundColor -and $BackgroundColor -ne '') {
+            $bgCode = ConvertTo-AnsiColorCode -ColorName $BackgroundColor -IsBackground
+            $output = "`e[${fgCode};${bgCode}m$Message$ansiReset"
+        }
+        
+        if ($NoNewline) {
+            Write-Host $output -NoNewline
+        }
+        else {
+            Write-Host $output
+        }
+    }
+    else {
+        # Use standard Write-Host with -ForegroundColor for interactive terminals
+        $params = @{
+            Object          = $Message
+            ForegroundColor = $ForegroundColor
+            NoNewline       = $NoNewline.IsPresent
+        }
+        
+        if ($BackgroundColor -and $BackgroundColor -ne '') {
+            $params['BackgroundColor'] = $BackgroundColor
+        }
+        
+        Write-Host @params
+    }
+}
+
 function Reset-OutputTheme {
     <#
     .SYNOPSIS
@@ -9,6 +158,7 @@ function Reset-OutputTheme {
     Useful for testing theme changes without restarting PowerShell session.
     #>
     $script:LoadedTheme = $null
+    $script:IsCICD = $null
 }
 
 function Get-OutputTheme {
@@ -152,25 +302,25 @@ function Write-ModernHeader {
         $line2 = "$($headerChars.vertical)  $($Title.PadRight($maxLength))  $($headerChars.vertical)"
         $line4 = "$($headerChars.bottomLeft)$border$($headerChars.bottomRight)"
         
-        Write-Host $line1 -ForegroundColor $headerColors.primary
-        Write-Host $line2 -ForegroundColor $headerColors.primary
+        Write-ColoredOutput -Message $line1 -ForegroundColor $headerColors.primary
+        Write-ColoredOutput -Message $line2 -ForegroundColor $headerColors.primary
         $outputLines += $line1
         $outputLines += $line2
         
         if ($Subtitle) {
             $line3 = "$($headerChars.vertical)  $($Subtitle.PadRight($maxLength))  $($headerChars.vertical)"
-            Write-Host $line3 -ForegroundColor $headerColors.secondary
+            Write-ColoredOutput -Message $line3 -ForegroundColor $headerColors.secondary
             $outputLines += $line3
         }
-        Write-Host $line4 -ForegroundColor $headerColors.primary
+        Write-ColoredOutput -Message $line4 -ForegroundColor $headerColors.primary
         $outputLines += $line4
     }
     else {
         # Screen reader mode - no box drawing
-        Write-Host $Title -ForegroundColor $headerColors.primary
+        Write-ColoredOutput -Message $Title -ForegroundColor $headerColors.primary
         $outputLines += $Title
         if ($Subtitle) {
-            Write-Host $Subtitle -ForegroundColor $headerColors.secondary
+            Write-ColoredOutput -Message $Subtitle -ForegroundColor $headerColors.secondary
             $outputLines += $Subtitle
         }
     }
@@ -198,7 +348,7 @@ function Write-ModernSection {
     $line1 = "$prefix$($sectionChars.arrow) $Title"
     
     Write-Host ""
-    Write-Host $line1 -ForegroundColor $sectionColor
+    Write-ColoredOutput -Message $line1 -ForegroundColor $sectionColor
     
     # Capture output for epacInfoStream
     $outputLines = @("", $line1)
@@ -206,7 +356,7 @@ function Write-ModernSection {
     if ($sectionChars.underline) {
         $underline = $sectionChars.underline * ($Title.Length + 2)
         $line2 = "$prefix$underline"
-        Write-Host $line2 -ForegroundColor $sectionColor
+        Write-ColoredOutput -Message $line2 -ForegroundColor $sectionColor
         $outputLines += $line2
     }
     
@@ -240,10 +390,10 @@ function Write-ModernStatus {
     # Check for background color support
     if ($backgroundColors -and $backgroundColors.$statusLower -and $backgroundColors.$statusLower -ne "") {
         $backgroundColor = $backgroundColors.$statusLower
-        Write-Host $outputLine -ForegroundColor $statusColor -BackgroundColor $backgroundColor
+        Write-ColoredOutput -Message $outputLine -ForegroundColor $statusColor -BackgroundColor $backgroundColor
     }
     else {
-        Write-Host $outputLine -ForegroundColor $statusColor
+        Write-ColoredOutput -Message $outputLine -ForegroundColor $statusColor
     }
     
     # Append to global epacInfoStream
@@ -329,7 +479,7 @@ function Write-ModernProgress {
     $progressText = "$Activity ($Current/$Total - $percentage%)"
     $outputLine = "$prefix$progressChar $progressText"
     
-    Write-Host $outputLine -ForegroundColor $progressColor
+    Write-ColoredOutput -Message $outputLine -ForegroundColor $progressColor
     
     # Append to global epacInfoStream
     if (Get-Variable -Name epacInfoStream -Scope Global -ErrorAction SilentlyContinue) {

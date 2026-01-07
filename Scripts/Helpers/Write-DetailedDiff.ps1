@@ -53,31 +53,31 @@ function Write-DetailedDiff {
     
     # Handle null cases
     if ($null -eq $DeployedObject -and $null -eq $DesiredObject) {
-        Write-Host "$($indentString)  (both values are null)" -ForegroundColor DarkGray
+        Write-ColoredOutput -Message "$($indentString)  (both values are null)" -ForegroundColor DarkGray
         return
     }
     
     if ($null -eq $DeployedObject) {
         # All new
-        Write-Host "$($indentString)  ┌─ New Value:" -ForegroundColor DarkGray
+        Write-ColoredOutput -Message "$($indentString)  ┌─ New Value:" -ForegroundColor DarkGray
         $desiredJson = if ($DesiredObject -is [string]) { $DesiredObject } else { $DesiredObject | ConvertTo-Json -Depth 100 -Compress:$false }
         $desiredLines = $desiredJson -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
         foreach ($line in $desiredLines) {
-            Write-Host "$($indentString)  + $line" -ForegroundColor Green
+            Write-ColoredOutput -Message "$($indentString)  + $line" -ForegroundColor Green
         }
-        Write-Host "$($indentString)  └─────────────" -ForegroundColor DarkGray
+        Write-ColoredOutput -Message "$($indentString)  └─────────────" -ForegroundColor DarkGray
         return
     }
     
     if ($null -eq $DesiredObject) {
         # All removed
-        Write-Host "$($indentString)  ┌─ Removed Value:" -ForegroundColor DarkGray
+        Write-ColoredOutput -Message "$($indentString)  ┌─ Removed Value:" -ForegroundColor DarkGray
         $deployedJson = if ($DeployedObject -is [string]) { $DeployedObject } else { $DeployedObject | ConvertTo-Json -Depth 100 -Compress:$false }
         $deployedLines = $deployedJson -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
         foreach ($line in $deployedLines) {
-            Write-Host "$($indentString)  - $line" -ForegroundColor Red
+            Write-ColoredOutput -Message "$($indentString)  - $line" -ForegroundColor Red
         }
-        Write-Host "$($indentString)  └─────────────" -ForegroundColor DarkGray
+        Write-ColoredOutput -Message "$($indentString)  └─────────────" -ForegroundColor DarkGray
         return
     }
     
@@ -108,7 +108,7 @@ function Write-DetailedDiff {
         }
         
         # Do property-level comparison
-        Write-Host "$($indentString)  ┌─ Changes:" -ForegroundColor DarkGray
+        Write-ColoredOutput -Message "$($indentString)  ┌─ Changes:" -ForegroundColor DarkGray
         
         $allKeys = @($deployedHash.Keys) + @($desiredHash.Keys) | Select-Object -Unique | Sort-Object
         $changesDetected = $false
@@ -123,34 +123,34 @@ function Write-DetailedDiff {
             
             if ($deployedHash.ContainsKey($key) -and -not $desiredHash.ContainsKey($key)) {
                 # Removed property
-                Write-Host "$($indentString)  - `"$key`": $deployedStr" -ForegroundColor Red
+                Write-ColoredOutput -Message "$($indentString)  - `"$key`": $deployedStr" -ForegroundColor Red
                 $changesDetected = $true
             }
             elseif (-not $deployedHash.ContainsKey($key) -and $desiredHash.ContainsKey($key)) {
                 # Added property
-                Write-Host "$($indentString)  + `"$key`": $desiredStr" -ForegroundColor Green
+                Write-ColoredOutput -Message "$($indentString)  + `"$key`": $desiredStr" -ForegroundColor Green
                 $changesDetected = $true
             }
             elseif ($deployedStr -ne $desiredStr) {
                 # Changed property - show as update with arrow
-                Write-Host "$($indentString)  ~ `"$key`": $deployedStr → $desiredStr" -ForegroundColor Yellow
+                Write-ColoredOutput -Message "$($indentString)  ~ `"$key`": $deployedStr → $desiredStr" -ForegroundColor Yellow
                 $changesDetected = $true
             }
             elseif ($ShowUnchanged) {
                 # Unchanged property
-                Write-Host "$($indentString)    `"$key`": $deployedStr" -ForegroundColor DarkGray
+                Write-ColoredOutput -Message "$($indentString)    `"$key`": $deployedStr" -ForegroundColor DarkGray
             }
         }
         
         if (-not $changesDetected) {
-            Write-Host "$($indentString)  (no changes detected)" -ForegroundColor DarkGray
+            Write-ColoredOutput -Message "$($indentString)  (no changes detected)" -ForegroundColor DarkGray
         }
         
-        Write-Host "$($indentString)  └─────────────" -ForegroundColor DarkGray
+        Write-ColoredOutput -Message "$($indentString)  └─────────────" -ForegroundColor DarkGray
     }
     catch {
         # Fallback to line-by-line comparison if object comparison fails
-        Write-Host "$($indentString)  ┌─ Changes (text diff):" -ForegroundColor DarkGray
+        Write-ColoredOutput -Message "$($indentString)  ┌─ Changes (text diff):" -ForegroundColor DarkGray
         
         $deployedJson = if ($DeployedObject -is [string]) { $DeployedObject } else { $DeployedObject | ConvertTo-Json -Depth 100 -Compress:$false }
         $desiredJson = if ($DesiredObject -is [string]) { $DesiredObject } else { $DesiredObject | ConvertTo-Json -Depth 100 -Compress:$false }
@@ -166,21 +166,21 @@ function Write-DetailedDiff {
             $desiredLine = if ($i -lt $desiredLines.Count) { $desiredLines[$i] } else { $null }
             
             if ($null -eq $deployedLine) {
-                Write-Host "$($indentString)  + $desiredLine" -ForegroundColor Green
+                Write-ColoredOutput -Message "$($indentString)  + $desiredLine" -ForegroundColor Green
             }
             elseif ($null -eq $desiredLine) {
-                Write-Host "$($indentString)  - $deployedLine" -ForegroundColor Red
+                Write-ColoredOutput -Message "$($indentString)  - $deployedLine" -ForegroundColor Red
             }
             elseif ($deployedLine -ne $desiredLine) {
-                Write-Host "$($indentString)  - $deployedLine" -ForegroundColor Red
-                Write-Host "$($indentString)  + $desiredLine" -ForegroundColor Green
+                Write-ColoredOutput -Message "$($indentString)  - $deployedLine" -ForegroundColor Red
+                Write-ColoredOutput -Message "$($indentString)  + $desiredLine" -ForegroundColor Green
             }
             elseif ($ShowUnchanged) {
-                Write-Host "$($indentString)    $deployedLine" -ForegroundColor DarkGray
+                Write-ColoredOutput -Message "$($indentString)    $deployedLine" -ForegroundColor DarkGray
             }
         }
         
-        Write-Host "$($indentString)  └─────────────" -ForegroundColor DarkGray
+        Write-ColoredOutput -Message "$($indentString)  └─────────────" -ForegroundColor DarkGray
     }
 }
 
@@ -229,5 +229,5 @@ function Write-SimplePropertyDiff {
     $newValueStr = if ($null -eq $NewValue) { "null" } elseif ($NewValue -is [string]) { "`"$NewValue`"" } else { $NewValue | ConvertTo-Json -Compress }
     
     Write-ModernStatus -Message "Property: $PropertyName" -Status "info" -Indent $Indent
-    Write-Host "$($indentString)  ~ $oldValueStr → $newValueStr" -ForegroundColor Yellow
+    Write-ColoredOutput -Message "$($indentString)  ~ $oldValueStr → $newValueStr" -ForegroundColor Yellow
 }

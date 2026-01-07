@@ -1118,58 +1118,58 @@ function Build-ExemptionsPlan {
                                         Write-ModernStatus -Message "[Policy Exemption] Details for New Exemption:" -Status "info" -Indent 6
                                         
                                         # Display Name
-                                        Write-Host "        + " -NoNewline -ForegroundColor Green
-                                        Write-Host "Display Name: " -NoNewline -ForegroundColor Gray
-                                        Write-Host "`"$exemptionDisplayName`"" -ForegroundColor Green
+                                        Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                                        Write-ColoredOutput -Message "Display Name: " -NoNewline -ForegroundColor Gray
+                                        Write-ColoredOutput -Message "`"$exemptionDisplayName`"" -ForegroundColor Green
                                         
                                         # Scope
-                                        Write-Host "        + " -NoNewline -ForegroundColor Green
-                                        Write-Host "Scope: " -NoNewline -ForegroundColor Gray
-                                        Write-Host $currentScope -ForegroundColor Green
+                                        Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                                        Write-ColoredOutput -Message "Scope: " -NoNewline -ForegroundColor Gray
+                                        Write-ColoredOutput -Message $currentScope -ForegroundColor Green
                                         
                                         # Policy Assignment ID
-                                        Write-Host "        + " -NoNewline -ForegroundColor Green
-                                        Write-Host "Policy Assignment ID: " -NoNewline -ForegroundColor Gray
-                                        Write-Host $exemption.policyAssignmentId -ForegroundColor Green
+                                        Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                                        Write-ColoredOutput -Message "Policy Assignment ID: " -NoNewline -ForegroundColor Gray
+                                        Write-ColoredOutput -Message $exemption.policyAssignmentId -ForegroundColor Green
                                         
                                         # Exemption Category
-                                        Write-Host "        + " -NoNewline -ForegroundColor Green
-                                        Write-Host "Exemption Category: " -NoNewline -ForegroundColor Gray
-                                        Write-Host "`"$($exemption.exemptionCategory)`"" -ForegroundColor Green
+                                        Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                                        Write-ColoredOutput -Message "Exemption Category: " -NoNewline -ForegroundColor Gray
+                                        Write-ColoredOutput -Message "`"$($exemption.exemptionCategory)`"" -ForegroundColor Green
                                         
                                         # Description if any
                                         if ($exemption.description) {
-                                            Write-Host "        + " -NoNewline -ForegroundColor Green
-                                            Write-Host "Description: " -NoNewline -ForegroundColor Gray
-                                            Write-Host "`"$($exemption.description)`"" -ForegroundColor Green
+                                            Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                                            Write-ColoredOutput -Message "Description: " -NoNewline -ForegroundColor Gray
+                                            Write-ColoredOutput -Message "`"$($exemption.description)`"" -ForegroundColor Green
                                         }
                                         
                                         # Expiration
                                         if ($exemption.expiresOn) {
-                                            Write-Host "        + " -NoNewline -ForegroundColor Green
-                                            Write-Host "Expires On: " -NoNewline -ForegroundColor Gray
-                                            Write-Host $exemption.expiresOn -ForegroundColor Green
+                                            Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                                            Write-ColoredOutput -Message "Expires On: " -NoNewline -ForegroundColor Gray
+                                            Write-ColoredOutput -Message $exemption.expiresOn -ForegroundColor Green
                                         }
                                         
                                         # Policy Definition Reference IDs if any
                                         if ($exemption.policyDefinitionReferenceIds -and $exemption.policyDefinitionReferenceIds.Count -gt 0) {
-                                            Write-Host "        + " -NoNewline -ForegroundColor Green
-                                            Write-Host "Policy Definition Reference IDs: " -NoNewline -ForegroundColor Gray
-                                            Write-Host "$($exemption.policyDefinitionReferenceIds.Count) reference(s)" -ForegroundColor Green
+                                            Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                                            Write-ColoredOutput -Message "Policy Definition Reference IDs: " -NoNewline -ForegroundColor Gray
+                                            Write-ColoredOutput -Message "$($exemption.policyDefinitionReferenceIds.Count) reference(s)" -ForegroundColor Green
                                         }
                                         
                                         # Assignment Scope Validation if specified
                                         if ($null -ne $exemption.assignmentScopeValidation) {
-                                            Write-Host "        + " -NoNewline -ForegroundColor Green
-                                            Write-Host "Assignment Scope Validation: " -NoNewline -ForegroundColor Gray
-                                            Write-Host "`"$($exemption.assignmentScopeValidation)`"" -ForegroundColor Green
+                                            Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                                            Write-ColoredOutput -Message "Assignment Scope Validation: " -NoNewline -ForegroundColor Gray
+                                            Write-ColoredOutput -Message "`"$($exemption.assignmentScopeValidation)`"" -ForegroundColor Green
                                         }
                                         
                                         # Resource Selectors if any
                                         if ($exemption.resourceSelectors -and $exemption.resourceSelectors.Count -gt 0) {
-                                            Write-Host "        + " -NoNewline -ForegroundColor Green
-                                            Write-Host "Resource Selectors: " -NoNewline -ForegroundColor Gray
-                                            Write-Host "$($exemption.resourceSelectors.Count) selector(s)" -ForegroundColor Green
+                                            Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                                            Write-ColoredOutput -Message "Resource Selectors: " -NoNewline -ForegroundColor Gray
+                                            Write-ColoredOutput -Message "$($exemption.resourceSelectors.Count) selector(s)" -ForegroundColor Green
                                         }
                                         
                                         # Metadata if any (excluding system properties)
@@ -1182,13 +1182,13 @@ function Build-ExemptionsPlan {
                                                 }
                                             }
                                             if ($filteredMetadata.Count -gt 0) {
-                                                Write-Host "        + " -NoNewline -ForegroundColor Green
-                                                Write-Host "Metadata:" -ForegroundColor Gray
+                                                Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                                                Write-ColoredOutput -Message "Metadata:" -ForegroundColor Gray
                                                 foreach ($key in ($filteredMetadata.Keys | Sort-Object)) {
-                                                    Write-Host "            + " -NoNewline -ForegroundColor Green
-                                                    Write-Host "$key" -NoNewline -ForegroundColor White
-                                                    Write-Host " = " -NoNewline -ForegroundColor Gray
-                                                    Write-Host "`"$($filteredMetadata[$key])`"" -ForegroundColor Green
+                                                    Write-ColoredOutput -Message "            + " -NoNewline -ForegroundColor Green
+                                                    Write-ColoredOutput -Message "$key" -NoNewline -ForegroundColor White
+                                                    Write-ColoredOutput -Message " = " -NoNewline -ForegroundColor Gray
+                                                    Write-ColoredOutput -Message "`"$($filteredMetadata[$key])`"" -ForegroundColor Green
                                                 }
                                             }
                                         }
@@ -1297,67 +1297,67 @@ function Build-ExemptionsPlan {
                 }
                 
                 # Display Name
-                Write-Host "        - " -NoNewline -ForegroundColor Red
-                Write-Host "Display Name: " -NoNewline -ForegroundColor Gray
-                Write-Host "`"$($exemption.displayName)`"" -ForegroundColor Red
+                Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                Write-ColoredOutput -Message "Display Name: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message "`"$($exemption.displayName)`"" -ForegroundColor Red
                 
                 # Scope
-                Write-Host "        - " -NoNewline -ForegroundColor Red
-                Write-Host "Scope: " -NoNewline -ForegroundColor Gray
-                Write-Host $exemption.scope -ForegroundColor Red
+                Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                Write-ColoredOutput -Message "Scope: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message $exemption.scope -ForegroundColor Red
                 
                 # Policy Assignment ID
-                Write-Host "        - " -NoNewline -ForegroundColor Red
-                Write-Host "Policy Assignment ID: " -NoNewline -ForegroundColor Gray
-                Write-Host $exemption.policyAssignmentId -ForegroundColor Red
+                Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                Write-ColoredOutput -Message "Policy Assignment ID: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message $exemption.policyAssignmentId -ForegroundColor Red
                 
                 # Exemption Category
-                Write-Host "        - " -NoNewline -ForegroundColor Red
-                Write-Host "Exemption Category: " -NoNewline -ForegroundColor Gray
-                Write-Host "`"$($exemption.exemptionCategory)`"" -ForegroundColor Red
+                Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                Write-ColoredOutput -Message "Exemption Category: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message "`"$($exemption.exemptionCategory)`"" -ForegroundColor Red
                 
                 # Description if any
                 if ($exemption.description) {
-                    Write-Host "        - " -NoNewline -ForegroundColor Red
-                    Write-Host "Description: " -NoNewline -ForegroundColor Gray
-                    Write-Host "`"$($exemption.description)`"" -ForegroundColor Red
+                    Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                    Write-ColoredOutput -Message "Description: " -NoNewline -ForegroundColor Gray
+                    Write-ColoredOutput -Message "`"$($exemption.description)`"" -ForegroundColor Red
                 }
                 
                 # Expiration
                 if ($exemption.expiresOn) {
-                    Write-Host "        - " -NoNewline -ForegroundColor Red
-                    Write-Host "Expires On: " -NoNewline -ForegroundColor Gray
+                    Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                    Write-ColoredOutput -Message "Expires On: " -NoNewline -ForegroundColor Gray
                     if ($isExpired) {
-                        Write-Host "$($exemption.expiresOn) " -NoNewline -ForegroundColor Red
-                        Write-Host "[EXPIRED]" -ForegroundColor Yellow
+                        Write-ColoredOutput -Message "$($exemption.expiresOn) " -NoNewline -ForegroundColor Red
+                        Write-ColoredOutput -Message "[EXPIRED]" -ForegroundColor Yellow
                     } else {
-                        Write-Host $exemption.expiresOn -ForegroundColor Red
+                        Write-ColoredOutput -Message $exemption.expiresOn -ForegroundColor Red
                     }
                 }
                 
                 # Policy Definition Reference IDs if any
                 if ($exemption.policyDefinitionReferenceIds -and $exemption.policyDefinitionReferenceIds.Count -gt 0) {
-                    Write-Host "        - " -NoNewline -ForegroundColor Red
-                    Write-Host "Policy Definition Reference IDs: " -NoNewline -ForegroundColor Gray
-                    Write-Host "$($exemption.policyDefinitionReferenceIds.Count) reference(s)" -ForegroundColor Red
+                    Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                    Write-ColoredOutput -Message "Policy Definition Reference IDs: " -NoNewline -ForegroundColor Gray
+                    Write-ColoredOutput -Message "$($exemption.policyDefinitionReferenceIds.Count) reference(s)" -ForegroundColor Red
                     foreach ($refId in $exemption.policyDefinitionReferenceIds) {
-                        Write-Host "            - " -NoNewline -ForegroundColor Red
-                        Write-Host $refId -ForegroundColor Red
+                        Write-ColoredOutput -Message "            - " -NoNewline -ForegroundColor Red
+                        Write-ColoredOutput -Message $refId -ForegroundColor Red
                     }
                 }
                 
                 # Assignment Scope Validation if specified
                 if ($null -ne $exemption.assignmentScopeValidation) {
-                    Write-Host "        - " -NoNewline -ForegroundColor Red
-                    Write-Host "Assignment Scope Validation: " -NoNewline -ForegroundColor Gray
-                    Write-Host "`"$($exemption.assignmentScopeValidation)`"" -ForegroundColor Red
+                    Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                    Write-ColoredOutput -Message "Assignment Scope Validation: " -NoNewline -ForegroundColor Gray
+                    Write-ColoredOutput -Message "`"$($exemption.assignmentScopeValidation)`"" -ForegroundColor Red
                 }
                 
                 # Resource Selectors if any
                 if ($exemption.resourceSelectors -and $exemption.resourceSelectors.Count -gt 0) {
-                    Write-Host "        - " -NoNewline -ForegroundColor Red
-                    Write-Host "Resource Selectors: " -NoNewline -ForegroundColor Gray
-                    Write-Host "$($exemption.resourceSelectors.Count) selector(s)" -ForegroundColor Red
+                    Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                    Write-ColoredOutput -Message "Resource Selectors: " -NoNewline -ForegroundColor Gray
+                    Write-ColoredOutput -Message "$($exemption.resourceSelectors.Count) selector(s)" -ForegroundColor Red
                 }
                 
                 # Metadata if any (excluding system properties)
@@ -1370,13 +1370,13 @@ function Build-ExemptionsPlan {
                         }
                     }
                     if ($filteredMetadata.Count -gt 0) {
-                        Write-Host "        - " -NoNewline -ForegroundColor Red
-                        Write-Host "Metadata:" -ForegroundColor Gray
+                        Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                        Write-ColoredOutput -Message "Metadata:" -ForegroundColor Gray
                         foreach ($key in ($filteredMetadata.Keys | Sort-Object)) {
-                            Write-Host "            - " -NoNewline -ForegroundColor Red
-                            Write-Host "$key" -NoNewline -ForegroundColor White
-                            Write-Host " = " -NoNewline -ForegroundColor Gray
-                            Write-Host "`"$($filteredMetadata[$key])`"" -ForegroundColor Red
+                            Write-ColoredOutput -Message "            - " -NoNewline -ForegroundColor Red
+                            Write-ColoredOutput -Message "$key" -NoNewline -ForegroundColor White
+                            Write-ColoredOutput -Message " = " -NoNewline -ForegroundColor Gray
+                            Write-ColoredOutput -Message "`"$($filteredMetadata[$key])`"" -ForegroundColor Red
                         }
                     }
                 }
@@ -1396,3 +1396,5 @@ function Build-ExemptionsPlan {
     }
     Write-Information ""
 }
+
+
