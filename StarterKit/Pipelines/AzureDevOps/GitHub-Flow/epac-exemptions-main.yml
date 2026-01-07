@@ -1,0 +1,54 @@
+# This is the main pipeline entry point for epac-exemptions-pipeline.yml.
+# It calls the reusable pipeline template and passes parameters for modular execution.
+variables:
+  planServiceConnection: "sc-prod-epac-plan"
+  pacEnvironmentSelector: epac-prod
+  PAC_OUTPUT_FOLDER: ./Output
+  PAC_DEFINITIONS_FOLDER: ./Definitions
+  
+trigger: none 
+pr: none 
+
+stages:
+  - stage: Exemptions
+    displayName: 'Update ${{ variables.pacEnvironmentSelector }} Exemptions'
+    jobs:
+      - template: ../templates/exemptions.yaml
+        parameters:
+          epacVersion: 'latest'
+          definitionsRootFolder: './Definitions'
+          projectName: 'EPAC'
+          gitUserEmail: 'epac@example.com'
+          gitUserName: 'EPAC Exemptions Update Bot'
+          pacEnvironmentSelector: ${{ variables.pacEnvironmentSelector }}
+          serviceConnection: $(planServiceConnection)
+          storyId: ''  # Optional: Link created work item task to an existing story in Azure DevOps
+
+  - stage: Plan
+    dependsOn: Exemptions    
+    variables:
+      EPAC_BRANCH: $[ stageDependencies.Exemptions.UpdateExemptions.outputs['CreateAndPush.epacBranchName'] ]
+    displayName: "Plan ${{ variables.pacEnvironmentSelector }} ExemptionsOnly 🗺️"
+    jobs:
+    - job: Plan
+      steps:
+      # 🔎 Debug step to confirm variable expansion
+      - pwsh: |
+          Write-Host "=== Debugging EPAC_BRANCH expansion ==="
+          Write-Host "Raw expression: $[ stageDependencies.Exemptions.UpdateExemptions.outputs['CreateAndPush.epacBranchName'] ]"
+          # The $(EPAC_BRANCH) reference is runtime substitution, pulling in the value that was produced by the dependency.
+          # $env:EPAC_BRANCH is how your PowerShell script consumes that runtime variable
+          Write-Host "Resolved variable: $(EPAC_BRANCH)"
+          if (-not $env:EPAC_BRANCH) {
+            Write-Host "⚠️ EPAC_BRANCH is empty or not resolved."
+          } else {
+            Write-Host "✅ EPAC_BRANCH resolved to: $env:EPAC_BRANCH"
+          }
+        displayName: "🔎 Debug EPAC_BRANCH"
+
+      - template: ../templates/epac-plan-exemptions-only.yaml
+        parameters:
+          serviceConnection: $(planServiceConnection) #runtime variable for service connection
+          pacEnvironmentSelector: ${{ variables.pacEnvironmentSelector }} #Compile time variable for environment selector        
+
+          
