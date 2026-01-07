@@ -405,37 +405,93 @@ function Build-PolicySetPlan {
                     Write-ColoredOutput -Message "`"$description`"" -ForegroundColor Green
                 }
                 
-                # Policy Definitions
-                if ($definition.properties.policyDefinitions) {
-                    $policyCount = $definition.properties.policyDefinitions.Count
+                # Policy Definitions - show detailed list
+                if ($policyDefinitionsFinal -and $policyDefinitionsFinal.Count -gt 0) {
                     Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
                     Write-ColoredOutput -Message "Policy Definitions: " -NoNewline -ForegroundColor Gray
-                    Write-ColoredOutput -Message "$policyCount policy/policies" -ForegroundColor Green
+                    Write-ColoredOutput -Message "$($policyDefinitionsFinal.Count) policy/policies" -ForegroundColor Green
+                    foreach ($policyDef in $policyDefinitionsFinal) {
+                        Write-ColoredOutput -Message "            - " -NoNewline -ForegroundColor Green
+                        Write-ColoredOutput -Message "Policy ID: " -NoNewline -ForegroundColor Gray
+                        Write-ColoredOutput -Message "$($policyDef.policyDefinitionId)" -ForegroundColor Green
+                        if ($policyDef.policyDefinitionReferenceId) {
+                            Write-ColoredOutput -Message "              Reference ID: " -NoNewline -ForegroundColor Gray
+                            Write-ColoredOutput -Message "$($policyDef.policyDefinitionReferenceId)" -ForegroundColor Green
+                        }
+                        if ($policyDef.groupNames -and $policyDef.groupNames.Count -gt 0) {
+                            Write-ColoredOutput -Message "              Groups: " -NoNewline -ForegroundColor Gray
+                            Write-ColoredOutput -Message "$($policyDef.groupNames -join ', ')" -ForegroundColor Green
+                        }
+                        if ($policyDef.parameters) {
+                            $paramCount = ($policyDef.parameters.PSObject.Properties | Measure-Object).Count
+                            Write-ColoredOutput -Message "              Parameters: " -NoNewline -ForegroundColor Gray
+                            Write-ColoredOutput -Message "$paramCount parameter(s) passed" -ForegroundColor Green
+                        }
+                    }
                 }
                 
-                # Policy Definition Groups if any
-                if ($definition.properties.policyDefinitionGroups) {
-                    $groupCount = $definition.properties.policyDefinitionGroups.Count
+                # Policy Definition Groups if any - show detailed list
+                if ($policyDefinitionGroupsFinal -and $policyDefinitionGroupsFinal.Count -gt 0) {
                     Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
                     Write-ColoredOutput -Message "Policy Definition Groups: " -NoNewline -ForegroundColor Gray
-                    Write-ColoredOutput -Message "$groupCount group(s)" -ForegroundColor Green
+                    Write-ColoredOutput -Message "$($policyDefinitionGroupsFinal.Count) group(s)" -ForegroundColor Green
+                    foreach ($group in $policyDefinitionGroupsFinal) {
+                        Write-ColoredOutput -Message "            - " -NoNewline -ForegroundColor Green
+                        Write-ColoredOutput -Message "Name: " -NoNewline -ForegroundColor Gray
+                        Write-ColoredOutput -Message "$($group.name)" -ForegroundColor Green
+                        if ($group.displayName) {
+                            Write-ColoredOutput -Message "              Display Name: " -NoNewline -ForegroundColor Gray
+                            Write-ColoredOutput -Message "`"$($group.displayName)`"" -ForegroundColor Green
+                        }
+                        if ($group.category) {
+                            Write-ColoredOutput -Message "              Category: " -NoNewline -ForegroundColor Gray
+                            Write-ColoredOutput -Message "`"$($group.category)`"" -ForegroundColor Green
+                        }
+                    }
                 }
                 
-                # Parameters if any
-                if ($definition.properties.parameters) {
-                    $paramCount = ($definition.properties.parameters.PSObject.Properties | Measure-Object).Count
-                    Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
-                    Write-ColoredOutput -Message "Parameters: " -NoNewline -ForegroundColor Gray
-                    Write-ColoredOutput -Message "$paramCount parameter(s)" -ForegroundColor Green
+                # Parameters if any - show detailed list
+                if ($parameters) {
+                    $paramKeys = $parameters.PSObject.Properties.Name
+                    if ($paramKeys.Count -gt 0) {
+                        Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                        Write-ColoredOutput -Message "Parameters: " -NoNewline -ForegroundColor Gray
+                        Write-ColoredOutput -Message "$($paramKeys.Count) parameter(s)" -ForegroundColor Green
+                        foreach ($paramName in ($paramKeys | Sort-Object)) {
+                            $param = $parameters.$paramName
+                            Write-ColoredOutput -Message "            - " -NoNewline -ForegroundColor Green
+                            Write-ColoredOutput -Message "Name: " -NoNewline -ForegroundColor Gray
+                            Write-ColoredOutput -Message "$paramName" -ForegroundColor Green
+                            
+                            if ($param.type) {
+                                Write-ColoredOutput -Message "              Type: " -NoNewline -ForegroundColor Gray
+                                Write-ColoredOutput -Message "$($param.type)" -ForegroundColor Green
+                            }
+                            if ($param.defaultValue) {
+                                Write-ColoredOutput -Message "              Default: " -NoNewline -ForegroundColor Gray
+                                $defaultJson = $param.defaultValue | ConvertTo-Json -Depth 100 -Compress
+                                Write-ColoredOutput -Message "$defaultJson" -ForegroundColor Green
+                            }
+                            if ($param.allowedValues) {
+                                Write-ColoredOutput -Message "              Allowed Values: " -NoNewline -ForegroundColor Gray
+                                $allowedJson = $param.allowedValues | ConvertTo-Json -Depth 100 -Compress
+                                Write-ColoredOutput -Message "$allowedJson" -ForegroundColor Green
+                            }
+                            if ($param.metadata -and $param.metadata.description) {
+                                Write-ColoredOutput -Message "              Description: " -NoNewline -ForegroundColor Gray
+                                Write-ColoredOutput -Message "`"$($param.metadata.description)`"" -ForegroundColor Green
+                            }
+                        }
+                    }
                 }
                 
                 # Metadata if any (excluding system properties)
-                if ($definition.properties.metadata) {
+                if ($metadata) {
                     $systemManagedProperties = @("createdBy", "createdOn", "updatedBy", "updatedOn", "lastSyncedToArgOn")
                     $filteredMetadata = @{}
-                    foreach ($key in $definition.properties.metadata.Keys) {
+                    foreach ($key in $metadata.Keys) {
                         if ($key -notin $systemManagedProperties) {
-                            $filteredMetadata[$key] = $definition.properties.metadata[$key]
+                            $filteredMetadata[$key] = $metadata[$key]
                         }
                     }
                     if ($filteredMetadata.Count -gt 0) {

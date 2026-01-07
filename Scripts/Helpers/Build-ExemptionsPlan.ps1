@@ -1151,11 +1151,15 @@ function Build-ExemptionsPlan {
                                             Write-ColoredOutput -Message $exemption.expiresOn -ForegroundColor Green
                                         }
                                         
-                                        # Policy Definition Reference IDs if any
+                                        # Policy Definition Reference IDs if any - show full list
                                         if ($exemption.policyDefinitionReferenceIds -and $exemption.policyDefinitionReferenceIds.Count -gt 0) {
                                             Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
                                             Write-ColoredOutput -Message "Policy Definition Reference IDs: " -NoNewline -ForegroundColor Gray
                                             Write-ColoredOutput -Message "$($exemption.policyDefinitionReferenceIds.Count) reference(s)" -ForegroundColor Green
+                                            foreach ($refId in $exemption.policyDefinitionReferenceIds) {
+                                                Write-ColoredOutput -Message "            - " -NoNewline -ForegroundColor Green
+                                                Write-ColoredOutput -Message $refId -ForegroundColor Green
+                                            }
                                         }
                                         
                                         # Assignment Scope Validation if specified
@@ -1165,11 +1169,36 @@ function Build-ExemptionsPlan {
                                             Write-ColoredOutput -Message "`"$($exemption.assignmentScopeValidation)`"" -ForegroundColor Green
                                         }
                                         
-                                        # Resource Selectors if any
+                                        # Resource Selectors if any - show detailed list
                                         if ($exemption.resourceSelectors -and $exemption.resourceSelectors.Count -gt 0) {
                                             Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
                                             Write-ColoredOutput -Message "Resource Selectors: " -NoNewline -ForegroundColor Gray
                                             Write-ColoredOutput -Message "$($exemption.resourceSelectors.Count) selector(s)" -ForegroundColor Green
+                                            foreach ($selector in $exemption.resourceSelectors) {
+                                                Write-ColoredOutput -Message "            - " -NoNewline -ForegroundColor Green
+                                                Write-ColoredOutput -Message "Name: " -NoNewline -ForegroundColor Gray
+                                                Write-ColoredOutput -Message "`"$($selector.name)`"" -ForegroundColor Green
+                                                
+                                                # Show selectors array
+                                                if ($selector.selectors -and $selector.selectors.Count -gt 0) {
+                                                    foreach ($sel in $selector.selectors) {
+                                                        Write-ColoredOutput -Message "              Kind: " -NoNewline -ForegroundColor Gray
+                                                        Write-ColoredOutput -Message "$($sel.kind)" -ForegroundColor Green
+                                                        
+                                                        # Show 'in' array if present
+                                                        if ($sel.in -and $sel.in.Count -gt 0) {
+                                                            Write-ColoredOutput -Message "              In: " -NoNewline -ForegroundColor Gray
+                                                            Write-ColoredOutput -Message "[$($sel.in -join ', ')]" -ForegroundColor Green
+                                                        }
+                                                        
+                                                        # Show 'notIn' array if present
+                                                        if ($sel.notIn -and $sel.notIn.Count -gt 0) {
+                                                            Write-ColoredOutput -Message "              Not In: " -NoNewline -ForegroundColor Gray
+                                                            Write-ColoredOutput -Message "[$($sel.notIn -join ', ')]" -ForegroundColor Green
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         }
                                         
                                         # Metadata if any (excluding system properties)

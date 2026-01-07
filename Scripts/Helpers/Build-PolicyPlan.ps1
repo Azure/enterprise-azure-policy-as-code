@@ -315,31 +315,40 @@ function Build-PolicyPlan {
                     Write-ColoredOutput -Message "`"$description`"" -ForegroundColor Green
                 }
                 
-                # Mode
+                # Mode - display current value (already defaulted to "All" earlier if null)
                 Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
                 Write-ColoredOutput -Message "Mode: " -NoNewline -ForegroundColor Gray
-                Write-ColoredOutput -Message "`"$($definition.properties.mode)`"" -ForegroundColor Green
+                Write-ColoredOutput -Message "`"$mode`"" -ForegroundColor Green
+                if ([string]::IsNullOrWhiteSpace($definitionObject.properties.mode)) {
+                    Write-ColoredOutput -Message " (default)" -ForegroundColor DarkGray
+                }
                 
-                # Policy Rule
-                Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
-                Write-ColoredOutput -Message "Policy Rule: " -NoNewline -ForegroundColor Gray
-                Write-ColoredOutput -Message "defined" -ForegroundColor Green
+                # Policy Rule - show the actual rule
+                if ($policyRule) {
+                    Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                    Write-ColoredOutput -Message "Policy Rule:" -ForegroundColor Gray
+                    $ruleJson = $policyRule | ConvertTo-Json -Depth 100 -Compress:$false
+                    $ruleLines = $ruleJson -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
+                    foreach ($line in $ruleLines) {
+                        Write-ColoredOutput -Message "            $line" -ForegroundColor Green
+                    }
+                }
                 
                 # Parameters if any
-                if ($definition.properties.parameters) {
-                    $paramCount = ($definition.properties.parameters.PSObject.Properties | Measure-Object).Count
+                if ($parameters) {
+                    $paramCount = ($parameters.PSObject.Properties | Measure-Object).Count
                     Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
                     Write-ColoredOutput -Message "Parameters: " -NoNewline -ForegroundColor Gray
                     Write-ColoredOutput -Message "$paramCount parameter(s)" -ForegroundColor Green
                 }
                 
                 # Metadata if any (excluding system properties)
-                if ($definition.properties.metadata) {
+                if ($metadata) {
                     $systemManagedProperties = @("createdBy", "createdOn", "updatedBy", "updatedOn", "lastSyncedToArgOn")
                     $filteredMetadata = @{}
-                    foreach ($key in $definition.properties.metadata.Keys) {
+                    foreach ($key in $metadata.Keys) {
                         if ($key -notin $systemManagedProperties) {
-                            $filteredMetadata[$key] = $definition.properties.metadata[$key]
+                            $filteredMetadata[$key] = $metadata[$key]
                         }
                     }
                     if ($filteredMetadata.Count -gt 0) {
@@ -390,11 +399,13 @@ function Build-PolicyPlan {
                     Write-ColoredOutput -Message "`"$($deleteCandidateProperties.description)`"" -ForegroundColor Red
                 }
                 
-                # Mode
-                if ($deleteCandidateProperties.mode) {
-                    Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
-                    Write-ColoredOutput -Message "Mode: " -NoNewline -ForegroundColor Gray
-                    Write-ColoredOutput -Message "`"$($deleteCandidateProperties.mode)`"" -ForegroundColor Red
+                # Mode - show actual value or default
+                $deletedMode = if ([string]::IsNullOrWhiteSpace($deleteCandidateProperties.mode)) { "All" } else { $deleteCandidateProperties.mode }
+                Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                Write-ColoredOutput -Message "Mode: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message "`"$deletedMode`"" -ForegroundColor Red
+                if ([string]::IsNullOrWhiteSpace($deleteCandidateProperties.mode)) {
+                    Write-ColoredOutput -Message " (default)" -ForegroundColor DarkGray
                 }
                 
                 # ID
