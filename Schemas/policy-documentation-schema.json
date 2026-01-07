@@ -2,6 +2,63 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
     "properties": {
+        "globalDocumentationSpecifications": {
+            "type": "object",
+            "properties": {
+                "fileNameStem": {
+                    "type": "string",
+                    "description": "Optional default file name stem used when documentAssignments omits documentationSpecifications."
+                },
+                "title": {
+                    "type": "string",
+                    "description": "Optional default title used when documentAssignments omits documentationSpecifications."
+                },
+                "markdownAddToc": {
+                    "type": "boolean"
+                },
+                "markdownAdoWiki": {
+                    "type": "boolean"
+                },
+                "markdownAdoWikiConfig": {
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "adoOrganization": { "type": "string" },
+                                    "adoProject": { "type": "string" },
+                                    "adoWiki": { "type": "string" }
+                                },
+                                "required": [ "adoOrganization", "adoProject", "adoWiki" ]
+                            }
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "adoOrganization": { "type": "string" },
+                                "adoProject": { "type": "string" },
+                                "adoWiki": { "type": "string" }
+                            },
+                            "required": [ "adoOrganization", "adoProject", "adoWiki" ]
+                        }
+                    ]
+                },
+                "markdownNoEmbeddedHtml": {
+                    "type": "boolean"
+                },
+                "markdownIncludeComplianceGroupNames": {
+                    "type": "boolean"
+                },
+                "markdownSuppressParameterSection": {
+                    "type": "boolean"
+                },
+                "markdownMaxParameterLength": {
+                    "type": "integer"
+                }
+            }
+        },
         "documentAssignments": {
             "type": "object",
             "properties": {
@@ -16,6 +73,10 @@
                             },
                             "pacEnvironment": {
                                 "type": "string"
+                            },
+                            "fileNameStemPrefix": {
+                                "type": "string",
+                                "description": "Optional prefix added to generated documentation fileNameStem for documentAllAssignments outputs."
                             },
                             "skipPolicyAssignments": {
                                 "type": "array",
@@ -76,6 +137,32 @@
                             "markdownAdoWiki": {
                                 "type": "boolean"
                             },
+                            "markdownAdoWikiConfig": {
+                                "oneOf": [
+                                    {
+                                        "type": "array",
+                                        "minItems": 1,
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "adoOrganization": { "type": "string" },
+                                                "adoProject": { "type": "string" },
+                                                "adoWiki": { "type": "string" }
+                                            },
+                                            "required": [ "adoOrganization", "adoProject", "adoWiki" ]
+                                        }
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "adoOrganization": { "type": "string" },
+                                            "adoProject": { "type": "string" },
+                                            "adoWiki": { "type": "string" }
+                                        },
+                                        "required": [ "adoOrganization", "adoProject", "adoWiki" ]
+                                    }
+                                ]
+                            },
                             "markdownNoEmbeddedHtml": {
                                 "type": "boolean"
                             },
@@ -102,6 +189,11 @@
                     "required": [
                         "documentAllAssignments",
                         "documentationSpecifications"
+                    ]
+                },
+                {
+                    "required": [
+                        "documentAllAssignments"
                     ]
                 }
             ]
@@ -168,6 +260,32 @@
                     "markdownAdoWiki": {
                         "type": "boolean"
                     },
+                    "markdownAdoWikiConfig": {
+                        "oneOf": [
+                            {
+                                "type": "array",
+                                "minItems": 1,
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "adoOrganization": { "type": "string" },
+                                        "adoProject": { "type": "string" },
+                                        "adoWiki": { "type": "string" }
+                                    },
+                                    "required": [ "adoOrganization", "adoProject", "adoWiki" ]
+                                }
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "adoOrganization": { "type": "string" },
+                                    "adoProject": { "type": "string" },
+                                    "adoWiki": { "type": "string" }
+                                },
+                                "required": [ "adoOrganization", "adoProject", "adoWiki" ]
+                            }
+                        ]
+                    },
                     "markdownNoEmbeddedHtml": {
                         "type": "boolean"
                     },
@@ -201,6 +319,23 @@
             "required": [
                 "documentPolicySets"
             ]
+        }
+    ],
+    "allOf": [
+        {
+            "if": {
+                "properties": {
+                    "documentAssignments": {
+                        "allOf": [
+                            { "required": ["documentAllAssignments"] },
+                            { "not": { "required": ["documentationSpecifications"] } }
+                        ]
+                    }
+                }
+            },
+            "then": {
+                "required": ["globalDocumentationSpecifications"]
+            }
         }
     ]
 }

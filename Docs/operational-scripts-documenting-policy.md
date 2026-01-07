@@ -21,6 +21,20 @@ To utilize the schema add a ```$schema``` tag to the JSON file.
 
 This schema is new in v7.4.x and may not be complete. Please let us know if we missed anything.
 
+### Global Defaults
+
+You can define shared defaults once at the top level using `globalDocumentationSpecifications`. These values apply to both assignment and policy set outputs unless overridden in a specific `documentationSpecifications` entry or `documentPolicySets` item.
+
+Supported properties:
+- `fileNameStem`, `title` (used to synthesize documentation when `documentAssignments` omits `documentationSpecifications`)
+- `markdownAddToc`, `markdownAdoWiki`, `markdownAdoWikiConfig`
+- `markdownNoEmbeddedHtml`, `markdownIncludeComplianceGroupNames`
+- `markdownSuppressParameterSection`, `markdownMaxParameterLength`
+
+Specific entries take precedence. If a property is set in `documentAssignments.documentationSpecifications[...]` or in a `documentPolicySets[...]` item, it overrides the global value.
+
+If `documentAssignments` uses `documentAllAssignments` and omits `documentationSpecifications`, you must provide `fileNameStem` and `title` in `globalDocumentationSpecifications`. The script will synthesize a single documentation specification using the discovered environment categories and the global defaults.
+
 ## Examples
 
 The following are 2 examples which are both valid. Both are presented and should be used based on requirements and preference.

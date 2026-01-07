@@ -8,7 +8,8 @@ function Out-DocumentationForPolicyAssignments {
         [hashtable] $AssignmentsByEnvironment,
         [switch] $IncludeManualPolicies,
         [hashtable] $PacEnvironments,
-        [string] $WikiClonePat
+        [string] $WikiClonePat,
+        [switch] $WikiSPN
     )
 
     [string] $fileNameStem = $DocumentationSpecification.fileNameStem
@@ -16,7 +17,7 @@ function Out-DocumentationForPolicyAssignments {
     [string] $title = $DocumentationSpecification.title
 
     Write-ModernSection -Title "Generating Policy Assignment documentation for '$title'" -Color Green
-    Write-ModernStatus -Message "$fileNameStem" -Status "info" -Indent 2
+    Write-ModernStatus -Message "File Name:$fileNameStem" -Status "info" -Indent 2
 
     # Checking parameters
     if ($null -eq $fileNameStem -or $fileNameStem -eq "") {
@@ -605,12 +606,41 @@ function Out-DocumentationForPolicyAssignments {
     #endregion csv
     
     #region PushToWiki
-    if ($WikiClonePat) {
-        Write-Information "Attempting push to Azure DevOps Wiki"
+    if ($WikiClonePat -or $WikiSPN) {
+        Write-ModernStatus -Message "Attempting push to Azure DevOps Wiki (Policy Assignments)" -Status "info" -Indent 2
+        # Normalize wiki config (support array or object)
+        $wikiCfg = $DocumentationSpecification.markdownAdoWikiConfig
+        if ($wikiCfg -is [array]) { $wikiCfg = $wikiCfg | Select-Object -First 1 }
+        $adoOrg = $wikiCfg.adoOrganization
+        $adoProj = $wikiCfg.adoProject
+        $adoWiki = $wikiCfg.adoWiki
+
         # Clone down wiki
-        git clone "https://$($WikiClonePat):x-oauth-basic@$($DocumentationSpecification.markdownAdoWikiConfig.adoOrganization).visualstudio.com/$($DocumentationSpecification.markdownAdoWikiConfig.adoProject)/_git/$($DocumentationSpecification.markdownAdoWikiConfig.adoWiki).wiki"
-        # Move into folder
-        Set-Location -Path "$($DocumentationSpecification.markdownAdoWikiConfig.adoWiki).wiki"
+        if ($WikiSPN) {
+            Write-ModernStatus -Message "Using Service Principal for Wiki clone" -Status "info" -Indent 2
+            $adoResource = "499b84ac-1321-427f-aa17-267ca6975798"  # ADO resource/App ID - THIS IS AN AZURE SPECIFIC GUID REQUIRED FOR ADO
+            $tokenResult = Get-AzAccessToken -ResourceUrl $adoResource
+            if (-not $tokenResult -or [string]::IsNullOrWhiteSpace($tokenResult.Token)) {
+                Write-ModernStatus -Message "Failed to acquire Azure DevOps bearer token via Get-AzAccessToken." -Status "error" -Indent 4
+            }
+            Write-ModernStatus -Message "Acquired Azure DevOps bearer token" -Status "success" -Indent 4
+            $AccessToken = $tokenResult.Token
+            if ([string]::IsNullOrWhiteSpace($AccessToken)) {
+                Write-ModernStatus -Message "Bearer token is empty. Ensure this script is running under AzurePowerShell@5 bound to your service connection." -Status "error" -Indent 4
+            }
+            if ($AccessToken -is [System.Security.SecureString]) {
+                $AccessToken = [System.Net.NetworkCredential]::new('', $AccessToken).Password
+            }
+            Write-ModernStatus -Message "Acquired Access Token for Git Commands" -Status "success" -Indent 4
+
+            #Clone Repo
+            git -c http.extraheader="AUTHORIZATION: bearer $AccessToken" clone "https://dev.azure.com/$adoOrg/$adoProj/_git/$adoWiki.wiki"
+        }
+        else {
+            Write-ModernStatus -Message "Using Personal Access Token for Wiki clone" -Status "info" -Indent 2
+            git clone "https://$($WikiClonePat):x-oauth-basic@dev.azure.com/$adoOrg/$adoProj/_git/$adoWiki.wiki"
+        }
+        Set-Location -Path "$adoWiki.wiki"
         $branch = git branch
         $branch = $branch.split(" ")[1]
         # Copy main markdown file into wiki
@@ -637,10 +667,14 @@ function Out-DocumentationForPolicyAssignments {
         }
         # Commit and push up to Wiki
         git add .
-        git commit -m "Update wiki with the latest markdown files"
-        git push origin "$branch"
+        git commit -m "Update wiki with the latest markdown files"  
+        if ($WikiSPN) {
+            git -c http.extraheader="AUTHORIZATION: bearer $AccessToken" push origin "$branch"
+        }
+        else {
+            git push origin "$branch"
+        }
         Set-Location "../../"
     }
-    
     Write-ModernStatus -Message "Complete" -Status "success" -Indent 2
 }
