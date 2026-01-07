@@ -81,7 +81,309 @@ function Write-DetailedDiff {
         return
     }
     
-    # Try to do smart object comparison
+    # Check if both objects are arrays - handle them specially
+    $isDeployedArray = $DeployedObject -is [array] -or $DeployedObject -is [System.Collections.ArrayList]
+    $isDesiredArray = $DesiredObject -is [array] -or $DesiredObject -is [System.Collections.ArrayList]
+    
+    if ($isDeployedArray -or $isDesiredArray) {
+        # Try smart array comparison for arrays of objects (like overrides)
+        try {
+            # Check if this is an array of objects (hashtables) - use smart comparison
+            $isObjectArray = $false
+            if ($isDeployedArray -and $DeployedObject.Count -gt 0) {
+                $isObjectArray = ($DeployedObject[0] -is [hashtable] -or $DeployedObject[0] -is [System.Management.Automation.PSCustomObject])
+            }
+            elseif ($isDesiredArray -and $DesiredObject.Count -gt 0) {
+                $isObjectArray = ($DesiredObject[0] -is [hashtable] -or $DesiredObject[0] -is [System.Management.Automation.PSCustomObject])
+            }
+            
+            if ($isObjectArray -and $PropertyName -match "Override|Selector|Message") {
+                # Smart comparison for arrays of objects
+                Write-ColoredOutput -Message "$($indentString)  ┌─ Changes:" -ForegroundColor DarkGray
+                
+                # Convert to comparable format
+                $deployedItems = @()
+                $desiredItems = @()
+                
+                if ($null -ne $DeployedObject) {
+                    foreach ($item in $DeployedObject) {
+                        $deployedItems += @{
+                            json = ($item | ConvertTo-Json -Depth 100 -Compress)
+                            obj = $item
+                        }
+                    }
+                }
+                
+                if ($null -ne $DesiredObject) {
+                    foreach ($item in $DesiredObject) {
+                        $desiredItems += @{
+                            json = ($item | ConvertTo-Json -Depth 100 -Compress)
+                            obj = $item
+                        }
+                    }
+                }
+                
+                # Find removed, added, modified, and unchanged items
+                $removedItems = @()
+                $addedItems = @()
+                $modifiedItems = @()
+                $unchangedCount = 0
+                $processedDesired = @{}
+                
+                # Check what was removed or modified
+                foreach ($deployed in $deployedItems) {
+                    $exactMatch = $false
+                    $partialMatch = $null
+                    
+                    # First check for exact match
+                    for ($i = 0; $i -lt $desiredItems.Count; $i++) {
+                        if ($deployed.json -eq $desiredItems[$i].json) {
+                            $exactMatch = $true
+                            $processedDesired[$i] = $true
+                            $unchangedCount++
+                            break
+                        }
+                    }
+                    
+                    # If no exact match, check for partial match (same kind/value for overrides)
+                    if (-not $exactMatch -and $PropertyName -match "Override") {
+                        for ($i = 0; $i -lt $desiredItems.Count; $i++) {
+                            if ($processedDesired.ContainsKey($i)) { continue }
+                            
+                            $deployedObj = $deployed.obj
+                            $desiredObj = $desiredItems[$i].obj
+                            
+                            # Check if kind and value match (indicating it's the same override type)
+                            if ($deployedObj.kind -eq $desiredObj.kind -and $deployedObj.value -eq $desiredObj.value) {
+                                $partialMatch = @{
+                                    deployed = $deployed
+                                    desired = $desiredItems[$i]
+                                    index = $i
+                                }
+                                $processedDesired[$i] = $true
+                                break
+                            }
+                        }
+                    }
+                    
+                    if ($exactMatch) {
+                        # Already counted as unchanged
+                    }
+                    elseif ($null -ne $partialMatch) {
+                        # This is a modification
+                        $modifiedItems += $partialMatch
+                    }
+                    else {
+                        # This was removed
+                        $removedItems += $deployed
+                    }
+                }
+                
+                # Check what was truly added (not part of a modification)
+                for ($i = 0; $i -lt $desiredItems.Count; $i++) {
+                    if (-not $processedDesired.ContainsKey($i)) {
+                        $addedItems += $desiredItems[$i]
+                    }
+                }
+                
+                $changesDetected = ($removedItems.Count -gt 0) -or ($addedItems.Count -gt 0) -or ($modifiedItems.Count -gt 0)
+                
+                # Display summary
+                if ($unchangedCount -gt 0) {
+                    Write-ColoredOutput -Message "$($indentString)  ≈ $unchangedCount item(s) unchanged" -ForegroundColor DarkGray
+                }
+                
+                # Display modified items with context
+                if ($modifiedItems.Count -gt 0) {
+                    Write-ColoredOutput -Message "$($indentString)  ~ Modified $($modifiedItems.Count) item(s):" -ForegroundColor Yellow
+                    foreach ($mod in $modifiedItems) {
+                        $deployedObj = $mod.deployed.obj
+                        $desiredObj = $mod.desired.obj
+                        
+                        # Extract the 'in' arrays from selectors
+                        $deployedIn = @()
+                        $desiredIn = @()
+                        
+                        if ($deployedObj.selectors) {
+                            foreach ($sel in $deployedObj.selectors) {
+                                if ($sel.in) { $deployedIn += $sel.in }
+                            }
+                        }
+                        if ($desiredObj.selectors) {
+                            foreach ($sel in $desiredObj.selectors) {
+                                if ($sel.in) { $desiredIn += $sel.in }
+                            }
+                        }
+                        
+                        # Find added and removed selector values
+                        $removedSelectors = @()
+                        $addedSelectors = @()
+                        $unchangedSelectors = @()
+                        
+                        foreach ($item in $deployedIn) {
+                            if ($item -notin $desiredIn) {
+                                $removedSelectors += $item
+                            }
+                            else {
+                                $unchangedSelectors += $item
+                            }
+                        }
+                        
+                        foreach ($item in $desiredIn) {
+                            if ($item -notin $deployedIn) {
+                                $addedSelectors += $item
+                            }
+                        }
+                        
+                        # Build a merged structure showing both removed and added items
+                        # We'll parse the JSON and reconstruct with changes
+                        $deployedJson = $deployedObj | ConvertTo-Json -Depth 100 -Compress:$false
+                        $desiredJson = $desiredObj | ConvertTo-Json -Depth 100 -Compress:$false
+                        
+                        $deployedLines = $deployedJson -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
+                        $desiredLines = $desiredJson -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
+                        
+                        # Show structure with inline changes
+                        $inInArray = $false
+                        $shownLines = @{}
+                        
+                        foreach ($line in $desiredLines) {
+                            $trimmedLine = $line.Trim()
+                            
+                            # Check if we're entering/in the "in" array
+                            if ($trimmedLine -match '^"in":\s*\[') {
+                                $inInArray = $true
+                                Write-ColoredOutput -Message "$($indentString)      $line" -ForegroundColor DarkGray
+                                
+                                # Now show removed selectors first
+                                # Match the indentation of array items (extract from the line itself)
+                                $baseIndent = if ($line -match '^(\s+)"in"') { $matches[1] + '  ' } else { '        ' }
+                                foreach ($removed in $removedSelectors) {
+                                    Write-ColoredOutput -Message "$($indentString)    - $baseIndent`"$removed`"," -ForegroundColor Red
+                                }
+                                continue
+                            }
+                            elseif ($inInArray -and $trimmedLine -eq ']' -or $trimmedLine -eq '],') {
+                                $inInArray = $false
+                            }
+                            
+                            # Check if this line is in the "in" array
+                            if ($inInArray) {
+                                # Check if this is a selector value line
+                                $isSelector = $false
+                                foreach ($added in $addedSelectors) {
+                                    if ($line -match [regex]::Escape("`"$added`"")) {
+                                        Write-ColoredOutput -Message "$($indentString)    + $line" -ForegroundColor Green
+                                        $isSelector = $true
+                                        break
+                                    }
+                                }
+                                
+                                if (-not $isSelector) {
+                                    foreach ($unchanged in $unchangedSelectors) {
+                                        if ($line -match [regex]::Escape("`"$unchanged`"")) {
+                                            Write-ColoredOutput -Message "$($indentString)      $line" -ForegroundColor DarkGray
+                                            $isSelector = $true
+                                            break
+                                        }
+                                    }
+                                }
+                                
+                                if (-not $isSelector) {
+                                    # Non-selector line within in array
+                                    Write-ColoredOutput -Message "$($indentString)      $line" -ForegroundColor DarkGray
+                                }
+                            }
+                            else {
+                                # Outside the "in" array - show as context
+                                Write-ColoredOutput -Message "$($indentString)      $line" -ForegroundColor DarkGray
+                            }
+                        }
+                    }
+                }
+                
+                # Display removed items
+                if ($removedItems.Count -gt 0) {
+                    Write-ColoredOutput -Message "$($indentString)  - Removed $($removedItems.Count) item(s):" -ForegroundColor Red
+                    foreach ($item in $removedItems) {
+                        $itemJson = $item.obj | ConvertTo-Json -Depth 100 -Compress:$false
+                        $itemLines = $itemJson -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
+                        foreach ($line in $itemLines) {
+                            Write-ColoredOutput -Message "$($indentString)    - $line" -ForegroundColor Red
+                        }
+                    }
+                }
+                
+                # Display added items
+                if ($addedItems.Count -gt 0) {
+                    Write-ColoredOutput -Message "$($indentString)  + Added $($addedItems.Count) item(s):" -ForegroundColor Green
+                    foreach ($item in $addedItems) {
+                        $itemJson = $item.obj | ConvertTo-Json -Depth 100 -Compress:$false
+                        $itemLines = $itemJson -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
+                        foreach ($line in $itemLines) {
+                            Write-ColoredOutput -Message "$($indentString)    + $line" -ForegroundColor Green
+                        }
+                    }
+                }
+                
+                if (-not $changesDetected) {
+                    Write-ColoredOutput -Message "$($indentString)  (no changes detected)" -ForegroundColor DarkGray
+                }
+                
+                Write-ColoredOutput -Message "$($indentString)  └─────────────" -ForegroundColor DarkGray
+                return
+            }
+        }
+        catch {
+            # Fall through to simple array comparison
+        }
+        
+        # Fallback: Use JSON-based line-by-line comparison for arrays
+        Write-ColoredOutput -Message "$($indentString)  ┌─ Changes:" -ForegroundColor DarkGray
+        
+        $deployedJson = if ($DeployedObject -is [string]) { $DeployedObject } else { $DeployedObject | ConvertTo-Json -Depth 100 -Compress:$false }
+        $desiredJson = if ($DesiredObject -is [string]) { $DesiredObject } else { $DesiredObject | ConvertTo-Json -Depth 100 -Compress:$false }
+        
+        $deployedLines = $deployedJson -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
+        $desiredLines = $desiredJson -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
+        
+        # Track if any changes were detected
+        $changesDetected = $false
+        
+        # Simple line matching
+        $maxLines = [Math]::Max($deployedLines.Count, $desiredLines.Count)
+        
+        for ($i = 0; $i -lt $maxLines; $i++) {
+            $deployedLine = if ($i -lt $deployedLines.Count) { $deployedLines[$i] } else { $null }
+            $desiredLine = if ($i -lt $desiredLines.Count) { $desiredLines[$i] } else { $null }
+            
+            if ($null -eq $deployedLine) {
+                Write-ColoredOutput -Message "$($indentString)  + $desiredLine" -ForegroundColor Green
+                $changesDetected = $true
+            }
+            elseif ($null -eq $desiredLine) {
+                Write-ColoredOutput -Message "$($indentString)  - $deployedLine" -ForegroundColor Red
+                $changesDetected = $true
+            }
+            elseif ($deployedLine -ne $desiredLine) {
+                Write-ColoredOutput -Message "$($indentString)  - $deployedLine" -ForegroundColor Red
+                Write-ColoredOutput -Message "$($indentString)  + $desiredLine" -ForegroundColor Green
+                $changesDetected = $true
+            }
+            elseif ($ShowUnchanged) {
+                Write-ColoredOutput -Message "$($indentString)    $deployedLine" -ForegroundColor DarkGray
+            }
+        }
+        
+        if (-not $changesDetected) {
+            Write-ColoredOutput -Message "$($indentString)  (no changes detected)" -ForegroundColor DarkGray
+        }
+        
+        Write-ColoredOutput -Message "$($indentString)  └─────────────" -ForegroundColor DarkGray
+        return
+    }
+    
+    # Try to do smart object comparison for hashtables/objects
     try {
         # Convert to hashtables for comparison
         $deployedHash = $null
@@ -158,6 +460,9 @@ function Write-DetailedDiff {
         $deployedLines = $deployedJson -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
         $desiredLines = $desiredJson -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
         
+        # Track if any changes were detected
+        $changesDetected = $false
+        
         # Simple line matching
         $maxLines = [Math]::Max($deployedLines.Count, $desiredLines.Count)
         
@@ -167,17 +472,24 @@ function Write-DetailedDiff {
             
             if ($null -eq $deployedLine) {
                 Write-ColoredOutput -Message "$($indentString)  + $desiredLine" -ForegroundColor Green
+                $changesDetected = $true
             }
             elseif ($null -eq $desiredLine) {
                 Write-ColoredOutput -Message "$($indentString)  - $deployedLine" -ForegroundColor Red
+                $changesDetected = $true
             }
             elseif ($deployedLine -ne $desiredLine) {
                 Write-ColoredOutput -Message "$($indentString)  - $deployedLine" -ForegroundColor Red
                 Write-ColoredOutput -Message "$($indentString)  + $desiredLine" -ForegroundColor Green
+                $changesDetected = $true
             }
             elseif ($ShowUnchanged) {
                 Write-ColoredOutput -Message "$($indentString)    $deployedLine" -ForegroundColor DarkGray
             }
+        }
+        
+        if (-not $changesDetected) {
+            Write-ColoredOutput -Message "$($indentString)  (no changes detected)" -ForegroundColor DarkGray
         }
         
         Write-ColoredOutput -Message "$($indentString)  └─────────────" -ForegroundColor DarkGray
