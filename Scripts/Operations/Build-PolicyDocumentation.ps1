@@ -334,7 +334,7 @@ foreach ($file in $files) {
                         'markdownMaxParameterLength'
                     )
                     foreach ($prop in $sharedProps) {
-                        $hasMember = ($documentPolicySetEntry | Get-Member -Name $prop -MemberType NoteProperty) -ne $null
+                        $hasMember = $null -ne ($documentPolicySetEntry | Get-Member -Name $prop -MemberType NoteProperty)
                         $currentVal = if ($hasMember) { $documentPolicySetEntry.$prop } else { $null }
                         if ($null -eq $currentVal -and $null -ne $globalDocDefaults.$prop) {
                             if ($hasMember) {
@@ -457,7 +457,7 @@ foreach ($file in $files) {
                         'markdownMaxParameterLength'
                     )
                     foreach ($prop in $sharedProps) {
-                        $hasMember = ($documentationSpecification | Get-Member -Name $prop -MemberType NoteProperty) -ne $null
+                        $hasMember = $null -ne ($documentationSpecification | Get-Member -Name $prop -MemberType NoteProperty)
                         $currentVal = if ($hasMember) { $documentationSpecification.$prop } else { $null }
                         if ($null -eq $currentVal -and $null -ne $globalDocDefaults.$prop) {
                             if ($hasMember) {
@@ -770,7 +770,7 @@ foreach ($file in $files) {
                         'markdownMaxParameterLength'
                     )
                     foreach ($prop in $sharedProps) {
-                        $hasMember = ($documentationSpecification | Get-Member -Name $prop -MemberType NoteProperty) -ne $null
+                        $hasMember = $null -ne ($documentationSpecification | Get-Member -Name $prop -MemberType NoteProperty)
                         $currentVal = if ($hasMember) { $documentationSpecification.$prop } else { $null }
                         if ($null -eq $currentVal -and $null -ne $globalDocDefaults.$prop) {
                             if ($hasMember) {
