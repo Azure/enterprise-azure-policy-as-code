@@ -248,6 +248,9 @@ try {
             }
         }
         if ($archetype.policy_assignments_to_add) {
+            if ($archetypeObj.policy_assignments -is [string]) {
+                $archetypeObj.policy_assignments = @($archetypeObj.policy_assignments)
+            }
             $archetypeObj.policy_assignments += $archetype.policy_assignments_to_add
         }
         if (-not($archetypeObj.policy_assignments | Measure-Object).Count -eq 0) {
