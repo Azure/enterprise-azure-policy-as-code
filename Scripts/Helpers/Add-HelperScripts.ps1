@@ -107,7 +107,9 @@ $scriptRoot = Split-Path $PSScriptRoot -Parent
 . "$PSScriptRoot/Submit-EPACTelemetry.ps1"
 
 . "$PSScriptRoot/Switch-PacEnvironment.ps1"
-
+. "$PSScriptRoot/Convert-ObjectToComparableJson.ps1"
+. "$PSScriptRoot/ConvertTo-DisplayString.ps1"
+. "$PSScriptRoot/Get-SelectorArrays.ps1"
 . "$PSScriptRoot/Write-AssignmentDetails.ps1"
 . "$PSScriptRoot/Write-DetailedDiff.ps1"
 . "$PSScriptRoot/Write-ErrorsFromErrorInfo.ps1"

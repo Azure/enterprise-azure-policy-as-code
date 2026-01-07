@@ -60,7 +60,7 @@ function Write-DetailedDiff {
     if ($null -eq $DeployedObject) {
         # All new
         Write-ColoredOutput -Message "$($indentString)  ┌─ New Value:" -ForegroundColor DarkGray
-        $desiredJson = if ($DesiredObject -is [string]) { $DesiredObject } else { $DesiredObject | ConvertTo-Json -Depth 100 -Compress:$false }
+        $desiredJson = Convert-ObjectToComparableJson -Object $DesiredObject
         $desiredLines = $desiredJson -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
         foreach ($line in $desiredLines) {
             Write-ColoredOutput -Message "$($indentString)  + $line" -ForegroundColor Green
@@ -72,7 +72,7 @@ function Write-DetailedDiff {
     if ($null -eq $DesiredObject) {
         # All removed
         Write-ColoredOutput -Message "$($indentString)  ┌─ Removed Value:" -ForegroundColor DarkGray
-        $deployedJson = if ($DeployedObject -is [string]) { $DeployedObject } else { $DeployedObject | ConvertTo-Json -Depth 100 -Compress:$false }
+        $deployedJson = Convert-ObjectToComparableJson -Object $DeployedObject
         $deployedLines = $deployedJson -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
         foreach ($line in $deployedLines) {
             Write-ColoredOutput -Message "$($indentString)  - $line" -ForegroundColor Red
@@ -97,7 +97,7 @@ function Write-DetailedDiff {
                 $isObjectArray = ($DesiredObject[0] -is [hashtable] -or $DesiredObject[0] -is [System.Management.Automation.PSCustomObject])
             }
             
-            if ($isObjectArray -and $PropertyName -match "Override|Selector|Message") {
+            if ($isObjectArray -and $PropertyName -match "Override|Selector|Message|Policy Definitions") {
                 # Smart comparison for arrays of objects
                 Write-ColoredOutput -Message "$($indentString)  ┌─ Changes:" -ForegroundColor DarkGray
                 
@@ -107,18 +107,48 @@ function Write-DetailedDiff {
                 
                 if ($null -ne $DeployedObject) {
                     foreach ($item in $DeployedObject) {
-                        $deployedItems += @{
-                            json = ($item | ConvertTo-Json -Depth 100 -Compress)
-                            obj = $item
+                        # For policy definitions, normalize by removing API-added fields before comparison
+                        if ($PropertyName -match "Policy Definitions") {
+                            $normalizedItem = @{
+                                policyDefinitionId = $item.policyDefinitionId
+                                policyDefinitionReferenceId = $item.policyDefinitionReferenceId
+                                parameters = $item.parameters
+                            }
+                            $deployedItems += @{
+                                json = (Convert-ObjectToComparableJson -Object $normalizedItem -Compress)
+                                obj = $item
+                                normalizedObj = $normalizedItem
+                            }
+                        }
+                        else {
+                            $deployedItems += @{
+                                json = (Convert-ObjectToComparableJson -Object $item -Compress)
+                                obj = $item
+                            }
                         }
                     }
                 }
                 
                 if ($null -ne $DesiredObject) {
                     foreach ($item in $DesiredObject) {
-                        $desiredItems += @{
-                            json = ($item | ConvertTo-Json -Depth 100 -Compress)
-                            obj = $item
+                        # For policy definitions, normalize by removing API-added fields before comparison
+                        if ($PropertyName -match "Policy Definitions") {
+                            $normalizedItem = @{
+                                policyDefinitionId = $item.policyDefinitionId
+                                policyDefinitionReferenceId = $item.policyDefinitionReferenceId
+                                parameters = $item.parameters
+                            }
+                            $desiredItems += @{
+                                json = (Convert-ObjectToComparableJson -Object $item -Compress)
+                                obj = $item
+                                normalizedObj = $normalizedItem
+                            }
+                        }
+                        else {
+                            $desiredItems += @{
+                                json = (Convert-ObjectToComparableJson -Object $item -Compress)
+                                obj = $item
+                            }
                         }
                     }
                 }
@@ -145,8 +175,8 @@ function Write-DetailedDiff {
                         }
                     }
                     
-                    # If no exact match, check for partial match (same kind/value for overrides)
-                    if (-not $exactMatch -and $PropertyName -match "Override") {
+                    # If no exact match, check for partial match (same kind/value for overrides, same referenceId for policy definitions)
+                    if (-not $exactMatch) {
                         for ($i = 0; $i -lt $desiredItems.Count; $i++) {
                             if ($processedDesired.ContainsKey($i)) { continue }
                             
@@ -154,7 +184,17 @@ function Write-DetailedDiff {
                             $desiredObj = $desiredItems[$i].obj
                             
                             # Check if kind and value match (indicating it's the same override type)
-                            if ($deployedObj.kind -eq $desiredObj.kind -and $deployedObj.value -eq $desiredObj.value) {
+                            if ($PropertyName -match "Override" -and $deployedObj.kind -eq $desiredObj.kind -and $deployedObj.value -eq $desiredObj.value) {
+                                $partialMatch = @{
+                                    deployed = $deployed
+                                    desired = $desiredItems[$i]
+                                    index = $i
+                                }
+                                $processedDesired[$i] = $true
+                                break
+                            }
+                            # Check if policyDefinitionReferenceId matches (indicating it's the same policy definition)
+                            elseif ($PropertyName -match "Policy Definitions" -and $deployedObj.policyDefinitionReferenceId -eq $desiredObj.policyDefinitionReferenceId) {
                                 $partialMatch = @{
                                     deployed = $deployed
                                     desired = $desiredItems[$i]
@@ -195,108 +235,185 @@ function Write-DetailedDiff {
                 
                 # Display modified items with context
                 if ($modifiedItems.Count -gt 0) {
-                    Write-ColoredOutput -Message "$($indentString)  ~ Modified $($modifiedItems.Count) item(s):" -ForegroundColor Yellow
+                    # Filter to only show items with actual changes
+                    $actuallyModifiedItems = @()
                     foreach ($mod in $modifiedItems) {
                         $deployedObj = $mod.deployed.obj
                         $desiredObj = $mod.desired.obj
                         
-                        # Extract the 'in' arrays from selectors
-                        $deployedIn = @()
-                        $desiredIn = @()
-                        
-                        if ($deployedObj.selectors) {
-                            foreach ($sel in $deployedObj.selectors) {
-                                if ($sel.in) { $deployedIn += $sel.in }
-                            }
-                        }
-                        if ($desiredObj.selectors) {
-                            foreach ($sel in $desiredObj.selectors) {
-                                if ($sel.in) { $desiredIn += $sel.in }
-                            }
-                        }
-                        
-                        # Find added and removed selector values
-                        $removedSelectors = @()
-                        $addedSelectors = @()
-                        $unchangedSelectors = @()
-                        
-                        foreach ($item in $deployedIn) {
-                            if ($item -notin $desiredIn) {
-                                $removedSelectors += $item
+                        # For Policy Definitions, compare the normalized objects
+                        if ($PropertyName -match "Policy Definitions") {
+                            $deployedNorm = $mod.deployed.normalizedObj
+                            $desiredNorm = $mod.desired.normalizedObj
+                            
+                            $deployedJson = Convert-ObjectToComparableJson -Object $deployedNorm -Compress
+                            $desiredJson = Convert-ObjectToComparableJson -Object $desiredNorm -Compress
+                            
+                            # Only include if normalized versions differ
+                            if ($deployedJson -ne $desiredJson) {
+                                $actuallyModifiedItems += @{
+                                    mod = $mod
+                                    type = "PolicyDefinition"
+                                }
                             }
                             else {
-                                $unchangedSelectors += $item
+                                # No actual changes, count as unchanged
+                                $unchangedCount++
                             }
                         }
-                        
-                        foreach ($item in $desiredIn) {
-                            if ($item -notin $deployedIn) {
-                                $addedSelectors += $item
-                            }
-                        }
-                        
-                        # Build a merged structure showing both removed and added items
-                        # We'll parse the JSON and reconstruct with changes
-                        $deployedJson = $deployedObj | ConvertTo-Json -Depth 100 -Compress:$false
-                        $desiredJson = $desiredObj | ConvertTo-Json -Depth 100 -Compress:$false
-                        
-                        $deployedLines = $deployedJson -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
-                        $desiredLines = $desiredJson -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
-                        
-                        # Show structure with inline changes
-                        $inInArray = $false
-                        $shownLines = @{}
-                        
-                        foreach ($line in $desiredLines) {
-                            $trimmedLine = $line.Trim()
+                        else {
+                            # For Overrides, check selectors
+                            # Extract the 'in' arrays from selectors
+                            $deployedArrays = Get-SelectorArrays -SelectorObject $deployedObj
+                            $desiredArrays = Get-SelectorArrays -SelectorObject $desiredObj
                             
-                            # Check if we're entering/in the "in" array
-                            if ($trimmedLine -match '^"in":\s*\[') {
-                                $inInArray = $true
-                                Write-ColoredOutput -Message "$($indentString)      $line" -ForegroundColor DarkGray
-                                
-                                # Now show removed selectors first
-                                # Match the indentation of array items (extract from the line itself)
-                                $baseIndent = if ($line -match '^(\s+)"in"') { $matches[1] + '  ' } else { '        ' }
-                                foreach ($removed in $removedSelectors) {
-                                    Write-ColoredOutput -Message "$($indentString)    - $baseIndent`"$removed`"," -ForegroundColor Red
+                            $deployedIn = $deployedArrays.In
+                            $desiredIn = $desiredArrays.In
+                            
+                            # Find added and removed selector values
+                            $removedSelectors = @()
+                            $addedSelectors = @()
+                            
+                            foreach ($item in $deployedIn) {
+                                if ($item -notin $desiredIn) {
+                                    $removedSelectors += $item
                                 }
-                                continue
-                            }
-                            elseif ($inInArray -and $trimmedLine -eq ']' -or $trimmedLine -eq '],') {
-                                $inInArray = $false
                             }
                             
-                            # Check if this line is in the "in" array
-                            if ($inInArray) {
-                                # Check if this is a selector value line
-                                $isSelector = $false
-                                foreach ($added in $addedSelectors) {
-                                    if ($line -match [regex]::Escape("`"$added`"")) {
-                                        Write-ColoredOutput -Message "$($indentString)    + $line" -ForegroundColor Green
-                                        $isSelector = $true
-                                        break
+                            foreach ($item in $desiredIn) {
+                                if ($item -notin $deployedIn) {
+                                    $addedSelectors += $item
+                                }
+                            }
+                            
+                            # Only include if there are actual changes
+                            if ($removedSelectors.Count -gt 0 -or $addedSelectors.Count -gt 0) {
+                                $actuallyModifiedItems += @{
+                                    mod = $mod
+                                    removedSelectors = $removedSelectors
+                                    addedSelectors = $addedSelectors
+                                    type = "Override"
+                                }
+                            }
+                            else {
+                                # No actual changes, count as unchanged
+                                $unchangedCount++
+                            }
+                        }
+                    }
+                    
+                    if ($actuallyModifiedItems.Count -gt 0) {
+                        Write-ColoredOutput -Message "$($indentString)  ~ Modified $($actuallyModifiedItems.Count) item(s):" -ForegroundColor Yellow
+                        foreach ($modItem in $actuallyModifiedItems) {
+                            $mod = $modItem.mod
+                            
+                            if ($modItem.type -eq "PolicyDefinition") {
+                                # Display policy definition changes using normalized comparison
+                                $deployedNorm = $mod.deployed.normalizedObj
+                                $desiredNorm = $mod.desired.normalizedObj
+                                
+                                # Show a compact diff for policy definitions
+                                Write-ColoredOutput -Message "$($indentString)    Policy: $($desiredNorm.policyDefinitionReferenceId)" -ForegroundColor Cyan
+                                
+                                # Compare each property
+                                if ($deployedNorm.policyDefinitionId -ne $desiredNorm.policyDefinitionId) {
+                                    Write-ColoredOutput -Message "$($indentString)      ~ policyDefinitionId: $($deployedNorm.policyDefinitionId) → $($desiredNorm.policyDefinitionId)" -ForegroundColor Yellow
+                                }
+                                
+                                $deployedParamsJson = Convert-ObjectToComparableJson -Object $deployedNorm.parameters -Compress
+                                $desiredParamsJson = Convert-ObjectToComparableJson -Object $desiredNorm.parameters -Compress
+                                if ($deployedParamsJson -ne $desiredParamsJson) {
+                                    Write-ColoredOutput -Message "$($indentString)      ~ parameters changed" -ForegroundColor Yellow
+                                    Write-ColoredOutput -Message "$($indentString)        - $deployedParamsJson" -ForegroundColor Red
+                                    Write-ColoredOutput -Message "$($indentString)        + $desiredParamsJson" -ForegroundColor Green
+                                }
+                            }
+                            else {
+                                # Display override changes with selector diff
+                                $removedSelectors = $modItem.removedSelectors
+                                $addedSelectors = $modItem.addedSelectors
+                                
+                                $deployedObj = $mod.deployed.obj
+                                $desiredObj = $mod.desired.obj
+                                
+                                # Extract the 'in' arrays from selectors for unchanged tracking
+                                $deployedArrays = Get-SelectorArrays -SelectorObject $deployedObj
+                                $desiredArrays = Get-SelectorArrays -SelectorObject $desiredObj
+                                
+                                $deployedIn = $deployedArrays.In
+                                $desiredIn = $desiredArrays.In
+                                $unchangedSelectors = @()
+                                
+                                foreach ($item in $deployedIn) {
+                                    if ($item -in $desiredIn) {
+                                        $unchangedSelectors += $item
                                     }
                                 }
+                            
+                            # Build a merged structure showing both removed and added items
+                            # We'll parse the JSON and reconstruct with changes
+                            $deployedJson = Convert-ObjectToComparableJson -Object $deployedObj
+                            $desiredJson = Convert-ObjectToComparableJson -Object $desiredObj
+                            
+                            $deployedLines = $deployedJson -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
+                            $desiredLines = $desiredJson -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
+                            
+                            # Show structure with inline changes
+                            $inInArray = $false
+                            $shownLines = @{}
+                            
+                            foreach ($line in $desiredLines) {
+                                $trimmedLine = $line.Trim()
                                 
-                                if (-not $isSelector) {
-                                    foreach ($unchanged in $unchangedSelectors) {
-                                        if ($line -match [regex]::Escape("`"$unchanged`"")) {
-                                            Write-ColoredOutput -Message "$($indentString)      $line" -ForegroundColor DarkGray
+                                # Check if we're entering/in the "in" array
+                                if ($trimmedLine -match '^"in":\s*\[') {
+                                    $inInArray = $true
+                                    Write-ColoredOutput -Message "$($indentString)      $line" -ForegroundColor DarkGray
+                                    
+                                    # Now show removed selectors first
+                                    # Match the indentation of array items (extract from the line itself)
+                                    $baseIndent = if ($line -match '^(\s+)"in"') { $matches[1] + '  ' } else { '        ' }
+                                    foreach ($removed in $removedSelectors) {
+                                        Write-ColoredOutput -Message "$($indentString)    - $baseIndent`"$removed`"," -ForegroundColor Red
+                                    }
+                                    continue
+                                }
+                                elseif ($inInArray -and $trimmedLine -eq ']' -or $trimmedLine -eq '],') {
+                                    $inInArray = $false
+                                }
+                                
+                                # Check if this line is in the "in" array
+                                if ($inInArray) {
+                                    # Check if this is a selector value line
+                                    $isSelector = $false
+                                    foreach ($added in $addedSelectors) {
+                                        if ($line -match [regex]::Escape("`"$added`"")) {
+                                            Write-ColoredOutput -Message "$($indentString)    + $line" -ForegroundColor Green
                                             $isSelector = $true
                                             break
                                         }
                                     }
+                                    
+                                    if (-not $isSelector) {
+                                        foreach ($unchanged in $unchangedSelectors) {
+                                            if ($line -match [regex]::Escape("`"$unchanged`"")) {
+                                                Write-ColoredOutput -Message "$($indentString)      $line" -ForegroundColor DarkGray
+                                                $isSelector = $true
+                                                break
+                                            }
+                                        }
+                                    }
+                                    
+                                    if (-not $isSelector) {
+                                        # Non-selector line within in array
+                                        Write-ColoredOutput -Message "$($indentString)      $line" -ForegroundColor DarkGray
+                                    }
                                 }
-                                
-                                if (-not $isSelector) {
-                                    # Non-selector line within in array
+                                else {
+                                    # Outside the "in" array - show as context
                                     Write-ColoredOutput -Message "$($indentString)      $line" -ForegroundColor DarkGray
                                 }
                             }
-                            else {
-                                # Outside the "in" array - show as context
-                                Write-ColoredOutput -Message "$($indentString)      $line" -ForegroundColor DarkGray
                             }
                         }
                     }
@@ -306,7 +423,7 @@ function Write-DetailedDiff {
                 if ($removedItems.Count -gt 0) {
                     Write-ColoredOutput -Message "$($indentString)  - Removed $($removedItems.Count) item(s):" -ForegroundColor Red
                     foreach ($item in $removedItems) {
-                        $itemJson = $item.obj | ConvertTo-Json -Depth 100 -Compress:$false
+                        $itemJson = Convert-ObjectToComparableJson -Object $item.obj
                         $itemLines = $itemJson -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
                         foreach ($line in $itemLines) {
                             Write-ColoredOutput -Message "$($indentString)    - $line" -ForegroundColor Red
@@ -318,7 +435,7 @@ function Write-DetailedDiff {
                 if ($addedItems.Count -gt 0) {
                     Write-ColoredOutput -Message "$($indentString)  + Added $($addedItems.Count) item(s):" -ForegroundColor Green
                     foreach ($item in $addedItems) {
-                        $itemJson = $item.obj | ConvertTo-Json -Depth 100 -Compress:$false
+                        $itemJson = Convert-ObjectToComparableJson -Object $item.obj
                         $itemLines = $itemJson -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
                         foreach ($line in $itemLines) {
                             Write-ColoredOutput -Message "$($indentString)    + $line" -ForegroundColor Green
@@ -341,8 +458,8 @@ function Write-DetailedDiff {
         # Fallback: Use JSON-based line-by-line comparison for arrays
         Write-ColoredOutput -Message "$($indentString)  ┌─ Changes:" -ForegroundColor DarkGray
         
-        $deployedJson = if ($DeployedObject -is [string]) { $DeployedObject } else { $DeployedObject | ConvertTo-Json -Depth 100 -Compress:$false }
-        $desiredJson = if ($DesiredObject -is [string]) { $DesiredObject } else { $DesiredObject | ConvertTo-Json -Depth 100 -Compress:$false }
+        $deployedJson = Convert-ObjectToComparableJson -Object $DeployedObject
+        $desiredJson = Convert-ObjectToComparableJson -Object $DesiredObject
         
         $deployedLines = $deployedJson -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
         $desiredLines = $desiredJson -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
@@ -420,8 +537,8 @@ function Write-DetailedDiff {
             $desiredValue = $desiredHash[$key]
             
             # Convert values to comparable strings
-            $deployedStr = if ($null -eq $deployedValue) { "null" } elseif ($deployedValue -is [string]) { "`"$deployedValue`"" } else { $deployedValue | ConvertTo-Json -Compress -Depth 100 }
-            $desiredStr = if ($null -eq $desiredValue) { "null" } elseif ($desiredValue -is [string]) { "`"$desiredValue`"" } else { $desiredValue | ConvertTo-Json -Compress -Depth 100 }
+            $deployedStr = ConvertTo-DisplayString -Value $deployedValue
+            $desiredStr = ConvertTo-DisplayString -Value $desiredValue
             
             if ($deployedHash.ContainsKey($key) -and -not $desiredHash.ContainsKey($key)) {
                 # Removed property
@@ -454,8 +571,8 @@ function Write-DetailedDiff {
         # Fallback to line-by-line comparison if object comparison fails
         Write-ColoredOutput -Message "$($indentString)  ┌─ Changes (text diff):" -ForegroundColor DarkGray
         
-        $deployedJson = if ($DeployedObject -is [string]) { $DeployedObject } else { $DeployedObject | ConvertTo-Json -Depth 100 -Compress:$false }
-        $desiredJson = if ($DesiredObject -is [string]) { $DesiredObject } else { $DesiredObject | ConvertTo-Json -Depth 100 -Compress:$false }
+        $deployedJson = Convert-ObjectToComparableJson -Object $DeployedObject
+        $desiredJson = Convert-ObjectToComparableJson -Object $DesiredObject
         
         $deployedLines = $deployedJson -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
         $desiredLines = $desiredJson -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
@@ -537,8 +654,8 @@ function Write-SimplePropertyDiff {
     $indentString = " " * $Indent
     
     # Convert values to strings for display
-    $oldValueStr = if ($null -eq $OldValue) { "null" } elseif ($OldValue -is [string]) { "`"$OldValue`"" } else { $OldValue | ConvertTo-Json -Compress }
-    $newValueStr = if ($null -eq $NewValue) { "null" } elseif ($NewValue -is [string]) { "`"$NewValue`"" } else { $NewValue | ConvertTo-Json -Compress }
+    $oldValueStr = ConvertTo-DisplayString -Value $OldValue
+    $newValueStr = ConvertTo-DisplayString -Value $NewValue
     
     Write-ModernStatus -Message "Property: $PropertyName" -Status "info" -Indent $Indent
     Write-ColoredOutput -Message "$($indentString)  ~ $oldValueStr → $newValueStr" -ForegroundColor Yellow
