@@ -259,8 +259,6 @@ Each file must contain one or both documentation topics, [`documentAssignments`]
                 ]
 ```
 
-#### Using globalDocumentationSpecifications for ADO Wiki settings
-
 To avoid repeating the same Azure DevOps Wiki configuration in every specification, set `markdownAdoWiki` and `markdownAdoWikiConfig` once under `globalDocumentationSpecifications`. Both assignment and policy set documentation entries inherit these values unless they explicitly override them.
 
 Example:
@@ -302,18 +300,18 @@ You can push to Azure DevOps Wiki using a Service Principal by passing `-WikiSPN
 Build-PolicyDocumentation.ps1 -WikiSPN
 ```
 
-Prerequisites:
-- Azure DevOps organization is connected to your Microsoft Entra ID tenant used by the Service Principal.
-- The Service Principal is added to the Azure DevOps organization and granted access to the target project.
-    - Organization settings > Users > Add > Service principals (or add by Application ID).
-    - Grant project access (Project settings > Permissions) and repository permissions for the Wiki repo.
-- Repository permissions on the Wiki Git repo (`{adoWiki}.wiki`): Allow at least "Contribute" (and typically "Create branch").
-- Pipeline identity logs into Azure prior to running the script (for example with Azure DevOps task `AzurePowerShell@5` bound to a Service Connection using the SPN).
-- Outbound network access to `https://dev.azure.com/*` and `git` available in the agent.
+**Prerequisites**:
+*  Azure DevOps organization is connected to your Microsoft Entra ID tenant used by the Service Principal.
+*  The Service Principal is added to the Azure DevOps organization and granted access to the target project.
+    *  Organization settings > Users > Add > Service principals (or add by Application ID).
+    *  Grant project access (Project settings > Permissions) and repository permissions for the Wiki repo.
+*  Repository permissions on the Wiki Git repo (`{adoWiki}.wiki`): Allow at least "Contribute" (and typically "Create branch").
+*  Pipeline identity logs into Azure prior to running the script (for example with Azure DevOps task `AzurePowerShell@5` bound to a Service Connection using the SPN).
+*  Outbound network access to `https://dev.azure.com/*` and `git` available in the agent.
 
-Script usage:
-- Add `markdownAdoWiki: true` and `markdownAdoWikiConfig` (globally or per spec as shown above).
-- Invoke: `Build-PolicyDocumentation.ps1 -PacSelector <your pac selector> -WikiSPN`.
+**Script Usage**:
+*  Add `markdownAdoWiki: true` and `markdownAdoWikiConfig` (globally or per spec as shown above).
+*  Invoke: `Build-PolicyDocumentation.ps1 -PacSelector <your pac selector> -WikiSPN`.
 
 Minimal Azure DevOps pipeline example:
 
