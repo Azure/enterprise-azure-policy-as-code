@@ -212,7 +212,9 @@ foreach ($file in $files) {
                 $origCount = $documentationSpec.documentPolicySets.Count
                 $documentationSpec.documentPolicySets = $documentationSpec.documentPolicySets | Where-Object { $_.pacEnvironment -eq $selectedFolderName }
                 $newCount = if ($documentationSpec.documentPolicySets) { $documentationSpec.documentPolicySets.Count } else { 0 }
-                Write-ModernStatus -Message "Filtered documentPolicySets by folder '$selectedFolderName' (kept $newCount of $origCount)" -Status "info" -Indent 4
+                if ($newCount -ne $origCount) {
+                    Write-ModernStatus -Message "Filtered documentPolicySets by folder '$selectedFolderName' (kept $newCount of $origCount)" -Status "info" -Indent 4
+                }
             }
 
             # Filter documentAllAssignments to only entries where pacEnvironment matches folder name
@@ -222,7 +224,9 @@ foreach ($file in $files) {
                     $origCount = $docAll.Count
                     $docAll = $docAll | Where-Object { $_.pacEnvironment -eq $selectedFolderName }
                     $newCount = $docAll.Count
-                    Write-ModernStatus -Message "Filtered documentAllAssignments by folder '$selectedFolderName' (kept $newCount of $origCount)" -Status "info" -Indent 4
+                    if ($newCount -ne $origCount) {
+                        Write-ModernStatus -Message "Filtered documentAllAssignments by folder '$selectedFolderName' (kept $newCount of $origCount)" -Status "info" -Indent 4
+                    }
                 }
                 else {
                     if ($docAll.pacEnvironment -ne $selectedFolderName) {
@@ -233,6 +237,39 @@ foreach ($file in $files) {
                         # Normalize to array for downstream processing consistency
                         $docAll = @($docAll)
                         Write-ModernStatus -Message "documentAllAssignments matches folder '$selectedFolderName'" -Status "info" -Indent 4
+                    }
+                }
+                $documentationSpec.documentAssignments.documentAllAssignments = $docAll
+            }
+        }
+        elseif ($pacSelector) {
+            # Filter entries to matching pacEnvironment when not in a subfolder but selector provided
+            if ($null -ne $documentationSpec.documentPolicySets) {
+                $origCount = $documentationSpec.documentPolicySets.Count
+                $documentationSpec.documentPolicySets = $documentationSpec.documentPolicySets | Where-Object { $_.pacEnvironment -eq $pacSelector }
+                $newCount = if ($documentationSpec.documentPolicySets) { $documentationSpec.documentPolicySets.Count } else { 0 }
+                Write-ModernStatus -Message "Filtered documentPolicySets by selector '$pacSelector' (kept $newCount of $origCount)" -Status "info" -Indent 4
+            }
+
+            if ($null -ne $documentationSpec.documentAssignments -and $null -ne $documentationSpec.documentAssignments.documentAllAssignments) {
+                $docAll = $documentationSpec.documentAssignments.documentAllAssignments
+                if ($docAll -is [array]) {
+                    $origCount = $docAll.Count
+                    $docAll = $docAll | Where-Object { $_.pacEnvironment -eq $pacSelector }
+                    $newCount = $docAll.Count
+                    if ($newCount -ne $origCount) {
+                        Write-ModernStatus -Message "Filtered documentAllAssignments by selector '$pacSelector' (kept $newCount of $origCount)" -Status "info" -Indent 4
+                    }
+                }
+                else {
+                    if ($docAll.pacEnvironment -ne $pacSelector) {
+                        Write-ModernStatus -Message "documentAllAssignments pacEnvironment '$($docAll.pacEnvironment)' does not match selector '$pacSelector'; skipping." -Status "skip" -Indent 4
+                        $docAll = @()
+                    }
+                    else {
+                        # Normalize to array for downstream processing consistency
+                        $docAll = @($docAll)
+                        Write-ModernStatus -Message "documentAllAssignments matches selector '$pacSelector'" -Status "info" -Indent 4
                     }
                 }
                 $documentationSpec.documentAssignments.documentAllAssignments = $docAll
@@ -424,16 +461,16 @@ foreach ($file in $files) {
                         $envCategoriesArray += $categoryName
                     }
                     $generatedSpec = New-Object PSObject -Property @{
-                        fileNameStem                          = $globalDocDefaults.fileNameStem
-                        environmentCategories                 = $envCategoriesArray
-                        title                                 = $globalDocDefaults.title
-                        markdownAddToc                        = if ($null -ne $globalDocDefaults.markdownAddToc) { $globalDocDefaults.markdownAddToc } else { $null }
-                        markdownAdoWiki                       = if ($null -ne $globalDocDefaults.markdownAdoWiki) { $globalDocDefaults.markdownAdoWiki } else { $null }
-                        markdownAdoWikiConfig                 = if ($null -ne $globalDocDefaults.markdownAdoWikiConfig) { $globalDocDefaults.markdownAdoWikiConfig } else { $null }
-                        markdownNoEmbeddedHtml                = if ($null -ne $globalDocDefaults.markdownNoEmbeddedHtml) { $globalDocDefaults.markdownNoEmbeddedHtml } else { $null }
-                        markdownIncludeComplianceGroupNames   = if ($null -ne $globalDocDefaults.markdownIncludeComplianceGroupNames) { $globalDocDefaults.markdownIncludeComplianceGroupNames } else { $null }
-                        markdownSuppressParameterSection      = if ($null -ne $globalDocDefaults.markdownSuppressParameterSection) { $globalDocDefaults.markdownSuppressParameterSection } else { $null }
-                        markdownMaxParameterLength            = if ($null -ne $globalDocDefaults.markdownMaxParameterLength) { $globalDocDefaults.markdownMaxParameterLength } else { $null }
+                        fileNameStem                        = $globalDocDefaults.fileNameStem
+                        environmentCategories               = $envCategoriesArray
+                        title                               = $globalDocDefaults.title
+                        markdownAddToc                      = if ($null -ne $globalDocDefaults.markdownAddToc) { $globalDocDefaults.markdownAddToc } else { $null }
+                        markdownAdoWiki                     = if ($null -ne $globalDocDefaults.markdownAdoWiki) { $globalDocDefaults.markdownAdoWiki } else { $null }
+                        markdownAdoWikiConfig               = if ($null -ne $globalDocDefaults.markdownAdoWikiConfig) { $globalDocDefaults.markdownAdoWikiConfig } else { $null }
+                        markdownNoEmbeddedHtml              = if ($null -ne $globalDocDefaults.markdownNoEmbeddedHtml) { $globalDocDefaults.markdownNoEmbeddedHtml } else { $null }
+                        markdownIncludeComplianceGroupNames = if ($null -ne $globalDocDefaults.markdownIncludeComplianceGroupNames) { $globalDocDefaults.markdownIncludeComplianceGroupNames } else { $null }
+                        markdownSuppressParameterSection    = if ($null -ne $globalDocDefaults.markdownSuppressParameterSection) { $globalDocDefaults.markdownSuppressParameterSection } else { $null }
+                        markdownMaxParameterLength          = if ($null -ne $globalDocDefaults.markdownMaxParameterLength) { $globalDocDefaults.markdownMaxParameterLength } else { $null }
                     }
                     if (-not $generatedSpec.fileNameStem -or -not $generatedSpec.title) {
                         Write-Error "When documentationSpecifications is omitted, globalDocumentationSpecifications must provide fileNameStem and title." -ErrorAction Stop
