@@ -107,7 +107,6 @@
                             }
                         },
                         "required": [
-                            "enabled",
                             "pacEnvironment"
                         ]
                     }
