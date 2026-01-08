@@ -304,6 +304,18 @@ if ($warningMessages.Count -gt 0) {
 
 if ($buildSelections.buildAny) {
     
+    # Create change log file path
+    $outputFolderPath = Split-Path -Path $pacEnvironment.policyPlanOutputFile -Parent
+    if (!(Test-Path $outputFolderPath)) {
+        $null = New-Item -Path $outputFolderPath -ItemType Directory -Force
+    }
+    $changeLogFilePath = "$outputFolderPath/policy-changes-log.txt"
+    
+    # Delete existing log file to start fresh (overwrite instead of append)
+    if (Test-Path $changeLogFilePath) {
+        Remove-Item -Path $changeLogFilePath -Force
+    }
+    
     # get the scope table for the deployment root scope amd the resources
     $scopeTable = Build-ScopeTableForDeploymentRootScope -PacEnvironment $pacEnvironment
     $skipExemptions = -not $buildSelections.buildPolicyExemptions
@@ -340,7 +352,8 @@ if ($buildSelections.buildAny) {
             -Definitions $policyDefinitions `
             -AllDefinitions $allDefinitions `
             -ReplaceDefinitions $replaceDefinitions `
-            -PolicyRoleIds $policyRoleIds
+            -PolicyRoleIds $policyRoleIds `
+            -ChangeLogFilePath $changeLogFilePath
     }
 
     # Calculate roleDefinitionIds for built-in and inherited PolicySets
@@ -378,7 +391,8 @@ if ($buildSelections.buildAny) {
             -Definitions $policySetDefinitions `
             -AllDefinitions $allDefinitions `
             -ReplaceDefinitions $replaceDefinitions `
-            -PolicyRoleIds $policyRoleIds
+            -PolicyRoleIds $policyRoleIds `
+            -ChangeLogFilePath $changeLogFilePath
     }
 
     # Convert Policy and PolicySetDefinition to detailed Info
@@ -414,7 +428,8 @@ if ($buildSelections.buildAny) {
             -ReplaceDefinitions $replaceDefinitions `
             -PolicyRoleIds $policyRoleIds `
             -CombinedPolicyDetails $combinedPolicyDetails `
-            -DeprecatedHash $deprecatedHash
+            -DeprecatedHash $deprecatedHash `
+            -ChangeLogFilePath $changeLogFilePath
     }
 
     if ($buildSelections.buildPolicyExemptions) {
@@ -515,6 +530,11 @@ if ($policyResourceChanges -gt 0) {
     }
     $null = $policyPlan | ConvertTo-Json -Depth 100 | Out-File -FilePath $planFile -Force
     $policyStage = "yes"
+    
+    # Display change log file location
+    if ($buildSelections.buildAny -and (Test-Path $changeLogFilePath)) {
+        Write-ModernStatus -Message "Detailed change log created: $changeLogFilePath" -Status "success" -Indent 2
+    }
 }
 else {
     if (Test-Path $planFile) {
