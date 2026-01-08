@@ -245,9 +245,9 @@ Each file must contain one or both documentation topics, [`documentAssignments`]
 * EPAC can be used to automate the population of your Azure DevOps Wiki pages with the generated markdown files. To do this, you must call "Build-PolicyDocumentation" with the parameter either the "WikiSPN" or "WikiClonePat". 
 
 * To ensure your EPAC reaches your Wiki, you must configure the "markdownAdoWikiConfig" property within your policy documentation file.
-  * **adoOrganization**: Name of your ADO Organization
-  * **adoProject**: Name of your ADO Project
-  * **adoWiki**: Name of your Wiki (If Wiki was not manually set up, it will be created for you based on the name given here)
+    * **adoOrganization**: Name of your ADO Organization
+    * **adoProject**: Name of your ADO Project
+    * **adoWiki**: Name of your Wiki (If Wiki was not manually set up, it will be created for you based on the name given here)
 
 ```jsonc
 "markdownAdoWikiConfig": [
@@ -300,18 +300,18 @@ You can push to Azure DevOps Wiki using a Service Principal by passing `-WikiSPN
 Build-PolicyDocumentation.ps1 -WikiSPN
 ```
 
-**Prerequisites**:
-*  Azure DevOps organization is connected to your Microsoft Entra ID tenant used by the Service Principal.
-*  The Service Principal is added to the Azure DevOps organization and granted access to the target project.
-    *  Organization settings > Users > Add > Service principals (or add by Application ID).
-    *  Grant project access (Project settings > Permissions) and repository permissions for the Wiki repo.
-*  Repository permissions on the Wiki Git repo (`{adoWiki}.wiki`): Allow at least "Contribute" (and typically "Create branch").
-*  Pipeline identity logs into Azure prior to running the script (for example with Azure DevOps task `AzurePowerShell@5` bound to a Service Connection using the SPN).
-*  Outbound network access to `https://dev.azure.com/*` and `git` available in the agent.
+* **Prerequisites**:
+    *  Azure DevOps organization is connected to your Microsoft Entra ID tenant used by the Service Principal.
+    *  The Service Principal is added to the Azure DevOps organization and granted access to the target project.
+        *  Organization settings > Users > Add > Service principals (or add by Application ID).
+        *  Grant project access (Project settings > Permissions) and repository permissions for the Wiki repo.
+    *  Repository permissions on the Wiki Git repo (`{adoWiki}.wiki`): Allow at least "Contribute" (and typically "Create branch").
+    *  Pipeline identity logs into Azure prior to running the script (for example with Azure DevOps task `AzurePowerShell@5` bound to a Service Connection using the SPN).
+    *  Outbound network access to `https://dev.azure.com/*` and `git` available in the agent.
 
-**Script Usage**:
-*  Add `markdownAdoWiki: true` and `markdownAdoWikiConfig` (globally or per spec as shown above).
-*  Invoke: `Build-PolicyDocumentation.ps1 -PacSelector <your pac selector> -WikiSPN`.
+* **Script Usage**:
+    *  Add `markdownAdoWiki: true` and `markdownAdoWikiConfig` (globally or per spec as shown above).
+    *  Invoke: `Build-PolicyDocumentation.ps1 -PacSelector <your pac selector> -WikiSPN`.
 
 Minimal Azure DevOps pipeline example:
 
