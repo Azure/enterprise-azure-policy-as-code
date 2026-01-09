@@ -11,7 +11,8 @@ function Build-AssignmentPlan {
         [hashtable] $ReplaceDefinitions,
         [hashtable] $PolicyRoleIds,
         [hashtable] $CombinedPolicyDetails,
-        [hashtable] $DeprecatedHash
+        [hashtable] $DeprecatedHash,
+        [string] $DiffGranularity = "Standard"
     )
 
     Write-ModernSection -Title "Processing Policy Assignments" -Color Blue
@@ -141,7 +142,8 @@ function Build-AssignmentPlan {
                     -CompareValueEntryForExistingParametersObj
                 $metadataMatches, $changePacOwnerId = Confirm-MetadataMatches `
                     -ExistingMetadataObj $deployedPolicyAssignmentProperties.metadata `
-                    -DefinedMetadataObj $metadata
+                    -DefinedMetadataObj $metadata `
+                    -SuppressPacOwnerIdMessage:($DiffGranularity -eq "Detailed")
                 $enforcementModeMatches = $enforcementMode -eq $deployedPolicyAssignmentProperties.enforcementMode
                 $nonComplianceMessagesMatches = Confirm-ObjectValueEqualityDeep `
                     $deployedPolicyAssignmentProperties.nonComplianceMessages `
@@ -243,7 +245,16 @@ function Build-AssignmentPlan {
                         Write-Error "Duplicate Policy Assignment ID '$id' found in the JSON files." -ErrorAction Stop
                     }
                     $null = $updateCollection.Add($id, $assignment)
-                    Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix $prefixText -IdentityStatus $identityStatus -ScopeTable $ScopeTable
+                    Write-AssignmentDetails `
+                        -DisplayName $displayName `
+                        -Scope $scope `
+                        -Prefix $prefixText `
+                        -IdentityStatus $identityStatus `
+                        -ScopeTable $ScopeTable `
+                        -DiffGranularity $DiffGranularity `
+                        -DeployedAssignment $deployedPolicyAssignment `
+                        -DesiredAssignment $assignment `
+                        -ChangedProperties $changesStrings
                     $Assignments.numberOfChanges++
                 }
             }
@@ -263,7 +274,15 @@ function Build-AssignmentPlan {
                 if ($identityStatus.isUserAssigned) {
                     $isUserAssignedAny = $true
                 }
-                Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix "New" -IdentityStatus $identityStatus -ScopeTable $ScopeTable
+                Write-AssignmentDetails `
+                    -DisplayName $displayName `
+                    -Scope $scope `
+                    -Prefix "New" `
+                    -IdentityStatus $identityStatus `
+                    -ScopeTable $ScopeTable `
+                    -DiffGranularity $DiffGranularity `
+                    -DeployedAssignment $null `
+                    -DesiredAssignment $assignment
             }
         }
     }
@@ -308,7 +327,10 @@ function Build-AssignmentPlan {
                 if ($identityStatus.isUserAssigned) {
                     $isUserAssignedAny = $true
                 }
-                Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix "Delete" -IdentityStatus $identityStatus -ScopeTable $ScopeTable
+                Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix "Delete" -IdentityStatus $identityStatus -ScopeTable $ScopeTable -DiffGranularity $DiffGranularity -DeployedAssignment $deleteCandidate
+                
+                # Detailed context is now handled in Write-AssignmentDetails
+                
                 $splat = @{
                     id          = $id
                     name        = $name
