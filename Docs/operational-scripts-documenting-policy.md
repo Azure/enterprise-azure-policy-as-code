@@ -1,5 +1,14 @@
 # Documenting Policy Assignments and Sets of Policy Set (Initiative) definitions
 
+<div style="margin: 30px 0; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+  <iframe src="https://www.youtube.com/embed/27fT5SpkOJ8" 
+          style="position: absolute; top:0; left:0; width:100%; height:100%;" 
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+          allowfullscreen>
+  </iframe>
+</div>
+
 ## Overview
 
 The Documentation feature provides reports on Policy Assignments deployed within an environment, and comparisons of Policy Assignments and Sets of Policy Set definitions for considering differences in policies and effects.  Output is generated as Markdown (`.md`), and Excel (`.csv`) files using the script [`./Scripts/Operations/Build-PolicyDocumentation`](operational-scripts-reference.md#script-build-policydocumentation) It retrieves its instruction from the JSON files in this folder; the names of the definition JSON files don't matter as the script reads any file in the folder with a `.json` or `.jsonc` extension.
