@@ -1,0 +1,31 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-documentation-schema.json",
+    "documentAssignments": {
+        "environmentCategories": [
+            {
+            "pacEnvironment": "<pacEnvironment>",
+                "environmentCategory": "<pacEnvironment>",
+                "scopes": [ // Used in Markdown output only
+                    "Management Groups: Example"
+                ],
+                "representativeAssignments": [
+                    {
+                        "shortName": "MFA",
+                        "id": "your policy assignment id here"
+                    },
+                    {
+                        "shortName": "Storage_HTTPS",
+                        "id": "your policy assignment id here"
+                    }
+                ]
+            }
+        ],
+        "documentationSpecifications": [
+            {
+                "fileNameStem": "Azure-Policy-Assignments",
+                "environmentCategories": [],
+                "title": "Current list of Azure Policies deployed"
+            }
+        ]
+    }
+}
