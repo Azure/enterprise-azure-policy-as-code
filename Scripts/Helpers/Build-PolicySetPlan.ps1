@@ -8,7 +8,7 @@ function Build-PolicySetPlan {
         [hashtable] $AllDefinitions,
         [hashtable] $ReplaceDefinitions,
         [hashtable] $PolicyRoleIds,
-        [string] $DiffGranularity = "Standard"
+        [switch] $DetailedOutput
     )
 
     Write-ModernSection -Title "Processing Policy Set Definitions" -Color Blue
@@ -205,7 +205,7 @@ function Build-PolicySetPlan {
             $metadataMatches, $changePacOwnerId = Confirm-MetadataMatches `
                 -ExistingMetadataObj $deployedDefinition.metadata `
                 -DefinedMetadataObj $metadata `
-                -SuppressPacOwnerIdMessage:($DiffGranularity -eq "Detailed")
+                -SuppressPacOwnerIdMessage:$DetailedOutput
             $parametersMatch, $incompatible = Confirm-ParametersDefinitionMatch `
                 -ExistingParametersObj $deployedDefinition.parameters `
                 -DefinedParametersObj $parameters
@@ -275,7 +275,7 @@ function Build-PolicySetPlan {
                     $null = $ReplaceDefinitions.Add($id, $definition)
                     
                     # Show detailed diff if requested
-                    if ($DiffGranularity -eq "Detailed") {
+                    if ($DetailedOutput) {
                         Write-Host ""
                         Write-ModernStatus -Message "[Policy Set Definition] Detailed Changes for: $displayName" -Status "info" -Indent 6
                         foreach ($change in $changesStrings) {
@@ -332,7 +332,7 @@ function Build-PolicySetPlan {
                     $null = $Definitions.update.Add($id, $definition)
                     
                     # Show detailed diff if requested
-                    if ($DiffGranularity -eq "Detailed") {
+                    if ($DetailedOutput) {
                         Write-Host ""
                         Write-ModernStatus -Message "[Policy Set Definition] Detailed Changes for: $displayName" -Status "info" -Indent 6
                         foreach ($change in $changesStrings) {
@@ -389,7 +389,7 @@ function Build-PolicySetPlan {
             $Definitions.numberOfChanges++
             
             # Show detailed content for new policy sets if requested
-            if ($DiffGranularity -eq "Detailed") {
+            if ($DetailedOutput) {
                 Write-Host ""
                 Write-ModernStatus -Message "[Policy Set Definition] Details for New Policy Set:" -Status "info" -Indent 6
                 
@@ -526,7 +526,7 @@ function Build-PolicySetPlan {
             Write-ModernStatus -Message "Delete: $($deleteCandidateProperties.displayName)" -Status "error" -Indent 4
             
             # Show detailed context for deletions if requested
-            if ($DiffGranularity -eq "Detailed") {
+            if ($DetailedOutput) {
                 Write-Host ""
                 Write-ModernStatus -Message "[Policy Set Definition] Details for Deleted Policy Set:" -Status "info" -Indent 6
                 

@@ -12,7 +12,7 @@ function Build-ExemptionsPlan {
         $DeployedExemptions,
         $Exemptions,
         [switch]$SkipNotScopedExemptions,
-        [string] $DiffGranularity = "Standard"
+        [switch] $DetailedOutput
     )
 
     Write-ModernSection -Title "Processing Policy Exemptions" -Color Blue
@@ -991,7 +991,7 @@ function Build-ExemptionsPlan {
                                     $metadataMatches, $changePacOwnerId = Confirm-MetadataMatches `
                                         -ExistingMetadataObj $deployedManagedExemption.metadata `
                                         -DefinedMetadataObj $clonedMetadata `
-                                        -SuppressPacOwnerIdMessage:($DiffGranularity -eq "Detailed")
+                                        -SuppressPacOwnerIdMessage:$DetailedOutput
                                     $assignmentScopeValidationMatches = ($deployedManagedExemption.assignmentScopeValidation -eq $assignmentScopeValidation) `
                                         -or ($null -eq $deployedManagedExemption.assignmentScopeValidation -and ($validateScope))
                                     $resourceSelectorsMatches = Confirm-ObjectValueEqualityDeep $deployedManagedExemption.resourceSelectors $resourceSelectors
@@ -1046,7 +1046,7 @@ function Build-ExemptionsPlan {
                                             $null = $Exemptions.update.Add($exemptionId, $exemption)
                                             
                                             # Show detailed diff if requested
-                                            if ($DiffGranularity -eq "Detailed") {
+                                            if ($DetailedOutput) {
                                                 Write-Host ""
                                                 Write-ModernStatus -Message "[Policy Exemption] Detailed Changes for: $exemptionDisplayName" -Status "info" -Indent 6
                                                 foreach ($change in $changesStrings) {
@@ -1113,7 +1113,7 @@ function Build-ExemptionsPlan {
                                     $Exemptions.numberOfChanges++
                                     
                                     # Show detailed content for new exemptions if requested
-                                    if ($DiffGranularity -eq "Detailed") {
+                                    if ($DetailedOutput) {
                                         Write-Host ""
                                         Write-ModernStatus -Message "[Policy Exemption] Details for New Exemption:" -Status "info" -Indent 6
                                         
@@ -1317,7 +1317,7 @@ function Build-ExemptionsPlan {
             $Exemptions.numberOfChanges++
             
             # Show detailed content for deleted exemptions if requested
-            if ($DiffGranularity -eq "Detailed") {
+            if ($DetailedOutput) {
                 Write-Host ""
                 if ($isExpired) {
                     Write-ModernStatus -Message "[Policy Exemption] Details for Deleted Exemption (EXPIRED):" -Status "info" -Indent 6

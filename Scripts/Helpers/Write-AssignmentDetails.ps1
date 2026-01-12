@@ -6,7 +6,7 @@ function Write-AssignmentDetails {
         $Prefix,
         $IdentityStatus,
         $ScopeTable,
-        $DiffGranularity = "Standard",
+        [switch] $DetailedOutput,
         $DeployedAssignment = $null,
         $DesiredAssignment = $null,
         $ChangedProperties = @()
@@ -77,7 +77,7 @@ function Write-AssignmentDetails {
     }
     
     # Show detailed information if requested
-    if ($DiffGranularity -eq "Detailed") {
+    if ($DetailedOutput) {
         # Show details for deleted assignments
         if ($null -ne $DeployedAssignment -and $null -eq $DesiredAssignment) {
             Write-Host ""

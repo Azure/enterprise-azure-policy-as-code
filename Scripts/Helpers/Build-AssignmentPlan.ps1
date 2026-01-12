@@ -12,7 +12,7 @@ function Build-AssignmentPlan {
         [hashtable] $PolicyRoleIds,
         [hashtable] $CombinedPolicyDetails,
         [hashtable] $DeprecatedHash,
-        [string] $DiffGranularity = "Standard"
+        [switch] $DetailedOutput
     )
 
     Write-ModernSection -Title "Processing Policy Assignments" -Color Blue
@@ -143,7 +143,7 @@ function Build-AssignmentPlan {
                 $metadataMatches, $changePacOwnerId = Confirm-MetadataMatches `
                     -ExistingMetadataObj $deployedPolicyAssignmentProperties.metadata `
                     -DefinedMetadataObj $metadata `
-                    -SuppressPacOwnerIdMessage:($DiffGranularity -eq "Detailed")
+                    -SuppressPacOwnerIdMessage:$DetailedOutput
                 $enforcementModeMatches = $enforcementMode -eq $deployedPolicyAssignmentProperties.enforcementMode
                 $nonComplianceMessagesMatches = Confirm-ObjectValueEqualityDeep `
                     $deployedPolicyAssignmentProperties.nonComplianceMessages `
@@ -251,7 +251,7 @@ function Build-AssignmentPlan {
                         -Prefix $prefixText `
                         -IdentityStatus $identityStatus `
                         -ScopeTable $ScopeTable `
-                        -DiffGranularity $DiffGranularity `
+                        -DetailedOutput:$DetailedOutput `
                         -DeployedAssignment $deployedPolicyAssignment `
                         -DesiredAssignment $assignment `
                         -ChangedProperties $changesStrings
@@ -280,7 +280,7 @@ function Build-AssignmentPlan {
                     -Prefix "New" `
                     -IdentityStatus $identityStatus `
                     -ScopeTable $ScopeTable `
-                    -DiffGranularity $DiffGranularity `
+                    -DetailedOutput:$DetailedOutput `
                     -DeployedAssignment $null `
                     -DesiredAssignment $assignment
             }
@@ -327,7 +327,7 @@ function Build-AssignmentPlan {
                 if ($identityStatus.isUserAssigned) {
                     $isUserAssignedAny = $true
                 }
-                Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix "Delete" -IdentityStatus $identityStatus -ScopeTable $ScopeTable -DiffGranularity $DiffGranularity -DeployedAssignment $deleteCandidate
+                Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix "Delete" -IdentityStatus $identityStatus -ScopeTable $ScopeTable -DetailedOutput:$DetailedOutput -DeployedAssignment $deleteCandidate
                 
                 # Detailed context is now handled in Write-AssignmentDetails
                 

@@ -8,7 +8,7 @@ function Build-PolicyPlan {
         [hashtable] $AllDefinitions,
         [hashtable] $ReplaceDefinitions,
         [hashtable] $PolicyRoleIds,
-        [string] $DiffGranularity = "Standard"
+        [switch] $DetailedOutput
     )
 
     Write-ModernSection -Title "Processing Policy Definitions" -Color Blue
@@ -138,7 +138,7 @@ function Build-PolicyPlan {
             $metadataMatches, $changePacOwnerId = Confirm-MetadataMatches `
                 -ExistingMetadataObj $deployedDefinitionProperties.metadata `
                 -DefinedMetadataObj $metadata `
-                -SuppressPacOwnerIdMessage:($DiffGranularity -eq "Detailed")
+                -SuppressPacOwnerIdMessage:$DetailedOutput
             $parametersMatch, $incompatible = Confirm-ParametersDefinitionMatch `
                 -ExistingParametersObj $deployedDefinitionProperties.parameters `
                 -DefinedParametersObj $parameters
@@ -186,7 +186,7 @@ function Build-PolicyPlan {
                     $null = $ReplaceDefinitions.Add($id, $definition)
                     
                     # Show detailed diff if requested
-                    if ($DiffGranularity -eq "Detailed") {
+                    if ($DetailedOutput) {
                         Write-Host ""
                         Write-ModernStatus -Message "[Policy Definition] Detailed Changes for: $displayName" -Status "info" -Indent 6
                         foreach ($change in $changesStrings) {
@@ -243,7 +243,7 @@ function Build-PolicyPlan {
                     $null = $definitionsUpdate.Add($id, $definition)
                     
                     # Show detailed diff if requested
-                    if ($DiffGranularity -eq "Detailed") {
+                    if ($DetailedOutput) {
                         Write-Host ""
                         Write-ModernStatus -Message "[Policy Definition] Detailed Changes for: $displayName" -Status "info" -Indent 6
                         foreach ($change in $changesStrings) {
@@ -299,7 +299,7 @@ function Build-PolicyPlan {
             Write-ModernStatus -Message "New: $($displayName)" -Status "success" -Indent 4
             
             # Show detailed content for new policies if requested
-            if ($DiffGranularity -eq "Detailed") {
+            if ($DetailedOutput) {
                 Write-Host ""
                 Write-ModernStatus -Message "[Policy Definition] Details for New Policy:" -Status "info" -Indent 6
                 
@@ -383,7 +383,7 @@ function Build-PolicyPlan {
             Write-ModernStatus -Message "Delete: $($deleteCandidateProperties.displayName)" -Status "error" -Indent 4
             
             # Show detailed context for deletions if requested
-            if ($DiffGranularity -eq "Detailed") {
+            if ($DetailedOutput) {
                 Write-Host ""
                 Write-ModernStatus -Message "[Policy Definition] Details for Deleted Policy:" -Status "info" -Indent 6
                 
