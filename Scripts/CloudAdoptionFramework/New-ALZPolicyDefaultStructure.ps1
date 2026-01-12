@@ -11,6 +11,7 @@ Param(
     [ValidateScript({ "refs/tags/$_" -in (Invoke-RestMethod -Uri 'https://api.github.com/repos/Azure/Azure-Landing-Zones-Library/git/refs/tags/').ref }, ErrorMessage = "Tag must be a valid tag." )]
     [string] $Tag,
 
+    [Parameter(Mandatory = $true)]
     [string] $PacEnvironmentSelector
 )
 
@@ -53,6 +54,10 @@ Write-ModernHeader -Title "Creating Policy Default Structure" -Subtitle "Type: $
 
 if ($LibraryPath -eq "") {
     $LibraryPath = Join-Path -Path (Get-Location) -ChildPath "temp"
+    if (Test-Path $LibraryPath) {
+        Write-ModernStatus -Message "Removing existing temp folder..." -Status "processing" -Indent 2
+        Remove-Item -Path $LibraryPath -Recurse -Force
+    }
     Write-ModernStatus -Message "Cloning Azure Landing Zones Library repository..." -Status "processing" -Indent 2
     git clone --config advice.detachedHead=false --depth 1 --branch $Tag https://github.com/Azure/Azure-Landing-Zones-Library.git $LibraryPath
     if ($LASTEXITCODE -eq 0) {
