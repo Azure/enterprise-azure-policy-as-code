@@ -1,10 +1,143 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+        "documentationSpecification": {
+            "type": "object",
+            "properties": {
+                "fileNameStem": { "type": "string" },
+                "title": { "type": "string" },
+                "markdownAddToc": { "type": "boolean" },
+                "markdownAdoWiki": { "type": "boolean" },
+                "markdownAdoWikiConfig": {
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "adoOrganization": { "type": "string" },
+                                    "adoProject": { "type": "string" },
+                                    "adoWiki": { "type": "string" }
+                                },
+                                "required": [ "adoOrganization", "adoProject", "adoWiki" ]
+                            }
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "adoOrganization": { "type": "string" },
+                                "adoProject": { "type": "string" },
+                                "adoWiki": { "type": "string" }
+                            },
+                            "required": [ "adoOrganization", "adoProject", "adoWiki" ]
+                        }
+                    ]
+                },
+                "markdownNoEmbeddedHtml": { "type": "boolean" },
+                "markdownIncludeComplianceGroupNames": { "type": "boolean" },
+                "markdownSuppressParameterSection": { "type": "boolean" },
+                "markdownMaxParameterLength": { "type": "integer" }
+            },
+            "required": [ "fileNameStem", "title" ]
+        }
+    },
     "type": "object",
     "properties": {
+        "globalDocumentationSpecifications": {
+            "type": "object",
+            "properties": {
+                "fileNameStem": {
+                    "type": "string",
+                    "description": "Optional default file name stem used when documentAssignments omits documentationSpecifications."
+                },
+                "title": {
+                    "type": "string",
+                    "description": "Optional default title used when documentAssignments omits documentationSpecifications."
+                },
+                "markdownAddToc": {
+                    "type": "boolean"
+                },
+                "markdownAdoWiki": {
+                    "type": "boolean"
+                },
+                "markdownAdoWikiConfig": {
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "adoOrganization": { "type": "string" },
+                                    "adoProject": { "type": "string" },
+                                    "adoWiki": { "type": "string" }
+                                },
+                                "required": [ "adoOrganization", "adoProject", "adoWiki" ]
+                            }
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "adoOrganization": { "type": "string" },
+                                "adoProject": { "type": "string" },
+                                "adoWiki": { "type": "string" }
+                            },
+                            "required": [ "adoOrganization", "adoProject", "adoWiki" ]
+                        }
+                    ]
+                },
+                "markdownNoEmbeddedHtml": {
+                    "type": "boolean"
+                },
+                "markdownIncludeComplianceGroupNames": {
+                    "type": "boolean"
+                },
+                "markdownSuppressParameterSection": {
+                    "type": "boolean"
+                },
+                "markdownMaxParameterLength": {
+                    "type": "integer"
+                }
+            }
+        },
         "documentAssignments": {
             "type": "object",
             "properties": {
+                "environmentCategories": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "pacEnvironment": { "type": "string" },
+                            "environmentCategory": { "type": "string" },
+                            "scopes": {
+                                "type": "array",
+                                "minItems": 0,
+                                "items": { "type": "string" }
+                            },
+                            "representativeAssignments": {
+                                "type": "array",
+                                "minItems": 0,
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "shortName": { "type": "string" },
+                                        "id": { "type": "string" }
+                                    },
+                                    "required": [ "shortName", "id" ]
+                                }
+                            },
+                            "documentationSpecifications": {
+                                "type": "array",
+                                "minItems": 1,
+                                "items": { "$ref": "#/$defs/documentationSpecification" }
+                            }
+                        },
+                        "required": [ "pacEnvironment", "environmentCategory" ]
+                    }
+                },
                 "documentAllAssignments": {
                     "type": "array",
                     "minItems": 1,
@@ -16,6 +149,10 @@
                             },
                             "pacEnvironment": {
                                 "type": "string"
+                            },
+                            "fileNameStemPrefix": {
+                                "type": "string",
+                                "description": "Optional prefix added to generated documentation fileNameStem for documentAllAssignments outputs."
                             },
                             "skipPolicyAssignments": {
                                 "type": "array",
@@ -43,10 +180,14 @@
                                         }
                                     }
                                 }
+                            },
+                            "documentationSpecifications": {
+                                "type": "array",
+                                "minItems": 1,
+                                "items": { "$ref": "#/$defs/documentationSpecification" }
                             }
                         },
                         "required": [
-                            "enabled",
                             "pacEnvironment"
                         ]
                     }
@@ -54,56 +195,12 @@
                 "documentationSpecifications": {
                     "type": "array",
                     "minItems": 1,
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "fileNameStem": {
-                                "type": "string"
-                            },
-                            "environmentCategories": {
-                                "type": "array",
-                                "minItems": 0,
-                                "items": {
-                                    "type": "string"
-                                }
-                            },
-                            "title": {
-                                "type": "string"
-                            },
-                            "markdownAddToc": {
-                                "type": "boolean"
-                            },
-                            "markdownAdoWiki": {
-                                "type": "boolean"
-                            },
-                            "markdownNoEmbeddedHtml": {
-                                "type": "boolean"
-                            },
-                            "markdownIncludeComplianceGroupNames": {
-                                "type": "boolean"
-                            },
-                            "markdownSuppressParameterSection": {
-                                "type": "boolean"
-                            },
-                            "markdownMaxParameterLength": {
-                                "type": "integer"
-                            }
-                        },
-                        "required": [
-                            "fileNameStem",
-                            "environmentCategories",
-                            "title"
-                        ]
-                    }
+                    "items": { "$ref": "#/$defs/documentationSpecification" }
                 }
             },
             "anyOf": [
-                {
-                    "required": [
-                        "documentAllAssignments",
-                        "documentationSpecifications"
-                    ]
-                }
+                { "required": [ "environmentCategories" ] },
+                { "required": [ "documentAllAssignments" ] }
             ]
         },
         "documentPolicySets": {
@@ -168,6 +265,32 @@
                     "markdownAdoWiki": {
                         "type": "boolean"
                     },
+                    "markdownAdoWikiConfig": {
+                        "oneOf": [
+                            {
+                                "type": "array",
+                                "minItems": 1,
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "adoOrganization": { "type": "string" },
+                                        "adoProject": { "type": "string" },
+                                        "adoWiki": { "type": "string" }
+                                    },
+                                    "required": [ "adoOrganization", "adoProject", "adoWiki" ]
+                                }
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "adoOrganization": { "type": "string" },
+                                    "adoProject": { "type": "string" },
+                                    "adoWiki": { "type": "string" }
+                                },
+                                "required": [ "adoOrganization", "adoProject", "adoWiki" ]
+                            }
+                        ]
+                    },
                     "markdownNoEmbeddedHtml": {
                         "type": "boolean"
                     },
@@ -201,6 +324,48 @@
             "required": [
                 "documentPolicySets"
             ]
+        }
+    ],
+    "allOf": [
+        {
+            "if": {
+                "required": ["documentAssignments"]
+            },
+            "then": {
+                "anyOf": [
+                    { "required": ["globalDocumentationSpecifications"] },
+                    {
+                        "properties": {
+                            "documentAssignments": {
+                                "anyOf": [
+                                    {
+                                        "properties": {
+                                            "environmentCategories": {
+                                                "type": "array",
+                                                "contains": {
+                                                    "type": "object",
+                                                    "required": ["documentationSpecifications"]
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "properties": {
+                                            "documentAllAssignments": {
+                                                "type": "array",
+                                                "contains": {
+                                                    "type": "object",
+                                                    "required": ["documentationSpecifications"]
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
         }
     ]
 }

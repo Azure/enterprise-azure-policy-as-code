@@ -61,7 +61,7 @@ function Convert-PolicyResourcesDetailsToFlatList-Documentation {
             $assignmentParameters = Get-DeepCloneAsOrderedHashtable $properties.parameters
         }
 
-        if($detail.policyDefinitionId) {
+        if ($detail.policyDefinitionId) {
             $policyId = $detail.id
             $policyDefinitionReferenceId = $detail.policyDefinitionReferenceId
             $effectParameterName = $detail.effectParameterName
@@ -247,43 +247,43 @@ function Convert-PolicyResourcesDetailsToFlatList-Documentation {
             # Collate union of parameters
             $parametersForThisPolicy = $flatPolicyEntry.parameters
             foreach ($parameterName in $parameters.Keys) {
-                if(!$parameterName -eq ''){
-                $parameter = $parameters.$parameterName
-                if ($parametersForThisPolicy.ContainsKey($parameterName)) {
-                    $parameterPolicy = $parameter.policy
-                    $parameterPolicy += $detail.displayName
-                    $parameter.policySets = $parameterPolicy
-                }
-                else {
-                    if ($parametersAlreadyCovered.ContainsKey($parameterName)) {
-                        $parameter.multiUse = $true
+                if (!$parameterName -eq '') {
+                    $parameter = $parameters.$parameterName
+                    if ($parametersForThisPolicy.ContainsKey($parameterName)) {
+                        $parameterPolicy = $parameter.policy
+                        $parameterPolicy += $detail.displayName
+                        $parameter.policySets = $parameterPolicy
                     }
                     else {
-                        $null = $parametersAlreadyCovered.Add($parameterName, $true)
-                        $parameter.multiUse = $false # Redo multi-use based on sorted list of Policies
+                        if ($parametersAlreadyCovered.ContainsKey($parameterName)) {
+                            $parameter.multiUse = $true
+                        }
+                        else {
+                            $null = $parametersAlreadyCovered.Add($parameterName, $true)
+                            $parameter.multiUse = $false # Redo multi-use based on sorted list of Policies
 
-                        $parameterValue = $null
-                        if ($null -ne $assignmentId) {
-                            if ($null -ne $parameter.defaultValue) {
-                                $parameterValue = $parameter.defaultValue
-                            }
-                            $assignmentParameters = $assignmentParameters
-                            if ($null -ne $assignmentParameters) {
-                                # Assignment has parameters
-                                if ($assignmentParameters.ContainsKey($parameterName)) {
-                                    # Effect default is replaced by assignment parameter
-                                    $assignmentLevelEffectParameter = $assignmentParameters.$parameterName
-                                    $parameterValue = $assignmentLevelEffectParameter.value
+                            $parameterValue = $null
+                            if ($null -ne $assignmentId) {
+                                if ($null -ne $parameter.defaultValue) {
+                                    $parameterValue = $parameter.defaultValue
+                                }
+                                $assignmentParameters = $assignmentParameters
+                                if ($null -ne $assignmentParameters) {
+                                    # Assignment has parameters
+                                    if ($assignmentParameters.ContainsKey($parameterName)) {
+                                        # Effect default is replaced by assignment parameter
+                                        $assignmentLevelEffectParameter = $assignmentParameters.$parameterName
+                                        $parameterValue = $assignmentLevelEffectParameter.value
+                                    }
                                 }
                             }
+                            $parameter.value = $parameterValue
+                            $parameter.policySets = @( $detail.displayName )
+                            $null = $parametersForThisPolicy.Add($parameterName, $parameter)
                         }
-                        $parameter.value = $parameterValue
-                        $parameter.policySets = @( $detail.displayName )
-                        $null = $parametersForThisPolicy.Add($parameterName, $parameter)
                     }
                 }
             }
-        }
         }
 
         foreach ($policyInPolicySetInfo in $detail.policyDefinitions) {
@@ -466,10 +466,12 @@ function Convert-PolicyResourcesDetailsToFlatList-Documentation {
             $flatPolicyEntry.policySetEffectStrings = $policySetEffectStrings
 
             $policySetList = $flatPolicyEntry.policySetList
-            if ($policySetList.ContainsKey($shortName)) {
-                Write-Error "'$title' item array entry contains duplicate shortName ($shortName)." -ErrorAction Stop
+            if ($null -ne $policySetList) {
+                if ($policySetList.ContainsKey($shortName)) {
+                    Write-Error "'$title' item array entry contains duplicate shortName ($shortName)." -ErrorAction Stop
+                }
+                $null = $policySetList.Add($shortName, $perPolicySet)
             }
-            $null = $policySetList.Add($shortName, $perPolicySet)
 
             # Collate union of parameters
             $parametersForThisPolicy = $flatPolicyEntry.parameters
