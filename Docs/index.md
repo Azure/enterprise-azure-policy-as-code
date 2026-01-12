@@ -92,7 +92,7 @@ Microsoft can identify the deployments of the Azure Resource Manager with the de
 
 ### Opt out of telemetry data collection `telemetryOptOut`
 
-To opt-out of this tracking, we have included a settings in `global-settings.jsonc` called `telemetryOptOut`. If you would like to disable this tracking, then simply [set this value](settings-global-setting-file.md/#opt-out-of-telemetry-data-collection-telemetryoptout) to `true` (default is `false`).
+To opt-out of this tracking, we have included a setting in `global-settings.jsonc` called `telemetryOptOut`. If you would like to disable this tracking, then simply [set this value](settings-global-setting-file.md/#opt-out-of-telemetry-data-collection-telemetryoptout) to `true` (default is `false`).
 
 If you are happy with leaving telemetry tracking enabled, no changes are required.
 

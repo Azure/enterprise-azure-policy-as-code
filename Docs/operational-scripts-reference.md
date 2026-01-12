@@ -36,7 +36,7 @@ Include Policies with effect Manual. Default: do not include Policies with effec
 
 ## Script `New-AzRemediationTasks`
 
-The New-AzRemediationTasks PowerShell creates remediation tasks for all non-compliant resources in the current AAD tenant. If one or multiple remediation tasks fail, their respective objects are added to a PowerShell variable that is outputted for later use in the Azure DevOps Pipeline.
+The New-AzRemediationTasks PowerShell creates remediation tasks for all non-compliant resources in the current Entra ID tenant. If one or multiple remediation tasks fail, their respective objects are added to a PowerShell variable that is outputted for later use in the Azure DevOps Pipeline.
 
 ```ps1
 New-AzRemediationTasks [[-PacEnvironmentSelector] <String>] [-DefinitionsRootFolder <String>] [-Interactive <Boolean>] [-OnlyCheckManagedAssignments] [-PolicyDefinitionFilter <String[]>] [-PolicySetDefinitionFilter <String[]>] [-PolicyAssignmentFilter <String[]>] [-PolicyEffectFilter <String[]>] [-NoWait] [-TestRun] [-Confirm] [<CommonParameters>]
