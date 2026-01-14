@@ -1,0 +1,23 @@
+{
+    "name": "test-pd-del-001-to-delete",
+    "properties": {
+        "displayName": "Test PD-DEL-001: Policy To Delete",
+        "description": "Policy definition that will be deleted in Stage 3",
+        "mode": "All",
+        "metadata": {
+            "category": "Testing",
+            "version": "1.0.0",
+            "pacOwnerId": "epac-regression-test"
+        },
+        "parameters": {},
+        "policyRule": {
+            "if": {
+                "field": "type",
+                "equals": "Microsoft.Compute/virtualMachines"
+            },
+            "then": {
+                "effect": "Audit"
+            }
+        }
+    }
+}

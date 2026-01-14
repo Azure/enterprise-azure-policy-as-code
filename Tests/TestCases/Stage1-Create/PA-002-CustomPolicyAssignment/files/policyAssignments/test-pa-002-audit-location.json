@@ -1,0 +1,36 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
+    "nodeName": "/Root/",
+    "scope": {
+        "epac-test": [
+            "/providers/Microsoft.Management/managementGroups/{{MANAGEMENT_GROUP_ID}}"
+        ]
+    },
+    "children": [
+        {
+            "nodeName": "AuditLocation/",
+            "assignment": {
+                "name": "test-pa-002-auditloc",
+                "displayName": "Test PA-002: Audit Resource Location",
+                "description": "Audits resources not in allowed locations. Test assignment for EPAC regression testing."
+            },
+            "definitionEntry": {
+                "policyName": "test-pd-001-audit-resource-location"
+            },
+            "parameters": {
+                "allowedLocations": [
+                    "eastus",
+                    "eastus2",
+                    "westus",
+                    "westus2"
+                ]
+            },
+            "enforcementMode": "Default",
+            "nonComplianceMessages": [
+                {
+                    "message": "Resource is not in an allowed location."
+                }
+            ]
+        }
+    ]
+}

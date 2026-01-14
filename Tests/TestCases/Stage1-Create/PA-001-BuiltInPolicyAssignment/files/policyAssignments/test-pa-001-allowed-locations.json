@@ -1,0 +1,37 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
+    "nodeName": "/Root/",
+    "scope": {
+        "epac-test": [
+            "/providers/Microsoft.Management/managementGroups/{{MANAGEMENT_GROUP_ID}}"
+        ]
+    },
+    "children": [
+        {
+            "nodeName": "AllowedLocations/",
+            "assignment": {
+                "name": "test-pa-001-locations",
+                "displayName": "Test PA-001: Allowed Locations",
+                "description": "Restricts the locations where resources can be deployed. Test assignment for EPAC regression testing."
+            },
+            "definitionEntry": {
+                "policyId": "/providers/Microsoft.Authorization/policyDefinitions/e56962a6-4747-49cd-b67b-bf8b01975c4c"
+            },
+            "parameters": {
+                "listOfAllowedLocations": [
+                    "eastus",
+                    "eastus2",
+                    "westus",
+                    "westus2",
+                    "centralus"
+                ]
+            },
+            "enforcementMode": "Default",
+            "nonComplianceMessages": [
+                {
+                    "message": "Resource location is not in the list of allowed locations."
+                }
+            ]
+        }
+    ]
+}

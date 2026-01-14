@@ -1,0 +1,42 @@
+{
+    "testCaseId": "PD-UPD-001",
+    "description": "Update a policy definition - change effect from Audit to Deny",
+    "stage": 2,
+    "category": "Update",
+    "objectType": "policyDefinition",
+    "deploy": true,
+    "expectedPlan": {
+        "policyDefinitions": {
+            "new": 0,
+            "update": 1,
+            "delete": 0
+        },
+        "policySetDefinitions": {
+            "new": 0,
+            "update": 0,
+            "delete": 0
+        },
+        "policyAssignments": {
+            "new": 0,
+            "update": 0,
+            "delete": 0
+        },
+        "policyExemptions": {
+            "new": 0,
+            "update": 0,
+            "delete": 0
+        }
+    },
+    "expectedAzureState": {
+        "policyDefinitions": [
+            {
+                "name": "test-pd-upd-001-effect-change",
+                "displayName": "Test PD-UPD-001: Effect Change Policy",
+                "mode": "All",
+                "policyRule": {
+                    "effect": "Deny"
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,20 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-exemption-schema.json",
+    "exemptions": [
+        {
+            "name": "test-pe-002-mitigated",
+            "displayName": "Test PE-002: Mitigated Exemption",
+            "description": "Test exemption with Mitigated category for EPAC regression testing.",
+            "exemptionCategory": "Mitigated",
+            "scopes": [
+                "/providers/Microsoft.Management/managementGroups/{{MANAGEMENT_GROUP_ID}}"
+            ],
+            "policyAssignmentId": "/providers/Microsoft.Management/managementGroups/{{MANAGEMENT_GROUP_ID}}/providers/Microsoft.Authorization/policyAssignments/test-pa-001-locations",
+            "metadata": {
+                "requestedBy": "EPAC Regression Test",
+                "approvedBy": "Test Approver",
+                "reason": "Risk has been mitigated through compensating controls"
+            }
+        }
+    ]
+}

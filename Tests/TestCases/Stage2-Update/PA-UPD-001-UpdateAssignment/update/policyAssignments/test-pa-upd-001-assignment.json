@@ -1,0 +1,28 @@
+{
+    "nodeName": "/Root/",
+    "scope": {
+        "epac-test": [
+            "/providers/Microsoft.Management/managementGroups/{{MANAGEMENT_GROUP_ID}}"
+        ]
+    },
+    "children": [
+        {
+            "nodeName": "test-pa-upd-001/",
+            "assignment": {
+                "name": "test-pa-upd-001-enforce",
+                "displayName": "Test PA-UPD-001: Enforcement Mode Change",
+                "description": "Tests updating enforcement mode - UPDATED to DoNotEnforce"
+            },
+            "definitionEntry": {
+                "policyName": "e56962a6-4747-49cd-b67b-bf8b01975c4c"
+            },
+            "enforcementMode": "DoNotEnforce",
+            "parameters": {
+                "listOfAllowedLocations": [
+                    "eastus",
+                    "westus"
+                ]
+            }
+        }
+    ]
+}

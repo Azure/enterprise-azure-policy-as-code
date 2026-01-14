@@ -1,0 +1,42 @@
+{
+    "testCaseId": "PA-002",
+    "description": "Deploy a policy assignment for a custom policy definition",
+    "stage": 1,
+    "category": "Create",
+    "objectType": "policyAssignment",
+    "deploy": true,
+    "prerequisiteTests": [
+        "PD-001"
+    ],
+    "expectedPlan": {
+        "policyDefinitions": {
+            "new": 0,
+            "update": 0,
+            "delete": 0
+        },
+        "policySetDefinitions": {
+            "new": 0,
+            "update": 0,
+            "delete": 0
+        },
+        "policyAssignments": {
+            "new": 1,
+            "update": 0,
+            "delete": 0
+        },
+        "policyExemptions": {
+            "new": 0,
+            "update": 0,
+            "delete": 0
+        }
+    },
+    "expectedAzureState": {
+        "policyAssignments": [
+            {
+                "name": "test-pa-002-auditloc",
+                "displayName": "Test PA-002: Audit Resource Location",
+                "enforcementMode": "Default"
+            }
+        ]
+    }
+}

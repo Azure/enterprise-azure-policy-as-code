@@ -1,0 +1,31 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
+    "nodeName": "/Root/",
+    "scope": {
+        "epac-test": [
+            "/providers/Microsoft.Management/managementGroups/{{MANAGEMENT_GROUP_ID}}"
+        ]
+    },
+    "children": [
+        {
+            "nodeName": "Initiative/",
+            "assignment": {
+                "name": "test-pa-004-initiative",
+                "displayName": "Test PA-004: Initiative Assignment",
+                "description": "Assigns the required tags initiative. Test assignment for EPAC regression testing."
+            },
+            "definitionEntry": {
+                "policySetName": "test-psd-001-required-tags"
+            },
+            "parameters": {
+                "effect": "Audit"
+            },
+            "enforcementMode": "Default",
+            "nonComplianceMessages": [
+                {
+                    "message": "Required tags are missing from this resource."
+                }
+            ]
+        }
+    ]
+}

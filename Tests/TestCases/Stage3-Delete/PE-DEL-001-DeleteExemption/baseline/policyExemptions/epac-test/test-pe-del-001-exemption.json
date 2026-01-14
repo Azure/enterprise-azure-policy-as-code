@@ -1,0 +1,18 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-exemption-schema.json",
+    "exemptions": [
+        {
+            "name": "test-pe-del-001-remove",
+            "displayName": "Test PE-DEL-001: Exemption To Delete",
+            "description": "Exemption that will be deleted in Stage 3",
+            "exemptionCategory": "Waiver",
+            "scopes": [
+                "/providers/Microsoft.Management/managementGroups/{{MANAGEMENT_GROUP_ID}}"
+            ],
+            "policyAssignmentId": "/providers/Microsoft.Management/managementGroups/{{MANAGEMENT_GROUP_ID}}/providers/Microsoft.Authorization/policyAssignments/test-pe-del-001-base",
+            "metadata": {
+                "pacOwnerId": "epac-regression-test"
+            }
+        }
+    ]
+}

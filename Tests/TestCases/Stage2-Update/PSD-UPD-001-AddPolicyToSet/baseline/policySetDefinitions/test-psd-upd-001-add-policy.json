@@ -1,0 +1,27 @@
+{
+    "name": "test-psd-upd-001-add-policy",
+    "properties": {
+        "displayName": "Test PSD-UPD-001: Add Policy to Set",
+        "description": "Policy set to test adding policies",
+        "metadata": {
+            "category": "Testing",
+            "version": "1.0.0",
+            "pacOwnerId": "epac-regression-test"
+        },
+        "parameters": {},
+        "policyDefinitions": [
+            {
+                "policyDefinitionReferenceId": "AuditResourceLocation",
+                "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/e56962a6-4747-49cd-b67b-bf8b01975c4c",
+                "parameters": {
+                    "listOfAllowedLocations": {
+                        "value": [
+                            "eastus",
+                            "westus"
+                        ]
+                    }
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,35 @@
+{
+    "testCaseId": "PSD-DEL-001",
+    "description": "Delete a policy set definition by removing the definition file",
+    "stage": 3,
+    "category": "Delete",
+    "objectType": "policySetDefinition",
+    "deploy": true,
+    "expectedPlan": {
+        "policyDefinitions": {
+            "new": 0,
+            "update": 0,
+            "delete": 0
+        },
+        "policySetDefinitions": {
+            "new": 0,
+            "update": 0,
+            "delete": 1
+        },
+        "policyAssignments": {
+            "new": 0,
+            "update": 0,
+            "delete": 0
+        },
+        "policyExemptions": {
+            "new": 0,
+            "update": 0,
+            "delete": 0
+        }
+    },
+    "expectedAzureState": {
+        "shouldNotExist": {
+            "policySetDefinitions": ["test-psd-del-001-remove"]
+        }
+    }
+}

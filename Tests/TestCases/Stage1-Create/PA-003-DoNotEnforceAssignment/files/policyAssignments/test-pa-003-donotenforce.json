@@ -1,0 +1,29 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
+    "nodeName": "/Root/",
+    "scope": {
+        "epac-test": [
+            "/providers/Microsoft.Management/managementGroups/{{MANAGEMENT_GROUP_ID}}"
+        ]
+    },
+    "children": [
+        {
+            "nodeName": "DoNotEnforce/",
+            "assignment": {
+                "name": "test-pa-003-dne",
+                "displayName": "Test PA-003: DoNotEnforce Mode",
+                "description": "Tests DoNotEnforce enforcement mode. Test assignment for EPAC regression testing."
+            },
+            "definitionEntry": {
+                "policyId": "/providers/Microsoft.Authorization/policyDefinitions/0a914e76-4921-4c19-b460-a2d36003525a"
+            },
+            "parameters": {},
+            "enforcementMode": "DoNotEnforce",
+            "nonComplianceMessages": [
+                {
+                    "message": "Resource certificates should have the specified maximum validity period."
+                }
+            ]
+        }
+    ]
+}

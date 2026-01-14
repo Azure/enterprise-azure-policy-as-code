@@ -1,0 +1,37 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json",
+    "name": "test-pd-003c-require-tag-owner",
+    "properties": {
+        "displayName": "Test PD-003c: Require Owner Tag",
+        "description": "Requires the Owner tag on resources. Test policy for EPAC regression testing.",
+        "mode": "Indexed",
+        "metadata": {
+            "category": "Tags",
+            "version": "1.0.0"
+        },
+        "parameters": {
+            "effect": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Effect",
+                    "description": "The effect of the policy"
+                },
+                "allowedValues": [
+                    "Deny",
+                    "Audit",
+                    "Disabled"
+                ],
+                "defaultValue": "Audit"
+            }
+        },
+        "policyRule": {
+            "if": {
+                "field": "[concat('tags[', 'Owner', ']')]",
+                "exists": "false"
+            },
+            "then": {
+                "effect": "[parameters('effect')]"
+            }
+        }
+    }
+}

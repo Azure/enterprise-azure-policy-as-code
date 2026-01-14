@@ -1,0 +1,28 @@
+{
+    "nodeName": "/Root/",
+    "scope": {
+        "epac-test": [
+            "/providers/Microsoft.Management/managementGroups/{{MANAGEMENT_GROUP_ID}}"
+        ]
+    },
+    "children": [
+        {
+            "nodeName": "test-pe-upd-001/",
+            "assignment": {
+                "name": "test-pe-upd-001-assign",
+                "displayName": "Test PE-UPD-001: Base Assignment",
+                "description": "Assignment for exemption update test"
+            },
+            "definitionEntry": {
+                "policyName": "e56962a6-4747-49cd-b67b-bf8b01975c4c"
+            },
+            "enforcementMode": "Default",
+            "parameters": {
+                "listOfAllowedLocations": [
+                    "eastus",
+                    "westus"
+                ]
+            }
+        }
+    ]
+}

@@ -1,0 +1,37 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json",
+    "name": "test-pd-003a-require-tag-environment",
+    "properties": {
+        "displayName": "Test PD-003a: Require Environment Tag",
+        "description": "Requires the Environment tag on resources. Test policy for EPAC regression testing.",
+        "mode": "Indexed",
+        "metadata": {
+            "category": "Tags",
+            "version": "1.0.0"
+        },
+        "parameters": {
+            "effect": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Effect",
+                    "description": "The effect of the policy"
+                },
+                "allowedValues": [
+                    "Deny",
+                    "Audit",
+                    "Disabled"
+                ],
+                "defaultValue": "Audit"
+            }
+        },
+        "policyRule": {
+            "if": {
+                "field": "[concat('tags[', 'Environment', ']')]",
+                "exists": "false"
+            },
+            "then": {
+                "effect": "[parameters('effect')]"
+            }
+        }
+    }
+}

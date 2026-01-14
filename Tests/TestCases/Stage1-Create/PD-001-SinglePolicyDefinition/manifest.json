@@ -1,0 +1,40 @@
+{
+    "testCaseId": "PD-001",
+    "description": "Deploy a single policy definition with Audit effect",
+    "stage": 1,
+    "category": "Create",
+    "objectType": "policyDefinition",
+    "deploy": true,
+    "expectedPlan": {
+        "policyDefinitions": {
+            "new": 1,
+            "update": 0,
+            "delete": 0
+        },
+        "policySetDefinitions": {
+            "new": 0,
+            "update": 0,
+            "delete": 0
+        },
+        "policyAssignments": {
+            "new": 0,
+            "update": 0,
+            "delete": 0
+        },
+        "policyExemptions": {
+            "new": 0,
+            "update": 0,
+            "delete": 0
+        }
+    },
+    "expectedAzureState": {
+        "policyDefinitions": [
+            {
+                "name": "test-pd-001-audit-resource-location",
+                "displayName": "Test PD-001: Audit Resource Location",
+                "mode": "All",
+                "category": "General"
+            }
+        ]
+    }
+}

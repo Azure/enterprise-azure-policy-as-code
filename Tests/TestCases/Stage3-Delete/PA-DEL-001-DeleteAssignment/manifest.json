@@ -1,0 +1,35 @@
+{
+    "testCaseId": "PA-DEL-001",
+    "description": "Delete a policy assignment by removing the assignment file",
+    "stage": 3,
+    "category": "Delete",
+    "objectType": "policyAssignment",
+    "deploy": true,
+    "expectedPlan": {
+        "policyDefinitions": {
+            "new": 0,
+            "update": 0,
+            "delete": 0
+        },
+        "policySetDefinitions": {
+            "new": 0,
+            "update": 0,
+            "delete": 0
+        },
+        "policyAssignments": {
+            "new": 0,
+            "update": 0,
+            "delete": 1
+        },
+        "policyExemptions": {
+            "new": 0,
+            "update": 0,
+            "delete": 0
+        }
+    },
+    "expectedAzureState": {
+        "shouldNotExist": {
+            "policyAssignments": ["test-pa-del-001-remove"]
+        }
+    }
+}

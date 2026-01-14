@@ -1,0 +1,23 @@
+{
+    "name": "test-pd-upd-001-effect-change",
+    "properties": {
+        "displayName": "Test PD-UPD-001: Effect Change Policy",
+        "description": "Policy to test effect change from Audit to Deny",
+        "mode": "All",
+        "metadata": {
+            "category": "Testing",
+            "version": "1.0.0",
+            "pacOwnerId": "epac-regression-test"
+        },
+        "parameters": {},
+        "policyRule": {
+            "if": {
+                "field": "type",
+                "equals": "Microsoft.Compute/virtualMachines"
+            },
+            "then": {
+                "effect": "Audit"
+            }
+        }
+    }
+}

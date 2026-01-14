@@ -1,0 +1,52 @@
+{
+    "testCaseId": "PD-003",
+    "description": "Deploy multiple policy definitions in a single batch",
+    "stage": 1,
+    "category": "Create",
+    "objectType": "policyDefinition",
+    "deploy": true,
+    "expectedPlan": {
+        "policyDefinitions": {
+            "new": 3,
+            "update": 0,
+            "delete": 0
+        },
+        "policySetDefinitions": {
+            "new": 0,
+            "update": 0,
+            "delete": 0
+        },
+        "policyAssignments": {
+            "new": 0,
+            "update": 0,
+            "delete": 0
+        },
+        "policyExemptions": {
+            "new": 0,
+            "update": 0,
+            "delete": 0
+        }
+    },
+    "expectedAzureState": {
+        "policyDefinitions": [
+            {
+                "name": "test-pd-003a-require-tag-environment",
+                "displayName": "Test PD-003a: Require Environment Tag",
+                "mode": "Indexed",
+                "category": "Tags"
+            },
+            {
+                "name": "test-pd-003b-require-tag-costcenter",
+                "displayName": "Test PD-003b: Require Cost Center Tag",
+                "mode": "Indexed",
+                "category": "Tags"
+            },
+            {
+                "name": "test-pd-003c-require-tag-owner",
+                "displayName": "Test PD-003c: Require Owner Tag",
+                "mode": "Indexed",
+                "category": "Tags"
+            }
+        ]
+    }
+}

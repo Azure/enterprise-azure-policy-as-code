@@ -1,0 +1,39 @@
+{
+    "testCaseId": "PA-UPD-001",
+    "description": "Update a policy assignment - change enforcement mode from Default to DoNotEnforce",
+    "stage": 2,
+    "category": "Update",
+    "objectType": "policyAssignment",
+    "deploy": true,
+    "expectedPlan": {
+        "policyDefinitions": {
+            "new": 0,
+            "update": 0,
+            "delete": 0
+        },
+        "policySetDefinitions": {
+            "new": 0,
+            "update": 0,
+            "delete": 0
+        },
+        "policyAssignments": {
+            "new": 0,
+            "update": 1,
+            "delete": 0
+        },
+        "policyExemptions": {
+            "new": 0,
+            "update": 0,
+            "delete": 0
+        }
+    },
+    "expectedAzureState": {
+        "policyAssignments": [
+            {
+                "name": "test-pa-upd-001-enforce",
+                "displayName": "Test PA-UPD-001: Enforcement Mode Change",
+                "enforcementMode": "DoNotEnforce"
+            }
+        ]
+    }
+}

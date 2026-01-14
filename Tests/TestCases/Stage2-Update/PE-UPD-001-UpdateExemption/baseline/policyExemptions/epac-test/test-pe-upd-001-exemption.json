@@ -1,0 +1,18 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-exemption-schema.json",
+    "exemptions": [
+        {
+            "name": "test-pe-upd-001-category",
+            "displayName": "Test PE-UPD-001: Category Change Exemption",
+            "description": "Exemption to test category change from Waiver to Mitigated",
+            "exemptionCategory": "Waiver",
+            "scopes": [
+                "/providers/Microsoft.Management/managementGroups/{{MANAGEMENT_GROUP_ID}}"
+            ],
+            "policyAssignmentId": "/providers/Microsoft.Management/managementGroups/{{MANAGEMENT_GROUP_ID}}/providers/Microsoft.Authorization/policyAssignments/test-pe-upd-001-assign",
+            "metadata": {
+                "pacOwnerId": "epac-regression-test"
+            }
+        }
+    ]
+}

@@ -1,0 +1,20 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-exemption-schema.json",
+    "exemptions": [
+        {
+            "name": "test-pe-001-waiver",
+            "displayName": "Test PE-001: Waiver Exemption",
+            "description": "Test exemption with Waiver category for EPAC regression testing.",
+            "exemptionCategory": "Waiver",
+            "scopes": [
+                "/providers/Microsoft.Management/managementGroups/{{MANAGEMENT_GROUP_ID}}"
+            ],
+            "policyAssignmentId": "/providers/Microsoft.Management/managementGroups/{{MANAGEMENT_GROUP_ID}}/providers/Microsoft.Authorization/policyAssignments/test-pa-001-locations",
+            "metadata": {
+                "requestedBy": "EPAC Regression Test",
+                "approvedBy": "Test Approver",
+                "reason": "Testing waiver exemption functionality"
+            }
+        }
+    ]
+}

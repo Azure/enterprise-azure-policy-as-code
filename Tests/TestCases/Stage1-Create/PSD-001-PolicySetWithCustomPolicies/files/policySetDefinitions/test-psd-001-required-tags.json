@@ -1,0 +1,56 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-set-definition-schema.json",
+    "name": "test-psd-001-required-tags",
+    "properties": {
+        "displayName": "Test PSD-001: Required Tags Initiative",
+        "description": "This initiative ensures required tags are present on resources. Test initiative for EPAC regression testing.",
+        "metadata": {
+            "category": "Tags",
+            "version": "1.0.0"
+        },
+        "parameters": {
+            "effect": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Effect",
+                    "description": "The effect for all policies in this initiative"
+                },
+                "allowedValues": [
+                    "Deny",
+                    "Audit",
+                    "Disabled"
+                ],
+                "defaultValue": "Audit"
+            }
+        },
+        "policyDefinitions": [
+            {
+                "policyDefinitionName": "test-pd-003a-require-tag-environment",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('effect')]"
+                    }
+                },
+                "policyDefinitionReferenceId": "rt_environment"
+            },
+            {
+                "policyDefinitionName": "test-pd-003b-require-tag-costcenter",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('effect')]"
+                    }
+                },
+                "policyDefinitionReferenceId": "rt_costcenter"
+            },
+            {
+                "policyDefinitionName": "test-pd-003c-require-tag-owner",
+                "parameters": {
+                    "effect": {
+                        "value": "[parameters('effect')]"
+                    }
+                },
+                "policyDefinitionReferenceId": "rt_owner"
+            }
+        ]
+    }
+}

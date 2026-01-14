@@ -1,0 +1,8 @@
+# Test Output Files
+/Tests/Output/
+/Tests/Results/*.json
+/Tests/Results/*.xml
+/Tests/test-environment.json
+
+# Keep the README
+!/Tests/Results/README.md

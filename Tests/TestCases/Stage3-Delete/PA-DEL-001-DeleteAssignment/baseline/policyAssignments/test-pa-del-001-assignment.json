@@ -1,0 +1,28 @@
+{
+    "nodeName": "/Root/",
+    "scope": {
+        "epac-test": [
+            "/providers/Microsoft.Management/managementGroups/{{MANAGEMENT_GROUP_ID}}"
+        ]
+    },
+    "children": [
+        {
+            "nodeName": "test-pa-del-001/",
+            "assignment": {
+                "name": "test-pa-del-001-remove",
+                "displayName": "Test PA-DEL-001: Assignment To Delete",
+                "description": "Assignment that will be deleted in Stage 3"
+            },
+            "definitionEntry": {
+                "policyName": "e56962a6-4747-49cd-b67b-bf8b01975c4c"
+            },
+            "enforcementMode": "Default",
+            "parameters": {
+                "listOfAllowedLocations": [
+                    "eastus",
+                    "westus"
+                ]
+            }
+        }
+    ]
+}

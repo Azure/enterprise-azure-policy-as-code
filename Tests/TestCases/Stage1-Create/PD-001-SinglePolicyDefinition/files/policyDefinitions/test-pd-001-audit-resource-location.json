@@ -1,0 +1,49 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json",
+    "name": "test-pd-001-audit-resource-location",
+    "properties": {
+        "displayName": "Test PD-001: Audit Resource Location",
+        "description": "This policy audits resources that are not deployed in allowed locations. Test policy for EPAC regression testing.",
+        "mode": "All",
+        "metadata": {
+            "category": "General",
+            "version": "1.0.0"
+        },
+        "parameters": {
+            "allowedLocations": {
+                "type": "Array",
+                "metadata": {
+                    "displayName": "Allowed Locations",
+                    "description": "The list of allowed locations for resources."
+                },
+                "defaultValue": [
+                    "eastus",
+                    "eastus2",
+                    "westus",
+                    "westus2"
+                ]
+            }
+        },
+        "policyRule": {
+            "if": {
+                "allOf": [
+                    {
+                        "field": "location",
+                        "notIn": "[parameters('allowedLocations')]"
+                    },
+                    {
+                        "field": "location",
+                        "notEquals": "global"
+                    },
+                    {
+                        "field": "type",
+                        "notEquals": "Microsoft.AzureActiveDirectory/b2cDirectories"
+                    }
+                ]
+            },
+            "then": {
+                "effect": "audit"
+            }
+        }
+    }
+}

@@ -1,0 +1,24 @@
+{
+    "name": "test-psd-del-001-remove",
+    "properties": {
+        "displayName": "Test PSD-DEL-001: Policy Set To Delete",
+        "description": "Policy set definition that will be deleted in Stage 3",
+        "metadata": {
+            "category": "Testing",
+            "version": "1.0.0",
+            "pacOwnerId": "epac-regression-test"
+        },
+        "parameters": {},
+        "policyDefinitions": [
+            {
+                "policyDefinitionReferenceId": "AuditResourceLocation",
+                "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/e56962a6-4747-49cd-b67b-bf8b01975c4c",
+                "parameters": {
+                    "listOfAllowedLocations": {
+                        "value": ["eastus", "westus"]
+                    }
+                }
+            }
+        ]
+    }
+}
