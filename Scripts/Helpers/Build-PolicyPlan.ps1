@@ -7,7 +7,8 @@ function Build-PolicyPlan {
         [hashtable] $Definitions,
         [hashtable] $AllDefinitions,
         [hashtable] $ReplaceDefinitions,
-        [hashtable] $PolicyRoleIds
+        [hashtable] $PolicyRoleIds,
+        [switch] $DetailedOutput
     )
 
     Write-ModernSection -Title "Processing Policy Definitions" -Color Blue
@@ -136,7 +137,8 @@ function Build-PolicyPlan {
             $modeMatches = $deployedDefinitionProperties.mode -eq $definition.Mode
             $metadataMatches, $changePacOwnerId = Confirm-MetadataMatches `
                 -ExistingMetadataObj $deployedDefinitionProperties.metadata `
-                -DefinedMetadataObj $metadata
+                -DefinedMetadataObj $metadata `
+                -SuppressPacOwnerIdMessage:$DetailedOutput
             $parametersMatch, $incompatible = Confirm-ParametersDefinitionMatch `
                 -ExistingParametersObj $deployedDefinitionProperties.parameters `
                 -DefinedParametersObj $parameters
@@ -182,16 +184,187 @@ function Build-PolicyPlan {
                     Write-ModernStatus -Message "Replace ($changesString): $($displayName)" -Status "warning" -Indent 4
                     $null = $definitionsReplace.Add($id, $definition)
                     $null = $ReplaceDefinitions.Add($id, $definition)
+                    
+                    # Show detailed diff if requested
+                    if ($DetailedOutput) {
+                        Write-Host ""
+                        Write-ModernStatus -Message "[Policy Definition] Detailed Changes for: $displayName" -Status "info" -Indent 6
+                        foreach ($change in $changesStrings) {
+                            switch ($change) {
+                                "display" {
+                                    Write-SimplePropertyDiff -PropertyName "Display Name" -OldValue $deployedDefinitionProperties.displayName -NewValue $displayName -Indent 8
+                                }
+                                "description" {
+                                    Write-SimplePropertyDiff -PropertyName "Description" -OldValue $deployedDefinitionProperties.description -NewValue $description -Indent 8
+                                }
+                                "mode" {
+                                    Write-SimplePropertyDiff -PropertyName "Mode" -OldValue $deployedDefinitionProperties.mode -NewValue $mode -Indent 8
+                                }
+                                "metadata" {
+                                    # Filter Azure system-managed properties and EPAC-managed pacOwnerId from metadata display
+                                    $systemManagedProperties = @("createdBy", "createdOn", "updatedBy", "updatedOn", "lastSyncedToArgOn")
+                                    $filteredDeployedMetadata = @{}
+                                    $filteredDesiredMetadata = @{}
+                                    
+                                    if ($deployedDefinitionProperties.metadata) {
+                                        foreach ($key in $deployedDefinitionProperties.metadata.Keys) {
+                                            if ($key -notin $systemManagedProperties -and $key -ne "pacOwnerId") {
+                                                $filteredDeployedMetadata[$key] = $deployedDefinitionProperties.metadata[$key]
+                                            }
+                                        }
+                                    }
+                                    
+                                    if ($metadata) {
+                                        foreach ($key in $metadata.Keys) {
+                                            if ($key -ne "pacOwnerId") {
+                                                $filteredDesiredMetadata[$key] = $metadata[$key]
+                                            }
+                                        }
+                                    }
+                                    
+                                    Write-DetailedDiff -DeployedObject $filteredDeployedMetadata -DesiredObject $filteredDesiredMetadata -PropertyName "Metadata" -Indent 8
+                                }
+                                "param" {
+                                    Write-DetailedDiff -DeployedObject $deployedDefinitionProperties.parameters -DesiredObject $parameters -PropertyName "Parameters" -Indent 8
+                                }
+                                "param-incompat" {
+                                    Write-DetailedDiff -DeployedObject $deployedDefinitionProperties.parameters -DesiredObject $parameters -PropertyName "Parameters (Incompatible)" -Indent 8
+                                }
+                                "rule" {
+                                    Write-DetailedDiff -DeployedObject $deployedDefinitionProperties.policyRule -DesiredObject $policyRule -PropertyName "Policy Rule" -Indent 8
+                                }
+                            }
+                        }
+                        Write-Host ""
+                    }
                 }
                 else {
                     Write-ModernStatus -Message "Update ($changesString): $($displayName)" -Status "update" -Indent 4
                     $null = $definitionsUpdate.Add($id, $definition)
+                    
+                    # Show detailed diff if requested
+                    if ($DetailedOutput) {
+                        Write-Host ""
+                        Write-ModernStatus -Message "[Policy Definition] Detailed Changes for: $displayName" -Status "info" -Indent 6
+                        foreach ($change in $changesStrings) {
+                            switch ($change) {
+                                "display" {
+                                    Write-SimplePropertyDiff -PropertyName "Display Name" -OldValue $deployedDefinitionProperties.displayName -NewValue $displayName -Indent 8
+                                }
+                                "description" {
+                                    Write-SimplePropertyDiff -PropertyName "Description" -OldValue $deployedDefinitionProperties.description -NewValue $description -Indent 8
+                                }
+                                "mode" {
+                                    Write-SimplePropertyDiff -PropertyName "Mode" -OldValue $deployedDefinitionProperties.mode -NewValue $mode -Indent 8
+                                }
+                                "metadata" {
+                                    # Filter Azure system-managed properties and EPAC-managed pacOwnerId from metadata display
+                                    $systemManagedProperties = @("createdBy", "createdOn", "updatedBy", "updatedOn", "lastSyncedToArgOn")
+                                    $filteredDeployedMetadata = @{}
+                                    $filteredDesiredMetadata = @{}
+                                    
+                                    if ($deployedDefinitionProperties.metadata) {
+                                        foreach ($key in $deployedDefinitionProperties.metadata.Keys) {
+                                            if ($key -notin $systemManagedProperties -and $key -ne "pacOwnerId") {
+                                                $filteredDeployedMetadata[$key] = $deployedDefinitionProperties.metadata[$key]
+                                            }
+                                        }
+                                    }
+                                    
+                                    if ($metadata) {
+                                        foreach ($key in $metadata.Keys) {
+                                            if ($key -ne "pacOwnerId") {
+                                                $filteredDesiredMetadata[$key] = $metadata[$key]
+                                            }
+                                        }
+                                    }
+                                    
+                                    Write-DetailedDiff -DeployedObject $filteredDeployedMetadata -DesiredObject $filteredDesiredMetadata -PropertyName "Metadata" -Indent 8
+                                }
+                                "param" {
+                                    Write-DetailedDiff -DeployedObject $deployedDefinitionProperties.parameters -DesiredObject $parameters -PropertyName "Parameters" -Indent 8
+                                }
+                                "rule" {
+                                    Write-DetailedDiff -DeployedObject $deployedDefinitionProperties.policyRule -DesiredObject $policyRule -PropertyName "Policy Rule" -Indent 8
+                                }
+                            }
+                        }
+                        Write-Host ""
+                    }
                 }
             }
         }
         else {
             $null = $definitionsNew.Add($id, $definition)
             Write-ModernStatus -Message "New: $($displayName)" -Status "success" -Indent 4
+            
+            # Show detailed content for new policies if requested
+            if ($DetailedOutput) {
+                Write-Host ""
+                Write-ModernStatus -Message "[Policy Definition] Details for New Policy:" -Status "info" -Indent 6
+                
+                # Display Name
+                Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                Write-ColoredOutput -Message "Display Name: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message "`"$displayName`"" -ForegroundColor Green
+                
+                # Description
+                if ($description) {
+                    Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                    Write-ColoredOutput -Message "Description: " -NoNewline -ForegroundColor Gray
+                    Write-ColoredOutput -Message "`"$description`"" -ForegroundColor Green
+                }
+                
+                # Mode - display current value (already defaulted to "All" earlier if null)
+                Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                Write-ColoredOutput -Message "Mode: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message "`"$mode`"" -ForegroundColor Green
+                if ([string]::IsNullOrWhiteSpace($definitionObject.properties.mode)) {
+                    Write-ColoredOutput -Message " (default)" -ForegroundColor DarkGray
+                }
+                
+                # Policy Rule - show the actual rule
+                if ($policyRule) {
+                    Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                    Write-ColoredOutput -Message "Policy Rule:" -ForegroundColor Gray
+                    $ruleJson = $policyRule | ConvertTo-Json -Depth 100 -Compress:$false
+                    $ruleLines = $ruleJson -split "`n" | ForEach-Object { $_.TrimEnd("`r") }
+                    foreach ($line in $ruleLines) {
+                        Write-ColoredOutput -Message "            $line" -ForegroundColor Green
+                    }
+                }
+                
+                # Parameters if any
+                if ($parameters) {
+                    $paramCount = ($parameters.PSObject.Properties | Measure-Object).Count
+                    Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                    Write-ColoredOutput -Message "Parameters: " -NoNewline -ForegroundColor Gray
+                    Write-ColoredOutput -Message "$paramCount parameter(s)" -ForegroundColor Green
+                }
+                
+                # Metadata if any (excluding system properties)
+                if ($metadata) {
+                    $systemManagedProperties = @("createdBy", "createdOn", "updatedBy", "updatedOn", "lastSyncedToArgOn")
+                    $filteredMetadata = @{}
+                    foreach ($key in $metadata.Keys) {
+                        if ($key -notin $systemManagedProperties) {
+                            $filteredMetadata[$key] = $metadata[$key]
+                        }
+                    }
+                    if ($filteredMetadata.Count -gt 0) {
+                        Write-ColoredOutput -Message "        + " -NoNewline -ForegroundColor Green
+                        Write-ColoredOutput -Message "Metadata:" -ForegroundColor Gray
+                        foreach ($key in ($filteredMetadata.Keys | Sort-Object)) {
+                            Write-ColoredOutput -Message "            + " -NoNewline -ForegroundColor Green
+                            Write-ColoredOutput -Message "$key" -NoNewline -ForegroundColor White
+                            Write-ColoredOutput -Message " = " -NoNewline -ForegroundColor Gray
+                            Write-ColoredOutput -Message "`"$($filteredMetadata[$key])`"" -ForegroundColor Green
+                        }
+                    }
+                }
+                
+                Write-Host ""
+            }
         }
     }
 
@@ -208,6 +381,55 @@ function Build-PolicyPlan {
             # never delete if owned by another Policy as Code solution
             # if strategy is "full", delete with unknown owner (missing pacOwnerId)
             Write-ModernStatus -Message "Delete: $($deleteCandidateProperties.displayName)" -Status "error" -Indent 4
+            
+            # Show detailed context for deletions if requested
+            if ($DetailedOutput) {
+                Write-Host ""
+                Write-ModernStatus -Message "[Policy Definition] Details for Deleted Policy:" -Status "info" -Indent 6
+                
+                # Display Name
+                Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                Write-ColoredOutput -Message "Display Name: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message "`"$($deleteCandidateProperties.displayName)`"" -ForegroundColor Red
+                
+                # Description
+                if ($deleteCandidateProperties.description) {
+                    Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                    Write-ColoredOutput -Message "Description: " -NoNewline -ForegroundColor Gray
+                    Write-ColoredOutput -Message "`"$($deleteCandidateProperties.description)`"" -ForegroundColor Red
+                }
+                
+                # Mode - show actual value or default
+                $deletedMode = if ([string]::IsNullOrWhiteSpace($deleteCandidateProperties.mode)) { "All" } else { $deleteCandidateProperties.mode }
+                Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                Write-ColoredOutput -Message "Mode: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message "`"$deletedMode`"" -ForegroundColor Red
+                if ([string]::IsNullOrWhiteSpace($deleteCandidateProperties.mode)) {
+                    Write-ColoredOutput -Message " (default)" -ForegroundColor DarkGray
+                }
+                
+                # ID
+                Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                Write-ColoredOutput -Message "ID: " -NoNewline -ForegroundColor Gray
+                Write-ColoredOutput -Message $id -ForegroundColor Red
+                
+                # Category from metadata if available
+                if ($deleteCandidateProperties.metadata -and $deleteCandidateProperties.metadata.category) {
+                    Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                    Write-ColoredOutput -Message "Category: " -NoNewline -ForegroundColor Gray
+                    Write-ColoredOutput -Message "`"$($deleteCandidateProperties.metadata.category)`"" -ForegroundColor Red
+                }
+                
+                # Version from metadata if available
+                if ($deleteCandidateProperties.metadata -and $deleteCandidateProperties.metadata.version) {
+                    Write-ColoredOutput -Message "        - " -NoNewline -ForegroundColor Red
+                    Write-ColoredOutput -Message "Version: " -NoNewline -ForegroundColor Gray
+                    Write-ColoredOutput -Message "`"$($deleteCandidateProperties.metadata.version)`"" -ForegroundColor Red
+                }
+                
+                Write-Host ""
+            }
+            
             $splat = @{
                 id          = $id
                 name        = $deleteCandidate.name
@@ -233,3 +455,5 @@ function Build-PolicyPlan {
     Write-ModernStatus -Message "Unchanged Policy Definitions: $($Definitions.numberUnchanged)" -Status "status" -Indent 2
     Write-Information ""
 }
+
+

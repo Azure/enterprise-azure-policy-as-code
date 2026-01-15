@@ -1,11 +1,11 @@
 <#
 .SYNOPSIS
 This PowerShell script creates remediation tasks for all non-compliant resources in the current
-Azure Active Directory (AAD) tenant.
+Entra ID tenant.
 
 .DESCRIPTION
 The New-AzRemediationTasks.ps1 PowerShell creates remediation tasks for all non-compliant resources
-in the current AAD tenant. If one or multiple remediation tasks fail, their respective objects are
+in the current Entra ID tenant. If one or multiple remediation tasks fail, their respective objects are
 added to a PowerShell variable that is outputted for later use in the Azure DevOps Pipeline.
 
 .PARAMETER PacEnvironmentSelector
