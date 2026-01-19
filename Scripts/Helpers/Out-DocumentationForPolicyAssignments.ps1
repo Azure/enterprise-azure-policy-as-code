@@ -313,7 +313,34 @@ function Out-DocumentationForPolicyAssignments {
                     $environmentCategoryValues = $environmentList.$environmentCategory
                     $effectValue = $environmentCategoryValues.effectValue
                     if ($effectValue.StartsWith("[if(contains(parameters('resourceTypeList')")) {
-                        $effectValue = "SetByParameter"
+                        $policySetEffectStrings = $_.policySetEffectStrings
+                        $refAssignmentId = $policySetEffectStrings.split("_")[0]
+                        $refKeys = $AssignmentsByEnvironment.$environmentCategory.assignmentsDetails.keys
+                        foreach ($key in $refKeys) {
+                            if ($key -match $refAssignmentId) {
+                                $refAssignment = $AssignmentsByEnvironment.$environmentCategory.assignmentsDetails.$key
+                                $resourceList = $refAssignment.assignment.properties.parameters.resourceTypeList.value
+                                # Extract the resource type from the ARM expression
+                                if ($effectValue -match "\[if\(contains\(parameters\('resourceTypeList'\),'([^']+)'\)") {
+                                    $resourceType = $Matches[1]
+                                    # Check if resource type is in the list
+                                    if ($resourceList -contains $resourceType) {
+                                        if ($refAssignment.assignment.properties.parameters -contains "effect") {
+                                            $effectValue = $refAssignment.assignment.properties.parameters.effect.value
+                                        }
+                                        else {
+                                            # Fallback to default effect
+                                            $effectValue = "DeployIfNotExists"
+                                        }
+                                    }
+                                    else {
+                                        # Resource type not found, use disabled value
+                                        $effectValue = "Disabled"
+                                    }
+                                }
+                                break
+                            }
+                        }
                     }
                     $effectAllowedValues = $_.effectAllowedValues
                     $text = Convert-EffectToMarkdownString `
