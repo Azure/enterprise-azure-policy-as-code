@@ -7,8 +7,8 @@ function Get-HydrationEpacRepo {
     )
     if (Test-Path $RepoRoot) {
         $RepoRoot = Resolve-Path $RepoRoot
-        $repoTempPath = Join-Path $RepoRoot "epacRepoTemp"
-        $starterKitSourcePath = Join-Path $repoTempPath "StarterKit"
+        $repoTempPath = Join-Path $RepoRoot "temp"
+        $starterKitSourcePath = Join-Path $repoTempPath "StarterKit" "*"
         $starterKitDestinationPath = Join-Path $RepoRoot "StarterKit"
         Write-Host "Downloading HydrationKit from GitHub to $RepoRoot" -ForegroundColor Green
         $url = "https://github.com/Azure/enterprise-azure-policy-as-code.git"
@@ -18,7 +18,7 @@ function Get-HydrationEpacRepo {
         }
         # $null = Remove-Item -Recurse -Force $repoTempPath -ErrorAction SilentlyContinue
         # git clone $url $repoTempPath
-        Write-Host "This will create a popup terminal window"
+        # Write-Host "This will create a popup terminal window"
         try{
             Start-Process git -ArgumentList "clone $url $repoTempPath" -Wait -ErrorAction Stop
         }
@@ -26,7 +26,7 @@ function Get-HydrationEpacRepo {
             Write-Message "Git does not appear to be installed or is not available in the system PATH. Checking to see if this is running from the root of the EPAC repo." -ForegroundColor Red
             if (Test-Path (Join-Path $RepoRoot "Scripts" "HydrationKit") -and Test-Path (Join-Path $RepoRoot "StarterKit" "Helpers") -and Test-Path $starterKitSourcePath) {
                 Write-Host "EPAC repo appears to be present. Continuing without download, copying to temp folder to support code execution." -ForegroundColor Green
-                $null = Copy-Item $RepoRoot $repoTempPath -Recurse -Force -Exclude "epacRepoTemp" -ErrorAction SilentlyContinue
+                $null = Copy-Item $RepoRoot $repoTempPath -Recurse -Force -Exclude "temp" -ErrorAction SilentlyContinue
                 return
             }
             else {

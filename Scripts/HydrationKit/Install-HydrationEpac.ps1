@@ -176,10 +176,7 @@ function Install-HydrationEpac {
             Message = "The script will be unable to programatically download the StarterKit from GitHub. Please ensure that you have an updated copy of StarterKit in the same directory as the Definitions folder, based on the choices made in this script." 
         }
     }
-    # $stageBlocks = Get-Content $(Join-Path $StarterKit 'HydrationKit' 'blockDefinitions.jsonc') | ConvertFrom-Json -Depth 5 -AsHashtable
-    # foreach ($key in $stageBlocks.keys) {
-    #     $stageBlocks.$key.TerminalWidth = $TerminalWidth
-    # }
+
     ##################### INSERT INITIAL BLOCK HERE
     $stageBlocks = [ordered]@{
         "displayPreliminaryTests" = @{
@@ -273,6 +270,7 @@ function Install-HydrationEpac {
                 $summary.Add($path, "Passed")
             }
         }
+        $Output = Resolve-Path $Output
         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Summary of $($stageblocks.runPreliminaryTests.DisplayText)" -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent
         foreach ($entry in $summary.keys) {
             Write-HydrationLogFile -EntryType testResult -EntryData "$entry -- $($summary.$entry)" -UseUtc:$UseUtc -LogFilePath $logFilePath -Silent
@@ -975,7 +973,7 @@ function Install-HydrationEpac {
         $null = New-HydrationGlobalSettingsFile @globalSettingsInputs  -ErrorAction Stop
     }
     catch {
-        Write-Error "Unable to create global-settings file. This is likely a flaw in the choices made above that should have been caught in earlier tests. Please retain your answer file and report this to the EPAC team, and attemp this process again."
+        Write-Error "Unable to create global-settings file. This is likely a flaw in the choices made above that should have been caught in earlier tests. Please retain your answer file and report this to the EPAC team, and attempt this process again."
         return
     }
 
@@ -984,20 +982,20 @@ function Install-HydrationEpac {
     Remove-Variable usePipelineCustomPath -ErrorAction SilentlyContinue
     if ($allInterviewAnswers.pipelineCustomPath -eq "NotApplicable") {
         try {
-            New-PipelinesFromStarterKit -StarterKitFolder $StarterKit `
+           & (Join-Path "$PSScriptRoot/.." "Operations/New-PipelinesFromStarterKit.ps1") -StarterKitFolder $StarterKit `
                 -PipelineType $allInterviewAnswers.pipelinePlatform `
                 -BranchingFlow $allInterviewAnswers.pipelineFlow `
                 -ScriptType $allInterviewAnswers.codeExecutionType `
                 -ErrorAction Stop
         }
         catch {
-            Write-Error "Unable to create pipeline. This is likely a flaw in the choices made above that should have been caught in earlier tests. Please retain your answer file and report this to the EPAC team, and attemp this process again."
+            Write-Error "Unable to create pipeline. This is likely a flaw in the choices made above that should have been caught in earlier tests. Please retain your answer file and report this to the EPAC team, and attempt this process again."
             return
         }
     }
     else {
         try {
-            New-PipelinesFromStarterKit -StarterKitFolder $StarterKit `
+           & (Join-Path "$PSScriptRoot/.." "Operations/New-PipelinesFromStarterKit.ps1") -StarterKitFolder $StarterKit `
                 -PipelinesFolder:$usePipelineCustomPath `
                 -PipelineType $allInterviewAnswers.pipelinePlatform `
                 -BranchingFlow $allInterviewAnswers.pipelineFlow `
@@ -1005,7 +1003,7 @@ function Install-HydrationEpac {
                 -ErrorAction Stop
         }
         catch {
-            Write-Error "Unable to create pipeline. This is likely a flaw in the choices made above that should have been caught in earlier tests. Please retain your answer file and report this to the EPAC team, and attemp this process again."
+            Write-Error "Unable to create pipeline. This is likely a flaw in the choices made above that should have been caught in earlier tests. Please retain your answer file and report this to the EPAC team, and attempt this process again."
             return
         }
 
@@ -1041,8 +1039,8 @@ function Install-HydrationEpac {
     if ($allInterviewAnswers.importExistingPolicies -eq "Yes") {
         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Importing Existing Policy Assignments..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Exporting existing content for PacSelector `'$($allInterviewAnswers.mainTenantMainPacSelectorName)`', for which the root is defined as $($allInterviewAnswers.initialTenantIntermediateRoot)" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
-        Export-AzPolicyResources -DefinitionsRootFolder $DefinitionsRootFolder -ExemptionFiles 'csv' -FileExtension 'jsonc' -IncludeAutoAssigned -IncludeChildScopes -InputPacSelector $allInterviewAnswers.mainTenantMainPacSelectorName -Mode 'export' -OutputFolder $Output -ErrorAction Stop
-        $fpath = Join-Path $Output "Export" "Definitions"
+        & (Join-Path "$PSScriptRoot/.." "Operations/Export-AzPolicyResources.ps1") -DefinitionsRootFolder $DefinitionsRootFolder -ExemptionFiles 'csv' -FileExtension 'jsonc' -IncludeAutoAssigned -IncludeChildScopes -InputPacSelector $allInterviewAnswers.mainTenantMainPacSelectorName -Mode 'export' -OutputFolder $Output -Interactive:$FALSE -ErrorAction Stop
+        $fpath = Join-Path $(Resolve-Path $Output) "export" "Definitions"
         if (!(Test-Path $fpath)) {
             Write-Error "Unable to find the folder $fpath. You should go to https://portal.azure.com and confirm whether or not assignments exist that are assigned within the referenced scope $($answerFile.initialTenantIntermediateRoot) and its children."
             $noExport = Read-Host "Type 'Confirmed' and press enter to continue, otherwise simply press enter to quit..."
@@ -1197,9 +1195,9 @@ function Install-HydrationEpac {
             -ForegroundColor Yellow
     }
     if ($answers.useModuleorScript -eq "LocalScript") {
-        $starterKitSourcePath = Join-Path -Path $repoRootPath -ChildPath "epacRepoTemp" "Scripts"
+        $scriptsSourcePath = Join-Path -Path $repoRootPath -ChildPath "temp" "Scripts"
         $scriptDestinationPath = Join-Path -Path $repoRootPath -ChildPath "Scripts"
-        Copy-Item $starterKitSourcePath $scriptDestinationPath -Recurse -Force
+        Copy-Item $scriptsSourcePath $scriptDestinationPath -Recurse -Force
         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Copied Scripts directory to repo for use in ongoing operations..." -LogFilePath $logFilePath -UseUtc:$UseUtc
     }
     if (Test-Path $(Join-Path $Output "Export")) {
@@ -1263,15 +1261,16 @@ function Install-HydrationEpac {
     Write-Host "        Import the ALZ Policy Set using Sync-AlzPolicies, and update the parameters which do not have default values to add policies that will aid in modification of your environment to baseline Microsoft standards."
     Write-Host "    Create Additional Assignments: https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Docs/operational-scripts.md"
     Write-Host "        Review the command Export-PolicyToEPAC to simplify additional assignment creation.`n"
-    Write--Host "Type 'CleanUp' to delete temporary files created during this process, or simply press enter to retain them for review..." -foregroundColor Yellow -BackgroundColor Black
+    Write-Host "Type 'CleanUp' to delete temporary files created during this process, or simply press enter to retain them for review..." -foregroundColor Yellow -BackgroundColor Black
     $cleanupOption = Read-Host "`nCleanup?"
     if ($cleanupOption -eq "CleanUp") {
-        Remove-Item -Path $repoRootPath\epacRepoTemp -Recurse -Force
+        Remove-Item -Path $repoRootPath\temp -Recurse -Force
         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Temporary files removed." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Green
     }
     else{
-        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Temporary files retained at $repoRootPath\epacRepoTemp for review." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
+        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Temporary files retained at $repoRootPath\temp for review." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
         Write-Host "Task Complete!" -ForegroundColor Green
     }
+    Write-Host "Output files retained at $repoRootPath\Output for review, but are excluded from replication to the repo." -ForegroundColor Green
     return
 }
