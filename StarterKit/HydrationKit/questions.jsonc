@@ -44,27 +44,10 @@
         "inputType": "string",
         "allowNull": true // Default to guid generation if null
     },
-    "createIntermediateRootHierarchy": {
-        "outputVariableName": "createMainCaf3Hierarchy",
-        "loopId": "initial",
-        "questionIncrement": 3,
-        "displayText": "Create CAF3 Hierarchy in Main Tenant",
-        "bodyHeader": "Determine whether to create a custom hierarchy, or use the Caf3Hierarchy for the Tenant Intermediate Root Management Group. If this is chosen, a Caf3Hierarchy will be created under the Intermediate Root.",
-        "bodyText": "The Cloud Adoption Framework version 3 Hierarchy based recommendation for Azure Landing Zones is what Microsoft recommends for use within the Intermediate Root to help improve policy deployment efficiency. Unless the organization has a well-considered alternative, it is recommended that this be deployed even if it will not be used immediately in order to provide a destination to use in the migration planning process.",
-        "dataRequest": "Please confirm the decision to create the Caf3Hierarchy in the primary tenant...",
-        "links": [
-            "https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/design-area/resource-org-management-groups#management-groups-in-the-azure-landing-zone-accelerator-and-alz-bicep-repository"
-        ],
-        "inputType": "optionList",
-        "menuOptions": {
-            "Yes": "Create the recommended hierarchy, which will be the root of a new pacSelector.",
-            "No": "Do not create the recommended hierarchy. This should only be chosen if the organization has a well considered hierarchical alternative."
-        }
-    },
     "createIntermediateRoot": {
         "outputVariableName": "createMainIntermediateRoot",
-        "loopId": "optionalCreatePrimaryIntermediateRoot",
-        "questionIncrement": 1,
+        "loopId": "initial",
+        "questionIncrement": 3,
         "displayText": "Create Intermediate Root in Primary Tenant",
         "bodyHeader": "Decide if the Hydration Kit should create the Tenant Intermediate Root group in the primary tenant.",
         "bodyText": "The Cloud Adoption Framework version 3 Hierarchy based recommendation for Azure Landing Zones includes a Tenant Intermediate Root that should be treated as the Tenant Root for operational purposes. This is what Microsoft recommends for use to assist in a Least Privilege model. Choose No if you wish to define an alternate Hierarchy.",
@@ -76,6 +59,23 @@
         "menuOptions": {
             "Yes": "Create the specified intermediate root, which will be the root of a new pacSelector.",
             "No": "Do not create the specified intermediate root, which will cause the script to exit after the interview process completes as this was the choice specified to initiate the deployment. These decisions are mutually exclusive, review the plan."
+        }
+    },
+    "createIntermediateRootHierarchy": {
+        "outputVariableName": "createMainCaf3Hierarchy",
+        "loopId": "initial",
+        "questionIncrement": 4,
+        "displayText": "Create CAF3 Hierarchy in Main Tenant",
+        "bodyHeader": "Determine whether to create a custom hierarchy, or use the Caf3Hierarchy for the Tenant Intermediate Root Management Group. If this is chosen, a Caf3Hierarchy will be created under the Intermediate Root.",
+        "bodyText": "The Cloud Adoption Framework version 3 Hierarchy based recommendation for Azure Landing Zones is what Microsoft recommends for use within the Intermediate Root to help improve policy deployment efficiency. Unless the organization has a well-considered alternative, it is recommended that this be deployed even if it will not be used immediately in order to provide a destination to use in the migration planning process.",
+        "dataRequest": "Please confirm the decision to create the Caf3Hierarchy in the primary tenant...",
+        "links": [
+            "https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/design-area/resource-org-management-groups#management-groups-in-the-azure-landing-zone-accelerator-and-alz-bicep-repository"
+        ],
+        "inputType": "optionList",
+        "menuOptions": {
+            "Yes": "Create the recommended hierarchy, which will be the root of a new pacSelector.",
+            "No": "Do not create the recommended hierarchy. This should only be chosen if the organization has a well considered hierarchical alternative."
         }
     },
     "prefixCaf3Hierarchy": {
