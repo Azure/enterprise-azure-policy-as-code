@@ -8,8 +8,9 @@ function Get-HydrationEpacRepo {
     if (Test-Path $RepoRoot) {
         $RepoRoot = Resolve-Path $RepoRoot
         $repoTempPath = Join-Path $RepoRoot "temp"
-        $starterKitSourcePath = Join-Path $repoTempPath "StarterKit" "*"
-        $starterKitDestinationPath = Join-Path $RepoRoot "StarterKit"
+        # $starterKitSourcePath = Join-Path $repoTempPath "StarterKit" "*"
+        # $starterKitDestinationPath = Join-Path $RepoRoot "StarterKit"
+        $starterKitSourcePath = Join-Path $repoTempPath "StarterKit"
         Write-Host "Downloading HydrationKit from GitHub to $RepoRoot" -ForegroundColor Green
         $url = "https://github.com/Azure/enterprise-azure-policy-as-code.git"
         if (!(Test-Path $repoTempPath)) {
@@ -34,7 +35,7 @@ function Get-HydrationEpacRepo {
                 return
             }
         }
-        $null = Copy-Item $starterKitSourcePath $starterKitDestinationPath -Recurse -Force -ErrorAction SilentlyContinue
+        $null = Copy-Item $starterKitSourcePath $RepoRoot -Recurse -Force -ErrorAction SilentlyContinue
     }
     else {
         Write-Error "Error: Download failed, destination path $RepoRoot does not exist."

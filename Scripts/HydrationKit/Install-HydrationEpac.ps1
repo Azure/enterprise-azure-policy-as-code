@@ -4,7 +4,7 @@
 .DESCRIPTION
     The Install-HydrationEpac function deploys the Enterprise Policy as Code. It takes several optional parameters: DefinitionsRootFolder, StarterKit, AnswerFile, Output, StopPoint, UseUtc, Interactive, and SkipTests. 
 .PARAMETER TenantIntermediateRoot
-    The path to the Tenant Intermediate Root. This parameter is mandatory.
+    The name of the Tenant Intermediate Root. This parameter is mandatory.
 .PARAMETER DefinitionsRootFolder
     The path to the Definitions directory. Defaults to "./Definitions".
 .PARAMETER StarterKit
@@ -36,9 +36,9 @@ function Install-HydrationEpac {
         [Parameter(Mandatory = $false, HelpMessage = "The path to the Definitions directory. Defaults to './Definitions'.")]
         [string]
         $DefinitionsRootFolder = "./Definitions",
-        [Parameter(Mandatory = $false, HelpMessage = "The path to the StarterKit directory. Defaults to './StarterKit'.")]
-        [string]
-        $StarterKit = "./StarterKit",
+        # [Parameter(Mandatory = $false, HelpMessage = "The path to the StarterKit directory. Defaults to './StarterKit'.")]
+        # [string]
+        # $StarterKit = "./StarterKit",
         [Parameter(Mandatory = $false, HelpMessage = "The path to the Output directory. Defaults to './Output'.")]
         [string]
         $Output = "./Output",
@@ -56,6 +56,14 @@ function Install-HydrationEpac {
         $SkipTests
 
     )
+    # Define UI Width for display automation
+    if ($host.UI.RawUI.WindowSize.Width -lt 80 -or $host.UI.RawUI.WindowSize.Width -eq "" -or $null -eq $host.UI.RawUI.WindowSize.Width) {
+        $TerminalWidth = 80
+    }
+    else {
+        $TerminalWidth = $host.UI.RawUI.WindowSize.Width
+    }
+    $stageBlocks = Get-HydrationMessageBlock -TerminalWidth $TerminalWidth
     $epacDevName = "epac-dev"
     Clear-Host
     $sleepTime = 10
@@ -77,50 +85,54 @@ function Install-HydrationEpac {
         $null = New-Item -Path $Output -ItemType Directory -Force
     }
     $Output = (Resolve-Path $Output).Path
+    $exportedDefinitionsPath = @{
+        root = Join-Path $Output "Export"
+        definitions = Join-Path $Output "Export" "Definitions"
+        policyAssignments = Join-Path $Output "Export" "Definitions" "policyAssignments"
+        policyDefinitions = Join-Path $Output "Export" "Definitions" "policyDefinitions"
+        policySetDefinitions = Join-Path $Output "Export" "Definitions" "policySetDefinitions"
+        policyExemptions = Join-Path $Output "Export" "Definitions" "policyExemptions"
+        exportPolicyToEpac = Join-Path $Output "Export" "policyAssignments"
+        starterKit = Join-Path $repoRootPath "StarterKit"
+    }
     # Move to repo root as EPAC generally prefers to be run from this location
     $logDirectory = Join-Path $Output "Logs"
     $logFilePath = Join-Path $logDirectory "Install-HydrationEpac.log"
-    $questionsFilePath = Join-Path $StarterKit "HydrationKit" "questions.jsonc"
+    # $questionsFilePath = Join-Path $StarterKit "HydrationKit" "questions.jsonc"
     if(!(Test-Path $logDirectory)){
         $null = New-Item -Path $logDirectory -ItemType Directory -Force
     }
     # Import, fail to import, or create the answer file
     if ($AnswerFile) {
-        $answerFilePath = $AnswerFile
         if (!(Test-Path $AnswerFile)) {
             Write-Error "Answer file not found at $AnswerFile, exiting..."
             return
         }
         $allInterviewAnswers = Get-Content $AnswerFile `
-        | ConvertFrom-Json -Depth 10 -AsHashtable
+            | ConvertFrom-Json -Depth 10 -AsHashtable
+        $answerFilePath = Resolve-Path $AnswerFile
     }
     else {
         $answerFilePath = Join-Path $Output `
             "HydrationAnswer" `
             "AnswerFile.json"
-        if (!(Test-Path $(Split-Path $AnswerFilePath))) {
-            $null = New-Item -Path $(Split-Path $AnswerFilePath) -ItemType Directory -Force
+        if (!(Test-Path $(Split-Path $answerFilePath))) {
+            $null = New-Item -Path $(Split-Path $answerFilePath) -ItemType Directory -Force
         }
         else {
-            Write-Warning "A file already exists at $AnswerFilePath, and will be overwritten unless you use Ctrl+C to exit..."
-            Read-Host "Press Enter to continue..."
+            if($Interactive){
+                Write-Warning "A file already exists at $answerFilePath, and will be overwritten unless you use Ctrl+C to exit..."
+                Read-Host "Press Enter to continue..."
+            }
             Write-HydrationLogFile -EntryType logEntryDataAsPresented `
-                -EntryData "Overwriting Answer File at $AnswerFilePath" `
+                -EntryData "Overwriting Answer File at $answerFilePath" `
                 -LogFilePath $logFilePath `
-                -UseUtc:$UseUtc `
-                -Silent
+                -UseUtc:$UseUtc
         }
-        "" | Set-Content $AnswerFilePath -Force
+        "" | Set-Content $answerFilePath -Force
     }
-    $pathsToTest += $answerFilePath
 
-    # Define UI Width for display automation
-    if ($host.UI.RawUI.WindowSize.Width -lt 80 -or $host.UI.RawUI.WindowSize.Width -eq "" -or $null -eq $host.UI.RawUI.WindowSize.Width) {
-        $TerminalWidth = 80
-    }
-    else {
-        $TerminalWidth = $host.UI.RawUI.WindowSize.Width
-    }
+
     # Crete an ordered hashtable to hold log entries until the directories are tested
     $endSummary = [PSCustomObject]@{
         preliminaryTestResults  = [ordered]@{}
@@ -185,44 +197,15 @@ function Install-HydrationEpac {
     }
 
     ##################### INSERT INITIAL BLOCK HERE
-    $stageBlocks = [ordered]@{
-        "displayPreliminaryTests" = @{
-            "TerminalWidth"         = $TerminalWidth
-            "RowCharacterColor"     = "Yellow"
-            "TextRowCharacterColor" = "Blue"
-            "SmallRowCharacter"     = "-"
-            "DisplayText"           = "Summarizing Test Results"
-            "LargeRowCharacter"     = "-"
-            "Location"              = "Middle"
-        }
-        "gatherData"              = @{
-            "TerminalWidth"         = $TerminalWidth
-            "RowCharacterColor"     = "Yellow"
-            "TextRowCharacterColor" = "Blue"
-            "SmallRowCharacter"     = "-"
-            "DisplayText"           = "Beginning Data Gathering"
-            "LargeRowCharacter"     = "-"
-            "Location"              = "Middle"
-        }
-        "uiStart"                 = @{
-            "TerminalWidth"         = $TerminalWidth
-            "RowCharacterColor"     = "Blue"
-            "TextRowCharacterColor" = "Cyan"
-            "SmallRowCharacter"     = "+"
-            "DisplayText"           = "Enterprise Policy as Code (EPAC) Hydration Kit"
-            "LargeRowCharacter"     = "="
-            "Location"              = "Top"
-        }
-        "runPreliminaryTests"     = @{
-            "TerminalWidth"         = $TerminalWidth
-            "RowCharacterColor"     = "Blue"
-            "TextRowCharacterColor" = "Yellow"
-            "SmallRowCharacter"     = "-"
-            "DisplayText"           = "Beginning Preliminary Tests"
-            "LargeRowCharacter"     = "+"
-            "Location"              = "Top"
-        }
-    }
+    
+    # $stageBlocks = Get-HydrationMessageBlock
+    # foreach ($key in $stageBlocks2.keys) {
+    #     $stageBlocks2.$key.TerminalWidth = $TerminalWidth
+    #     $stageBlocks.add($key, $stageBlocks2.$key)
+    # }
+    # Remove-Variable stageBlocks2 -ErrorAction SilentlyContinue
+    # $stageBlocks = [ordered]@{
+    # }
     Clear-Host
     ################################################################################
     ################################################################################
@@ -264,19 +247,19 @@ function Install-HydrationEpac {
         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Skipping tests..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Magenta
     }
     else {
-        foreach ($path in $pathsToTest) {
-            $pathTest = Test-HydrationPath -LocalPath $path `
-                -UseUtc:$UseUtc `
-                -LogFilePath $logFilePath `
-                -Silent
-            if ($pathTest -eq "Failed") {
-                Write-Error "The path $path could not be created. Please choose a location to work in that you have write access to and restart the process."
-                $summary.Add($path, "Failed")
-            }
-            else {
-                $summary.Add($path, "Passed")
-            }
-        }
+        # foreach ($path in $pathsToTest) {
+        #     $pathTest = Test-HydrationPath -LocalPath $path `
+        #         -UseUtc:$UseUtc `
+        #         -LogFilePath $logFilePath `
+        #         -Silent
+        #     if ($pathTest -eq "Failed") {
+        #         Write-Error "The path $path could not be created. Please choose a location to work in that you have write access to and restart the process."
+        #         $summary.Add($path, "Failed")
+        #     }
+        #     else {
+        #         $summary.Add($path, "Passed")
+        #     }
+        # }
         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Summary of $($stageblocks.runPreliminaryTests.DisplayText)" -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent
         foreach ($entry in $summary.keys) {
             Write-HydrationLogFile -EntryType testResult -EntryData "$entry -- $($summary.$entry)" -UseUtc:$UseUtc -LogFilePath $logFilePath -Silent
@@ -314,6 +297,11 @@ function Install-HydrationEpac {
         }
         catch {
             $summary.add("gitInstall", "Failed")
+            if(!((Get-ChildItem ./StarterKit/* -Recurse).count -gt 0)){
+                Write-Host "Download the repo at https://github.com/Azure/enterprise-azure-policy-as-code and extract it to the root directory to continue. The StarterKit is required for pipeline deployment..." -ForegroundColor Red
+                Write-Error "Without either git to download the repo, or a Module and [repoRootDirectory]/StarterKit folder, this installer will not work as intended. Please choose one of the two supported paths forward, and run the installer again."
+                return
+            }
         }
         
         Write-Host "Reviewing Returns..." -ForegroundColor Yellow
@@ -470,22 +458,28 @@ function Install-HydrationEpac {
     ################################################################################
     ################################################################################
     # Download Repo Contents
-    Get-HydrationEpacRepo
-    if ($updateStarterKitManually) { Read-Host "TEMP: Pause to copy files" }
-    $stageBlocks2 = Get-Content $(Join-Path $StarterKit 'HydrationKit' 'blockDefinitions.jsonc') | ConvertFrom-Json -Depth 5 -AsHashtable
-    foreach ($key in $stageBlocks2.keys) {
-        $stageBlocks2.$key.TerminalWidth = $TerminalWidth
-        $stageBlocks.add($key, $stageBlocks2.$key)
+    Get-HydrationEpacRepo -RepoRoot $RepoRoot
+    try{
+        Copy-Item -Path $repoRoot "temp" "StarterKit" -Destination $exportedDefinitionsPath.starterKit -Recurse -Force
     }
-    Remove-Variable stageBlocks2 -ErrorAction SilentlyContinue
+    catch{
+        Write-Warning "Failed to copy StarterKit directory: $($_.Exception.Message)"
+    }
+    # # $stageBlocks2 = Get-Content $(Join-Path $StarterKit 'HydrationKit' 'blockDefinitions.jsonc') | ConvertFrom-Json -Depth 5 -AsHashtable
 
+    if ($answers.useModuleorScript -eq "LocalScript") {
+        $scriptsSourcePath = Join-Path -Path $repoRootPath -ChildPath "temp" "Scripts"
+        $scriptDestinationPath = Join-Path -Path $repoRootPath -ChildPath "Scripts"
+        Copy-Item $scriptsSourcePath $scriptDestinationPath -Recurse -Force
+        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Copied Scripts directory to repo for use in ongoing operations..." -LogFilePath $logFilePath -UseUtc:$UseUtc
+    }
     ################################################################################
     ################################################################################
     # Run Interview Process
     if ($AnswerFile) {
-        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Answer File Provided: $AnswerFilePath" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
+        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Answer File Provided: $AnswerFile" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
         try {
-            $allInterviewAnswers = Get-Content $AnswerFilePath | ConvertFrom-Json -Depth 10 -AsHashtable
+            $allInterviewAnswers = Get-Content $AnswerFile | ConvertFrom-Json -Depth 10 -AsHashtable
         }
         catch {
             Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData $Error[0].Exception.Message -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Red
@@ -521,7 +515,7 @@ function Install-HydrationEpac {
                 "Current Tenant ID: $((Get-AzContext).tenant.Id)"
             )
             try {
-                $interview = New-HydrationAnswerSet -LoopId $loopId -QuestionsFilePath $questionsFilePath -Notes $loopNotes -UseUtc:$UseUtc -LogFilePath $logFilePath  -TerminalWidth:$TerminalWidth -ErrorAction Stop
+                $interview = New-HydrationAnswerSet -LoopId $loopId -Notes $loopNotes -UseUtc:$UseUtc -LogFilePath $logFilePath  -TerminalWidth:$TerminalWidth -ErrorAction Stop
             }
             catch {
                 Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData $error[0].Exception.Message -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent
@@ -569,7 +563,7 @@ function Install-HydrationEpac {
                 "$TenantIntermediateRoot Name Status: $($environmentEntry.intermediateRootStatus)"
             )
             try {
-                $interview = New-HydrationAnswerSet -LoopId $loopId -QuestionsFilePath $questionsFilePath -Notes $loopNotes -UseUtc:$UseUtc -LogFilePath $logFilePath  -TerminalWidth:$TerminalWidth -ErrorAction Stop
+                $interview = New-HydrationAnswerSet -LoopId $loopId -Notes $loopNotes -UseUtc:$UseUtc -LogFilePath $logFilePath  -TerminalWidth:$TerminalWidth -ErrorAction Stop
             }
             catch {
                 Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData $error[0].Exception.Message -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent
@@ -590,40 +584,7 @@ function Install-HydrationEpac {
             }
             New-HydrationContinuePrompt -Interactive:$Interactive -SleepTime:$sleepTime
         }
-        # ############
-        # # Main Tenant Caf3 Loop
-        $loopId = "optionalCreateMainCaf3Hierarchy"
-        Write-HydrationLogFile -EntryType newStage -EntryData "Processing QuestionSet: $loopId"  -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent
-        if ($interviewQuestionSets.$loopId -and $allInterviewAnswers.createMainCaf3Hierarchy -eq "Yes") { 
-            if ($environmentEntry.caf3Status -eq "FailedNameCollision") {
-                $loopNotes = @( "CAF3 Hierarchy will require a prefix and/or suffix in order to be deployed properly.")
-            }   
-            try {
-                $interview = New-HydrationAnswerSet -LoopId $loopId -QuestionsFilePath $questionsFilePath -Notes $loopNotes -UseUtc:$UseUtc -LogFilePath $logFilePath  -TerminalWidth:$TerminalWidth -ErrorAction Stop
-            }
-            catch {
-                Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData $error[0].Exception.Message -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent
-                Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Failed to process QuestionSet $loopId"  -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent
-                Write-Error "Error in the interview process for $loopId, please review the error message and rerun the process."
-                return
-            }
-            Write-HydrationLogFile -EntryType answerSetProvided -EntryData "$($interview | Convertto-Json -depth 100 -compress)" -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent
-            Write-Host "`nQuestion Set is complete, responses outlined below..." -ForegroundColor Yellow
-            foreach ($intKey in $interview.keys) {
-                $allInterviewAnswers.Add($intKey, $interview.$intKey)
-                $testSummarySeparator = "-"
-                $hashString = $( -join ($intKey, " ", ($testSummarySeparator * ($TerminalWidth - ($intKey.Length + $($interview.$intKey).Length + 2))), " ", $($interview.$intKey)))
-                Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "$hashString" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Green
-            }
-            New-HydrationContinuePrompt -Interactive:$Interactive -SleepTime:$sleepTime    
-            Remove-Variable loopId -ErrorAction SilentlyContinue
-            Remove-Variable loopNotes -ErrorAction SilentlyContinue
-        }
-        elseif ($environmentEntry.intermediateRootStatus -eq "PassedCaf3Exists" ) {
-            Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "CAF3 Hierarchy is in place under the management group `"$TenantIntermediateRoot`", skipping Caf3 Deployment questions." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Green
-        }
-        # Additional looping logic for multiple pacSelectors can be added later if we don't route this through an agent
-        ############
+                ############
         # corePacSelectors Loop
         $loopId = "corePacSelectors"
         Write-HydrationLogFile -EntryType newStage -EntryData "Processing QuestionSet: $loopId"  -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent
@@ -634,7 +595,7 @@ function Install-HydrationEpac {
             # $loopNotes = @("Location List: Rbac Test Failed, no location list gathered.")
         }
         try {
-            $interview = New-HydrationAnswerSet -LoopId $loopId -QuestionsFilePath $questionsFilePath -Notes $loopNotes -UseUtc:$UseUtc -LogFilePath $logFilePath  -TerminalWidth:$TerminalWidth -ErrorAction Stop
+            $interview = New-HydrationAnswerSet -LoopId $loopId -Notes $loopNotes -UseUtc:$UseUtc -LogFilePath $logFilePath  -TerminalWidth:$TerminalWidth -ErrorAction Stop
         }
         catch {
             Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData $error[0].Exception.Message -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent
@@ -679,7 +640,7 @@ function Install-HydrationEpac {
         Write-HydrationLogFile -EntryType newStage -EntryData "Processing QuestionSet: $loopId"  -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent
 
         try {
-            $interview = New-HydrationAnswerSet -LoopId $loopId -QuestionsFilePath $questionsFilePath -UseUtc:$UseUtc -LogFilePath $logFilePath  -TerminalWidth:$TerminalWidth -ErrorAction Stop
+            $interview = New-HydrationAnswerSet -LoopId $loopId -UseUtc:$UseUtc -LogFilePath $logFilePath  -TerminalWidth:$TerminalWidth -ErrorAction Stop
         }
         catch {
             Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData $error[0].Exception.Message -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent
@@ -722,7 +683,7 @@ function Install-HydrationEpac {
         Write-HydrationLogFile -EntryType newStage -EntryData "Processing QuestionSet: $loopId"  -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent
 
         try {
-            $interview = New-HydrationAnswerSet -LoopId $loopId -QuestionsFilePath $questionsFilePath -UseUtc:$UseUtc -LogFilePath $logFilePath  -TerminalWidth:$TerminalWidth -ErrorAction Stop
+            $interview = New-HydrationAnswerSet -LoopId $loopId -UseUtc:$UseUtc -LogFilePath $logFilePath  -TerminalWidth:$TerminalWidth -ErrorAction Stop
         }
         catch {
             Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData $error[0].Exception.Message -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent
@@ -748,7 +709,7 @@ function Install-HydrationEpac {
         Write-HydrationLogFile -EntryType newStage -EntryData "Processing QuestionSet: $loopId"  -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent
 
         try {
-            $interview = New-HydrationAnswerSet -LoopId $loopId -QuestionsFilePath $questionsFilePath -UseUtc:$UseUtc -LogFilePath $logFilePath  -TerminalWidth:$TerminalWidth -ErrorAction Stop
+            $interview = New-HydrationAnswerSet -LoopId $loopId -UseUtc:$UseUtc -LogFilePath $logFilePath  -TerminalWidth:$TerminalWidth -ErrorAction Stop
         }
         catch {
             Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData $error[0].Exception.Message -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent
@@ -778,7 +739,7 @@ function Install-HydrationEpac {
             Write-HydrationLogFile -EntryType newStage -EntryData "Processing QuestionSet: $loopId"  -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent
 
             try {
-                $interview = New-HydrationAnswerSet -LoopId $loopId -QuestionsFilePath $questionsFilePath -UseUtc:$UseUtc -LogFilePath $logFilePath  -TerminalWidth:$TerminalWidth -ErrorAction Stop
+                $interview = New-HydrationAnswerSet -LoopId $loopId -UseUtc:$UseUtc -LogFilePath $logFilePath  -TerminalWidth:$TerminalWidth -ErrorAction Stop
             }
             catch {
                 Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData $error[0].Exception.Message -LogFilePath $logFilePath -UseUtc:$UseUtc -Silent
@@ -804,12 +765,12 @@ function Install-HydrationEpac {
         # Output Answer File
         $writeAnswerFile = $stageBlocks.writeAnswerFile
         New-HydrationSeparatorBlock @writeAnswerFile
-        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "File Location: $AnswerFilePath"-LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
+        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "File Location: $answerFilePath"-LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
         try {
-            $allInterviewAnswers | ConvertTo-Json -Depth 100 | Set-Content -Path $AnswerFilePath -Force
+            $allInterviewAnswers | ConvertTo-Json -Depth 100 | Set-Content -Path $answerFilePath -Force
         }
         catch {
-            Write-Error "Unable to write the answer file to $AnswerFilePath. Please ensure that you have write access to the location and try again. This was tested during the preliminary checks, so this is an odd situation. It is possible that a write lock, or some other lock, has occurred."
+            Write-Error "Unable to write the answer file to $answerFilePath. Please ensure that you have write access to the location and try again. This was tested during the preliminary checks, so this is an odd situation. It is possible that a write lock, or some other lock, has occurred."
             return
         }
         
@@ -878,7 +839,7 @@ function Install-HydrationEpac {
     catch {
         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData $Error[0].Exception.Message -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Red
         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Unable to create Definitions folder. Please ensure that you have write access to $(Get-Location) and try again." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Red
-        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Use answer file at $AnswerFilePath to rerun the script without prompting for questions to retry this process once the problem is resolved." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
+        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Use answer file at $answerFilePath to rerun the script without prompting for questions to retry this process once the problem is resolved." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
         return
     }
     Write-Host "    Definitions folder structure has been validated..." -ForegroundColor Green
@@ -889,7 +850,7 @@ function Install-HydrationEpac {
 
     $allInterviewAnswers.initialTenantId = (Get-AzContext).tenant.id
     $allInterviewAnswers.initialTenantCloud = (Get-AzContext).environment.name
-    $allInterviewAnswers.initialTenantIntermediateRoot = $TenantIntermediateRoot
+    # $allInterviewAnswers.initialTenantIntermediateRoot = $TenantIntermediateRoot
     $globalSettingsInputs = [ordered]@{
         PacOwnerId                 = $allInterviewAnswers.pacOwnerId
         DefinitionsRootFolder      = $DefinitionsRootFolder
@@ -906,9 +867,6 @@ function Install-HydrationEpac {
         UseUtc                     = $UseUtc
         KeepDfcSecurityAssignments = $false # TODO: Improvement, add a question to the mainpacselector loop for the dfcSecurityAssignments
     }
-    # TODO: Improvement, add a question to main loop that enables a second loop that can be run multiple times to generate additional environments to add here in a loop
-    #       Use a list of hashtable input (AdditionalPacSelectors) to add additional environments to the global settings file
-    #       $additionalEnvironments = @{$i=@{same block as above},$i+n=@{same block as above}}
     Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Creating Global Settings file..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
     try {
         $null = New-HydrationGlobalSettingsFile @globalSettingsInputs  -ErrorAction Stop
@@ -917,57 +875,61 @@ function Install-HydrationEpac {
         Write-Error "Unable to create global-settings file. This is likely a flaw in the choices made above that should have been caught in earlier tests. Please retain your answer file and report this to the EPAC team, and attempt this process again."
         return
     }
-
-
     Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Creating Pipeline..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
     Remove-Variable usePipelineCustomPath -ErrorAction SilentlyContinue
-    if ($allInterviewAnswers.pipelineCustomPath -eq "NotApplicable") {
+    if ($allInterviewAnswers.pipelineCustomPath -eq "NotApplicable"){
         try {
-            if($allInterviewAnswers.codeExecutionType -eq "Script"){
-                if(Test-Path $(Join-Path $PSScriptRoot ".." "Operations/New-PipelinesFromStarterKit.ps1")) {
-                    & (Join-Path $PSScriptRoot ".." "Operations" "New-PipelinesFromStarterKit.ps1") -StarterKitFolder $StarterKit `
+            if($allInterviewAnswers.codeExecutionType -eq "Scripts"){
+                if(Test-Path $(Join-Path $repoRootPath "Scripts" "Operations" "New-PipelinesFromStarterKit.ps1")) {
+                    & (Join-Path $repoRootPath "Scripts" "Operations" "New-PipelinesFromStarterKit.ps1") -StarterKitFolder $exportedDefinitionsPath.starterKit `
                         -PipelineType $allInterviewAnswers.pipelinePlatform `
                         -BranchingFlow $allInterviewAnswers.pipelineFlow `
                         -ScriptType $allInterviewAnswers.codeExecutionType `
-                        -ErrorAction Stop
-                }elseif(Test-Path "./Scripts/Operations/New-PipelinesFromStarterKit.ps1"){
-                    & "./Scripts/Operations/New-PipelinesFromStarterKit.ps1" -StarterKitFolder $StarterKit `
+                        -ErrorAction Stop `
+                        -SuppressConfirm:$true
+                }elseif(Test-Path (Join-Path $repoRootPath "temp" "Scripts" "Operations" "New-PipelinesFromStarterKit.ps1")){
+                    & (Join-Path $repoRootPath "temp" "Scripts" "Operations" "New-PipelinesFromStarterKit.ps1") -StarterKitFolder $exportedDefinitionsPath.starterKit `
                         -PipelineType $allInterviewAnswers.pipelinePlatform `
                         -BranchingFlow $allInterviewAnswers.pipelineFlow `
                         -ScriptType $allInterviewAnswers.codeExecutionType `
-                        -ErrorAction Stop
+                        -ErrorAction Stop `
+                        -SuppressConfirm:$true
                 }
-            }elseif($allInterviewAnswers.codeExecutionType -eq "Module"){
-                New-PipelinesFromStarterKit -StarterKitFolder $StarterKit `
+            }
+            elseif($allInterviewAnswers.codeExecutionType -eq "Module"){
+                New-PipelinesFromStarterKit -StarterKitFolder $exportedDefinitionsPath.starterKit `
                     -PipelineType $allInterviewAnswers.pipelinePlatform `
                     -BranchingFlow $allInterviewAnswers.pipelineFlow `
                     -ScriptType $allInterviewAnswers.codeExecutionType `
-                    -ErrorAction Stop
+                    -ErrorAction Stop `
+                    -SuppressConfirm:$true
             }
         }
         catch {
+            Write-Host "Failure, Error Information: $($_.Exception.Message)" -ForegroundColor Red
             Write-Error "Unable to create pipeline. This is likely a flaw in the choices made above that should have been caught in earlier tests. Please retain your answer file and report this to the EPAC team, and attempt this process again."
             return
         }
     }
     else {
         try {
-            if(Test-Path $(Join-Path $PSScriptRoot ".." "Operations/New-PipelinesFromStarterKit.ps1")) {
-                & (Join-Path "$PSScriptRoot/.." "Operations/New-PipelinesFromStarterKit.ps1") -StarterKitFolder $StarterKit `
+            if(Test-Path $(Join-Path $repoRootPath "Scripts" "Operations" "New-PipelinesFromStarterKit.ps1")) {
+                & (Join-Path $repoRootPath "Scripts" "Operations" "New-PipelinesFromStarterKit.ps1") -StarterKitFolder $exportedDefinitionsPath.starterKit `
                 -PipelinesFolder:$usePipelineCustomPath `
                 -PipelineType $allInterviewAnswers.pipelinePlatform `
                 -BranchingFlow $allInterviewAnswers.pipelineFlow `
                 -ScriptType $allInterviewAnswers.codeExecutionType `
-                -ErrorAction Stop
+                -ErrorAction Stop `
+                -SuppressConfirm:$true
             }elseif(Test-Path "./Scripts/Operations/New-PipelinesFromStarterKit.ps1"){
-                & "./Scripts/Operations/New-PipelinesFromStarterKit.ps1" -StarterKitFolder $StarterKit `
+                & "./Scripts/Operations/New-PipelinesFromStarterKit.ps1" -StarterKitFolder $exportedDefinitionsPath.starterKit `
                 -PipelinesFolder:$usePipelineCustomPath `
                 -PipelineType $allInterviewAnswers.pipelinePlatform `
                 -BranchingFlow $allInterviewAnswers.pipelineFlow `
                 -ScriptType $allInterviewAnswers.codeExecutionType `
                 -ErrorAction Stop
             }else{
-                New-PipelinesFromStarterKit -StarterKitFolder $StarterKit `
+                New-PipelinesFromStarterKit -StarterKitFolder $exportedDefinitionsPath.starterKit `
                 -PipelinesFolder:$usePipelineCustomPath `
                 -PipelineType $allInterviewAnswers.pipelinePlatform `
                 -BranchingFlow $allInterviewAnswers.pipelineFlow `
@@ -1001,20 +963,23 @@ function Install-HydrationEpac {
     }
     if ($allInterviewAnswers.createMainCaf3Hierarchy -eq "Yes") {
         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Creating Main CAF3 Management Groups..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
-        New-HydrationCaf3Hierarchy -DestinationRootName $allInterviewAnswers.initialTenantIntermediateRoot -Prefix $allInterviewAnswers.mainCaf3Prefix -Suffix $allInterviewAnswers.maincaf3Suffix -ErrorAction Stop
+        New-HydrationCaf3Hierarchy -DestinationRootName $allInterviewAnswers.initialTenantIntermediateRoot -Prefix $allInterviewAnswers.mainCaf3Prefix -Suffix $allInterviewAnswers.maincaf3Suffix
+        $updatedTenantIntermediateRoot =  $allInterviewAnswers.initialTenantIntermediateRoot
     }
     ## Build EPAC MG Structure
     if (!($skipEpacMgDeploy)) {
         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Creating Epac Management Groups in $(-join($allInterviewAnswers.epacPrefix,$allInterviewAnswers.initialTenantIntermediateRoot,$allInterviewAnswers.epacSuffix)), a child of $($allInterviewAnswers.epacParent)..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
-        Copy-HydrationManagementGroupHierarchy -SourceGroupName $allInterviewAnswers.initialTenantIntermediateRoot -DestinationParentGroupName $allInterviewAnswers.epacParent -Prefix:$allInterviewAnswers.epacPrefix -Suffix:$allInterviewAnswers.epacSuffix | Out-Null
+        Copy-HydrationManagementGroupHierarchy -SourceGroupName  $allInterviewAnswers.initialTenantIntermediateRoot -DestinationParentGroupName $allInterviewAnswers.epacParent -Prefix:$allInterviewAnswers.epacPrefix -Suffix:$allInterviewAnswers.epacSuffix | Out-Null
     }
+
+
     ## Import Existing Policy Assignments (if applicable)
     if ($allInterviewAnswers.importExistingPolicies -eq "Yes") {
         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Importing Existing Policy Assignments..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
-        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Exporting existing content for PacSelector `'$($allInterviewAnswers.mainTenantMainPacSelectorName)`', for which the root is defined as $($allInterviewAnswers.initialTenantIntermediateRoot)" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
+        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Exporting existing content for PacSelector `'$($allInterviewAnswers.mainTenantMainPacSelectorName)`', for which the root is defined as $( $allInterviewAnswers.initialTenantIntermediateRoot)" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
         try{
-            if(Test-Path $(Join-Path $PSScriptRoot ".." "Operations/Export-AzPolicyResources.ps1")) {
-                & (Join-Path "$PSScriptRoot" ".." "Operations/Export-AzPolicyResources.ps1") -DefinitionsRootFolder $DefinitionsRootFolder `
+            if(Test-Path $(Join-Path $repoRootPath "Scripts" "Operations" "Export-AzPolicyResources.ps1")) {
+                & (Join-Path "$repoRootPath" "Scripts" "Operations" "Export-AzPolicyResources.ps1") -DefinitionsRootFolder $DefinitionsRootFolder `
                 -ExemptionFiles 'csv' `
                 -FileExtension 'jsonc' `
                 -IncludeAutoAssigned `
@@ -1024,8 +989,8 @@ function Install-HydrationEpac {
                 -OutputFolder $Output `
                 -Interactive:$FALSE `
                 -ErrorAction Stop
-            }elseif(Test-Path "./Scripts/Operations/Export-AzPolicyResources.ps1"){
-                & "./Scripts/Operations/Export-AzPolicyResources.ps1" -DefinitionsRootFolder $DefinitionsRootFolder `
+            }elseif(Test-Path $(Join-Path $repoRootPath "temp" "Scripts" "Operations" "Export-AzPolicyResources.ps1")){
+                & (Join-Path "$repoRootPath" "temp" "Scripts" "Operations" "Export-AzPolicyResources.ps1") -DefinitionsRootFolder $DefinitionsRootFolder `
                 -ExemptionFiles 'csv' `
                 -FileExtension 'jsonc' `
                 -IncludeAutoAssigned `
@@ -1053,20 +1018,22 @@ function Install-HydrationEpac {
         }
 
         Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Export process complete. Copying non-assignment content to definitions folder..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
-        $fpath = Join-Path $(Resolve-Path $Output).Path "export" "Definitions"
-        if (!(Test-Path $fpath)) {
-            Write-Error "Unable to find the folder $fpath. You should go to https://portal.azure.com and confirm whether or not assignments exist that are assigned within the referenced scope $($answerFile.initialTenantIntermediateRoot) and its children."
+        # Rename to align with naming expected by Export-PolicyToEPAC, simplifies linux support.
+        Rename-Item -Path (Join-Path $Output "export") -NewName "Export" -Force -ErrorAction SilentlyContinue
+        # $exportedDefinitionsPath = Join-Path $Output "Export" "Definitions"
+        if (!(Test-Path $exportedDefinitionsPath.definitions)) {
+            Write-Error "Unable to find the folder $($exportedDefinitionsPath.definitions). You should go to https://portal.azure.com and confirm whether or not assignments exist that are assigned within the referenced scope $($answerFilePath.initialTenantIntermediateRoot) and its children."
             $noExport = Read-Host "Type 'Confirmed' and press enter to continue, otherwise simply press enter to quit..."
             if (!($noExport -eq "Confirmed")) {
                 {
-                    Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "You have confirmed that the export does not contain your contents. Confirm access, and run the script again, choosing to use the answer file at $answerFile." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Red
+                    Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "You have confirmed that the export does not contain your contents. Confirm access, and run the script again, choosing to use the answer file at $answerFilePath." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Red
                 }
             }
         }
-        elseif (Test-Path $fpath) { # This should be triggered now
-            $nonAssignmentExportFolders = Get-ChildItem $fpath -Directory -Exclude policyAssignments
-            Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Copying $($nonAssignmentExportFolders.count) non-assignment content to definitions folder..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
+        elseif (Test-Path $exportedDefinitionsPath.definitions) { # This should be triggered now
+            $nonAssignmentExportFolders = Get-ChildItem $exportedDefinitionsPath.definitions -Directory -Exclude policyAssignments
             if ($nonAssignmentExportFolders.count -gt 0) {
+                Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Copying $($nonAssignmentExportFolders.count) non-assignment content to definitions folder..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
                 foreach ($sourceDir in $nonAssignmentExportFolders) {
                     $updatedFiles = Get-ChildItem -Path $sourceDir -Recurse -Include "*.json", "*.jsonc", '*.csv'
                     Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Copying content from $sourceDir to $DefinitionsRootFolder" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
@@ -1104,6 +1071,9 @@ function Install-HydrationEpac {
                     }
                 }
             }
+            else{
+                Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    No non-assignment content found to copy." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
+            }
         }
         Remove-Variable noExport -ErrorAction SilentlyContinue
     }
@@ -1118,10 +1088,6 @@ function Install-HydrationEpac {
     if ($allInterviewAnswers.importNist80053Policies -eq "Yes") {
         $auditStandardList += "/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f"
     }
-    # Altered logic to REQUIRE MCSB policies to be imported
-    # if ($allInterviewAnswers.importMcsbPolicies -eq "Yes") {
-    #     $auditStandardList += "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8"
-    # }
     if ($allInterviewAnswers.importAdditionalPolicySets) {
         $splitList = $allInterviewAnswers.importAdditionalPolicySets -split ","
         foreach ($guid in $splitList) {
@@ -1143,10 +1109,42 @@ function Install-HydrationEpac {
             $succ1 = $true
             try {
                 if ($gatherData.policySetDefinitions.name -contains $($polSet.split("/")[-1])) {
-                    Export-PolicyToEPAC -PolicySetDefinitionId $polSet -OutputFolder $(Join-Path $Output "NewExportedAssignments") -AutoCreateParameters $TRUE -UseBuiltIn $TRUE -OverwriteScope $(@("/providers/Microsoft.Management/managementGroups", $allInterviewAnswers.initialTenantIntermediateRoot) -join "/") -OverwritePacSelector $allInterviewAnswers.mainTenantMainPacSelectorName -OverwriteOutput $FALSE
+                    # Handle Scripts based install
+                    if(Test-Path $(Join-Path $repoRootPath "Scripts" "Operations" "Export-PolicyToEPAC.ps1")) {
+                        & (Join-Path "$repoRootPath" "Scripts" "Operations" "Export-PolicyToEPAC.ps1") -PolicySetDefinitionId $polSet `
+                            -OutputFolder $Output  `
+                            -AutoCreateParameters $TRUE  `
+                            -UseBuiltIn $TRUE  `
+                            -OverwriteScope $(@("/providers/Microsoft.Management/managementGroups",  $allInterviewAnswers.initialTenantIntermediateRoot) -join "/")  `
+                            -OverwritePacSelector $allInterviewAnswers.mainTenantMainPacSelectorName  `
+                            -OverwriteOutput $FALSE -ErrorAction Stop
+                    }elseif(Test-Path $(Join-Path $repoRootPath "temp" "Scripts" "Operations" "Export-PolicyToEPAC.ps1")){
+                        & (Join-Path "$repoRootPath" "temp" "Scripts" "Operations" "Export-PolicyToEPAC.ps1") -PolicySetDefinitionId $polSet `
+                            -OutputFolder $Output  `
+                            -AutoCreateParameters $TRUE  `
+                            -UseBuiltIn $TRUE  `
+                            -OverwriteScope $(@("/providers/Microsoft.Management/managementGroups",  $allInterviewAnswers.initialTenantIntermediateRoot) -join "/")  `
+                            -OverwritePacSelector $allInterviewAnswers.mainTenantMainPacSelectorName  `
+                            -OverwriteOutput $FALSE -ErrorAction Stop
+                    }else{
+                        Export-PolicyToEPAC -PolicySetDefinitionId $polSet `
+                            -OutputFolder $Output  `
+                            -AutoCreateParameters $TRUE  `
+                            -UseBuiltIn $TRUE  `
+                            -OverwriteScope $(@("/providers/Microsoft.Management/managementGroups",  $allInterviewAnswers.initialTenantIntermediateRoot) -join "/")  `
+                            -OverwritePacSelector $allInterviewAnswers.mainTenantMainPacSelectorName  `
+                            -OverwriteOutput $FALSE -ErrorAction Stop
+                    }
                 }
                 elseif ($gatherData.policyDefinitions.name -contains $($polSet.split("/")[-1])) {
-                    Export-PolicyToEPAC -PolicyDefinitionId $polSet -OutputFolder $(Join-Path $Output "NewExportedAssignments") -AutoCreateParameters $TRUE -UseBuiltIn $TRUE -OverwriteScope $(@("/providers/Microsoft.Management/managementGroups", $allInterviewAnswers.initialTenantIntermediateRoot) -join "/") -OverwritePacSelector $allInterviewAnswers.mainTenantMainPacSelectorName -OverwriteOutput $FALSE
+                    Export-PolicyToEPAC -PolicyDefinitionId $polSet `
+                        -OutputFolder $Output  `
+                        -AutoCreateParameters $TRUE `
+                        -UseBuiltIn $TRUE `
+                        -OverwriteScope $(@("/providers/Microsoft.Management/managementGroups",  $allInterviewAnswers.initialTenantIntermediateRoot) -join "/") `
+                        -OverwritePacSelector $allInterviewAnswers.mainTenantMainPacSelectorName `
+                        -OverwriteOutput $FALSE `
+                        -ErrorAction Stop
                 }
                 else {
                     Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    PolicySet or PolicyDefinition does not appear to be a valid built-in policySet, skipping..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Red  
@@ -1157,27 +1155,39 @@ function Install-HydrationEpac {
                 $lCount++
             }
         }until($succ1 -eq $true -or $lCount -gt 5)
-        if ($succ1) {
-            Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Copying to  $(Join-Path $Output "NewExportedAssignments" "Export" "policyAssignments")" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow     
-        }
-        else {
-            Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Failed to Export  $(Join-Path $Output "NewExportedAssignments" "Export" "policyAssignments")" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow     
+        if (!($succ1)) {
+            Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Failed to Export Current Azure Policy Assignments. Confirm access level and pressence of assignments to export." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow     
         }
     }
-    Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Copying $(Join-Path $Output "NewExportedAssignments" "Export" "policyAssignments") to Definitions folder structure..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow            
-    if (Test-Path $(Join-Path $Output "NewExportedAssignments" "Export" "policyAssignments")) {
-        Copy-Item -Path $(Join-Path $Output "NewExportedAssignments" "Export" "policyAssignments") `
-            -Destination "$DefinitionsRootFolder" `
-            -Recurse `
-            -Force       
+    if(!(Test-Path $exportedDefinitionsPath.policyAssignments)){
+       $null = New-Item -Path $exportedDefinitionsPath.policyAssignments -ItemType Directory -Force -ErrorAction SilentlyContinue
     }
-    # }
-    Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Updating exported and newly created assignments with epac-dev pacSelector information based on assignments in PacSelector `'$($allInterviewAnswers.mainTenantMainPacSelectorName)...`'" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
-    # Copy the updated assignments to the definitions folder 
-    $updatedAssignmentList = Get-ChildItem -Path $(Join-Path $Output "UpdatedAssignments") -Recurse -Include "*.json", "*.jsonc" -ErrorAction SilentlyContinue
-    if ($updatedAssignmentList.count -gt 0) {
-        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Copying updated $($UpdatedAssignmentList.count) assignments to definitions folder..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
-        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Copying new content to $DefinitionsRootFolder" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
+    Move-Item -Path $(Join-Path $exportedDefinitionsPath.exportPolicyToEpac "*") -Destination $exportedDefinitionsPath.policyAssignments -Force -ErrorAction SilentlyContinue
+    Remove-Item -Path $exportedDefinitionsPath.exportPolicyToEpac -Force -ErrorAction SilentlyContinue
+    Copy-Item -Path $(Join-Path $exportedDefinitionsPath.policyAssignments "*") -Destination $(Join-Path -Path $DefinitionsRootFolder "policyAssignments") -Recurse -Force
+    Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Copied exported assignments to Definitions folder structure..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
+    try{New-HydrationAssignmentPacSelector -SourcePacSelector $allInterviewAnswers.mainTenantMainPacSelectorName `
+        -NewPacSelector $epacDevName `
+        -MGHierarchyPrefix:$allInterviewAnswers.epacPrefix `
+        -MGHierarchySuffix:$allInterviewAnswers.epacSuffix `
+        -Definitions $DefinitionsRootFolder `
+        -Output $Output `
+        -ErrorAction Stop
+    }
+    catch{
+        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData $Error[0].Exception.Message -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Red
+        return
+    }
+    Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Updated exported and newly created assignments with epac-dev pacSelector information based on assignments in PacSelector `'$($allInterviewAnswers.mainTenantMainPacSelectorName)...`'" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
+    if ((Get-ChildItem  $(Join-Path $Output "UpdatedAssignments")).count -gt 0) {
+        Copy-Item -Path $(Join-Path $Output "UpdatedAssignments" "*") -Destination $(Join-Path -Path $DefinitionsRootFolder "policyAssignments") -Recurse -Force
+        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Copied updated assignments to Definitions folder structure..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
+        # $updatedAssignmentList = Get-ChildItem -Path $(Join-Path $Output "UpdatedAssignments") -Recurse -Include "*.json", "*.jsonc" -ErrorAction SilentlyContinue
+        # if ($updatedAssignmentList.count -gt 0) {
+        #     Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Copying updated $($UpdatedAssignmentList.count) assignments to definitions folder..." -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
+        #     Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "Copying new content to $DefinitionsRootFolder" -LogFilePath $logFilePath -UseUtc:$UseUtc -ForegroundColor Yellow
+        # }
+
     }
     else {
         Write-HydrationLogFile -EntryType logEntryDataAsPresented `
@@ -1185,40 +1195,6 @@ function Install-HydrationEpac {
             -LogFilePath $logFilePath `
             -UseUtc:$UseUtc `
             -ForegroundColor Yellow
-    }
-    if ($answers.useModuleorScript -eq "LocalScript") {
-        $scriptsSourcePath = Join-Path -Path $repoRootPath -ChildPath "temp" "Scripts"
-        $scriptDestinationPath = Join-Path -Path $repoRootPath -ChildPath "Scripts"
-        Copy-Item $scriptsSourcePath $scriptDestinationPath -Recurse -Force
-        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Copied Scripts directory to repo for use in ongoing operations..." -LogFilePath $logFilePath -UseUtc:$UseUtc
-    }
-    # if (Test-Path $(Join-Path $Output "Export")) {
-    #     Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Copying exported content to $DefinitionsRootFolder..."  -LogFilePath $logFilePath -UseUtc:$UseUtc
-    #     Copy-Item -Path $(Join-Path $Output "export" "Definitions" "*") -Destination $DefinitionsRootFolder -Recurse -Force -Exclude "policy-ownership.csv"
-    # }
-    # try {
-    #     # $null = Get-ChildItem -Path $policyAssignmentPath -Recurse -Include "*.json", "*.jsonc" -ErrorAction Stop
-    # }
-    # catch {
-    #     Write-Error "No policy assignments found, rerun the process."
-    # }
-    # $fullAssignmentList = Get-ChildItem "$DefinitionsRootFolder/policyAssignments" -Recurse -Include "*.json", "*.jsonc" -File -ErrorAction SilentlyContinue
-    # foreach($assignment in $fullAssignmentList){
-    # }
-    if (Test-Path $(Join-Path $Output "export" "Definitions")) {
-        Copy-Item -Path $(Join-Path $Output "export" "Definitions" "*") -Destination $DefinitionsRootFolder -Recurse -Force -Exclude "policy-ownership.csv"
-        Write-HydrationLogFile -EntryType logEntryDataAsPresented -EntryData "    Copying exported content to $DefinitionsRootFolder..."  -LogFilePath $logFilePath -UseUtc:$UseUtc
-    }
-    # Read-Host "pause here debug"
-    New-HydrationAssignmentPacSelector -SourcePacSelector $allInterviewAnswers.mainTenantMainPacSelectorName `
-        -NewPacSelector $epacDevName `
-        -MGHierarchyPrefix:$allInterviewAnswers.epacPrefix `
-        -MGHierarchySuffix:$allInterviewAnswers.epacSuffix `
-        -Definitions $DefinitionsRootFolder `
-        -Output $Output `
-        -ErrorAction Stop
-    if ((Get-ChildItem  $(Join-Path $Output "UpdatedAssignments")).count -gt 0) {
-        Copy-Item -Path $(Join-Path $Output "UpdatedAssignments" "*") -Destination $(Join-Path -Path $DefinitionsRootFolder -ChildPath "policyAssignments") -Recurse -Force
     }
     ################################################################################
     # Closing Tasks

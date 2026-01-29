@@ -4,9 +4,9 @@ function New-HydrationAnswerSet {
         [Parameter(Mandatory = $true)]
         [string]
         $LoopId,
-        [Parameter(Mandatory = $true)]
-        [string]
-        $QuestionsFilePath,
+        # [Parameter(Mandatory = $true)]
+        # [string]
+        # $QuestionsFilePath,
         [Parameter(Mandatory = $true)]
         [string]
         $LogFilePath,
@@ -20,19 +20,19 @@ function New-HydrationAnswerSet {
         [switch]
         $UseUtc
     )
-    if (!(Test-Path $QuestionsFilePath)) {
-        Write-Error "Questions file not found at $QuestionsFilePath"
-        return "Failed, Questions file not found at $QuestionsFilePath...."
-    }
-    else {
-        $fullQuestionsList = Get-Content $QuestionsFilePath | ConvertFrom-Json -Depth 10 -AsHashtable
-        $questionsList = @{}
-        foreach ($questionKey in $fullQuestionsList.Keys) {
-            if ($fullQuestionsList.$questionKey.loopId -eq $LoopId) {
-                $questionsList.Add($questionKey, $fullQuestionsList.$questionKey)
-            }
+    # if (!(Test-Path $QuestionsFilePath)) {
+    #     Write-Error "Questions file not found at $QuestionsFilePath"
+    #     return "Failed, Questions file not found at $QuestionsFilePath...."
+    # }
+    # else {
+    $fullQuestionsList = Get-HydrationQuestionList
+    $questionsList = @{}
+    foreach ($questionKey in $fullQuestionsList.Keys) {
+        if ($fullQuestionsList.$questionKey.loopId -eq $LoopId) {
+            $questionsList.Add($questionKey, $fullQuestionsList.$questionKey)
         }
     }
+    # }
     $responseList = [ordered]@{}
     foreach ($question1 in $questionsList.Keys) {
         $responseList.Add($questionsList.$question1.outputVariableName, "Skipped")

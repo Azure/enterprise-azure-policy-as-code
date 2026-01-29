@@ -156,6 +156,8 @@ $scriptRoot = Split-Path $PSScriptRoot -Parent
 . "$PSScriptRoot/Update-HydrationModuleToSupportedVersion.ps1"
 . "$PSScriptRoot/Update-HydrationStarterKitAssignmentScope.ps1"
 . "$PSScriptRoot/Write-HydrationLogFile.ps1"
+. "$PSScriptRoot/Get-HydrationMessageBlock.ps1"
+. "$PSScriptRoot/Get-HydrationQuestionList.ps1"
 
 . "$PSScriptRoot/../HydrationKit/Build-HydrationDeploymentPlans.ps1"
 . "$PSScriptRoot/../HydrationKit/Copy-HydrationManagementGroupHierarchy.ps1"
