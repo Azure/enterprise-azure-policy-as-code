@@ -146,7 +146,7 @@ function Update-HydrationAssignmentDestination {
         }
         $outputFile = Join-Path $Output "UpdatedAssignmentDestination" "Definitions" "policyAssignments" $relativeFilePath
         if (!(Test-Path (Split-Path $outputFile))) {
-            New-Item -ItemType Directory -Path (Split-Path $outputFile) | Out-Null
+            $null = New-Item -ItemType Directory -Path (Split-Path $outputFile) | Out-Null
         }
         $assignmentData | ConvertTo-Json -Depth 100 | Set-Content -Path $outputFile
     }

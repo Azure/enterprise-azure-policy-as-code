@@ -28,7 +28,11 @@ function New-HydrationSeparatorBlock {
     $smallRow = ($SmallRowCharacter * $TerminalWidth)
     $largeRow = ($LargeRowCharacter * $TerminalWidth)
     $modifiedDisplayText = " $DisplayText "
-    $textRow = -join (($SmallRowCharacter * ([math]::Floor(($TerminalWidth - $modifiedDisplayText.Length) / 2))), $modifiedDisplayText, ($SmallRowCharacter * ([math]::Ceiling(($TerminalWidth - $modifiedDisplayText.Length) / 2))))
+    $front = ([math]::Floor(($TerminalWidth - $modifiedDisplayText.Length) / 2))
+    $back = ([math]::Ceiling(($TerminalWidth - $modifiedDisplayText.Length) / 2))
+    if ($front -lt 0) { $front = 0 }
+    if ($back -lt 0) { $back = 0 } 
+    $textRow = -join (($SmallRowCharacter * $front), $modifiedDisplayText, ($SmallRowCharacter * $back))
     switch ($Location) {
         "Top" {
             Write-Host "`n`n$largeRow" -ForegroundColor $RowCharacterColor
