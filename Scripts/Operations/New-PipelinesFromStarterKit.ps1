@@ -41,7 +41,10 @@ param (
 
     [Parameter(Mandatory = $false, HelpMessage = "Using Powershell module or script?")]
     [ValidateSet("Module", "Scripts")]
-    [string] $ScriptType = "Module"
+    [string] $ScriptType = "Module",
+
+    [Parameter(Mandatory = $false, HelpMessage = "Suppress confirmation prompts to support automation options including pipeline use")]
+    [switch]$SuppressConfirm
 )
 
 if (!(Test-Path $StarterKitFolder)) {
@@ -102,6 +105,6 @@ if (!(Test-Path $templatesFolder)) {
 
 Write-Information "Copying starter kit  $pipelineTypeText ($starterPipelinesSubfolder) from '$starterPipelinesPath' to $PipelinesFolder" -InformationAction Continue
 Write-Information "Copying starter kit  $templateTypeText (use $ScriptType) from '$starterTemplatesPath' to $templatesFolder" -InformationAction Continue
-Read-Host "Press Enter to continue"
+if (-not $SuppressConfirm) {Read-Host "Press Enter to continue"}
 Copy-Item -Path $starterPipelinesPath -Destination $PipelinesFolder
 Copy-Item -Path $starterTemplatesPath -Destination $templatesFolder
