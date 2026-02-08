@@ -29,7 +29,7 @@ Param(
 if ($Tag -eq "") {
     switch ($Type) {
         'ALZ' {
-            $Tag = "platform/alz/2025.09.3"
+            $Tag = "platform/alz/2026.01.1"
         }
         'FSI' {
             $Tag = "platform/fsi/2025.03.0"
@@ -38,7 +38,7 @@ if ($Tag -eq "") {
             $Tag = "platform/amba/2025.11.0"
         }
         'SLZ' {
-            $Tag = "platform/slz/2025.10.1"
+            $Tag = "platform/slz/2026.02.0"
         }
     }
 }
