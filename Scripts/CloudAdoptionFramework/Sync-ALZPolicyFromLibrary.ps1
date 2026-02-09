@@ -98,7 +98,7 @@ catch {
     Write-ModernStatus -Message "Telemetry could not be enabled: $($_.Exception.Message)" -Status "warning" -Indent 2
 }
 
-if (-not($SyncAssignmentsOnly)) {
+if (-not($SyncAssignmentsOnly) -and $Type -ne "SLZ") {
     Write-ModernSection -Title "Creating Policy Definition Objects" -Indent 0
     #region Create policy definition objects
     foreach ($file in Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_definitions" -Recurse -File -Include *.json) {
