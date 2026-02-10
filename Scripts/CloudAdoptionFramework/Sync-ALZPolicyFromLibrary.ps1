@@ -29,7 +29,7 @@ Param(
 if ($Tag -eq "") {
     switch ($Type) {
         'ALZ' {
-            $Tag = "platform/alz/2025.09.3"
+            $Tag = "platform/alz/2026.01.1"
         }
         'FSI' {
             $Tag = "platform/fsi/2025.03.0"
@@ -38,7 +38,7 @@ if ($Tag -eq "") {
             $Tag = "platform/amba/2025.11.0"
         }
         'SLZ' {
-            $Tag = "platform/slz/2025.10.1"
+            $Tag = "platform/slz/2026.02.0"
         }
     }
 }
@@ -98,7 +98,7 @@ catch {
     Write-ModernStatus -Message "Telemetry could not be enabled: $($_.Exception.Message)" -Status "warning" -Indent 2
 }
 
-if (-not($SyncAssignmentsOnly)) {
+if (-not($SyncAssignmentsOnly) -and $Type -ne "SLZ") {
     Write-ModernSection -Title "Creating Policy Definition Objects" -Indent 0
     #region Create policy definition objects
     foreach ($file in Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_definitions" -Recurse -File -Include *.json) {
