@@ -193,6 +193,8 @@ function Get-GlobalSettings {
                 globalExcludedScopesManagementGroups = $globalExcludedScopesManagementGroupsList
                 excludedPolicyDefinitions            = @()
                 excludedPolicySetDefinitions         = @()
+                excludedPolicyDefinitionFiles        = @()
+                excludedPolicySetDefinitionFiles     = @()
                 excludedPolicyAssignments            = @()
                 excludeSubscriptions                 = $false
                 doNotDisableDeprecatedPolicies       = $false
@@ -303,6 +305,20 @@ function Get-GlobalSettings {
                         Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.excludedPolicyAssignments must be an array of strings."
                     }
                     $desiredState.excludedPolicyAssignments = $excluded
+                }
+                $excluded = $desired.excludedPolicyDefinitionFiles
+                if ($null -ne $excluded) {
+                    if ($excluded -isnot [array]) {
+                        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.excludedPolicyDefinitionFiles must be an array of strings."
+                    }
+                    $desiredState.excludedPolicyDefinitionFiles = $excluded
+                }
+                $excluded = $desired.excludedPolicySetDefinitionFiles
+                if ($null -ne $excluded) {
+                    if ($excluded -isnot [array]) {
+                        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.excludedPolicySetDefinitionFiles must be an array of strings."
+                    }
+                    $desiredState.excludedPolicySetDefinitionFiles = $excluded
                 }
                 if ($desired.excludeSubscriptions) {
                     $desiredState.excludeSubscriptions = $true

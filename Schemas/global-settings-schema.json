@@ -87,6 +87,18 @@
                                     "type": "string"
                                 }
                             },
+                            "excludedPolicyDefinitionFiles": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "excludedPolicySetDefinitionFiles": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
                             "excludedPolicyAssignments": {
                                 "type": "array",
                                 "items": {

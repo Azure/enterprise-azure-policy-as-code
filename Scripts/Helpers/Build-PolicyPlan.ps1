@@ -33,10 +33,15 @@ function Build-PolicyPlan {
     $definitionsUpdate = $Definitions.update
     $definitionsReplace = $Definitions.replace
     $definitionsUnchanged = 0
+    $definitionsIgnored = 0
     $thisPacOwnerId = $PacEnvironment.pacOwnerId
 
     foreach ($file in $definitionFiles) {
-
+        if ($file.Name -in $PacEnvironment.desiredState.excludedPolicyDefinitionFiles) {
+            Write-ModernStatus -Message "Excluded by configuration: $($file.FullName)" -Status "skip" -Indent 4
+            $definitionsIgnored++
+            continue
+        }
         # Write-Information "Processing $($definitionFilesSet.Length) Policy files in this parallel execution."
         $Json = Get-Content -Path $file.FullName -Raw -ErrorAction Stop
         $definitionObject = $null

@@ -30,9 +30,15 @@ function Build-PolicySetPlan {
     $deploymentRootScope = $PacEnvironment.deploymentRootScope
     $policyDefinitionsScopes = $PacEnvironment.policyDefinitionsScopes
     $duplicateDefinitionTracking = @{}
+    $definitionsIgnored = 0
     $thisPacOwnerId = $PacEnvironment.pacOwnerId
 
     foreach ($file in $definitionFiles) {
+        if ($file.Name -in $PacEnvironment.desiredState.excludedPolicySetDefinitionFiles) {
+            Write-ModernStatus -Message "Excluded by configuration: $($file.FullName)" -Status "skip" -Indent 4
+            $definitionsIgnored++
+            continue
+        }
         $Json = Get-Content -Path $file.FullName -Raw -ErrorAction Stop
 
         $definitionObject = $null

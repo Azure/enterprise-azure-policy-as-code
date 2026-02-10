@@ -30,6 +30,8 @@ Desired State strategy enables you to adjust the default behavior to fit more co
 | `excludedScopes` | An array of scopes to exclude from management by EPAC. Wild cards are supported. | Empty array |
 | `excludedPolicyDefinitions` | An array of Policy Definitions to exclude from management by EPAC. Wild cards are supported. | Empty array |
 | `excludedPolicySetDefinitions` | An array of Policy Set Definitions to exclude from management by EPAC. Wild cards are supported. | Empty array |
+| `excludedPolicyDefinitionFiles` | An array of Policy Definition file names to exclude from management by EPAC. | Empty array |
+| `excludedPolicySetDefinitionFiles` | An array of Policy Set Definition file names to exclude from management by EPAC. | Empty array |
 | `excludedPolicyAssignments` | An array of Policy Assignments to exclude from management by EPAC. Wild cards are supported. | Empty array |
 | `doNotDisableDeprecatedPolicies` | Automatically set deprecated policies' policy effect to "Disabled". This setting can be used to override that behavior by setting it to `true`. | `false` |
 | `excludeSubscriptions` | Exclude all subscription under the deployment root scope. Designed for environments containing many frequently updated subscriptions that are not requiring management and where using `excludedScopes` would be impractical to maintain. If resource groups are added `excludedScopes` they will be ignored as this setting will take precedence by virtue of the fact that it excludes all Subscriptions, which by definition contain all Resource Groups. It will not effect excluded management group scopes. | `false` |
