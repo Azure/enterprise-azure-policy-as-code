@@ -166,6 +166,8 @@ This happens when EPAC `strategy` is `full` and some child scopes contain Policy
 | Subscriptions | `desiredState.excludeSubscriptions` | Preferred way to exclude all Subscriptions within a pacSelector |
 | Policy Definitions | `desiredState.excludedPolicyDefinitions` | Exclude specific Policy Definitions |
 | Policy Set Definitions | `desiredState.excludedPolicySetDefinitions` | Exclude specific Policy Set Definitions |
+| Policy Definition Files | `desiredState.excludedPolicyDefinitionFiles` | Exclude specific Policy Definition Files |
+| Policy Set Definition Files | `desiredState.excludedPolicySetDefinitionFiles` | Exclude specific Policy Set Definition Files |
 | Policy Assignments | `desiredState.excludedPolicyAssignments` | Exclude specific Policy Assignments |
 
 > **Note:** `"/subscriptions/subscriptionsPattern/*"` is also a valid `excludedScopes` value, but is more commonly used for name based filtering
