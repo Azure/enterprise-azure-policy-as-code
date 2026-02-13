@@ -1,3 +1,4 @@
+function Sync-ALZPolicyFromLibrary {
 Param(
     [Parameter(Mandatory = $true)]
     [string] $DefinitionsRootFolder,
@@ -23,9 +24,6 @@ Param(
 
 
 )
-
-# Dot Source Helper Scripts
-. "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
 
 # Latest tag values
 if ($Tag -eq "") {
@@ -331,9 +329,12 @@ try {
             }
         
 
+            # Ensure nodeName uses landing_zones with underscore instead of landingzones
+            $nodeNamePrefix = if ($archetype.name -eq "landingzones") { "landing_zones" } else { $archetype.name }
+            
             $baseTemplate = [ordered]@{
                 "`$schema"      = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json"
-                nodeName        = "$($archetype.name)/$($fileContent.name)"
+                nodeName        = "$nodeNamePrefix/$($fileContent.name)"
                 assignment      = [ordered]@{
                     name        = $fileContent.Name
                     displayName = $fileContent.properties.displayName
@@ -580,3 +581,4 @@ catch {
     exit 
 }
 #endregion Create assignment objects
+}
