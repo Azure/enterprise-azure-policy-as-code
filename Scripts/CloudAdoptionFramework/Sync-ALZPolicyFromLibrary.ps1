@@ -17,7 +17,9 @@ Param(
 
     [switch] $EnableOverrides,
 
-    [switch] $SyncAssignmentsOnly
+    [switch] $SyncAssignmentsOnly,
+
+    [switch] $SyncAMBAExtendedPolicies
 
 
 )
@@ -59,6 +61,24 @@ if ($LibraryPath -eq "") {
     }
     else {
         Write-ModernStatus -Message "Failed to clone repository" -Status "error" -Indent 4
+        exit 1
+    }
+}
+
+if ($Type -eq "AMBA" -and $SyncAMBAExtendedPolicies) {
+    $AMBALibraryPath = Join-Path -Path (Get-Location) -ChildPath "temp_amba_extended"
+    # Check if the temp folder exists, and delete it if it does
+    if (Test-Path $AMBALibraryPath) {
+        Write-ModernStatus -Message "Removing existing temp AMBA extended policies folder..." -Status "processing" -Indent 2
+        Remove-Item -Path $AMBALibraryPath -Recurse -Force
+    }
+    Write-ModernStatus -Message "Cloning Azure Monitor Baseline Alerts repository for AMBA extended policies..." -Status "processing" -Indent 2
+    git clone --config advice.detachedHead=false --depth 1 https://github.com/Azure/azure-monitor-baseline-alerts.git $AMBALibraryPath
+    if ($LASTEXITCODE -eq 0) {
+        Write-ModernStatus -Message "AMBA extended policies repository cloned successfully" -Status "success" -Indent 4
+    }
+    else {
+        Write-ModernStatus -Message "Failed to clone AMBA extended policies repository" -Status "error" -Indent 4
         exit 1
     }
 }
@@ -168,6 +188,22 @@ if (-not($SyncAssignmentsOnly) -and $Type -ne "SLZ") {
     Write-ModernSection -Title "Creating Assignment Objects" -Indent 0
 }
 #endregion Create policy set definition objects
+
+if (-not($SyncAssignmentsOnly) -and $Type -eq "AMBA" -and $SyncAMBAExtendedPolicies) {
+    Write-ModernSection -Title "Creating AMBA Extended Policy Definition Objects" -Indent 0
+    #region Create AMBA extended policy definition objects
+    foreach ($file in (Get-ChildItem -Path "$AMBALibraryPath/services" -Recurse -File -Include *.json | Where-Object FullName -match "\\policy\\")) {
+        $fileContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
+        $baseTemplate = [ordered]@{
+            '$schema'  = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json"
+            name       = $fileContent.name -replace "/", "_" -replace "%", "pc"
+            properties = $fileContent.properties
+        }
+        $fileName = $fileContent.Name -replace "/", "_" -replace "%", "pc"
+        $category = $baseTemplate.properties.Metadata.category
+        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyDefinitions/$Type/$category" -ItemType File -Name "$($fileName).json" -Force -ErrorAction SilentlyContinue
+    }
+}
 
 #region Create assignment objects
 try {
@@ -531,6 +567,10 @@ try {
 
     if ($LibraryPath -eq $tempPath) {
         Remove-Item $LibraryPath -Recurse -Force -ErrorAction SilentlyContinue
+    }
+
+    if ($AMBALibraryPath) {
+        Remove-Item $AMBALibraryPath -Recurse -Force -ErrorAction SilentlyContinue
     }
     
     Write-ModernStatus -Message "ALZ Policy sync completed successfully" -Status "success" -Indent 0
