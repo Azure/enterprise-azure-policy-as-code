@@ -122,6 +122,13 @@ New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type AMBA -P
 Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type AMBA -PacEnvironmentSelector "epac-dev"
 ```
 
+The Azure Monitor Baseline Alerts project also provides a number of policy definitions not included in the ALZ Library. To sync these definitions use the `-SyncAMBAExtendedPolicies` switch as below when syncing the AMBA policies. 
+
+```ps1
+# Sync the AMBA policies and extended policies and assign to the "epac-dev" PAC environment.
+Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type AMBA -PacEnvironmentSelector "epac-dev" -SyncAMBAExtendedPolicies
+```
+
 ### SLZ
 
 For users interested in deploying the [Sovereignty Policy Baseline](https://github.com/Azure/sovereign-landing-zone/blob/main/docs/scenarios/Sovereignty-Baseline-Policy-Initiatives.md) project with EPAC use the commands below.
