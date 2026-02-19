@@ -221,6 +221,16 @@ catch {
     exit
 }
 
+# Gather existing files
+$existingAssignments = Get-ChildItem -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector" -Recurse -File -Include *.jsonc -ErrorAction SilentlyContinue | `
+    ForEach-Object {
+    $content = Get-Content -Path $_.FullName -Raw | ConvertFrom-Json
+    [PSCustomObject]@{
+        Path = $_.FullName
+        Name = $content.assignment.name
+    }
+}
+
 if ($EnableOverrides) {
     Write-ModernStatus -Message "Overrides enabled: Custom management group structures and assignments will be used where available." -Status "info" -Indent 2
     if ($structureFile.overrides.archetypes.ignore) {
@@ -316,18 +326,38 @@ try {
         $finalArchetypeArray = $finalArchetypeArray | Where-Object { $_.name -ne "landing_zones" }
     }
 
+    # Remove files in policyAssignments that are not in the new structure
+
+    foreach ($archetype in $archetypeArray) {
+        foreach ($policyToRemove in $archetype.policy_assignments_to_remove) {
+            $existingFile = $existingAssignments | Where-Object { $_.Name -eq $policyToRemove }
+            if ($existingFile) {
+                Remove-Item -Path $existingFile.Path -Force -ErrorAction SilentlyContinue
+                Write-ModernStatus -Message "Removed assignment '$policyToRemove' as it is no longer included in the archetype '$($archetype.name)'." -Status "info" -Indent 2
+            }
+        }
+    }
+
+    $createdPolicyAssignments = @()
     foreach ($archetype in $finalArchetypeArray) {
         if ($archetype.name -in $ignoreArchetypes) {
             Write-ModernStatus -Message "Ignoring archetype: $($archetype.name)" -Status "info" -Indent 2
             continue
         }
-        foreach ($requiredAssignment in ($archetype.policy_assignments | Where-Object { ($_ -notmatch "^Enforce-(GR|Encrypt)-\w+0") })) {
+        foreach ($requiredAssignment in ($archetype.policy_assignments | Where-Object {
+                    -not [string]::IsNullOrWhiteSpace("$_") -and ($_ -notmatch "^Enforce-(GR|Encrypt)-\w+0")
+                })) {
             switch ($Type) {
                 "ALZ" { $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_assignments" | Where-Object { $_.BaseName.Split(".")[0] -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json }
                 "AMBA" { $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_assignments" | Where-Object { $_.BaseName.Split(".")[0].Replace("_", "-") -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json }
                 "SLZ" { $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_assignments" | Where-Object { $_.BaseName.Split(".")[0].Replace("_", "-") -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json }
                 "FSI" { $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_assignments" | Where-Object { $_.BaseName.Split(".")[0].Replace("_", "-") -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json }
                 default { $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_assignments" | Where-Object { $_.BaseName.Split(".")[0] -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json }
+            }
+
+            if ($null -eq $fileContent -or [string]::IsNullOrWhiteSpace($fileContent.name)) {
+                Write-ModernStatus -Message "Skipping unresolved policy assignment '$requiredAssignment' in archetype '$($archetype.name)'." -Status "warning" -Indent 2
+                continue
             }
         
 
@@ -497,7 +527,20 @@ try {
                 ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope, additionalRoleAssignments | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
                 (Get-Content "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$($fileContent.name).jsonc") -replace "\.ne\.", ".$dnsZoneRegion." | Set-Content "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$($fileContent.name).jsonc"
             }
+
+            $obj = [PSCustomObject]@{
+                Path = "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$($fileContent.name).jsonc"
+                Name = $fileContent.name
+            }
+            $createdPolicyAssignments += $obj
         }
+    }
+
+    # Remove any assignments that were not created in this sync to clean up old assignments that are no longer in the library structure
+    $assignmentsToRemove = $existingAssignments | Where-Object { $_.Name -notin $createdPolicyAssignments.Name }
+    foreach ($assignment in $assignmentsToRemove) {
+        Remove-Item -Path $assignment.Path -Force -ErrorAction SilentlyContinue
+        Write-ModernStatus -Message "Removed assignment '$($assignment.Name)' as it is no longer included in the library structure." -Status "info" -Indent 2
     }
 
     if ($CreateGuardrailAssignments -and $Type -eq "ALZ") {
