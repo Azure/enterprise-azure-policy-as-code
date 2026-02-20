@@ -345,7 +345,7 @@ try {
             continue
         }
         foreach ($requiredAssignment in ($archetype.policy_assignments | Where-Object {
-                    -not [string]::IsNullOrWhiteSpace("$_") -and ($_ -notmatch "^Enforce-(GR|Encrypt)-\w+0")
+                    -not [string]::IsNullOrWhiteSpace("$_") -and ($CreateGuardrailAssignments -or ($_ -notmatch "^Enforce-(GR|Encrypt)-\w+0"))
                 })) {
             switch ($Type) {
                 "ALZ" { $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_assignments" | Where-Object { $_.BaseName.Split(".")[0] -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json }
@@ -365,7 +365,7 @@ try {
                 "`$schema"      = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json"
                 nodeName        = "$($archetype.name)/$($fileContent.name)"
                 assignment      = [ordered]@{
-                    name        = $fileContent.Name
+                    name        = $fileContent.Name -replace "Enforce-Guardrails", "GR" -replace "Enforce-Encryption", "EN"
                     displayName = $fileContent.properties.displayName
                     description = $fileContent.properties.description
                 }
@@ -543,70 +543,70 @@ try {
         Write-ModernStatus -Message "Removed assignment '$($assignment.Name)' as it is no longer included in the library structure." -Status "info" -Indent 2
     }
 
-    if ($CreateGuardrailAssignments -and $Type -eq "ALZ") {
-        foreach ($deployment in $structureFile.enforceGuardrails.deployments) {
-            foreach ($file in Get-ChildItem "$LibraryPath/platform/$($Type.ToLower())/policy_set_definitions" -Recurse -File -Include *.json) {
-                if (($file.Name -match "^Enforce-(Guardrails|Encryption)-") -and ($file.Name.Split(".")[0] -in $deployment.policy_set_names)) {
-                    $fileContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json -Depth 100
+    # if ($CreateGuardrailAssignments -and $Type -eq "ALZ") {
+    #     foreach ($deployment in $structureFile.enforceGuardrails.deployments) {
+    #         foreach ($file in Get-ChildItem "$LibraryPath/platform/$($Type.ToLower())/policy_set_definitions" -Recurse -File -Include *.json) {
+    #             if (($file.Name -match "^Enforce-(Guardrails|Encryption)-") -and ($file.Name.Split(".")[0] -in $deployment.policy_set_names)) {
+    #                 $fileContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json -Depth 100
 
-                    $baseTemplate = [ordered]@{
-                        "`$schema"      = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json"
-                        nodeName        = "$($fileContent.name)"
-                        assignment      = [ordered]@{
-                            name        = $fileContent.Name -replace "Enforce-Guardrails", "GR" -replace "Enforce-Encryption", "EN"
-                            displayName = $fileContent.properties.displayName
-                            description = $fileContent.properties.description
-                        }
-                        definitionEntry = [ordered]@{
-                            displayName   = $fileContent.properties.displayName
-                            policySetName = $fileContent.name
-                        }
-                        parameters      = @{}
-                        enforcementMode = $structureFile.enforcementMode
-                    }
+    #                 $baseTemplate = [ordered]@{
+    #                     "`$schema"      = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json"
+    #                     nodeName        = "$($fileContent.name)"
+    #                     assignment      = [ordered]@{
+    #                         name        = $fileContent.Name -replace "Enforce-Guardrails", "GR" -replace "Enforce-Encryption", "EN"
+    #                         displayName = $fileContent.properties.displayName
+    #                         description = $fileContent.properties.description
+    #                     }
+    #                     definitionEntry = [ordered]@{
+    #                         displayName   = $fileContent.properties.displayName
+    #                         policySetName = $fileContent.name
+    #                     }
+    #                     parameters      = @{}
+    #                     enforcementMode = $structureFile.enforcementMode
+    #                 }
 
-                    foreach ($key in $structureFile.defaultParameterValues.psObject.Properties.Name) {
-                        if ($structureFile.defaultParameterValues.$key.policy_assignment_name -eq $fileContent.name) {
-                            $keyName = $structureFile.defaultParameterValues.$key.parameters.parameter_name
-                            $baseTemplate.parameters.Add($keyName, $structureFile.defaultParameterValues.$key.parameters.value)
-                        }
-                    }
+    #                 foreach ($key in $structureFile.defaultParameterValues.psObject.Properties.Name) {
+    #                     if ($structureFile.defaultParameterValues.$key.policy_assignment_name -eq $fileContent.name) {
+    #                         $keyName = $structureFile.defaultParameterValues.$key.parameters.parameter_name
+    #                         $baseTemplate.parameters.Add($keyName, $structureFile.defaultParameterValues.$key.parameters.value)
+    #                     }
+    #                 }
 
-                    if ($EnableOverrides) {
-                        if ($structureFile.overrides.parameters.guardrails) {
-                            foreach ($overrideParameters in $structureFile.overrides.parameters.guardrails | Where-Object { $_.policy_assignment_name -eq $baseTemplate.assignment.name }) {
-                                foreach ($param in $overrideParameters.parameters) {
-                                    $baseTemplate.parameters[$param.parameter_name] = $param.value
-                                }
-                                # sort parameters alphabetically
-                                $sortedParams = [ordered]@{}
-                                foreach ($key in ($baseTemplate.parameters.Keys | Sort-Object)) {
-                                    $sortedParams[$key] = $baseTemplate.parameters[$key]
-                                }
-                                # Replace the original with the sorted version
-                                $baseTemplate.parameters = $sortedParams
-                            } 
-                        }
-                    }
+    #                 if ($EnableOverrides) {
+    #                     if ($structureFile.overrides.parameters.guardrails) {
+    #                         foreach ($overrideParameters in $structureFile.overrides.parameters.guardrails | Where-Object { $_.policy_assignment_name -eq $baseTemplate.assignment.name }) {
+    #                             foreach ($param in $overrideParameters.parameters) {
+    #                                 $baseTemplate.parameters[$param.parameter_name] = $param.value
+    #                             }
+    #                             # sort parameters alphabetically
+    #                             $sortedParams = [ordered]@{}
+    #                             foreach ($key in ($baseTemplate.parameters.Keys | Sort-Object)) {
+    #                                 $sortedParams[$key] = $baseTemplate.parameters[$key]
+    #                             }
+    #                             # Replace the original with the sorted version
+    #                             $baseTemplate.parameters = $sortedParams
+    #                         } 
+    #                     }
+    #                 }
 
-                    $scope = [ordered]@{
-                        $PacEnvironmentSelector = @(
-                            $deployment.scope
-                        )
-                    }
-                    if ($deployment.scope.Count -gt 1) {
-                        $baseTemplate.Add("scope", $scope)
-                        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, enforcementMode, parameters, scope | ConvertTo-Json -Depth 100) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/Guardrails/multiScopeAssignments" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
-                    }
-                    else {
-                        $baseTemplate.Add("scope", $scope)
-                        $scopeShortName = $deployment.Scope.Split("/")[-1]
-                        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, enforcementMode, parameters, scope | ConvertTo-Json -Depth 100) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/Guardrails/$scopeShortName" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
-                    } 
-                }
-            }
-        }
-    }
+    #                 $scope = [ordered]@{
+    #                     $PacEnvironmentSelector = @(
+    #                         $deployment.scope
+    #                     )
+    #                 }
+    #                 if ($deployment.scope.Count -gt 1) {
+    #                     $baseTemplate.Add("scope", $scope)
+    #                     ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, enforcementMode, parameters, scope | ConvertTo-Json -Depth 100) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/Guardrails/multiScopeAssignments" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
+    #                 }
+    #                 else {
+    #                     $baseTemplate.Add("scope", $scope)
+    #                     $scopeShortName = $deployment.Scope.Split("/")[-1]
+    #                     ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, enforcementMode, parameters, scope | ConvertTo-Json -Depth 100) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/Guardrails/$scopeShortName" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
+    #                 } 
+    #             }
+    #         }
+    #     }
+    # }
 
     if ($LibraryPath -eq $tempPath) {
         Remove-Item $LibraryPath -Recurse -Force -ErrorAction SilentlyContinue
