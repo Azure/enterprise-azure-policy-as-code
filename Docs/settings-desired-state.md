@@ -36,6 +36,7 @@ Desired State strategy enables you to adjust the default behavior to fit more co
 | `doNotDisableDeprecatedPolicies` | Automatically set deprecated policies' policy effect to "Disabled". This setting can be used to override that behavior by setting it to `true`. | `false` |
 | `excludeSubscriptions` | Exclude all subscription under the deployment root scope. Designed for environments containing many frequently updated subscriptions that are not requiring management and where using `excludedScopes` would be impractical to maintain. If resource groups are added `excludedScopes` they will be ignored as this setting will take precedence by virtue of the fact that it excludes all Subscriptions, which by definition contain all Resource Groups. It will not effect excluded management group scopes. | `false` |
 | `keepDfcPlanAssignments` | Choose whether EPAC should delete Azure Policies deployed by Defender for Cloud that are associated with DFC Plans. Once the policies are deleted, the action is irreversible. This is only recommended if you are confident that you are managing and deploying the policies through EPAC, rather than relying on Defender for Cloud to manage the Azure Policies related to each plan. | `true` |
+| `manageChildScopeDefinitions` | When set to `true`, EPAC will also manage Policy Definitions and Policy Set Definitions deployed at **child scopes** (child management groups, subscriptions) under the `deploymentRootScope`. By default, EPAC only manages definitions at the `deploymentRootScope` itself — definitions at child scopes are ignored. See [Managing Child Scope Definitions](#managing-child-scope-definitions) below. | `false` |
 
 The following example shows the `desiredState` element with all properties set:
 
@@ -47,6 +48,7 @@ The following example shows the `desiredState` element with all properties set:
     "cleanupObsoleteExemptions"            = false
     "excludeSubscriptions"                 = false
     "doNotDisableDeprecatedPolicies"       = false
+    "manageChildScopeDefinitions"          = false
     "excludedScopes"                       = []
     "excludedPolicyDefinitions"            = []
     "excludedPolicySetDefinitions"         = []
@@ -196,3 +198,37 @@ You can exclude any combination of `excludedScopes`, `excludedPolicyDefinitions`
 ```
 
 ![image.png](Images/shared-excluded.png)
+
+## Managing Child Scope Definitions
+
+By default, EPAC only manages Policy Definitions and Policy Set Definitions at the `deploymentRootScope`. Definitions deployed at child management groups or subscriptions are **not** tracked and will not be deleted, even if they were originally deployed by EPAC or another Policy as Code solution.
+
+Setting `manageChildScopeDefinitions` to `true` brings these child-scope definitions into EPAC's management scope. This is useful when:
+
+- A previous EPAC deployment used a different `deploymentRootScope` and left orphaned definitions at child management groups
+- Definitions were manually deployed at child scopes and need to be cleaned up
+- You want full governance over all custom definitions across the entire management group hierarchy
+
+> [!CAUTION]
+> Enabling this setting makes child-scope definitions eligible for deletion. The `strategy` setting controls which definitions are actually deleted:
+>
+> | `strategy` | Behavior with `manageChildScopeDefinitions: true` |
+> |---|---|
+> | `ownedOnly` | Only deletes child-scope definitions that have this EPAC instance's `pacOwnerId` in their metadata. Definitions from other tools or without `pacOwnerId` are preserved. |
+> | `full` | Deletes child-scope definitions owned by this EPAC instance **and** any with unknown ownership (no `pacOwnerId`). Definitions owned by another EPAC instance (`otherPaC`) are still preserved. |
+
+> [!TIP]
+> When first enabling this feature, we recommend using `strategy: "ownedOnly"` to limit deletions to definitions previously deployed by this EPAC instance. Once you have validated the plan output, you can switch to `strategy: "full"` if broader cleanup is desired.
+
+### Example
+
+```json
+"desiredState": {
+    "strategy": "ownedOnly",
+    "keepDfcSecurityAssignments": false,
+    "manageChildScopeDefinitions": true
+}
+```
+
+> [!NOTE]
+> The `excludedScopes`, `excludedPolicyDefinitions`, and `excludedPolicySetDefinitions` settings are respected when `manageChildScopeDefinitions` is enabled. You can use these to selectively exclude specific child scopes or definitions from cleanup.
