@@ -4,7 +4,7 @@ Param(
 
     [ValidateSet("ALZ", "AMBA", "FSI", "SLZ")]
     [string] $Type = "ALZ",
- 
+
     [Parameter(Mandatory = $true)]
     [string] $PacEnvironmentSelector,
 
@@ -12,7 +12,7 @@ Param(
 
     [ValidateScript({ "refs/tags/$_" -in (Invoke-RestMethod -Uri 'https://api.github.com/repos/Azure/Azure-Landing-Zones-Library/git/refs/tags/').ref }, ErrorMessage = "Tag must be a valid tag." )]
     [string] $Tag,
-    
+
     [switch] $CreateGuardrailAssignments,
 
     [switch] $EnableOverrides,
@@ -199,9 +199,10 @@ if (-not($SyncAssignmentsOnly) -and $Type -eq "AMBA" -and $SyncAMBAExtendedPolic
             name       = $fileContent.name -replace "/", "_" -replace "%", "pc"
             properties = $fileContent.properties
         }
-        $fileName = $fileContent.Name -replace "/", "_" -replace "%", "pc"
-        $category = $baseTemplate.properties.Metadata.category
-        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyDefinitions/$Type/$category" -ItemType File -Name "$($fileName).json" -Force -ErrorAction SilentlyContinue
+        $fileName = $file.BaseName
+        $file.DirectoryName -match 'services\\+([^\\]+)\\+([^\\]+)'
+        $subPath = "$($Matches[1])/$($Matches[2])"
+        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace '\[\[', '[' | New-Item -Path "$DefinitionsRootFolder/policyDefinitions/$Type/$subPath" -ItemType File -Name "$($fileName).json" -Force -ErrorAction SilentlyContinue
     }
 }
 
@@ -283,7 +284,7 @@ try {
                 $archetypeObj = @{
                     name               = $Type -eq "AMBA" ? "amba_$($archetype.name)" : $archetype.name
                     policy_assignments = $archetypeArray | Where-Object { $_.name -match $archetype.name -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
-                } 
+                }
             }
         }
         if ($archetype.policy_assignments_to_add) {
@@ -295,7 +296,7 @@ try {
         if (-not($archetypeObj.policy_assignments | Measure-Object).Count -eq 0) {
             $finalArchetypeArray += $archetypeObj
         }
-        
+
     }
     #Check again for new archetypes based on a custom archetype
     foreach ($archetype in $archetypeArray | Where-Object { $_.type -eq "existing" -and $_.name -notin ($finalArchetypeArray.name) -and $_.name -notmatch "alz" }) {
@@ -315,7 +316,7 @@ try {
             Write-ModernStatus -Message "Archetype '$($archetype.name)' has no policy assignments after modifications. Skipping." -Status "warning" -Indent 2
         }
     }
-    
+
     # Add any new archetypes
     foreach ($archetype in $archetypeArray | Where-Object { $_.type -ne "existing" -and $_.name -notin ($finalArchetypeArray.name) }) {
         $finalArchetypeArray += $archetype
@@ -359,7 +360,7 @@ try {
                 Write-ModernStatus -Message "Skipping unresolved policy assignment '$requiredAssignment' in archetype '$($archetype.name)'." -Status "warning" -Indent 2
                 continue
             }
-        
+
 
             $baseTemplate = [ordered]@{
                 "`$schema"      = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json"
@@ -380,7 +381,7 @@ try {
             if ($null -ne $fileContent.properties.definitionVersion) {
                 $baseTemplate.Add("definitionVersion", $fileContent.properties.definitionVersion)
             }
-    
+
             # Definition Entry
             if ($fileContent.properties.policyDefinitionId -match "placeholder.+policySetDefinition") {
                 $baseTemplate.definitionEntry.Add("policySetName", ($fileContent.properties.policyDefinitionId).Split("/")[ - 1])
@@ -395,9 +396,9 @@ try {
                 else {
                     $baseTemplate.definitionEntry.Add("policyId", ($fileContent.properties.policyDefinitionId))
                 }
-            
+
             }
-    
+
             #Scope
             $scopeTrim = $archetype.name
             if ($scopeTrim -eq "root") {
@@ -469,7 +470,7 @@ try {
                 )
                 $baseTemplate.Add("nonComplianceMessages", $obj)
             }
-    
+
 
             # Check for explicit parameters
             if ($fileContent.name -ne "Deploy-Private-DNS-Zones") {
@@ -485,7 +486,7 @@ try {
                         foreach ($overrideParameters in $structureFile.overrides.parameters.$($archetype.name) | Where-Object { $_.policy_assignment_name -eq $fileContent.name }) {
                             foreach ($param in $overrideParameters.parameters) {
                                 $baseTemplate.parameters[$param.parameter_name] = $param.value
-                            }                     
+                            }
                             # sort parameters alphabetically
                             $sortedParams = [ordered]@{}
                             foreach ($key in ($baseTemplate.parameters.Keys | Sort-Object)) {
@@ -494,7 +495,7 @@ try {
                             # Replace the original with the sorted version
                             $baseTemplate.parameters = $sortedParams
                         }
-                        
+
                     }
                 }
             }
@@ -507,18 +508,18 @@ try {
                     #$value = $fileContent.properties.parameters.$parameter.value -replace "00000000-0000-0000-0000-000000000000", $dnzZoneSubscription -replace "placeholder", $dnzZoneResourceGroupName
                     $baseTemplate.parameters.Add($parameter, $value)
                 }
-                
+
                 $additionalRoleAssignments = @{
                     $PacEnvironmentSelector = @(
                         @{
                             roleDefinitionId = "/providers/microsoft.authorization/roleDefinitions/b12aa53e-6015-4669-85d0-8515ebb3ae7f"
                             scope            = "/subscriptions/$($structureFile.defaultParameterValues.private_dns_zone_subscription_id.parameters.value)"
                         }
-                    ) 
+                    )
                 }
                 $baseTemplate.Add("additionalRoleAssignments", $additionalRoleAssignments)
-                    
-                
+
+
             }
 
             $category = $structureFile.managementGroupNameMappings.$scopeTrim.management_group_function
@@ -615,11 +616,11 @@ try {
     if ($AMBALibraryPath) {
         Remove-Item $AMBALibraryPath -Recurse -Force -ErrorAction SilentlyContinue
     }
-    
+
     Write-ModernStatus -Message "ALZ Policy sync completed successfully" -Status "success" -Indent 0
 }
 catch {
     Write-ModernStatus -Message "Error during sync: $($_.Exception.Message)" -Status "error" -Indent 0
-    exit 
+    exit
 }
 #endregion Create assignment objects
