@@ -435,10 +435,11 @@ function Build-PolicyPlan {
                 Write-Host ""
             }
             
+            $deleteScopeId = if ($deleteCandidate.scope) { $deleteCandidate.scope } else { $deploymentRootScope }
             $splat = @{
                 id          = $id
                 name        = $deleteCandidate.name
-                scopeId     = $deploymentRootScope
+                scopeId     = $deleteScopeId
                 DisplayName = $displayName
             }
             $null = $Definitions.delete.Add($id, $splat)

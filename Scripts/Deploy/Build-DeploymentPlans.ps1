@@ -99,6 +99,9 @@ Write-ModernStatus -Message "PAC Environment: $($pacEnvironment.pacSelector)" -S
 Write-ModernStatus -Message "Deployment Root: $($pacEnvironment.deploymentRootScope)" -Status "info" -Indent 2
 Write-ModernStatus -Message "Tenant ID: $($pacEnvironment.tenantId)" -Status "info" -Indent 2
 Write-ModernStatus -Message "Cloud: $($pacEnvironment.cloud)" -Status "info" -Indent 2
+if ($pacEnvironment.desiredState.manageChildScopeDefinitions) {
+    Write-ModernStatus -Message "Manage Child Scope Definitions: Enabled" -Status "info" -Indent 2
+}
 
 # Telemetry
 if ($pacEnvironment.telemetryEnabled) {
