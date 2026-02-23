@@ -198,6 +198,7 @@ function Get-GlobalSettings {
                 excludedPolicyAssignments            = @()
                 excludeSubscriptions                 = $false
                 doNotDisableDeprecatedPolicies       = $false
+                manageChildScopeDefinitions          = $false
             }
             
             $desired = $pacEnvironment.desiredState
@@ -342,6 +343,15 @@ function Get-GlobalSettings {
                 }
                 else {
                     $doNotDisableDeprecatedPolicies = $false
+                }
+                $manageChildScopeDefinitions = $desired.manageChildScopeDefinitions
+                if ($null -ne $manageChildScopeDefinitions) {
+                    if ($manageChildScopeDefinitions -is [bool]) {
+                        $desiredState.manageChildScopeDefinitions = $manageChildScopeDefinitions
+                    }
+                    else {
+                        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.manageChildScopeDefinitions ($manageChildScopeDefinitions) must be a boolean value."
+                    }
                 }
             }
 

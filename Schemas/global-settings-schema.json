@@ -107,6 +107,10 @@
                             },
                             "excludeSubscriptions": {
                                 "type": "boolean"
+                            },
+                            "manageChildScopeDefinitions": {
+                                "type": "boolean",
+                                "description": "If true, policy definitions and policy set definitions at child scopes (under the deployment root scope) will also be managed, making them eligible for deletion if not defined in the EPAC definitions. Defaults to false."
                             }
                         },
                         "additionalProperties": false,

@@ -16,6 +16,7 @@ function Get-AzPolicyOrSetDefinitions {
     $scopesLast = $scopesLength - 1
     $thisPacOwnerId = $PacEnvironment.pacOwnerId
     $environmentTenantId = $PacEnvironment.tenantId
+    $manageChildScopeDefinitions = $desiredState.manageChildScopeDefinitions
 
 
     $query = $null
@@ -85,8 +86,8 @@ function Get-AzPolicyOrSetDefinitions {
                     }
                 }
                 if (!$found) {
-                    if ($CollectAllPolicies) {
-                        $policyResource.pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -PolicyResource $policyResource -ManagedByCounters $PolicyResourcesTable.counters.managedBy
+                    if ($CollectAllPolicies -or $manageChildScopeDefinitions) {
+                        $policyResource.pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -PolicyResource $policyResource -Scope $scope -ManagedByCounters $PolicyResourcesTable.counters.managedBy
                         $null = $PolicyResourcesTable.all.Add($id, $policyResource)
                         $null = $PolicyResourcesTable.managed.Add($id, $policyResource)
                     }
