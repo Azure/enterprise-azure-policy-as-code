@@ -228,21 +228,21 @@ foreach ($parameter in $policyDefaults) {
     }
 }
 
-Write-ModernSection -Title "Building Guardrail Deployment Object" -Indent 0
-# Build Guardrail Deployment Object
+# Write-ModernSection -Title "Building Guardrail Deployment Object" -Indent 0
+# # Build Guardrail Deployment Object
 
-if ($Type -eq "ALZ") {
-    $guardRailPolicyFileNames = Get-ChildItem $LibraryPath\platform\$($Type.ToLower())\policy_set_definitions\*.json | Where-Object { ($_.Name -match "^Enforce-(Guardrails|Encryption)-") } | Select-Object -ExpandProperty Name
-    $policySetNames = $guardRailPolicyFileNames | Foreach-Object { $_.Split(".")[0] }
-    $obj = @{
-        policy_set_names = $policySetNames
-        scope            = @(
-            "/providers/Microsoft.Management/managementGroups/landingzones",
-            "/providers/Microsoft.Management/managementGroups/platform"
-        )
-    }
-    $jsonOutput.enforceGuardrails.deployments += $obj
-}
+# if ($Type -eq "ALZ") {
+#     $guardRailPolicyFileNames = Get-ChildItem $LibraryPath\platform\$($Type.ToLower())\policy_set_definitions\*.json | Where-Object { ($_.Name -match "^Enforce-(Guardrails|Encryption)-") } | Select-Object -ExpandProperty Name
+#     $policySetNames = $guardRailPolicyFileNames | Foreach-Object { $_.Split(".")[0] }
+#     $obj = @{
+#         policy_set_names = $policySetNames
+#         scope            = @(
+#             "/providers/Microsoft.Management/managementGroups/landingzones",
+#             "/providers/Microsoft.Management/managementGroups/platform"
+#         )
+#     }
+#     $jsonOutput.enforceGuardrails.deployments += $obj
+# }
 
 Write-ModernSection -Title "Writing Output Files" -Indent 0
 # Ensure the output directory exists
