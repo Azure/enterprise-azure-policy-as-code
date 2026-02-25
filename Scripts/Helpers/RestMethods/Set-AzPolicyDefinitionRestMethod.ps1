@@ -26,6 +26,7 @@ function Set-AzPolicyDefinitionRestMethod {
 
     # Invoke the REST API
     $definitionJson = ConvertTo-Json $definition -Depth 100 -Compress
+    $definitionJson = $definitionJson.Replace('[[', '[')
     $response = Invoke-AzRestMethod -Path "$($DefinitionObj.id)?api-version=$ApiVersion" -Method PUT -Payload $definitionJson
 
     # Process response
