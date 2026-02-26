@@ -346,7 +346,7 @@ try {
             continue
         }
         foreach ($requiredAssignment in ($archetype.policy_assignments | Where-Object {
-                    -not [string]::IsNullOrWhiteSpace("$_") -and ($CreateGuardrailAssignments -or ($_ -notmatch "^Enforce-(GR|Encrypt)-\w+0"))
+                    -not [string]::IsNullOrWhiteSpace("$_") -and ($_ -notmatch "^Enforce-(GR|Encrypt)-\w+0")
                 })) {
             switch ($Type) {
                 "ALZ" { $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_assignments" | Where-Object { $_.BaseName.Split(".")[0] -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json }
@@ -357,16 +357,23 @@ try {
             }
 
             if ($null -eq $fileContent -or [string]::IsNullOrWhiteSpace($fileContent.name)) {
-                Write-ModernStatus -Message "Skipping unresolved policy assignment '$requiredAssignment' in archetype '$($archetype.name)'." -Status "warning" -Indent 2
-                continue
+                if ($Type -eq "ALZ") {
+                    # Search for a policy definitions file that matches the required assignment name as a fallback for unresolved assignments
+                    $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_definitions" -Recurse -File -Include *.json | Where-Object { $_.BaseName.Split(".")[0] -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json
+                    $assignmentFromDefinition = $true
+                }
+                if ($null -eq $fileContent -or [string]::IsNullOrWhiteSpace($fileContent.name)) {
+                    Write-ModernStatus -Message "Skipping unresolved policy definition '$requiredAssignment' in archetype '$($archetype.name)'." -Status "warning" -Indent 2
+                    continue
+                }
+                
             }
-
 
             $baseTemplate = [ordered]@{
                 "`$schema"      = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json"
                 nodeName        = "$($archetype.name)/$($fileContent.name)"
                 assignment      = [ordered]@{
-                    name        = $fileContent.Name -replace "Enforce-Guardrails", "GR" -replace "Enforce-Encryption", "EN"
+                    name        = $fileContent.Name
                     displayName = $fileContent.properties.displayName
                     description = $fileContent.properties.description
                 }
@@ -383,22 +390,25 @@ try {
             }
 
             # Definition Entry
-            if ($fileContent.properties.policyDefinitionId -match "placeholder.+policySetDefinition") {
+            if ($fileContent.properties.policyRule) {
+                $baseTemplate.definitionEntry.Add("policyName", $fileContent.name)
+            }
+            elseif ($fileContent.properties.policyDefinitions) {
+                $baseTemplate.definitionEntry.Add("policySetName", $fileContent.name)
+            }
+            elseif ($fileContent.properties.policyDefinitionId -match "placeholder.+policySetDefinition") {
                 $baseTemplate.definitionEntry.Add("policySetName", ($fileContent.properties.policyDefinitionId).Split("/")[ - 1])
             }
             elseif ($fileContent.properties.policyDefinitionId -match "placeholder.+policyDefinition") {
                 $baseTemplate.definitionEntry.Add("policyName", ($fileContent.properties.policyDefinitionId).Split("/")[ - 1])
             }
-            else {
-                if ($fileContent.properties.policyDefinitionId -match "policySetDefinitions") {
-                    $baseTemplate.definitionEntry.Add("policySetId", ($fileContent.properties.policyDefinitionId))
-                }
-                else {
-                    $baseTemplate.definitionEntry.Add("policyId", ($fileContent.properties.policyDefinitionId))
-                }
-
+            elseif ($fileContent.properties.policyDefinitionId -match "policySetDefinitions") {
+                $baseTemplate.definitionEntry.Add("policySetId", ($fileContent.properties.policyDefinitionId))
             }
-
+            else {
+                $baseTemplate.definitionEntry.Add("policyId", ($fileContent.properties.policyDefinitionId))
+            }
+            
             #Scope
             $scopeTrim = $archetype.name
             if ($scopeTrim -eq "root") {
@@ -455,7 +465,7 @@ try {
             $baseTemplate.Add("scope", $scope)
 
             # Base Parameters
-            if ($fileContent.name -ne "Deploy-Private-DNS-Zones") {
+            if ($fileContent.name -ne "Deploy-Private-DNS-Zones" -and $assignmentFromDefinition -ne $true) {
                 foreach ($parameter in $fileContent.properties.parameters.psObject.Properties.Name) {
                     $baseTemplate.parameters.Add($parameter, $fileContent.properties.parameters.$parameter.value)
                 }
@@ -523,17 +533,22 @@ try {
             }
 
             $category = $structureFile.managementGroupNameMappings.$scopeTrim.management_group_function
-            ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
-            if ($fileContent.name -eq "Deploy-Private-DNS-Zones") {
+            if ($assignmentFromDefinition) {
+                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, enforcementMode, parameters, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
+            }
+            elseif ($fileContent.name -eq "Deploy-Private-DNS-Zones") {
                 ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope, additionalRoleAssignments | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
                 (Get-Content "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$($fileContent.name).jsonc") -replace "\.ne\.", ".$dnsZoneRegion." | Set-Content "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$($fileContent.name).jsonc"
             }
-
+            else {
+                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
+            }
             $obj = [PSCustomObject]@{
                 Path = "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$($fileContent.name).jsonc"
                 Name = $fileContent.name
             }
             $createdPolicyAssignments += $obj
+            $assignmentFromDefinition = $false
         }
     }
 
@@ -586,7 +601,7 @@ try {
     #                             }
     #                             # Replace the original with the sorted version
     #                             $baseTemplate.parameters = $sortedParams
-    #                         } 
+    #                         }
     #                     }
     #                 }
 
@@ -603,7 +618,7 @@ try {
     #                     $baseTemplate.Add("scope", $scope)
     #                     $scopeShortName = $deployment.Scope.Split("/")[-1]
     #                     ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, enforcementMode, parameters, scope | ConvertTo-Json -Depth 100) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/Guardrails/$scopeShortName" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
-    #                 } 
+    #                 }
     #             }
     #         }
     #     }
