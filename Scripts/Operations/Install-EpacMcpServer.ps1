@@ -95,7 +95,7 @@ else {
 Write-Host "`nDownloading EPAC MCP Server..." -ForegroundColor Cyan
 
 $repoUrl = "https://github.com/Azure/enterprise-azure-policy-as-code"
-$branch = "aw/mcp"
+$branch = "aw/mcp_test"
 $serverFiles = @(
     "Tools/mcp-server/pyproject.toml",
     "Tools/mcp-server/epac_mcp/__init__.py",
