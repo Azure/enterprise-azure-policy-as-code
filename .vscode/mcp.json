@@ -5,7 +5,7 @@
             "command": "python",
             "args": [
                 "-m",
-                "epac_mcp.server"
+                "epac_mcp"
             ],
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/Tools/mcp-server",

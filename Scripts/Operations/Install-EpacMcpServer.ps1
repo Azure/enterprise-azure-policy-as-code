@@ -99,6 +99,7 @@ $branch = "aw/mcp_test"
 $serverFiles = @(
     "Tools/mcp-server/pyproject.toml",
     "Tools/mcp-server/epac_mcp/__init__.py",
+    "Tools/mcp-server/epac_mcp/__main__.py",
     "Tools/mcp-server/epac_mcp/config.py",
     "Tools/mcp-server/epac_mcp/runners.py",
     "Tools/mcp-server/epac_mcp/server.py"
@@ -219,7 +220,7 @@ if ($detectedTargets -contains "vscode") {
             epac = @{
                 type    = "stdio"
                 command = "python"
-                args    = @("-m", "epac_mcp.server")
+                args    = @("-m", "epac_mcp")
                 env     = @{
                     PYTHONPATH            = $mcpDir.Replace("\", "/")
                     EPAC_DEFINITIONS_ROOT = $defsPath.Replace("\", "/")
@@ -242,7 +243,7 @@ if ($detectedTargets -contains "copilot-cli") {
     $copilotDir = Join-Path $HOME ".copilot"
     New-Item -ItemType Directory -Path $copilotDir -Force | Out-Null
 
-    $copilotConfigPath = Join-Path $copilotDir "config.json"
+    $copilotConfigPath = Join-Path $copilotDir "mcp-config.json"
 
     # Load existing config to preserve other settings
     $copilotConfig = @{}
@@ -267,7 +268,7 @@ if ($detectedTargets -contains "copilot-cli") {
     $copilotConfig["mcpServers"]["epac"] = @{
         type    = "stdio"
         command = "python"
-        args    = @("-m", "epac_mcp.server")
+        args    = @("-m", "epac_mcp")
         env     = @{
             PYTHONPATH            = $mcpDir.Replace("\", "/")
             EPAC_DEFINITIONS_ROOT = $defsPath.Replace("\", "/")
@@ -308,3 +309,4 @@ $nextSteps += @(
 )
 
 Write-Host ($nextSteps -join "`n") -ForegroundColor White
+
