@@ -92,7 +92,7 @@ else {
 Write-Host "`nDownloading EPAC MCP Server..." -ForegroundColor Cyan
 
 $repoUrl = "https://github.com/Azure/enterprise-azure-policy-as-code"
-$branch = "main"
+$branch = "aw/mcp_test"
 $serverFiles = @(
     "Tools/mcp-server/pyproject.toml",
     "Tools/mcp-server/epac_mcp/__init__.py",
@@ -259,6 +259,14 @@ if ($detectedTargets -contains "copilot-cli") {
             Copy-Item $copilotConfigPath "$copilotConfigPath.bak" -Force
             $copilotConfig = @{}
         }
+    }
+
+    # Clean up any stale lowercase "mcpservers" key (PowerShell hashtables are case-insensitive
+    # but JSON is not — previous runs may have written a lowercase variant that conflicts)
+    $staleKeys = @($copilotConfig.Keys | Where-Object { $_ -ieq "mcpServers" -and $_ -cne "mcpServers" })
+    foreach ($key in $staleKeys) {
+        $copilotConfig.Remove($key)
+        Write-Host "  Removed stale key '$key' (wrong case)" -ForegroundColor Yellow
     }
 
     # Ensure mcpServers key exists
