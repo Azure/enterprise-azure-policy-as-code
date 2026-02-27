@@ -2,3 +2,8 @@ Output/
 site/
 Definitions/
 temp/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/

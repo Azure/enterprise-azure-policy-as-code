@@ -3,8 +3,9 @@
     Install and configure the EPAC MCP Server for AI-assisted Azure Policy management.
 
 .DESCRIPTION
-    Downloads the EPAC MCP Server from GitHub and installs it locally, then generates a
-    .vscode/mcp.json configuration file so VS Code Copilot Chat can use the server tools.
+    Downloads the EPAC MCP Server from GitHub and installs it locally, then automatically
+    detects your environment (VS Code or terminal/Copilot CLI) and generates the appropriate
+    MCP configuration.
 
     The MCP server enables natural-language-driven policy management:
     - Search Azure built-in policies
@@ -23,14 +24,15 @@
 .PARAMETER InstallPath
     Where to install the MCP server. Defaults to ~/.epac-mcp-server.
 
-.PARAMETER SkipVsCodeConfig
-    Skip generating .vscode/mcp.json in the current directory.
+.PARAMETER Target
+    Force a specific configuration target: "vscode", "copilot-cli", or "auto" (default).
+    When "auto", the script detects whether it is running inside VS Code or a plain terminal.
 
 .EXAMPLE
     .\Install-EpacMcpServer.ps1 -DefinitionsRootFolder ./Definitions -PacEnvironmentSelector "EPAC-DEV"
 
 .EXAMPLE
-    .\Install-EpacMcpServer.ps1 -DefinitionsRootFolder C:\policy\Definitions -PacEnvironmentSelector "Tenant" -OutputFolder C:\policy\Output
+    .\Install-EpacMcpServer.ps1 -DefinitionsRootFolder C:\policy\Definitions -PacEnvironmentSelector "Tenant" -Target copilot-cli
 #>
 
 [CmdletBinding()]
@@ -47,8 +49,9 @@ param (
     [Parameter(Mandatory = $false, HelpMessage = "Where to install the MCP server.")]
     [string] $InstallPath = (Join-Path $HOME ".epac-mcp-server"),
 
-    [Parameter(Mandatory = $false, HelpMessage = "Skip generating .vscode/mcp.json.")]
-    [switch] $SkipVsCodeConfig
+    [Parameter(Mandatory = $false, HelpMessage = "Target environment: 'auto', 'vscode', or 'copilot-cli'.")]
+    [ValidateSet("auto", "vscode", "copilot-cli")]
+    [string] $Target = "auto"
 )
 
 $ErrorActionPreference = "Stop"
@@ -78,17 +81,21 @@ if ($PSVersionTable.PSVersion.Major -lt 7) {
     Write-Warning "PowerShell 7+ is recommended for EPAC. Current: $($PSVersionTable.PSVersion)"
 }
 
-# Check az CLI
-$az = Get-Command az -ErrorAction SilentlyContinue
-if (-not $az) {
-    Write-Warning "Azure CLI (az) not found. The search_builtin_policies tool will not work without it."
+# Check Az PowerShell module
+$azModule = Get-Module -ListAvailable Az.Resources -ErrorAction SilentlyContinue
+if (-not $azModule) {
+    Write-Warning "Az.Resources module not found. Install with: Install-Module Az -Scope CurrentUser"
+    Write-Warning "The search_builtin_policies tool requires Az.Resources and Connect-AzAccount."
+}
+else {
+    Write-Host "[OK] Az.Resources module available ($($azModule.Version))" -ForegroundColor Green
 }
 
 # --- Download MCP server source ---
 Write-Host "`nDownloading EPAC MCP Server..." -ForegroundColor Cyan
 
 $repoUrl = "https://github.com/Azure/enterprise-azure-policy-as-code"
-$branch = "main"
+$branch = "aw/mcp"
 $serverFiles = @(
     "Tools/mcp-server/pyproject.toml",
     "Tools/mcp-server/epac_mcp/__init__.py",
@@ -155,59 +162,149 @@ if (Test-Path $OutputFolder) {
 }
 
 $config = @{
-    definitions_root  = $defsPath.Replace("\", "/")
-    pac_selector      = $PacEnvironmentSelector
-    output_folder     = $resolvedOutput.Replace("\", "/")
-    epac_module_path  = $null
+    definitions_root = $defsPath.Replace("\", "/")
+    pac_selector     = $PacEnvironmentSelector
+    output_folder    = $resolvedOutput.Replace("\", "/")
+    epac_module_path = $null
 } | ConvertTo-Json -Depth 2
 
 $configPath = Join-Path $mcpDir "config.json"
 Set-Content -Path $configPath -Value $config
 Write-Host "[OK] Config written to $configPath" -ForegroundColor Green
 
-# --- Generate .vscode/mcp.json ---
-if (-not $SkipVsCodeConfig) {
-    Write-Host "`nGenerating .vscode/mcp.json..." -ForegroundColor Cyan
+# --- Detect environment ---
+Write-Host "`nDetecting environment..." -ForegroundColor Cyan
+
+$detectedTargets = @()
+
+if ($Target -eq "auto" -or $Target -eq "vscode") {
+    # Detect VS Code: TERM_PROGRAM, VSCODE_* env vars, or .vscode/ folder exists
+    $inVsCode = ($env:TERM_PROGRAM -eq "vscode") -or
+    ($null -ne $env:VSCODE_PID) -or
+    ($null -ne $env:VSCODE_CWD) -or
+    ($null -ne $env:VSCODE_GIT_IPC_HANDLE) -or
+    (Test-Path (Join-Path (Get-Location) ".vscode"))
+
+    if ($Target -eq "vscode" -or ($Target -eq "auto" -and $inVsCode)) {
+        $detectedTargets += "vscode"
+    }
+}
+
+if ($Target -eq "auto" -or $Target -eq "copilot-cli") {
+    # Detect Copilot CLI: check if the copilot command exists
+    $copilotCmd = Get-Command copilot -ErrorAction SilentlyContinue
+    if ($Target -eq "copilot-cli" -or ($Target -eq "auto" -and $copilotCmd)) {
+        $detectedTargets += "copilot-cli"
+    }
+}
+
+# If auto detected nothing, default to both so the user gets at least one config
+if ($detectedTargets.Count -eq 0) {
+    Write-Host "  Could not auto-detect environment. Configuring both VS Code and Copilot CLI." -ForegroundColor Yellow
+    $detectedTargets = @("vscode", "copilot-cli")
+}
+else {
+    Write-Host "  Detected: $($detectedTargets -join ', ')" -ForegroundColor Green
+}
+
+# --- Configure VS Code ---
+if ($detectedTargets -contains "vscode") {
+    Write-Host "`nConfiguring VS Code (.vscode/mcp.json)..." -ForegroundColor Cyan
 
     $vscodePath = Join-Path (Get-Location) ".vscode"
     New-Item -ItemType Directory -Path $vscodePath -Force | Out-Null
 
-    $mcpJson = @{
+    $vscodeMcpConfig = @{
         servers = @{
             epac = @{
                 type    = "stdio"
                 command = "python"
                 args    = @("-m", "epac_mcp.server")
                 env     = @{
-                    PYTHONPATH             = $mcpDir.Replace("\", "/")
-                    EPAC_DEFINITIONS_ROOT  = $defsPath.Replace("\", "/")
-                    EPAC_PAC_SELECTOR      = $PacEnvironmentSelector
-                    EPAC_OUTPUT_FOLDER     = $resolvedOutput.Replace("\", "/")
+                    PYTHONPATH            = $mcpDir.Replace("\", "/")
+                    EPAC_DEFINITIONS_ROOT = $defsPath.Replace("\", "/")
+                    EPAC_PAC_SELECTOR     = $PacEnvironmentSelector
+                    EPAC_OUTPUT_FOLDER    = $resolvedOutput.Replace("\", "/")
                 }
             }
         }
     } | ConvertTo-Json -Depth 4
 
     $mcpJsonPath = Join-Path $vscodePath "mcp.json"
-    Set-Content -Path $mcpJsonPath -Value $mcpJson
+    Set-Content -Path $mcpJsonPath -Value $vscodeMcpConfig
     Write-Host "[OK] VS Code config written to $mcpJsonPath" -ForegroundColor Green
+}
+
+# --- Configure Copilot CLI ---
+if ($detectedTargets -contains "copilot-cli") {
+    Write-Host "`nConfiguring GitHub Copilot CLI (~/.copilot/config.json)..." -ForegroundColor Cyan
+
+    $copilotDir = Join-Path $HOME ".copilot"
+    New-Item -ItemType Directory -Path $copilotDir -Force | Out-Null
+
+    $copilotConfigPath = Join-Path $copilotDir "config.json"
+
+    # Load existing config to preserve other settings
+    $copilotConfig = @{}
+    if (Test-Path $copilotConfigPath) {
+        try {
+            $copilotConfig = Get-Content $copilotConfigPath -Raw | ConvertFrom-Json -AsHashtable
+            Write-Host "  Merging with existing Copilot CLI config" -ForegroundColor Gray
+        }
+        catch {
+            Write-Warning "Could not parse existing $copilotConfigPath - backing up and creating new"
+            Copy-Item $copilotConfigPath "$copilotConfigPath.bak" -Force
+            $copilotConfig = @{}
+        }
+    }
+
+    # Ensure mcpServers key exists
+    if (-not $copilotConfig.ContainsKey("mcpServers")) {
+        $copilotConfig["mcpServers"] = @{}
+    }
+
+    # Add/update the epac server entry
+    $copilotConfig["mcpServers"]["epac"] = @{
+        type    = "stdio"
+        command = "python"
+        args    = @("-m", "epac_mcp.server")
+        env     = @{
+            PYTHONPATH            = $mcpDir.Replace("\", "/")
+            EPAC_DEFINITIONS_ROOT = $defsPath.Replace("\", "/")
+            EPAC_PAC_SELECTOR     = $PacEnvironmentSelector
+            EPAC_OUTPUT_FOLDER    = $resolvedOutput.Replace("\", "/")
+        }
+    }
+
+    $copilotConfig | ConvertTo-Json -Depth 5 | Set-Content -Path $copilotConfigPath
+    Write-Host "[OK] Copilot CLI config written to $copilotConfigPath" -ForegroundColor Green
 }
 
 # --- Done ---
 Write-Host "`n=== Installation Complete ===" -ForegroundColor Green
-Write-Host @"
 
-  MCP Server installed to: $mcpDir
-  Config file:             $configPath
+$nextSteps = @("  MCP Server installed to: $mcpDir", "  Config file:             $configPath", "")
 
-  Next steps:
-    1. Open this folder in VS Code
-    2. The EPAC MCP server will appear in the Copilot Chat MCP panel
-    3. Click Start to enable the tools
-    4. Try: "Search for policies related to storage account encryption"
+if ($detectedTargets -contains "vscode") {
+    $nextSteps += @(
+        "  VS Code:",
+        "    1. Open this folder in VS Code",
+        "    2. The EPAC MCP server will appear in the Copilot Chat MCP panel",
+        "    3. Click Start to enable the tools",
+        ""
+    )
+}
+if ($detectedTargets -contains "copilot-cli") {
+    $nextSteps += @(
+        "  Copilot CLI:",
+        "    1. Run: copilot",
+        "    2. Type: /mcp  -- you should see 'epac' with 7 tools",
+        ""
+    )
+}
+$nextSteps += @(
+    "  Try: `"Search for policies related to storage account encryption`"",
+    ""
+)
 
-  To test from the command line:
-    `$env:PYTHONPATH = "$mcpDir"
-    python -m epac_mcp.server
-
-"@ -ForegroundColor White
+Write-Host ($nextSteps -join "`n") -ForegroundColor White

@@ -1,7 +1,6 @@
-"""Subprocess helpers for running PowerShell 7+ and az CLI commands."""
+"""Subprocess helpers for running PowerShell 7+ commands."""
 
 import asyncio
-import json
 import shutil
 from dataclasses import dataclass
 
@@ -44,30 +43,6 @@ async def run_pwsh(script: str, cwd: str | None = None, timeout: int = 300) -> R
     except asyncio.TimeoutError:
         proc.kill()
         return RunResult(exit_code=-1, stdout="", stderr=f"Command timed out after {timeout}s")
-
-    return RunResult(
-        exit_code=proc.returncode or 0,
-        stdout=stdout.decode("utf-8", errors="replace").strip(),
-        stderr=stderr.decode("utf-8", errors="replace").strip(),
-    )
-
-
-async def run_az(args: list[str], timeout: int = 120) -> RunResult:
-    """Run an az CLI command and return the result."""
-    az = shutil.which("az") or shutil.which("az.cmd")
-    if not az:
-        raise FileNotFoundError("Azure CLI (az) not found on PATH.")
-
-    proc = await asyncio.create_subprocess_exec(
-        az, *args, "--output", "json",
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,
-    )
-    try:
-        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=timeout)
-    except asyncio.TimeoutError:
-        proc.kill()
-        return RunResult(exit_code=-1, stdout="", stderr=f"az command timed out after {timeout}s")
 
     return RunResult(
         exit_code=proc.returncode or 0,

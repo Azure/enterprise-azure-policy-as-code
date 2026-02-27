@@ -12,7 +12,7 @@ from pathlib import Path
 from mcp.server.fastmcp import FastMCP
 
 from .config import EpacConfig, load_config
-from .runners import run_az, run_pwsh
+from .runners import run_pwsh
 
 SCHEMA_BASE = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas"
 
@@ -50,27 +50,38 @@ async def search_builtin_policies(keyword: str, category: str = "") -> str:
     Returns:
         JSON array of matching policies with name, displayName, description, and policyType.
     """
-    query = f"az policy definition list --query \"[?policyType=='BuiltIn' && (contains(displayName, '{keyword}') || contains(description, '{keyword}'))"
-    if category:
-        query += f" && properties.metadata.category=='{category}'"
-    query += "].{name:name, displayName:displayName, description:description, category:metadata.category}\""
+    # Escape single quotes in user input for safe PowerShell string interpolation
+    safe_keyword = keyword.replace("'", "''")
 
-    # Use az graph query for faster results if available, fall back to az policy
-    result = await run_az([
-        "policy", "definition", "list",
-        "--query",
-        f"[?policyType=='BuiltIn' && (contains(displayName, '{keyword}') || contains(description, '{keyword}'))]"
-        + (f"[?metadata.category=='{category}']" if category else "")
-        + ".{name:name, displayName:displayName, description:description, category:metadata.category}",
-    ])
+    filter_parts = [
+        "$_.Properties.PolicyType -eq 'BuiltIn'",
+        f"($_.Properties.DisplayName -like '*{safe_keyword}*' -or $_.Properties.Description -like '*{safe_keyword}*')",
+    ]
+    if category:
+        safe_category = category.replace("'", "''")
+        filter_parts.append(f"$_.Properties.Metadata.category -eq '{safe_category}'")
+
+    filter_expr = " -and ".join(filter_parts)
+
+    script = (
+        f"Get-AzPolicyDefinition | Where-Object {{ {filter_expr} }} | "
+        "Select-Object -First 20 | ForEach-Object { "
+        "[ordered]@{ "
+        "name = $_.Name; "
+        "displayName = $_.Properties.DisplayName; "
+        "description = $_.Properties.Description; "
+        "category = $_.Properties.Metadata.category "
+        "} } | ConvertTo-Json -Depth 3 -AsArray"
+    )
+
+    result = await run_pwsh(script, timeout=120)
 
     if not result.success:
-        return json.dumps({"error": result.stderr or "Failed to search policies"})
+        return json.dumps({"error": result.stderr or "Failed to search policies. Ensure the Az.Resources module is installed and you are connected (Connect-AzAccount)."})
 
     try:
         policies = json.loads(result.stdout)
-        # Limit to top 20 for readability
-        return json.dumps(policies[:20], indent=2)
+        return json.dumps(policies, indent=2)
     except json.JSONDecodeError:
         return json.dumps({"error": "Failed to parse policy search results", "raw": result.stdout[:500]})
 
