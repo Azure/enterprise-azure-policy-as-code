@@ -1,0 +1,6 @@
+{
+    "definitions_root": "C:/epac-projects/epac-github/StarterKit/Definitions-Common",
+    "pac_selector": "EPAC-DEV",
+    "output_folder": "./Output",
+    "epac_module_path": null
+}

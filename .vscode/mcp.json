@@ -1,0 +1,18 @@
+{
+    "servers": {
+        "epac": {
+            "type": "stdio",
+            "command": "python",
+            "args": [
+                "-m",
+                "epac_mcp.server"
+            ],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/Tools/mcp-server",
+                "EPAC_DEFINITIONS_ROOT": "${workspaceFolder}/Definitions",
+                "EPAC_PAC_SELECTOR": "EPAC-DEV",
+                "EPAC_OUTPUT_FOLDER": "${workspaceFolder}/Output"
+            }
+        }
+    }
+}

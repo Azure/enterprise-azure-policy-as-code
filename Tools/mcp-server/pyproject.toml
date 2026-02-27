@@ -1,0 +1,15 @@
+[project]
+name = "epac-mcp-server"
+version = "0.1.0"
+description = "MCP server wrapping Enterprise Azure Policy as Code (EPAC) for AI-driven policy management"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]>=1.0.0",
+]
+
+[project.scripts]
+epac-mcp = "epac_mcp.server:main"
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
