@@ -8,7 +8,6 @@
                 "epac_mcp"
             ],
             "env": {
-                "PYTHONPATH": "${workspaceFolder}/Tools/mcp-server",
                 "EPAC_DEFINITIONS_ROOT": "${workspaceFolder}/Definitions",
                 "EPAC_PAC_SELECTOR": "EPAC-DEV",
                 "EPAC_OUTPUT_FOLDER": "${workspaceFolder}/Output"

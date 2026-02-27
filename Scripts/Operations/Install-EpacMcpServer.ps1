@@ -3,9 +3,12 @@
     Install and configure the EPAC MCP Server for AI-assisted Azure Policy management.
 
 .DESCRIPTION
-    Downloads the EPAC MCP Server from GitHub and installs it locally, then automatically
-    detects your environment (VS Code or terminal/Copilot CLI) and generates the appropriate
-    MCP configuration.
+    Downloads the EPAC MCP Server from GitHub, installs it as a Python package, and
+    automatically detects your environment (VS Code or terminal/Copilot CLI) to generate
+    the appropriate MCP configuration.
+
+    After installation, 'python -m epac_mcp' works globally without any PYTHONPATH
+    configuration — the package is installed into the Python environment via pip.
 
     The MCP server enables natural-language-driven policy management:
     - Search Azure built-in policies
@@ -20,9 +23,6 @@
 
 .PARAMETER OutputFolder
     Where EPAC writes plan files. Defaults to ./Output.
-
-.PARAMETER InstallPath
-    Where to install the MCP server. Defaults to ~/.epac-mcp-server.
 
 .PARAMETER Target
     Force a specific configuration target: "vscode", "copilot-cli", or "auto" (default).
@@ -45,9 +45,6 @@ param (
 
     [Parameter(Mandatory = $false, HelpMessage = "Output folder for plan files.")]
     [string] $OutputFolder = "./Output",
-
-    [Parameter(Mandatory = $false, HelpMessage = "Where to install the MCP server.")]
-    [string] $InstallPath = (Join-Path $HOME ".epac-mcp-server"),
 
     [Parameter(Mandatory = $false, HelpMessage = "Target environment: 'auto', 'vscode', or 'copilot-cli'.")]
     [ValidateSet("auto", "vscode", "copilot-cli")]
@@ -91,11 +88,11 @@ else {
     Write-Host "[OK] Az.Resources module available ($($azModule.Version))" -ForegroundColor Green
 }
 
-# --- Download MCP server source ---
+# --- Download MCP server source into current directory ---
 Write-Host "`nDownloading EPAC MCP Server..." -ForegroundColor Cyan
 
 $repoUrl = "https://github.com/Azure/enterprise-azure-policy-as-code"
-$branch = "aw/mcp_test"
+$branch = "main"
 $serverFiles = @(
     "Tools/mcp-server/pyproject.toml",
     "Tools/mcp-server/epac_mcp/__init__.py",
@@ -105,8 +102,8 @@ $serverFiles = @(
     "Tools/mcp-server/epac_mcp/server.py"
 )
 
-# Create install directory
-$mcpDir = $InstallPath
+# Install into ./Tools/mcp-server in the current working directory
+$mcpDir = Join-Path (Get-Location) "Tools" "mcp-server"
 $mcpPkgDir = Join-Path $mcpDir "epac_mcp"
 New-Item -ItemType Directory -Path $mcpPkgDir -Force | Out-Null
 
@@ -133,20 +130,26 @@ foreach ($file in $serverFiles) {
 
 Write-Host "[OK] Server files downloaded to $mcpDir" -ForegroundColor Green
 
-# --- Install Python dependencies ---
-Write-Host "`nInstalling Python dependencies..." -ForegroundColor Cyan
+# --- Install as a Python package (globally available, no PYTHONPATH needed) ---
+Write-Host "`nInstalling Python package..." -ForegroundColor Cyan
 & python -m pip install -e $mcpDir --quiet 2>&1 | Out-Null
 if ($LASTEXITCODE -ne 0) {
-    # Retry without --quiet to show errors
     & python -m pip install -e $mcpDir
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Failed to install Python dependencies."
         return
     }
 }
-Write-Host "[OK] Python dependencies installed" -ForegroundColor Green
 
-# --- Write config.json ---
+# Verify the package is importable
+& python -c "from epac_mcp.server import mcp; print('Package OK')" 2>&1 | Out-Null
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Package installed but import failed. Check Python environment."
+    return
+}
+Write-Host "[OK] Package installed - 'python -m epac_mcp' is now available globally" -ForegroundColor Green
+
+# --- Write config.json into the installed package directory ---
 Write-Host "`nWriting configuration..." -ForegroundColor Cyan
 
 $resolvedDefs = (Resolve-Path $DefinitionsRootFolder -ErrorAction SilentlyContinue)
@@ -222,7 +225,6 @@ if ($detectedTargets -contains "vscode") {
                 command = "python"
                 args    = @("-m", "epac_mcp")
                 env     = @{
-                    PYTHONPATH            = $mcpDir.Replace("\", "/")
                     EPAC_DEFINITIONS_ROOT = $defsPath.Replace("\", "/")
                     EPAC_PAC_SELECTOR     = $PacEnvironmentSelector
                     EPAC_OUTPUT_FOLDER    = $resolvedOutput.Replace("\", "/")
@@ -243,7 +245,7 @@ if ($detectedTargets -contains "copilot-cli") {
     $copilotDir = Join-Path $HOME ".copilot"
     New-Item -ItemType Directory -Path $copilotDir -Force | Out-Null
 
-    $copilotConfigPath = Join-Path $copilotDir "mcp-config.json"
+    $copilotConfigPath = Join-Path $copilotDir "config.json"
 
     # Load existing config to preserve other settings
     $copilotConfig = @{}
@@ -264,13 +266,12 @@ if ($detectedTargets -contains "copilot-cli") {
         $copilotConfig["mcpServers"] = @{}
     }
 
-    # Add/update the epac server entry
+    # Add/update the epac server entry — no PYTHONPATH needed, pip install handles it
     $copilotConfig["mcpServers"]["epac"] = @{
         type    = "stdio"
         command = "python"
         args    = @("-m", "epac_mcp")
         env     = @{
-            PYTHONPATH            = $mcpDir.Replace("\", "/")
             EPAC_DEFINITIONS_ROOT = $defsPath.Replace("\", "/")
             EPAC_PAC_SELECTOR     = $PacEnvironmentSelector
             EPAC_OUTPUT_FOLDER    = $resolvedOutput.Replace("\", "/")
@@ -284,7 +285,7 @@ if ($detectedTargets -contains "copilot-cli") {
 # --- Done ---
 Write-Host "`n=== Installation Complete ===" -ForegroundColor Green
 
-$nextSteps = @("  MCP Server installed to: $mcpDir", "  Config file:             $configPath", "")
+$nextSteps = @("  MCP Server installed to: $mcpDir", "  Server config:           $configPath", "  Package: python -m epac_mcp (available globally)", "")
 
 if ($detectedTargets -contains "vscode") {
     $nextSteps += @(
