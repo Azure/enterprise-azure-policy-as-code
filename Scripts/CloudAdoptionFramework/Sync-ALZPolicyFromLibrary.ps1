@@ -259,6 +259,7 @@ try {
     }
     # Modify default archetypes if requested
     $finalArchetypeArray = @()
+    $cleanupArchetype = @() # Track archetypes that end up with no assignments and need to be cleaned up from the final array
     # Modify anything that is existing
     foreach ($archetype in $archetypeArray | Where-Object { $_.type -eq "existing" }) {
         if ($archetype.PSObject.properties.name -contains "based_on") {
@@ -296,6 +297,10 @@ try {
         if (-not($archetypeObj.policy_assignments | Measure-Object).Count -eq 0) {
             $finalArchetypeArray += $archetypeObj
         }
+        else {
+            Write-ModernStatus -Message "Archetype '$($archetype.name)' has no policy assignments after modifications. Skipping." -Status "warning" -Indent 2
+            $cleanupArchetype += $archetype.name
+        }
 
     }
     #Check again for new archetypes based on a custom archetype
@@ -314,6 +319,7 @@ try {
         }
         else {
             Write-ModernStatus -Message "Archetype '$($archetype.name)' has no policy assignments after modifications. Skipping." -Status "warning" -Indent 2
+            $cleanupArchetype += $archetype.name
         }
     }
 
@@ -327,7 +333,9 @@ try {
         $finalArchetypeArray = $finalArchetypeArray | Where-Object { $_.name -ne "landing_zones" }
     }
 
-    # Remove files in policyAssignments that are not in the new structure
+    # Cleanup any archetypes that are based on modified archetypes but were not themselves modified and now have no assignments
+    $finalArchetypeArray = $finalArchetypeArray | Where-Object { $_.name -notin $cleanupArchetype }
+# Remove files in policyAssignments that are not in the new structure
 
     foreach ($archetype in $archetypeArray) {
         foreach ($policyToRemove in $archetype.policy_assignments_to_remove) {
