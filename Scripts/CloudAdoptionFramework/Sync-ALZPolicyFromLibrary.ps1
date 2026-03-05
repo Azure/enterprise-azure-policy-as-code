@@ -335,7 +335,7 @@ try {
 
     # Cleanup any archetypes that are based on modified archetypes but were not themselves modified and now have no assignments
     $finalArchetypeArray = $finalArchetypeArray | Where-Object { $_.name -notin $cleanupArchetype }
-# Remove files in policyAssignments that are not in the new structure
+    # Remove files in policyAssignments that are not in the new structure
 
     foreach ($archetype in $archetypeArray) {
         foreach ($policyToRemove in $archetype.policy_assignments_to_remove) {
@@ -377,9 +377,11 @@ try {
                 
             }
 
+            $nodeNamePrefix = if ($archetype.name -eq "landingzones") { "landing_zones" } else { $archetype.name }
+
             $baseTemplate = [ordered]@{
                 "`$schema"      = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json"
-                nodeName        = "$($archetype.name)/$($fileContent.name)"
+                nodeName        = "$($nodeNamePrefix)/$($fileContent.name)"
                 assignment      = [ordered]@{
                     name        = $fileContent.Name
                     displayName = $fileContent.properties.displayName
