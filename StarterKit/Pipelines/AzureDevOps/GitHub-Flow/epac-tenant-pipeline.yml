@@ -63,4 +63,3 @@ stages:
                   parameters:
                     serviceConnection: $(rolesServiceConnection)
                     pacEnvironmentSelector: ${{ variables.pacEnvironmentSelector }}
-

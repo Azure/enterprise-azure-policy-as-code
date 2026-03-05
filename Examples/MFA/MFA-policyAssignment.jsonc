@@ -1,0 +1,28 @@
+
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
+    "nodeName": "/MFA/",
+    "definitionEntry": {
+        "policySetName": "MFA-policySetDefinition"
+    },
+    "children": [
+        {
+            "nodeName": "EPAC-Dev",
+            "assignment": {
+                "name": "mfa",
+                "displayName": "MFA - Enforce MFA for Azure Resources",
+                "description": "MFA requirements for Azure resources."
+            },
+            "enforcementMode": "DoNotEnforce",
+            "parameters": {
+                "MFA_CreateAndUpdate_effect": "Audit",
+                "MFA_Delete_effect": "AuditAction"
+            },
+            "scope": {
+                "<your-PAC-Selector>": [
+                    "/providers/Microsoft.Management/managementGroups/<your-management-group-id>"
+                ]
+            }
+        }
+    ]
+}

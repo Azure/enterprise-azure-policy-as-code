@@ -1,0 +1,19 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-documentation-schema.json",
+    "documentPolicySets": [
+        {
+            "pacEnvironment": "<pacEnvironment>",
+            "fileNameStem": "MCSBv2",
+            "title": "MCSBv2",
+            "policySets": [
+                {
+                    "shortName": "MCSBv2",
+                    "id": "/providers/Microsoft.Authorization/policySetDefinitions/e3ec7e09-768c-4b64-882c-fcada3772047" // MCSBv2
+                }
+            ],
+            "environmentColumnsInCsv": [
+                "<pacEnvironment>"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,23 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-documentation-schema.json",
+    "documentAssignments": {
+        "documentAllAssignments": [
+            {
+                "pacEnvironment": "<pacEnvironment>",
+                "fileNameStemPrefix": "<pacEnvironment>",
+                "skipPolicyAssignments": [
+                ],
+                "skipPolicyDefinitions": [
+                    "/providers/microsoft.authorization/policysetdefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8" // Microsoft Security Benchmark v3
+                ]
+            }
+        ],
+        "documentationSpecifications": [
+            {
+                "fileNameStem": "Azure-Policy-Assignments",
+                "environmentCategories": [],
+                "title": "Current list of Azure Policies deployed"
+            }
+        ]
+    }
+}

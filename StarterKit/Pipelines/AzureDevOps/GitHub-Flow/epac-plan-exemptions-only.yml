@@ -1,0 +1,37 @@
+# Reusable pipeline template to run an EPAC deployment plan for exemptions only.
+parameters:
+  - name: serviceConnection
+    type: string
+  - name: pacEnvironmentSelector
+    type: string
+
+steps:
+  - checkout: self
+    persistCredentials: true
+    clean: true
+
+  - pwsh: |
+      Install-Module EnterprisePolicyAsCode -Force
+    displayName: '🔧 Install EPAC Module'
+
+  - pwsh: |
+      $branch = "$env:EPAC_BRANCH"
+      Write-Host "Switching to branch: $branch"
+      git fetch origin $branch
+      git checkout $branch
+      git pull --ff-only origin $branch
+    displayName: '🌿 Checkout new PR branch'
+
+  - task: AzurePowerShell@5
+    name: Plan
+    inputs:
+      azureSubscription: ${{ parameters.serviceConnection }}
+      azurePowerShellVersion: LatestVersion
+      pwsh: true
+      ScriptType: InlineScript
+      Inline: |
+        Build-DeploymentPlans -PacEnvironmentSelector ${{ parameters.pacEnvironmentSelector }} -BuildExemptionsOnly -DevOpsType "ado" -InformationAction Continue
+  - publish: "$(PAC_OUTPUT_FOLDER)"
+    artifact: "plans-${{ parameters.pacEnvironmentSelector }}"
+    condition: and(succeeded(), or(eq(variables['Plan.deployPolicyChanges'], 'yes'), eq(variables['Plan.deployRoleChanges'], 'yes')))
+    displayName: '📦 Publish Deployment Plans Artifact'

@@ -67,6 +67,9 @@ param (
     [Parameter(Mandatory = $false, HelpMessage = "Include if using a PAT token for pushing to ADO Wiki.")]
     [string] $WikiClonePat,
 
+    [Parameter(Mandatory = $false, HelpMessage = "Include if using a pre configured SPN for pushing to ADO Wiki.")]
+    [switch] $WikiSPN,
+
     [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
     [string] $pacSelector,
 
@@ -85,6 +88,8 @@ param (
 $InformationPreference = 'Continue'
 $globalSettings = Get-GlobalSettings -DefinitionsRootFolder $DefinitionsRootFolder -OutputFolder $OutputFolder
 $definitionsFolder = $globalSettings.policyDocumentationsFolder
+$selectedDocumentationFolder = $definitionsFolder
+$documentationSubfolders = Get-ChildItem -Path $definitionsFolder -Directory -ErrorAction SilentlyContinue
 $pacEnvironments = $globalSettings.pacEnvironments
 $outputPath = "$($globalSettings.outputFolder)/policy-documentation"
 if (-not (Test-Path $outputPath)) {
@@ -116,14 +121,34 @@ $pacEnvironment = $null
 #endregion Initialize
 
 Write-ModernSection -Title "Processing Documentation Definitions" -Color Blue
-Write-ModernStatus -Message "Source folder: $definitionsFolder" -Status "info" -Indent 2
-if (!(Test-Path $definitionsFolder -PathType Container)) {
+if ($documentationSubfolders -and $documentationSubfolders.Count -gt 0) {
+    if ($documentationSubfolders.Count -eq 1 -and -not $pacSelector) {
+        $selectedDocumentationFolder = $documentationSubfolders[0].FullName
+        Write-ModernStatus -Message "Found one subfolder; selecting '$($documentationSubfolders[0].Name)'" -Status "info" -Indent 2
+    }
+    elseif ($pacSelector) {
+        $matchFolder = $documentationSubfolders | Where-Object { $_.Name -eq $pacSelector }
+        if ($null -ne $matchFolder) {
+            $selectedDocumentationFolder = $matchFolder.FullName
+            Write-ModernStatus -Message "Selecting subfolder '$pacSelector' for documentation" -Status "info" -Indent 2
+        }
+        else {
+            Write-Error "pacSelector '$pacSelector' does not match any subfolder under policyDocumentations." -ErrorAction Stop
+        }
+    }
+    else {
+        Write-Error "Multiple documentation subfolders found. Provide -PacSelector to choose one." -ErrorAction Stop
+    }
+}
+
+Write-ModernStatus -Message "Source folder: $selectedDocumentationFolder" -Status "info" -Indent 2
+if (!(Test-Path $selectedDocumentationFolder -PathType Container)) {
     Write-Error "Policy documentation specification folder 'policyDocumentations not found.  This EPAC instance cannot generate documentation." -ErrorAction Stop
 }
 
 $filesRaw = @()
-$filesRaw += Get-ChildItem -Path $definitionsFolder -Recurse -File -Filter "*.jsonc"
-$filesRaw += Get-ChildItem -Path $definitionsFolder -Recurse -File -Filter "*.json"
+$filesRaw += Get-ChildItem -Path $selectedDocumentationFolder -Recurse -File -Filter "*.jsonc"
+$filesRaw += Get-ChildItem -Path $selectedDocumentationFolder -Recurse -File -Filter "*.json"
 $files = @()
 $files += ($filesRaw  | Sort-Object -Property Name)
 if ($files.Length -gt 0) {
@@ -177,6 +202,82 @@ foreach ($file in $files) {
         if (-not ($documentationSpec.documentAssignments -or $documentationSpec.documentPolicySets)) {
             Write-Error "JSON document must contain 'documentAssignments' and/or 'documentPolicySets' element(s)." -ErrorAction Stop
         }
+
+        # If processing a documentation subfolder, filter entries to matching pacEnvironment
+        $selectedFolderName = (Split-Path -Leaf $selectedDocumentationFolder)
+        $inSubfolder = ($selectedDocumentationFolder -ne $definitionsFolder)
+        if ($inSubfolder) {
+            # Filter documentPolicySets to only entries where pacEnvironment matches folder name
+            if ($null -ne $documentationSpec.documentPolicySets) {
+                $origCount = $documentationSpec.documentPolicySets.Count
+                $documentationSpec.documentPolicySets = $documentationSpec.documentPolicySets | Where-Object { $_.pacEnvironment -eq $selectedFolderName }
+                $newCount = if ($documentationSpec.documentPolicySets) { $documentationSpec.documentPolicySets.Count } else { 0 }
+                if ($newCount -ne $origCount) {
+                    Write-ModernStatus -Message "Filtered documentPolicySets by folder '$selectedFolderName' (kept $newCount of $origCount)" -Status "info" -Indent 4
+                }
+            }
+
+            # Filter documentAllAssignments to only entries where pacEnvironment matches folder name
+            if ($null -ne $documentationSpec.documentAssignments -and $null -ne $documentationSpec.documentAssignments.documentAllAssignments) {
+                $docAll = $documentationSpec.documentAssignments.documentAllAssignments
+                if ($docAll -is [array]) {
+                    $origCount = $docAll.Count
+                    $docAll = $docAll | Where-Object { $_.pacEnvironment -eq $selectedFolderName }
+                    $newCount = $docAll.Count
+                    if ($newCount -ne $origCount) {
+                        Write-ModernStatus -Message "Filtered documentAllAssignments by folder '$selectedFolderName' (kept $newCount of $origCount)" -Status "info" -Indent 4
+                    }
+                }
+                else {
+                    if ($docAll.pacEnvironment -ne $selectedFolderName) {
+                        Write-ModernStatus -Message "documentAllAssignments pacEnvironment '$($docAll.pacEnvironment)' does not match folder '$selectedFolderName'; skipping." -Status "skip" -Indent 4
+                        $docAll = @()
+                    }
+                    else {
+                        # Normalize to array for downstream processing consistency
+                        $docAll = @($docAll)
+                        Write-ModernStatus -Message "documentAllAssignments matches folder '$selectedFolderName'" -Status "info" -Indent 4
+                    }
+                }
+                $documentationSpec.documentAssignments.documentAllAssignments = $docAll
+            }
+        }
+        elseif ($pacSelector) {
+            # Filter entries to matching pacEnvironment when not in a subfolder but selector provided
+            if ($null -ne $documentationSpec.documentPolicySets) {
+                $origCount = $documentationSpec.documentPolicySets.Count
+                $documentationSpec.documentPolicySets = $documentationSpec.documentPolicySets | Where-Object { $_.pacEnvironment -eq $pacSelector }
+                $newCount = if ($documentationSpec.documentPolicySets) { $documentationSpec.documentPolicySets.Count } else { 0 }
+                Write-ModernStatus -Message "Filtered documentPolicySets by selector '$pacSelector' (kept $newCount of $origCount)" -Status "info" -Indent 4
+            }
+
+            if ($null -ne $documentationSpec.documentAssignments -and $null -ne $documentationSpec.documentAssignments.documentAllAssignments) {
+                $docAll = $documentationSpec.documentAssignments.documentAllAssignments
+                if ($docAll -is [array]) {
+                    $origCount = $docAll.Count
+                    $docAll = $docAll | Where-Object { $_.pacEnvironment -eq $pacSelector }
+                    $newCount = $docAll.Count
+                    if ($newCount -ne $origCount) {
+                        Write-ModernStatus -Message "Filtered documentAllAssignments by selector '$pacSelector' (kept $newCount of $origCount)" -Status "info" -Indent 4
+                    }
+                }
+                else {
+                    if ($docAll.pacEnvironment -ne $pacSelector) {
+                        Write-ModernStatus -Message "documentAllAssignments pacEnvironment '$($docAll.pacEnvironment)' does not match selector '$pacSelector'; skipping." -Status "skip" -Indent 4
+                        $docAll = @()
+                    }
+                    else {
+                        # Normalize to array for downstream processing consistency
+                        $docAll = @($docAll)
+                        Write-ModernStatus -Message "documentAllAssignments matches selector '$pacSelector'" -Status "info" -Indent 4
+                    }
+                }
+                $documentationSpec.documentAssignments.documentAllAssignments = $docAll
+            }
+        }
+
+        # Capture optional global documentation defaults
+        $globalDocDefaults = $documentationSpec.globalDocumentationSpecifications
 
         $documentPolicySets = $documentationSpec.documentPolicySets
         if ($documentPolicySets -and $documentPolicySets.Count -gt 0) {
@@ -258,6 +359,31 @@ foreach ($file in $files) {
                     -ItemList $itemList `
                     -Details $policySetDetails
 
+                # Apply global defaults for shared documentation properties (specific entry overrides)
+                if ($null -ne $globalDocDefaults) {
+                    $sharedProps = @(
+                        'markdownAddToc',
+                        'markdownAdoWiki',
+                        'markdownAdoWikiConfig',
+                        'markdownNoEmbeddedHtml',
+                        'markdownIncludeComplianceGroupNames',
+                        'markdownSuppressParameterSection',
+                        'markdownMaxParameterLength'
+                    )
+                    foreach ($prop in $sharedProps) {
+                        $hasMember = $null -ne ($documentPolicySetEntry | Get-Member -Name $prop -MemberType NoteProperty)
+                        $currentVal = if ($hasMember) { $documentPolicySetEntry.$prop } else { $null }
+                        if ($null -eq $currentVal -and $null -ne $globalDocDefaults.$prop) {
+                            if ($hasMember) {
+                                $documentPolicySetEntry.$prop = $globalDocDefaults.$prop
+                            }
+                            else {
+                                $documentPolicySetEntry | Add-Member -MemberType NoteProperty -Name $prop -Value $globalDocDefaults.$prop
+                            }
+                        }
+                    }
+                }
+
                 # Print documentation
                 Out-DocumentationForPolicySets `
                     -OutputPath $outputPath `
@@ -267,7 +393,9 @@ foreach ($file in $files) {
                     -EnvironmentColumnsInCsv $environmentColumnsInCsv `
                     -PolicySetDetails $policySetDetails `
                     -FlatPolicyList $flatPolicyList `
-                    -IncludeManualPolicies:$IncludeManualPolicies
+                    -IncludeManualPolicies:$IncludeManualPolicies `
+                    -WikiClonePat:$WikiClonePat `
+                    -WikiSPN:$WikiSPN
             }
         }
 
@@ -325,7 +453,59 @@ foreach ($file in $files) {
             }
             # Build documents
             $documentationSpecifications = $documentAssignments.documentationSpecifications
+            # Fallback: synthesize specification from global defaults when missing
+            if (-not $documentationSpecifications) {
+                if ($null -ne $globalDocDefaults) {
+                    $envCategoriesArray = @()
+                    foreach ($categoryName in $assignmentsByEnvironment.Keys) {
+                        $envCategoriesArray += $categoryName
+                    }
+                    $generatedSpec = New-Object PSObject -Property @{
+                        fileNameStem                        = $globalDocDefaults.fileNameStem
+                        environmentCategories               = $envCategoriesArray
+                        title                               = $globalDocDefaults.title
+                        markdownAddToc                      = if ($null -ne $globalDocDefaults.markdownAddToc) { $globalDocDefaults.markdownAddToc } else { $null }
+                        markdownAdoWiki                     = if ($null -ne $globalDocDefaults.markdownAdoWiki) { $globalDocDefaults.markdownAdoWiki } else { $null }
+                        markdownAdoWikiConfig               = if ($null -ne $globalDocDefaults.markdownAdoWikiConfig) { $globalDocDefaults.markdownAdoWikiConfig } else { $null }
+                        markdownNoEmbeddedHtml              = if ($null -ne $globalDocDefaults.markdownNoEmbeddedHtml) { $globalDocDefaults.markdownNoEmbeddedHtml } else { $null }
+                        markdownIncludeComplianceGroupNames = if ($null -ne $globalDocDefaults.markdownIncludeComplianceGroupNames) { $globalDocDefaults.markdownIncludeComplianceGroupNames } else { $null }
+                        markdownSuppressParameterSection    = if ($null -ne $globalDocDefaults.markdownSuppressParameterSection) { $globalDocDefaults.markdownSuppressParameterSection } else { $null }
+                        markdownMaxParameterLength          = if ($null -ne $globalDocDefaults.markdownMaxParameterLength) { $globalDocDefaults.markdownMaxParameterLength } else { $null }
+                    }
+                    if (-not $generatedSpec.fileNameStem -or -not $generatedSpec.title) {
+                        Write-Error "When documentationSpecifications is omitted, globalDocumentationSpecifications must provide fileNameStem and title." -ErrorAction Stop
+                    }
+                    $documentationSpecifications = @($generatedSpec)
+                }
+                else {
+                    Write-Error "documentationSpecifications is required unless globalDocumentationSpecifications is provided." -ErrorAction Stop
+                }
+            }
             foreach ($documentationSpecification in $documentationSpecifications) {
+                # Apply global defaults for shared documentation properties (specific entry overrides)
+                if ($null -ne $globalDocDefaults) {
+                    $sharedProps = @(
+                        'markdownAddToc',
+                        'markdownAdoWiki',
+                        'markdownAdoWikiConfig',
+                        'markdownNoEmbeddedHtml',
+                        'markdownIncludeComplianceGroupNames',
+                        'markdownSuppressParameterSection',
+                        'markdownMaxParameterLength'
+                    )
+                    foreach ($prop in $sharedProps) {
+                        $hasMember = $null -ne ($documentationSpecification | Get-Member -Name $prop -MemberType NoteProperty)
+                        $currentVal = if ($hasMember) { $documentationSpecification.$prop } else { $null }
+                        if ($null -eq $currentVal -and $null -ne $globalDocDefaults.$prop) {
+                            if ($hasMember) {
+                                $documentationSpecification.$prop = $globalDocDefaults.$prop
+                            }
+                            else {
+                                $documentationSpecification | Add-Member -MemberType NoteProperty -Name $prop -Value $globalDocDefaults.$prop
+                            }
+                        }
+                    }
+                }
                 $documentationType = $documentationSpecification.type
                 if ($null -ne $documentationType) {
                     Write-ModernStatus -Message "Field documentationType ($documentationType) is deprecated" -Status "warning" -Indent 6
@@ -337,17 +517,19 @@ foreach ($file in $files) {
                     -DocumentationSpecification $documentationSpecification `
                     -AssignmentsByEnvironment $assignmentsByEnvironment `
                     -IncludeManualPolicies:$IncludeManualPolicies `
-                    -PacEnvironments $pacEnvironments `
-                    -WikiClonePat $WikiClonePat
-                # Out-DocumentationForPolicyAssignments `
-                #     -OutputPath $outputPath `
-                #     -WindowsNewLineCells:$true `
-                #     -DocumentationSpecification $documentationSpecification `
-                #     -AssignmentsByEnvironment $assignmentsByEnvironment
+                    -PacEnvironments $pacEnvironments ` `
+                    -WikiClonePat:$WikiClonePat `
+                    -WikiSPN:$WikiSPN
             }
         }
 
         if ($documentationSpec.documentAssignments -and $documentationSpec.documentAssignments.documentAllAssignments) {
+            # Guard: if filtered to empty, skip documentAllAssignments processing
+            $docAllGuard = $documentationSpec.documentAssignments.documentAllAssignments
+            if ($docAllGuard -is [array] -and $docAllGuard.Count -eq 0) {
+                Write-ModernStatus -Message "No documentAllAssignments entries to process after filtering; skipping." -Status "skip" -Indent 4
+                continue
+            }
             # Load pacEnvironments from policy documentations folder
             $pacEnvironmentSelector = $documentationSpec.documentAssignments.documentAllAssignments.pacEnvironment
 
@@ -512,16 +694,42 @@ foreach ($file in $files) {
             }
 
             $tempDocumentationSpecifications = @()
-            $tempDocumentationSpecifications += New-Object PSObject -Property @{
-                fileNameStem               = $documentAssignments.documentationSpecifications.fileNameStem
-                environmentCategories      = $envCategoriesArray
-                title                      = $documentAssignments.documentationSpecifications.title
-                markdownAdoWiki            = $documentAssignments.documentationSpecifications.markdownAdoWiki
-                markdownAdoWikiConfig      = if ($null -ne $documentAssignments.documentationSpecifications.markdownAdoWikiConfig) { $documentAssignments.documentationSpecifications.markdownAdoWikiConfig }else { $null }
-                markdownMaxParameterLength = if ($null -ne $documentAssignments.documentationSpecifications.markdownMaxParameterLength) { $documentAssignments.documentationSpecifications.markdownMaxParameterLength }else { $null }
+            if ($null -ne $documentAssignments.documentationSpecifications) {
+                $tempDocumentationSpecifications += New-Object PSObject -Property @{
+                    fileNameStem               = $documentAssignments.documentationSpecifications.fileNameStem
+                    environmentCategories      = $envCategoriesArray
+                    title                      = $documentAssignments.documentationSpecifications.title
+                    markdownAdoWiki            = $documentAssignments.documentationSpecifications.markdownAdoWiki
+                    markdownAdoWikiConfig      = if ($null -ne $documentAssignments.documentationSpecifications.markdownAdoWikiConfig) { $documentAssignments.documentationSpecifications.markdownAdoWikiConfig }else { $null }
+                    markdownMaxParameterLength = if ($null -ne $documentAssignments.documentationSpecifications.markdownMaxParameterLength) { $documentAssignments.documentationSpecifications.markdownMaxParameterLength }else { $null }
+                }
+            }
+            else {
+                # Synthesize from global defaults
+                if ($null -ne $globalDocDefaults) {
+                    $tempDocumentationSpecifications += New-Object PSObject -Property @{
+                        fileNameStem               = $globalDocDefaults.fileNameStem
+                        environmentCategories      = $envCategoriesArray
+                        title                      = $globalDocDefaults.title
+                        markdownAdoWiki            = if ($null -ne $globalDocDefaults.markdownAdoWiki) { $globalDocDefaults.markdownAdoWiki } else { $null }
+                        markdownAdoWikiConfig      = if ($null -ne $globalDocDefaults.markdownAdoWikiConfig) { $globalDocDefaults.markdownAdoWikiConfig } else { $null }
+                        markdownMaxParameterLength = if ($null -ne $globalDocDefaults.markdownMaxParameterLength) { $globalDocDefaults.markdownMaxParameterLength } else { $null }
+                    }
+                    if (-not $tempDocumentationSpecifications[0].fileNameStem -or -not $tempDocumentationSpecifications[0].title) {
+                        Write-Error "When documentationSpecifications is omitted, globalDocumentationSpecifications must provide fileNameStem and title." -ErrorAction Stop
+                    }
+                }
+                else {
+                    Write-Error "documentationSpecifications is required unless globalDocumentationSpecifications is provided." -ErrorAction Stop
+                }
             }
 
-            $documentAssignments.documentationSpecifications = $tempDocumentationSpecifications
+            if ($documentAssignments | Get-Member -Name "documentationSpecifications" -MemberType NoteProperty) {
+                $documentAssignments.documentationSpecifications = $tempDocumentationSpecifications
+            }
+            else {
+                $documentAssignments | Add-Member -MemberType NoteProperty -Name "documentationSpecifications" -Value $tempDocumentationSpecifications
+            }
 
             [hashtable] $assignmentsByEnvironment = @{}
             foreach ($environmentCategoryEntry in $environmentCategories) {
@@ -587,6 +795,31 @@ foreach ($file in $files) {
                     $documentationSpecification.fileNameStem = $documentationSpec.documentAssignments.documentAllAssignments.fileNameStemPrefix + "-" + $documentationSpecification.fileNameStem
                 }
 
+                # Apply global defaults for shared documentation properties (specific entry overrides)
+                if ($null -ne $globalDocDefaults) {
+                    $sharedProps = @(
+                        'markdownAddToc',
+                        'markdownAdoWiki',
+                        'markdownAdoWikiConfig',
+                        'markdownNoEmbeddedHtml',
+                        'markdownIncludeComplianceGroupNames',
+                        'markdownSuppressParameterSection',
+                        'markdownMaxParameterLength'
+                    )
+                    foreach ($prop in $sharedProps) {
+                        $hasMember = $null -ne ($documentationSpecification | Get-Member -Name $prop -MemberType NoteProperty)
+                        $currentVal = if ($hasMember) { $documentationSpecification.$prop } else { $null }
+                        if ($null -eq $currentVal -and $null -ne $globalDocDefaults.$prop) {
+                            if ($hasMember) {
+                                $documentationSpecification.$prop = $globalDocDefaults.$prop
+                            }
+                            else {
+                                $documentationSpecification | Add-Member -MemberType NoteProperty -Name $prop -Value $globalDocDefaults.$prop
+                            }
+                        }
+                    }
+                }
+
                 $documentationType = $documentationSpecification.type
                 if ($null -ne $documentationType) {
                     Write-ModernStatus -Message "Field documentationType ($documentationType) is deprecated" -Status "warning" -Indent 6
@@ -598,8 +831,9 @@ foreach ($file in $files) {
                     -DocumentationSpecification $documentationSpecification `
                     -AssignmentsByEnvironment $assignmentsByEnvironment `
                     -IncludeManualPolicies:$IncludeManualPolicies `
-                    -PacEnvironments $pacEnvironments `
-                    -WikiClonePat $WikiClonePat
+                    -PacEnvironments $pacEnvironments  `
+                    -WikiClonePat:$WikiClonePat `
+                    -WikiSPN:$WikiSPN
             }
         }
     }

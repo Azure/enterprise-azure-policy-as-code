@@ -66,7 +66,7 @@ EPAC is designed for medium and large organizations with a larger number of Poli
 
 ## Deployment Scripts
 
-Three deployment scripts plan a deployment, deploy Policy resources, and Role Assignments respectively as shown in the following diagram. The solution consumes definition files (JSON and/or CSV files). The planning script (`Build-DeploymentPlan`) creates plan files (`policy-plan.json` and `roles-plan.json`) to be consumed by the two deployment scripts (`Deploy-PolicyPlan` and `Deploy-RolesPlan`). The scripts require `Reader`, `Resource Policy Contributor` and `Role Based Access Control Administrator` privileges respectively as indicated in blue text in the diagram. The diagram also shows the usual approval gates after each step/script for prod deployments.
+Three deployment scripts plan a deployment, deploy Policy resources, and Role Assignments respectively as shown in the following diagram. The solution consumes definition files (JSON and/or CSV files). The planning script (`Build-DeploymentPlans`) creates plan files (`policy-plan.json` and `roles-plan.json`) to be consumed by the two deployment scripts (`Deploy-PolicyPlan` and `Deploy-RolesPlan`). The scripts require `Reader`, `Resource Policy Contributor` and `Role Based Access Control Administrator` privileges respectively as indicated in blue text in the diagram. The diagram also shows the usual approval gates after each step/script for prod deployments.
 
 ![image.png](Images/epac-deployment-scripts.png)
 
@@ -92,7 +92,7 @@ Microsoft can identify the deployments of the Azure Resource Manager with the de
 
 ### Opt out of telemetry data collection `telemetryOptOut`
 
-To opt-out of this tracking, we have included a settings in `global-settings.jsonc` called `telemetryOptOut`. If you would like to disable this tracking, then simply [set this value](settings-global-setting-file.md/#opt-out-of-telemetry-data-collection-telemetryoptout) to `true` (default is `false`).
+To opt-out of this tracking, we have included a setting in `global-settings.jsonc` called `telemetryOptOut`. If you would like to disable this tracking, then simply [set this value](settings-global-setting-file.md/#opt-out-of-telemetry-data-collection-telemetryoptout) to `true` (default is `false`).
 
 If you are happy with leaving telemetry tracking enabled, no changes are required.
 

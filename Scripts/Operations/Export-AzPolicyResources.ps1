@@ -291,7 +291,14 @@ if ($Mode -ne 'exportFromRawFiles') {
                     }
                     PolicyDefinitionId    = $policy.Value.properties.policyDefinitionId
                     Parameters            = $policy.Value.properties.parameters
-                    NonComplianceMessages = $policy.Value.properties.nonComplianceMessages
+                    NonComplianceMessages = @($policy.Value.properties.nonComplianceMessages | ForEach-Object {
+                            if ($null -ne $_.policyDefinitionReferenceId) {
+                                $_
+                            }
+                            else {
+                                @{ message = $_.message }
+                            }
+                        })
                     DefinitionVersion     = $policy.Value.properties.definitionVersion
                 }
             }
@@ -739,7 +746,14 @@ foreach ($pacSelector in $globalSettings.pacEnvironmentSelectors) {
 
             $nonComplianceMessages = $null
             if ($properties.nonComplianceMessages -and $properties.nonComplianceMessages.Count -gt 0) {
-                $nonComplianceMessages = $properties.nonComplianceMessages
+                $nonComplianceMessages = @($properties.nonComplianceMessages | ForEach-Object {
+                        if ($null -ne $_.policyDefinitionReferenceId) {
+                            $_
+                        }
+                        else {
+                            @{ message = $_.message }
+                        }
+                    })
             }
 
             $perDefinition = $null

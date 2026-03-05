@@ -16,6 +16,12 @@ function Confirm-PacOwner {
 
     $properties = $PolicyResource.properties
     $metadata = $properties.metadata
+    
+    if ($properties.assignmentType -eq "SystemHidden") {
+        $ManagedByCounters.microsoft += 1
+        return "microsoft"
+    }
+    
     if ($null -eq $metadata -or $null -eq $metadata.pacOwnerId) {
         $kind = $PolicyResource.kind
         if ($kind -eq "policyassignments" -and $Scope.StartsWith("/subscriptions/")) {

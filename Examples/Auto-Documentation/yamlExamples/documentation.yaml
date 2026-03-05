@@ -1,0 +1,35 @@
+parameters:
+- name: serviceConnection
+  type: string
+- name: pacEnvironmentSelector
+  type: string
+- name: definitionsRootFolder
+  type: string
+  default: Definitions
+
+steps:
+  - checkout: self
+    persistCredentials: true
+  - pwsh: |
+      Install-Module EnterprisePolicyAsCode -Force
+      Install-Module Az.ResourceGraph -Force
+      Write-Host "------"
+      $path = "/home/vsts/work/1/s/Scripts/Operations"
+      Test-Path -Path $path 
+      Write-Host "------"
+  - task: AzurePowerShell@5
+    name: documentation
+    displayName: Build Documentation
+    inputs:
+      azureSubscription: ${{ parameters.serviceConnection }}
+      ScriptType: FilePath
+      azurePowerShellVersion: LatestVersion
+      pwsh: true
+      # Only use WikiSPN or WikiClonePat when automatic markdown to Azure DevOps Wiki
+      ScriptPath: "/home/vsts/work/1/s/Scripts/Operations/Build-PolicyDocumentation.ps1"
+      ScriptArguments: >
+        -PacSelector "${{ parameters.pacEnvironmentSelector }}"
+        -Interactive $false
+        -WikiSPN
+  - publish: "$(PAC_OUTPUT_FOLDER)"
+    artifact: "policy-documentation-${{ parameters.pacEnvironmentSelector }}"

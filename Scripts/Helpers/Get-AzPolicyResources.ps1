@@ -56,11 +56,12 @@ function Get-AzPolicyResources {
             managed  = @{}
             counters = @{
                 managedBy       = @{
-                    thisPaC             = 0
-                    otherPaC            = 0
+                    thisPaC  = 0
+                    otherPaC = 0
+                    microsoft = 0
                     dfcSecurityPolicies = 0
-                    dfcDefenderPlans    = 0
-                    unknown             = 0
+                    dfcDefenderPlans = 0
+                    unknown = 0
                 }
                 excluded        = 0
                 unmanagedScopes = 0
@@ -190,7 +191,7 @@ function Get-AzPolicyResources {
 
     $counters = $deployedPolicyResources.policyassignments.counters
     $managedBy = $counters.managedBy
-    $managedByAny = $managedBy.thisPaC + $managedBy.otherPaC + $managedBy.unknown + $managedBy.dfcSecurityPolicies + $managedBy.dfcDefenderPlans
+    $managedByAny = $managedBy.thisPaC + $managedBy.otherPaC + $managedBy.unknown + $managedBy.dfcSecurityPolicies + $managedBy.dfcDefenderPlans + $managedBy.microsoft
     Write-Information ""
     Write-ModernStatus -Message "Policy Assignments:" -Status default -Indent 0
     Write-ModernStatus -Message "Managed ($($managedByAny)):" -Status "info" -Indent 3
@@ -217,6 +218,7 @@ function Get-AzPolicyResources {
     else {
         Write-ModernStatus -Message "Unknown: $($managedBy.unknown)" -Status "info" -Indent 6
     }
+    Write-ModernStatus -Message "Microsoft Managed: $($managedBy.microsoft)" -Status "info" -Indent 6
     Write-ModernStatus -Message "DfC Security Policies: $($managedBy.dfcSecurityPolicies)" -Status "info" -Indent 6
     Write-ModernStatus -Message "DfC Defender Plans: $($managedBy.dfcDefenderPlans)" -Status "info" -Indent 6
     Write-ModernStatus -Message "With identity: $($counters.withIdentity)" -Status "info" -Indent 3

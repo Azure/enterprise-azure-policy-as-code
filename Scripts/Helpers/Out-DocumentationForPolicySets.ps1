@@ -8,7 +8,9 @@ function Out-DocumentationForPolicySets {
         [array] $EnvironmentColumnsInCsv,
         [hashtable] $PolicySetDetails,
         [hashtable] $FlatPolicyList,
-        [switch] $IncludeManualPolicies
+        [switch] $IncludeManualPolicies,
+        [string] $WikiClonePat,
+        [switch] $WikiSPN
     )
 
     $fileNameStem = $DocumentationSpecification.fileNameStem
@@ -16,7 +18,7 @@ function Out-DocumentationForPolicySets {
     $environmentColumnsInCsv = $DocumentationSpecification.environmentColumnsInCsv
 
     Write-ModernSection -Title "Generating Policy Set documentation for '$title'" -Color Green
-    Write-ModernStatus -Message "$fileNameStem" -Status "info" -Indent 2
+    Write-ModernStatus -Message "File Name: $fileNameStem" -Status "info" -Indent 2
 
     #region Markdown
 
@@ -472,7 +474,65 @@ function Out-DocumentationForPolicySets {
     # Output file
     $outputFilePath = "$($OutputPath -replace '[/\\]$', '')/$FileNameStem.jsonc"
     $sb.ToString() | Out-File $outputFilePath -Force
-    Write-ModernStatus -Message "Complete" -Status "success" -Indent 2
-    #endregion
 
+    #region PushToWiki
+    if ($WikiClonePat -or $WikiSPN) {
+        # Normalize wiki config (support array or object)
+        $wikiCfg = $DocumentationSpecification.markdownAdoWikiConfig
+        if ($wikiCfg -is [array]) { $wikiCfg = $wikiCfg | Select-Object -First 1 }
+        $adoOrg = $wikiCfg.adoOrganization
+        $adoProj = $wikiCfg.adoProject
+        $adoWiki = $wikiCfg.adoWiki
+
+        # $adoConfigured = { "$adoOrg" -eq "" -and "$adoProj" -eq "" -and "$adoWiki" -eq "" }
+        $adoConfigured = -not [string]::IsNullOrWhiteSpace($adoOrg) -and -not [string]::IsNullOrWhiteSpace($adoProj) -and -not [string]::IsNullOrWhiteSpace($adoWiki)
+
+        # Clone down wiki
+        if ($adoConfigured) {
+            Write-ModernStatus -Message "Attempting push to Azure DevOps Wiki (Policy Sets)" -Status "info" -Indent 2
+            if ($WikiSPN) {
+                Write-ModernStatus -Message "Using Service Principal for Wiki clone" -Status "info" -Indent 2
+                $adoResource = "499b84ac-1321-427f-aa17-267ca6975798"  # ADO resource/App ID - THIS IS AN AZURE SPECIFIC GUID REQUIRED FOR ADO
+                $tokenResult = Get-AzAccessToken -ResourceUrl $adoResource
+                if (-not $tokenResult -or [string]::IsNullOrWhiteSpace($tokenResult.Token)) {
+                    Write-ModernStatus -Message "Failed to acquire Azure DevOps bearer token via Get-AzAccessToken." -Status "error" -Indent 4
+                }
+                Write-ModernStatus -Message "Acquired Azure DevOps bearer token" -Status "success" -Indent 4
+                $AccessToken = $tokenResult.Token
+                if ([string]::IsNullOrWhiteSpace($AccessToken)) {
+                    Write-ModernStatus -Message "Bearer token is empty. Ensure this script is running under AzurePowerShell@5 bound to your service connection." -Status "error" -Indent 4
+                }
+                if ($AccessToken -is [System.Security.SecureString]) {
+                    $AccessToken = [System.Net.NetworkCredential]::new('', $AccessToken).Password
+                }
+                Write-ModernStatus -Message "Acquired Access Token for Git Commands" -Status "success" -Indent 4
+
+                #Clone Repo
+                git -c http.extraheader="AUTHORIZATION: bearer $AccessToken" clone "https://dev.azure.com/$adoOrg/$adoProj/_git/$adoWiki.wiki"
+            }
+            else {
+                Write-ModernStatus -Message "Using Personal Access Token for Wiki clone" -Status "info" -Indent 2
+                git clone "https://$($WikiClonePat):x-oauth-basic@dev.azure.com/$adoOrg/$adoProj/_git/$adoWiki.wiki"
+            }
+            Set-Location -Path "$adoWiki.wiki"
+            $branch = git branch
+            $branch = $branch.split(" ")[1]
+            Copy-Item -Path "../$OutputPath/$($DocumentationSpecification.fileNameStem).md"
+            git config user.email "epac-wiki@example.com"
+            git config user.name "EPAC Wiki"
+            git add .
+            git commit -m "Update wiki with policy set documentation"
+            if ($WikiSPN) {
+                git -c http.extraheader="AUTHORIZATION: bearer $AccessToken" push origin "$branch"
+            }
+            else {
+                git push origin "$branch"
+            }
+            Set-Location "../"
+        }
+        else {
+            Write-ModernStatus -Message "Policy Set created and pushing to ADO Wiki is enabled, however configurations are missing or incorrect. Skipping Wiki push." -Status "warning" -Indent 2
+        }
+    }
+    Write-ModernStatus -Message "Complete" -Status "success" -Indent 2
 }

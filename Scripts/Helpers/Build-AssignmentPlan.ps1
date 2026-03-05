@@ -11,7 +11,8 @@ function Build-AssignmentPlan {
         [hashtable] $ReplaceDefinitions,
         [hashtable] $PolicyRoleIds,
         [hashtable] $CombinedPolicyDetails,
-        [hashtable] $DeprecatedHash
+        [hashtable] $DeprecatedHash,
+        [switch] $DetailedOutput
     )
 
     Write-ModernSection -Title "Processing Policy Assignments" -Color Blue
@@ -141,7 +142,8 @@ function Build-AssignmentPlan {
                     -CompareValueEntryForExistingParametersObj
                 $metadataMatches, $changePacOwnerId = Confirm-MetadataMatches `
                     -ExistingMetadataObj $deployedPolicyAssignmentProperties.metadata `
-                    -DefinedMetadataObj $metadata
+                    -DefinedMetadataObj $metadata `
+                    -SuppressPacOwnerIdMessage:$DetailedOutput
                 $enforcementModeMatches = $enforcementMode -eq $deployedPolicyAssignmentProperties.enforcementMode
                 $nonComplianceMessagesMatches = Confirm-ObjectValueEqualityDeep `
                     $deployedPolicyAssignmentProperties.nonComplianceMessages `
@@ -243,7 +245,16 @@ function Build-AssignmentPlan {
                         Write-Error "Duplicate Policy Assignment ID '$id' found in the JSON files." -ErrorAction Stop
                     }
                     $null = $updateCollection.Add($id, $assignment)
-                    Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix $prefixText -IdentityStatus $identityStatus -ScopeTable $ScopeTable
+                    Write-AssignmentDetails `
+                        -DisplayName $displayName `
+                        -Scope $scope `
+                        -Prefix $prefixText `
+                        -IdentityStatus $identityStatus `
+                        -ScopeTable $ScopeTable `
+                        -DetailedOutput:$DetailedOutput `
+                        -DeployedAssignment $deployedPolicyAssignment `
+                        -DesiredAssignment $assignment `
+                        -ChangedProperties $changesStrings
                     $Assignments.numberOfChanges++
                 }
             }
@@ -263,7 +274,15 @@ function Build-AssignmentPlan {
                 if ($identityStatus.isUserAssigned) {
                     $isUserAssignedAny = $true
                 }
-                Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix "New" -IdentityStatus $identityStatus -ScopeTable $ScopeTable
+                Write-AssignmentDetails `
+                    -DisplayName $displayName `
+                    -Scope $scope `
+                    -Prefix "New" `
+                    -IdentityStatus $identityStatus `
+                    -ScopeTable $ScopeTable `
+                    -DetailedOutput:$DetailedOutput `
+                    -DeployedAssignment $null `
+                    -DesiredAssignment $assignment
             }
         }
     }
@@ -284,12 +303,13 @@ function Build-AssignmentPlan {
                 -Strategy $strategy `
                 -KeepDfcSecurityAssignments $keepDfcSecurityAssignments `
                 -KeepDfcPlanAssignments $keepDfcPlanAssignments
-            # Check if this Policy Assignment is from the Enterprise Application 'Microsoft Authorization System Policy' (part of the product team)
-            if ( $deleteCandidateProperties.metadata.createdBy -eq "31a6387e-0946-459b-b041-22a447aafc42") {
-                # Check if these are the 2 required MFA Policies and ignore them
-                if ( ($id.split("/"))[-1] -in @("sys.mfa-write", "sys.mfa-delete")) {
-                    $shallDelete = $false
-                }
+            # Check if this Policy Assignment type is "SystemHidden" and skip deletion - this seems to be only the case from Microsoft Managed Policies
+            if ( $deleteCandidateProperties.assignmentType -eq "SystemHidden") {
+                $shallDelete = $false
+                # Commented out for now - Check if these are the 2 required MFA Policies and ignore them
+                # if ( ($id.split("/"))[-1] -in @("sys.mfa-write", "sys.mfa-delete")) {
+                #     $shallDelete = $false
+                # }
             }
             if ($shallDelete) {
                 # always delete if owned by this Policy as Code solution
@@ -307,7 +327,10 @@ function Build-AssignmentPlan {
                 if ($identityStatus.isUserAssigned) {
                     $isUserAssignedAny = $true
                 }
-                Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix "Delete" -IdentityStatus $identityStatus -ScopeTable $ScopeTable
+                Write-AssignmentDetails -DisplayName $displayName -Scope $scope -Prefix "Delete" -IdentityStatus $identityStatus -ScopeTable $ScopeTable -DetailedOutput:$DetailedOutput -DeployedAssignment $deleteCandidate
+                
+                # Detailed context is now handled in Write-AssignmentDetails
+                
                 $splat = @{
                     id          = $id
                     name        = $name

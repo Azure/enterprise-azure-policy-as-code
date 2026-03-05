@@ -126,7 +126,9 @@ $windowsNewLineCells = $WindowsNewLineCells.IsPresent
 $onlyCheckManagedAssignments = $OnlyCheckManagedAssignments.IsPresent
 $policySetDefinitionFilter = $PolicySetDefinitionFilter
 $policyAssignmentFilter = $PolicyAssignmentFilter
-$policyEffectFilter = $PolicyEffectFilter
+if ($null -ne $PolicyEffectFilter) {
+    $policyEffectFilter = $PolicyEffectFilter
+}
 $excludeManualPolicyEffect = $ExcludeManualPolicyEffect.IsPresent
 $remediationOnly = $RemediationOnly.IsPresent
 

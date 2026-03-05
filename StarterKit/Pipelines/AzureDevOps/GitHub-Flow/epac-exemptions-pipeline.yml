@@ -1,0 +1,242 @@
+# To workaround editing long strings in the exemptions CSV file, this template exports active policy exemptions from Azure Portal into a CSV file.
+# Creates an automated PR with the exported exemptions and creates a work item linked to an existing story ID.
+# Called by epac-exemptions-main.yml with environment-specific parameters.
+parameters:
+  - name: epacVersion
+    type: string
+    default: 'latest'
+  - name: definitionsRootFolder
+    type: string
+    default: './Definitions'
+  - name: projectName
+    type: string
+    default: 'EPAC'
+  - name: gitUserEmail
+    type: string
+    default: 'epac@example.com'
+  - name: gitUserName
+    type: string
+    default: 'EPAC exemption update Bot'
+  - name: pacEnvironmentSelector
+    type: string
+    default: 'epac-prod'
+  - name: storyId # Optional parameter to link created work item task to an existing story in Azure DevOps.
+    type: string
+    default: '' 
+  - name: serviceConnection
+    type: string
+
+jobs:
+  - job: UpdateExemptions
+    displayName: 'Update ${{ parameters.pacEnvironmentSelector }} Exemptions'
+    pool:
+      vmImage: 'ubuntu-latest'
+
+    steps:
+      - checkout: self
+        displayName: 'Checkout Repo'
+        persistCredentials: true
+
+      - script: |
+
+          # Install EPAC module with version handling
+          if [ "${{ parameters.epacVersion }}" = "latest" ]; then
+            echo "🔧 Installing latest version of EPAC"
+            pwsh -Command "Install-Module -Name EnterprisePolicyAsCode -Force -Scope CurrentUser"
+          else
+            echo "🔧 Installing EPAC version ${{ parameters.epacVersion }}"
+            pwsh -Command "Install-Module -Name EnterprisePolicyAsCode -RequiredVersion ${{ parameters.epacVersion }} -Force -Scope CurrentUser"
+          fi
+        displayName: '🔧 Install EPAC Module'
+      
+      - script: | 
+
+          # Install JQ for JSON parsing
+          echo "🔧 Installing JQ..."
+          sudo apt install jq
+        displayName: '🔧 Install JQ'
+
+      - script: |
+      
+          echo "🔧 Installing DevOps extension & setting defaults..."
+          az extension add --name azure-devops
+          az devops configure --defaults organization="${SYSTEM_COLLECTIONURI%/}" project="${{ parameters.projectName }}"
+        displayName: '🔧 Prep Azure DevOps CLI'
+
+      - task: AzurePowerShell@5
+        name: CreateAndPush
+        displayName: '🔐 Update Exemptions, Commit & Push'
+        inputs:
+          azureSubscription: ${{ parameters.serviceConnection }}
+          ScriptType: InlineScript
+          azurePowerShellVersion: LatestVersion
+          pwsh: true
+          Inline: |
+            # Exit on error
+            $ErrorActionPreference = "Stop"
+
+            # Parse variables
+            $orgUri     = $env:SYSTEM_COLLECTIONURI.TrimEnd("/")  # Trim trailing slash
+            $projectName = "${{ parameters.projectName }}"
+            $repoName   = $env:BUILD_REPOSITORY_NAME
+            $remoteUrl  = "$orgUri/$projectName/_git/$repoName"
+            $branchName = "EPAC-Exemption-Update-${{ parameters.pacEnvironmentSelector }}-$($env:BUILD_BUILDID)"
+
+            Write-Host "🛠️ Configuring Git..."
+            git config --global user.email "${{ parameters.gitUserEmail }}"
+            git config --global user.name "${{ parameters.gitUserName }}"
+
+            # Construct Git remote URL   
+            Write-Host "🔗 Constructed remote URL: $remoteUrl"
+            git remote set-url origin $remoteUrl
+            Write-Host "✅ Git remote updated successfully."
+            Write-Host "🔄 Preparing to push to branch: $branchName in repo: $repoName"
+
+            git checkout -b $branchName
+
+            # Connect using the service connection (AzurePowerShell@5 handles auth automatically)
+            Write-Host "🔐 Azure context established via service connection"
+
+            # 🚪 Export exemptions using EPAC
+            $outputFolder = "$(Build.SourcesDirectory)/exemptions"
+            Write-Host " 🚪Exporting exemptions to $outputFolder"
+
+            # Run export 
+            export-AzPolicyResources `
+              -InputPacSelector ${{ parameters.pacEnvironmentSelector }} `
+              -OutputFolder $outputFolder `
+              -Interactive $true
+
+            # Log exported files
+            Write-Host " 📁 Contents of export folder:"
+            Get-ChildItem -Recurse $outputFolder
+
+            # Define source and destination paths for active-exemptions.csv
+            $source = "$outputFolder/export/Definitions/policyExemptions/${{ parameters.pacEnvironmentSelector }}/active-exemptions.csv"
+            $dest   = "$(Build.SourcesDirectory)/Definitions/policyExemptions/${{ parameters.pacEnvironmentSelector }}/active-exemptions.csv"
+
+            # Copy file back to Definitions to override existing exemptions & delete the output folder afterwards
+            if (Test-Path $source) {
+              Write-Host " 📂 Copying $source to $dest"
+              # Copy exemption file
+              Copy-Item -Path $source -Destination $dest -Force
+              # Clean up export folder so it doesn't get committed
+              Write-Host " 🧹 Cleaning up export folder: $outputFolder/export"
+              Remove-Item "$outputFolder/export" -Recurse -Force -ErrorAction SilentlyContinue
+            } else {
+              Write-Error " ❌ Expected file not found: $source"
+            }
+
+            Write-Host "🔍 Checking for changes after exemption update..."
+            git add .
+            if (-not (git diff --cached --quiet)) {
+              Write-Host "✅ Changes detected — preparing to commit."
+              git commit -m "Auto-generated ${{ parameters.pacEnvironmentSelector }} exemption update - Build ID $($env:BUILD_BUILDID)"
+
+            # This tells Git to use the OAuth token for that specific push
+              git -c http.extraheader="Authorization: Bearer $env:SYSTEM_ACCESSTOKEN" push -u origin $branchName
+            } else {
+              Write-Host "🟡 No changes detected — skipping commit."
+              exit 0
+            }
+            
+            # Expose branch name as an output variable for later stages
+            Write-Host "##vso[task.setvariable variable=epacBranchName;isOutput=true]$branchName"
+        env:
+          SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+          SYSTEM_COLLECTIONURI: $(System.CollectionUri)
+          BUILD_REPOSITORY_NAME: $(Build.Repository.Name)
+          PROJECT_NAME: ${{ parameters.projectName }}
+          GIT_USER_EMAIL: ${{ parameters.gitUserEmail }}
+          GIT_USER_NAME: ${{ parameters.gitUserName }}
+
+      - script: |
+
+          # Parse variables
+          repoName="${BUILD_REPOSITORY_NAME}"
+          PR_BRANCH="EPAC-Exemption-Update-${{ parameters.pacEnvironmentSelector }}-${BUILD_BUILDID}"
+          sourceBranch="refs/heads/$PR_BRANCH"
+          targetBranch="refs/heads/main"
+          storyId="${{ parameters.storyId }}"
+          description=$(cat <<EOF
+          Auto-generated PR for ${{ parameters.pacEnvironmentSelector }} exemption update.
+
+          Pipeline Details:
+          - Pipeline Run Link: $(System.TeamFoundationCollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)
+          EOF
+          )
+
+          # Verify the build is running as expected build service
+          echo " 🔍Build running as: $(whoami)"
+
+          # Fetch the target branch 
+          echo " 🎯Fetching target branch 'main' with OAuth token..."
+          git -c http.extraheader="Authorization: Bearer ${SYSTEM_ACCESSTOKEN}" fetch origin main
+          git branch main origin/main
+
+          echo "🌿 Show branches"
+          git branch -a
+
+          #validate branches
+          #validate branches
+          git show-ref --verify "$sourceBranch" || { echo "❌ Source branch not found. Aborting PR."; exit 1; }
+          git show-ref --verify "$targetBranch" || { echo "❌ Target branch not found. Aborting PR."; exit 1; }
+
+          echo "📦 Verifying remote refs..."
+          az repos ref list --repository "$repoName" | grep "heads/"
+       
+          # Create work item 
+          echo "🆕 Creating Azure Boards work item..."
+          workItemJson=$(az boards work-item create \
+            --project "${{ parameters.projectName }}" \
+            --type "Task" \
+            --title "Auto-generated ${{ parameters.pacEnvironmentSelector }} exemption update — Build ID ${BUILD_BUILDID}" \
+            --description "Created by pipeline run ${BUILD_BUILDID}" \
+            --query '{id:id}' \
+            --output json)
+
+          workItemId=$(echo "$workItemJson" | jq -r '.id')
+          echo "🔗 Using work item ID: $workItemId"
+
+          # Link work item to story if specified
+          if [ -n "$storyId" ]; then
+            echo "🔗 Linking Task $workItemId to Story $storyId"
+            az boards work-item relation add \
+              --id "$workItemId" \
+              --relation-type "parent" \
+              --target-id "$storyId"
+          fi
+
+          # Create a pull request using Azure CLI - uses project build service implicitly for authentication
+          echo '🧾Creating a pull request targeting the main branch...'
+          prJson=$(az repos pr create \
+            --repository "$repoName" \
+            --source-branch "$sourceBranch" \
+            --target-branch "$targetBranch" \
+            --title "Auto-generated ${{ parameters.pacEnvironmentSelector }} exemption update — Build ID ${BUILD_BUILDID}" \
+            --description "$description" \
+            --output json)
+
+          prId=$(echo "$prJson" | jq -r '.pullRequestId')
+
+          echo "🔗 Linking work item $workItemId to PR $prId"
+          az repos pr work-item add \
+            --id "$prId" \
+            --work-items "$workItemId"
+
+        displayName: '👮 Create Pull Request & link Work Item 🔗'
+        env:
+          BUILD_REPOSITORY_NAME: $(Build.Repository.Name) 
+          AZURE_DEVOPS_EXT_PAT: $(System.AccessToken) # Used implicitly by Azure CLI for DevOps auth so it can create PRs
+          SYSTEM_ACCESSTOKEN: $(System.AccessToken) # Required for Git operations
+
+
+
+
+
+
+
+
+
+
+        

@@ -25,7 +25,7 @@ In your global settings file, update the lighthouse pacSelector to have the mana
                 "managedTenantId": "b617e3d0-18db-4bb6-afa1-662c906c2549",
                 "managedIdentityLocation": "eastus2",
 
-- **managedTenantId** - The tenant containing the lighthouse managed (joined) subsciptions.
+- **managedTenantId** - The tenant containing the lighthouse managed (joined) subscriptions.
 
 1. In the assignment file, add an additionalRoleAssignments section for the file or node so that the assignment knows that when assigning this policy at the managed scope pacEnvironment, it needs to perform an additional role assignment at the managing scope. 
 
@@ -57,7 +57,7 @@ Before any EPAC functionality can work, you must first provide the service princ
     1. Click "Manage your Customers"
     1. Click "Create ARM Template"
     1. Give the offer a name and description.
-    1. Choose the scopt your will request to manage
+    1. Choose the scope your will request to manage
     1. Click "+ Add authorization"
         1. Choose "Principal type" (Service Principal for EPAC)
         1. Select your principal

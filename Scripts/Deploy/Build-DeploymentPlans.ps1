@@ -67,7 +67,10 @@ param (
     [ValidateSet("ado", "gitlab", "")]
     [string] $DevOpsType = "",
 
-    [switch]$SkipNotScopedExemptions
+    [switch]$SkipNotScopedExemptions,
+
+    [Parameter(HelpMessage = "If set, shows detailed line-by-line diffs similar to terraform plan.")]
+    [switch] $DetailedOutput
 )
 
 $PSDefaultParameterValues = @{
@@ -96,6 +99,9 @@ Write-ModernStatus -Message "PAC Environment: $($pacEnvironment.pacSelector)" -S
 Write-ModernStatus -Message "Deployment Root: $($pacEnvironment.deploymentRootScope)" -Status "info" -Indent 2
 Write-ModernStatus -Message "Tenant ID: $($pacEnvironment.tenantId)" -Status "info" -Indent 2
 Write-ModernStatus -Message "Cloud: $($pacEnvironment.cloud)" -Status "info" -Indent 2
+if ($pacEnvironment.desiredState.manageChildScopeDefinitions) {
+    Write-ModernStatus -Message "Manage Child Scope Definitions: Enabled" -Status "info" -Indent 2
+}
 
 # Telemetry
 if ($pacEnvironment.telemetryEnabled) {
@@ -340,7 +346,8 @@ if ($buildSelections.buildAny) {
             -Definitions $policyDefinitions `
             -AllDefinitions $allDefinitions `
             -ReplaceDefinitions $replaceDefinitions `
-            -PolicyRoleIds $policyRoleIds
+            -PolicyRoleIds $policyRoleIds `
+            -DetailedOutput:$DetailedOutput
     }
 
     # Calculate roleDefinitionIds for built-in and inherited PolicySets
@@ -378,7 +385,8 @@ if ($buildSelections.buildAny) {
             -Definitions $policySetDefinitions `
             -AllDefinitions $allDefinitions `
             -ReplaceDefinitions $replaceDefinitions `
-            -PolicyRoleIds $policyRoleIds
+            -PolicyRoleIds $policyRoleIds `
+            -DetailedOutput:$DetailedOutput
     }
 
     # Convert Policy and PolicySetDefinition to detailed Info
@@ -414,7 +422,8 @@ if ($buildSelections.buildAny) {
             -ReplaceDefinitions $replaceDefinitions `
             -PolicyRoleIds $policyRoleIds `
             -CombinedPolicyDetails $combinedPolicyDetails `
-            -DeprecatedHash $deprecatedHash
+            -DeprecatedHash $deprecatedHash `
+            -DetailedOutput:$DetailedOutput
     }
 
     if ($buildSelections.buildPolicyExemptions) {
@@ -432,7 +441,8 @@ if ($buildSelections.buildAny) {
                 -Assignments $assignments `
                 -DeployedExemptions $deployedPolicyResources.policyExemptions `
                 -Exemptions $exemptions `
-                -SkipNotScopedExemptions
+                -SkipNotScopedExemptions `
+                -DetailedOutput:$DetailedOutput
         }
         else {
             Build-ExemptionsPlan `
@@ -445,7 +455,8 @@ if ($buildSelections.buildAny) {
                 -CombinedPolicyDetails $combinedPolicyDetails `
                 -Assignments $assignments `
                 -DeployedExemptions $deployedPolicyResources.policyExemptions `
-                -Exemptions $exemptions
+                -Exemptions $exemptions `
+                -DetailedOutput:$DetailedOutput
         }
     }
 

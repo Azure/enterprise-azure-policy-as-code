@@ -1,0 +1,24 @@
+# Note - Create an Azure DevOps pipeline environment for the DeployPolicy and DeployRoles stage - it can be the same environment as depicted below. It depends on how you manage approvals for stages etc.
+trigger: none
+
+variables:
+  PAC_OUTPUT_FOLDER: ./Output
+  PAC_DEFINITIONS_FOLDER: ./Definitions
+  pacEnvironmentSelector: <YOUR_PAC_ENVIRONMENT_SELECTOR>
+  serviceConnectionPlan: <YOUR_SERVICE_CONNECTION_NAME>
+
+pool:
+  vmImage: "ubuntu-latest"
+
+stages:
+  - stage: Documentation
+    displayName: "Document ${{ variables.pacEnvironmentSelector }}"
+    condition: always()
+    jobs:
+      - job: Documentation
+        displayName: "Create Documentation"
+        steps:
+          - template: templates/documentation.yaml
+            parameters:
+              serviceConnection: $(serviceConnectionPlan)
+              pacEnvironmentSelector: $(pacEnvironmentSelector)    

@@ -122,6 +122,13 @@ New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type AMBA -P
 Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type AMBA -PacEnvironmentSelector "epac-dev"
 ```
 
+The Azure Monitor Baseline Alerts project also provides a number of policy definitions not included in the ALZ Library. To sync these definitions use the `-SyncAMBAExtendedPolicies` switch as below when syncing the AMBA policies. 
+
+```ps1
+# Sync the AMBA policies and extended policies and assign to the "epac-dev" PAC environment.
+Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type AMBA -PacEnvironmentSelector "epac-dev" -SyncAMBAExtendedPolicies
+```
+
 ### SLZ
 
 For users interested in deploying the [Sovereignty Policy Baseline](https://github.com/Azure/sovereign-landing-zone/blob/main/docs/scenarios/Sovereignty-Baseline-Policy-Initiatives.md) project with EPAC use the commands below.
@@ -326,32 +333,6 @@ To specify or modify a parameter for a specific archetype you can specify it usi
 
 Run a sync using the `-EnableOverrides` parameter and the parameters will be updated. This can be used to override parameters in the `defaultParameterValues` section. 
 
-### Modify a parameter for a guardrail assignment (Requires EPAC v11)
-
-To specify or modify a parameter for a guardrail assignment you can specify it using the `overrides` key in the policy structure file. The example below shows how to overwrite a parameter for a specific policy assignment.
-
-```json
-{
-  "overrides": {
-    "parameters": {
-      "guardrails": [ // Must be "guardrails
-        {
-          "policy_assignment_name": "GR-Network_20250326",
-          "parameters": [
-            {
-              "parameter_name": "vpnAzureAD",
-              "value": "Audit"
-            }
-          ]
-        }
-      ]
-    }
-  }
-}
-```
-
-Run a sync using the `-EnableOverrides` parameter and the parameters will be updated. This can be used to override parameters in the `defaultParameterValues` section. 
-
 ### Assign an archetype to multiple management groups (Requires EPAC v11)
 
 Management group name mappings now accept an array of values instead of just a string. This allows you to assign an archetypes default assignments to multiple scopes. 
@@ -387,40 +368,14 @@ An example of disabling the **"Configure Microsoft Defender for Key Vault plan"*
     }
 ```
 
-### Deploying Workload Specific Compliance Guardrails
+### Deploying Workload Specific Compliance Guardrails (Requires EPAC v11)
 
-To deploy the workload specific compliance guardrails for Azure Landing Zones the default policy structure file should contain an `enforceGuardrails` key. If it doesn't you can rerun the `New-ALZPolicyDefaultStructure` command to generate a file containing this entry.
+> [!NOTE]
+> This process has recently changed and guardrail assignments are now placed into the corresponding management groups (by default these are `platform` and `landing_zones` archetypes.)
 
 By default ALZ specifies deploying all the guardrail policies to the `platform` and `landingzones` management group and when the `Sync-ALZPolicyFromLibrary` with the `-CreateGuardrailAssignments` parameter command runs it will generate assignments which are scoped to these management groups.
 
-To modify this behavior you can update/modify the scopes in the `deployment.scopes` entry - or if you want to deploy different guardrails to different scopes simply create another entry within the `enforceGuardrails.deployment` array similar to below.
-
-```json
-"enforceGuardrails": {
-  "deployments": [
-    {
-      "scope": [
-        "/providers/Microsoft.Management/managementGroups/landingzones"
-      ],
-      "policy_set_names": [
-        "Enforce-Guardrails-APIM",
-        "Enforce-Guardrails-AppServices",
-        "Enforce-Guardrails-Automation"
-      ]
-    },
-    {
-      "scope": [
-        "/providers/Microsoft.Management/managementGroups/platform"
-      ],
-      "policy_set_names": [
-        "Enforce-Guardrails-APIM",
-        "Enforce-Guardrails-AppServices",
-        "Enforce-Guardrails-Automation"
-      ]
-    }
-  ]
-}
-```
+To deploy guardrails assignments to a different scope or management group use the process described above to override the default assignments. The v11 process for changing parameter values and adding new parameters also works for the guardrail assignments. 
 
 Example to generate assignments with guardrails assignments included.
 

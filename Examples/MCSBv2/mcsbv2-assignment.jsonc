@@ -1,0 +1,58 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
+    "nodeName": "/Security/",
+    "definitionEntry": {
+        "policySetId": "/providers/Microsoft.Authorization/policySetDefinitions/e3ec7e09-768c-4b64-882c-fcada3772047"
+    },
+    "children": [
+        {
+            "nodeName": "EPAC-Dev",
+            "assignment": {
+                "name": "mcsbv2",
+                "displayName": "[Preview]: Microsoft cloud security benchmark v2",
+                "description": "The Microsoft cloud security benchmark initiative represents the policies and controls implementing security recommendations defined in Microsoft cloud security benchmark, see https://aka.ms/azsecbm. This also serves as the Microsoft Defender for Cloud default policy initiative. You can directly assign this initiative, or manage its policies and compliance results within Microsoft Defender for Cloud."
+            },
+            "enforcementMode": "Default",
+            "parameters": {
+                "ArcWindowsMonitoringEffect": "Disabled",
+                "azureCosmosDbAccountsShouldUseCustomerManagedKeysToEncryptDataAtRestMonitoringEffect": "Disabled",
+                "azureMachineLearningWorkspacesShouldBeEncryptedWithACustomerManagedKeyMonitoringEffect": "Disabled",
+                "bringYourOwnKeyDataProtectionShouldBeEnabledForMySqlServersMonitoringEffect": "Disabled",
+                "bringYourOwnKeyDataProtectionShouldBeEnabledForPostgreSqlServersMonitoringEffect": "Disabled",
+                "certificatesValidityPeriodInMonths": 12,
+                "certificatesValidityPeriodMonitoringEffect": "Disabled",
+                "cognitiveServicesAccountsShouldEnableDataEncryptionWithACustomerManagedKeyMonitoringEffect": "Disabled",
+                "containerRegistriesShouldBeEncryptedWithACustomerManagedKeyMonitoringEffect": "Disabled",
+                "disableUnrestrictedNetworkToStorageAccountMonitoringEffect": "Disabled",
+                "ensureManagedInstanceTDEIsEncryptedWithYourOwnKeyWithDenyMonitoringEffect": "Disabled",
+                "ensureServerTDEIsEncryptedWithYourOwnKeyWithDenyMonitoringEffect": "Disabled",
+                "keysExpirationSetEffect": "Disabled",
+                "networkSecurityGroupsOnSubnetsMonitoringEffect": "Disabled",
+                "privateEndpointShouldBeConfiguredForKeyVaultMonitoringEffect": "Disabled",
+                "secretsExpirationSetEffect": "Disabled",
+                "storageAccountsShouldUseCustomerManagedKeyForEncryptionMonitoringEffect": "Disabled"
+            },
+            "overrides": [
+                {
+                    "kind": "policyEffect",
+                    "value": "disabled",
+                    "selectors": [
+                        {
+                            "kind": "policyDefinitionReferenceId",
+                            "in": [
+                                "ApiFhirCMKEncryptDataRest",
+                                "AppSvcAppSlotsPublicAccess",
+                                "AppSvcAppSlotsEndEndEncryption"
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "scope": {
+                "<your-PAC-Selector>": [
+                    "/providers/Microsoft.Management/managementGroups/<your-management-group-id>"
+                ]
+            }
+        }
+    ]
+}

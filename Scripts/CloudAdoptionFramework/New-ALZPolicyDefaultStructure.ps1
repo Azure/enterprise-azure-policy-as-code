@@ -11,6 +11,7 @@ Param(
     [ValidateScript({ "refs/tags/$_" -in (Invoke-RestMethod -Uri 'https://api.github.com/repos/Azure/Azure-Landing-Zones-Library/git/refs/tags/').ref }, ErrorMessage = "Tag must be a valid tag." )]
     [string] $Tag,
 
+    [Parameter(Mandatory = $true)]
     [string] $PacEnvironmentSelector
 )
 
@@ -35,7 +36,7 @@ if ($DefinitionsRootFolder -eq "") {
 if ($Tag -eq "") {
     switch ($Type) {
         'ALZ' {
-            $Tag = "platform/alz/2025.09.3"
+            $Tag = "platform/alz/2026.01.1"
         }
         'FSI' {
             $Tag = "platform/fsi/2025.03.0"
@@ -44,7 +45,7 @@ if ($Tag -eq "") {
             $Tag = "platform/amba/2025.11.0"
         }
         'SLZ' {
-            $Tag = "platform/slz/2025.10.1"
+            $Tag = "platform/slz/2026.02.1"
         }
     }
 }
@@ -53,6 +54,10 @@ Write-ModernHeader -Title "Creating Policy Default Structure" -Subtitle "Type: $
 
 if ($LibraryPath -eq "") {
     $LibraryPath = Join-Path -Path (Get-Location) -ChildPath "temp"
+    if (Test-Path $LibraryPath) {
+        Write-ModernStatus -Message "Removing existing temp folder..." -Status "processing" -Indent 2
+        Remove-Item -Path $LibraryPath -Recurse -Force
+    }
     Write-ModernStatus -Message "Cloning Azure Landing Zones Library repository..." -Status "processing" -Indent 2
     git clone --config advice.detachedHead=false --depth 1 --branch $Tag https://github.com/Azure/Azure-Landing-Zones-Library.git $LibraryPath
     if ($LASTEXITCODE -eq 0) {
@@ -223,21 +228,21 @@ foreach ($parameter in $policyDefaults) {
     }
 }
 
-Write-ModernSection -Title "Building Guardrail Deployment Object" -Indent 0
-# Build Guardrail Deployment Object
+# Write-ModernSection -Title "Building Guardrail Deployment Object" -Indent 0
+# # Build Guardrail Deployment Object
 
-if ($Type -eq "ALZ") {
-    $guardRailPolicyFileNames = Get-ChildItem $LibraryPath\platform\$($Type.ToLower())\policy_set_definitions\*.json | Where-Object { ($_.Name -match "^Enforce-(Guardrails|Encryption)-") } | Select-Object -ExpandProperty Name
-    $policySetNames = $guardRailPolicyFileNames | Foreach-Object { $_.Split(".")[0] }
-    $obj = @{
-        policy_set_names = $policySetNames
-        scope            = @(
-            "/providers/Microsoft.Management/managementGroups/landingzones",
-            "/providers/Microsoft.Management/managementGroups/platform"
-        )
-    }
-    $jsonOutput.enforceGuardrails.deployments += $obj
-}
+# if ($Type -eq "ALZ") {
+#     $guardRailPolicyFileNames = Get-ChildItem $LibraryPath\platform\$($Type.ToLower())\policy_set_definitions\*.json | Where-Object { ($_.Name -match "^Enforce-(Guardrails|Encryption)-") } | Select-Object -ExpandProperty Name
+#     $policySetNames = $guardRailPolicyFileNames | Foreach-Object { $_.Split(".")[0] }
+#     $obj = @{
+#         policy_set_names = $policySetNames
+#         scope            = @(
+#             "/providers/Microsoft.Management/managementGroups/landingzones",
+#             "/providers/Microsoft.Management/managementGroups/platform"
+#         )
+#     }
+#     $jsonOutput.enforceGuardrails.deployments += $obj
+# }
 
 Write-ModernSection -Title "Writing Output Files" -Indent 0
 # Ensure the output directory exists
