@@ -354,7 +354,7 @@ try {
             continue
         }
         foreach ($requiredAssignment in ($archetype.policy_assignments | Where-Object {
-                    -not [string]::IsNullOrWhiteSpace("$_") -and ($_ -notmatch "^Enforce-(GR|Encrypt)-\w+0")
+                    -not [string]::IsNullOrWhiteSpace("$_") -and ($CreateGuardrailAssignments -or ($_ -notmatch "^Enforce-(GR|Encrypt)-\w+0"))
                 })) {
             switch ($Type) {
                 "ALZ" { $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_assignments" | Where-Object { $_.BaseName.Split(".")[0] -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json }
