@@ -281,6 +281,12 @@ try {
                     policy_assignments = $archetypeArray | Where-Object { $_.name -match "root" -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
                 }
             }
+            elseif ($archetype.name -eq "sovereign_root") {
+                $archetypeObj = @{
+                    name               = $Type -eq "SLZ" ? "slz" : "slz"
+                    policy_assignments = $archetypeArray | Where-Object { $_.name -match "sovereign_root" -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
+                }
+            }
             else {
                 $archetypeObj = @{
                     name               = $Type -eq "AMBA" ? "amba_$($archetype.name)" : $archetype.name
@@ -436,6 +442,9 @@ try {
             if ($scopeTrim -eq "global") {
                 $scopeTrim = "mcfs"
             }
+            if ($scopeTrim -eq "sovereign_root" -and $Type -eq "SLZ") {
+                $scopeTrim = "slz"
+            }
             if ($Type -eq "FSI" -and $scopeTrim -ne "confidential") {
                 $scopeTrim = "fsi"
             }
@@ -472,6 +481,8 @@ try {
                     }
                 }
             }
+
+
             $baseTemplate.Add("scope", $scope)
 
             # Base Parameters
