@@ -332,11 +332,39 @@
                         }
                     },
                     "additionalProperties": false
+                },
+                "enforcementMode": {
+                    "type": "array",
+                    "description": "Enforcement mode overrides by policy assignment",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "policy_assignment_name": {
+                                "type": "string",
+                                "description": "Name of the policy assignment"
+                            },
+                            "value": {
+                                "type": "string",
+                                "enum": [
+                                    "Default",
+                                    "DoNotEnforce"
+                                ],
+                                "description": "Enforcement mode override value"
+                            }
+                        },
+                        "required": [
+                            "policy_assignment_name",
+                            "value"
+                        ],
+                        "additionalProperties": false
+                    }
                 }
             },
             "additionalProperties": false
         },
-        "$schema": { "type": "string" }
+        "$schema": {
+            "type": "string"
+        }
     },
     "required": [
         "managementGroupNameMappings",

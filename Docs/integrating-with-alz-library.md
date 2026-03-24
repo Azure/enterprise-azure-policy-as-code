@@ -333,6 +333,23 @@ To specify or modify a parameter for a specific archetype you can specify it usi
 
 Run a sync using the `-EnableOverrides` parameter and the parameters will be updated. This can be used to override parameters in the `defaultParameterValues` section. 
 
+### Modify the enforcement mode for an assignment (Requires EPAC v11)
+
+The `enforcementMode` key in the structure file sets the initial value for all assignments, but this can be overridden for single assignments by using an override as below.
+
+```
+"overrides": {
+    "enforcementMode": [
+      {
+        "policy_assignment_name": "Enable-DDoS-VNET",
+        "value": "DoNotEnforce"
+      }
+    ]
+  }
+```
+
+Run a sync using the `-EnableOverrides` parameter and the enforcement mode will be updated.
+
 ### Assign an archetype to multiple management groups (Requires EPAC v11)
 
 Management group name mappings now accept an array of values instead of just a string. This allows you to assign an archetypes default assignments to multiple scopes. 
