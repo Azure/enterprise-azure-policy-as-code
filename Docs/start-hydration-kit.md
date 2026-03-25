@@ -12,11 +12,14 @@ The `Install-HydrationEpac` command builds a basic EPAC implementation for local
 - To run the Hydration Kit, permissions to create Management Groups at the **Tenant Root Level** is also required.
   - The `Management Group Contributor` built-in RBAC role contains the required permissions.
   - The Hydration Kit creates additional Management Groups for EPAC development.
+- **`git` must be installed and available in the system PATH.** The Hydration Kit automatically downloads the EPAC StarterKit from GitHub using `git clone`. The StarterKit is required for pipeline generation regardless of whether you choose Module or Script based code execution.
+  - If `git` is not available, you can manually download the StarterKit from [https://github.com/Azure/enterprise-azure-policy-as-code](https://github.com/Azure/enterprise-azure-policy-as-code) and extract the `StarterKit` folder to the root of your local repo directory before running the installer.
 
 ### Before You Begin
 
 1. **Connect to Azure:** Use `Connect-AzAccount` to authenticate to your Azure tenant
 1. **Verify permissions:** Confirm you can create Management Groups at the tenant root level
+1. **Ensure `git` is installed:** The Hydration Kit uses `git` to download the EPAC StarterKit required for pipeline creation
 1. **Choose your location:** Decide where you want the EPAC files to be created locally
 1. **Choose your code execution source:**
     1. *Script* based execution requires the EPAC Repo Scripts folder be downloaded and maintained locally
