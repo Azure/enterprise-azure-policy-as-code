@@ -297,7 +297,7 @@ function Install-HydrationEpac {
         }
         catch {
             $summary.add("gitInstall", "Failed")
-            if(!((Get-ChildItem ./StarterKit/* -Recurse).count -gt 0)){
+            if (!(Test-Path $exportedDefinitionsPath.starterKit) -or !((Get-ChildItem (Join-Path $exportedDefinitionsPath.starterKit "*") -Recurse -ErrorAction SilentlyContinue).count -gt 0)) {
                 Write-Host "Download the repo at https://github.com/Azure/enterprise-azure-policy-as-code and extract it to the root directory to continue. The StarterKit is required for pipeline deployment..." -ForegroundColor Red
                 Write-Error "Without either git to download the repo, or a Module and [repoRootDirectory]/StarterKit folder, this installer will not work as intended. Please choose one of the two supported paths forward, and run the installer again."
                 return
@@ -458,12 +458,16 @@ function Install-HydrationEpac {
     ################################################################################
     ################################################################################
     # Download Repo Contents
-    Get-HydrationEpacRepo -RepoRoot $RepoRoot
-    try{
-        Copy-Item -Path $repoRoot "temp" "StarterKit" -Destination $exportedDefinitionsPath.starterKit -Recurse -Force
+    Get-HydrationEpacRepo -RepoRoot $repoRootPath
+    try {
+        Copy-Item -Path (Join-Path $repoRootPath "temp" "StarterKit") -Destination $exportedDefinitionsPath.starterKit -Recurse -Force
     }
-    catch{
+    catch {
         Write-Warning "Failed to copy StarterKit directory: $($_.Exception.Message)"
+    }
+    if (!(Test-Path $exportedDefinitionsPath.starterKit)) {
+        Write-Error "StarterKit folder not found at '$($exportedDefinitionsPath.starterKit)'. Please ensure git is installed and accessible, or manually download the StarterKit from https://github.com/Azure/enterprise-azure-policy-as-code and place it at '$repoRootPath'."
+        return
     }
     # # $stageBlocks2 = Get-Content $(Join-Path $StarterKit 'HydrationKit' 'blockDefinitions.jsonc') | ConvertFrom-Json -Depth 5 -AsHashtable
 
