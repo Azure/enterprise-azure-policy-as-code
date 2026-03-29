@@ -1,123 +1,167 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "EPAC Global Settings Schema",
+    "description": "Schema for the global-settings.jsonc file used by Enterprise Azure Policy as Code (EPAC) to define environment topology and desired state strategy.",
     "type": "object",
     "properties": {
         "$schema": {
             "type": "string",
-            "description": "The schema to verify this document against."
+            "description": "The URL to the JSON schema used for validation."
         },
         "pacOwnerId": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1,
+            "description": "A unique GUID identifying this specific EPAC repository instance. It is embedded in policy resource metadata to distinguish managed resources from those deployed by other tools or manually."
         },
         "telemetryOptOut": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false,
+            "description": "If set to true, disables the transmission of non-sensitive usage data (Customer Usage Attribution PID) to Microsoft. Defaults to false."
         },
         "pacEnvironments": {
             "type": "array",
+            "description": "A list of target environments (e.g., prod, dev, tenant) where policies will be deployed.",
             "items": {
                 "type": "object",
                 "properties": {
                     "pacSelector": {
-                        "type": "string"
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "A unique, lowercase string used as a logical identifier for this environment. It correlates with folder names and CI/CD pipeline parameters."
                     },
                     "cloud": {
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                            "AzureCloud",
+                            "AzureChinaCloud",
+                            "AzureUSGovernment",
+                            "AzureGermanCloud"
+                        ],
+                        "description": "The specific Azure cloud environment for this target."
                     },
                     "tenantId": {
-                        "type": "string"
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "The GUID of the Entra ID (Azure AD) tenant where the policies will be deployed."
                     },
                     "deployedBy": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Customizes the 'deployedBy' metadata field on resources. Defaults to 'epac/$pacOwnerId/$pacSelector'."
                     },
                     "managedIdentityLocation": {
-                        "type": "string"
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "The Azure region (e.g., 'eastus', 'westeurope') where System-Assigned Managed Identities for policy assignments are anchored."
                     },
                     "managedTenantId": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Used in multi-tenant/Lighthouse scenarios to specify the target customer tenant ID while managing from a central tenant."
                     },
                     "deploymentRootScope": {
-                        "type": "string"
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "The absolute boundary of the governance engine. Can be a Management Group ID or Subscription ID. EPAC will not manage resources above this scope.\nManagement Group scope: /providers/Microsoft.Management/managementGroups/123xxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\nSubscription scope: /subscriptions/123xxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
                     },
                     "skipResourceValidationForExemptions": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "default": false,
+                        "description": "When true, bypasses the check to see if resources targeted by exemptions actually exist. Improves performance in very large tenants."
                     },
                     "defaultContext": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "The name or ID of a subscription to switch context to before running Resource Graph queries, useful for resolving permission issues in multi-tenant setups."
                     },
                     "globalNotScopes": {
                         "type": "array",
+                        "description": "An array of Resource IDs to be automatically excluded from every policy assignment in this environment.",
                         "items": {
                             "type": "string"
                         }
                     },
                     "desiredState": {
                         "type": "object",
+                        "description": "Defines how EPAC reconciles the current state of Azure with the code in the repository.",
                         "properties": {
                             "strategy": {
                                 "type": "string",
-                                "enum": [
-                                    "full",
-                                    "ownedOnly"
-                                ]
+                                "enum": ["full", "ownedOnly"],
+                                "description": "'full': EPAC manages all Policy resources in the 'deploymentRootScope' and its children. EPAC deletes any Policy resources not defined in the EPAC repo.\n'ownedOnly': EPAC manages only Policy resources defined in the EPAC repo. EPAC does not delete any Policy resources not defined in the EPAC repo."
                             },
                             "keepDfcSecurityAssignments": {
-                                "type": "boolean"
+                                "type": "boolean",
+                                "description": "If true, prevents EPAC from deleting Microsoft Defender for Cloud Security and Compliance initiatives."
                             },
                             "keepDfcPlanAssignments": {
-                                "type": "boolean"
+                                "type": "boolean",
+                                "default": true,
+                                "description": "If true, preserves Azure Policies deployed by Defender for Cloud that are associated with DfC Plans. Defaults to true. Set to false only if you are confident you are managing and deploying these policies through EPAC rather than relying on Defender for Cloud — once deleted, the action is irreversible."
                             },
                             "doNotDisableDeprecatedPolicies": {
-                                "type": "boolean"
+                                "type": "boolean",
+                                "default": false,
+                                "description": "By default, EPAC automatically sets deprecated policies' policy effect to 'Disabled'. Set to true to override that behavior and prevent EPAC from disabling deprecated policies."
                             },
                             "excludedScopes": {
                                 "type": "array",
+                                "default": [],
+                                "description": "An array of Management Group, Subscription, or Resource Group scopes to exclude from management by EPAC. Supports wildcards.",
                                 "items": {
                                     "type": "string"
                                 }
                             },
                             "excludedPolicyDefinitions": {
                                 "type": "array",
+                                "default": [],
+                                "description": "An array of Policy Definitions to exclude from management by EPAC. Supports wildcards to protect specific definitions from being reconciled or deleted.",
                                 "items": {
                                     "type": "string"
                                 }
                             },
                             "excludedPolicySetDefinitions": {
                                 "type": "array",
+                                "default": [],
+                                "description": "An array of Policy Set Definitions (Initiatives) to exclude from management by EPAC. Supports wildcards.",
                                 "items": {
                                     "type": "string"
                                 }
                             },
                             "excludedPolicyDefinitionFiles": {
                                 "type": "array",
+                                "default": [],
+                                "description": "An array of specific Policy Definition file names in the repository to exclude from management by EPAC during the planning and deployment process.",
                                 "items": {
                                     "type": "string"
                                 }
                             },
                             "excludedPolicySetDefinitionFiles": {
                                 "type": "array",
+                                "default": [],
+                                "description": "An array of specific Policy Set Definition file names in the repository to exclude from management by EPAC during the planning and deployment process.",
                                 "items": {
                                     "type": "string"
                                 }
                             },
                             "excludedPolicyAssignments": {
                                 "type": "array",
+                                "default": [],
+                                "description": "An array of Policy Assignments to exclude from management by EPAC. Supports wildcards.",
                                 "items": {
                                     "type": "string"
                                 }
                             },
                             "excludeSubscriptions": {
-                                "type": "boolean"
+                                "type": "boolean",
+                                "default": false,
+                                "description": "If true, excludes all subscriptions under the deployment root scope from desired state management. Designed for environments containing many frequently updated subscriptions that do not require management, where maintaining 'excludedScopes' would be impractical. Note: any resource group entries in 'excludedScopes' are ignored when this is set, since excluding all subscriptions implicitly excludes all resource groups they contain. Management group exclusions are not affected."
                             },
                             "manageChildScopeDefinitions": {
                                 "type": "boolean",
-                                "description": "If true, policy definitions and policy set definitions at child scopes (under the deployment root scope) will also be managed, making them eligible for deletion if not defined in the EPAC definitions. Defaults to false."
+                                "default": false,
+                                "description": "If true, EPAC will also manage Policy Definitions and Policy Set Definitions deployed at child scopes (child management groups, subscriptions) under the 'deploymentRootScope'. By default, EPAC only manages definitions at the 'deploymentRootScope' itself — definitions at child scopes are ignored. The 'strategy' setting controls deletion behavior: 'ownedOnly' deletes only child-scope definitions owned by this EPAC instance; 'full' also deletes definitions with unknown ownership."
                             }
                         },
                         "additionalProperties": false,
-                        "required": [
-                            "strategy",
-                            "keepDfcSecurityAssignments"
-                        ]
+                        "required": ["strategy", "keepDfcSecurityAssignments"]
                     }
                 },
                 "additionalProperties": false,
@@ -133,8 +177,5 @@
         }
     },
     "additionalProperties": false,
-    "required": [
-        "pacOwnerId",
-        "pacEnvironments"
-    ]
+    "required": ["pacOwnerId", "pacEnvironments"]
 }
