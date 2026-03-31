@@ -74,10 +74,10 @@ function Select-PacEnvironment {
         }
         AzureUSGovernment {
             @{
-                policyDefinitions    = "2021-06-01"
+                policyDefinitions    = "2023-04-01"
                 policySetDefinitions = "2023-04-01"
-                policyAssignments    = "2022-06-01"
-                policyExemptions     = "2022-07-01-preview"
+                policyAssignments    = "2023-04-01"
+                policyExemptions     = "2024-12-01-preview"
                 roleAssignments      = "2022-04-01"
             }
         }
