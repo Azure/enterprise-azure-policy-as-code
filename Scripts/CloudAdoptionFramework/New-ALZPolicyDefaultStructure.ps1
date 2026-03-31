@@ -36,7 +36,7 @@ if ($DefinitionsRootFolder -eq "") {
 if ($Tag -eq "") {
     switch ($Type) {
         'ALZ' {
-            $Tag = "platform/alz/2026.01.1"
+            $Tag = "platform/alz/2026.01.3"
         }
         'FSI' {
             $Tag = "platform/fsi/2025.03.0"
