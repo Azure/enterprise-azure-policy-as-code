@@ -69,6 +69,9 @@ param (
 
     [switch]$SkipNotScopedExemptions,
 
+    [Parameter(HelpMessage = "If set, the plan will fail when exemptions reference assignments or scopes not found in the current root scope.")]
+    [bool] $FailOnExemptionError = $false,
+
     [Parameter(HelpMessage = "If set, shows detailed line-by-line diffs similar to terraform plan.")]
     [switch] $DetailedOutput
 )
@@ -442,6 +445,7 @@ if ($buildSelections.buildAny) {
                 -DeployedExemptions $deployedPolicyResources.policyExemptions `
                 -Exemptions $exemptions `
                 -SkipNotScopedExemptions `
+                -FailOnExemptionError $FailOnExemptionError `
                 -DetailedOutput:$DetailedOutput
         }
         else {
@@ -456,6 +460,7 @@ if ($buildSelections.buildAny) {
                 -Assignments $assignments `
                 -DeployedExemptions $deployedPolicyResources.policyExemptions `
                 -Exemptions $exemptions `
+                -FailOnExemptionError $FailOnExemptionError `
                 -DetailedOutput:$DetailedOutput
         }
     }
