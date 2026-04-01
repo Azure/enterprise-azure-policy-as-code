@@ -52,7 +52,7 @@ param (
     [Parameter(HelpMessage = "If set, do not deploy the exemptions plan.")]
     [switch] $SkipExemptions,
 
-    [Parameter(HelpMessage = "Set true to fail the pipeline and deployment if a 403 error occurs during creation and updates of exemptions.")]
+    [Parameter(HelpMessage = "Set true to fail the pipeline if exemptions reference assignments or scopes not found in the current root scope, or if a 403 error occurs during creation and updates of exemptions.")]
     [bool] $FailOnExemptionError = $false
 )
 

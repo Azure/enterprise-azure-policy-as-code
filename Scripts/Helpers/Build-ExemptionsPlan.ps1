@@ -12,6 +12,7 @@ function Build-ExemptionsPlan {
         $DeployedExemptions,
         $Exemptions,
         [switch]$SkipNotScopedExemptions,
+        [bool] $FailOnExemptionError = $false,
         [switch] $DetailedOutput
     )
 
@@ -331,12 +332,16 @@ function Build-ExemptionsPlan {
                             if ($null -eq $calculatedPolicyAssignments -or $calculatedPolicyAssignments.Count -eq 0) {
                                 $calculatedPolicyAssignments = @()
                                 Write-ModernStatus -Message "Row $($entryNumber): No assignment found for policyAssignmentId '$policyAssignmentId', skipping row" -Status "warning" -Indent 4
-
+                                if ($FailOnExemptionError) {
+                                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "No assignment found for policyAssignmentId '$policyAssignmentId'" -EntryNumber $entryNumber
+                                }
                             }
                         }
                         else {
                             Write-ModernStatus -Message "Row $($entryNumber): policyAssignmentId '$policyAssignmentId' not found in current root scope $($PacEnvironment.deploymentRootScope), skipping row" -Status "warning" -Indent 4
-
+                            if ($FailOnExemptionError) {
+                                Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "policyAssignmentId '$policyAssignmentId' not found in current root scope $($PacEnvironment.deploymentRootScope)" -EntryNumber $entryNumber
+                            }
                         }
                     }
                     elseif ($null -ne $policyDefinitionName) {
@@ -347,7 +352,9 @@ function Build-ExemptionsPlan {
                             -AllDefinitions $AllDefinitions.policydefinitions
                         if ($null -eq $policyDefinitionId) {
                             Write-ModernStatus -Message "Row $($entryNumber): policyDefinitionName '$policyDefinitionName' not found in current root scope $($PacEnvironment.deploymentRootScope), skipping row" -Status "warning" -Indent 4
-
+                            if ($FailOnExemptionError) {
+                                Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "policyDefinitionName '$policyDefinitionName' not found in current root scope $($PacEnvironment.deploymentRootScope)" -EntryNumber $entryNumber
+                            }
                         }
                         else {
                             $calculatedPolicyAssignments = $byPolicyIdCalculatedAssignments.$policyDefinitionId
@@ -367,6 +374,9 @@ function Build-ExemptionsPlan {
                         if ($null -eq $policyDefinitionId) {
                             $calculatedPolicyAssignments = @()
                             Write-ModernStatus -Message "Row $($entryNumber): policyDefinitionId '$($epacMetadataDefinitionSpecification.policyDefinitionId)' not found in current root scope $($PacEnvironment.deploymentRootScope), skipping row" -Indent 4
+                            if ($FailOnExemptionError) {
+                                Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "policyDefinitionId '$($epacMetadataDefinitionSpecification.policyDefinitionId)' not found in current root scope $($PacEnvironment.deploymentRootScope)" -EntryNumber $entryNumber
+                            }
                         }
                         else {
                             $calculatedPolicyAssignments = $byPolicyIdCalculatedAssignments.$policyDefinitionId
@@ -385,6 +395,9 @@ function Build-ExemptionsPlan {
                             -AllPolicySetDefinitions $AllDefinitions.policysetdefinitions
                         if ($null -eq $policySetDefinitionId) {
                             Write-ModernStatus -Message "Row $($entryNumber): policySetDefinitionName '$policySetDefinitionName' not found in current root scope $($PacEnvironment.deploymentRootScope), skipping row" -Status "warning" -Indent 4
+                            if ($FailOnExemptionError) {
+                                Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "policySetDefinitionName '$policySetDefinitionName' not found in current root scope $($PacEnvironment.deploymentRootScope)" -EntryNumber $entryNumber
+                            }
                         }
                         else {
                             $calculatedPolicyAssignments = $byPolicySetIdCalculatedAssignments.$policySetDefinitionId
@@ -403,6 +416,9 @@ function Build-ExemptionsPlan {
                             -AllPolicySetDefinitions $AllDefinitions.policysetdefinitions
                         if ($null -eq $policySetDefinitionId) {
                             Write-ModernStatus -Message "Row $($entryNumber): policySetDefinitionId '$($epacMetadataDefinitionSpecification.policySetDefinitionId)' not found in current root scope $($PacEnvironment.deploymentRootScope), skipping row" -Status "warning" -Indent 4
+                            if ($FailOnExemptionError) {
+                                Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "policySetDefinitionId '$($epacMetadataDefinitionSpecification.policySetDefinitionId)' not found in current root scope $($PacEnvironment.deploymentRootScope)" -EntryNumber $entryNumber
+                            }
                         }
                         else {
                             $calculatedPolicyAssignments = $byPolicySetIdCalculatedAssignments.$policySetDefinitionId
@@ -640,7 +656,16 @@ function Build-ExemptionsPlan {
                                         $resourceIdsBySubscriptionId.Add($subscriptionId, $resourceIds)
                                     }
                                     if ($resourceStatus -eq "individualResourceDoesNotExists") {
-                                        Write-ModernStatus -Message "Row $($entryNumber): Resource '$currentScope' does not exist, skipping entry." -Status "warning" -Indent 4
+                                        if ($FailOnExemptionError) {
+                                            Write-ModernStatus -Message "Row $($entryNumber): Resource '$currentScope' does not exist." -Status "error" -Indent 4
+                                            $errorInfo.errorsInFile++
+                                            $errorInfo.hasErrors = $true
+                                            $errorInfo.hasLocalErrors = $true
+                                            $errorInfo.currentEntryNumber = $entryNumber
+                                        }
+                                        else {
+                                            Write-ModernStatus -Message "Row $($entryNumber): Resource '$currentScope' does not exist, skipping entry." -Status "warning" -Indent 4
+                                        }
                                         $Exemptions.numberOfOrphans++
                                     }
                                 }
@@ -660,6 +685,9 @@ function Build-ExemptionsPlan {
                             else {
                                 Write-ModernStatus -Message "Exemption entry $($entryNumber): Exemption scope $($currentScope) not found in current scope tree for root `n      $($PacEnvironment.deploymentRootScope), skipping entry." -Status "warning" -Indent 4
                                 $scopeIsValid = $false
+                                if ($FailOnExemptionError) {
+                                    Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Exemption scope $($currentScope) not found in current scope tree for root $($PacEnvironment.deploymentRootScope)" -EntryNumber $entryNumber
+                                }
                             }       
                         }
                         else {
