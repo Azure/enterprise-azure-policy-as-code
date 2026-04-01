@@ -164,7 +164,7 @@ if ($Type -eq "ALZ") {
 }
 
 foreach ($parameter in $policyDefaults) {
-    if ($parameter.default_name -ne "log_analytics_workspace_id") {
+    if ($parameter.default_name -ne "log_analytics_workspace_id" -and $parameter.default_name -ne "resource_group_location") {
         # Grab the first policy assignment to grab default value of the parameter
         $parameterAssignmentName = $parameter.policy_assignments[0].parameter_names[0]
         $assignment = $parameter.policy_assignments[0]
