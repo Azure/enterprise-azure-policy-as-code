@@ -310,7 +310,7 @@ try {
 
     }
     #Check again for new archetypes based on a custom archetype
-    foreach ($archetype in $archetypeArray | Where-Object { $_.type -eq "existing" -and $_.name -notin ($finalArchetypeArray.name) -and $_.name -notmatch "alz" }) {
+    foreach ($archetype in $archetypeArray | Where-Object { $_.type -eq "existing" -and $_.name -notin ($finalArchetypeArray.name) -and (($_.name -notmatch "alz") -or ($Type -eq "AMBA" -and $_.name -eq "alz")) }) {
         if ($archetype.PSObject.properties.name -contains "based_on") {
             $archetypeObj = @{
                 name               = $archetype.name
@@ -337,6 +337,16 @@ try {
     # Get rid of a duplicate landing zones archetype if it exists
     if ($finalArchetypeArray.name -contains "landingzones" -and $finalArchetypeArray.name -contains "landing_zones") {
         $finalArchetypeArray = $finalArchetypeArray | Where-Object { $_.name -ne "landing_zones" }
+    }
+
+    # In AMBA, an override targeting "alz" maps to "amba_root" and must remove assignments there as well.
+    if ($Type -eq "AMBA") {
+        $alzOverrideRemovals = @($archetypeArray | Where-Object { $_.type -eq "existing" -and $_.name -eq "alz" } | Select-Object -ExpandProperty policy_assignments_to_remove)
+        if (($alzOverrideRemovals | Measure-Object).Count -gt 0) {
+            foreach ($archetype in ($finalArchetypeArray | Where-Object { $_.name -eq "amba_root" })) {
+                $archetype.policy_assignments = @($archetype.policy_assignments | Where-Object { $_ -notin $alzOverrideRemovals })
+            }
+        }
     }
 
     # Cleanup any archetypes that are based on modified archetypes but were not themselves modified and now have no assignments
