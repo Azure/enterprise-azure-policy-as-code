@@ -604,7 +604,7 @@ try {
                 ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
             }
             $obj = [PSCustomObject]@{
-                Path = [System.IO.Path]::GetFullPath("$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$($fileContent.name).jsonc")
+                Path = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$($fileContent.name).jsonc")
                 Name = $fileContent.name
             }
             $createdPolicyAssignments += $obj
