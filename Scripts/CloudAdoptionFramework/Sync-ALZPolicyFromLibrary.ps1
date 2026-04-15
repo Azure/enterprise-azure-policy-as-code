@@ -339,12 +339,34 @@ try {
         $finalArchetypeArray = $finalArchetypeArray | Where-Object { $_.name -ne "landing_zones" }
     }
 
-    # In AMBA, an override targeting "alz" maps to "amba_root" and must remove assignments there as well.
+    # In AMBA, overrides target base archetype names (e.g., alz/platform/connectivity) but final archetypes are amba_*.
+    # Apply all override removals against the mapped AMBA archetype names.
     if ($Type -eq "AMBA") {
-        $alzOverrideRemovals = @($archetypeArray | Where-Object { $_.type -eq "existing" -and $_.name -eq "alz" } | Select-Object -ExpandProperty policy_assignments_to_remove)
-        if (($alzOverrideRemovals | Measure-Object).Count -gt 0) {
-            foreach ($archetype in ($finalArchetypeArray | Where-Object { $_.name -eq "amba_root" })) {
-                $archetype.policy_assignments = @($archetype.policy_assignments | Where-Object { $_ -notin $alzOverrideRemovals })
+        $ambaArchetypeNameMap = @{
+            "alz"           = "amba_root"
+            "root"          = "amba_root"
+            "landingzones"  = "amba_landing_zones"
+            "landing_zones" = "amba_landing_zones"
+        }
+
+        foreach ($overrideArchetype in ($archetypeArray | Where-Object { $_.type -eq "existing" -and $_.PSObject.Properties.Name -contains "policy_assignments_to_remove" })) {
+            $overrideRemovals = @($overrideArchetype.policy_assignments_to_remove)
+            if (($overrideRemovals | Measure-Object).Count -eq 0) {
+                continue
+            }
+
+            $mappedArchetypeName = if ($overrideArchetype.name -like "amba_*") {
+                $overrideArchetype.name
+            }
+            elseif ($ambaArchetypeNameMap.ContainsKey($overrideArchetype.name)) {
+                $ambaArchetypeNameMap[$overrideArchetype.name]
+            }
+            else {
+                "amba_$($overrideArchetype.name)"
+            }
+
+            foreach ($archetype in ($finalArchetypeArray | Where-Object { $_.name -eq $mappedArchetypeName })) {
+                $archetype.policy_assignments = @($archetype.policy_assignments | Where-Object { $_ -notin $overrideRemovals })
             }
         }
     }
@@ -582,7 +604,7 @@ try {
                 ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
             }
             $obj = [PSCustomObject]@{
-                Path = "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$($fileContent.name).jsonc"
+                Path = [System.IO.Path]::GetFullPath("$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$($fileContent.name).jsonc")
                 Name = $fileContent.name
             }
             $createdPolicyAssignments += $obj
@@ -590,8 +612,9 @@ try {
         }
     }
 
-    # Remove any assignments that were not created in this sync to clean up old assignments that are no longer in the library structure
-    $assignmentsToRemove = $existingAssignments | Where-Object { $_.Name -notin $createdPolicyAssignments.Name }
+    # Remove any assignments that were not created in this sync to clean up old assignments that are no longer in the library structure.
+    # Compare full path, not assignment name, because the same assignment name can exist in multiple scopes/archetypes.
+    $assignmentsToRemove = $existingAssignments | Where-Object { $_.Path -notin $createdPolicyAssignments.Path }
     foreach ($assignment in $assignmentsToRemove) {
         Remove-Item -Path $assignment.Path -Force -ErrorAction SilentlyContinue
         Write-ModernStatus -Message "Removed assignment '$($assignment.Name)' as it is no longer included in the library structure." -Status "info" -Indent 2
