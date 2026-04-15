@@ -50,6 +50,7 @@ $scriptRoot = Split-Path $PSScriptRoot -Parent
 . "$PSScriptRoot/Convert-PolicyResourcesDetailsToFlatList.ps1"
 . "$PSScriptRoot/Convert-PolicyResourcesDetailsToFlatList-Documentation.ps1"
 . "$PSScriptRoot/Convert-PolicyResourcesToDetails.ps1"
+. "$PSScriptRoot/Convert-PolicySetParameterEffectValues.ps1"
 . "$PSScriptRoot/Convert-PolicySetToDetails.ps1"
 . "$PSScriptRoot/Convert-PolicyToDetails.ps1"
 . "$PSScriptRoot/ConvertTo-ArrayList.ps1"

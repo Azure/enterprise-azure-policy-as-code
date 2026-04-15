@@ -149,6 +149,10 @@ if (-not($SyncAssignmentsOnly) -and $Type -ne "SLZ") {
                 policyDefinitionGroups = $fileContent.properties.policyDefinitionGroups
             }
         }
+        # Normalize effect parameter values to proper case to satisfy Azure API case-sensitive validation
+        if ($null -ne $fileContent.properties.parameters) {
+            $fileContent.properties.parameters | Convert-PolicySetParameterEffectValues
+        }
         $policyDefinitions = @()
         # Fix the policyDefinitionIds for custom policies
         foreach ($policyDefinition in $fileContent.properties.policyDefinitions) {

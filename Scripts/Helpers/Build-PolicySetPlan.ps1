@@ -57,6 +57,10 @@ function Build-PolicySetPlan {
         $metadata = Get-DeepCloneAsOrderedHashtable $definitionProperties.metadata
         $version = $definitionProperties.version
         $parameters = $definitionProperties.parameters
+        # Normalize effect parameter values to proper case to satisfy Azure API case-sensitive validation
+        if ($null -ne $parameters) {
+            $parameters | Convert-PolicySetParameterEffectValues
+        }
         $policyDefinitions = $definitionProperties.policyDefinitions
         $policyDefinitionGroups = $definitionProperties.policyDefinitionGroups
         $importPolicyDefinitionGroups = $definitionProperties.importPolicyDefinitionGroups
