@@ -31,7 +31,7 @@ Param(
 if ($Tag -eq "") {
     switch ($Type) {
         'ALZ' {
-            $Tag = "platform/alz/2026.01.3"
+            $Tag = "platform/alz/2026.04.0"
         }
         'FSI' {
             $Tag = "platform/fsi/2025.03.0"
@@ -386,6 +386,21 @@ try {
     }
 
     $createdPolicyAssignments = @()
+
+    if ($EnableOverrides) {
+        $enforcementModeObject = $structureFile.overrides.enforcementMode
+    }
+
+    # Invert the enforcement mode object structure: each value in the arrays becomes a key, with the original key as its value
+    $invertedEnforcementMode = @{}
+    if ($null -ne $enforcementModeObject) {
+        foreach ($property in $enforcementModeObject.PSObject.Properties) {
+            foreach ($item in $property.Value) {
+                $invertedEnforcementMode[$item] = $property.Name
+            }
+        }
+    }
+
     foreach ($archetype in $finalArchetypeArray) {
         if ($archetype.name -in $ignoreArchetypes) {
             Write-ModernStatus -Message "Ignoring archetype: $($archetype.name)" -Status "info" -Indent 2
@@ -430,8 +445,8 @@ try {
                 }
                 parameters      = [ordered]@{}
                 # enforcementMode = $structureFile.enforcementMode
-                enforcementMode = if ($structureFile.overrides.enforcementMode.policy_assignment_name -contains $fileContent.name) {
-                    $structureFile.overrides.enforcementMode | Where-Object { $_.policy_assignment_name -eq $fileContent.name } | Select-Object -ExpandProperty value
+                enforcementMode = if ($invertedEnforcementMode.ContainsKey("$($nodeNamePrefix)/$($fileContent.name)")) {
+                    $invertedEnforcementMode["$($nodeNamePrefix)/$($fileContent.name)"]
                 }
                 else {
                     $structureFile.enforcementMode
