@@ -335,18 +335,21 @@ Run a sync using the `-EnableOverrides` parameter and the parameters will be upd
 
 ### Modify the enforcement mode for an assignment (Requires EPAC v11)
 
-The `enforcementMode` key in the structure file sets the initial value for all assignments, but this can be overridden for single assignments by using an override as below.
+The `enforcementMode` key in the structure file sets the initial value for all assignments, but this can be overridden for individual assignments by using an override as below. The key for each enforcement mode is the assignment `nodeName` (i.e. `"<archetypeName>/<assignmentName>"`).
 
-```
+```json
 "overrides": {
-    "enforcementMode": [
-      {
-        "policy_assignment_name": "Enable-DDoS-VNET",
-        "value": "DoNotEnforce"
-      }
-    ]
+    "enforcementMode": {
+      "Default": [],
+      "DoNotEnforce": [
+        "root/Audit-TrustedLaunch",
+        "root/Audit-ResourceRGLocation"
+      ]
+    }
   }
 ```
+
+Each entry in the array is the `nodeName` of the assignment as it appears in the generated assignment file (e.g. `"root/Audit-ResourceRGLocation"`). Assignments listed under `"DoNotEnforce"` will have their enforcement mode set to `DoNotEnforce`, while those under `"Default"` will use the default enforcement mode.
 
 Run a sync using the `-EnableOverrides` parameter and the enforcement mode will be updated.
 
