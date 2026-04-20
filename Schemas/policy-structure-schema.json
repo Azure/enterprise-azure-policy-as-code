@@ -334,30 +334,19 @@
                     "additionalProperties": false
                 },
                 "enforcementMode": {
-                    "type": "array",
-                    "description": "Enforcement mode overrides by policy assignment",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "policy_assignment_name": {
+                    "type": "object",
+                    "description": "Enforcement mode overrides by mode type with arrays of policy assignment paths",
+                    "patternProperties": {
+                        "^(Default|DoNotEnforce)$": {
+                            "type": "array",
+                            "items": {
                                 "type": "string",
-                                "description": "Name of the policy assignment"
+                                "description": "Policy assignment path (e.g., 'root/Audit-TrustedLaunch')"
                             },
-                            "value": {
-                                "type": "string",
-                                "enum": [
-                                    "Default",
-                                    "DoNotEnforce"
-                                ],
-                                "description": "Enforcement mode override value"
-                            }
-                        },
-                        "required": [
-                            "policy_assignment_name",
-                            "value"
-                        ],
-                        "additionalProperties": false
-                    }
+                            "description": "Array of policy assignment paths for this enforcement mode"
+                        }
+                    },
+                    "additionalProperties": false
                 }
             },
             "additionalProperties": false
