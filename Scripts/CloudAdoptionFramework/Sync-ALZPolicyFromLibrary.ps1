@@ -619,7 +619,7 @@ try {
                 ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
             }
             $obj = [PSCustomObject]@{
-                Path = [System.IO.Path]::GetFullPath("$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$($fileContent.name).jsonc")
+                Path = "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$($fileContent.name).jsonc"
                 Name = $fileContent.name
             }
             $createdPolicyAssignments += $obj
@@ -627,9 +627,8 @@ try {
         }
     }
 
-    # Remove any assignments that were not created in this sync to clean up old assignments that are no longer in the library structure.
-    # Compare full path, not assignment name, because the same assignment name can exist in multiple scopes/archetypes.
-    $assignmentsToRemove = $existingAssignments | Where-Object { $_.Path -notin $createdPolicyAssignments.Path }
+    # Remove any assignments that were not created in this sync to clean up old assignments that are no longer in the library structure
+    $assignmentsToRemove = $existingAssignments | Where-Object { $_.Name -notin $createdPolicyAssignments.Name }
     foreach ($assignment in $assignmentsToRemove) {
         Remove-Item -Path $assignment.Path -Force -ErrorAction SilentlyContinue
         Write-ModernStatus -Message "Removed assignment '$($assignment.Name)' as it is no longer included in the library structure." -Status "info" -Indent 2
