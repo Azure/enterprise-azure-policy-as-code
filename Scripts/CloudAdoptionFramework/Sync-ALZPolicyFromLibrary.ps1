@@ -335,7 +335,7 @@ try {
     }
 
     # Get rid of a duplicate landing zones archetype if it exists
-    if ($finalArchetypeArray.name -contains "landingzones" -and $finalArchetypeArray.name -contains "landing_zones") {
+    if (($finalArchetypeArray.name -contains "landingzones" -and $finalArchetypeArray.name -contains "landing_zones")) {
         $finalArchetypeArray = $finalArchetypeArray | Where-Object { $_.name -ne "landing_zones" }
     }
 
@@ -369,6 +369,14 @@ try {
                 $archetype.policy_assignments = @($archetype.policy_assignments | Where-Object { $_ -notin $overrideRemovals })
             }
         }
+    }
+
+    if ($cleanupArchetype -contains "alz") {
+        $cleanupArchetype += "root"
+    }
+
+    if ($cleanupArchetype -contains "landingzones") {
+        $cleanupArchetype += "landing_zones"
     }
 
     # Cleanup any archetypes that are based on modified archetypes but were not themselves modified and now have no assignments
