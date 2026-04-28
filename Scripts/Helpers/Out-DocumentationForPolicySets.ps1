@@ -166,7 +166,7 @@ function Out-DocumentationForPolicySets {
                         $parameters = $perPolicySet.parameters
                         $text = ""
                         $notFirst = $false
-                        foreach ($parameterName in $parameters.Keys) {
+                        foreach ($parameterName in ($parameters.Keys | Sort-Object)) {
                             $parameter = $parameters.$parameterName
                             if (-not $parameter.isEffect) {
                                 $hasParameters = $true
