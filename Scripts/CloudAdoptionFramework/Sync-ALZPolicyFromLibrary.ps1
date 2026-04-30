@@ -163,6 +163,9 @@ if (-not($SyncAssignmentsOnly) -and $Type -ne "SLZ") {
             else {
                 $obj.Add("policyDefinitionId", $policyDefinition.policyDefinitionId)
             }
+            if ($policyDefinition.definitionVersion) {
+                $obj.Add("definitionVersion", $policyDefinition.definitionVersion)
+            }
             $policyDefinitions += $obj
         }
         $baseTemplate.properties.policyDefinitions = $policyDefinitions
