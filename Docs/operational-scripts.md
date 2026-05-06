@@ -102,9 +102,7 @@ Parameters:
 
 ## Bulk Edit Assignment Scopes
 
-`Update-AssignmentScope` edits the `scope` (or `notScopes`) block of one or more policy assignment files in `Definitions/policyAssignments`. It supports nested `children[]` and walks the entire node tree of each file, applying the change to every node that matches the optional filters.
-
-It is exposed as a function by the EnterprisePolicyAsCode module (`Import-Module EnterprisePolicyAsCode`). For local development directly from the repo, dot-source the script first: `. .\Scripts\Helpers\Update-AssignmentScope.ps1`.
+The script `Update-AssignmentScope.ps1` (in `Scripts/Helpers`) edits the `scope` (or `notScopes`) block of one or more policy assignment files in `Definitions/policyAssignments`. It supports nested `children[]` and walks the entire node tree of each file, applying the change to every node that matches the optional filters.
 
 ### Actions
 
@@ -118,7 +116,7 @@ It is exposed as a function by the EnterprisePolicyAsCode module (`Import-Module
 
 | Parameter | Description |
 | --- | --- |
-| `-Path` | Optional. File or folder. When omitted, defaults to `<cwd>/Definitions/policyAssignments` and recurses automatically. When an explicit folder is supplied, pass `-Recurse` to descend into subfolders. |
+| `-Path` | Optional. File or folder. When omitted, defaults to `<repo>/Definitions/policyAssignments` and recurses automatically. When an explicit folder is supplied, pass `-Recurse` to descend into subfolders. |
 | `-Scope` | Selector name inside the assignment file's `scope` block (e.g. `TenantRootGroup`, `NonProd`, `EPAC-Prod`). Mutually exclusive with `-NotScopes`. |
 | `-NotScopes` | Selector name inside the assignment file's `notScopes` block. Mutually exclusive with `-Scope`. |
 | `-Action` | Required. `Append` \| `Set` \| `Delete`. |
@@ -131,12 +129,10 @@ It is exposed as a function by the EnterprisePolicyAsCode module (`Import-Module
 
 ### Examples
 
-> Run from the EPAC repo root so the default `-Path` resolves correctly.
-
 Add a new selector to every assignment file in `Definitions/policyAssignments` (recursive):
 
 ```powershell
-Update-AssignmentScope `
+.\Scripts\Helpers\Update-AssignmentScope.ps1 `
     -Scope NonProd -Action Append `
     -Values "/providers/Microsoft.Management/managementGroups/00000000-0000-0000-0000-000000000000"
 ```
@@ -144,7 +140,7 @@ Update-AssignmentScope `
 Overwrite the `TenantRootGroup` selector on a single nested node:
 
 ```powershell
-Update-AssignmentScope `
+.\Scripts\Helpers\Update-AssignmentScope.ps1 `
     -Path .\Definitions\policyAssignments\RestrictPublicAccess-Assignment-20260423.jsonc `
     -NodeName "TenantRootGroup/" `
     -Scope TenantRootGroup -Action Set `
@@ -157,7 +153,7 @@ Update-AssignmentScope `
 Remove a selector from every node in every file under a folder, with backups:
 
 ```powershell
-Update-AssignmentScope `
+.\Scripts\Helpers\Update-AssignmentScope.ps1 `
     -Path .\Definitions\policyAssignments -Recurse `
     -Scope NonProd -Action Delete -Backup
 ```
@@ -165,7 +161,7 @@ Update-AssignmentScope `
 Append to the `TenantRootGroup` selector inside the `notScopes` block:
 
 ```powershell
-Update-AssignmentScope `
+.\Scripts\Helpers\Update-AssignmentScope.ps1 `
     -NotScopes TenantRootGroup -Action Append `
     -Values "/subscriptions/00000000-0000-0000-0000-000000000000"
 ```
@@ -173,11 +169,11 @@ Update-AssignmentScope `
 Preview changes without writing:
 
 ```powershell
-Update-AssignmentScope -Scope NonProd -Action Delete -WhatIf
+.\Scripts\Helpers\Update-AssignmentScope.ps1 -Scope NonProd -Action Delete -WhatIf
 ```
 
 ### Notes
 
-* Comments in JSONC files are stripped on save. The function warns when it detects `//` or `/* */` comments before writing. Use `-Backup` (or rely on git) to recover the originals.
+* Comments in JSONC files are stripped on save. The script warns when it detects `//` or `/* */` comments before writing. Use `-Backup` (or rely on git) to recover the originals.
 * Output is standard JSON. Existing formatting (single-line arrays, trailing commas) will be normalized on save. The result remains valid input for EPAC and conforms to `Schemas/policy-assignment-schema.json`.
 * Filters are AND-combined. Omit both `-NodeName` and `-AssignmentName` to apply to every node in the file that has a `scope`/`notScopes`/`assignment`/`parameters`/`enforcementMode` property.
