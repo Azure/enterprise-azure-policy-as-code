@@ -56,7 +56,7 @@ if ($LibraryPath -eq "") {
     $LibraryPath = Join-Path -Path (Get-Location) -ChildPath "temp"
     if (Test-Path $LibraryPath) {
         Write-ModernStatus -Message "Removing existing temp folder..." -Status "processing" -Indent 2
-        Remove-Item -Path $LibraryPath -Recurse -Force
+        Remove-Item -Path $LibraryPath -Recurse -Force > $null
     }
     Write-ModernStatus -Message "Cloning Azure Landing Zones Library repository..." -Status "processing" -Indent 2
     git clone --config advice.detachedHead=false --depth 1 --branch $Tag https://github.com/Azure/Azure-Landing-Zones-Library.git $LibraryPath
@@ -248,7 +248,7 @@ Write-ModernSection -Title "Writing Output Files" -Indent 0
 # Ensure the output directory exists
 $outputDirectory = "$DefinitionsRootFolder\policyStructures"
 if (-not (Test-Path -Path $outputDirectory)) {
-    New-Item -ItemType Directory -Path $outputDirectory
+    New-Item -ItemType Directory -Path $outputDirectory > $null
 }
 
 if ($PacEnvironmentSelector) {
@@ -262,7 +262,7 @@ else {
 
 $tempPath = Join-Path -Path (Get-Location) -ChildPath "temp"
 if ($LibraryPath -eq $tempPath) {
-    Remove-Item $LibraryPath -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item $LibraryPath -Recurse -Force -ErrorAction SilentlyContinue > $null
 }
 
 Write-ModernStatus -Message "ALZ Policy default structure created successfully" -Status "success" -Indent 0

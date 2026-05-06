@@ -70,7 +70,7 @@ if ($Type -eq "AMBA" -and $SyncAMBAExtendedPolicies) {
     # Check if the temp folder exists, and delete it if it does
     if (Test-Path $AMBALibraryPath) {
         Write-ModernStatus -Message "Removing existing temp AMBA extended policies folder..." -Status "processing" -Indent 2
-        Remove-Item -Path $AMBALibraryPath -Recurse -Force
+        Remove-Item -Path $AMBALibraryPath -Recurse -Force > $null
     }
     Write-ModernStatus -Message "Cloning Azure Monitor Baseline Alerts repository for AMBA extended policies..." -Status "processing" -Indent 2
     git clone --config advice.detachedHead=false --depth 1 https://github.com/Azure/azure-monitor-baseline-alerts.git $AMBALibraryPath
@@ -100,7 +100,7 @@ if ($DefinitionsRootFolder -eq "") {
 # Ensure the output directory exists
 $structureDirectory = "$DefinitionsRootFolder\policyStructures"
 if (-not (Test-Path -Path $structureDirectory)) {
-    New-Item -ItemType Directory -Path $structureDirectory
+    New-Item -ItemType Directory -Path $structureDirectory > $null
 }
 
 try {
@@ -129,7 +129,7 @@ if (-not($SyncAssignmentsOnly) -and $Type -ne "SLZ") {
             properties = $fileContent.properties
         }
         $category = $baseTemplate.properties.Metadata.category
-        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyDefinitions/$Type/$category" -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue
+        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyDefinitions/$Type/$category" -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue  > $null
     }
     Write-ModernSection -Title "Creating Policy Set Definition Objects" -Indent 0
     #endregion Create policy definition objects
@@ -186,7 +186,7 @@ if (-not($SyncAssignmentsOnly) -and $Type -ne "SLZ") {
         ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace "\[\[", "[" `
             -replace "variables\('scope'\)", "'/providers/Microsoft.Management/managementGroups/$managementGroupId'" `
             -replace "(?<!'true)', '(?!false)", "" `
-            -replace "\[concat\(('(.+)')\)\]", "`$2" | New-Item -Path "$DefinitionsRootFolder/policySetDefinitions/$Type/$category" -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue
+            -replace "\[concat\(('(.+)')\)\]", "`$2" | New-Item -Path "$DefinitionsRootFolder/policySetDefinitions/$Type/$category" -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue > $null
     }
     Write-ModernSection -Title "Creating Assignment Objects" -Indent 0
 }
@@ -205,7 +205,7 @@ if (-not($SyncAssignmentsOnly) -and $Type -eq "AMBA" -and $SyncAMBAExtendedPolic
         $fileName = $file.BaseName
         $file.DirectoryName -match 'services\\+([^\\]+)\\+([^\\]+)'
         $subPath = "$($Matches[1])/$($Matches[2])"
-        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace '\[\[', '[' | New-Item -Path "$DefinitionsRootFolder/policyDefinitions/$Type/$subPath" -ItemType File -Name "$($fileName).json" -Force -ErrorAction SilentlyContinue
+        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace '\[\[', '[' | New-Item -Path "$DefinitionsRootFolder/policyDefinitions/$Type/$subPath" -ItemType File -Name "$($fileName).json" -Force -ErrorAction SilentlyContinue > $null
     }
 }
 
@@ -390,7 +390,7 @@ try {
         foreach ($policyToRemove in $archetype.policy_assignments_to_remove) {
             $existingFile = $existingAssignments | Where-Object { $_.Name -eq $policyToRemove }
             if ($existingFile) {
-                Remove-Item -Path $existingFile.Path -Force -ErrorAction SilentlyContinue
+                Remove-Item -Path $existingFile.Path -Force -ErrorAction SilentlyContinue > $null
                 Write-ModernStatus -Message "Removed assignment '$policyToRemove' as it is no longer included in the archetype '$($archetype.name)'." -Status "info" -Indent 2
             }
         }
@@ -620,14 +620,14 @@ try {
 
             $category = $structureFile.managementGroupNameMappings.$scopeTrim.management_group_function
             if ($assignmentFromDefinition) {
-                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, enforcementMode, parameters, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
+                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, enforcementMode, parameters, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue > $null
             }
             elseif ($fileContent.name -eq "Deploy-Private-DNS-Zones") {
-                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope, additionalRoleAssignments | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
+                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope, additionalRoleAssignments | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue > $null
                 (Get-Content "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$($fileContent.name).jsonc") -replace "\.ne\.", ".$dnsZoneRegion." | Set-Content "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$($fileContent.name).jsonc"
             }
             else {
-                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
+                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue > $null
             }
             $obj = [PSCustomObject]@{
                 Path = "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$($fileContent.name).jsonc"
@@ -641,16 +641,16 @@ try {
     # Remove any assignments that were not created in this sync to clean up old assignments that are no longer in the library structure
     $assignmentsToRemove = $existingAssignments | Where-Object { $_.Name -notin $createdPolicyAssignments.Name }
     foreach ($assignment in $assignmentsToRemove) {
-        Remove-Item -Path $assignment.Path -Force -ErrorAction SilentlyContinue
+        Remove-Item -Path $assignment.Path -Force -ErrorAction SilentlyContinue > $null
         Write-ModernStatus -Message "Removed assignment '$($assignment.Name)' as it is no longer included in the library structure." -Status "info" -Indent 2
     }
 
     if ($LibraryPath -eq $tempPath) {
-        Remove-Item $LibraryPath -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item $LibraryPath -Recurse -Force -ErrorAction SilentlyContinue > $null
     }
 
     if ($AMBALibraryPath) {
-        Remove-Item $AMBALibraryPath -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item $AMBALibraryPath -Recurse -Force -ErrorAction SilentlyContinue > $null
     }
 
     Write-ModernStatus -Message "ALZ Policy sync completed successfully" -Status "success" -Indent 0
