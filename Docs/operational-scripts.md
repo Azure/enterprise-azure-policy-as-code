@@ -99,3 +99,81 @@ Parameters:
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | /subscriptions/******************************** | ******************************** | PAC-DEV-001 |  | subscriptions |  |  | 25 | 481 | 0 | 0 | 0 | 0 |
 | /subscriptions/********************************/providers/microsoft.authorization/roledefinitions/0b00bc79-2207-410c-b9d5-d5d182ad514f | ******************************** | PAC-DEV-001 |  | microsoft.authorization/roledefinitions | 0b00bc79-2207-410c-b9d5-d5d182ad514f |  | 0 | 0 | 0 | 0 | 0 | 0 |
+
+## Bulk Edit Assignment Scopes
+
+The script `Update-AssignmentScope.ps1` (in `Scripts/Helpers`) edits the `scope` (or `notScopes`) block of one or more policy assignment files in `Definitions/policyAssignments`. It supports nested `children[]` and walks the entire node tree of each file, applying the change to every node that matches the optional filters.
+
+### Actions
+
+| Action | Behavior | Required parameters |
+| --- | --- | --- |
+| `Append` | Adds the supplied path(s) to the existing `<selector>` array, deduping. Creates the selector if it doesn't exist. | `-Values` |
+| `Set` | Overwrites the entire `<selector>` array with the supplied values. Creates the selector if it doesn't exist. | `-Values` |
+| `Delete` | Removes the entire `<selector>` key from the block. | none |
+
+### Parameters
+
+| Parameter | Description |
+| --- | --- |
+| `-Path` | Optional. File or folder. When omitted, defaults to `<repo>/Definitions/policyAssignments` and recurses automatically. When an explicit folder is supplied, pass `-Recurse` to descend into subfolders. |
+| `-Scope` | Selector name inside the assignment file's `scope` block (e.g. `TenantRootGroup`, `NonProd`, `EPAC-Prod`). Mutually exclusive with `-NotScopes`. |
+| `-NotScopes` | Selector name inside the assignment file's `notScopes` block. Mutually exclusive with `-Scope`. |
+| `-Action` | Required. `Append` \| `Set` \| `Delete`. |
+| `-Values` | One or more resource paths (management group, subscription, or resource group). Required for `Append` and `Set`; ignored for `Delete`. |
+| `-NodeName` | Optional filter. Only edit nodes whose `nodeName` property equals this value. |
+| `-AssignmentName` | Optional filter. Only edit nodes whose `assignment.name` property equals this value. |
+| `-Recurse` | When `-Path` is an explicitly supplied folder, descend into subfolders. |
+| `-Backup` | Write a `*.bak` copy beside each modified file before saving. |
+| `-WhatIf` / `-Confirm` | Standard PowerShell `ShouldProcess` switches for previewing changes. |
+
+### Examples
+
+Add a new selector to every assignment file in `Definitions/policyAssignments` (recursive):
+
+```powershell
+.\Scripts\Operations\Update-AssignmentScope.ps1 `
+    -Scope NonProd -Action Append `
+    -Values "/providers/Microsoft.Management/managementGroups/00000000-0000-0000-0000-000000000000"
+```
+
+Overwrite the `TenantRootGroup` selector on a single nested node:
+
+```powershell
+.\Scripts\Operations\Update-AssignmentScope.ps1 `
+    -Path .\Definitions\policyAssignments\RestrictPublicAccess-Assignment-20260423.jsonc `
+    -NodeName "TenantRootGroup/" `
+    -Scope TenantRootGroup -Action Set `
+    -Values @(
+        "/providers/Microsoft.Management/managementGroups/68b133a0-68af-43fa-a9c3-d1b9bf296ea5",
+        "/providers/Microsoft.Management/managementGroups/68b133a0-68af-43fa-a9c3-d1b9bf296ea7"
+    )
+```
+
+Remove a selector from every node in every file under a folder, with backups:
+
+```powershell
+.\Scripts\Operations\Update-AssignmentScope.ps1 `
+    -Path .\Definitions\policyAssignments -Recurse `
+    -Scope NonProd -Action Delete -Backup
+```
+
+Append to the `TenantRootGroup` selector inside the `notScopes` block:
+
+```powershell
+.\Scripts\Operations\Update-AssignmentScope.ps1 `
+    -NotScopes TenantRootGroup -Action Append `
+    -Values "/subscriptions/00000000-0000-0000-0000-000000000000"
+```
+
+Preview changes without writing:
+
+```powershell
+.\Scripts\Operations\Update-AssignmentScope.ps1 -Scope NonProd -Action Delete -WhatIf
+```
+
+### Notes
+
+* Comments in JSONC files are stripped on save. The script warns when it detects `//` or `/* */` comments before writing. Use `-Backup` (or rely on git) to recover the originals.
+* Output is standard JSON. Existing formatting (single-line arrays, trailing commas) will be normalized on save. The result remains valid input for EPAC and conforms to `Schemas/policy-assignment-schema.json`.
+* Filters are AND-combined. Omit both `-NodeName` and `-AssignmentName` to apply to every node in the file that has a `scope`/`notScopes`/`assignment`/`parameters`/`enforcementMode` property.

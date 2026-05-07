@@ -70,6 +70,14 @@ function Get-AzResourceListRestMethod {
         $resources.value += $apiResources.value
     }
 
+    # Get APIM named values for all API Management services found in the basic resources
+    foreach ($apiManagementService in $apiManagementServices) {
+        $ApiVersion = "2024-05-01"
+        $path = "$($apiManagementService.id)/namedValues?api-version=$ApiVersion"
+        $namedValueResources = Invoke-AzRestMethodCustom -path $path -method GET
+        $resources.value += $namedValueResources.value
+    }
+
     # Get the custom role definitions if requested
     if ($CheckCustomRoleDefinitions) {
         $ApiVersion = "2022-04-01"
