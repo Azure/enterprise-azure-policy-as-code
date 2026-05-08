@@ -531,18 +531,37 @@ try {
                 }
             }
             else {
-                # Handle both string and array values for regular scope mappings
-                $scopeValue = $structureFile.managementGroupNameMappings.$scopeTrim.value
-                if ($scopeValue -is [array]) {
+                $scopeValueFromArchetypeMap = $null
+                if ($Type -eq "SLZ" -and $null -ne $structureFile.archetypeScopeMappings) {
+                    $scopeValueFromArchetypeMap = $structureFile.archetypeScopeMappings.$scopeTrim
+                }
+
+                if ($null -ne $scopeValueFromArchetypeMap) {
+                    if ($scopeValueFromArchetypeMap -is [array]) {
+                        $resolvedScopeValues = @($scopeValueFromArchetypeMap | Where-Object { -not [string]::IsNullOrWhiteSpace("$_") } | Select-Object -Unique)
+                    }
+                    else {
+                        $resolvedScopeValues = @($scopeValueFromArchetypeMap)
+                    }
+
                     $scope = [ordered]@{
-                        $PacEnvironmentSelector = $scopeValue
+                        $PacEnvironmentSelector = $resolvedScopeValues
                     }
                 }
                 else {
-                    $scope = [ordered]@{
-                        $PacEnvironmentSelector = @(
-                            $scopeValue
-                        )
+                    # Handle both string and array values for regular scope mappings
+                    $scopeValue = $structureFile.managementGroupNameMappings.$scopeTrim.value
+                    if ($scopeValue -is [array]) {
+                        $scope = [ordered]@{
+                            $PacEnvironmentSelector = $scopeValue
+                        }
+                    }
+                    else {
+                        $scope = [ordered]@{
+                            $PacEnvironmentSelector = @(
+                                $scopeValue
+                            )
+                        }
                     }
                 }
             }
@@ -619,6 +638,9 @@ try {
             }
 
             $category = $structureFile.managementGroupNameMappings.$scopeTrim.management_group_function
+            if ([string]::IsNullOrWhiteSpace($category)) {
+                $category = $archetype.name
+            }
             if ($assignmentFromDefinition) {
                 ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, enforcementMode, parameters, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
             }

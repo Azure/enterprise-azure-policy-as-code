@@ -79,6 +79,10 @@ $jsonOutput = [ordered]@{
     }
 }
 
+if ($Type -eq "SLZ") {
+    $jsonOutput.Add("archetypeScopeMappings", [ordered]@{})
+}
+
 Write-ModernSection -Title "Processing Management Group Names" -Indent 0
 # Get Management Group Names
 
@@ -91,6 +95,23 @@ foreach ($mg in $archetypeDefinitionFile.management_groups) {
     }
 
     $jsonOutput.managementGroupNameMappings.Add($mg.id, $obj)
+
+    if ($Type -eq "SLZ") {
+        foreach ($archetype in $mg.archetypes) {
+            if ([string]::IsNullOrWhiteSpace($archetype)) {
+                continue
+            }
+
+            if (-not $jsonOutput.archetypeScopeMappings.Contains($archetype)) {
+                $jsonOutput.archetypeScopeMappings.Add($archetype, @())
+            }
+
+            $scopeValue = "/providers/Microsoft.Management/managementGroups/$($mg.id)"
+            if ($scopeValue -notin $jsonOutput.archetypeScopeMappings.$archetype) {
+                $jsonOutput.archetypeScopeMappings.$archetype += $scopeValue
+            }
+        }
+    }
 }
 
 Write-ModernSection -Title "Building Parameter Values" -Indent 0

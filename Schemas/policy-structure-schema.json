@@ -165,6 +165,28 @@
             ],
             "additionalProperties": false
         },
+        "archetypeScopeMappings": {
+            "type": "object",
+            "description": "Optional archetype-to-scope mappings used for platforms where management groups can reference multiple archetypes (for example SLZ).",
+            "patternProperties": {
+                "^[a-zA-Z0-9_-]+$": {
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "pattern": "^/providers/Microsoft\\.Management/managementGroups/[a-zA-Z0-9_-]+$"
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "pattern": "^/providers/Microsoft\\.Management/managementGroups/[a-zA-Z0-9_-]+$"
+                            }
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false
+        },
         "overrides": {
             "type": "object",
             "description": "Override configurations for archetypes and parameters",
