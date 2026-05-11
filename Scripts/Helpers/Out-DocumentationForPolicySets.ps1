@@ -43,29 +43,46 @@ function Out-DocumentationForPolicySets {
     }
 
     #region Policy Set List
-    $addedTableHeader = ""
-    $addedTableDivider = ""
-    $addedTableDividerParameters = ""
-    $null = $allLines.Add("`n$leadingHeadingHashtag# Policy Set (Initiative) List`n")
-    foreach ($item in $ItemList) {
-        $shortName = $item.shortName
-        $policySetId = $item.policySetId
-        $policySetDetail = $PolicySetDetails.$policySetId
-        $policySetDisplayName = $policySetDetail.displayName -replace "\n\r", " " -replace "\n", " " -replace "\r", " "
-        $policySetDescription = $policySetDetail.description -replace "\n\r", " " -replace "\n", " " -replace "\r", " "
-        $null = $allLines.Add("$leadingHeadingHashtag## $($shortName)`n")
-        $null = $allLines.Add("- Display name: $($policySetDisplayName)`n")
-        $null = $allLines.Add("- Type: $($policySetDetail.policyType)")
-        $null = $allLines.Add("- Category: $($policySetDetail.category)`n")
-        $null = $allLines.Add("$($policySetDescription)`n")
-
-        $addedTableHeader += " $shortName |"
-        $addedTableDivider += " :-------: |"
-        $addedTableDividerParameters += " :------- |"
+	if ($DocumentationSpecification.includePolicySetList -ne $null) {
+        $includePolicySetList = $DocumentationSpecification.includePolicySetList
     }
+    else {
+        $includePolicySetList = $true # default to including the policy set list if not specified
+    }
+    if ($includePolicySetList) {
+		$addedTableHeader = ""
+		$addedTableDivider = ""
+		$addedTableDividerParameters = ""
+		$null = $allLines.Add("`n$leadingHeadingHashtag# Policy Set (Initiative) List`n")
+		foreach ($item in $ItemList) {
+			$shortName = $item.shortName
+			$policySetId = $item.policySetId
+			$policySetDetail = $PolicySetDetails.$policySetId
+			$policySetDisplayName = $policySetDetail.displayName -replace "\n\r", " " -replace "\n", " " -replace "\r", " "
+			$policySetDescription = $policySetDetail.description -replace "\n\r", " " -replace "\n", " " -replace "\r", " "
+			$null = $allLines.Add("$leadingHeadingHashtag## $($shortName)`n")
+			$null = $allLines.Add("- Display name: $($policySetDisplayName)`n")
+			$null = $allLines.Add("- Type: $($policySetDetail.policyType)")
+			$null = $allLines.Add("- Category: $($policySetDetail.category)`n")
+			$null = $allLines.Add("$($policySetDescription)`n")
+
+			$addedTableHeader += " $shortName |"
+			$addedTableDivider += " :-------: |"
+			$addedTableDividerParameters += " :------- |"
+		}
+	}
     #endregion Policy Set List
 
-    #region Policy Effects
+	if ($DocumentationSpecification.policySetEffectsOneColumn -ne $null) {
+        $PolicySetEffectsOneColumn = $DocumentationSpecification.policySetEffectsOneColumn
+    }
+    else {
+        $PolicySetEffectsOneColumn = $false # default to use classic multi-column layout for policy effects if not specified
+    }
+
+    #region Policy Effects Multi-Column
+    if ( -not $PolicySetEffectsOneColumn) {
+		
     if ($DocumentationSpecification.markdownIncludeComplianceGroupNames) {
         $null = $allLines.Add("`n$leadingHeadingHashtag# Policy Effects by Policy`n")
         $null = $allLines.Add("| Category | Policy | Compliance |$addedTableHeader")
@@ -132,7 +149,79 @@ function Out-DocumentationForPolicySets {
             Write-Verbose "Skipping manual policy: $($_.name)"
         }
     }
-    #endregion Policy Effects
+    #endregion Policy Effects Multi-Column
+	
+	#region Policy Effects One Column
+    if ($PolicySetEffectsOneColumn) {
+        if ($DocumentationSpecification.markdownIncludeComplianceGroupNames) {
+            $null = $allLines.Add("`n$leadingHeadingHashtag# Policy Effects by Policy`n")
+            $null = $allLines.Add("| Category | Policy | Compliance | Effects |")
+            $null = $allLines.Add("| :------- | :----- | :---------- | :------ |")
+        }
+        else {
+            $null = $allLines.Add("`n$leadingHeadingHashtag# Policy Effects`n")
+            $null = $allLines.Add("| Category | Policy | Effects |")
+            $null = $allLines.Add("| :------- | :----- | :------ |")
+        }
+
+        $FlatPolicyList.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
+            $policySetList = $_.policySetList
+            $effectsByPolicySet = [System.Collections.ArrayList]::new()
+            $effectValue = "Unknown"
+            if ($null -ne $_.effectValue) {
+                $effectValue = $_.effectValue
+            }
+            else {
+                $effectValue = $_.effectDefault
+            }
+
+            if ($effectValue -ne "Manual" -or $IncludeManualPolicies) {
+                $groupNamesList = [System.Collections.ArrayList]::new()
+                foreach ($item in $ItemList) {
+                    $shortName = $item.shortName
+                    if ($policySetList.ContainsKey($shortName)) {
+                        $perPolicySet = $policySetList.$shortName
+                        $perPolicySetEffectValue = $perPolicySet.effectValue
+                        if ($null -eq $perPolicySetEffectValue -or [string]::IsNullOrWhiteSpace("$perPolicySetEffectValue")) {
+                            $perPolicySetEffectValue = $perPolicySet.effectDefault
+                        }
+                        if ($perPolicySetEffectValue.StartsWith("[if(contains(parameters('resourceTypeList')")) {
+                            $perPolicySetEffectValue = "SetByParameter"
+                        }
+                        $null = $effectsByPolicySet.Add("$shortName : **$perPolicySetEffectValue**")
+
+                        [array] $groupNames = $perPolicySet.groupNames
+                        if ($groupNames.Count -gt 0) {
+                            $groupNamesList.AddRange($groupNames)
+                        }
+                    }
+                }
+                $effectsText = ""
+                if ($effectsByPolicySet.Count -gt 0) {
+                    $effectsText = $effectsByPolicySet -join $inTableBreak
+                }
+                $complianceText = ""
+                if ($DocumentationSpecification.markdownIncludeComplianceGroupNames) {
+                    if ($groupNamesList.Count -gt 0) {
+                        $groupNamesList = $groupNamesList | Sort-Object -Unique
+                        $complianceText = $groupNamesList -join $inTableBreak
+                    }
+                }
+                $policyDisplayName = $_.displayName -replace "\n\r", " " -replace "\n", " " -replace "\r", " "
+                $policyDescription = $_.description -replace "\n\r", " " -replace "\n", " " -replace "\r", " "
+                if ($DocumentationSpecification.markdownIncludeComplianceGroupNames) {
+                    $null = $allLines.Add("| $($_.category) | **$($policyDisplayName)**$($inTableAfterDisplayNameBreak)$($policyDescription) | $complianceText | $effectsText |")
+                }
+                else {
+                    $null = $allLines.Add("| $($_.category) | **$($policyDisplayName)**$($inTableAfterDisplayNameBreak)$($policyDescription) | $effectsText |")
+                }
+            }
+            else {
+                Write-Verbose "Skipping manual policy: $($_.name)"
+            }
+        }
+    }
+    #endregion Policy Effects One Column	
 
     #region Policy Parameters
     if ($DocumentationSpecification.markdownSuppressParameterSection) {
