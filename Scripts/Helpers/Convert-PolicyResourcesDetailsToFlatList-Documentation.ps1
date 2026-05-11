@@ -246,7 +246,7 @@ function Convert-PolicyResourcesDetailsToFlatList-Documentation {
 
             # Collate union of parameters
             $parametersForThisPolicy = $flatPolicyEntry.parameters
-            foreach ($parameterName in $parameters.Keys) {
+            foreach ($parameterName in ($parameters.Keys | Sort-Object)) {
                 if (!$parameterName -eq '') {
                     $parameter = $parameters.$parameterName
                     if ($parametersForThisPolicy.ContainsKey($parameterName)) {
@@ -475,7 +475,7 @@ function Convert-PolicyResourcesDetailsToFlatList-Documentation {
 
             # Collate union of parameters
             $parametersForThisPolicy = $flatPolicyEntry.parameters
-            foreach ($parameterName in $parameters.Keys) {
+            foreach ($parameterName in ($parameters.Keys | Sort-Object)) {
                 $parameter = $parameters.$parameterName
                 if ($parametersForThisPolicy.ContainsKey($parameterName)) {
                     $parameterPolicySets = $parameter.policySets
