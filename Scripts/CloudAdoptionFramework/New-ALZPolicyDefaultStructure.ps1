@@ -248,7 +248,7 @@ Write-ModernSection -Title "Writing Output Files" -Indent 0
 # Ensure the output directory exists
 $outputDirectory = "$DefinitionsRootFolder\policyStructures"
 if (-not (Test-Path -Path $outputDirectory)) {
-    New-Item -ItemType Directory -Path $outputDirectory | Out-Null
+    New-Item -ItemType Directory -Path $outputDirectory | Write-Verbose
 }
 
 if ($PacEnvironmentSelector) {

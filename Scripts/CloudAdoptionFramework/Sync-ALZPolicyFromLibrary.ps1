@@ -100,7 +100,7 @@ if ($DefinitionsRootFolder -eq "") {
 # Ensure the output directory exists
 $structureDirectory = "$DefinitionsRootFolder\policyStructures"
 if (-not (Test-Path -Path $structureDirectory)) {
-    New-Item -ItemType Directory -Path $structureDirectory | Out-Null
+    New-Item -ItemType Directory -Path $structureDirectory | Write-Verbose
 }
 
 try {
@@ -129,7 +129,7 @@ if (-not($SyncAssignmentsOnly) -and $Type -ne "SLZ") {
             properties = $fileContent.properties
         }
         $category = $baseTemplate.properties.Metadata.category
-        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyDefinitions/$Type/$category" -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue  | Out-Null
+        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyDefinitions/$Type/$category" -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue | Write-Verbose
     }
     Write-ModernSection -Title "Creating Policy Set Definition Objects" -Indent 0
     #endregion Create policy definition objects
@@ -186,7 +186,7 @@ if (-not($SyncAssignmentsOnly) -and $Type -ne "SLZ") {
         ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace "\[\[", "[" `
             -replace "variables\('scope'\)", "'/providers/Microsoft.Management/managementGroups/$managementGroupId'" `
             -replace "(?<!'true)', '(?!false)", "" `
-            -replace "\[concat\(('(.+)')\)\]", "`$2" | New-Item -Path "$DefinitionsRootFolder/policySetDefinitions/$Type/$category" -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue | Out-Null
+            -replace "\[concat\(('(.+)')\)\]", "`$2" | New-Item -Path "$DefinitionsRootFolder/policySetDefinitions/$Type/$category" -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue | Write-Verbose
     }
     Write-ModernSection -Title "Creating Assignment Objects" -Indent 0
 }
@@ -205,7 +205,7 @@ if (-not($SyncAssignmentsOnly) -and $Type -eq "AMBA" -and $SyncAMBAExtendedPolic
         $fileName = $file.BaseName
         $file.DirectoryName -match 'services\\+([^\\]+)\\+([^\\]+)'
         $subPath = "$($Matches[1])/$($Matches[2])"
-        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace '\[\[', '[' | New-Item -Path "$DefinitionsRootFolder/policyDefinitions/$Type/$subPath" -ItemType File -Name "$($fileName).json" -Force -ErrorAction SilentlyContinue | Out-Null
+        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace '\[\[', '[' | New-Item -Path "$DefinitionsRootFolder/policyDefinitions/$Type/$subPath" -ItemType File -Name "$($fileName).json" -Force -ErrorAction SilentlyContinue | Write-Verbose
     }
 }
 
@@ -620,14 +620,14 @@ try {
 
             $category = $structureFile.managementGroupNameMappings.$scopeTrim.management_group_function
             if ($assignmentFromDefinition) {
-                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, enforcementMode, parameters, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue | Out-Null
+                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, enforcementMode, parameters, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue | Write-Verbose
             }
             elseif ($fileContent.name -eq "Deploy-Private-DNS-Zones") {
-                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope, additionalRoleAssignments | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue | Out-Null
+                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope, additionalRoleAssignments | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue | Write-Verbose
                 (Get-Content "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$($fileContent.name).jsonc") -replace "\.ne\.", ".$dnsZoneRegion." | Set-Content "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$($fileContent.name).jsonc"
             }
             else {
-                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue | Out-Null
+                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue | Write-Verbose
             }
             $obj = [PSCustomObject]@{
                 Path = "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$($fileContent.name).jsonc"
