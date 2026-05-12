@@ -73,7 +73,7 @@ function Out-DocumentationForPolicySets {
     }
     #endregion Policy Set List
 
-    if ($DocumentationSpecification.policySetEffectsOneColumn -ne $null) {
+    if ($null -ne $DocumentationSpecification.policySetEffectsOneColumn) {
         $PolicySetEffectsOneColumn = $DocumentationSpecification.policySetEffectsOneColumn
     }
     else {
