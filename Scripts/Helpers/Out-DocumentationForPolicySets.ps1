@@ -43,7 +43,7 @@ function Out-DocumentationForPolicySets {
     }
 
     #region Policy Set List
-    if ($DocumentationSpecification.includePolicySetList -ne $null) {
+    if ($null -ne $DocumentationSpecification.includePolicySetList) {
         $includePolicySetList = $DocumentationSpecification.includePolicySetList
     }
     else {
