@@ -6,7 +6,6 @@ on:
     paths:
       - ".github/workflows/alz-sync-tests.yml"
       - "Scripts/CloudAdoptionFramework/**"
-      - "Scripts/Helpers/**"
       - "Tests/CloudAdoptionFramework/**"
 
 permissions:
