@@ -376,7 +376,10 @@ function Write-ModernStatus {
     $theme = Get-OutputTheme
     $statusChars = $theme.characters.status
     $statusColors = $theme.colors.status
-    $backgroundColors = $theme.backgroundColors.status
+    $backgroundColors = $null
+    if ($null -ne $theme.PSObject.Properties['backgroundColors'] -and $null -ne $theme.backgroundColors.PSObject.Properties['status']) {
+        $backgroundColors = $theme.backgroundColors.status
+    }
     
     $prefix = " " * $Indent
     $statusLower = $Status.ToLower()

@@ -8,7 +8,6 @@ Param(
 
     [string] $LibraryPath,
 
-    [ValidateScript({ "refs/tags/$_" -in (Invoke-RestMethod -Uri 'https://api.github.com/repos/Azure/Azure-Landing-Zones-Library/git/refs/tags/').ref }, ErrorMessage = "Tag must be a valid tag." )]
     [string] $Tag,
 
     [Parameter(Mandatory = $true)]
@@ -33,6 +32,10 @@ if ($DefinitionsRootFolder -eq "") {
 }
 
 # Latest tag values
+if (-not [string]::IsNullOrWhiteSpace($Tag) -and $Tag -notmatch '^platform\/(alz|fsi|amba|slz)\/.+$') {
+    throw "Tag must be in the format 'platform/<type>/<version>'."
+}
+
 if ($Tag -eq "") {
     switch ($Type) {
         'ALZ' {

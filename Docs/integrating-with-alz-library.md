@@ -587,6 +587,14 @@ The script performs:
 - SLZ validation for `archetypeScopeMappings`.
 - ALZ/AMBA validation to ensure `archetypeScopeMappings` is not introduced.
 
+Automated unit and smoke coverage for these scripts now lives under `Tests\CloudAdoptionFramework`. Run the suite with Pester:
+
+```ps1
+Invoke-Pester -Path .\Tests\CloudAdoptionFramework
+```
+
+The test suite uses local fixture libraries so the default test run stays deterministic while still exercising ALZ, AMBA, and SLZ sync scenarios such as overrides, guardrails, AMBA extended policies, cleanup, and regression baseline comparisons.
+
 Optional: compare ALZ/AMBA outputs against a known baseline folder.
 
 ```ps1
