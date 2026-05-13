@@ -140,7 +140,7 @@ function Get-FileHashMap {
     }
 
     foreach ($file in Get-ChildItem -Path $RootPath -Recurse -File) {
-        $relativePath = $file.FullName.Substring($RootPath.Length).TrimStart('\\', '/')
+        $relativePath = $file.FullName.Substring($RootPath.Length).TrimStart('\', '/')
         $hashMap[$relativePath] = (Get-FileHash -Path $file.FullName -Algorithm SHA256).Hash
     }
 
@@ -270,9 +270,8 @@ if (($Failures | Measure-Object).Count -gt 0) {
     foreach ($failure in $Failures) {
         Write-Host (" - [{0}] {1}" -f $failure.Type, $failure.Message) -ForegroundColor Red
     }
-    exit 1
+    throw "Regression validation failed."
 }
 
 Write-Host ""
 Write-Host "Regression validation passed for all requested types." -ForegroundColor Green
-exit 0

@@ -149,6 +149,7 @@ function Out-DocumentationForPolicySets {
             Write-Verbose "Skipping manual policy: $($_.name)"
         }
     }
+    }
     #endregion Policy Effects Multi-Column
 	
 	#region Policy Effects One Column
