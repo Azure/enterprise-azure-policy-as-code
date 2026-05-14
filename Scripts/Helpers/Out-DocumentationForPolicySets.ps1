@@ -150,6 +150,7 @@ function Out-DocumentationForPolicySets {
             }
         }
     }
+    }
     #endregion Policy Effects Multi-Column
 	
     #region Policy Effects One Column
