@@ -150,7 +150,6 @@ function Out-DocumentationForPolicySets {
             }
         }
     }
-    }
     #endregion Policy Effects Multi-Column
 	
     #region Policy Effects One Column
@@ -626,5 +625,4 @@ function Out-DocumentationForPolicySets {
         }
     }
     Write-ModernStatus -Message "Complete" -Status "success" -Indent 2
-}
 }
