@@ -31,3 +31,4 @@ jobs:
         shell: pwsh
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: ./Scripts/Deploy/Deploy-PolicyPlan.ps1 -PacEnvironmentSelector default -InputFolder ./Output
+1
