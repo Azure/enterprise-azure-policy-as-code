@@ -29,9 +29,16 @@ jobs:
       - name: Build_Deployment_Plan
         id: build_deployment_plan
         shell: pwsh
-        run: ./Scripts/Deploy/Build-DeploymentPlans.ps1 -PacEnvironmentSelector default -DefinitionsRootFolder ./Definitions -OutputFolder ./Output
+        run: |
+          & "$env:GITHUB_WORKSPACE/Scripts/Deploy/Build-DeploymentPlans.ps1" `
+            -PacEnvironmentSelector default `
+            -DefinitionsRootFolder "$env:GITHUB_WORKSPACE/Definitions" `
+            -OutputFolder "$env:GITHUB_WORKSPACE/Output"
       
       - name: Deploy Policy Plan
         shell: pwsh
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: ./Scripts/Deploy/Deploy-PolicyPlan.ps1 -PacEnvironmentSelector default -InputFolder ./Output
+        run: |
+          & "$env:GITHUB_WORKSPACE/Scripts/Deploy/Deploy-PolicyPlan.ps1" `
+            -PacEnvironmentSelector default `
+            -InputFolder "$env:GITHUB_WORKSPACE/Output"
