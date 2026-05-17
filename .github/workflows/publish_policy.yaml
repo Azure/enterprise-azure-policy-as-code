@@ -29,16 +29,18 @@ jobs:
       - name: Build_Deployment_Plan
         id: build_deployment_plan
         shell: pwsh
+        working-directory: ${{ github.workspace }}
         run: |
-          & "$env:GITHUB_WORKSPACE/Scripts/Deploy/Build-DeploymentPlans.ps1" `
+          ./Scripts/Deploy/Build-DeploymentPlans.ps1 `
             -PacEnvironmentSelector default `
-            -DefinitionsRootFolder "$env:GITHUB_WORKSPACE/Definitions" `
-            -OutputFolder "$env:GITHUB_WORKSPACE/Output"
+            -DefinitionsRootFolder "./Definitions" `
+            -OutputFolder "./Output"
       
       - name: Deploy Policy Plan
         shell: pwsh
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        working-directory: ${{ github.workspace }}
         run: |
-          & "$env:GITHUB_WORKSPACE/Scripts/Deploy/Deploy-PolicyPlan.ps1" `
+          ./Scripts/Deploy/Deploy-PolicyPlan.ps1 `
             -PacEnvironmentSelector default `
-            -InputFolder "$env:GITHUB_WORKSPACE/Output"
+            -InputFolder "./Output"
