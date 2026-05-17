@@ -1,0 +1,33 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Az PowerShell
+        shell: pwsh
+        run: |
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module Az -Force -Scope CurrentUser
+
+      
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.DEPLOY_POLICY }}
+
+      - name: Build_Deployment_Plan
+        id: build_deployment_plan
+        shell: pwsh
+        run: ./Scripts/Deploy/Build-DeploymentPlans.ps1 -PacEnvironmentSelector default -DefinitionsRootFolder ./Definitions -OutputFolder ./Output
+      
+      - name: Deploy Policy Plan
+        shell: pwsh
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: ./Scripts/Deploy/Deploy-PolicyPlan.ps1 -PacEnvironmentSelector default -InputFolder ./Output

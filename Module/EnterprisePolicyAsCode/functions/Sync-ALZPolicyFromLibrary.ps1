@@ -1,0 +1,663 @@
+function Sync-ALZPolicyFromLibrary {
+Param(
+    [Parameter(Mandatory = $true)]
+    [string] $DefinitionsRootFolder,
+
+    [ValidateSet("ALZ", "AMBA", "FSI", "SLZ")]
+    [string] $Type = "ALZ",
+
+    [Parameter(Mandatory = $true)]
+    [string] $PacEnvironmentSelector,
+
+    [string] $LibraryPath,
+
+    [ValidateScript({ "refs/tags/$_" -in (Invoke-RestMethod -Uri 'https://api.github.com/repos/Azure/Azure-Landing-Zones-Library/git/refs/tags/').ref }, ErrorMessage = "Tag must be a valid tag." )]
+    [string] $Tag,
+
+    [switch] $CreateGuardrailAssignments,
+
+    [switch] $EnableOverrides,
+
+    [switch] $SyncAssignmentsOnly,
+
+    [switch] $SyncAMBAExtendedPolicies
+
+
+)
+
+# Dot Source Helper Scripts
+
+# Latest tag values
+if ($Tag -eq "") {
+    switch ($Type) {
+        'ALZ' {
+            $Tag = "platform/alz/2026.04.2"
+        }
+        'FSI' {
+            $Tag = "platform/fsi/2025.03.0"
+        }
+        'AMBA' {
+            $Tag = "platform/amba/2025.11.0"
+        }
+        'SLZ' {
+            $Tag = "platform/slz/2026.04.2"
+        }
+    }
+}
+
+Write-ModernHeader -Title "Syncing Policies From Library" -Subtitle "Type: $Type, Tag: $Tag"
+
+if ($LibraryPath -eq "") {
+    $LibraryPath = Join-Path -Path (Get-Location) -ChildPath "temp"
+    # Check if the temp folder exists, and delete it if it does
+    if (Test-Path $LibraryPath) {
+        Write-ModernStatus -Message "Removing existing temp folder..." -Status "processing" -Indent 2
+        Remove-Item -Path $LibraryPath -Recurse -Force
+    }
+    Write-ModernStatus -Message "Cloning Azure Landing Zones Library repository..." -Status "processing" -Indent 2
+    git clone --config advice.detachedHead=false --depth 1 --branch $Tag https://github.com/Azure/Azure-Landing-Zones-Library.git $LibraryPath
+    if ($LASTEXITCODE -eq 0) {
+        Write-ModernStatus -Message "Repository cloned successfully" -Status "success" -Indent 4
+    }
+    else {
+        Write-ModernStatus -Message "Failed to clone repository" -Status "error" -Indent 4
+        exit 1
+    }
+}
+
+if ($Type -eq "AMBA" -and $SyncAMBAExtendedPolicies) {
+    $AMBALibraryPath = Join-Path -Path (Get-Location) -ChildPath "temp_amba_extended"
+    # Check if the temp folder exists, and delete it if it does
+    if (Test-Path $AMBALibraryPath) {
+        Write-ModernStatus -Message "Removing existing temp AMBA extended policies folder..." -Status "processing" -Indent 2
+        Remove-Item -Path $AMBALibraryPath -Recurse -Force
+    }
+    Write-ModernStatus -Message "Cloning Azure Monitor Baseline Alerts repository for AMBA extended policies..." -Status "processing" -Indent 2
+    git clone --config advice.detachedHead=false --depth 1 https://github.com/Azure/azure-monitor-baseline-alerts.git $AMBALibraryPath
+    if ($LASTEXITCODE -eq 0) {
+        Write-ModernStatus -Message "AMBA extended policies repository cloned successfully" -Status "success" -Indent 4
+    }
+    else {
+        Write-ModernStatus -Message "Failed to clone AMBA extended policies repository" -Status "error" -Indent 4
+        exit 1
+    }
+}
+
+if ($DefinitionsRootFolder -eq "") {
+    if ($null -eq $env:PAC_DEFINITIONS_FOLDER) {
+        if ($ModuleRoot) {
+            $DefinitionsRootFolder = "./Definitions"
+        }
+        else {
+            $DefinitionsRootFolder = "$PSScriptRoot/../../Definitions"
+        }
+    }
+    else {
+        $DefinitionsRootFolder = $env:PAC_DEFINITIONS_FOLDER
+    }
+}
+
+# Ensure the output directory exists
+$structureDirectory = "$DefinitionsRootFolder\policyStructures"
+if (-not (Test-Path -Path $structureDirectory)) {
+    New-Item -ItemType Directory -Path $structureDirectory
+}
+
+try {
+    $telemetryEnabled = (Get-Content $DefinitionsRootFolder/global-settings.jsonc | ConvertFrom-Json).telemetryOptOut
+    $deploymentRootScope = (Get-Content $DefinitionsRootFolder/global-settings.jsonc | ConvertFrom-Json).pacEnvironments[0]
+    if (!($telemetryEnabled)) {
+        Write-ModernStatus -Message "Telemetry is enabled" -Status "info" -Indent 2
+        Submit-EPACTelemetry -Cuapid "pid-adaa7564-1962-46e6-92b4-735e91f76d43" -DeploymentRootScope $deploymentRootScope
+    }
+    else {
+        Write-ModernStatus -Message "Telemetry is disabled" -Status "info" -Indent 2
+    }
+}
+catch {
+    Write-ModernStatus -Message "Telemetry could not be enabled: $($_.Exception.Message)" -Status "warning" -Indent 2
+}
+
+if (-not($SyncAssignmentsOnly) -and $Type -ne "SLZ") {
+    Write-ModernSection -Title "Creating Policy Definition Objects" -Indent 0
+    #region Create policy definition objects
+    foreach ($file in Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_definitions" -Recurse -File -Include *.json) {
+        $fileContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
+        $baseTemplate = [ordered]@{
+            '$schema'  = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json"
+            name       = $fileContent.name
+            properties = $fileContent.properties
+        }
+        $category = $baseTemplate.properties.Metadata.category
+        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyDefinitions/$Type/$category" -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue
+    }
+    Write-ModernSection -Title "Creating Policy Set Definition Objects" -Indent 0
+    #endregion Create policy definition objects
+
+    #region Create policy set definition objects
+    foreach ($file in Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_set_definitions" -Recurse -File -Include *.json) {
+        $fileContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
+        $baseTemplate = [ordered]@{
+            "`$schema" = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-set-definition-schema.json"
+            name       = $fileContent.name
+            properties = [ordered]@{
+                description            = $fileContent.properties.description
+                displayName            = $fileContent.properties.displayName
+                metadata               = $fileContent.properties.metadata
+                parameters             = $fileContent.properties.parameters
+                policyType             = $fileContent.properties.policyType
+                policyDefinitionGroups = $fileContent.properties.policyDefinitionGroups
+            }
+        }
+        $policyDefinitions = @()
+        # Fix the policyDefinitionIds for custom policies
+        foreach ($policyDefinition in $fileContent.properties.policyDefinitions) {
+            $obj = [ordered]@{
+                parameters                  = $policyDefinition.parameters
+                groupNames                  = $policyDefinition.groupNames
+                policyDefinitionReferenceId = $policyDefinition.policyDefinitionReferenceId
+            }
+            if ($policyDefinition.policyDefinitionId -match "managementGroups") {
+                $obj.Add("policyDefinitionName", $policyDefinition.policyDefinitionId.split("/")[ - 1])
+            }
+            else {
+                $obj.Add("policyDefinitionId", $policyDefinition.policyDefinitionId)
+            }
+            if ($policyDefinition.definitionVersion) {
+                $obj.Add("definitionVersion", $policyDefinition.definitionVersion)
+            }
+            $policyDefinitions += $obj
+        }
+        $baseTemplate.properties.policyDefinitions = $policyDefinitions
+
+        # Force property order
+        $orderedProps = [ordered]@{
+            description            = $baseTemplate.properties.description
+            displayName            = $baseTemplate.properties.displayName
+            metadata               = $baseTemplate.properties.metadata
+            parameters             = $baseTemplate.properties.parameters
+            policyDefinitions      = $baseTemplate.properties.policyDefinitions
+            policyType             = $baseTemplate.properties.policyType
+            policyDefinitionGroups = $baseTemplate.properties.policyDefinitionGroups
+        }
+        $baseTemplate.properties = $orderedProps
+
+        $category = $baseTemplate.properties.Metadata.category
+        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace "\[\[", "[" `
+            -replace "variables\('scope'\)", "'/providers/Microsoft.Management/managementGroups/$managementGroupId'" `
+            -replace "(?<!'true)', '(?!false)", "" `
+            -replace "\[concat\(('(.+)')\)\]", "`$2" | New-Item -Path "$DefinitionsRootFolder/policySetDefinitions/$Type/$category" -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue
+    }
+    Write-ModernSection -Title "Creating Assignment Objects" -Indent 0
+}
+#endregion Create policy set definition objects
+
+if (-not($SyncAssignmentsOnly) -and $Type -eq "AMBA" -and $SyncAMBAExtendedPolicies) {
+    Write-ModernSection -Title "Creating AMBA Extended Policy Definition Objects" -Indent 0
+    #region Create AMBA extended policy definition objects
+    foreach ($file in (Get-ChildItem -Path "$AMBALibraryPath/services" -Recurse -File -Include *.json | Where-Object FullName -match "\\policy\\")) {
+        $fileContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
+        $baseTemplate = [ordered]@{
+            '$schema'  = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json"
+            name       = $fileContent.name -replace "/", "_" -replace "%", "pc"
+            properties = $fileContent.properties
+        }
+        $fileName = $file.BaseName
+        $file.DirectoryName -match 'services\\+([^\\]+)\\+([^\\]+)'
+        $subPath = "$($Matches[1])/$($Matches[2])"
+        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace '\[\[', '[' | New-Item -Path "$DefinitionsRootFolder/policyDefinitions/$Type/$subPath" -ItemType File -Name "$($fileName).json" -Force -ErrorAction SilentlyContinue
+    }
+}
+
+#region Create assignment objects
+try {
+    $structureFilePath = Get-ChildItem -Path $structureDirectory -Filter "*.$PacEnvironmentSelector.jsonc" -Recurse | Where-Object { $_.Name -match "$($Type.ToLower()).policy_default_structure" } | Select-Object -First 1
+    $structureFile = Get-Content -Path $structureFilePath.FullName -Raw -ErrorAction Stop | ConvertFrom-Json
+    Write-ModernStatus -Message "Policy default structure file: $structureFilePath" -Status "info" -Indent 2
+    switch ($structureFile.enforcementMode) {
+        "Default" { $enforcementModeText = "must" }
+        "DoNotEnforce" { $enforcementModeText = "should" }
+    }
+}
+catch {
+    Write-ModernStatus -Message "Error reading the policy default structure file: $($_.Exception.Message)" -Status "error" -Indent 2
+    Write-ModernStatus -Message "Please run New-ALZPolicyDefaultStructure.ps1 first" -Status "warning" -Indent 2
+    exit
+}
+
+# Gather existing files
+$existingAssignments = Get-ChildItem -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector" -Recurse -File -Include *.jsonc -ErrorAction SilentlyContinue | `
+    ForEach-Object {
+    $content = Get-Content -Path $_.FullName -Raw | ConvertFrom-Json
+    [PSCustomObject]@{
+        Path = $_.FullName
+        Name = $content.assignment.name
+    }
+}
+
+if ($EnableOverrides) {
+    Write-ModernStatus -Message "Overrides enabled: Custom management group structures and assignments will be used where available." -Status "info" -Indent 2
+    if ($structureFile.overrides.archetypes.ignore) {
+        $ignoreArchetypes = $structureFile.overrides.archetypes.ignore
+    }
+    if ($structureFile.overrides.archetypes.custom) {
+        $customArchetypes = $structureFile.overrides.archetypes.custom
+    }
+}
+
+try {
+    # Determine if custom archetypes should be injected
+    $archetypeArray = @()
+    foreach ($file in Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/archetype_definitions" -Recurse -File -Include *.json) {
+        $customArchetypeContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
+        $archetypeArray += $customArchetypeContent
+    }
+    foreach ($customArchetype in $customArchetypes) {
+        #Check if included in management group mappings
+        if (-not ($structureFile.managementGroupNameMappings.PSObject.Properties.Name -contains $customArchetype.name)) {
+            Write-ModernStatus -Message "Custom archetype '$($customArchetype.name)' not found in management group mappings. Skipping." -Status "warning" -Indent 2
+            continue
+        }
+        $archetypeArray += $customArchetype
+    }
+    # Modify default archetypes if requested
+    $finalArchetypeArray = @()
+    $cleanupArchetype = @() # Track archetypes that end up with no assignments and need to be cleaned up from the final array
+    # Modify anything that is existing
+    foreach ($archetype in $archetypeArray | Where-Object { $_.type -eq "existing" }) {
+        if ($archetype.PSObject.properties.name -contains "based_on") {
+            $archetypeObj = @{
+                name               = $archetype.name
+                policy_assignments = $archetypeArray | Where-Object { $_.name -eq $archetype.based_on -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
+            }
+        }
+        else {
+            if ($archetype.name -eq "landingzones") {
+                $archetypeObj = @{
+                    name               = $Type -eq "AMBA" ? "amba_landing_zones" : $archetype.name
+                    policy_assignments = $archetypeArray | Where-Object { $_.name -match "landing_zones" -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
+                }
+            }
+            elseif ($archetype.name -eq "alz") {
+                $archetypeObj = @{
+                    name               = $Type -eq "AMBA" ? "amba_root" : "root"
+                    policy_assignments = $archetypeArray | Where-Object { $_.name -match "root" -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
+                }
+            }
+            elseif ($archetype.name -eq "sovereign_root") {
+                $archetypeObj = @{
+                    name               = $Type -eq "SLZ" ? "slz" : "slz"
+                    policy_assignments = $archetypeArray | Where-Object { $_.name -match "sovereign_root" -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
+                }
+            }
+            else {
+                $archetypeObj = @{
+                    name               = $Type -eq "AMBA" ? "amba_$($archetype.name)" : $archetype.name
+                    policy_assignments = $archetypeArray | Where-Object { $_.name -match $archetype.name -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
+                }
+            }
+        }
+        if ($archetype.policy_assignments_to_add) {
+            if ($archetypeObj.policy_assignments -is [string]) {
+                $archetypeObj.policy_assignments = @($archetypeObj.policy_assignments)
+            }
+            $archetypeObj.policy_assignments += $archetype.policy_assignments_to_add
+        }
+        if (-not($archetypeObj.policy_assignments | Measure-Object).Count -eq 0) {
+            $finalArchetypeArray += $archetypeObj
+        }
+        else {
+            Write-ModernStatus -Message "Archetype '$($archetype.name)' has no policy assignments after modifications. Skipping." -Status "warning" -Indent 2
+            $cleanupArchetype += $archetype.name
+        }
+
+    }
+    #Check again for new archetypes based on a custom archetype
+    foreach ($archetype in $archetypeArray | Where-Object { $_.type -eq "existing" -and $_.name -notin ($finalArchetypeArray.name) -and (($_.name -notmatch "alz") -or ($Type -eq "AMBA" -and $_.name -eq "alz")) }) {
+        if ($archetype.PSObject.properties.name -contains "based_on") {
+            $archetypeObj = @{
+                name               = $archetype.name
+                policy_assignments = $finalArchetypeArray | Where-Object { $_.name -eq $archetype.based_on -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
+            }
+        }
+        if ($archetype.policy_assignments_to_add) {
+            $archetypeObj.policy_assignments += $archetype.policy_assignments_to_add
+        }
+        if (-not($archetypeObj.policy_assignments | Measure-Object).Count -eq 0) {
+            $finalArchetypeArray += $archetypeObj
+        }
+        else {
+            Write-ModernStatus -Message "Archetype '$($archetype.name)' has no policy assignments after modifications. Skipping." -Status "warning" -Indent 2
+            $cleanupArchetype += $archetype.name
+        }
+    }
+
+    # Add any new archetypes
+    foreach ($archetype in $archetypeArray | Where-Object { $_.type -ne "existing" -and $_.name -notin ($finalArchetypeArray.name) }) {
+        $finalArchetypeArray += $archetype
+    }
+
+    # Get rid of a duplicate landing zones archetype if it exists
+    if (($finalArchetypeArray.name -contains "landingzones" -and $finalArchetypeArray.name -contains "landing_zones")) {
+        $finalArchetypeArray = $finalArchetypeArray | Where-Object { $_.name -ne "landing_zones" }
+    }
+
+    # In AMBA, overrides target base archetype names (e.g., alz/platform/connectivity) but final archetypes are amba_*.
+    # Apply all override removals against the mapped AMBA archetype names.
+    if ($Type -eq "AMBA") {
+        $ambaArchetypeNameMap = @{
+            "alz"           = "amba_root"
+            "root"          = "amba_root"
+            "landingzones"  = "amba_landing_zones"
+            "landing_zones" = "amba_landing_zones"
+        }
+
+        foreach ($overrideArchetype in ($archetypeArray | Where-Object { $_.type -eq "existing" -and $_.PSObject.Properties.Name -contains "policy_assignments_to_remove" })) {
+            $overrideRemovals = @($overrideArchetype.policy_assignments_to_remove)
+            if (($overrideRemovals | Measure-Object).Count -eq 0) {
+                continue
+            }
+
+            $mappedArchetypeName = if ($overrideArchetype.name -like "amba_*") {
+                $overrideArchetype.name
+            }
+            elseif ($ambaArchetypeNameMap.ContainsKey($overrideArchetype.name)) {
+                $ambaArchetypeNameMap[$overrideArchetype.name]
+            }
+            else {
+                "amba_$($overrideArchetype.name)"
+            }
+
+            foreach ($archetype in ($finalArchetypeArray | Where-Object { $_.name -eq $mappedArchetypeName })) {
+                $archetype.policy_assignments = @($archetype.policy_assignments | Where-Object { $_ -notin $overrideRemovals })
+            }
+        }
+    }
+
+    if ($cleanupArchetype -contains "alz") {
+        $cleanupArchetype += "root"
+    }
+
+    if ($cleanupArchetype -contains "landingzones") {
+        $cleanupArchetype += "landing_zones"
+    }
+
+    # Cleanup any archetypes that are based on modified archetypes but were not themselves modified and now have no assignments
+    $finalArchetypeArray = $finalArchetypeArray | Where-Object { $_.name -notin $cleanupArchetype }
+    # Remove files in policyAssignments that are not in the new structure
+
+    foreach ($archetype in $archetypeArray) {
+        foreach ($policyToRemove in $archetype.policy_assignments_to_remove) {
+            $existingFile = $existingAssignments | Where-Object { $_.Name -eq $policyToRemove }
+            if ($existingFile) {
+                Remove-Item -Path $existingFile.Path -Force -ErrorAction SilentlyContinue
+                Write-ModernStatus -Message "Removed assignment '$policyToRemove' as it is no longer included in the archetype '$($archetype.name)'." -Status "info" -Indent 2
+            }
+        }
+    }
+
+    $createdPolicyAssignments = @()
+
+    if ($EnableOverrides) {
+        $enforcementModeObject = $structureFile.overrides.enforcementMode
+    }
+
+    # Invert the enforcement mode object structure: each value in the arrays becomes a key, with the original key as its value
+    $invertedEnforcementMode = @{}
+    if ($null -ne $enforcementModeObject) {
+        foreach ($property in $enforcementModeObject.PSObject.Properties) {
+            foreach ($item in $property.Value) {
+                $invertedEnforcementMode[$item] = $property.Name
+            }
+        }
+    }
+
+    foreach ($archetype in $finalArchetypeArray) {
+        if ($archetype.name -in $ignoreArchetypes) {
+            Write-ModernStatus -Message "Ignoring archetype: $($archetype.name)" -Status "info" -Indent 2
+            continue
+        }
+        foreach ($requiredAssignment in ($archetype.policy_assignments | Where-Object {
+                    -not [string]::IsNullOrWhiteSpace("$_") -and ($CreateGuardrailAssignments -or ($_ -notmatch "^Enforce-(GR|Encrypt)-\w+0"))
+                })) {
+            switch ($Type) {
+                "ALZ" { $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_assignments" | Where-Object { $_.BaseName.Split(".")[0] -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json }
+                "AMBA" { $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_assignments" | Where-Object { $_.BaseName.Split(".")[0].Replace("_", "-") -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json }
+                "SLZ" { $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_assignments" | Where-Object { $_.BaseName.Split(".")[0].Replace("_", "-") -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json }
+                "FSI" { $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_assignments" | Where-Object { $_.BaseName.Split(".")[0].Replace("_", "-") -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json }
+                default { $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_assignments" | Where-Object { $_.BaseName.Split(".")[0] -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json }
+            }
+
+            if ($null -eq $fileContent -or [string]::IsNullOrWhiteSpace($fileContent.name)) {
+                if ($Type -eq "ALZ") {
+                    # Search for a policy definitions file that matches the required assignment name as a fallback for unresolved assignments
+                    $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_definitions" -Recurse -File -Include *.json | Where-Object { $_.BaseName.Split(".")[0] -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json
+                    $assignmentFromDefinition = $true
+                }
+                if ($null -eq $fileContent -or [string]::IsNullOrWhiteSpace($fileContent.name)) {
+                    Write-ModernStatus -Message "Skipping unresolved policy definition '$requiredAssignment' in archetype '$($archetype.name)'." -Status "warning" -Indent 2
+                    continue
+                }
+                
+            }
+
+            $nodeNamePrefix = if ($archetype.name -eq "landingzones") { "landing_zones" } else { $archetype.name }
+
+            $baseTemplate = [ordered]@{
+                "`$schema"      = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json"
+                nodeName        = "$($nodeNamePrefix)/$($fileContent.name)"
+                assignment      = [ordered]@{
+                    name        = $fileContent.Name
+                    displayName = $fileContent.properties.displayName
+                    description = $fileContent.properties.description
+                }
+                definitionEntry = [ordered]@{
+                    displayName = $fileContent.properties.displayName
+                }
+                parameters      = [ordered]@{}
+                # enforcementMode = $structureFile.enforcementMode
+                enforcementMode = if ($invertedEnforcementMode.ContainsKey("$($nodeNamePrefix)/$($fileContent.name)")) {
+                    $invertedEnforcementMode["$($nodeNamePrefix)/$($fileContent.name)"]
+                }
+                else {
+                    $structureFile.enforcementMode
+                }
+                
+            }
+
+            # Definition Version
+            if ($null -ne $fileContent.properties.definitionVersion) {
+                $baseTemplate.Add("definitionVersion", $fileContent.properties.definitionVersion)
+            }
+
+            # Definition Entry
+            if ($fileContent.properties.policyRule) {
+                $baseTemplate.definitionEntry.Add("policyName", $fileContent.name)
+            }
+            elseif ($fileContent.properties.policyDefinitions) {
+                $baseTemplate.definitionEntry.Add("policySetName", $fileContent.name)
+            }
+            elseif ($fileContent.properties.policyDefinitionId -match "placeholder.+policySetDefinition") {
+                $baseTemplate.definitionEntry.Add("policySetName", ($fileContent.properties.policyDefinitionId).Split("/")[ - 1])
+            }
+            elseif ($fileContent.properties.policyDefinitionId -match "placeholder.+policyDefinition") {
+                $baseTemplate.definitionEntry.Add("policyName", ($fileContent.properties.policyDefinitionId).Split("/")[ - 1])
+            }
+            elseif ($fileContent.properties.policyDefinitionId -match "policySetDefinitions") {
+                $baseTemplate.definitionEntry.Add("policySetId", ($fileContent.properties.policyDefinitionId))
+            }
+            else {
+                $baseTemplate.definitionEntry.Add("policyId", ($fileContent.properties.policyDefinitionId))
+            }
+            
+            #Scope
+            $scopeTrim = $archetype.name
+            if ($scopeTrim -eq "root") {
+                $scopeTrim = "alz"
+            }
+            if ($scopeTrim -like "amba_*") {
+                $scopeTrim = $scopeTrim -replace "amba_", ""
+                if ($scopeTrim -eq "root") {
+                    $scopeTrim = "alz"
+                }
+            }
+            if ($scopeTrim -eq "landing_zones") {
+                $scopeTrim = "landingzones"
+            }
+            if ($scopeTrim -eq "global") {
+                $scopeTrim = "mcfs"
+            }
+            if ($scopeTrim -eq "sovereign_root" -and $Type -eq "SLZ") {
+                $scopeTrim = "slz"
+            }
+            if ($Type -eq "FSI" -and $scopeTrim -ne "confidential") {
+                $scopeTrim = "fsi"
+            }
+            if ($scopeTrim -eq "confidential") {
+                $scopes = foreach ($key in $structureFile.managementGroupNameMappings.psObject.Properties.Name) {
+                    if ($structureFile.managementGroupNameMappings.$key.management_group_function -match $scopeTrim) {
+                        # Handle both string and array values
+                        $value = $structureFile.managementGroupNameMappings.$key.value
+                        if ($value -is [array]) {
+                            $value
+                        }
+                        else {
+                            $value
+                        }
+                    }
+                }
+                $scope = [ordered]@{
+                    $PacEnvironmentSelector = $scopes
+                }
+            }
+            else {
+                # Handle both string and array values for regular scope mappings
+                $scopeValue = $structureFile.managementGroupNameMappings.$scopeTrim.value
+                if ($scopeValue -is [array]) {
+                    $scope = [ordered]@{
+                        $PacEnvironmentSelector = $scopeValue
+                    }
+                }
+                else {
+                    $scope = [ordered]@{
+                        $PacEnvironmentSelector = @(
+                            $scopeValue
+                        )
+                    }
+                }
+            }
+
+
+            $baseTemplate.Add("scope", $scope)
+
+            # Base Parameters
+            if ($fileContent.name -ne "Deploy-Private-DNS-Zones" -and $assignmentFromDefinition -ne $true) {
+                foreach ($parameter in $fileContent.properties.parameters.psObject.Properties.Name) {
+                    $baseTemplate.parameters.Add($parameter, $fileContent.properties.parameters.$parameter.value)
+                }
+            }
+
+            # Non-compliance messages
+            if ($null -ne $fileContent.properties.nonComplianceMessages) {
+                $obj = @(
+                    @{
+                        message = $fileContent.properties.nonComplianceMessages.message -replace "{enforcementMode}", $enforcementModeText
+                    }
+                )
+                $baseTemplate.Add("nonComplianceMessages", $obj)
+            }
+
+
+            # Check for explicit parameters
+            if ($fileContent.name -ne "Deploy-Private-DNS-Zones") {
+                foreach ($key in $structureFile.defaultParameterValues.psObject.Properties.Name) {
+                    if ($structureFile.defaultParameterValues.$key.policy_assignment_name -eq $fileContent.name) {
+                        $keyName = $structureFile.defaultParameterValues.$key.parameters.parameter_name
+                        $baseTemplate.parameters.$keyName = $structureFile.defaultParameterValues.$key.parameters.value
+                    }
+                }
+                # Check for override parameter values
+                if ($EnableOverrides) {
+                    if ($structureFile.overrides.parameters.$($archetype.name)) {
+                        foreach ($overrideParameters in $structureFile.overrides.parameters.$($archetype.name) | Where-Object { $_.policy_assignment_name -eq $fileContent.name }) {
+                            foreach ($param in $overrideParameters.parameters) {
+                                $baseTemplate.parameters[$param.parameter_name] = $param.value
+                            }
+                            # sort parameters alphabetically
+                            $sortedParams = [ordered]@{}
+                            foreach ($key in ($baseTemplate.parameters.Keys | Sort-Object)) {
+                                $sortedParams[$key] = $baseTemplate.parameters[$key]
+                            }
+                            # Replace the original with the sorted version
+                            $baseTemplate.parameters = $sortedParams
+                        }
+
+                    }
+                }
+            }
+            else {
+                $dnsZoneRegion = $structureFile.defaultParameterValues.private_dns_zone_region.parameters.value
+                $dnzZoneSubscription = $structureFile.defaultParameterValues.private_dns_zone_subscription_id.parameters.value
+                $dnzZoneResourceGroupName = $structureFile.defaultParameterValues.private_dns_zone_resource_group_name.parameters.value
+                foreach ($parameter in $fileContent.properties.parameters.psObject.Properties.Name) {
+                    $value = "/subscriptions/$dnzZoneSubscription/resourceGroups/$dnzZoneResourceGroupName/providers/Microsoft.Network/privateDnsZones/$($fileContent.properties.parameters.$parameter.value.split("/")[-1])"
+                    #$value = $fileContent.properties.parameters.$parameter.value -replace "00000000-0000-0000-0000-000000000000", $dnzZoneSubscription -replace "placeholder", $dnzZoneResourceGroupName
+                    $baseTemplate.parameters.Add($parameter, $value)
+                }
+
+                $additionalRoleAssignments = @{
+                    $PacEnvironmentSelector = @(
+                        @{
+                            roleDefinitionId = "/providers/microsoft.authorization/roleDefinitions/b12aa53e-6015-4669-85d0-8515ebb3ae7f"
+                            scope            = "/subscriptions/$($structureFile.defaultParameterValues.private_dns_zone_subscription_id.parameters.value)"
+                        }
+                    )
+                }
+                $baseTemplate.Add("additionalRoleAssignments", $additionalRoleAssignments)
+
+
+            }
+
+            $category = $structureFile.managementGroupNameMappings.$scopeTrim.management_group_function
+            if ($assignmentFromDefinition) {
+                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, enforcementMode, parameters, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
+            }
+            elseif ($fileContent.name -eq "Deploy-Private-DNS-Zones") {
+                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope, additionalRoleAssignments | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
+                (Get-Content "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$($fileContent.name).jsonc") -replace "\.ne\.", ".$dnsZoneRegion." | Set-Content "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$($fileContent.name).jsonc"
+            }
+            else {
+                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
+            }
+            $obj = [PSCustomObject]@{
+                Path = "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$($fileContent.name).jsonc"
+                Name = $fileContent.name
+            }
+            $createdPolicyAssignments += $obj
+            $assignmentFromDefinition = $false
+        }
+    }
+
+    # Remove any assignments that were not created in this sync to clean up old assignments that are no longer in the library structure
+    $assignmentsToRemove = $existingAssignments | Where-Object { $_.Name -notin $createdPolicyAssignments.Name }
+    foreach ($assignment in $assignmentsToRemove) {
+        Remove-Item -Path $assignment.Path -Force -ErrorAction SilentlyContinue
+        Write-ModernStatus -Message "Removed assignment '$($assignment.Name)' as it is no longer included in the library structure." -Status "info" -Indent 2
+    }
+
+    if ($LibraryPath -eq $tempPath) {
+        Remove-Item $LibraryPath -Recurse -Force -ErrorAction SilentlyContinue
+    }
+
+    if ($AMBALibraryPath) {
+        Remove-Item $AMBALibraryPath -Recurse -Force -ErrorAction SilentlyContinue
+    }
+
+    Write-ModernStatus -Message "ALZ Policy sync completed successfully" -Status "success" -Indent 0
+}
+catch {
+    Write-ModernStatus -Message "Error during sync: $($_.Exception.Message)" -Status "error" -Indent 0
+    exit
+}
+#endregion Create assignment objects
+}
