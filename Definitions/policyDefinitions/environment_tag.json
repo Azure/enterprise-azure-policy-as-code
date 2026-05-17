@@ -1,0 +1,18 @@
+{
+  "name": "audit-test-tag",
+  "properties": {
+    "displayName": "Audit missing environment test tag",
+    "policyType": "Custom",
+    "mode": "All",
+    "description": "Audits resources that are missing the mandatory 'Environment' tag.",
+    "policyRule": {
+      "if": {
+        "field": "tags['Environment']",
+        "exists": "false"
+      },
+      "then": {
+        "effect": "Audit"
+      }
+    }
+  }
+}
