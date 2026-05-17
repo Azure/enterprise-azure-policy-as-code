@@ -14,7 +14,14 @@ jobs:
       - name: Install Az PowerShell
         shell: pwsh
         run: |
-          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          # Re-register PSGallery if it is missing
+          if (-not (Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue)) {
+              Register-PSRepository -Name PSGallery -SourceLocation "https://powershellgallery.com" -InstallationPolicy Trusted
+          } else {
+              Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          }
+          
+          # Install the modules
           Install-Module Az -Force -Scope CurrentUser
           Install-Module EnterprisePolicyAsCode -Force -Scope CurrentUser
 
@@ -42,4 +49,4 @@ jobs:
         run: |
           Deploy-PolicyPlan `
             -PacEnvironmentSelector default `
-            -InputFolder "Output
+            -InputFolder "Output"
