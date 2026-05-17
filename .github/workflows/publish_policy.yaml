@@ -32,6 +32,19 @@ jobs:
         with:
           creds: ${{ secrets.DEPLOY_POLICY }}
 
+      - name: Pipeline Diagnostics - List Files
+        shell: pwsh
+        run: |
+          Write-Host "--- Checking Workspace Contents ---"
+          Get-ChildItem -Path $env:GITHUB_WORKSPACE
+          
+          Write-Host "--- Checking Inside Definitions Folder ---"
+          if (Test-Path "$env:GITHUB_WORKSPACE/Definitions") {
+              Get-ChildItem -Path "$env:GITHUB_WORKSPACE/Definitions" -Recurse | Select-Object FullName
+          } else {
+              Write-Warning "Definitions folder could not be found at the root level!"
+          }
+
       - name: Build_Deployment_Plan
         id: build_deployment_plan
         shell: pwsh
