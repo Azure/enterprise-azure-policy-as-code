@@ -26,8 +26,9 @@ jobs:
       - name: Build_Deployment_Plan
         id: build_deployment_plan
         shell: pwsh
+        env:
+          PAC_ROOT_FOLDER: ${{ github.workspace }}
         run: |
-          # Executes the compiled cmdlet directly from the module
           Build-DeploymentPlans `
             -PacEnvironmentSelector default `
             -DefinitionsRootFolder "Definitions" `
@@ -36,8 +37,9 @@ jobs:
       - name: Deploy Policy Plan
         shell: pwsh
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          PAC_ROOT_FOLDER: ${{ github.workspace }}
         run: |
-          # Executes the compiled deployment cmdlet
           Deploy-PolicyPlan `
             -PacEnvironmentSelector default `
-            -InputFolder "Output"
+            -InputFolder "Output
