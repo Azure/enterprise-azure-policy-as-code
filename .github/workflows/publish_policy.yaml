@@ -29,12 +29,11 @@ jobs:
       - name: Build_Deployment_Plan
         id: build_deployment_plan
         shell: pwsh
-        working-directory: ${{ github.workspace }}
         run: |
           ./Scripts/Deploy/Build-DeploymentPlans.ps1 `
             -PacEnvironmentSelector default `
-            -DefinitionsRootFolder "./Definitions" `
-            -OutputFolder "./Output"
+            -DefinitionsRootFolder "Definitions" `
+            -OutputFolder "Output"
       
       - name: Deploy Policy Plan
         shell: pwsh
