@@ -1,0 +1,22 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
+  "nodeName": "/Tagging/",
+  "definitionEntry": {
+    "policyId": "/providers/Microsoft.Authorization/policyDefinitions/1e30110a-5ceb-460c-a204-c1c3969c6d62"
+  },
+  "assignment": {
+    "name": "auditTagSub",
+    "displayName": "Audit required tag at subscription",
+    "description": "EPAC test: audit resources missing tag"
+  },
+  "enforcementMode": "Default",
+  "parameters": {
+    "tagName": "test",
+    "tagValue": "true"
+  },
+  "scope": {
+    "default": [
+      "/subscriptions/43a5eb95-e79e-4567-90cf-94850a468504"
+    ]
+  }
+}

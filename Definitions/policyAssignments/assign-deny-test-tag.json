@@ -1,0 +1,20 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
+  "nodeName": "/Test/",
+  "definitionEntry": {
+    "displayName": "Deny resources without test tag",
+    "policyName": "deny-test-tag"
+  },
+  "assignment": {
+    "name": "assigndenytesttag",
+    "displayName": "Assign deny test tag",
+    "description": "Test assignment deployed by EPAC"
+  },
+  "enforcementMode": "Default",
+  "parameters": {},
+  "scope": {
+    "default": [
+      "/providers/Microsoft.Management/managementGroups/a0c6508b-6efa-406f-a63b-9d23a2fa12c0"
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/global-settings-schema.json",
+
+  // Uniquely identifies this EPAC repo
+  "pacOwnerId": "pbignell-epac-dev",
+
+  // Root scope for policy ownership
+  "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/a0c6508b-6efa-406f-a63b-9d23a2fa12c0",
+  "pacEnvironments": [
+    {
+      // MUST match -PacEnvironmentSelector
+      "pacSelector": "default",
+
+      // Required – unless you are on non-public Azure
+      "cloud": "AzureCloud",
+
+      // Required – even if managedIdentity.enabled = false
+      "managedIdentityLocation": "westus2",
+
+      // Required – EPAC enforces desired state per environment
+      "desiredState": {
+        "strategy": "full",
+        "keepDfcSecurityAssignments": true
+      },
+
+      "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/a0c6508b-6efa-406f-a63b-9d23a2fa12c0",
+
+      "tenantId": "a0c6508b-6efa-406f-a63b-9d23a2fa12c0"
+    }
+  ],
+
+  // We are running interactively, not via managed identity
+  "managedIdentity": {
+    "enabled": false
+  }
+}
