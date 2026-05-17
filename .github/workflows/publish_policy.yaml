@@ -46,6 +46,16 @@ jobs:
               Write-Warning "Definitions folder could not be found at the root level!"
           }
 
+
+      - name: Build_Deployment_Plan
+        id: build_deployment_plan
+        shell: pwsh
+        run: |
+          Build-DeploymentPlans `
+            -PacEnvironmentSelector default `
+            -DefinitionsRootFolder "${{ github.workspace }}/Definitions" `
+            -OutputFolder "${{ github.workspace }}/Output"
+
       - name: Upload Policy Plan Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -59,15 +69,6 @@ jobs:
         with:
           name: epac-policy-plans
           path: ${{ github.workspace }}/Output/
-
-      - name: Build_Deployment_Plan
-        id: build_deployment_plan
-        shell: pwsh
-        run: |
-          Build-DeploymentPlans `
-            -PacEnvironmentSelector default `
-            -DefinitionsRootFolder "${{ github.workspace }}/Definitions" `
-            -OutputFolder "${{ github.workspace }}/Output"
       
       - name: Deploy Policy Plan
         shell: pwsh
