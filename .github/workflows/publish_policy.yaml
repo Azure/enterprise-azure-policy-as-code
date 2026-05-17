@@ -8,23 +8,25 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Define it globally so every sub-module and step inherits the clean root path context
+    env:
+      PAC_ROOT_FOLDER: ${{ github.workspace }}
+      PAC_DEFINITIONS_FOLDER: ${{ github.workspace }}/Definitions
+      PAC_OUTPUT_FOLDER: ${{ github.workspace }}/Output
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Install Az PowerShell
         shell: pwsh
         run: |
-          # Re-register PSGallery if it is missing
           if (-not (Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue)) {
-              Register-PSRepository -Name PSGallery -SourceLocation "https://powershellgallery.com" -InstallationPolicy Trusted
+              Register-PSRepository -Name PSGallery -SourceLocation "https://www.powershellgallery.com/api/v2" -InstallationPolicy Trusted
           } else {
               Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
           }
-          
-          # Install the modules
-          Install-Module Az -Force -Scope CurrentUser
+          Install-Module Az.ResourceGraph -Force -Scope CurrentUser
           Install-Module EnterprisePolicyAsCode -Force -Scope CurrentUser
-
       
       - uses: azure/login@v1
         with:
@@ -33,20 +35,16 @@ jobs:
       - name: Build_Deployment_Plan
         id: build_deployment_plan
         shell: pwsh
-        env:
-          PAC_ROOT_FOLDER: ${{ github.workspace }}
         run: |
           Build-DeploymentPlans `
             -PacEnvironmentSelector default `
-            -DefinitionsRootFolder "Definitions" `
-            -OutputFolder "Output"
+            -DefinitionsRootFolder "${{ github.workspace }}/Definitions" `
+            -OutputFolder "${{ github.workspace }}/Output"
       
       - name: Deploy Policy Plan
         shell: pwsh
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        env:
-          PAC_ROOT_FOLDER: ${{ github.workspace }}
         run: |
           Deploy-PolicyPlan `
             -PacEnvironmentSelector default `
-            -InputFolder "Output"
+            -InputFolder "${{ github.workspace }}/Output"
