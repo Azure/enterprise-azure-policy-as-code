@@ -16,21 +16,19 @@ jobs:
         run: |
           Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
           Install-Module Az -Force -Scope CurrentUser
+          Install-Module EnterprisePolicyAsCode -Force -Scope CurrentUser
 
       
       - uses: azure/login@v1
         with:
           creds: ${{ secrets.DEPLOY_POLICY }}
 
-      - uses: actions/checkout@v4
-        with:
-          path: '.'
-
       - name: Build_Deployment_Plan
         id: build_deployment_plan
         shell: pwsh
         run: |
-          ./Scripts/Deploy/Build-DeploymentPlans.ps1 `
+          # Executes the compiled cmdlet directly from the module
+          Build-DeploymentPlans `
             -PacEnvironmentSelector default `
             -DefinitionsRootFolder "Definitions" `
             -OutputFolder "Output"
@@ -38,8 +36,8 @@ jobs:
       - name: Deploy Policy Plan
         shell: pwsh
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        working-directory: ${{ github.workspace }}
         run: |
-          ./Scripts/Deploy/Deploy-PolicyPlan.ps1 `
+          # Executes the compiled deployment cmdlet
+          Deploy-PolicyPlan `
             -PacEnvironmentSelector default `
-            -InputFolder "./Output"
+            -InputFolder "Output"
