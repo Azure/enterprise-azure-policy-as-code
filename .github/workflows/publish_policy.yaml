@@ -47,7 +47,7 @@ jobs:
           }
 
       - name: Build_Deployment_Plan-Development
-        id: build_deployment_plan
+        id: build_deployment_plan-Development
         shell: pwsh
         run: |
           Build-DeploymentPlans `
@@ -78,7 +78,7 @@ jobs:
             -InputFolder "${{ github.workspace }}/Output"
 
       - name: Build_Deployment_Plan-Production
-        id: build_deployment_plan
+        id: build_deployment_plan-Production
         shell: pwsh
         run: |
           Build-DeploymentPlans `
