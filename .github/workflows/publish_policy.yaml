@@ -60,7 +60,10 @@ jobs:
         run: |
           Write-Host "--- Checking Workspace Contents ---"
           Get-ChildItem -Path $env:GITHUB_WORKSPACE
-          Get-ChildItem -Path $env:GITHUB_WORKSPACE/output -Recurse | Select-Object FullName
+          Write-Host "--- Checking Workspace Output Contents ---"
+          Get-ChildItem -Path $env:GITHUB_WORKSPACE/Output/ -Recurse | Select-Object FullName
+          Write-Host "--- Checking Workspace Output dev Contents ---"
+          Get-ChildItem -Path $env:GITHUB_WORKSPACE/Output/dev/ -Recurse | Select-Object FullName
 
       - name: Upload_Policy_Plan_Artifact-Development
         uses: actions/upload-artifact@v4
