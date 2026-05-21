@@ -59,7 +59,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: epac-policy-plans-dev
-          path: ${{ github.workspace }}/Output/
+          path: ${{ github.workspace }}/Output/dev/
           if-no-files-found: error
 
       - name: Download_Policy_Plan_Artifact-Development
@@ -67,7 +67,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: epac-policy-plans-dev
-          path: ${{ github.workspace }}/Output/
+          path: ${{ github.workspace }}/Output/dev/
       
       - name: Deploy_Policy_Plan-Development
         shell: pwsh
@@ -75,7 +75,7 @@ jobs:
         run: |
           Deploy-PolicyPlan `
             -PacEnvironmentSelector dev `
-            -InputFolder "${{ github.workspace }}/Output"
+            -InputFolder "${{ github.workspace }}/Output/dev"
 
       - name: Build_Deployment_Plan-Production
         id: build_deployment_plan-Production
@@ -84,13 +84,13 @@ jobs:
           Build-DeploymentPlans `
             -PacEnvironmentSelector prod `
             -DefinitionsRootFolder "${{ github.workspace }}/Definitions" `
-            -OutputFolder "${{ github.workspace }}/Output"
+            -OutputFolder "${{ github.workspace }}/Output/prod"
 
       - name: Upload_Policy_Plan_Artifact-Production
         uses: actions/upload-artifact@v4
         with:
           name: epac-policy-plans-prod
-          path: ${{ github.workspace }}/Output/
+          path: ${{ github.workspace }}/Output/prod/
           if-no-files-found: error
 
       - name: Download_Policy_Plan_Artifact-Production
@@ -98,7 +98,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: epac-policy-plans-prod
-          path: ${{ github.workspace }}/Output/
+          path: ${{ github.workspace }}/Output/prod/
       
       - name: Deploy_Policy_Plan-Production
         shell: pwsh
