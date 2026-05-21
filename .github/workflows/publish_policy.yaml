@@ -46,7 +46,7 @@ jobs:
               Write-Warning "Definitions folder could not be found at the root level!"
           }
 
-      - name: Build_Deployment_Plan - Development
+      - name: Build_Deployment_Plan-Development
         id: build_deployment_plan
         shell: pwsh
         run: |
@@ -55,21 +55,21 @@ jobs:
             -DefinitionsRootFolder "${{ github.workspace }}/Definitions" `
             -OutputFolder "${{ github.workspace }}/Output"
 
-      - name: Upload Policy Plan Artifact - Development
+      - name: Upload_Policy_Plan_Artifact-Development
         uses: actions/upload-artifact@v4
         with:
           name: epac-policy-plans
           path: ${{ github.workspace }}/Output/
           if-no-files-found: error
 
-      - name: Download Policy Plan Artifact - Development
+      - name: Download_Policy_Plan_Artifact-Development
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/download-artifact@v4
         with:
           name: epac-policy-plans
           path: ${{ github.workspace }}/Output/
       
-      - name: Deploy Policy Plan - Development
+      - name: Deploy_Policy_Plan-Development
         shell: pwsh
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
@@ -77,7 +77,7 @@ jobs:
             -PacEnvironmentSelector dev `
             -InputFolder "${{ github.workspace }}/Output"
 
-      - name: Build_Deployment_Plan - Production
+      - name: Build_Deployment_Plan-Production
         id: build_deployment_plan
         shell: pwsh
         run: |
@@ -86,21 +86,21 @@ jobs:
             -DefinitionsRootFolder "${{ github.workspace }}/Definitions" `
             -OutputFolder "${{ github.workspace }}/Output"
 
-      - name: Upload Policy Plan Artifact - Production
+      - name: Upload_Policy_Plan_Artifact-Production
         uses: actions/upload-artifact@v4
         with:
           name: epac-policy-plans
           path: ${{ github.workspace }}/Output/
           if-no-files-found: error
 
-      - name: Download Policy Plan Artifact - Production
+      - name: Download_Policy_Plan_Artifact-Production
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/download-artifact@v4
         with:
           name: epac-policy-plans
           path: ${{ github.workspace }}/Output/
       
-      - name: Deploy Policy Plan - Production
+      - name: Deploy_Policy_Plan-Production
         shell: pwsh
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
