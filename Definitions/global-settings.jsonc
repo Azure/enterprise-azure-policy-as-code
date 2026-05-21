@@ -8,6 +8,7 @@
     {
       // --- DEV ENVIRONMENT ---
       "pacEnvironment": "dev",
+      "pacSelector": "dev",
       "cloud": "AzureCloud",
       "tenantId": "a0c6508b-6efa-406f-a63b-9d23a2fa12c0", // Note: This must be your Directory ID, not the MG GUID.
       
@@ -32,6 +33,7 @@
     {
       // --- PRODUCTION ENVIRONMENT ---
       "pacEnvironment": "prod",
+      "pacSelector": "prod",
       "cloud": "AzureCloud",
       "tenantId": "a0c6508b-6efa-406f-a63b-9d23a2fa12c0",
       
