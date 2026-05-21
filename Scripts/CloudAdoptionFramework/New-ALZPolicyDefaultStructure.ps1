@@ -97,7 +97,7 @@ foreach ($mg in $archetypeDefinitionFile.management_groups) {
     $jsonOutput.managementGroupNameMappings.Add($mg.id, $obj)
 
     if ($Type -eq "SLZ") {
-        foreach ($archetype in $mg.archetypes) {
+        foreach ($archetype in $mg.archetypes | Where-Object { $_ -match "sovereign" }) {
             if ([string]::IsNullOrWhiteSpace($archetype)) {
                 continue
             }

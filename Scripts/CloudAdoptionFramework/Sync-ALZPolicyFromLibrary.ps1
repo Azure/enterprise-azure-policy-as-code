@@ -254,7 +254,7 @@ try {
     }
     foreach ($customArchetype in $customArchetypes) {
         #Check if included in management group mappings
-        if (-not ($structureFile.managementGroupNameMappings.PSObject.Properties.Name -contains $customArchetype.name)) {
+        if (-not ($structureFile.managementGroupNameMappings.PSObject.Properties.Name -contains $customArchetype.name) -and (-not ($Type -eq "SLZ" -and (($structureFile.managementGroupNameMappings.PSObject.Properties.Name -contains $customArchetype.name) -or ($structureFile.overrides.archetypes.custom.name -contains $customArchetype.name) )))) {
             Write-ModernStatus -Message "Custom archetype '$($customArchetype.name)' not found in management group mappings. Skipping." -Status "warning" -Indent 2
             continue
         }

@@ -43,7 +43,7 @@ function Out-DocumentationForPolicySets {
     }
 
     #region Policy Set List
-    if ($null -ne $DocumentationSpecification.includePolicySetList) {
+    if ($DocumentationSpecification.includePolicySetList -ne $null) {
         $includePolicySetList = $DocumentationSpecification.includePolicySetList
     }
     else {
@@ -73,7 +73,7 @@ function Out-DocumentationForPolicySets {
     }
     #endregion Policy Set List
 
-    if ($null -ne $DocumentationSpecification.policySetEffectsOneColumn) {
+    if ($DocumentationSpecification.policySetEffectsOneColumn -ne $null) {
         $PolicySetEffectsOneColumn = $DocumentationSpecification.policySetEffectsOneColumn
     }
     else {
