@@ -1,35 +1,61 @@
 {
   "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/global-settings-schema.json",
-
-  // Uniquely identifies this EPAC repo
+  
+  // Uniquely identifies this EPAC repository
   "pacOwnerId": "pbignell-epac-dev",
-
-  // Root scope for policy ownership
-  "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/a0c6508b-6efa-406f-a63b-9d23a2fa12c0",
+  
   "pacEnvironments": [
     {
-      // MUST match -PacEnvironmentSelector
-      "pacSelector": "default",
-
-      // Required – unless you are on non-public Azure
+      // --- DEV ENVIRONMENT ---
+      "pacEnvironment": "dev",
       "cloud": "AzureCloud",
-
-      // Required – even if managedIdentity.enabled = false
+      "tenantId": "a0c6508b-6efa-406f-a63b-9d23a2fa12c0", // Note: This must be your Directory ID, not the MG GUID.
+      
+      // Keep definitions isolated inside the EPAC-Dev group during testing
+      "rootScope": {
+        "managementGroupId": "EPAC-Dev"
+      },
+      
+      // Strictly limits development policy assignments to ONLY the EPAC-Dev tree
+      "deploymentRootScopes": {
+        "managementGroups": [
+          "EPAC-Dev"
+        ]
+      },
+      
       "managedIdentityLocation": "westus2",
-
-      // Required – EPAC enforces desired state per environment
       "desiredState": {
         "strategy": "full",
         "keepDfcSecurityAssignments": true
+      }
+    },
+    {
+      // --- PRODUCTION ENVIRONMENT ---
+      "pacEnvironment": "prod",
+      "cloud": "AzureCloud",
+      "tenantId": "a0c6508b-6efa-406f-a63b-9d23a2fa12c0",
+      
+      // Production definitions sit at Tenant Root so they can inherit globally
+      "rootScope": {
+        "managementGroupId": "a0c6508b-6efa-406f-a63b-9d23a2fa12c0"
       },
-
-      "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/a0c6508b-6efa-406f-a63b-9d23a2fa12c0",
-
-      "tenantId": "a0c6508b-6efa-406f-a63b-9d23a2fa12c0"
+      
+      // Allows prod deployment pipelines to assign policies anywhere under Landing_Zone
+      "deploymentRootScopes": {
+        "managementGroups": [
+          "Landing_Zone"
+        ]
+      },
+      
+      "managedIdentityLocation": "westus2",
+      "desiredState": {
+        "strategy": "full",
+        "keepDfcSecurityAssignments": true
+      }
     }
   ],
 
-  // We are running interactively, not via managed identity
+  // Configured for your interactive (Service Principal / User CLI) deployment mode
   "managedIdentity": {
     "enabled": false
   }

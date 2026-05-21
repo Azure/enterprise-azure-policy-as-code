@@ -1,0 +1,25 @@
+{
+  "name": "Require-CostCenter-Tag",
+  "properties": {
+    "displayName": "Demo - Require CostCenter Tag on Resource Groups",
+    "description": "Enforces that a CostCenter tag is present when creating resource groups.",
+    "mode": "All",
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Resources/subscriptions/resourceGroups"
+          },
+          {
+            "field": "tags['CostCenter']",
+            "exists": "false"
+          }
+        ]
+      },
+      "then": {
+        "effect": "deny"
+      }
+    }
+  }
+}
