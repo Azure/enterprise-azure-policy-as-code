@@ -20,7 +20,7 @@
       // Strictly limits development policy assignments to ONLY the EPAC-Dev tree
       "deploymentRootScopes": {
         "managementGroups": [
-          "EPAC-Dev"
+          "/providers/Microsoft.Management/managementGroups/EPAC-Dev"
         ]
       },
       
@@ -45,7 +45,7 @@
       // Allows prod deployment pipelines to assign policies anywhere under Landing_Zone
       "deploymentRootScopes": {
         "managementGroups": [
-          "Landing_Zone"
+          "/providers/Microsoft.Management/managementGroups/Landing_Zone"
         ]
       },
       
