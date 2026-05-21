@@ -1,15 +1,16 @@
 {
   "$schema": "https://githubusercontent.com",
   "nodeName": "CostCenter-Tag-Assignment",
+  "definitionEntry": {
+    "policyName": "Require-CostCenter-Tag"
+  },
+
   "assignment": {
     "name": "Demo-CostCenter-Tag",
     "displayName": "Demo - CostCenter Tag Enforcement",
-    "description": "Applies the CostCenter tag governance rule to our enterprise scopes.",
-    "definitionEntry": {
-      "policyName": "Require-CostCenter-Tag"
-    },
-    "parameters": {}
+    "description": "Applies the CostCenter tag governance rule to our enterprise scopes."
   },
+  
   "scope": {
     "dev": [
       "/providers/Microsoft.Management/managementGroups/EPAC-Dev"
@@ -18,6 +19,7 @@
       "/providers/Microsoft.Management/managementGroups/Landing_Zone"
     ]
   },
+
   "parameters": {
     "dev": {
       "effect": "Audit"
