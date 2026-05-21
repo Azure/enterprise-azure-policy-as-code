@@ -4,6 +4,21 @@
     "displayName": "Demo - Require CostCenter Tag on Resource Groups",
     "description": "Enforces that a CostCenter tag is present when creating resource groups.",
     "mode": "All",
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "defaultValue": "Deny"
+      }
+    },
     "policyRule": {
       "if": {
         "allOf": [
@@ -18,7 +33,7 @@
         ]
       },
       "then": {
-        "effect": "deny"
+        "effect": "[parameters('effect')]"
       }
     }
   }
