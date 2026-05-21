@@ -10,20 +10,8 @@
       "pacEnvironment": "dev",
       "pacSelector": "dev",
       "cloud": "AzureCloud",
-      "tenantId": "a0c6508b-6efa-406f-a63b-9d23a2fa12c0", // Note: This must be your Directory ID, not the MG GUID.
-      
-      // Keep definitions isolated inside the EPAC-Dev group during testing
-      "rootScope": {
-        "managementGroupId": "EPAC-Dev"
-      },
-      
-      // Strictly limits development policy assignments to ONLY the EPAC-Dev tree
-      "deploymentRootScope": {
-        "managementGroups": [
-          "/providers/Microsoft.Management/managementGroups/EPAC-Dev"
-        ]
-      },
-      
+      "tenantId": "a0c6508b-6efa-406f-a63b-9d23a2fa12c0", 
+      "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/EPAC-Dev",      
       "managedIdentityLocation": "westus2",
       "desiredState": {
         "strategy": "full",
@@ -36,19 +24,8 @@
       "pacSelector": "prod",
       "cloud": "AzureCloud",
       "tenantId": "a0c6508b-6efa-406f-a63b-9d23a2fa12c0",
-      
-      // Production definitions sit at Tenant Root so they can inherit globally
-      "rootScope": {
-        "managementGroupId": "a0c6508b-6efa-406f-a63b-9d23a2fa12c0"
-      },
-      
       // Allows prod deployment pipelines to assign policies anywhere under Landing_Zone
-      "deploymentRootScope": {
-        "managementGroups": [
-          "/providers/Microsoft.Management/managementGroups/Landing_Zone"
-        ]
-      },
-      
+      "deploymentRootScope": "/providers/Microsoft.Management/managementGroups/Landing_Zone",      
       "managedIdentityLocation": "westus2",
       "desiredState": {
         "strategy": "full",
