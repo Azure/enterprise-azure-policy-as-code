@@ -53,7 +53,7 @@ jobs:
           Build-DeploymentPlans `
             -PacEnvironmentSelector dev `
             -DefinitionsRootFolder "${{ github.workspace }}/Definitions" `
-            -OutputFolder "${{ github.workspace }}/Output"
+            -OutputFolder "${{ github.workspace }}/Output/dev"
 
       - name: Upload_Policy_Plan_Artifact-Development
         uses: actions/upload-artifact@v4
@@ -106,5 +106,5 @@ jobs:
         run: |
           Deploy-PolicyPlan `
             -PacEnvironmentSelector prod `
-            -InputFolder "${{ github.workspace }}/Output"
+            -InputFolder "${{ github.workspace }}/Output/prod"
             
