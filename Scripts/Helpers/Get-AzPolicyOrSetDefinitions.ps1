@@ -86,7 +86,7 @@ function Get-AzPolicyOrSetDefinitions {
                     }
                 }
                 if (!$found) {
-                    if ($CollectAllPolicies -or $manageChildScopeDefinitions) {
+                    if ($CollectAllPolicies -or $manageChildScopeDefinitions -or ($null -ne $policyResource.properties.metadata.definitionLocation)) {
                         $policyResource.pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -PolicyResource $policyResource -Scope $scope -ManagedByCounters $PolicyResourcesTable.counters.managedBy
                         $null = $PolicyResourcesTable.all.Add($id, $policyResource)
                         $null = $PolicyResourcesTable.managed.Add($id, $policyResource)
