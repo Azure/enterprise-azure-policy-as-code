@@ -38,7 +38,9 @@ function Build-AssignmentPlan {
     $deployedRoleAssignmentsByPrincipalId = $DeployedPolicyResources.roleAssignmentsByPrincipalId
     $deleteCandidates = $deployedPolicyAssignments.Clone()
     $roleDefinitions = $DeployedPolicyResources.roleDefinitions
-    $excludedPolicyAssignmentFiles = @($PacEnvironment.desiredState.excludedPolicyAssignmentFiles)
+    $excludedPolicyAssignmentFiles = if ($null -ne $PacEnvironment.desiredState.excludedPolicyAssignmentFiles) {
+        @($PacEnvironment.desiredState.excludedPolicyAssignmentFiles)
+    } else { @() }
     $excludedAssignmentFiles = @($assignmentFiles | Where-Object { $_.Name -in $excludedPolicyAssignmentFiles })
     $assignmentFilesToProcess = @($assignmentFiles | Where-Object { $_.Name -notin $excludedPolicyAssignmentFiles })
 
