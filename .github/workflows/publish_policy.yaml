@@ -77,6 +77,24 @@ jobs:
             Write-Warning "CostCenter assignment file not found: $assignmentFile"
           }
 
+      - name: Pipeline Diagnostics - Current Azure CostCenter Assignment
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        shell: pwsh
+        run: |
+          $scope = "/providers/Microsoft.Management/managementGroups/EPAC-Dev"
+          $name = "Demo-CostCenter-Tag"
+          $existing = Get-AzPolicyAssignment -Scope $scope -Name $name -ErrorAction SilentlyContinue
+          if ($null -eq $existing) {
+            Write-Host "No existing Azure policy assignment found for $name at $scope"
+          }
+          else {
+            Write-Host "Existing Azure assignment id: $($existing.PolicyAssignmentId)"
+            Write-Host "Existing Azure assignment parameters:"
+            ($existing.Properties.Parameters | ConvertTo-Json -Depth 20)
+            Write-Host "Existing Azure assignment metadata:"
+            ($existing.Properties.Metadata | ConvertTo-Json -Depth 20)
+          }
+
       - name: Build_Deployment_Plan-Development
         id: build_deployment_plan_development
         shell: pwsh
