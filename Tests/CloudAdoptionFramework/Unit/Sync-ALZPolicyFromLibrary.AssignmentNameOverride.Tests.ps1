@@ -54,7 +54,11 @@ Describe 'Sync-ALZPolicyFromLibrary assignment name overrides' {
       ]
     },
     "parameters": {},
-    "enforcementMode": {}
+    "enforcementMode": {
+      "DoNotEnforce": [
+        "landing_zones/Audit-ML-PEndpointId"
+      ]
+    }
   }
 }
 '@
@@ -108,6 +112,7 @@ function Invoke-RestMethod {
         $assignmentContent = Get-Content -Path $assignmentFile -Raw | ConvertFrom-Json
         $assignmentContent.assignment.name | Should -Be 'Audit-ML-PEndpointId'
         $assignmentContent.definitionEntry.policyName | Should -Be 'Audit-MachineLearning-PrivateEndpointId'
+        $assignmentContent.enforcementMode | Should -Be 'DoNotEnforce'
     }
 
     It 'fails with a clear message when a long string entry is added without assignment_name' {
