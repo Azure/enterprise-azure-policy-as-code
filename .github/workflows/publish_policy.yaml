@@ -14,9 +14,16 @@ jobs:
   build_and_deploy_development:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: PR_Context
+        shell: pwsh
+        run: |
+          Write-Host "PR head repo: ${{ github.event.pull_request.head.repo.full_name }}"
+          Write-Host "Base repo: ${{ github.repository }}"
 
       - name: Install Az PowerShell
         shell: pwsh
@@ -30,9 +37,16 @@ jobs:
           Install-Module EnterprisePolicyAsCode -Force -Scope CurrentUser
       
       - uses: azure/login@v1
+        if: github.event.pull_request.head.repo.full_name == github.repository
         with:
           creds: ${{ secrets.DEPLOY_POLICY }}
           enable-AzPSSession: true
+
+      - name: Skip_Deploy_On_Fork_PR
+        if: github.event.pull_request.head.repo.full_name != github.repository
+        shell: pwsh
+        run: |
+          Write-Host "Skipping Azure login and development deployment for fork PRs because repository secrets are not available."
 
       - name: Pipeline Diagnostics - List Files
         shell: pwsh
@@ -57,6 +71,7 @@ jobs:
             -OutputFolder "${{ github.workspace }}/Output/dev/"
 
       - name: Deploy_Policy_Plan-Development
+        if: github.event.pull_request.head.repo.full_name == github.repository
         shell: pwsh
         run: |
           Deploy-PolicyPlan `
