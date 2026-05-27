@@ -234,9 +234,33 @@
                                     "policy_assignments_to_add": {
                                         "type": "array",
                                         "items": {
-                                            "type": "string"
+                                            "oneOf": [
+                                                {
+                                                    "type": "string",
+                                                    "maxLength": 24
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "policy_name": {
+                                                            "type": "string",
+                                                            "description": "Policy definition or assignment name to add"
+                                                        },
+                                                        "assignment_name": {
+                                                            "type": "string",
+                                                            "maxLength": 24,
+                                                            "description": "Override assignment name used when generating assignment artifacts"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "policy_name",
+                                                        "assignment_name"
+                                                    ],
+                                                    "additionalProperties": false
+                                                }
+                                            ]
                                         },
-                                        "description": "List of policy assignments to add to existing archetypes"
+                                        "description": "List of policy assignments to add to existing archetypes. String entries are limited to 24 characters; use an object with assignment_name to override."
                                     },
                                     "policy_assignments_to_remove": {
                                         "type": "array",
