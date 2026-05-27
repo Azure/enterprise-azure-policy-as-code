@@ -157,6 +157,11 @@
                                     "type": "string"
                                 }
                             },
+                            "cleanupObsoleteExemptions": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "If true, EPAC will delete policy exemptions that reference policy assignments no longer present in the environment."
+                            },
                             "excludeSubscriptions": {
                                 "type": "boolean",
                                 "default": false,
