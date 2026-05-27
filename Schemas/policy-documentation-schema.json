@@ -218,6 +218,12 @@
                     "title": {
                         "type": "string"
                     },
+					"includePolicySetList": {
+						"type": "boolean"
+					},
+					"policySetEffectsOneColumn": {
+						"type": "boolean"
+					},
                     "policySets": {
                         "type": "array",
                         "minItems": 1,

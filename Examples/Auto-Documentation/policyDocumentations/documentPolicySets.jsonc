@@ -3,13 +3,19 @@
     "documentPolicySets": [
         {
             "pacEnvironment": "<pacEnvironment>",
-            "fileNameStem": "MCSBv2",
-            "title": "MCSBv2",
+            "fileNameStem": "MyPolicySets",
+            "title": "My Policy Sets",
+			"includePolicySetList": true, // Set to false if you do not want the PolicySet List
+            "policySetEffectsOneColumn": false, //Set to true if you want just 1 column showing the effects per PolicySet, usefull if larger number of (custom) PolicySet are defined.
             "policySets": [
                 {
-                    "shortName": "MCSBv2",
-                    "id": "/providers/Microsoft.Authorization/policySetDefinitions/e3ec7e09-768c-4b64-882c-fcada3772047" // MCSBv2
-                }
+                    "shortName": "Azure Security Benchmark v3",
+                    "id": "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8" // Azure Security Benchmark v3
+                } //,
+				//{
+                //    "shortName": "my-custom-definition",
+                //    "id": "/providers/Microsoft.Management/managementGroups/{myManagementGroup}/providers/Microsoft.Authorization/policySetDefinitions/my-custom-definition"
+                //},
             ],
             "environmentColumnsInCsv": [
                 "<pacEnvironment>"

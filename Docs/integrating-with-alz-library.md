@@ -3,6 +3,36 @@
 > [!TIP]
 > With EPAC version 11 it is now easier to maintain custom configurations to help with the Azure Landing Zone sync process. Legacy methods will still work however it is recommended to update your policy structure file to the new method.
 
+## Breaking changes and migration notes
+
+Treat SLZ updates as a potential breaking-change event and validate generated artifacts before deployment.
+
+### SLZ tag evolution can change generated assignment artifacts
+
+Moving from older SLZ tags (for example `platform/slz/2026.02.2`) to newer tags (for example `platform/slz/2026.04.2`) can change:
+
+- Assignment file names
+- Assignment folder/category paths under `policyAssignments/SLZ/<pacSelector>`
+- Assignment `nodeName` values
+- Policy assignment names referenced in `defaultParameterValues`
+
+This is a library-content change and can affect automation that depends on specific file paths or assignment names.
+
+### EPAC SLZ structure output includes an additive mapping key
+
+For SLZ, `New-ALZPolicyDefaultStructure` now includes `archetypeScopeMappings` in generated policy structure files. `Sync-ALZPolicyFromLibrary` uses this mapping to resolve scopes for archetypes that are applied to multiple management groups.
+
+- ALZ and AMBA behavior remains unchanged.
+- Existing ALZ and AMBA structure files do not require this key.
+
+### Recommended upgrade workflow
+
+1. Pin the ALZ Library tag in both generation and sync commands.
+2. Run `New-ALZPolicyDefaultStructure` and `Sync-ALZPolicyFromLibrary` in an isolated Definitions folder.
+3. Compare generated `policyStructures` and `policyAssignments` between old and new tags.
+4. Update any downstream automation that relies on old folder names, file names, or assignment names.
+5. Run `Build-DeploymentPlans` only after the artifact comparison is accepted.
+
 ## Pre-requisites
 
 To use the ALZ policies in an environment successfully there are some Azure Resources that need to be created. This is normally completed by using one of the ALZ accelerators to deploy the environment however if you have written your own code or modified the default deployment ensure you have the following resources in place to support the ALZ policies.
@@ -367,6 +397,12 @@ Management group name mappings now accept an array of values instead of just a s
     }
 ```
 
+### Assign multiple archetypes to one management group (SLZ)
+
+SLZ architecture definitions can map multiple archetypes to a single management group. When `New-ALZPolicyDefaultStructure` is run for `-Type SLZ`, the generated policy structure file now includes an `archetypeScopeMappings` section. `Sync-ALZPolicyFromLibrary` uses this section to resolve archetype assignment scopes, which ensures assignments are created with valid scopes instead of null values for composite SLZ archetypes.
+
+ALZ and AMBA behavior is unchanged. They continue to use `managementGroupNameMappings` and do not require `archetypeScopeMappings`.
+
 ### Disabling / Changing specific parameters
 
 If you are using EPAC v11 please refer to the section above for modifying a parameter for a specific archetype as it works best for single parameters. If you have to modify the same parameter for a number of ALZ assignments you can use the process below. 
@@ -530,3 +566,33 @@ Depending on the method of deployment for your Terraform based ALZ you can use t
 
 - Azure Verified Module - avm-ptn-alz - <https://github.com/anwather/epac-removetf-avm>
 - Legacy CAF module - terraform-azurerm-caf-enterprise-scale - <https://github.com/anwather/epac-removetf>
+
+## Regression testing harness
+
+To help validate ALZ, AMBA, and SLZ sync behavior consistently, use the regression harness script below.
+
+```ps1
+# Run regression checks for ALZ, AMBA and SLZ using the latest library tags
+./Scripts/CloudAdoptionFramework/Test-ALZSyncRegression.ps1 \
+  -DefinitionsRootFolder .\Definitions \
+  -PacEnvironmentSelector "epac-dev" \
+  -Types ALZ,AMBA,SLZ \
+  -CleanOutput
+```
+
+The script performs:
+- Structure generation for each requested type.
+- Assignment sync for each requested type.
+- Scope validation (no null/empty scope entries in generated assignments).
+- SLZ validation for `archetypeScopeMappings`.
+- ALZ/AMBA validation to ensure `archetypeScopeMappings` is not introduced.
+
+Optional: compare ALZ/AMBA outputs against a known baseline folder.
+
+```ps1
+./Scripts/CloudAdoptionFramework/Test-ALZSyncRegression.ps1 \
+  -DefinitionsRootFolder .\Definitions \
+  -PacEnvironmentSelector "epac-dev" \
+  -Types ALZ,AMBA,SLZ \
+  -BaselineDefinitionsRootFolder .\Definitions-Baseline
+```

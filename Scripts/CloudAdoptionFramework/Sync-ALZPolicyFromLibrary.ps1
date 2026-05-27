@@ -195,7 +195,7 @@ if (-not($SyncAssignmentsOnly) -and $Type -ne "SLZ") {
 if (-not($SyncAssignmentsOnly) -and $Type -eq "AMBA" -and $SyncAMBAExtendedPolicies) {
     Write-ModernSection -Title "Creating AMBA Extended Policy Definition Objects" -Indent 0
     #region Create AMBA extended policy definition objects
-    foreach ($file in (Get-ChildItem -Path "$AMBALibraryPath/services" -Recurse -File -Include *.json | Where-Object FullName -match "\\policy\\")) {
+    foreach ($file in (Get-ChildItem -Path "$AMBALibraryPath/services" -Recurse -File -Include *.json | Where-Object FullName -match "[\\/]+policy[\\/]+")) {
         $fileContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
         $baseTemplate = [ordered]@{
             '$schema'  = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json"
@@ -203,7 +203,7 @@ if (-not($SyncAssignmentsOnly) -and $Type -eq "AMBA" -and $SyncAMBAExtendedPolic
             properties = $fileContent.properties
         }
         $fileName = $file.BaseName
-        $file.DirectoryName -match 'services\\+([^\\]+)\\+([^\\]+)'
+        $file.DirectoryName -match 'services[\\/]+([^\\/]+)[\\/]+([^\\/]+)'
         $subPath = "$($Matches[1])/$($Matches[2])"
         ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace '\[\[', '[' | New-Item -Path "$DefinitionsRootFolder/policyDefinitions/$Type/$subPath" -ItemType File -Name "$($fileName).json" -Force -ErrorAction SilentlyContinue
     }
@@ -254,7 +254,7 @@ try {
     }
     foreach ($customArchetype in $customArchetypes) {
         #Check if included in management group mappings
-        if (-not ($structureFile.managementGroupNameMappings.PSObject.Properties.Name -contains $customArchetype.name)) {
+        if (-not ($structureFile.managementGroupNameMappings.PSObject.Properties.Name -contains $customArchetype.name) -and (-not ($Type -eq "SLZ" -and (($structureFile.managementGroupNameMappings.PSObject.Properties.Name -contains $customArchetype.name) -or ($structureFile.overrides.archetypes.custom.name -contains $customArchetype.name) )))) {
             Write-ModernStatus -Message "Custom archetype '$($customArchetype.name)' not found in management group mappings. Skipping." -Status "warning" -Indent 2
             continue
         }
@@ -531,18 +531,37 @@ try {
                 }
             }
             else {
-                # Handle both string and array values for regular scope mappings
-                $scopeValue = $structureFile.managementGroupNameMappings.$scopeTrim.value
-                if ($scopeValue -is [array]) {
+                $scopeValueFromArchetypeMap = $null
+                if ($Type -eq "SLZ" -and $null -ne $structureFile.archetypeScopeMappings) {
+                    $scopeValueFromArchetypeMap = $structureFile.archetypeScopeMappings.$scopeTrim
+                }
+
+                if ($null -ne $scopeValueFromArchetypeMap) {
+                    if ($scopeValueFromArchetypeMap -is [array]) {
+                        $resolvedScopeValues = @($scopeValueFromArchetypeMap | Where-Object { -not [string]::IsNullOrWhiteSpace("$_") } | Select-Object -Unique)
+                    }
+                    else {
+                        $resolvedScopeValues = @($scopeValueFromArchetypeMap)
+                    }
+
                     $scope = [ordered]@{
-                        $PacEnvironmentSelector = $scopeValue
+                        $PacEnvironmentSelector = $resolvedScopeValues
                     }
                 }
                 else {
-                    $scope = [ordered]@{
-                        $PacEnvironmentSelector = @(
-                            $scopeValue
-                        )
+                    # Handle both string and array values for regular scope mappings
+                    $scopeValue = $structureFile.managementGroupNameMappings.$scopeTrim.value
+                    if ($scopeValue -is [array]) {
+                        $scope = [ordered]@{
+                            $PacEnvironmentSelector = $scopeValue
+                        }
+                    }
+                    else {
+                        $scope = [ordered]@{
+                            $PacEnvironmentSelector = @(
+                                $scopeValue
+                            )
+                        }
                     }
                 }
             }
@@ -619,6 +638,9 @@ try {
             }
 
             $category = $structureFile.managementGroupNameMappings.$scopeTrim.management_group_function
+            if ([string]::IsNullOrWhiteSpace($category)) {
+                $category = $archetype.name
+            }
             if ($assignmentFromDefinition) {
                 ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, enforcementMode, parameters, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
             }

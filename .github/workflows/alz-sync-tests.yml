@@ -1,0 +1,35 @@
+name: ALZ sync tests
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/alz-sync-tests.yml"
+      - "Scripts/CloudAdoptionFramework/**"
+      - "Tests/CloudAdoptionFramework/**"
+
+permissions:
+  contents: read
+
+jobs:
+  pester:
+    name: Run Pester suite
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Pester
+        run: |
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module Pester -MinimumVersion 5.7.1 -Scope CurrentUser -Force -SkipPublisherCheck
+
+      - name: Run CloudAdoptionFramework tests
+        run: |
+          Import-Module Pester -MinimumVersion 5.7.1 -Force
+          Invoke-Pester -Path '.\Tests\CloudAdoptionFramework' -Output Detailed
