@@ -10,22 +10,29 @@
     "displayName": "Demo - CostCenter Tag Enforcement",
     "description": "Applies the CostCenter tag governance rule to our enterprise scopes."
   },
-  
-  "scope": {
-    "dev": [
-      "/providers/Microsoft.Management/managementGroups/EPAC-Dev"
-    ],
-    "prod": [
-      "/providers/Microsoft.Management/managementGroups/Landing_Zone"
-    ]
-  },
 
-  "parameters": {
-    "dev": {
-      "effect": "Audit"
+  "children": [
+    {
+      "nodeName": "Dev/",
+      "parameters": {
+        "effect": "Audit"
+      },
+      "scope": {
+        "dev": [
+          "/providers/Microsoft.Management/managementGroups/EPAC-Dev"
+        ]
+      }
     },
-    "prod": {
-      "effect": "Deny"
+    {
+      "nodeName": "Prod/",
+      "parameters": {
+        "effect": "Deny"
+      },
+      "scope": {
+        "prod": [
+          "/providers/Microsoft.Management/managementGroups/Landing_Zone"
+        ]
+      }
     }
-  }
+  ]
 }
