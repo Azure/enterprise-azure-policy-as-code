@@ -88,11 +88,23 @@ jobs:
             Write-Host "No existing Azure policy assignment found for $name at $scope"
           }
           else {
+            Write-Host "Existing Azure assignment name: $($existing.Name)"
             Write-Host "Existing Azure assignment id: $($existing.PolicyAssignmentId)"
-            Write-Host "Existing Azure assignment parameters:"
+            Write-Host "Existing Azure assignment resource id: $($existing.ResourceId)"
+            Write-Host "Existing Azure assignment policy definition id: $($existing.PolicyDefinitionId)"
+
+            Write-Host "Existing Azure assignment parameters (Properties.Parameters):"
             ($existing.Properties.Parameters | ConvertTo-Json -Depth 20)
-            Write-Host "Existing Azure assignment metadata:"
+            Write-Host "Existing Azure assignment parameters (Parameters):"
+            ($existing.Parameters | ConvertTo-Json -Depth 20)
+
+            Write-Host "Existing Azure assignment metadata (Properties.Metadata):"
             ($existing.Properties.Metadata | ConvertTo-Json -Depth 20)
+            Write-Host "Existing Azure assignment metadata (Metadata):"
+            ($existing.Metadata | ConvertTo-Json -Depth 20)
+
+            Write-Host "Full Azure assignment object (diagnostic):"
+            ($existing | ConvertTo-Json -Depth 50)
           }
 
       - name: Build_Deployment_Plan-Development
