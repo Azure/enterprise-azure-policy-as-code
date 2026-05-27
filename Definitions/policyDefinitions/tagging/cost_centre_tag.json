@@ -38,4 +38,4 @@
     }
   }
 }
-// This policy definition enforces that a CostCenter tag is present when creating resource groups. If the tag is missing, the policy will deny the creation of the resource group. The effect can be changed to "Audit" to only log the non-compliance without blocking the creation.
+// test
