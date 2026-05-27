@@ -22,7 +22,7 @@
 
   "parameters": {
     "dev": {
-      "effect": "Deny"
+      "effect": "Audit"
     },
     "prod": {
       "effect": "Deny"
