@@ -22,14 +22,10 @@
 
   "parameters": {
     "dev": {
-      "effect": {
-        "value": "Audit"
-      }
+      "effect": "Audit"
     },
     "prod": {
-      "effect": {
-        "value": "Deny"
-      }
+      "effect": "Deny"
     }
   }
 }

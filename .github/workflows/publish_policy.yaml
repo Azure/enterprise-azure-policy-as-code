@@ -63,6 +63,20 @@ jobs:
               Write-Warning "Definitions folder could not be found at the root level!"
           }
 
+      - name: Pipeline Diagnostics - CostCenter Assignment Input
+        shell: pwsh
+        run: |
+          $assignmentFile = "${{ github.workspace }}/Definitions/policyAssignments/cost_centre_tag_assignment.json"
+          if (Test-Path $assignmentFile) {
+            $assignment = Get-Content $assignmentFile -Raw | ConvertFrom-Json
+            Write-Host "CostCenter assignment file loaded: $assignmentFile"
+            Write-Host "parameters.dev.effect: $($assignment.parameters.dev.effect)"
+            Write-Host "parameters.prod.effect: $($assignment.parameters.prod.effect)"
+          }
+          else {
+            Write-Warning "CostCenter assignment file not found: $assignmentFile"
+          }
+
       - name: Build_Deployment_Plan-Development
         id: build_deployment_plan_development
         shell: pwsh
@@ -71,6 +85,36 @@ jobs:
             -PacEnvironmentSelector dev `
             -DefinitionsRootFolder "${{ github.workspace }}/Definitions" `
             -OutputFolder "${{ github.workspace }}/Output/dev/"
+
+      - name: Pipeline Diagnostics - Resolved Dev Plan
+        shell: pwsh
+        run: |
+          $planFile = "${{ github.workspace }}/Output/dev/plans-dev/policy-plan.json"
+          if (Test-Path $planFile) {
+            $plan = Get-Content $planFile -Raw | ConvertFrom-Json -Depth 100
+            Write-Host "Plan file found: $planFile"
+            Write-Host "Assignment changes: $($plan.assignments.numberOfChanges), unchanged: $($plan.assignments.numberUnchanged)"
+            $target = $null
+            if ($plan.assignments.new) {
+              $target = $plan.assignments.new.PSObject.Properties | Where-Object { $_.Name -match '/policyAssignments/Demo-CostCenter-Tag$' } | Select-Object -First 1
+            }
+            if (-not $target -and $plan.assignments.update) {
+              $target = $plan.assignments.update.PSObject.Properties | Where-Object { $_.Name -match '/policyAssignments/Demo-CostCenter-Tag$' } | Select-Object -First 1
+            }
+            if (-not $target -and $plan.assignments.replace) {
+              $target = $plan.assignments.replace.PSObject.Properties | Where-Object { $_.Name -match '/policyAssignments/Demo-CostCenter-Tag$' } | Select-Object -First 1
+            }
+            if ($target) {
+              Write-Host "Resolved Demo-CostCenter-Tag entry:"
+              $target.Value | ConvertTo-Json -Depth 100
+            }
+            else {
+              Write-Host "Demo-CostCenter-Tag not present in new/update/replace sections of plan."
+            }
+          }
+          else {
+            Write-Warning "Dev plan file not found at $planFile"
+          }
 
       - name: Deploy_Policy_Plan-Development
         if: github.event.pull_request.head.repo.full_name == github.repository
