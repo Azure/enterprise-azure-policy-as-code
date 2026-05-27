@@ -195,7 +195,7 @@ if (-not($SyncAssignmentsOnly) -and $Type -ne "SLZ") {
 if (-not($SyncAssignmentsOnly) -and $Type -eq "AMBA" -and $SyncAMBAExtendedPolicies) {
     Write-ModernSection -Title "Creating AMBA Extended Policy Definition Objects" -Indent 0
     #region Create AMBA extended policy definition objects
-    foreach ($file in (Get-ChildItem -Path "$AMBALibraryPath/services" -Recurse -File -Include *.json | Where-Object FullName -match "\\policy\\")) {
+    foreach ($file in (Get-ChildItem -Path "$AMBALibraryPath/services" -Recurse -File -Include *.json | Where-Object FullName -match "[\\/]+policy[\\/]+")) {
         $fileContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
         $baseTemplate = [ordered]@{
             '$schema'  = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json"
@@ -203,7 +203,7 @@ if (-not($SyncAssignmentsOnly) -and $Type -eq "AMBA" -and $SyncAMBAExtendedPolic
             properties = $fileContent.properties
         }
         $fileName = $file.BaseName
-        $file.DirectoryName -match 'services\\+([^\\]+)\\+([^\\]+)'
+        $file.DirectoryName -match 'services[\\/]+([^\\/]+)[\\/]+([^\\/]+)'
         $subPath = "$($Matches[1])/$($Matches[2])"
         ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace '\[\[', '[' | New-Item -Path "$DefinitionsRootFolder/policyDefinitions/$Type/$subPath" -ItemType File -Name "$($fileName).json" -Force -ErrorAction SilentlyContinue
     }
