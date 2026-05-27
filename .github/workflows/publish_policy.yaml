@@ -5,14 +5,15 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
+env:
+  PAC_ROOT_FOLDER: ${{ github.workspace }}
+  PAC_DEFINITIONS_FOLDER: ${{ github.workspace }}/Definitions
+  PAC_OUTPUT_FOLDER: ${{ github.workspace }}/Output
+
 jobs:
-  build:
+  build_and_deploy_development:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    # Define it globally so every sub-module and step inherits the clean root path context
-    env:
-      PAC_ROOT_FOLDER: ${{ github.workspace }}
-      PAC_DEFINITIONS_FOLDER: ${{ github.workspace }}/Definitions
-      PAC_OUTPUT_FOLDER: ${{ github.workspace }}/Output
 
     steps:
       - uses: actions/checkout@v4
@@ -47,7 +48,7 @@ jobs:
           }
 
       - name: Build_Deployment_Plan-Development
-        id: build_deployment_plan-Development
+        id: build_deployment_plan_development
         shell: pwsh
         run: |
           Build-DeploymentPlans `
@@ -55,38 +56,41 @@ jobs:
             -DefinitionsRootFolder "${{ github.workspace }}/Definitions" `
             -OutputFolder "${{ github.workspace }}/Output/dev/"
 
-      - name: List files again
-        shell: pwsh
-        run: |
-          Write-Host "--- Checking Workspace Contents ---"
-          Get-ChildItem -Path $env:GITHUB_WORKSPACE
-          Write-Host "--- Checking Workspace Output Contents ---"
-          Get-ChildItem -Path $env:GITHUB_WORKSPACE/Output/ -Recurse | Select-Object FullName
-
-      - name: Upload_Policy_Plan_Artifact-Development
-        uses: actions/upload-artifact@v4
-        with:
-          name: epac-policy-plans-dev
-          path: ${{ github.workspace }}/Output/dev/
-          if-no-files-found: error
-
-      - name: Download_Policy_Plan_Artifact-Development
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/download-artifact@v4
-        with:
-          name: epac-policy-plans-dev
-          path: ${{ github.workspace }}/Output/dev/
-      
       - name: Deploy_Policy_Plan-Development
         shell: pwsh
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           Deploy-PolicyPlan `
             -PacEnvironmentSelector dev `
             -InputFolder "${{ github.workspace }}/Output/dev"
 
+  build_and_deploy_production:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    # Configure required reviewers for the "production" environment in repository settings.
+    environment:
+      name: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Az PowerShell
+        shell: pwsh
+        run: |
+          if (-not (Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue)) {
+              Register-PSRepository -Name PSGallery -SourceLocation "https://www.powershellgallery.com/api/v2" -InstallationPolicy Trusted
+          } else {
+              Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          }
+          Install-Module Az.ResourceGraph -Force -Scope CurrentUser
+          Install-Module EnterprisePolicyAsCode -Force -Scope CurrentUser
+
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.DEPLOY_POLICY }}
+          enable-AzPSSession: true
+
       - name: Build_Deployment_Plan-Production
-        id: build_deployment_plan-Production
+        id: build_deployment_plan_production
         shell: pwsh
         run: |
           Build-DeploymentPlans `
@@ -94,23 +98,8 @@ jobs:
             -DefinitionsRootFolder "${{ github.workspace }}/Definitions" `
             -OutputFolder "${{ github.workspace }}/Output/prod"
 
-      - name: Upload_Policy_Plan_Artifact-Production
-        uses: actions/upload-artifact@v4
-        with:
-          name: epac-policy-plans-prod
-          path: ${{ github.workspace }}/Output/prod/
-          if-no-files-found: error
-
-      - name: Download_Policy_Plan_Artifact-Production
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/download-artifact@v4
-        with:
-          name: epac-policy-plans-prod
-          path: ${{ github.workspace }}/Output/prod/
-      
       - name: Deploy_Policy_Plan-Production
         shell: pwsh
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           Deploy-PolicyPlan `
             -PacEnvironmentSelector prod `
