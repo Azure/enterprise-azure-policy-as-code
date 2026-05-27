@@ -25,7 +25,7 @@ jobs:
           Write-Host "PR head repo: ${{ github.event.pull_request.head.repo.full_name }}"
           Write-Host "Base repo: ${{ github.repository }}"
 
-      - name: Install Az PowerShell
+      - name: Install Az and EPAC from PSGallery
         shell: pwsh
         run: |
           if (-not (Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue)) {
@@ -33,8 +33,10 @@ jobs:
           } else {
               Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
           }
-          Install-Module Az.ResourceGraph -Force -Scope CurrentUser
-          Install-Module EnterprisePolicyAsCode -Force -Scope CurrentUser
+          Install-Module Az.ResourceGraph -Repository PSGallery -Force -Scope CurrentUser -ErrorAction Stop
+          Install-Module EnterprisePolicyAsCode -Repository PSGallery -Force -Scope CurrentUser -ErrorAction Stop
+          Import-Module EnterprisePolicyAsCode -Force -ErrorAction Stop
+          Write-Host "Loaded EnterprisePolicyAsCode module from: $((Get-Module EnterprisePolicyAsCode).Path)"
       
       - uses: azure/login@v1
         if: github.event.pull_request.head.repo.full_name == github.repository
@@ -88,7 +90,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Az PowerShell
+      - name: Install Az and EPAC from PSGallery
         shell: pwsh
         run: |
           if (-not (Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue)) {
@@ -96,8 +98,10 @@ jobs:
           } else {
               Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
           }
-          Install-Module Az.ResourceGraph -Force -Scope CurrentUser
-          Install-Module EnterprisePolicyAsCode -Force -Scope CurrentUser
+          Install-Module Az.ResourceGraph -Repository PSGallery -Force -Scope CurrentUser -ErrorAction Stop
+          Install-Module EnterprisePolicyAsCode -Repository PSGallery -Force -Scope CurrentUser -ErrorAction Stop
+          Import-Module EnterprisePolicyAsCode -Force -ErrorAction Stop
+          Write-Host "Loaded EnterprisePolicyAsCode module from: $((Get-Module EnterprisePolicyAsCode).Path)"
 
       - uses: azure/login@v1
         with:
