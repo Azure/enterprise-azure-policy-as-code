@@ -38,11 +38,18 @@ function Build-AssignmentPlan {
     $deployedRoleAssignmentsByPrincipalId = $DeployedPolicyResources.roleAssignmentsByPrincipalId
     $deleteCandidates = $deployedPolicyAssignments.Clone()
     $roleDefinitions = $DeployedPolicyResources.roleDefinitions
+    $excludedPolicyAssignmentFiles = @($PacEnvironment.desiredState.excludedPolicyAssignmentFiles)
+    $excludedAssignmentFiles = @($assignmentFiles | Where-Object { $_.Name -in $excludedPolicyAssignmentFiles })
+    $assignmentFilesToProcess = @($assignmentFiles | Where-Object { $_.Name -notin $excludedPolicyAssignmentFiles })
+
+    foreach ($excludedAssignmentFile in $excludedAssignmentFiles) {
+        Write-ModernStatus -Message "Excluded by configuration: $($excludedAssignmentFile.FullName)" -Status "skip" -Indent 4
+    }
 
     # Process each assignment file
-    foreach ($assignmentFile in $assignmentFiles) {
-        $Json = Get-Content -Path $assignmentFile.FullName -Raw -ErrorAction Stop
+    foreach ($assignmentFile in $assignmentFilesToProcess) {
 
+        $Json = Get-Content -Path $assignmentFile.FullName -Raw -ErrorAction Stop
         $includedCloudEnvironments = ($Json | ConvertFrom-Json).epacCloudEnvironments
         if ($includedCloudEnvironments) {
             if ($pacEnvironment.cloud -notIn $includedCloudEnvironments) {

@@ -195,6 +195,7 @@ function Get-GlobalSettings {
                 excludedPolicySetDefinitions         = @()
                 excludedPolicyDefinitionFiles        = @()
                 excludedPolicySetDefinitionFiles     = @()
+                excludedPolicyAssignmentFiles        = @()
                 excludedPolicyAssignments            = @()
                 excludeSubscriptions                 = $false
                 doNotDisableDeprecatedPolicies       = $false
@@ -320,6 +321,13 @@ function Get-GlobalSettings {
                         Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.excludedPolicySetDefinitionFiles must be an array of strings."
                     }
                     $desiredState.excludedPolicySetDefinitionFiles = $excluded
+                }
+                $excluded = $desired.excludedPolicyAssignmentFiles
+                if ($null -ne $excluded) {
+                    if ($excluded -isnot [array]) {
+                        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.excludedPolicyAssignmentFiles must be an array of strings."
+                    }
+                    $desiredState.excludedPolicyAssignmentFiles = $excluded
                 }
                 if ($desired.excludeSubscriptions) {
                     $desiredState.excludeSubscriptions = $true

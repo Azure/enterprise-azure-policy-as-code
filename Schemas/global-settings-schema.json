@@ -149,6 +149,14 @@
                                     "type": "string"
                                 }
                             },
+                            "excludedPolicyAssignmentFiles": {
+                                "type": "array",
+                                "default": [],
+                                "description": "An array of specific Policy Assignment file names in the repository to exclude from management by EPAC during the planning and deployment process.",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
                             "excludeSubscriptions": {
                                 "type": "boolean",
                                 "default": false,
