@@ -1,5 +1,5 @@
 {
-  "$schema": "https://githubusercontent.com",
+  "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
   "nodeName": "CostCenter-Tag-Assignment",
   "definitionEntry": {
     "policyName": "Require-CostCenter-Tag"
@@ -22,10 +22,14 @@
 
   "parameters": {
     "dev": {
-      "effect": "Audit"
+      "effect": {
+        "value": "Audit"
+      }
     },
     "prod": {
-      "effect": "Deny"
+      "effect": {
+        "value": "Deny"
+      }
     }
   }
 }
