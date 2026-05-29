@@ -6,7 +6,7 @@
 > EPAC is a true desired state deployment technology. It takes possession of all Policy Resources at the `deploymentRootScope` and its children. It will **delete any Policy resources not defined in the EPAC repo**. This behavior can be modified as documented in the [desired state strategy](configuration/desired-state.md) page.
 
 > [!IMPORTANT]
-> For the latest release notes and breaking changes, see [Changelog](overview/changelog.md).
+> For the latest breaking changes and migration notes, see [Breaking Changes and Migration Notes](overview/breaking-changes.md).
 
 ## Latest Updates
 
@@ -17,7 +17,7 @@ Make sure you [check out the series](https://www.youtube.com/channel/UCtkZkkgT-m
 ### v11.0.0 is Here!
 
 - New modern look. Updated the output from EPAC commands to look more modern and added accessibility features.
-- Changes to support for Azure Lighthouse (see [Changelog](overview/changelog.md) for details)
+- Changes to support for Azure Lighthouse (see [Breaking Changes and Migration Notes](overview/breaking-changes.md) for details)
 - Changes to the ALZ sync process to support easier customization via a single file and not a forked repository
     - Ignore archetypes
     - Add custom management groups
@@ -30,7 +30,7 @@ For all EPAC changes and newest updates, please visit our [GitHub Releases Page]
 
 | Section | Description |
 |---|---|
-| [Overview & Concepts](overview/concepts.md) | Core concepts: desired state, pacEnvironments, deployment model |
+| [Breaking Changes and Migration Notes](overview/breaking-changes.md) | Breaking changes, migration guidance, and release highlights |
 | [Getting Started](getting-started/README.md) | Prerequisites, install, and guided on-ramp |
 | [Configuration](configuration/global-settings.md) | Global settings, desired state, advanced options |
 | [Policy Resources](policy-resources/assignments.md) | Definitions, assignments, exemptions |
