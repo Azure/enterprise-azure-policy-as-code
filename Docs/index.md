@@ -8,6 +8,24 @@
 > [!IMPORTANT]
 > For the latest release notes and breaking changes, see [Changelog](overview/changelog.md).
 
+## Latest Updates
+
+### 📺 YouTube Series for EPAC
+
+Make sure you [check out the series](https://www.youtube.com/channel/UCtkZkkgT-mp6PcmvfqlwvBQ) of videos explaining how to implement EPAC in your environment. New videos to be added soon!
+
+### v11.0.0 is Here!
+
+- New modern look. Updated the output from EPAC commands to look more modern and added accessibility features.
+- Changes to support for Azure Lighthouse (see [Changelog](overview/changelog.md) for details)
+- Changes to the ALZ sync process to support easier customization via a single file and not a forked repository
+    - Ignore archetypes
+    - Add custom management groups
+    - Add/Modify parameters for individual assignments
+    - Schema file for the structure file
+
+For all EPAC changes and newest updates, please visit our [GitHub Releases Page](https://github.com/Azure/enterprise-azure-policy-as-code/releases).
+
 ## Documentation
 
 | Section | Description |
