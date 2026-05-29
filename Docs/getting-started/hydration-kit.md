@@ -162,10 +162,10 @@ The installer builds out the repo insofar as CLI based deployment using a highly
 - Review additional settings available for configuration in the [global-settings file](../configuration/global-settings.md)
 - Create additional policy objects such as custom policies, additional policy assignments, and exemptions.
     1. Integrate [Azure Landing Zones (ALZ)](../integrations/alz-overview.md)
-    1. Create custom [Policy definitions](../policy-resources/definitions.md)
-    1. Create custom [Policy Set definitions](../policy-resources/set-definitions.md)
-    1. Create new [Policy Assignments](../policy-resources/assignments.md)
-    1. Manage [Policy Exemptions](../policy-resources/exemptions.md)
+    1. Create custom [Policy definitions](../policy-resources/policyDefinitions.md)
+    1. Create custom [Policy Set definitions](../policy-resources/policySetDefinitions.md)
+    1. Create new [Policy Assignments](../policy-resources/policyAssignments.md)
+    1. Manage [Policy Exemptions](../policy-resources/policyExemptions.md)
 - [CI/CD Overview](../ci-cd/README.md) provides insight into how to continue with the configuration of your DevOps Platform for ongoing EPAC CI/CD deployment
 - [Generate Documentation](../operations/documenting-policy.md) for Audit Purposes
 

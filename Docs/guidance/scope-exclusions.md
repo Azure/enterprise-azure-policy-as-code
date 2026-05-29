@@ -28,7 +28,7 @@ Updates to the Global Settings file are useful when making sweeping changes, suc
 
 ## Methods
 
-1. [Exemptions](../policy-resources/exemptions.md)
+1. [Exemptions](../policy-resources/policyExemptions.md)
     1. [Defined in Azure at the level of the object affected by the assignment](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/scope#scope-comparison) using a management file(s) in the `./Definitions/policyExemptions/[pacSelectorName] directory
         1. Option: CSV or JSON file
         1. The introduction of the many new methods of filtration has made JSON reviews more convenient, and is recommended over CSV

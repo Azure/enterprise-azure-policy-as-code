@@ -33,7 +33,7 @@ For all EPAC changes and newest updates, please visit our [GitHub Releases Page]
 | [Breaking Changes and Migration Notes](overview/breaking-changes.md) | Breaking changes, migration guidance, and release highlights |
 | [Getting Started](getting-started/README.md) | Prerequisites, install, and guided on-ramp |
 | [Configuration](configuration/global-settings.md) | Global settings, desired state, advanced options |
-| [Policy Resources](policy-resources/assignments.md) | Definitions, assignments, exemptions |
+| [Policy Resources](policy-resources/policyAssignments.md) | Definitions, assignments, exemptions |
 | [CI/CD](ci-cd/README.md) | Azure DevOps, GitHub Actions, branching flows |
 | [Operations](operations/README.md) | Operational scripts reference |
 | [Integrations](integrations/alz-overview.md) | Azure Landing Zones integration |

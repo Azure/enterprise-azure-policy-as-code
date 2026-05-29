@@ -64,7 +64,7 @@ Use the  [StarterKit](https://github.com/Azure/enterprise-azure-policy-as-code/t
 
 #### Option C: Create Custom Policies Objects
 
-Create custom [policy definitions](../policy-resources/definitions.md), [policy set definitions](../policy-resources/set-definitions.md) and/or [policy assignments](../policy-resources/assignments.md) based on your organization's needs.
+Create custom [policy definitions](../policy-resources/policyDefinitions.md), [policy set definitions](../policy-resources/policySetDefinitions.md) and/or [policy assignments](../policy-resources/policyAssignments.md) based on your organization's needs.
 
 ## Initial Test Deployment
 
@@ -104,9 +104,9 @@ You now have the working basics of an EPAC deployment running through the CLI. T
 - Review additional settings available for configuration in the [global-settings file](../configuration/global-settings.md)
 - Create additional policy objects such as custom policies, additional policy assignments, and exemptions. 
     1. Integrate [Azure Landing Zones (ALZ)](../integrations/alz-overview.md)
-    1. Create custom [Policy definitions](../policy-resources/definitions.md)
-    1. Create custom [Policy Set definitions](../policy-resources/set-definitions.md)
-    1. Create new [Policy Assignments](../policy-resources/assignments.md)
-    1. Manage [Policy Exemptions](../policy-resources/exemptions.md)
+    1. Create custom [Policy definitions](../policy-resources/policyDefinitions.md)
+    1. Create custom [Policy Set definitions](../policy-resources/policySetDefinitions.md)
+    1. Create new [Policy Assignments](../policy-resources/policyAssignments.md)
+    1. Manage [Policy Exemptions](../policy-resources/policyExemptions.md)
 - [CI/CD Overview](../ci-cd/README.md) provides insight into how to continue with the configuration of your DevOps Platform for ongoing EPAC CI/CD deployment, which is the next major area of focus.
 - [Generate Documentation](../operations/documenting-policy.md) for Audit Purposes

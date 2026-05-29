@@ -1,5 +1,5 @@
 
-# Policy Assignment Parameters from a CSV File
+# Policy Assignment Parameters: CSV and JSON Output Files
 
 Assigning single or multiple security and compliance focused Policy Sets (Initiatives), such as Microsoft cloud security benchmark, NIST 800-53 R5, PCI, NIST 800-171, etc, with just JSON parameters becomes very complex fast. Add to this the complexity of overriding the effect if it is not surfaced as a parameter in the `Policy Set`. Finally, adding the optional `nonComplianceMessages` further increases the complexity.
 
@@ -7,6 +7,15 @@ To address the problem of reading and maintaining hundreds or thousands of JSON 
 
 > [!TIP]
 > This approach is best for large Policy Sets such as Azure Security Benchmark, NIST 800-53, etc. Smaller Policy Sets should still be handled with JSON `parameters`, `overrides` and `nonComplianceMessages`.
+
+## How These Files Are Generated
+
+Both the CSV parameter file and the JSON documentation output described on this page are produced by [`Build-PolicyDocumentation`](../operations/documenting-policy.md). You do not need to author these files from scratch — run `Build-PolicyDocumentation` against your deployed environment and it generates both:
+
+- **CSV files** — parameter and effect tables for use as `parameterFile` in policy assignments (described below)
+- **JSON/JSONC files** — Policy Set documentation used for comparing Policy Sets and reviewing overlap (described in [Documenting Policy](../operations/documenting-policy.md))
+
+See [Documenting Policy](../operations/documenting-policy.md) for the full workflow on configuring and running `Build-PolicyDocumentation`.
 
 ## Generate the CSV File
 

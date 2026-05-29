@@ -178,7 +178,7 @@ This happens when EPAC `strategy` is `full` and some child scopes contain Policy
 
 > **Note:** `"/subscriptions/subscriptionsPattern/*"` is also a valid `excludedScopes` value, but is more commonly used for name based filtering
 
-You can exclude any combination of `excludedScopes`, `excludedPolicyDefinitions`, `excludedPolicySetDefinitions`, `excludedPolicyAssignments`, and `excludedPolicyAssignmentFiles`. Any of the strings can contain simple wild cards. See [PolicyAssignment](../policy-resources/assignments.md) documentation for further information.
+You can exclude any combination of `excludedScopes`, `excludedPolicyDefinitions`, `excludedPolicySetDefinitions`, `excludedPolicyAssignments`, and `excludedPolicyAssignmentFiles`. Any of the strings can contain simple wild cards. See [PolicyAssignment](../policy-resources/policyAssignments.md) documentation for further information.
 
 ```json
 "desiredState": {
