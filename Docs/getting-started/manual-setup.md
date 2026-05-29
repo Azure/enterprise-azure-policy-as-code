@@ -48,7 +48,7 @@ For additional information on `epac-dev`, review the [EPAC Environments Overview
 
 ### Global Settings File
 
-Populate `global-settings.jsonc` with your [environment settings](../configuration/global-settings.md#Define-EPAC-Environments-in-`pacEnvironments`) and [desired state strategy](../configuration/dfc-assignments.md)
+Populate `global-settings.jsonc` with your [environment settings](../configuration/global-settings.md#define-epac-environments-in-pacenvironments) and [desired state strategy](../configuration/dfc-assignments.md)
 
 A sample `global-settings.jsonc` file is available as part of the [starter kit](https://github.com/Azure/enterprise-azure-policy-as-code/tree/main/StarterKit/Definitions-Common) with basic options defined.
 

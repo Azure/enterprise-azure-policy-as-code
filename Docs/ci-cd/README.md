@@ -23,7 +23,7 @@ EPAC has three major steps in the deployment process for each environment.
 - Policy Deployment
 - Role Deployment
 
-Each step can be called by using the `EnterprisePolicyAsCode` PowerShell module (recommended), or calling the script directly. For more details on EPAC installation options, please refer to the [Start Implementation](../getting-started/README.md/#install-powershell-and-epac) section.
+Each step can be called by using the `EnterprisePolicyAsCode` PowerShell module (recommended), or calling the script directly. For more details on EPAC installation options, please refer to the [Start Implementation](../getting-started/README.md#software-requirements) section.
 
 > [!TIP]
 > EPAC is **declarative** and **idempotent**: this means, that regardless how many times it is run, EPAC will always push all changes that were implemented in the JSON files to the Azure environment, i.e. if a JSON file is newly created/updated/deleted, EPAC will create/update/delete the Policy and/or Policy Set and/or Policy Assignments definition in Azure. If there are no changes, EPAC can be run any number of times, as it won't make any changes to Azure.
@@ -49,7 +49,7 @@ For saving the output related to ```Build-DeploymentPlans``` there is global var
 | `Interactive` | Defaults to `$false`. |
 | `OutputFolder` | Output folder path for plan files. Defaults to environment variable `$env:PAC_OUTPUT_FOLDER` or `./Output`. |
 | `DevOpsType` | If set, outputs variables consumable by conditions in a DevOps pipeline. Default: not set. |
-| `BuildExemptionsOnly` | If set, only builds the Exemptions plan. This useful to fast-track Exemption when utilizing [Release Flow](#advanced-cicd-with-release-flow) Default: not set. |
+| `BuildExemptionsOnly` | If set, only builds the Exemptions plan. This useful to fast-track Exemption when utilizing [Release Flow](#create-azure-devops-pipelines-or-github-workflows-from-starter-pipelines) Default: not set. |
 | `SkipExemptions`| If set exemptions will not be built as part of the plan. |
 | `DetailedOutput` | Displays detailed policy change information. |
 
@@ -94,9 +94,9 @@ Creates the role assignments for the Managed Identities required for `DeployIfNo
 
 ## Create Azure DevOps Pipelines or GitHub Workflows from Starter Pipelines.
 
-Starter Pipelines have been created to orchestrate the EPAC deployment steps listed above. The scripts `New-PipelinesFromStarterKit` create [Azure DevOps Pipelines or GitHub Workflows from the starter kit](../getting-started/hydration-kit.md#create-azure-devops-pipeline-or-github-workflow). You select the type of pipeline to create, the branching flow to implement, and the ScriptType to use.
+Starter Pipelines have been created to orchestrate the EPAC deployment steps listed above. The scripts `New-PipelinesFromStarterKit` create [Azure DevOps Pipelines or GitHub Workflows from the starter kit](../getting-started/hydration-kit.md#cicd-pipeline-configuration). You select the type of pipeline to create, the branching flow to implement, and the ScriptType to use.
 - The starter kits support two branching/release strategies (`GitHub` and `Release`). More details on these branching flows refer to the [Branching Flow Guidance](branching-flows.md).
-- The recommended `ScriptType` is `module`, which utilizes the `EnterprisePolicyAsCode` Powershell module. For more details on EPAC installation options, please refer to the [Start Implementation](../getting-started/README.md/#install-powershell-and-epac) section.
+- The recommended `ScriptType` is `module`, which utilizes the `EnterprisePolicyAsCode` Powershell module. For more details on EPAC installation options, please refer to the [Start Implementation](../getting-started/README.md#software-requirements) section.
 
 ### Azure DevOps Pipelines
 

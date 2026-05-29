@@ -571,7 +571,7 @@ Ensure that the management groups and the parameter values are updated in the ne
 
 ### *Cloud Adoption Framework Unaligned*
 
-Because the environment is not aligned to CAF - the sync process using the legacy method will already require a number of changes to the default assignment files. In this case it is best to maintain a [custom library](alz-library.md#using-a-custom-library-for-custom-management-group-structures).
+Because the environment is not aligned to CAF - the sync process using the legacy method will already require a number of changes to the default assignment files. In this case it is best to maintain a [custom library](#using-a-custom-library-for-custom-management-group-structures-required-epac-v10-migrate-to-the-new-process-above).
 
 Carefully add the new archetypes to the cloned library - ensuring that all assignments are included.
 

@@ -410,7 +410,7 @@ When enabled, this section lists all Policy Assignments across all scopes where 
 * `fileNameStemPrefix`: add a prefix to the fileNameStem set in "documentationSpecifications". Useful when needing to avoid overwriting files.
 * `skipPolicyAssignments`: list of Policy Assignment ID's used to define Policy Assignments that do not want to be included in the output.
 * `skipPolicyDefinitions`: list of Policy Definition and Policy Set ID's used to define Policy Assignments that do not want to be included in the output.
-* `overrideEnvironmentCategory`: list of custom-defined Environment Categories that will overwrite the auto-generated values. By default, all Policy Assignment scopes are treated as an individual "Environment Category", therefore leverage this section to override these Environment Categories and create custom groupings. (For an example see [`Example Documentation Specification File using 'documentAllAssignments'`](#example-documentation-specification-file-using-documentallassignments))
+* `overrideEnvironmentCategory`: list of custom-defined Environment Categories that will overwrite the auto-generated values. By default, all Policy Assignment scopes are treated as an individual "Environment Category", therefore leverage this section to override these Environment Categories and create custom groupings. (For an example see [`Example Documentation Specification File using 'documentAllAssignments'`](#document-all-assignments))
 
 ### Element `documentationSpecifications`
 

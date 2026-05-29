@@ -235,7 +235,7 @@ This example generates two assignments at the "prod" leaf per scope:
 
 `scope` is required exactly once in each tree branch. Excluded scopes (`notScope`) are cumulative from `global-settings.json` and the entire tree branch; however, once a scope is defined `notScopes` may not be defined at any child node.
 
-Both `scope` and `notScopes` are specific to an [EPAC Environment using the pacSelector name](../getting-started/README.md#epac-concepts-and-environments), e.g., `epac-dev` and `tenant`.
+Both `scope` and `notScopes` are specific to an [EPAC Environment using the pacSelector name](../getting-started/README.md#epac-environments-overview), e.g., `epac-dev` and `tenant`.
 
 ```json
 "scope": {
