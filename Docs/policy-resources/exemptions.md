@@ -71,7 +71,7 @@ Each exemption must define the following properties:
 - Optional
   - `expiresOn` - empty or expiry date.
   - `assignmentScopeValidation` - `Default` or `DoNotValidate`
-  - `resourceSelectors` - valid JSON array (see JSON format [here](./policy-assignments.md#defining-resourceselectors))
+  - `resourceSelectors` - valid JSON array (see JSON format [here](assignments.md#defining-resourceselectors))
   - `metadata` - valid JSON object (see JSON format below)
 
 ### Metadata
@@ -375,7 +375,7 @@ The columns must have the headers as described below. The order of the columns i
   - `expiresOn` - empty or expiry date.
   - `policyDefinitionReferenceIds` - list of ampersand `&` separated [strings as defined above](#specifying-policydefinitionreferenceids).
   - `assignmentScopeValidation` - `Default` or `DoNotValidate`
-  - `resourceSelectors` - valid JSON array (see JSON format [here](./policy-assignments.md#defining-resourceselectors))
+  - `resourceSelectors` - valid JSON array (see JSON format [here](assignments.md#defining-resourceselectors))
   - `metadata` - valid JSON object (see JSON format below)
 
 > [!CAUTION]

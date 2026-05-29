@@ -14,7 +14,7 @@ Desired State strategy enables you to adjust the default behavior to fit more co
 | Property | Description |
 |----------|-------------|
 | `strategy` | The strategy to use for managing Policy resources. See [Strategy Values](#strategy-values) below. |
-| `keepDfcSecurityAssignments` | It is recommended that Security and Compliance Initiatives are managed at management group levels with EPAC. Please read [Managing Defender for Cloud Assignments](settings-dfc-assignments.md). |
+| `keepDfcSecurityAssignments` | It is recommended that Security and Compliance Initiatives are managed at management group levels with EPAC. Please read [Managing Defender for Cloud Assignments](dfc-assignments.md). |
 
 #### Strategy Values
 
@@ -104,7 +104,7 @@ In some organizations the lifecycle of different parts may be managed separately
 
 ### Using Advanced CI/CD Pipelines (Recommended)
 
-[Advanced CI/CD Pipelines with Release Flow](ci-cd-overview.md#advanced-cicd-with-release-flow) can be used to fast-track Exemptions while keeping a regular lifecycle for Definitions and Assignments. Script `Build-DeploymentPlans` has a parameter `BuildExemptionsOnly` to deploy only Exemptions.
+[Advanced CI/CD Pipelines with Release Flow](../ci-cd/README.md#advanced-cicd-with-release-flow) can be used to fast-track Exemptions while keeping a regular lifecycle for Definitions and Assignments. Script `Build-DeploymentPlans` has a parameter `BuildExemptionsOnly` to deploy only Exemptions.
 
 ### Using separate Repos
 
@@ -126,7 +126,7 @@ In a shared responsibility model multiple teams manage the same tenant(s) at the
 ![image.png](Images/shared-responsibility.png)
 
 For standard behavior where each repo manages, no additional entries in `global-settings.jsonc` are necessary since the default strategy `full` is the default. `full` deletes any Policy resources without a `pacOwnerId`; however, id does not delete Policy resources with a different `pacOwnerId`.
-[test](settings-desired-state.md#use-case-4-multiple-teams-in-a-hierarchical-organization)
+[test](desired-state.md#use-case-4-multiple-teams-in-a-hierarchical-organization)
 
 ## Use Case 4:  Multiple Teams in a Hierarchical Organization
 
@@ -149,7 +149,7 @@ In rare cases you may need to exclude individual child scopes, or Policy resourc
 
 Child scope is managed by some other means. The use of a EPAC development Management Group under the same root is such an example. Another example is a child scope managed by a different organization not subject to the root scope Policies.
 
-You use `globalNotScopes` to exclude a child scope from management by EPAC. The following example excludes the `childScope` from management by EPAC. See also [Global Settings](settings-global-setting-file.md)
+You use `globalNotScopes` to exclude a child scope from management by EPAC. The following example excludes the `childScope` from management by EPAC. See also [Global Settings](global-settings.md)
 
 ```json
     "globalNotScopes": {
@@ -178,7 +178,7 @@ This happens when EPAC `strategy` is `full` and some child scopes contain Policy
 
 > **Note:** `"/subscriptions/subscriptionsPattern/*"` is also a valid `excludedScopes` value, but is more commonly used for name based filtering
 
-You can exclude any combination of `excludedScopes`, `excludedPolicyDefinitions`, `excludedPolicySetDefinitions`, `excludedPolicyAssignments`, and `excludedPolicyAssignmentFiles`. Any of the strings can contain simple wild cards. See [PolicyAssignment](./policy-assignments.md) documentation for further information.
+You can exclude any combination of `excludedScopes`, `excludedPolicyDefinitions`, `excludedPolicySetDefinitions`, `excludedPolicyAssignments`, and `excludedPolicyAssignmentFiles`. Any of the strings can contain simple wild cards. See [PolicyAssignment](../policy-resources/assignments.md) documentation for further information.
 
 ```json
 "desiredState": {

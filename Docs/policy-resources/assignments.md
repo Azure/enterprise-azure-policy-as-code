@@ -235,7 +235,7 @@ This example generates two assignments at the "prod" leaf per scope:
 
 `scope` is required exactly once in each tree branch. Excluded scopes (`notScope`) are cumulative from `global-settings.json` and the entire tree branch; however, once a scope is defined `notScopes` may not be defined at any child node.
 
-Both `scope` and `notScopes` are specific to an [EPAC Environment using the pacSelector name](start-implementing.md#epac-concepts-and-environments), e.g., `epac-dev` and `tenant`.
+Both `scope` and `notScopes` are specific to an [EPAC Environment using the pacSelector name](../getting-started/README.md#epac-concepts-and-environments), e.g., `epac-dev` and `tenant`.
 
 ```json
 "scope": {
@@ -328,7 +328,7 @@ If the additional assignment is to made to a managing tenant in the scenario whe
 Azure Policy can use a user-defined Managed Identity and EPAC allows you to use this functionality. You must specify the user-defined Managed Identity based on EPAC Environment or use `"*"` to use the same identity for all of the EPAC Environments (only possible in single tenant scenarios). Within each EPAC Environment entry, you can specify just the URI string indicating to use the same identity even if we are using a `definitionEntryList`, or in the case of a `definitionEntryList` can assign a different identity based on the definitionEntryList by specifying a matching `policyName`, `policyId`, `policySetName` or `policySetId`.
 
 > [!IMPORTANT]
-> When using user-assigned managed identities for remediation of DeployIfNotExists or Modify policies, the service principal running your CI/CD pipeline requires the `Managed Identity Operator` role or the specific permission `Microsoft.ManagedIdentity/userAssignedIdentities/assign/action` at the scope where the user-assigned managed identities are located. This permission allows the pipeline to assign the managed identity to the policy assignment. See [App Registration & Service Principal Setup](ci-cd-app-registrations.md) for more details on configuring service principal permissions.
+> When using user-assigned managed identities for remediation of DeployIfNotExists or Modify policies, the service principal running your CI/CD pipeline requires the `Managed Identity Operator` role or the specific permission `Microsoft.ManagedIdentity/userAssignedIdentities/assign/action` at the scope where the user-assigned managed identities are located. This permission allows the pipeline to assign the managed identity to the policy assignment. See [App Registration & Service Principal Setup](../ci-cd/app-registrations.md) for more details on configuring service principal permissions.
 
 ```json
 "userAssignedIdentity": {
@@ -361,7 +361,7 @@ To address the problem of reading and maintaining hundreds or thousands of JSON 
 > [!TIP]
 > This approach is best for large Policy Sets such as Azure Security Benchmark, NIST 800-53, etc. Smaller Policy Sets should still be handled with JSON `parameters`, `overrides` and `nonComplianceMessages`.
 
-Implement these steps as documented in [Managing Policy Assignment Parameters with a CSV file](policy-assignments-csv-parameters.md).
+Implement these steps as documented in [Managing Policy Assignment Parameters with a CSV file](assignments-csv.md).
 
 - Generate the CSV file from your already deployed Assignment(s) or Policy Set(s).
 - Modify the effect and parameter columns for each type of environment type you will use.

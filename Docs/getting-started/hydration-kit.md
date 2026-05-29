@@ -8,7 +8,7 @@ The `Install-HydrationEpac` command builds a basic EPAC implementation for local
 
 ## Prerequisites
 
-- Review the [Overview and Prerequisites](./start-implementing.md) to ensure you are familiar with the core EPAC concepts, have the prerequisite software installed and have the required Azure permissions.
+- Review the [Overview and Prerequisites](README.md) to ensure you are familiar with the core EPAC concepts, have the prerequisite software installed and have the required Azure permissions.
 - To run the Hydration Kit, permissions to create Management Groups at the **Tenant Root Level** is also required.
   - The `Management Group Contributor` built-in RBAC role contains the required permissions.
   - The Hydration Kit creates additional Management Groups for EPAC development.
@@ -159,22 +159,22 @@ Deploy-RolesPlan -PacEnvironmentSelector "epac-dev"
 
 The installer builds out the repo insofar as CLI based deployment using a highly privileged account. After this prototype is complete, it is necessary to move to a more secure configuration that can be automated and audited.
 
-- Review additional settings available for configuration in the [global-settings file](./settings-global-setting-file.md)
+- Review additional settings available for configuration in the [global-settings file](../configuration/global-settings.md)
 - Create additional policy objects such as custom policies, additional policy assignments, and exemptions.
-    1. Integrate [Azure Landing Zones (ALZ)](integrating-with-alz-overview.md)
-    1. Create custom [Policy definitions](policy-definitions.md)
-    1. Create custom [Policy Set definitions](policy-set-definitions.md)
-    1. Create new [Policy Assignments](policy-assignments.md)
-    1. Manage [Policy Exemptions](policy-exemptions.md)
-- [CI/CD Overview](ci-cd-overview.md) provides insight into how to continue with the configuration of your DevOps Platform for ongoing EPAC CI/CD deployment
-- [Generate Documentation](./operational-scripts-documenting-policy.md) for Audit Purposes
+    1. Integrate [Azure Landing Zones (ALZ)](../integrations/alz-overview.md)
+    1. Create custom [Policy definitions](../policy-resources/definitions.md)
+    1. Create custom [Policy Set definitions](../policy-resources/set-definitions.md)
+    1. Create new [Policy Assignments](../policy-resources/assignments.md)
+    1. Manage [Policy Exemptions](../policy-resources/exemptions.md)
+- [CI/CD Overview](../ci-cd/README.md) provides insight into how to continue with the configuration of your DevOps Platform for ongoing EPAC CI/CD deployment
+- [Generate Documentation](../operations/documenting-policy.md) for Audit Purposes
 
 ## Upcoming Roadmap Items
 
 ### Install-HydrationEpac
 
 1. Add Sync-AlzPolicies
-1. Configure [Defender For Cloud Integration](./settings-dfc-assignments.md)
+1. Configure [Defender For Cloud Integration](../configuration/dfc-assignments.md)
 1. Generate Documentation for Compliance Assignments
 
 ### Additional Possible Future Installation Command Sets

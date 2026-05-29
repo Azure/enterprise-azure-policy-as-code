@@ -81,7 +81,7 @@ Starting with v8.0.0, Enterprise Policy as Code (EPAC) is tracking the usage usi
 
 ## Uniquely identify deployments with `pacOwnerId`
 
-`pacOwnerId` is required for [desired state handling](settings-desired-state.md) to distinguish Policy resources deployed via this EPAC repo, legacy technology, another EPAC repo, or another Policy as Code solution.
+`pacOwnerId` is required for [desired state handling](desired-state.md) to distinguish Policy resources deployed via this EPAC repo, legacy technology, another EPAC repo, or another Policy as Code solution.
 
 ## Define EPAC Environments in `pacEnvironments`
 
@@ -101,10 +101,10 @@ EPAC has a concept of an environment identified by a string (unique per reposito
 | `cloud` | Select cloud environments. |
 | `tenantId` | Enables multi-tenant scenarios. |
 | `deploymentRootScope` | The deployment scope for Policy and Policy Set definitions. Policy Assignments can only defined at this scope and child scopes (recursive). See deployment scope formats below. |
-| `desiredState.strategy` | Defines the desired state strategy. See [Desired State Strategy](settings-desired-state.md). |
-| `keepDfcSecurityAssignments` | See [Managing Defender for Cloud Policy Assignments](settings-dfc-assignments.md). |
+| `desiredState.strategy` | Defines the desired state strategy. See [Desired State Strategy](desired-state.md). |
+| `keepDfcSecurityAssignments` | See [Managing Defender for Cloud Policy Assignments](dfc-assignments.md). |
 | `doNotDisableDeprecatedPolicies` | Automatically set deprecated policies' policy effect to "Disabled". This setting can be used to override that behavior by setting it to `true`. Default is `false`. |
-| `manageChildScopeDefinitions` | When `true`, EPAC manages Policy Definitions and Policy Set Definitions at child scopes (child management groups, subscriptions) under the `deploymentRootScope`, making them eligible for deletion. Default is `false`. See [Managing Child Scope Definitions](settings-desired-state.md#managing-child-scope-definitions). |
+| `manageChildScopeDefinitions` | When `true`, EPAC manages Policy Definitions and Policy Set Definitions at child scopes (child management groups, subscriptions) under the `deploymentRootScope`, making them eligible for deletion. Default is `false`. See [Managing Child Scope Definitions](desired-state.md#managing-child-scope-definitions). |
 | `managedIdentityLocation` | See [DeployIfNotExists and Modify Policy Assignments need `managedIdentityLocation`](#deployifnotexists-and-modify-policy-assignments-need-managedidentitylocation) |
 
 #### Deployment Scope Formats
@@ -124,7 +124,7 @@ EPAC has a concept of an environment identified by a string (unique per reposito
 | `deployedBy` | Populates the `metadata` fields. It defaults to `epac/$pacOwnerId/$pacSelector`. We recommend to use the default. |
 | `managedTenantId` | Used when the `pacEnvironment` is in a lighthouse managed tenant. |
 | `defaultContext` | In rare cases (typically only when deploying to a lighthouse managed tenant) the default context (Get-azContext) of a user/SPN running a plan will be set to a subscription where that user/SPN does not have sufficient privileges. Some checks have been built in so that in some cases when this happens EPAC is able to fix the context issue. When it is not, a `defaultContext` subscription name must be provided. This can be any subscription within the `deploymentRootScope`. |
-| `keepDfcPlanAssignments` | [Managing Defender for Cloud Assignments](settings-dfc-assignments.md). |
+| `keepDfcPlanAssignments` | [Managing Defender for Cloud Assignments](dfc-assignments.md). |
 
 #### Metadata Field Usage
 

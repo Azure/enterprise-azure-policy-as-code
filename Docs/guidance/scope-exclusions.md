@@ -28,7 +28,7 @@ Updates to the Global Settings file are useful when making sweeping changes, suc
 
 ## Methods
 
-1. [Exemptions](./policy-exemptions.md)
+1. [Exemptions](../policy-resources/exemptions.md)
     1. [Defined in Azure at the level of the object affected by the assignment](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/scope#scope-comparison) using a management file(s) in the `./Definitions/policyExemptions/[pacSelectorName] directory
         1. Option: CSV or JSON file
         1. The introduction of the many new methods of filtration has made JSON reviews more convenient, and is recommended over CSV
@@ -38,15 +38,15 @@ Updates to the Global Settings file are useful when making sweeping changes, suc
 1. [NotScopes](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/scope#assignment-scopes)
     1. Defined in Azure at the level of the [policyAssignment](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/scope#assignment-scopes) in which it is configured
     1. *Cannot* be filtered to specific policyDefinitions within a policySetDefinition
-1. [GlobalNotScopes](./settings-global-setting-file.md#excluding-scopes-for-all-assignments-with-globalnotscopes)
+1. [GlobalNotScopes](../configuration/global-settings.md#excluding-scopes-for-all-assignments-with-globalnotscopes)
     1. Defined at the pacEnvironment level in the Global Settings file
     1. Affects *all* policyAssignments in the chosen scope by excluding this scope from them
     1. *Cannot* be filtered to specific policyDefinitions within a policySetDefinition
-1. [Desired State Adjustments](./settings-desired-state.md)
+1. [Desired State Adjustments](../configuration/desired-state.md)
     1. Defined at the pacEnvironment level in the Global Settings file
     1. Affects *all* policyAssignments in the chosen scope by excluding these scopes from Desired State Enforcement
-    1. This will allow policyAssignments to be deployed within a scope that will not be affected by the configuration [`"desiredState":{"strategy":"full"}`](./settings-desired-state.md)
-    1. Scenarios are more extensively outlined in the [Desired State](./settings-desired-state.md)
+    1. This will allow policyAssignments to be deployed within a scope that will not be affected by the configuration [`"desiredState":{"strategy":"full"}`](../configuration/desired-state.md)
+    1. Scenarios are more extensively outlined in the [Desired State](../configuration/desired-state.md)
     1. *Cannot* be filtered within a policyAssignment to specific policyDefinitions within a policySetDefinition
 
         1. Defined at the pacEnvironment level in the Global Settings file

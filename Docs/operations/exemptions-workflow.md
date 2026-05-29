@@ -4,7 +4,7 @@ Exemptions are updated frequently as they are a method of preventing enforcement
 
 ## Decision: JSON or CSV
 
-In the past, CSV has been the preferred tool in EPAC. However, the introduction of [new ways to apply exemptions](./policy-exemptions.md) has caused a shift in recommendation to JSON. Regardless, the cmdlets provided will continue to output both to empower the consumer to leverage whichever format is preferred.
+In the past, CSV has been the preferred tool in EPAC. However, the introduction of [new ways to apply exemptions](../policy-resources/exemptions.md) has caused a shift in recommendation to JSON. Regardless, the cmdlets provided will continue to output both to empower the consumer to leverage whichever format is preferred.
 
 ## Updating exemptions manually
 

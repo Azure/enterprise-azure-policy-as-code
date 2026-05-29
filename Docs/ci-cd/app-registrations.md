@@ -3,11 +3,11 @@
 The EPAC CI/CD pipelines/workflows utilize Entra ID (Azure AD) Service Principals as the identity to interact with your Azure environment. This section describes the recommended approach for utilizing service principals with EPAC. For general information on Service Principals, please review the [Microsoft Documentation](https://learn.microsoft.com/en-us/entra/identity-platform/app-objects-and-service-principals?tabs=browser)
 
 > [!IMPORTANT]
-> Please review the [EPAC Deployment Concepts](start-implementing.md/#epac-concepts-and-environments) before proceeding as the following guidance builds upon the EPAC Environment Construct
+> Please review the [EPAC Deployment Concepts](../getting-started/README.md/#epac-concepts-and-environments) before proceeding as the following guidance builds upon the EPAC Environment Construct
 
 ## Recommended Service Principals
 
-To help maintain a segmentation of duties and a least-privilege approach, it is recommended to create separate service principals for each of the [general deployment steps](ci-cd-overview.md/#general-deployment-flow).
+To help maintain a segmentation of duties and a least-privilege approach, it is recommended to create separate service principals for each of the [general deployment steps](README.md/#general-deployment-flow).
 
 - Build Deployment Plans
     - A single service principal should be created for the plan steps across all EPAC environments. This Service Principal should be assigned the `Reader` Azure RBAC role at the Tenant Root.

@@ -42,7 +42,7 @@ Install the following software before proceeding:
 3. **[EnterprisePolicyAsCode PowerShell Module](https://www.powershellgallery.com/packages/EnterprisePolicyAsCode)**
 
 > [!NOTE]
-> **Alternative installation:**  It is recommended to run EPAC using the `EnterprisePolicyAsCode` PowerShell Module, however, if you cannot use the PowerShell Gallery Module, you can run EPAC directly from source code. See [Forking the GitHub Repo](start-forking-github-repo.md) for details.
+> **Alternative installation:**  It is recommended to run EPAC using the `EnterprisePolicyAsCode` PowerShell Module, however, if you cannot use the PowerShell Gallery Module, you can run EPAC directly from source code. See [Forking the GitHub Repo](forking-repo.md) for details.
 
 > [!NOTE]
 > **Prerelease versions:** Experimental features may be available as prerelease versions. Use `Install-Module -AllowPrerelease` to access these, but note they are not supported for production use and may introduce breaking changes.
@@ -258,7 +258,7 @@ Do you have complex multi-tenant requirements? → YES → Manual Configuration
 - Starter policies and compliance frameworks
 - Starter CI/CD pipeline templates
 
-**Next step:** [Hydration Kit Guide](./start-hydration-kit.md)
+**Next step:** [Hydration Kit Guide](hydration-kit.md)
 
 ### Alternative: Manual Configuration
 
@@ -271,7 +271,7 @@ Do you have complex multi-tenant requirements? → YES → Manual Configuration
 - Custom folder structures and naming
 - Advanced multi-tenant scenarios
 
-**Next step:** [Manual Configuration Guide](./manual-configuration.md)
+**Next step:** [Manual Configuration Guide](manual-setup.md)
 
 ### Not Sure Which to Choose?
 

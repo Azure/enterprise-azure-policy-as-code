@@ -565,13 +565,13 @@ The process to migrate from the legacy sync process to the new process mainly in
 
 ### *Cloud Adoption Framework Aligned*
 
-Use the process [documented here](integrating-with-alz-library.md#using-the-new-azure-landing-zone-library-sync-process).
+Use the process [documented here](alz-library.md#using-the-new-azure-landing-zone-library-sync-process).
 
 Ensure that the management groups and the parameter values are updated in the newly generated structure file. When synchronizing and running the build plan changes should be fairly minimal as all the assignments already exist - but any discrepancies should be examined as to why changes are being made.
 
 ### *Cloud Adoption Framework Unaligned*
 
-Because the environment is not aligned to CAF - the sync process using the legacy method will already require a number of changes to the default assignment files. In this case it is best to maintain a [custom library](integrating-with-alz-library.md#using-a-custom-library-for-custom-management-group-structures).
+Because the environment is not aligned to CAF - the sync process using the legacy method will already require a number of changes to the default assignment files. In this case it is best to maintain a [custom library](alz-library.md#using-a-custom-library-for-custom-management-group-structures).
 
 Carefully add the new archetypes to the cloned library - ensuring that all assignments are included.
 

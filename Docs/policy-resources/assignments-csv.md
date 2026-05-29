@@ -12,11 +12,11 @@ To address the problem of reading and maintaining hundreds or thousands of JSON 
 
 ### From a list of Policy Sets
 
-[Generating documentation for one or more Policy Sets](operational-scripts-documenting-policy.md#policy-set-documentation), then modify the effect and parameter columns for each environment type you will use.
+[Generating documentation for one or more Policy Sets](../operations/documenting-policy.md#policy-set-documentation), then modify the effect and parameter columns for each environment type you will use.
 
 ### From a list of deployed Policy Assignments
 
-If you want to switch from JSON to CSV or start EPAC from an existing deployment, [generate this CSV file from your already deployed Assignment(s)](operational-scripts-documenting-policy.md#assignment-documentation).
+If you want to switch from JSON to CSV or start EPAC from an existing deployment, [generate this CSV file from your already deployed Assignment(s)](../operations/documenting-policy.md#assignment-documentation).
 
 ## CSV File
 
@@ -129,7 +129,7 @@ If a Policy is removed from every Policy Set, remove the row from the spreadshee
 
 If a Policy is added to a Policy Set, add the row manually to the CSV file. The Policy will be assigned with the default effect.
 
-Better, [regenerate the CSV file from the deployed Policy Assignments](operational-scripts-documenting-policy.md#assignment-documentation). This will ensure that all Policies are included in the CSV file. However, this does not generate the `nonComplianceMessages` column or any additional columns you added.
+Better, [regenerate the CSV file from the deployed Policy Assignments](../operations/documenting-policy.md#assignment-documentation). This will ensure that all Policies are included in the CSV file. However, this does not generate the `nonComplianceMessages` column or any additional columns you added.
 
 > [!NOTE]
 > We have planned to add a feature to generate the CSV file from the Policy Assignments and merge them with your existing CSV File to preserve extra columns.

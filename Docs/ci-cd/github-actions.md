@@ -15,7 +15,7 @@ Create two labels in the project called `PolicyDeployment` and `RoleDeployment`.
 
 You will need one [GitHub deployment environment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment) for the `epac-dev` workflow and three environments each for your epac-prod or tenant workflows. This documentation assumes the use of the included starter kit pipelines.
 
-| Environment | Purpose | [App Registration](ci-cd-app-registrations.md) (SPN) |
+| Environment | Purpose | [App Registration](app-registrations.md) (SPN) |
 |---|---|---|
 | EPAC-DEV | Plan and deploy to `epac-dev` | ci-cd-epac-dev-owner |
 | TENANT-PLAN | Build deployment plan for `tenant` | ci-cd-root-policy-reader |
@@ -59,7 +59,7 @@ This section is retained from the previous documentation to enable you to contin
 There are some steps to be performed in GitHub to ensure the action runs correctly.
 
 1. Create two labels in the project called `PolicyDeployment` and `RoleDeployment`. Instructions to create new labels are [here](https://docs.github.com/en/issues/using-labels-and-milestones-to-track-work/managing-labels#creating-a-label).
-2. An Environment should be created for each [SPN created](Docs/ci-cd-app-registrations.md)
+2. An Environment should be created for each [SPN created](app-registrations.md)
 
     | Secret Name | Value |
     |---------|---------|

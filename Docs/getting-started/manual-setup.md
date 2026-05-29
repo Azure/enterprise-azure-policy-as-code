@@ -14,7 +14,7 @@ This guide walks you through manually setting up EPAC when the Hydration Kit doe
 
 ## Prerequisites
 
-- Review the [Start Implementing](./start-implementing.md) to ensure you are familiar with the core EPAC concepts, have the prerequisite software installed and have the required Azure permissions.
+- Review the [Start Implementing](README.md) to ensure you are familiar with the core EPAC concepts, have the prerequisite software installed and have the required Azure permissions.
 
 ## Manual Configuration Steps
 ### Prepare Your Environment
@@ -44,11 +44,11 @@ Create a development Management Group hierarchy separate from your main producti
 
 The development environment should mirror your production Management Group structure to provide representative testing. This typically involves creating a parallel hierarchy under a dedicated parent Management Group (e.g., "epac-contoso" as a copy of "contoso").
 
-For additional information on `epac-dev`, review the [EPAC Environments Overview](./start-implementing.md#epac-environments-overview)
+For additional information on `epac-dev`, review the [EPAC Environments Overview](README.md#epac-environments-overview)
 
 ### Global Settings File
 
-Populate `global-settings.jsonc` with your [environment settings](./settings-global-setting-file.md#Define-EPAC-Environments-in-`pacEnvironments`) and [desired state strategy](settings-dfc-assignments.md)
+Populate `global-settings.jsonc` with your [environment settings](../configuration/global-settings.md#Define-EPAC-Environments-in-`pacEnvironments`) and [desired state strategy](../configuration/dfc-assignments.md)
 
 A sample `global-settings.jsonc` file is available as part of the [starter kit](https://github.com/Azure/enterprise-azure-policy-as-code/tree/main/StarterKit/Definitions-Common) with basic options defined.
 
@@ -56,7 +56,7 @@ A sample `global-settings.jsonc` file is available as part of the [starter kit](
 
 #### Option A: Import Existing Policies
 
-Extract [existing Policy resources](start-extracting-policy-resources.md) from your Azure environment.
+Extract [existing Policy resources](extracting-existing.md) from your Azure environment.
 
 #### Option B: Start with Sample Policies
 
@@ -64,7 +64,7 @@ Use the  [StarterKit](https://github.com/Azure/enterprise-azure-policy-as-code/t
 
 #### Option C: Create Custom Policies Objects
 
-Create custom [policy definitions](./policy-definitions.md), [policy set definitions](./policy-set-definitions.md) and/or [policy assignments](./policy-assignments.md) based on your organization's needs.
+Create custom [policy definitions](../policy-resources/definitions.md), [policy set definitions](../policy-resources/set-definitions.md) and/or [policy assignments](../policy-resources/assignments.md) based on your organization's needs.
 
 ## Initial Test Deployment
 
@@ -84,7 +84,7 @@ Deploy-RolesPlan -PacEnvironmentSelector "epac-dev"
 
 ## Starter Kit Pipelines
 
-Create a basic pipeline from the starter kit for CI/CD integration. For detailed pipeline configuration, review the [CI/CD Overview](ci-cd-overview.md).
+Create a basic pipeline from the starter kit for CI/CD integration. For detailed pipeline configuration, review the [CI/CD Overview](../ci-cd/README.md).
 
 ### Using EPAC PowerShell Module (Recommended)
 
@@ -101,12 +101,12 @@ New-PipelinesFromStarterKit -StarterKitFolder .\StarterKit -PipelinesFolder .\pi
 
 You now have the working basics of an EPAC deployment running through the CLI. To continue to expand and further customize your EPAC deployment, review the following guidance:
 
-- Review additional settings available for configuration in the [global-settings file](./settings-global-setting-file.md)
+- Review additional settings available for configuration in the [global-settings file](../configuration/global-settings.md)
 - Create additional policy objects such as custom policies, additional policy assignments, and exemptions. 
-    1. Integrate [Azure Landing Zones (ALZ)](integrating-with-alz-library-overview.md)
-    1. Create custom [Policy definitions](policy-definitions.md)
-    1. Create custom [Policy Set definitions](policy-set-definitions.md)
-    1. Create new [Policy Assignments](policy-assignments.md)
-    1. Manage [Policy Exemptions](policy-exemptions.md)
-- [CI/CD Overview](ci-cd-overview.md) provides insight into how to continue with the configuration of your DevOps Platform for ongoing EPAC CI/CD deployment, which is the next major area of focus.
-- [Generate Documentation](./operational-scripts-documenting-policy.md) for Audit Purposes
+    1. Integrate [Azure Landing Zones (ALZ)](../integrations/alz-overview.md)
+    1. Create custom [Policy definitions](../policy-resources/definitions.md)
+    1. Create custom [Policy Set definitions](../policy-resources/set-definitions.md)
+    1. Create new [Policy Assignments](../policy-resources/assignments.md)
+    1. Manage [Policy Exemptions](../policy-resources/exemptions.md)
+- [CI/CD Overview](../ci-cd/README.md) provides insight into how to continue with the configuration of your DevOps Platform for ongoing EPAC CI/CD deployment, which is the next major area of focus.
+- [Generate Documentation](../operations/documenting-policy.md) for Audit Purposes

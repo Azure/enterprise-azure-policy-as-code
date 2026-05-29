@@ -19,7 +19,7 @@
 
 ### Changes in Lighthouse Deployments
 
-EPAC is introducing updates that affect how role assignments are handled across managing and managed Lighthouse tenants. While EPAC does not yet support all Lighthouse scenarios, two specific use cases have been implemented based on GitHub issue feedback. These changes will break existing configurations that do not follow the new guidance detailed in [Lighthouse Subscription Management with EPAC](guidance-lighthouse.md).
+EPAC is introducing updates that affect how role assignments are handled across managing and managed Lighthouse tenants. While EPAC does not yet support all Lighthouse scenarios, two specific use cases have been implemented based on GitHub issue feedback. These changes will break existing configurations that do not follow the new guidance detailed in [Lighthouse Subscription Management with EPAC](../guidance/lighthouse.md).
 
 For users currently leveraging EPAC for Lighthouse deployments, once v11.0.0 is released an immediate update to the global-settings.jsonc file is required. The existing properties will become outdated and will cause pipeline failures if not corrected. To ensure successful deployments, please update the global settings configuration without delay.
 
@@ -50,7 +50,7 @@ Per `pacEnvironment`:
 - New required `managedIdentityLocation` string.
 - New optional `globalNotScopes` array.
 - New optional `deployedBy` string. We recommend against using it and let EPAC [generate the default value](#metadata-deployedby-and-assignedby).
-- `inheritedDefinitionsScopes` has been deprecated and removed. Please review the revised use case [Use Case 4:  Multiple Teams in a Hierarchical Organization](settings-desired-state.md#use-case-4-multiple-teams-in-a-hierarchical-organization).
+- `inheritedDefinitionsScopes` has been deprecated and removed. Please review the revised use case [Use Case 4:  Multiple Teams in a Hierarchical Organization](../configuration/desired-state.md#use-case-4-multiple-teams-in-a-hierarchical-organization).
 - `cloud` is now a required field. Previously, it was optional and defaulted to `AzureCloud`.
 - `desiredState` is now a required field.
 

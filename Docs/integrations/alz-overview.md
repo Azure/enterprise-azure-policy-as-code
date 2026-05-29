@@ -23,7 +23,7 @@ As the policies and assignments change in main repository the base files in this
 
 EPAC can be used to manage Azure Policy deployed using ALZ Bicep or Terraform using the scenarios below. Some reasons you may want to switch to EPAC policy management include:
 
-- You have existing unmanaged policies in a brownfield environment that you want to deploy in the new ALZ environment. [Export the existing policies](start-extracting-policy-resources.md) and manage them with EPAC alongside the ALZ policy objects.
+- You have existing unmanaged policies in a brownfield environment that you want to deploy in the new ALZ environment. [Export the existing policies](../getting-started/extracting-existing.md) and manage them with EPAC alongside the ALZ policy objects.
 - You have ALZ deployed in a non standard way e.g. multiple management group structures for testing, non-conventional management group structure. The default assignment structure provided by other ALZ deployment methods may not fit your strategy.
 - A team that is not responsible for infrastructure deployment e.g. a security team may want to deploy and manage policies.
 - You require features from policy not available in the ALZ deployments e.g. policy exemptions, documentation, assignment customization.
@@ -34,4 +34,4 @@ EPAC can be used to manage Azure Policy deployed using ALZ Bicep or Terraform us
 1. Existing Azure Landing Zones deployment and EPAC is to be used as the policy engine moving forward.
 2. Using EPAC to deploy and manage the Azure Landing Zone policies.
 
-In both cases it is now recommended that if you have the default ALZ policies deployed you should use the [new method](integrating-with-alz-library.md) to provide a consistent sync process.
+In both cases it is now recommended that if you have the default ALZ policies deployed you should use the [new method](alz-library.md) to provide a consistent sync process.

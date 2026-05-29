@@ -2,7 +2,7 @@
 The following section covers two branching strategies for EPAC that are supported by the starter kits - `GitHub Flow` and `Release Flow`. Both strategies follow their respective general guidance as documented for [GitHub Flow](https://docs.github.com/en/get-started/using-github/github-flow), and [Release Flow](https://learn.microsoft.com/en-us/devops/develop/how-microsoft-develops-devops), however, the method you choose may be dependent on the EPAC environment structure you choose to use. In general, `GitHub Flow` is recommended for simple EPAC deployments that contain an EPAC Development Environment and a Main/Tenant Environment. If you wish to utilize multiple additional environments, and/or deploy to those environments in a staged/ring-based fashion (Deploy to Environment A then Deploy to Environment B), the `Release Flow` model may provide greater flexibility.
 
 > [!IMPORTANT]
-> Please review the [App Registrations Setup](ci-cd-app-registrations.md) for information on the permissions and Service Principals (SPNs) recommended for deployments.
+> Please review the [App Registrations Setup](app-registrations.md) for information on the permissions and Service Principals (SPNs) recommended for deployments.
 
 ## Develop Policy Resources in a Feature Branch
 

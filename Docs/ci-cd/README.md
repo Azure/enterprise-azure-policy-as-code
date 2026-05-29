@@ -13,8 +13,8 @@ EPAC is written in PowerShell and any CI/CD tool with the ability to execute Pow
 
 This repository contains starter pipelines and instructions for can be found here:
 
-- [Azure DevOps Pipelines](ci-cd-ado-pipelines.md)
-- [GitHub Actions](ci-cd-github-actions.md)
+- [Azure DevOps Pipelines](azure-devops.md)
+- [GitHub Actions](github-actions.md)
 
 ## General EPAC Deployment Steps
 
@@ -23,7 +23,7 @@ EPAC has three major steps in the deployment process for each environment.
 - Policy Deployment
 - Role Deployment
 
-Each step can be called by using the `EnterprisePolicyAsCode` PowerShell module (recommended), or calling the script directly. For more details on EPAC installation options, please refer to the [Start Implementation](start-implementing.md/#install-powershell-and-epac) section.
+Each step can be called by using the `EnterprisePolicyAsCode` PowerShell module (recommended), or calling the script directly. For more details on EPAC installation options, please refer to the [Start Implementation](../getting-started/README.md/#install-powershell-and-epac) section.
 
 > [!TIP]
 > EPAC is **declarative** and **idempotent**: this means, that regardless how many times it is run, EPAC will always push all changes that were implemented in the JSON files to the Azure environment, i.e. if a JSON file is newly created/updated/deleted, EPAC will create/update/delete the Policy and/or Policy Set and/or Policy Assignments definition in Azure. If there are no changes, EPAC can be run any number of times, as it won't make any changes to Azure.
@@ -94,9 +94,9 @@ Creates the role assignments for the Managed Identities required for `DeployIfNo
 
 ## Create Azure DevOps Pipelines or GitHub Workflows from Starter Pipelines.
 
-Starter Pipelines have been created to orchestrate the EPAC deployment steps listed above. The scripts `New-PipelinesFromStarterKit` create [Azure DevOps Pipelines or GitHub Workflows from the starter kit](operational-scripts-hydration-kit.md#create-azure-devops-pipeline-or-github-workflow). You select the type of pipeline to create, the branching flow to implement, and the ScriptType to use.
-- The starter kits support two branching/release strategies (`GitHub` and `Release`). More details on these branching flows refer to the [Branching Flow Guidance](ci-cd-branching-flows.md).
-- The recommended `ScriptType` is `module`, which utilizes the `EnterprisePolicyAsCode` Powershell module. For more details on EPAC installation options, please refer to the [Start Implementation](start-implementing.md/#install-powershell-and-epac) section.
+Starter Pipelines have been created to orchestrate the EPAC deployment steps listed above. The scripts `New-PipelinesFromStarterKit` create [Azure DevOps Pipelines or GitHub Workflows from the starter kit](../getting-started/hydration-kit.md#create-azure-devops-pipeline-or-github-workflow). You select the type of pipeline to create, the branching flow to implement, and the ScriptType to use.
+- The starter kits support two branching/release strategies (`GitHub` and `Release`). More details on these branching flows refer to the [Branching Flow Guidance](branching-flows.md).
+- The recommended `ScriptType` is `module`, which utilizes the `EnterprisePolicyAsCode` Powershell module. For more details on EPAC installation options, please refer to the [Start Implementation](../getting-started/README.md/#install-powershell-and-epac) section.
 
 ### Azure DevOps Pipelines
 
@@ -122,7 +122,7 @@ New-PipelinesFromStarterKit -StarterKitFolder .\StarterKit -PipelinesFolder .\.g
 
 ## General Hardening Guidelines
 
-- **Least Privilege**: Use the least privilege principle when assigning roles to the SPNs used in the CI/CD pipeline. The roles should be assigned at the root or pseudo-root management group level. For more details on the SPNs to use and required permissions refer to [App Registrations Setup](ci-cd-app-registrations.md)
+- **Least Privilege**: Use the least privilege principle when assigning roles to the SPNs used in the CI/CD pipeline. The roles should be assigned at the root or pseudo-root management group level. For more details on the SPNs to use and required permissions refer to [App Registrations Setup](app-registrations.md)
 - Require a Pull Request for changes to the `main` branch. This ensures that changes are reviewed before deployment.
 - Require additional reviewers for yml pipeline and script changes.
 - Require branches to be in a folder `feature` to prevent accidental deployment of branches.
