@@ -17,8 +17,6 @@ theme:
     - navigation.indexes
     - navigation.sections:
         level: 1
-    - navigation.tabs
-    - navigation.tabs.sticky
     - content.code.annotate
     - content.tabs.link
     - content.code.copy
