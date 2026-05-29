@@ -290,6 +290,25 @@ An existing archetype can be customized by adding or removing policy assignments
   }
 }
 ```
+
+For `policy_assignments_to_add`, each entry can be either:
+
+- A string assignment/policy name (must be 24 characters or fewer for management-group assignment scope)
+- An object with `policy_name` and `assignment_name` to override the generated assignment name (useful when `policy_name` is longer than 24 characters)
+
+Example override object:
+
+```json
+{
+  "policy_assignments_to_add": [
+    {
+      "policy_name": "Audit-MachineLearning-PrivateEndpointId",
+      "assignment_name": "Audit-ML-PEndpointId"
+    }
+  ]
+}
+```
+
 ### Create a new archetype based on an existing archetype (Requires EPAC v11)
 
 You can create a new archetype based on an existing by using a structure similar to the block below.

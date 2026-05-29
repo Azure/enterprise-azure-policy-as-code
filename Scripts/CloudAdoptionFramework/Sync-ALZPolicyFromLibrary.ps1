@@ -235,6 +235,8 @@ $existingAssignments = Get-ChildItem -Path "$DefinitionsRootFolder/policyAssignm
     }
 }
 
+$policyAssignmentNameOverrides = @{}
+
 if ($EnableOverrides) {
     Write-ModernStatus -Message "Overrides enabled: Custom management group structures and assignments will be used where available." -Status "info" -Indent 2
     if ($structureFile.overrides.archetypes.ignore) {
@@ -257,6 +259,39 @@ try {
         if (-not ($structureFile.managementGroupNameMappings.PSObject.Properties.Name -contains $customArchetype.name) -and (-not ($Type -eq "SLZ" -and (($structureFile.managementGroupNameMappings.PSObject.Properties.Name -contains $customArchetype.name) -or ($structureFile.overrides.archetypes.custom.name -contains $customArchetype.name) )))) {
             Write-ModernStatus -Message "Custom archetype '$($customArchetype.name)' not found in management group mappings. Skipping." -Status "warning" -Indent 2
             continue
+        }
+        if ($customArchetype.policy_assignments_to_add) {
+            $normalizedPolicyAssignmentsToAdd = @()
+            foreach ($policyAssignmentToAdd in @($customArchetype.policy_assignments_to_add)) {
+                if ($policyAssignmentToAdd -is [string]) {
+                    if ($policyAssignmentToAdd.Length -gt 24) {
+                        throw "policy_assignments_to_add['$policyAssignmentToAdd'] would generate an assignment name of $($policyAssignmentToAdd.Length) chars but the target scope is a management group (24-char limit). Specify an assignment_name override, or omit this entry."
+                    }
+                    $normalizedPolicyAssignmentsToAdd += $policyAssignmentToAdd
+                    continue
+                }
+
+                if ($policyAssignmentToAdd -is [psobject] -and
+                    $policyAssignmentToAdd.PSObject.Properties.Name -contains "policy_name" -and
+                    $policyAssignmentToAdd.PSObject.Properties.Name -contains "assignment_name") {
+                    if ([string]::IsNullOrWhiteSpace($policyAssignmentToAdd.policy_name) -or [string]::IsNullOrWhiteSpace($policyAssignmentToAdd.assignment_name)) {
+                        throw "policy_assignments_to_add for archetype '$($customArchetype.name)' contains an entry with empty policy_name or assignment_name."
+                    }
+                    if ($policyAssignmentToAdd.assignment_name.Length -gt 24) {
+                        throw "policy_assignments_to_add['$($policyAssignmentToAdd.policy_name)'].assignment_name '$($policyAssignmentToAdd.assignment_name)' exceeds the management-group assignment name limit (24 chars)."
+                    }
+                    $normalizedPolicyAssignmentsToAdd += $policyAssignmentToAdd.policy_name
+                    if (-not $policyAssignmentNameOverrides.ContainsKey($customArchetype.name)) {
+                        $policyAssignmentNameOverrides[$customArchetype.name] = @{}
+                    }
+                    $policyAssignmentNameOverrides[$customArchetype.name][$policyAssignmentToAdd.policy_name] = $policyAssignmentToAdd.assignment_name
+                    continue
+                }
+
+                throw "policy_assignments_to_add for archetype '$($customArchetype.name)' must use either a string value or an object with policy_name and assignment_name."
+            }
+
+            $customArchetype.policy_assignments_to_add = @($normalizedPolicyAssignmentsToAdd)
         }
         $archetypeArray += $customArchetype
     }
@@ -420,6 +455,10 @@ try {
         foreach ($requiredAssignment in ($archetype.policy_assignments | Where-Object {
                     -not [string]::IsNullOrWhiteSpace("$_") -and ($CreateGuardrailAssignments -or ($_ -notmatch "^Enforce-(GR|Encrypt)-\w+0"))
                 })) {
+            $assignmentNameOverride = $null
+            if ($policyAssignmentNameOverrides.ContainsKey($archetype.name) -and $policyAssignmentNameOverrides[$archetype.name].ContainsKey($requiredAssignment)) {
+                $assignmentNameOverride = $policyAssignmentNameOverrides[$archetype.name][$requiredAssignment]
+            }
             switch ($Type) {
                 "ALZ" { $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_assignments" | Where-Object { $_.BaseName.Split(".")[0] -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json }
                 "AMBA" { $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_assignments" | Where-Object { $_.BaseName.Split(".")[0].Replace("_", "-") -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json }
@@ -438,16 +477,16 @@ try {
                     Write-ModernStatus -Message "Skipping unresolved policy definition '$requiredAssignment' in archetype '$($archetype.name)'." -Status "warning" -Indent 2
                     continue
                 }
-                
             }
 
             $nodeNamePrefix = if ($archetype.name -eq "landingzones") { "landing_zones" } else { $archetype.name }
+            $effectiveAssignmentName = if ([string]::IsNullOrWhiteSpace($assignmentNameOverride)) { $fileContent.Name } else { $assignmentNameOverride }
 
             $baseTemplate = [ordered]@{
                 "`$schema"      = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json"
-                nodeName        = "$($nodeNamePrefix)/$($fileContent.name)"
+                nodeName        = "$($nodeNamePrefix)/$effectiveAssignmentName"
                 assignment      = [ordered]@{
-                    name        = $fileContent.Name
+                    name        = $effectiveAssignmentName
                     displayName = $fileContent.properties.displayName
                     description = $fileContent.properties.description
                 }
@@ -456,8 +495,8 @@ try {
                 }
                 parameters      = [ordered]@{}
                 # enforcementMode = $structureFile.enforcementMode
-                enforcementMode = if ($invertedEnforcementMode.ContainsKey("$($nodeNamePrefix)/$($fileContent.name)")) {
-                    $invertedEnforcementMode["$($nodeNamePrefix)/$($fileContent.name)"]
+                enforcementMode = if ($invertedEnforcementMode.ContainsKey("$($nodeNamePrefix)/$effectiveAssignmentName")) {
+                    $invertedEnforcementMode["$($nodeNamePrefix)/$effectiveAssignmentName"]
                 }
                 else {
                     $structureFile.enforcementMode
@@ -642,18 +681,18 @@ try {
                 $category = $archetype.name
             }
             if ($assignmentFromDefinition) {
-                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, enforcementMode, parameters, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
+                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, enforcementMode, parameters, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$effectiveAssignmentName.jsonc" -Force -ErrorAction SilentlyContinue
             }
             elseif ($fileContent.name -eq "Deploy-Private-DNS-Zones") {
-                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope, additionalRoleAssignments | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
-                (Get-Content "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$($fileContent.name).jsonc") -replace "\.ne\.", ".$dnsZoneRegion." | Set-Content "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$($fileContent.name).jsonc"
+                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope, additionalRoleAssignments | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$effectiveAssignmentName.jsonc" -Force -ErrorAction SilentlyContinue
+                (Get-Content "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$effectiveAssignmentName.jsonc") -replace "\.ne\.", ".$dnsZoneRegion." | Set-Content "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$effectiveAssignmentName.jsonc"
             }
             else {
-                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$($fileContent.name).jsonc" -Force -ErrorAction SilentlyContinue
+                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$effectiveAssignmentName.jsonc" -Force -ErrorAction SilentlyContinue
             }
             $obj = [PSCustomObject]@{
-                Path = "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$($fileContent.name).jsonc"
-                Name = $fileContent.name
+                Path = "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$effectiveAssignmentName.jsonc"
+                Name = $effectiveAssignmentName
             }
             $createdPolicyAssignments += $obj
             $assignmentFromDefinition = $false
