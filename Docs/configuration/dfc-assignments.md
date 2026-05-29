@@ -30,7 +30,7 @@ You may choose to set `$keepDfcPlanAssignments = $false` if:
 - You want EPAC to take full control over policy lifecycle.
 - You are cleaning up legacy DFC-managed assignments.
 
-![image.png](Images/dfc-defender-plans-settings.png)
+![image.png](../Images/dfc-defender-plans-settings.png)
 
 ## Defender for Cloud Security Policy Assignments
 
@@ -50,4 +50,4 @@ These Assignments are enabled/created at the subscription level or at management
 }
 ```
 
-![image.png](Images/dfc-security-policy-sets-settings.png)
+![image.png](../Images/dfc-security-policy-sets-settings.png)

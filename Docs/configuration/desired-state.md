@@ -123,7 +123,7 @@ If you have an empty folder or a folder with a file extension not recognized by 
 
 In a shared responsibility model multiple teams manage the same tenant(s) at the same scope. Additionally, a variant of this use case is well suited to what previously was called `brownfield` which needs to preserve Policy resources deployed prior to EPAC. The following diagram shows two EPAC solutions managing the same root (tenant). Other Policy as Code solutions can also participate if the solution sets `metadata.pacOwnerId`.
 
-![image.png](Images/shared-responsibility.png)
+![image.png](../Images/shared-responsibility.png)
 
 For standard behavior where each repo manages, no additional entries in `global-settings.jsonc` are necessary since the default strategy `full` is the default. `full` deletes any Policy resources without a `pacOwnerId`; however, id does not delete Policy resources with a different `pacOwnerId`.
 [test](desired-state.md#use-case-4-multiple-teams-in-a-hierarchical-organization)
@@ -139,7 +139,7 @@ This is managed identical to use case 3.
 >
 > To replicate the previous functionality, copy/replicate the custom Policy and Policy Set definitions files from EPAC-A repo to EPAC-C repo.
 
-![image.png](Images/shared-hierarchical.png)
+![image.png](../Images/shared-hierarchical.png)
 
 ## Use Case 5: Exclude some Scopes and Policy Resources
 
@@ -204,7 +204,7 @@ You can exclude any combination of `excludedScopes`, `excludedPolicyDefinitions`
 }
 ```
 
-![image.png](Images/shared-excluded.png)
+![image.png](../Images/shared-excluded.png)
 
 ## Managing Child Scope Definitions
 

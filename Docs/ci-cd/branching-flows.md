@@ -18,7 +18,7 @@ Developing Policy resources is the same for `GitHub Flow` and `Release Flow`. Th
 4. When the feature is ready, the developer creates a Pull Request (PR) to merge the feature branch into the `main` branch.
 5. Set the pull request to be auto completed. Ensure that you select `Delete feature/*user-id*/*feature-name* after merging`.
 
-![image.png](Images/ci-cd-set-auto-complete.png)
+![image.png](../Images/ci-cd-set-auto-complete.png)
 
 6. After the merge completes, cleanup your local clone by:
     - Switching the branch to main
@@ -40,7 +40,7 @@ Once Development is completed, as noted above, the merge of the PR into the `mai
 - Approval gate for Role assignments deployment.
 - Deploy Policy Roles to the Prod Environment (e.g. `Prod`) to create the role assignments for the Managed Identities required for any `DeployIfNotExists` and `Modify` Policies.
 
-![image.png](Images/epac-github-flow.png)
+![image.png](../Images/epac-github-flow.png)
 
 ### `GitHub Flow` Variations
 
@@ -68,7 +68,7 @@ In some cases, especially when using multiple EPAC Environments, it may be desir
   - Once merged to `main` use the PR page to cherry-pick the changes into the active `releases-prod` branch, which creates a new pull request. This ensures traceability and allows for approval before the change is deployed. 
   - This process is documented in further detail on the [Microsoft Release Flow Documentation](https://learn.microsoft.com/en-us/devops/develop/how-microsoft-develops-devops#release-hotfixes)
 
-![image.png](Images/epac-release-flow.png)
+![image.png](../Images/epac-release-flow.png)
 
 ### `Release Flow` Variations
 

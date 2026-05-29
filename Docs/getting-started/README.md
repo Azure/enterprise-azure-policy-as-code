@@ -90,7 +90,7 @@ The `deploymentRootScope` defines where EPAC manages policies. EPAC can deploy a
 
 **Example:** Setting `deploymentRootScope` to the Contoso organization's Management Group (e.g., `contoso`) allows EPAC to manage policies across all child Management Groups and subscriptions.
 
-![Sample Management Group Structure](./Images/sample-mg-structure.png)
+![Sample Management Group Structure](../Images/sample-mg-structure.png)
 
 > [!IMPORTANT]
 > **Avoid Tenant Root Group:** Set your `deploymentRootScope` to an Intermediate Root Management Group rather than the Tenant Root Group to maintain flexibility and avoid lockout scenarios.  This is discussed in further detail in the Azure Cloud Adoption Framework [guidance](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/design-area/resource-org-management-groups).
@@ -128,7 +128,7 @@ Each **EPAC Environment** provides isolated policy management with its own deplo
 - Safely experiment with new policy configurations
 - Maintain audit trails for policy changes
 
-![Sample EPAC Management Group Structure](./Images/sample-epac-mg-structure.png)
+![Sample EPAC Management Group Structure](../Images/sample-epac-mg-structure.png)
 
 > [!TIP]
 > The development environment typically mirrors your production Management Group structure, giving you a representative testing environment.
@@ -222,7 +222,7 @@ Each `pacEnvironment` has a `tenantId` property to enable these scenario(s):
 
 EPAC uses a simple folder structure to organize all policy resources:
 
-![Definitions Folder Structure](./Images/definitions-folder-structure.png)
+![Definitions Folder Structure](../Images/definitions-folder-structure.png)
 
 **Key Files:**
 

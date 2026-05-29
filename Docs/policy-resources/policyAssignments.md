@@ -97,7 +97,7 @@ Assignment JSON is hierarchical for efficient definitions, avoiding duplication 
 }
 ```
 
-![Assignment File Overview Diagram](Images/PaC-Assignment-Structure.png)
+![Assignment File Overview Diagram](../Images/PaC-Assignment-Structure.png)
 
 ## Policy Assignment File Folder Structure Guidelines
 

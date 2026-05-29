@@ -52,5 +52,5 @@ Updates to the Global Settings file are useful when making sweeping changes, suc
         1. Defined at the pacEnvironment level in the Global Settings file
         1. Removes this scope from EPAC management entirely
     1. Common Scenarios:
-        1. [Exclude Resource Groups](./settings-desired-state#exclude-resource-groups)
-        1. [Exclude Subscriptions](./settings-desired-state#exclude-resource-groups)
+        1. [Exclude Resource Groups](../configuration/desired-state.md#exclude-resource-groups)
+        1. [Exclude Subscriptions](../configuration/desired-state.md#exclude-resource-groups)

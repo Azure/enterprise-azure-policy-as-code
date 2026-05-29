@@ -32,7 +32,7 @@ For guidance assigning Service Principals Azure RBAC roles, please refer to the 
 ## Example Setup
 Given the following screenshot of a Management Group hierarchy for Contoso.
 
-![Management Group hierarchy](Images/ci-cd-mg.png)
+![Management Group hierarchy](../Images/ci-cd-mg.png)
 
 Contoso has decided to utilize two EPAC Environments. One for EPAC Development (EPAC-Dev) and one for the remainder of their environment (Tenant), which has resulted the following global settings file:
 
@@ -79,11 +79,11 @@ Federated identity credentials are a new type of credential that enables workloa
 Within your Registered App create a `Federated Credential`
 
 
-![App Registration 30](Images/ci-cd-app-registrations-federated-credentials.png)
+![App Registration 30](../Images/ci-cd-app-registrations-federated-credentials.png)
 
 
 (Example below is for a GitLab Implementation)
-![App Registration 30](Images/ci-cd-app-registrations-federated-credentials-configs.png)
+![App Registration 30](../Images/ci-cd-app-registrations-federated-credentials-configs.png)
 
 `Federated credential scenario` — List of supported Scenarios for leveraging Federated Credentials. 
 

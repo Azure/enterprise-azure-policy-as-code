@@ -25,7 +25,7 @@ Tags are not automatically synced to a forked repo so you must perform this task
       1. Use only folders `Definitions` and `Pipeline`, except when working on fixes to be contributed back to GitHub.
           1. Review the [`Sync-Repo`](#sync-repops1) documentation for additional information on the folders which are destroyed and recreated as part of the version upgrade process for additional insight on this topic.
 
-![image](Images/Sync-Repo.png)
+![image](../Images/Sync-Repo.png)
 
 ## Syncing latest Version from GitHub repo
 

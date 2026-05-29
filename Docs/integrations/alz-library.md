@@ -547,7 +547,7 @@ The updated management group structure would follow similar to below:-
 
 8. There are now two new folders in the `policyAssignments\ALZ` folder as below, and looking at the assigned scope for the assignments we can see they are going to be assigned to the correct management group.
 
-   ![Assignment File Overview Diagram](Images/new-management-groups.png)
+   ![Assignment File Overview Diagram](../Images/new-management-groups.png)
 
    ```json
    "scope": {

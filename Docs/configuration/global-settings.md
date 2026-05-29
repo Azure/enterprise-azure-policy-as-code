@@ -15,7 +15,7 @@
 
 | Setting | Description |
 |---------|-------------|
-| `telemetryOptOut` | If set to true disables the collection of usage data for the EPAC repo. The default is false. See [Usage Tracking](index.md#telemetry-tracking-using-customer-usage-attribution-pid) for more information. |
+| `telemetryOptOut` | If set to true disables the collection of usage data for the EPAC repo. The default is false. See [Usage Tracking](../index.md#telemetry-tracking-using-customer-usage-attribution-pid) for more information. |
 | `pacOwnerId` | Uniquely identifies deployments from a specific repo. We recommend using a GUID. |
 | `pacEnvironments` | Defines the EPAC environments. |
 
@@ -73,7 +73,7 @@ To utilize the schema add a ```$schema``` tag to the JSON file.
 
 ## Opt out of telemetry data collection `telemetryOptOut`
 
-Starting with v8.0.0, Enterprise Policy as Code (EPAC) is tracking the usage using Customer Usage Attribution (PID). See [Usage Tracking](index.md#telemetry-tracking-using-customer-usage-attribution-pid) for more information on opt out. Default is false.
+Starting with v8.0.0, Enterprise Policy as Code (EPAC) is tracking the usage using Customer Usage Attribution (PID). See [Usage Tracking](../index.md#telemetry-tracking-using-customer-usage-attribution-pid) for more information on opt out. Default is false.
 
 ```json
 "telemetryOptOut": true,
