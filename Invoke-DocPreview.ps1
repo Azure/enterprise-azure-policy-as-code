@@ -32,13 +32,27 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# Verify mkdocs is available
+# Verify pip is available
+if (-not (Get-Command pip -ErrorAction SilentlyContinue)) {
+    Write-Host ""
+    Write-Host "ERROR: pip is not installed or not in PATH." -ForegroundColor Red
+    Write-Host ""
+    Write-Host "Install Python (which includes pip) from https://www.python.org/downloads/" -ForegroundColor Yellow
+    Write-Host "  or on Linux/macOS:" -ForegroundColor Yellow
+    Write-Host "    sudo apt install python3-pip   # Debian/Ubuntu" -ForegroundColor Cyan
+    Write-Host "    brew install python            # macOS" -ForegroundColor Cyan
+    Write-Host ""
+    exit 1
+}
+
+# Verify mkdocs is available; if not, offer the install command
 if (-not (Get-Command mkdocs -ErrorAction SilentlyContinue)) {
-    Write-Error @"
-mkdocs is not installed or not in PATH.
-Install it with:
-    pip install mkdocs mkdocs-material
-"@
+    Write-Host ""
+    Write-Host "ERROR: mkdocs is not installed." -ForegroundColor Red
+    Write-Host ""
+    Write-Host "Install it with:" -ForegroundColor Yellow
+    Write-Host "    pip install mkdocs mkdocs-material" -ForegroundColor Cyan
+    Write-Host ""
     exit 1
 }
 

@@ -32,13 +32,12 @@ nav:
       - Manual Configuration: getting-started/manual-setup.md
       - Extracting Policy Resources: getting-started/extracting-existing.md
       - Forking GitHub Repo: getting-started/forking-repo.md
-      - Advanced Configuration: configuration/advanced.md
-      - Debugging EPAC: troubleshooting/debugging.md
   - Configuration:
       - Global Settings: configuration/global-settings.md
       - Desired State: configuration/desired-state.md
       - DfC Assignments: configuration/dfc-assignments.md
       - Output Themes: configuration/output-themes.md
+      - Advanced Configuration: configuration/advanced.md
   - Azure Landing Zones:
       - ALZ Overview: integrations/alz-overview.md
       - ALZ Policy Integration: integrations/alz-library.md
@@ -63,6 +62,7 @@ nav:
       - Exclusion Management: guidance/scope-exclusions.md
       - Exemption Updates: operations/exemptions-workflow.md
       - Lighthouse Subscription Management: guidance/lighthouse.md
+      - Debugging EPAC: troubleshooting/debugging.md
 
 markdown_extensions:
   - admonition
