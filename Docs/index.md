@@ -28,6 +28,8 @@
 - [PowerShell Gallery Module](https://www.powershellgallery.com/packages/EnterprisePolicyAsCode)
 - [Starter Kit](https://github.com/Azure/enterprise-azure-policy-as-code/tree/main/StarterKit)
 - [YouTube Series](https://www.youtube.com/channel/UCtkZkkgT-mp6PcmvfqlwvBQ)
+- [Azure Enterprise Policy as Code – A New Approach](https://techcommunity.microsoft.com/t5/core-infrastructure-and-security/azure-enterprise-policy-as-code-a-new-approach/ba-p/3607843)
+- [Azure Enterprise Policy as Code – Azure Landing Zones Integration](https://techcommunity.microsoft.com/t5/core-infrastructure-and-security/azure-enterprise-policy-as-code-azure-landing-zones-integration/ba-p/3642784)
 
 ## Telemetry
 
