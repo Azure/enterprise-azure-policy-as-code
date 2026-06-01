@@ -48,6 +48,39 @@ function Get-ALZFinalArchetypeName {
     }
 }
 
+# Resolves the set of archetype names a `based_on` reference may match. Because archetypes are renamed
+# mid-pipeline (e.g. the library "root" archetype is referenced by users as "alz", and "landingzones"
+# maps to the library "landing_zones"), a `based_on` value supplied with the user-facing name must also
+# match the library / final names. Returns every candidate name so the lookup cannot miss the parent
+# archetype just because the user used a different but equivalent name.
+function Get-ALZBasedOnMatchNames {
+    param(
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string] $BasedOn,
+
+        [Parameter(Mandatory = $true)]
+        [string] $Type
+    )
+
+    $names = [System.Collections.Generic.List[string]]::new()
+    $addName = {
+        param([string] $Name)
+        if (-not [string]::IsNullOrWhiteSpace($Name) -and -not $names.Contains($Name)) {
+            $names.Add($Name)
+        }
+    }
+
+    & $addName $BasedOn
+    & $addName (Get-ALZFinalArchetypeName -ArchetypeName $BasedOn -Type $Type)
+    switch ($BasedOn) {
+        "alz" { & $addName "root" }
+        "landingzones" { & $addName "landing_zones" }
+    }
+
+    return $names.ToArray()
+}
+
 # Latest tag values
 if ($Tag -eq "") {
     switch ($Type) {
@@ -324,9 +357,10 @@ try {
     # Modify anything that is existing
     foreach ($archetype in $archetypeArray | Where-Object { $_.type -eq "existing" }) {
         if ($archetype.PSObject.properties.name -contains "based_on") {
+            $basedOnMatchNames = Get-ALZBasedOnMatchNames -BasedOn $archetype.based_on -Type $Type
             $archetypeObj = @{
                 name               = $archetype.name
-                policy_assignments = $archetypeArray | Where-Object { $_.name -eq $archetype.based_on -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
+                policy_assignments = $archetypeArray | Where-Object { $_.name -in $basedOnMatchNames -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
             }
         }
         else {
@@ -373,9 +407,10 @@ try {
     #Check again for new archetypes based on a custom archetype
     foreach ($archetype in $archetypeArray | Where-Object { $_.type -eq "existing" -and $_.name -notin ($finalArchetypeArray.name) -and (($_.name -notmatch "alz") -or ($Type -eq "AMBA" -and $_.name -eq "alz")) }) {
         if ($archetype.PSObject.properties.name -contains "based_on") {
+            $basedOnMatchNames = Get-ALZBasedOnMatchNames -BasedOn $archetype.based_on -Type $Type
             $archetypeObj = @{
                 name               = $archetype.name
-                policy_assignments = $finalArchetypeArray | Where-Object { $_.name -eq $archetype.based_on -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
+                policy_assignments = $finalArchetypeArray | Where-Object { $_.name -in $basedOnMatchNames -and $_.PSObject.properties.name -notcontains "type" } | Select-Object -ExpandProperty policy_assignments | Where-Object { $_ -notin $archetype.policy_assignments_to_remove }
             }
         }
         if ($archetype.policy_assignments_to_add) {
