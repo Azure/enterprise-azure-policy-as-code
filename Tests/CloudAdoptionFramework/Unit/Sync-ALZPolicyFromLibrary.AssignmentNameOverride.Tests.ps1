@@ -215,4 +215,115 @@ function Invoke-RestMethod {
         $output | Should -Match "24-char limit"
         (Test-Path (Join-Path $definitionsRoot 'policyAssignments/ALZ/epac-dev/Landing Zones/Audit-MachineLearning-PrivateEndpointId.jsonc')) | Should -BeFalse
     }
+
+    It 'uses assignment_name when the archetype is renamed mid-pipeline (alz -> root)' {
+        $definitionsRoot = Join-Path $TestDrive 'DefinitionsRename'
+        $libraryRoot = Join-Path $TestDrive 'libraryRename'
+        $helperScriptPath = Join-Path $TestDrive 'run-sync-rename.ps1'
+        $tag = 'platform/alz/2026.04.2'
+
+        foreach ($path in @(
+                $definitionsRoot
+                (Join-Path $definitionsRoot 'policyStructures')
+                (Join-Path $definitionsRoot 'policyAssignments')
+                (Join-Path $libraryRoot 'platform/alz/archetype_definitions')
+                (Join-Path $libraryRoot 'platform/alz/policy_assignments')
+                (Join-Path $libraryRoot 'platform/alz/policy_definitions')
+            )) {
+            New-Item -ItemType Directory -Path $path -Force | Out-Null
+        }
+
+        Set-Content -Path (Join-Path $definitionsRoot 'global-settings.jsonc') -Value @'
+{
+  "telemetryOptOut": true,
+  "pacEnvironments": ["epac-dev"]
+}
+'@
+
+        Set-Content -Path (Join-Path $definitionsRoot 'policyStructures/alz.policy_default_structure.epac-dev.jsonc') -Value @'
+{
+  "enforcementMode": "Default",
+  "managementGroupNameMappings": {
+    "alz": {
+      "management_group_function": "Intermediate Root",
+      "value": "/providers/Microsoft.Management/managementGroups/alz"
+    }
+  },
+  "defaultParameterValues": {},
+  "overrides": {
+    "archetypes": {
+      "ignore": [],
+      "custom": [
+        {
+          "name": "alz",
+          "type": "existing",
+          "policy_assignments_to_add": [
+            {
+              "policy_name": "Audit-MachineLearning-PrivateEndpointId",
+              "assignment_name": "Audit-ML-Root"
+            }
+          ]
+        }
+      ]
+    },
+    "parameters": {},
+    "enforcementMode": {}
+  }
+}
+'@
+
+        Set-Content -Path (Join-Path $libraryRoot 'platform/alz/archetype_definitions/alz.alz_archetype_definition.json') -Value @'
+{
+  "name": "alz",
+  "policy_assignments": []
+}
+'@
+
+        Set-Content -Path (Join-Path $libraryRoot 'platform/alz/policy_definitions/Audit-MachineLearning-PrivateEndpointId.alz_policy_definition.json') -Value @'
+{
+  "name": "Audit-MachineLearning-PrivateEndpointId",
+  "properties": {
+    "displayName": "Audit Machine Learning Private Endpoint Id",
+    "description": "Test policy",
+    "parameters": {},
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.MachineLearningServices/workspaces"
+      },
+      "then": {
+        "effect": "audit"
+      }
+    }
+  }
+}
+'@
+
+        Set-Content -Path $helperScriptPath -Value @"
+function Invoke-RestMethod {
+    param(
+        [string] `$Uri
+    )
+
+    [pscustomobject]@{
+        ref = @('refs/tags/$tag')
+    }
+}
+
+& '$($script:SyncScriptPath.Replace("'", "''"))' -DefinitionsRootFolder '$($definitionsRoot.Replace("'", "''"))' -LibraryPath '$($libraryRoot.Replace("'", "''"))' -Type ALZ -PacEnvironmentSelector 'epac-dev' -Tag '$tag' -EnableOverrides -SyncAssignmentsOnly
+"@
+
+        $output = & pwsh -NoLogo -NoProfile -File $helperScriptPath 2>&1 | Out-String
+
+        $assignmentFile = Join-Path $definitionsRoot 'policyAssignments/ALZ/epac-dev/Intermediate Root/Audit-ML-Root.jsonc'
+        Test-Path $assignmentFile | Should -BeTrue
+
+        $assignmentContent = Get-Content -Path $assignmentFile -Raw | ConvertFrom-Json
+        $assignmentContent.assignment.name | Should -Be 'Audit-ML-Root'
+        $assignmentContent.nodeName | Should -Be 'root/Audit-ML-Root'
+
+        # The override must resolve, so the long library name file must not be created and no warning emitted.
+        (Test-Path (Join-Path $definitionsRoot 'policyAssignments/ALZ/epac-dev/Intermediate Root/Audit-MachineLearning-PrivateEndpointId.jsonc')) | Should -BeFalse
+        $output | Should -Not -Match 'did not resolve to any created assignment'
+    }
 }
