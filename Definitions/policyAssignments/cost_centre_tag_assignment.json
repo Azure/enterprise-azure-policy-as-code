@@ -15,7 +15,7 @@
     {
       "nodeName": "Dev/",
       "parameters": {
-        "effect": "Audit"
+        "effect": "Deny"
       },
       "scope": {
         "dev": [
