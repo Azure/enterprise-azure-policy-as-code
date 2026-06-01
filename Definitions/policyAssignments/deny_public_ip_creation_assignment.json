@@ -1,0 +1,36 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json",
+  "nodeName": "Deny-Public-IP-Creation-Assignment",
+  "definitionEntry": {
+    "policyName": "Deny-Public-IP-Creation"
+  },
+  "assignment": {
+    "name": "Deny-Public-IP-Creation",
+    "displayName": "Deny or audit public IP creation",
+    "description": "Audits public IP creation in Dev and denies it in Prod."
+  },
+  "children": [
+    {
+      "nodeName": "Dev",
+      "parameters": {
+        "effect": "Audit"
+      },
+      "scope": {
+        "dev": [
+          "/providers/Microsoft.Management/managementGroups/EPAC-Dev"
+        ]
+      }
+    },
+    {
+      "nodeName": "Prod",
+      "parameters": {
+        "effect": "Deny"
+      },
+      "scope": {
+        "prod": [
+          "/providers/Microsoft.Management/managementGroups/Landing_Zone"
+        ]
+      }
+    }
+  ]
+}
