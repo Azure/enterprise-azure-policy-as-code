@@ -723,7 +723,7 @@ try {
 
                 $additionalRoleAssignments = @{
                     $PacEnvironmentSelector = @(
-                        @{
+                        [ordered]@{
                             roleDefinitionId = "/providers/microsoft.authorization/roleDefinitions/b12aa53e-6015-4669-85d0-8515ebb3ae7f"
                             scope            = "/subscriptions/$($structureFile.defaultParameterValues.private_dns_zone_subscription_id.parameters.value)"
                         }
