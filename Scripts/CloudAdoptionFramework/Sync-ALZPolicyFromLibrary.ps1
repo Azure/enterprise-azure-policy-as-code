@@ -172,6 +172,8 @@ catch {
     Write-ModernStatus -Message "Telemetry could not be enabled: $($_.Exception.Message)" -Status "warning" -Indent 2
 }
 
+$syncedPolicyDefinitionNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+
 if (-not($SyncAssignmentsOnly) -and $Type -ne "SLZ") {
     Write-ModernSection -Title "Creating Policy Definition Objects" -Indent 0
     #region Create policy definition objects
@@ -184,6 +186,7 @@ if (-not($SyncAssignmentsOnly) -and $Type -ne "SLZ") {
         }
         $category = $baseTemplate.properties.Metadata.category
         ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyDefinitions/$Type/$category" -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue
+        [void]$syncedPolicyDefinitionNames.Add(($fileContent.name -replace "/", "_" -replace "%", "pc"))
     }
     Write-ModernSection -Title "Creating Policy Set Definition Objects" -Indent 0
     #endregion Create policy definition objects
@@ -251,9 +254,14 @@ if (-not($SyncAssignmentsOnly) -and $Type -eq "AMBA" -and $SyncAMBAExtendedPolic
     #region Create AMBA extended policy definition objects
     foreach ($file in (Get-ChildItem -Path "$AMBALibraryPath/services" -Recurse -File -Include *.json | Where-Object FullName -match "[\\/]+policy[\\/]+")) {
         $fileContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
+        $policyName = $fileContent.name -replace "/", "_" -replace "%", "pc"
+        if ($syncedPolicyDefinitionNames.Contains($policyName)) {
+            Write-ModernStatus -Message "Skipping duplicate policy definition '$policyName' - already synced from ALZ Library" -Status "warning" -Indent 2
+            continue
+        }
         $baseTemplate = [ordered]@{
             '$schema'  = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json"
-            name       = $fileContent.name -replace "/", "_" -replace "%", "pc"
+            name       = $policyName
             properties = $fileContent.properties
         }
         $fileName = $file.BaseName
