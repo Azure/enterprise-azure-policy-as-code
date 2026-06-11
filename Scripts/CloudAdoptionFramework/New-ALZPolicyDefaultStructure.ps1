@@ -115,61 +115,6 @@ foreach ($mg in $archetypeDefinitionFile.management_groups) {
 }
 
 Write-ModernSection -Title "Building Parameter Values" -Indent 0
-# Static Parameter Values
-
-$additionalValues = @(
-    
-    [PSCustomObject]@{
-        default_name       = "ama_mdfc_sql_workspace_id"
-        description        = "Workspace Id of the Log Analytics workspace destination for the Data Collection Rule."
-        policy_assignments = @(
-            @{
-                policy_assignment_name = "Deploy-MDFC-DefSQL-AMA"
-                parameter_names        = @("userWorkspaceId")
-            }
-        )
-    },
-    [PSCustomObject]@{
-        default_name       = "ama_mdfc_sql_workspace_region"
-        description        = "The region short name (e.g. `westus`) that should be used for the Log Analytics workspace for the SQL MDFC deployment."
-        policy_assignments = @(
-            @{
-                policy_assignment_name = "Deploy-MDFC-DefSQL-AMA"
-                parameter_names        = @("workspaceRegion")
-            }
-        )
-    },
-    [PSCustomObject]@{
-        default_name       = "mdfc_email_security_contact"
-        description        = "Email address for Microsoft Defender for Cloud alerts."
-        policy_assignments = @(
-            @{
-                policy_assignment_name = "Deploy-MDFC-Config-H224"
-                parameter_names        = @("emailSecurityContact")
-            }
-        )
-    },
-    [PSCustomObject]@{
-        default_name       = "mdfc_export_resource_group_name"
-        description        = "Resource Group name for the export to Log Analytics workspace configuration"
-        policy_assignments = @(
-            @{
-                policy_assignment_name = "Deploy-MDFC-Config-H224"
-                parameter_names        = @("ascExportResourceGroupName")
-            }
-        )
-    },
-    [PSCustomObject]@{
-        default_name       = "mdfc_export_resource_group_location"
-        description        = "Resource Group location for the export to Log Analytics workspace configuration"
-        policy_assignments = @(
-            @{
-                policy_assignment_name = "Deploy-MDFC-Config-H224"
-                parameter_names        = @("ascExportResourceGroupLocation")
-            }
-        )
-    }
-)
 
 # Build Parameter Values
 
@@ -178,11 +123,6 @@ $policyDefaultFile = Get-Content -Path "$LibraryPath\platform\$($Type.ToLower())
 $policyDefaults = @()
 
 $policyDefaults += $policyDefaultFile.defaults
-if ($Type -eq "ALZ") {
-    $additionalValues | ForEach-Object {
-        $policyDefaults += $_
-    }
-}
 
 foreach ($parameter in $policyDefaults) {
     if ($parameter.default_name -ne "log_analytics_workspace_id" -and $parameter.default_name -ne "resource_group_location") {
