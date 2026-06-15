@@ -23,7 +23,7 @@ function Build-AssignmentIdentityChanges {
     $definedUserAssignedIdentity = $null
     $requiredRoleAssignments = @()
 
-    $existingLocation = $Existing.location 
+    $existingLocation = if ($null -eq $Existing.location) { "global" } else { $Existing.location }
     $definedLocation = "global"
     if ($hasExistingIdentity) { 
         $existingIdentityType = $existingIdentity.type 
