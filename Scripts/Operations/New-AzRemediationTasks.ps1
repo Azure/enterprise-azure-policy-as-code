@@ -126,6 +126,22 @@ else {
 }
 Write-Information ""
 
+# Az.PolicyInsights 2.0.0 changed Start-AzPolicyRemediation from async-by-default to sync-by-default.
+# -NoWait must be passed explicitly on 2.0.0+ to preserve fire-and-forget task creation.
+$noWaitRequiredVersion = [version]"2.0.0"
+$policyInsightsModule = Get-Module -Name Az.PolicyInsights | Sort-Object Version -Descending | Select-Object -First 1
+if (-not $policyInsightsModule) {
+    $policyInsightsModule = Get-Module -Name Az.PolicyInsights -ListAvailable | Sort-Object Version -Descending | Select-Object -First 1
+}
+# When $policyInsightsModule is null or version < 2.0.0, $useNoWait is $false (NoWait not applied).
+$useNoWait = $policyInsightsModule -and ($policyInsightsModule.Version -ge $noWaitRequiredVersion)
+if ($policyInsightsModule) {
+    Write-Information "Az.PolicyInsights $($policyInsightsModule.Version) detected - $(if ($useNoWait) { 'will apply -NoWait' } else { 'will not apply -NoWait' }) to Start-AzPolicyRemediation"
+}
+else {
+    Write-Information "Az.PolicyInsights module not found - will not apply -NoWait to Start-AzPolicyRemediation"
+}
+
 if ($OnlyDefaultEnforcementMode) {
     $enforcementMode = "Default"
 }
@@ -250,6 +266,9 @@ else {
             Write-Information "'$($_.shortScope)/$($_.policyAssignmentName)': $($_.resourceCount) resources, '$($_.policyDefinitionName)', $($_.policyDefinitionAction)"
         }
         $parameters = $_.parametersSplat
+        if ($useNoWait) {
+            $parameters['NoWait'] = $true
+        }
         Write-Verbose "Parameters: $($parameters | ConvertTo-Json -Depth 99)"
         if ($TestRun) {
             Write-Information "`TEST RUN: Remediation Task would have been created."
@@ -264,7 +283,7 @@ else {
             $succeeded++
         }
         else {
-            $newPolicyRemediationTask = Start-AzPolicyRemediation @parameters -NoWait -ErrorAction SilentlyContinue
+            $newPolicyRemediationTask = Start-AzPolicyRemediation @parameters -ErrorAction SilentlyContinue
 
             if ($null -eq $newPolicyRemediationTask) {
                 Write-Information "`tRemediation Task could not be created."
