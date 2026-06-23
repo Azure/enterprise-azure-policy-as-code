@@ -693,7 +693,7 @@ try {
 
 
             # Check for explicit parameters
-            if ($fileContent.name -ne "Deploy-Private-DNS-Zones") {
+            if ($fileContent.name -ne "Deploy-Private-DNS-Zones" -and -not ($Type -eq "AMBA" -and $fileContent.name -eq "Deploy-AMBA-Web")) {
                 foreach ($key in $structureFile.defaultParameterValues.psObject.Properties.Name) {
                     if ($structureFile.defaultParameterValues.$key.policy_assignment_name -eq $fileContent.name) {
                         $keyName = $structureFile.defaultParameterValues.$key.parameters.parameter_name
@@ -718,6 +718,20 @@ try {
 
                     }
                 }
+            }
+            elseif ($Type -eq "AMBA" -and $fileContent.name -eq "Deploy-AMBA-Web") {
+                # Get the management group scope
+                $managementScopeValue = $structureFile.managementGroupNameMappings.management.value
+
+                $additionalRoleAssignments = @{
+                    $PacEnvironmentSelector = @(
+                        [ordered]@{
+                            roleDefinitionId = "/providers/microsoft.authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830"
+                            scope            = $managementScopeValue
+                        }
+                    )
+                }
+                $baseTemplate.Add("additionalRoleAssignments", $additionalRoleAssignments)
             }
             else {
                 $dnsZoneRegion = $structureFile.defaultParameterValues.private_dns_zone_region.parameters.value
@@ -752,6 +766,9 @@ try {
             elseif ($fileContent.name -eq "Deploy-Private-DNS-Zones") {
                 ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope, additionalRoleAssignments | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$effectiveAssignmentName.jsonc" -Force -ErrorAction SilentlyContinue
                 (Get-Content "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$effectiveAssignmentName.jsonc") -replace "\.ne\.", ".$dnsZoneRegion." | Set-Content "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$effectiveAssignmentName.jsonc"
+            }
+            elseif ($Type -eq "AMBA" -and $fileContent.name -eq "Deploy-AMBA-Web") {
+                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope, additionalRoleAssignments | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$effectiveAssignmentName.jsonc" -Force -ErrorAction SilentlyContinue
             }
             else {
                 ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$effectiveAssignmentName.jsonc" -Force -ErrorAction SilentlyContinue
