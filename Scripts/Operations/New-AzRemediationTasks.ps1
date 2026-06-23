@@ -264,7 +264,7 @@ else {
             $succeeded++
         }
         else {
-            $newPolicyRemediationTask = Start-AzPolicyRemediation @parameters -ErrorAction SilentlyContinue
+            $newPolicyRemediationTask = Start-AzPolicyRemediation @parameters -NoWait -ErrorAction SilentlyContinue
 
             if ($null -eq $newPolicyRemediationTask) {
                 Write-Information "`tRemediation Task could not be created."
