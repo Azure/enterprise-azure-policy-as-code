@@ -25,7 +25,7 @@ function Convert-AllowedEffectsToCsvString {
     else {
         $prefix = "none"
         $allowedList = @()
-        return "$(prefix)$($InCellSeparator1)No effect allowed$($InCellSeparator2)Error"
+        return "$($prefix)$($InCellSeparator1)No effect allowed$($InCellSeparator2)Error"
     }
 
     $effectArray = @()
