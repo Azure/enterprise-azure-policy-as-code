@@ -11,6 +11,10 @@
 
 - New modern look. Updated the output from the EPAC commands to look more modern and added accessibility features.
 - Changes to support for Azure Lighthouse (see below)
+- Enhancements for Policy Definition and Policy Set Definition scope handling:
+    - Custom definitions can specify `properties.metadata.definitionLocation` to deploy at a different scope.
+    - `desiredState.additionalDefinitionLocations` allows EPAC to discover/manage definitions at additional scopes.
+    - Assignment validation now enforces that assignment scope is at the same level as, or below, referenced custom definition scopes.
 - Changes to the ALZ sync process to support easier customization via a single file and not a forked repository
     - Ignore archetypes
     - Add custom management groups

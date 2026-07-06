@@ -105,6 +105,7 @@ EPAC has a concept of an environment identified by a string (unique per reposito
 | `keepDfcSecurityAssignments` | See [Managing Defender for Cloud Policy Assignments](settings-dfc-assignments.md). |
 | `doNotDisableDeprecatedPolicies` | Automatically set deprecated policies' policy effect to "Disabled". This setting can be used to override that behavior by setting it to `true`. Default is `false`. |
 | `manageChildScopeDefinitions` | When `true`, EPAC manages Policy Definitions and Policy Set Definitions at child scopes (child management groups, subscriptions) under the `deploymentRootScope`, making them eligible for deletion. Default is `false`. See [Managing Child Scope Definitions](settings-desired-state.md#managing-child-scope-definitions). |
+| `additionalDefinitionLocations` | Optional array of additional scopes used for Policy Definition and Policy Set Definition lookup/management. Use this when definitions are stored outside `deploymentRootScope` and its child hierarchy. |
 | `managedIdentityLocation` | See [DeployIfNotExists and Modify Policy Assignments need `managedIdentityLocation`](#deployifnotexists-and-modify-policy-assignments-need-managedidentitylocation) |
 
 #### Deployment Scope Formats
