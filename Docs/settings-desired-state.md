@@ -33,10 +33,12 @@ Desired State strategy enables you to adjust the default behavior to fit more co
 | `excludedPolicyDefinitionFiles` | An array of Policy Definition file names to exclude from management by EPAC. | Empty array |
 | `excludedPolicySetDefinitionFiles` | An array of Policy Set Definition file names to exclude from management by EPAC. | Empty array |
 | `excludedPolicyAssignments` | An array of Policy Assignments to exclude from management by EPAC. Wild cards are supported. | Empty array |
+| `excludedPolicyAssignmentFiles` | An array of Policy Assignment file names to exclude from management by EPAC per pacSelector. | Empty array |
 | `doNotDisableDeprecatedPolicies` | Automatically set deprecated policies' policy effect to "Disabled". This setting can be used to override that behavior by setting it to `true`. | `false` |
 | `excludeSubscriptions` | Exclude all subscription under the deployment root scope. Designed for environments containing many frequently updated subscriptions that are not requiring management and where using `excludedScopes` would be impractical to maintain. If resource groups are added `excludedScopes` they will be ignored as this setting will take precedence by virtue of the fact that it excludes all Subscriptions, which by definition contain all Resource Groups. It will not effect excluded management group scopes. | `false` |
 | `keepDfcPlanAssignments` | Choose whether EPAC should delete Azure Policies deployed by Defender for Cloud that are associated with DFC Plans. Once the policies are deleted, the action is irreversible. This is only recommended if you are confident that you are managing and deploying the policies through EPAC, rather than relying on Defender for Cloud to manage the Azure Policies related to each plan. | `true` |
 | `manageChildScopeDefinitions` | When set to `true`, EPAC will also manage Policy Definitions and Policy Set Definitions deployed at **child scopes** (child management groups, subscriptions) under the `deploymentRootScope`. By default, EPAC only manages definitions at the `deploymentRootScope` itself — definitions at child scopes are ignored. See [Managing Child Scope Definitions](#managing-child-scope-definitions) below. | `false` |
+| `cleanupObsoleteExemptions` | When set to `true`, EPAC will delete Policy Exemptions that reference Policy Assignments no longer present in the environment. This prevents stale exemptions from accumulating over time as assignments are removed. | `false` |
 
 The following example shows the `desiredState` element with all properties set:
 
@@ -53,6 +55,7 @@ The following example shows the `desiredState` element with all properties set:
     "excludedPolicyDefinitions"            = []
     "excludedPolicySetDefinitions"         = []
     "excludedPolicyAssignments"            = []
+    "excludedPolicyAssignmentFiles"        = []
 }
 ```
 
@@ -171,10 +174,11 @@ This happens when EPAC `strategy` is `full` and some child scopes contain Policy
 | Policy Definition Files | `desiredState.excludedPolicyDefinitionFiles` | Exclude specific Policy Definition Files |
 | Policy Set Definition Files | `desiredState.excludedPolicySetDefinitionFiles` | Exclude specific Policy Set Definition Files |
 | Policy Assignments | `desiredState.excludedPolicyAssignments` | Exclude specific Policy Assignments |
+| Policy Assignment Files | `desiredState.excludedPolicyAssignmentFiles` | Exclude specific Policy Assignment Files per pacSelector. *This is **only** necessary if a custom policy explicitly references a ResourceId as the object cannot exist in two scopes unless they overlap, which is an anti-pattern.* |
 
 > **Note:** `"/subscriptions/subscriptionsPattern/*"` is also a valid `excludedScopes` value, but is more commonly used for name based filtering
 
-You can exclude any combination of `excludedScopes`, `excludedPolicyDefinitions`, `excludedPolicySetDefinitions` and `excludedPolicyAssignments`. Any of the strings can contain simple wild cards. See [PolicyAssignment](./policy-assignments.md) documentation for further information.
+You can exclude any combination of `excludedScopes`, `excludedPolicyDefinitions`, `excludedPolicySetDefinitions`, `excludedPolicyAssignments`, and `excludedPolicyAssignmentFiles`. Any of the strings can contain simple wild cards. See [PolicyAssignment](./policy-assignments.md) documentation for further information.
 
 ```json
 "desiredState": {
@@ -193,6 +197,9 @@ You can exclude any combination of `excludedScopes`, `excludedPolicyDefinitions`
     ],
     "excludedPolicyAssignments": [
         "/subscriptions/*/providers/Microsoft.Authorization/policyAssignments/my-*"
+    ],
+    "excludedPolicyAssignmentFiles": [
+        "my-assignments-file.jsonc"
     ]
 }
 ```

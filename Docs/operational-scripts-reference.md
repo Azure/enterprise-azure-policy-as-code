@@ -271,7 +271,7 @@ Filter by Policy Effect "deployifnotexists" and "modify" and compliance status "
 Retrieves Policy Exemptions from an EPAC environment and saves them to files.
 
 ```ps1
-Get-AzExemptions [[-PacEnvironmentSelector] <String>] [-DefinitionsRootFolder <String>] [-OutputFolder <String>] [-Interactive <Boolean>] [-FileExtension <String>] [-ActiveExemptionsOnly] [<CommonParameters>]
+Get-AzExemptions [[-PacEnvironmentSelector] <String>] [-DefinitionsRootFolder <String>] [-OutputFolder <String>] [-Interactive <Boolean>] [-FileExtension <String>] [-ActiveExemptionsOnly] [-ExportForEpac] [<CommonParameters>]
 ```
 
 ### Parameters
@@ -299,6 +299,10 @@ File extension type for the output files. Valid values are json or jsonc. The de
 #### `-ActiveExemptionsOnly [<SwitchParameter>]`
 
 Set to true to only generate files for active (not expired and not orphaned) exemptions. Defaults to false.
+
+#### `-ExportForEpac [<SwitchParameter>]`
+
+Set to true to additionally write an EPAC-ready JSON file (`epac-exemptions.<FileExtension>`) into the per-environment output folder. The file contains only properties recognised by the EPAC `policyExemptions` schema — Azure-only fields such as `status` and `expiresInDays`, plus the `deployedBy` and `epacMetadata` blocks inside `metadata`, are stripped out so the output can be copied directly into the appropriate `policyExemptions` folder without manual cleanup. Combines with `-ActiveExemptionsOnly` to restrict the export to active exemptions. Defaults to false.
 
 ## Script `Get-AzMissingTags`
 

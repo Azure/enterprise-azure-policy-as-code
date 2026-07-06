@@ -36,7 +36,7 @@ This script executes all remediation tasks in a Policy as Code environment speci
 </div>
 
 * `Export-AzPolicyResources` exports Azure Policy resources in EPAC. See usage documentation in [Extract existing Policy Resources](start-extracting-policy-resources.md).
-* `Get-AzExemptions` retrieves Policy Exemptions from an EPAC environment and saves them to files.
+* `Get-AzExemptions` retrieves Policy Exemptions from an EPAC environment and saves them to files. Pass `-ExportForEpac` to additionally produce an `epac-exemptions.<ext>` file that is already stripped of Azure-only fields and can be committed directly into the EPAC repo.
 * `Get-AzPolicyAliasOutputCSV` exports Policy Aliases to CSV format.
 
 ## Hydration Kit

@@ -8,7 +8,8 @@ function Out-PolicyExemptions {
         [switch] $OutputJson,
         [switch] $OutputCsv,
         [string] $FileExtension = "json",
-        [switch] $ActiveExemptionsOnly
+        [switch] $ActiveExemptionsOnly,
+        [switch] $ExportForEpac
     )
 
     $numberOfExemptions = $Exemptions.Count
@@ -374,6 +375,117 @@ function Out-PolicyExemptions {
         }
 
         #endregion All Exemptions
+
+    }
+
+    if ($ExportForEpac) {
+
+        #region EPAC-ready Exemptions Export
+
+        $epacStem = "$outputPath/epac-exemptions"
+        Write-ModernSection -Title "EPAC-ready Exemptions" -Color Cyan
+        Write-ModernStatus -Message "Environment: $pacSelector" -Status "info" -Indent 2
+
+        # Allowed top-level properties per Schemas/policy-exemption-schema.json.
+        # Built dynamically from the input so we only include properties that have meaningful values
+        # (the EPAC schema sets additionalProperties: false and also requires certain combinations).
+        $epacOptionalProperties = @(
+            "displayName",
+            "description",
+            "exemptionCategory",
+            "expiresOn",
+            "scope",
+            "policyAssignmentId",
+            "policyDefinitionReferenceIds",
+            "resourceSelectors",
+            "assignmentScopeValidation"
+        )
+
+        $epacArray = [System.Collections.Generic.List[object]]::new()
+        $epacSource = $selectedExemptions
+        if ($ActiveExemptionsOnly) {
+            $epacSource = $selectedExemptions | Where-Object status -in @("active", "active-expiring-within-15-days")
+        }
+        foreach ($exemption in $epacSource) {
+            $epacObj = [ordered]@{
+                name = $exemption.name
+            }
+            foreach ($prop in $epacOptionalProperties) {
+                $value = $exemption.$prop
+                if ($null -eq $value) {
+                    continue
+                }
+                if ($value -is [string] -and [string]::IsNullOrWhiteSpace($value)) {
+                    continue
+                }
+                if ($value -is [System.Collections.ICollection] -and $value.Count -eq 0) {
+                    continue
+                }
+                if ($prop -eq "resourceSelectors") {
+                    $rebuilt = [System.Collections.Generic.List[object]]::new()
+                    foreach ($rs in $value) {
+                        $selList = [System.Collections.Generic.List[object]]::new()
+                        foreach ($sel in $rs.selectors) {
+                            $selObj = [ordered]@{ kind = $sel.kind }
+                            if ($sel.in) {
+                                $inList = [System.Collections.Generic.List[object]]::new()
+                                foreach ($v in $sel.in) { $inList.Add($v) }
+                                $selObj["in"] = $inList
+                            }
+                            if ($sel.notIn) {
+                                $notInList = [System.Collections.Generic.List[object]]::new()
+                                foreach ($v in $sel.notIn) { $notInList.Add($v) }
+                                $selObj["notIn"] = $notInList
+                            }
+                            $selList.Add([PSCustomObject]$selObj)
+                        }
+                        $rebuilt.Add([PSCustomObject]@{
+                                name      = $rs.name
+                                selectors = $selList
+                            })
+                    }
+                    $epacObj[$prop] = $rebuilt
+                    continue
+                }
+                if ($prop -eq "policyDefinitionReferenceIds") {
+                    $refList = [System.Collections.Generic.List[object]]::new()
+                    foreach ($r in $value) { $refList.Add($r) }
+                    $epacObj[$prop] = $refList
+                    continue
+                }
+                $epacObj[$prop] = $value
+            }
+
+            # Strip Azure-only and EPAC-internal metadata; omit metadata entirely if nothing remains.
+            if ($null -ne $exemption.metadata) {
+                $cleanMetadata = Get-CustomMetadata -Metadata $exemption.metadata -Remove "pacOwnerId"
+                $cleanMetadataHash = ConvertTo-HashTable $cleanMetadata
+                foreach ($strip in @("deployedBy", "epacMetadata")) {
+                    if ($cleanMetadataHash.Keys -contains $strip) {
+                        $cleanMetadataHash.Remove($strip)
+                    }
+                }
+                if ($cleanMetadataHash.Count -gt 0) {
+                    $epacObj["metadata"] = $cleanMetadataHash
+                }
+            }
+
+            $epacArray.Add([PSCustomObject]$epacObj)
+        }
+
+        Write-ModernStatus -Message "Outputting $($epacArray.Count) EPAC-ready exemptions" -Status "success" -Indent 2
+
+        $epacFile = "$epacStem.$FileExtension"
+        if (Test-Path $epacFile) {
+            Remove-Item $epacFile
+        }
+        $epacOutputObj = [ordered]@{
+            '$schema'  = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-exemption-schema.json"
+            exemptions = $epacArray
+        }
+        ConvertTo-Json $epacOutputObj -Depth 100 | Out-File $epacFile -Force
+
+        #endregion EPAC-ready Exemptions Export
 
     }
 }
