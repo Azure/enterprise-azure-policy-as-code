@@ -413,7 +413,8 @@ function Build-HydrationDeploymentPlans {
         # Convert Policy and PolicySetDefinition to detailed Info
         $combinedPolicyDetails = Convert-PolicyResourcesToDetails `
             -AllPolicyDefinitions $allDefinitions.policydefinitions `
-            -AllPolicySetDefinitions $allDefinitions.policysetdefinitions
+            -AllPolicySetDefinitions $allDefinitions.policysetdefinitions `
+            -AllPolicySetDefinitionVersions $deployedPolicyResources.policysetdefinitions.versions
 
         # Populate allAssignments
         $deployedPolicyAssignments = $deployedPolicyResources.policyassignments.managed

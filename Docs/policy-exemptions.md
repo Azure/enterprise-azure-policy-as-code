@@ -133,6 +133,9 @@ In CSV files use the column `assignmentReferenceId`, and optionally `policyDefin
 
 In CSV files, `policyDefinitionReferenceIds` is a list of ampersand `&` separated strings. In JSON files, it is an array of strings.
 
+> [!NOTE]
+> When the associated Assignment pins an initiative version via `definitionVersion` (for example `1.3.*-preview`), EPAC resolves `policyDefinitionReferenceIds` against that pinned Policy Set version. This allows exemptions to target Policies that only exist in the pinned version, even if they were removed in a newer version of the initiative.
+
 ## Defining the Scope with `scope` or `scopes`
 
 The `scope` property is used to define a single scope. The `scopes` property is used to define multiple scopes. `scopes` was introduced in v10.1.0.

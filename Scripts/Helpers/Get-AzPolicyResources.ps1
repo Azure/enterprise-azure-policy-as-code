@@ -40,6 +40,7 @@ function Get-AzPolicyResources {
             all      = @{}
             readOnly = @{}
             managed  = @{}
+            versions = @{}
             counters = @{
                 builtIn         = 0
                 inherited       = 0
@@ -143,6 +144,15 @@ function Get-AzPolicyResources {
             }
         }
     }
+
+    # Collect version-specific Policy Set definitions referenced by pinned assignment definitionVersions.
+    # These live in a separate Resource Graph table (microsoft.authorization/policysetdefinitions/versions)
+    # and are required to correctly resolve policyDefinitionReferenceIds for exemptions that target a
+    # policy which only exists in the pinned (older) version of an initiative.
+    Get-AzPolicySetDefinitionVersions `
+        -PacEnvironment $PacEnvironment `
+        -PolicySetDefinitionsTable $deployedPolicyResources.policysetdefinitions `
+        -PolicyAssignments $deployedPolicyResources.policyassignments.managed
 
     Write-ModernSection -Title "Policy Resource Summary" -Color Blue
 

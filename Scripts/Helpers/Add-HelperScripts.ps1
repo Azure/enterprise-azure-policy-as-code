@@ -63,6 +63,8 @@ $scriptRoot = Split-Path $PSScriptRoot -Parent
 . "$PSScriptRoot/Get-AzPolicyExemptions.ps1"
 . "$PSScriptRoot/Get-AzPolicyResources.ps1"
 . "$PSScriptRoot/Get-AzPolicyResourcesDetails.ps1"
+. "$PSScriptRoot/Get-AzPolicySetDefinitionVersions.ps1"
+. "$PSScriptRoot/Get-BestMatchingVersion.ps1"
 . "$PSScriptRoot/Get-CalculatedPolicyAssignmentsAndReferenceIds.ps1"
 . "$PSScriptRoot/Get-CustomMetadata.ps1"
 . "$PSScriptRoot/Get-DeepCloneAsOrderedHashtable.ps1"

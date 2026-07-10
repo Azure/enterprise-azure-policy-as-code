@@ -2,7 +2,8 @@ function Convert-PolicyResourcesToDetails {
     [CmdletBinding()]
     param (
         [hashtable] $AllPolicyDefinitions,
-        [hashtable] $AllPolicySetDefinitions
+        [hashtable] $AllPolicySetDefinitions,
+        [hashtable] $AllPolicySetDefinitionVersions = @{}
     )
 
     Write-ModernSection -Title "Pre-calculating Policy Parameters" -Color Blue
@@ -130,10 +131,31 @@ function Convert-PolicyResourcesToDetails {
 
     Write-ModernStatus -Message "Policy parameter pre-calculation complete" -Status "success" -Indent 2
 
+    # Convert version-specific Policy Set Definitions to Details (referenced by pinned assignment versions).
+    # Keyed by "<policySetId>||<version>" so that referenceIds can be resolved against the pinned version.
+    $policySetVersionDetails = @{}
+    if ($AllPolicySetDefinitionVersions.psbase.Count -gt 0) {
+        Write-ModernStatus -Message "Calculating effect parameters for $($AllPolicySetDefinitionVersions.psbase.Count) version-specific Policy Sets" -Status "info" -Indent 2
+        foreach ($versionKey in $AllPolicySetDefinitionVersions.Keys) {
+            $versionResource = $AllPolicySetDefinitionVersions.$versionKey
+            $baseId = $versionResource.id
+            $singleDetail = @{}
+            Convert-PolicySetToDetails `
+                -PolicySetId $baseId `
+                -PolicySetDefinition $versionResource `
+                -PolicySetDetails $singleDetail `
+                -PolicyDetails $policyDetails
+            if ($singleDetail.ContainsKey($baseId)) {
+                $policySetVersionDetails[$versionKey] = $singleDetail.$baseId
+            }
+        }
+    }
+
     # Assemble result
     $combinedPolicyDetails = @{
-        policies   = $policyDetails
-        policySets = $policySetDetails
+        policies          = $policyDetails
+        policySets        = $policySetDetails
+        policySetVersions = $policySetVersionDetails
     }
     return $combinedPolicyDetails
 }

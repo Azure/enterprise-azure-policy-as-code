@@ -22,6 +22,13 @@ function Get-CalculatedPolicyAssignmentsAndReferenceIds {
         $assignmentProperties = Get-PolicyResourceProperties $assignment
         $assignedPolicyDefinitionId = $assignmentProperties.policyDefinitionId
 
+        # Determine the pinned definition version (if any) so referenceIds can be resolved against the
+        # exact initiative version the assignment targets rather than the latest deployed version.
+        $assignmentDefinitionVersion = $assignmentProperties.definitionVersion
+        if ([string]::IsNullOrWhiteSpace($assignmentDefinitionVersion)) {
+            $assignmentDefinitionVersion = $assignmentProperties.effectiveDefinitionVersion
+        }
+
         if ($assignedPolicyDefinitionId.Contains("/providers/Microsoft.Authorization/policyDefinitions/", [StringComparison]::InvariantCultureIgnoreCase)) {
 
             #region calculate assignment for this policyAssignment and assignments for the Policy definition id
@@ -59,9 +66,27 @@ function Get-CalculatedPolicyAssignmentsAndReferenceIds {
             $thisPolicySetReferences = $null
 
             #region calculate referenceId values for this Policy Set
-            if ($byPolicySetIdPolicyDefinitionReferences.ContainsKey($assignedPolicyDefinitionId)) {
+
+            # Resolve the Policy Set details to use - prefer the pinned version's details when available
+            # so that policyDefinitionReferenceIds match the exact initiative version being assigned.
+            $thisPolicySetDetails = $CombinedPolicyDetails.policySets.$assignedPolicyDefinitionId
+            $policySetReferenceCacheKey = $assignedPolicyDefinitionId
+            if (-not [string]::IsNullOrWhiteSpace($assignmentDefinitionVersion) -and $null -ne $CombinedPolicyDetails.policySetVersions) {
+                $availableVersionKeys = @($CombinedPolicyDetails.policySetVersions.Keys | Where-Object { $_ -like "$assignedPolicyDefinitionId||*" })
+                if ($availableVersionKeys.Count -gt 0) {
+                    $availableVersions = @($availableVersionKeys | ForEach-Object { ($_ -split '\|\|', 2)[1] })
+                    $matchedVersion = Get-BestMatchingVersion -PinnedVersion $assignmentDefinitionVersion -AvailableVersions $availableVersions
+                    if ($null -ne $matchedVersion) {
+                        $matchedKey = "$assignedPolicyDefinitionId||$matchedVersion"
+                        $thisPolicySetDetails = $CombinedPolicyDetails.policySetVersions.$matchedKey
+                        $policySetReferenceCacheKey = $matchedKey
+                    }
+                }
+            }
+
+            if ($byPolicySetIdPolicyDefinitionReferences.ContainsKey($policySetReferenceCacheKey)) {
                 # use previously calculated values
-                $thisPolicySetReferences = $byPolicySetIdPolicyDefinitionReferences.$assignedPolicyDefinitionId
+                $thisPolicySetReferences = $byPolicySetIdPolicyDefinitionReferences.$policySetReferenceCacheKey
             }
             else {
                 # create empty values for this Policy Set
@@ -70,11 +95,9 @@ function Get-CalculatedPolicyAssignmentsAndReferenceIds {
                     policyDefinitionReferenceIds   = [System.Collections.ArrayList]::new()
                     byPolicyDefinitionIdReferences = @{}
                 }
-                $null = $byPolicySetIdPolicyDefinitionReferences.Add($assignedPolicyDefinitionId, $thisPolicySetReferences)
+                $null = $byPolicySetIdPolicyDefinitionReferences.Add($policySetReferenceCacheKey, $thisPolicySetReferences)
 
                 # calculate values for this Policy Set
-                $policySetDetailsHt = $CombinedPolicyDetails.policySets
-                $thisPolicySetDetails = $policySetDetailsHt.$assignedPolicyDefinitionId
                 $policyIndex = 0
                 foreach ($policyDefinitionInPolicySet in $thisPolicySetDetails.policyDefinitions) {
                     $policyDefinitionId = $policyDefinitionInPolicySet.id

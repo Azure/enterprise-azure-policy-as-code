@@ -33,7 +33,8 @@ function Get-AzPolicyResourcesDetails {
 
         $policyResourceDetails = Convert-PolicyResourcesToDetails `
             -AllPolicyDefinitions $deployed.policydefinitions.all `
-            -AllPolicySetDefinitions $deployed.policysetdefinitions.all
+            -AllPolicySetDefinitions $deployed.policysetdefinitions.all `
+            -AllPolicySetDefinitionVersions $deployed.policysetdefinitions.versions
         $null = $policyResourceDetails.policyAssignments = $deployed.policyassignments.managed
         $null = $CachedPolicyResourceDetails.Add($PacEnvironmentSelector, $policyResourceDetails)
     }
