@@ -458,6 +458,51 @@ function Build-AssignmentDefinitionNode {
     }
     #endregion scopes, notScopes
 
+    #region Validate that the $definition.scopeCollection.scope entries are at the same level or below the $definition.definitionentryList.policyDefinitionId scopes 
+    if ($definition.scopeCollection -and $definition.definitionEntryList) {
+        $definitionScopesById = @{}
+        foreach ($definitionEntry in $definition.definitionEntryList) {
+            $policyDefinitionId = $definitionEntry.policyDefinitionId
+            if (!$definitionScopesById.ContainsKey($policyDefinitionId)) {
+                # Built-in definitions resolve to an empty scope and are valid for all assignment scopes.
+                $definitionScope = $policyDefinitionId -replace "/providers/Microsoft.Authorization/policy(Set)?Definitions/.*$", ""
+                $definitionScopesById.$policyDefinitionId = $definitionScope
+            }
+        }
+
+        foreach ($scopeEntry in $definition.scopeCollection) {
+            $assignmentScope = $scopeEntry.scope
+            $assignmentScopeDetails = $ScopeTable.$assignmentScope
+
+            foreach ($definitionEntry in $definition.definitionEntryList) {
+                $policyDefinitionId = $definitionEntry.policyDefinitionId
+                $definitionScope = $definitionScopesById.$policyDefinitionId
+
+                if ([string]::IsNullOrWhiteSpace($definitionScope)) {
+                    continue
+                }
+
+                $isAtOrBelowDefinitionScope = $false
+                if ($assignmentScope -eq $definitionScope) {
+                    $isAtOrBelowDefinitionScope = $true
+                }
+                elseif ($null -ne $assignmentScopeDetails -and $null -ne $assignmentScopeDetails.parentTable -and $assignmentScopeDetails.parentTable.ContainsKey($definitionScope)) {
+                    $isAtOrBelowDefinitionScope = $true
+                }
+                elseif ($assignmentScope.StartsWith("$definitionScope/", [System.StringComparison]::OrdinalIgnoreCase)) {
+                    # Fallback for additional definition locations that may not exist in ScopeTable.
+                    $isAtOrBelowDefinitionScope = $true
+                }
+
+                if (!$isAtOrBelowDefinitionScope) {
+                    Write-Error "    Node $($nodeName): assignment scope '$assignmentScope' must be at the same level as, or below, definition scope '$definitionScope' for '$policyDefinitionId'."
+                    $definition.hasErrors = $true
+                }
+            }
+        }
+    }
+    #endregion Validate that the $definition.scopeCollection.scope entries are at the same level or below the $definition.definitionentryList.policyDefinitionId scopes
+
     #region identity and additionalRoleAssignments (optional, specific to an EPAC environment)
     if ($DefinitionNode.additionalRoleAssignments) {
         # Process additional permissions needed to execute remediations; for example permissions to log to Event Hub, Storage Account or Log Analytics

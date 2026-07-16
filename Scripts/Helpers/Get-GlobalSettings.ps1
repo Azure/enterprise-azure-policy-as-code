@@ -361,6 +361,22 @@ function Get-GlobalSettings {
                         Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.manageChildScopeDefinitions ($manageChildScopeDefinitions) must be a boolean value."
                     }
                 }
+                $additionalDefinitionLocations = $desired.additionalDefinitionLocations
+                if ($null -ne $additionalDefinitionLocations) {
+                    if ($additionalDefinitionLocations -isnot [array]) {
+                        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.additionalDefinitionLocations must be an array of strings."
+                    }
+                    else {
+                        foreach ($additionalDefinitionLocation in $additionalDefinitionLocations) {
+                            if ($additionalDefinitionLocation -isnot [string]) {
+                                Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.additionalDefinitionLocations must be an array of strings."
+                            }
+                            else {
+                                $policyDefinitionsScopes += $additionalDefinitionLocation
+                            }
+                        }
+                    }
+                }
             }
 
             $pacEnvironmentDefinition = @{

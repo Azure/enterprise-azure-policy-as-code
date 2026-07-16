@@ -50,8 +50,14 @@ function Build-PolicySetPlan {
         }
 
         $definitionProperties = Get-PolicyResourceProperties -PolicyResource $definitionObject
-        $name = $definitionObject.name
-        $id = "$deploymentRootScope/providers/Microsoft.Authorization/policySetDefinitions/$name"
+        $name = $definitionObject.name        
+        # $id = "$deploymentRootScope/providers/Microsoft.Authorization/policySetDefinitions/$name"
+        if ($definitionProperties.metadata.definitionLocation) {
+            $id = "$($definitionProperties.metadata.definitionLocation)/providers/Microsoft.Authorization/policySetDefinitions/$name"
+        }
+        else {
+            $id = "$deploymentRootScope/providers/Microsoft.Authorization/policySetDefinitions/$name"
+        }
         $displayName = $definitionProperties.displayName
         $description = $definitionProperties.description
         $metadata = Get-DeepCloneAsOrderedHashtable $definitionProperties.metadata
