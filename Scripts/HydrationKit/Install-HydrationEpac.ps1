@@ -795,31 +795,36 @@ function Install-HydrationEpac {
 
     # Test New MG Values
     
-    try {
-        $gatherData.currentTenantPacSelector.caf3Status = $environmentEntry.caf3Status = `
-            Test-HydrationCaf3Hierarchy `
-            -TenantId $(Get-AzContext).Tenant.Id `
-            -TenantIntermediateRoot $TenantIntermediateRoot `
-            -MgPrefix:$allInterviewAnswers.mainCaf3Prefix `
-            -MgSuffix:$allInterviewAnswers.mainCaf3Suffix `
-            -LogFilePath $logFilePath
+    if ($allInterviewAnswers.createMainCaf3Hierarchy -eq "Yes") {
+        try {
+            $gatherData.currentTenantPacSelector.caf3Status = $environmentEntry.caf3Status = `
+                Test-HydrationCaf3Hierarchy `
+                -TenantId $(Get-AzContext).Tenant.Id `
+                -TenantIntermediateRoot $TenantIntermediateRoot `
+                -MgPrefix:$allInterviewAnswers.mainCaf3Prefix `
+                -MgSuffix:$allInterviewAnswers.mainCaf3Suffix `
+                -LogFilePath $logFilePath
+        }
+        catch {
+            Write-Error $Error[0].Exception.Message
+            return
+        }
+        try {
+            $gatherData.currentTenantPacSelector.caf3Status = $environmentEntry.caf3Status = `
+                Test-HydrationCaf3Hierarchy `
+                -TenantId $(Get-AzContext).Tenant.Id `
+                -TenantIntermediateRoot $TenantIntermediateRoot `
+                -MgPrefix:$allInterviewAnswers.epacPrefix `
+                -MgSuffix:$allInterviewAnswers.epacSuffix `
+                -LogFilePath $logFilePath
+        }
+        catch {
+            Write-Error $Error[0].Exception.Message
+            return
+        }
     }
-    catch {
-        Write-Error $Error[0].Exception.Message
-        return
-    }
-    try {
-        $gatherData.currentTenantPacSelector.caf3Status = $environmentEntry.caf3Status = `
-            Test-HydrationCaf3Hierarchy `
-            -TenantId $(Get-AzContext).Tenant.Id `
-            -TenantIntermediateRoot $TenantIntermediateRoot `
-            -MgPrefix:$allInterviewAnswers.epacPrefix `
-            -MgSuffix:$allInterviewAnswers.epacSuffix `
-            -LogFilePath $logFilePath
-    }
-    catch {
-        Write-Error $Error[0].Exception.Message
-        return
+    else {
+        $gatherData.currentTenantPacSelector.caf3Status = $environmentEntry.caf3Status = "SkippedCaf3"
     }
     
     ################################################################################
