@@ -1,7 +1,7 @@
 # Policy Enrollments
 
 > [!WARNING]
-> Policy Enrollments are an Azure preview feature. The resource contract and behavior may change before general availability. EPAC uses API version `2026-06-01` for Policy Enrollments and for Policy Assignments whose `enforcementMode` is `Enroll`.
+> Policy Enrollments are an Azure preview feature. The resource contract and behavior may change before general availability. EPAC uses API version `2026-01-01-preview` for Policy Enrollments and for Policy Assignments whose `enforcementMode` is `Enroll`.
 
 A Policy Enrollment enrolls a scope in a Policy Assignment whose `enforcementMode` is `Enroll`. See the [Microsoft.Authorization/policyEnrollments resource reference](https://learn.microsoft.com/azure/templates/microsoft.authorization/policyenrollments) for the Azure resource contract.
 

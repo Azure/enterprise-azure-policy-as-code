@@ -163,16 +163,16 @@ Describe 'Set-AzPolicyEnrollmentRestMethod' {
             assignmentScopeValidation    = 'Default'
         }
 
-        Set-AzPolicyEnrollmentRestMethod -EnrollmentObj $enrollment -ApiVersion '2026-06-01'
+        Set-AzPolicyEnrollmentRestMethod -EnrollmentObj $enrollment -ApiVersion '2026-01-01-preview'
 
-        $script:lastRestCall.Path | Should -Be "$script:enrollmentId`?api-version=2026-06-01"
+        $script:lastRestCall.Path | Should -Be "$script:enrollmentId`?api-version=2026-01-01-preview"
         $script:lastRestCall.Method | Should -Be 'PUT'
         ($script:lastRestCall.Payload | ConvertFrom-Json).properties.policyAssignmentId | Should -Be $script:assignmentId
     }
 }
 
 Describe 'Set-AzPolicyAssignmentRestMethod enrollment mode' {
-    It 'uses API version 2026-06-01 for an Enroll assignment' {
+    It 'uses API version 2026-01-01-preview for an Enroll assignment' {
         $script:lastRestCall = $null
         $assignment = @{
             id                 = $script:assignmentId
@@ -188,6 +188,6 @@ Describe 'Set-AzPolicyAssignmentRestMethod enrollment mode' {
 
         Set-AzPolicyAssignmentRestMethod -AssignmentObj $assignment -ApiVersion '2023-04-01'
 
-        $script:lastRestCall.Path | Should -Be "$script:assignmentId`?api-version=2026-06-01"
+        $script:lastRestCall.Path | Should -Be "$script:assignmentId`?api-version=2026-01-01-preview"
     }
 }

@@ -69,7 +69,7 @@ function Select-PacEnvironment {
                 policySetDefinitions = "2023-04-01"
                 policyAssignments    = "2022-06-01"
                 policyExemptions     = "2022-07-01-preview"
-                policyEnrollments    = "2026-06-01"
+                policyEnrollments    = "2026-01-01-preview"
                 roleAssignments      = "2022-04-01"
             }
         }
@@ -79,7 +79,7 @@ function Select-PacEnvironment {
                 policySetDefinitions = "2023-04-01"
                 policyAssignments    = "2023-04-01"
                 policyExemptions     = "2024-12-01-preview"
-                policyEnrollments    = "2026-06-01"
+                policyEnrollments    = "2026-01-01-preview"
                 roleAssignments      = "2022-04-01"
             }
         }
@@ -89,7 +89,7 @@ function Select-PacEnvironment {
                 policySetDefinitions = "2023-04-01"
                 policyAssignments    = "2023-04-01"
                 policyExemptions     = "2022-07-01-preview"
-                policyEnrollments    = "2026-06-01"
+                policyEnrollments    = "2026-01-01-preview"
                 roleAssignments      = "2022-04-01"
             }
         }

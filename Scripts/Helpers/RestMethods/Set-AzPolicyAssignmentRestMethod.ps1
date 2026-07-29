@@ -3,7 +3,7 @@ function Set-AzPolicyAssignmentRestMethod {
     param (
         $AssignmentObj,
         $ApiVersion,
-        $EnrollmentApiVersion = "2026-06-01"
+        $EnrollmentApiVersion = "2026-01-01-preview"
     )
 
     if ($AssignmentObj.enforcementMode -eq "Enroll") {
