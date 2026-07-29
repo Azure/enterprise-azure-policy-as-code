@@ -1,0 +1,114 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-enrollment-schema.json",
+    "title": "EPAC Policy Enrollment (Preview)",
+    "description": "Defines one Microsoft.Authorization/policyEnrollments resource.",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "$schema": {
+            "type": "string"
+        },
+        "name": {
+            "type": "string",
+            "pattern": "^[^<>%&:\\?/]*[^<>%&:\\?/ ]+$"
+        },
+        "scope": {
+            "type": "string",
+            "minLength": 1
+        },
+        "displayName": {
+            "type": "string"
+        },
+        "description": {
+            "type": "string"
+        },
+        "metadata": {
+            "type": "object"
+        },
+        "policyAssignmentId": {
+            "type": "string",
+            "minLength": 1
+        },
+        "assignmentScopeValidation": {
+            "enum": [
+                "Default",
+                "DoNotValidate"
+            ]
+        },
+        "policyDefinitionReferenceIds": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "uniqueItems": true
+        },
+        "resourceSelectors": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "selectors": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "kind": {
+                                    "enum": [
+                                        "groupPrincipalId",
+                                        "policyDefinitionReferenceId",
+                                        "resourceLocation",
+                                        "resourceType",
+                                        "resourceWithoutLocation",
+                                        "userPrincipalId"
+                                    ]
+                                },
+                                "in": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "notIn": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "required": [
+                                "kind"
+                            ],
+                            "oneOf": [
+                                {
+                                    "required": [
+                                        "in"
+                                    ]
+                                },
+                                {
+                                    "required": [
+                                        "notIn"
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                },
+                "required": [
+                    "name",
+                    "selectors"
+                ]
+            }
+        }
+    },
+    "required": [
+        "name",
+        "scope",
+        "policyAssignmentId"
+    ]
+}

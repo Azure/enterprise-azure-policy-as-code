@@ -112,7 +112,7 @@ In some organizations the lifecycle of different parts may be managed separately
 
 EPAC only manages items with a directory in the `Definitions` folder. Therefore, you can use the same `pacOwnerId` from two repos and remove the folders to separate them. In this example:
 
-- Repo1: `Definitions` contains `policyDefinitions`, `policySetDefinitions` and `policyAssignments` folders.
+- Repo1: `Definitions` contains `policyDefinitions`, `policySetDefinitions`, `policyAssignments`, and optionally `policyEnrollments` folders.
 - Repo2: `Definitions` contains `policyExemptions` folder.
 
 Policy resource that would be defined in the folder. It is important to remove the folders. GitHub repos remove empty folder automatically.

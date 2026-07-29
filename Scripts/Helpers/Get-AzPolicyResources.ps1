@@ -6,6 +6,7 @@ function Get-AzPolicyResources {
 
         [switch] $SkipRoleAssignments,
         [switch] $SkipExemptions,
+        [switch] $IncludeEnrollments,
         [switch] $CollectAllPolicies
     )
 
@@ -17,6 +18,7 @@ function Get-AzPolicyResources {
 
     $skipExemptionsLocal = $SkipExemptions.IsPresent
     $skipRoleAssignmentsLocal = $SkipRoleAssignments.IsPresent
+    $includeEnrollmentsLocal = $IncludeEnrollments.IsPresent
     $collectAllPoliciesLocal = $CollectAllPolicies.IsPresent
 
     $deployedPolicyResources = @{
@@ -82,6 +84,18 @@ function Get-AzPolicyResources {
                 unmanagedScopes = 0
             }
         }
+        policyenrollments            = @{
+            managed  = @{}
+            counters = @{
+                managedBy       = @{
+                    thisPaC  = 0
+                    otherPaC = 0
+                    unknown  = 0
+                }
+                excluded        = 0
+                unmanagedScopes = 0
+            }
+        }
         roleAssignmentsByPrincipalId = @{}
         numberOfRoleAssignments      = 0
         numberOfPrincipleIds         = 0
@@ -104,6 +118,9 @@ function Get-AzPolicyResources {
                     "policySetDefinitions", `
                     "policyAssignments", `
                     "policyExemptions"))
+    }
+    if ($includeEnrollmentsLocal) {
+        $null = $collectionList.Add("policyEnrollments")
     }
 
     foreach ($collectionItem in $collectionList) {
@@ -136,6 +153,13 @@ function Get-AzPolicyResources {
             }
             policyExemptions {
                 Get-AzPolicyExemptions `
+                    -DeployedPolicyResources $deployedPolicyResources `
+                    -PacEnvironment $PacEnvironment `
+                    -ScopeTable $ScopeTable
+                break
+            }
+            policyEnrollments {
+                Get-AzPolicyEnrollments `
                     -DeployedPolicyResources $deployedPolicyResources `
                     -PacEnvironment $PacEnvironment `
                     -ScopeTable $ScopeTable
@@ -262,6 +286,19 @@ function Get-AzPolicyResources {
         else {
             Write-ModernStatus -Message "Expired: $($counters.expired)" -Status "info" -Indent 3
         }
+        Write-ModernStatus -Message "Excluded: $($counters.excluded)" -Status "skip" -Indent 3
+    }
+
+    if ($includeEnrollmentsLocal) {
+        $counters = $deployedPolicyResources.policyenrollments.counters
+        $managedBy = $counters.managedBy
+        $managedByAny = $managedBy.thisPaC + $managedBy.otherPaC + $managedBy.unknown
+        Write-Information ""
+        Write-ModernStatus -Message "Policy Enrollments (Preview):" -Status default -Indent 0
+        Write-ModernStatus -Message "Managed ($managedByAny):" -Status "info" -Indent 3
+        Write-ModernStatus -Message "This PaC: $($managedBy.thisPaC)" -Status "info" -Indent 6
+        Write-ModernStatus -Message "Other PaC: $($managedBy.otherPaC)" -Status "info" -Indent 6
+        Write-ModernStatus -Message "Unknown: $($managedBy.unknown)" -Status "info" -Indent 6
         Write-ModernStatus -Message "Excluded: $($counters.excluded)" -Status "skip" -Indent 3
     }
 

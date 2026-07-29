@@ -2,8 +2,13 @@ function Set-AzPolicyAssignmentRestMethod {
     [CmdletBinding()]
     param (
         $AssignmentObj,
-        $ApiVersion
+        $ApiVersion,
+        $EnrollmentApiVersion = "2026-06-01"
     )
+
+    if ($AssignmentObj.enforcementMode -eq "Enroll") {
+        $ApiVersion = $EnrollmentApiVersion
+    }
 
     # Write log info
     $id = $AssignmentObj.id
