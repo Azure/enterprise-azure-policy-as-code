@@ -2,7 +2,7 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-enrollment-schema.json",
     "title": "EPAC Policy Enrollment (Preview)",
-    "description": "Defines one Microsoft.Authorization/policyEnrollments resource.",
+    "description": "Defines one or more Microsoft.Authorization/policyEnrollments resources.",
     "type": "object",
     "additionalProperties": false,
     "properties": {
@@ -16,6 +16,15 @@
         "scope": {
             "type": "string",
             "minLength": 1
+        },
+        "scopes": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "minLength": 1
+            },
+            "minItems": 1,
+            "uniqueItems": true
         },
         "displayName": {
             "type": "string"
@@ -108,7 +117,18 @@
     },
     "required": [
         "name",
-        "scope",
         "policyAssignmentId"
+    ],
+    "oneOf": [
+        {
+            "required": [
+                "scope"
+            ]
+        },
+        {
+            "required": [
+                "scopes"
+            ]
+        }
     ]
 }

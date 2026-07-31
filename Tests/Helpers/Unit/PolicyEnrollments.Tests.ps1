@@ -11,7 +11,10 @@ BeforeAll {
     . (Join-Path $PSScriptRoot '../../../Scripts/Helpers/RestMethods/Set-AzPolicyEnrollmentRestMethod.ps1')
 
     function Write-ModernSection {}
-    function Write-ModernStatus {}
+    function Write-ModernStatus {
+        param($Message, $Status, $Indent)
+        $script:statusMessages.Add($Message)
+    }
     function Invoke-AzRestMethod {
         param($Path, $Method, $Payload)
         $script:lastRestCall = @{ Path = $Path; Method = $Method; Payload = $Payload }
@@ -46,6 +49,7 @@ BeforeAll {
 
 Describe 'Build-PolicyEnrollmentPlan' {
     BeforeEach {
+        $script:statusMessages = [System.Collections.ArrayList]::new()
         $script:enrollmentsFolder = Join-Path $TestDrive 'policyEnrollments'
         Remove-Item -Path $script:enrollmentsFolder -Recurse -Force -ErrorAction SilentlyContinue
         $null = New-Item -Path $script:enrollmentsFolder -ItemType Directory
@@ -65,6 +69,42 @@ Describe 'Build-PolicyEnrollmentPlan' {
         $plan.new.Count | Should -Be 1
         $plan.new[$script:enrollmentId].metadata.pacOwnerId | Should -Be 'epac-test'
         $plan.new[$script:enrollmentId].assignmentScopeValidation | Should -Be 'Default'
+        $script:statusMessages | Should -Contain 'Found 1 policy enrollment files'
+        $script:statusMessages.Where({ $_ -like "Processing policy enrollment file *" }).Count | Should -Be 1
+        $script:statusMessages | Should -Contain "New: 'Test enrollment' at scope '$script:scope'"
+    }
+
+    It 'expands a scopes array into one enrollment per scope' {
+        $secondScope = '/subscriptions/11111111-1111-1111-1111-111111111111'
+        @{
+            name               = 'test-enrollment'
+            scopes             = @($script:scope, $secondScope)
+            displayName        = 'Test enrollment'
+            policyAssignmentId = $script:assignmentId
+        } | ConvertTo-Json | Set-Content (Join-Path $script:enrollmentsFolder 'enrollment.json')
+        $plan = New-EnrollmentPlan
+
+        Build-PolicyEnrollmentPlan -EnrollmentsRootFolder $script:enrollmentsFolder -PacEnvironment $script:pacEnvironment -DeployedEnrollments @{ managed = @{} } -Enrollments $plan
+
+        $secondEnrollmentId = "$secondScope/providers/Microsoft.Authorization/policyEnrollments/test-enrollment"
+        $plan.new.Count | Should -Be 2
+        $plan.new[$script:enrollmentId].scope | Should -Be $script:scope
+        $plan.new[$secondEnrollmentId].scope | Should -Be $secondScope
+        $plan.numberOfChanges | Should -Be 2
+    }
+
+    It 'rejects a definition containing both scope and scopes' {
+        @{
+            name               = 'test-enrollment'
+            scope              = $script:scope
+            scopes             = @($script:scope)
+            policyAssignmentId = $script:assignmentId
+        } | ConvertTo-Json | Set-Content (Join-Path $script:enrollmentsFolder 'enrollment.json')
+        $plan = New-EnrollmentPlan
+
+        {
+            Build-PolicyEnrollmentPlan -EnrollmentsRootFolder $script:enrollmentsFolder -PacEnvironment $script:pacEnvironment -DeployedEnrollments @{ managed = @{} } -Enrollments $plan
+        } | Should -Throw '*must define exactly one of scope or scopes*'
     }
 
     It 'compares every field and plans an update when one changes' {
