@@ -200,6 +200,7 @@ $policyAssignmentsFolder = $pacEnvironment.policyAssignmentsFolder
 $policyExemptionsFolder = $pacEnvironment.policyExemptionsFolder
 $policyEnrollmentsFolder = $pacEnvironment.policyEnrollmentsFolder
 $policyExemptionsFolderForPacEnvironment = "$($policyExemptionsFolder)/$($pacEnvironment.pacSelector)"
+$policyEnrollmentsFolderForPacEnvironment = "$($policyEnrollmentsFolder)/$($pacEnvironment.pacSelector)"
 #endregion plan data structures
 
 #region calculate which plans need to be built
@@ -256,7 +257,7 @@ $resourceTypes = @(
     @{
         Name                    = "Policy Enrollments"
         BuildFlag               = "buildPolicyEnrollments"
-        Folder                  = $policyEnrollmentsFolder
+        Folder                  = $policyEnrollmentsFolderForPacEnvironment
         IncludeInExemptionsOnly = $false
         IncludeInSkipExemptions = $true
     }
@@ -449,7 +450,7 @@ if ($buildSelections.buildAny) {
 
     if ($buildSelections.buildPolicyEnrollments) {
         Build-PolicyEnrollmentPlan `
-            -EnrollmentsRootFolder $policyEnrollmentsFolder `
+            -EnrollmentsRootFolder $policyEnrollmentsFolderForPacEnvironment `
             -PacEnvironment $pacEnvironment `
             -DeployedEnrollments $deployedPolicyResources.policyenrollments `
             -Enrollments $enrollments

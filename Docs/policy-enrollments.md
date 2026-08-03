@@ -17,7 +17,7 @@ EPAC also supports the existing `Default` and `DoNotEnforce` values.
 
 ## Enrollment File
 
-Create JSON or JSONC files under `policyEnrollments`. Each file can define one scope with `scope`, or expand the same enrollment across multiple scopes with `scopes`:
+Create JSON or JSONC files under `policyEnrollments/<pacSelector>`, where `pacSelector` matches the target entry in `global-settings.jsonc`. Each file can define one scope with `scope`, or expand the same enrollment across multiple scopes with `scopes`:
 
 ```json
 {
@@ -64,15 +64,18 @@ EPAC expands `scopes` into one Azure Policy Enrollment per scope. Each resource 
 
 ## Folder And Desired State
 
-The folder applies to the selected EPAC environment through the scopes and assignments referenced by each file:
+Like Policy Exemptions, Policy Enrollments use one subfolder per PAC environment. For example, with `epac-dev` and `tenant` PAC selectors:
 
 ```text
 Definitions/
   policyEnrollments/
-    application-team-enrollment.jsonc
+        epac-dev/
+            development-enrollment.jsonc
+        tenant/
+            application-team-enrollment.jsonc
 ```
 
-If `policyEnrollments` is absent, EPAC does not retrieve, plan, deploy, or delete Policy Enrollments. Creating the folder opts the EPAC environment into managing them. An empty folder represents an empty desired state and may cause existing enrollments to be deleted according to the environment's `desiredState.strategy`.
+When building plans with `-PacEnvironmentSelector epac-dev`, EPAC reads only `policyEnrollments/epac-dev`. A missing PAC environment subfolder means that environment does not manage Policy Enrollments. An empty PAC environment subfolder represents an empty desired state and may cause existing enrollments to be deleted according to the environment's `desiredState.strategy`.
 
 During plan creation EPAC retrieves current resources from Azure Resource Graph with:
 
