@@ -5,6 +5,8 @@ function Set-AzPolicySetDefinitionRestMethod {
         [string] $ApiVersion
     )
 
+    Assert-ValidPolicyResourceName -Name $DefinitionObj.name -ResourceType "Policy set definition"
+
     # Write log info
     $displayName = $DefinitionObj.displayName
     Write-ModernStatus -Message "Setting policy set definition: $displayName" -Status "info" -Indent 2
