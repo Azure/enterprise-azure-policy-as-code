@@ -58,12 +58,12 @@ function Get-AzPolicyResources {
             managed  = @{}
             counters = @{
                 managedBy       = @{
-                    thisPaC  = 0
-                    otherPaC = 0
-                    microsoft = 0
+                    thisPaC             = 0
+                    otherPaC            = 0
+                    microsoft           = 0
                     dfcSecurityPolicies = 0
-                    dfcDefenderPlans = 0
-                    unknown = 0
+                    dfcDefenderPlans    = 0
+                    unknown             = 0
                 }
                 excluded        = 0
                 unmanagedScopes = 0
@@ -296,7 +296,12 @@ function Get-AzPolicyResources {
         Write-Information ""
         Write-ModernStatus -Message "Policy Enrollments (Preview):" -Status default -Indent 0
         Write-ModernStatus -Message "Managed ($managedByAny):" -Status "info" -Indent 3
-        Write-ModernStatus -Message "This PaC: $($managedBy.thisPaC)" -Status "info" -Indent 6
+        if ($($managedBy.thisPaC) -gt 0) {
+            Write-ModernStatus -Message "This PaC: $($managedBy.thisPaC)" -Status "success" -Indent 6
+        }
+        else {
+            Write-ModernStatus -Message "This PaC: $($managedBy.thisPaC)" -Status "info" -Indent 6
+        }
         Write-ModernStatus -Message "Other PaC: $($managedBy.otherPaC)" -Status "info" -Indent 6
         Write-ModernStatus -Message "Unknown: $($managedBy.unknown)" -Status "info" -Indent 6
         Write-ModernStatus -Message "Excluded: $($counters.excluded)" -Status "skip" -Indent 3
