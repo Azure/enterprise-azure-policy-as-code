@@ -7,18 +7,12 @@ function Search-AzGraphAllItems {
     )
 
     # Search-AzGraph can only return a maximum of 1000 items. Without the -First it will only return 100 items
-    if ($ProgressItemName -ne "Policy Set definitions") {
-        $body = @{
-            query = $Query
-        }
-    }
-    else {
-        $body = @{
-            query   = $Query
-            options = @{
-                "`$top"  = $ProgressIncrement
-                "`$skip" = 0
-            }
+    # Always use $top pagination to avoid ResponsePayloadTooLarge errors
+    $body = @{
+        query   = $Query
+        options = @{
+            "`$top"  = $ProgressIncrement
+            "`$skip" = 0
         }
     }
     if ($ScopeSplat.ManagementGroup) {
@@ -50,7 +44,7 @@ function Search-AzGraphAllItems {
             if ($response.StatusCode -ge 400) {
                 $contentString = $response.Content -join ""
                 $contentObj = ConvertFrom-Json -InputObject $contentString
-                if ($contentObj.error.details[0].code -eq "ResponsePayloadTooLarge") {
+                if ($contentObj.error.code -eq "ResponsePayloadTooLarge" -or $contentObj.error.details[0].code -eq "ResponsePayloadTooLarge") {
                     Write-ModernStatus -Message "Payload too large detected - adjusting request and retrying..." -Status "warning" -Indent 4
                     $ProgressIncrement = [Convert]::ToInt32([math]::Floor($ProgressIncrement / 2))
                     # Modify body to include pagination options
@@ -92,13 +86,33 @@ function Search-AzGraphAllItems {
         }
         while ($result.ContainsKey("`$skipToken")) {
             # More data available, $skipToken will allow the next query in this loop to continue where the last invocation ended
-            $body.options = @{ "`$skipToken" = $result["`$skipToken"] }
+            $body.options = @{
+                "`$top"       = $ProgressIncrement
+                "`$skipToken" = $result["`$skipToken"]
+            }
             $bodyJson = $body | ConvertTo-Json -Depth 100
             $response = Invoke-AzRestMethod -Method POST `
                 -Path "/providers/Microsoft.ResourceGraph/resources?api-version=2022-10-01" `
                 -Payload $bodyJson
             $statusCode = $response.StatusCode
             $content = $response.Content
+            if ($statusCode -ge 400) {
+                $contentObj = ConvertFrom-Json -InputObject ($content -join "")
+                if ($contentObj.error.code -eq "ResponsePayloadTooLarge" -or $contentObj.error.details[0].code -eq "ResponsePayloadTooLarge") {
+                    Write-ModernStatus -Message "Payload too large in pagination - reducing page size and retrying..." -Status "warning" -Indent 4
+                    $ProgressIncrement = [Convert]::ToInt32([math]::Floor($ProgressIncrement / 2))
+                    $body.options = @{
+                        "`$top"       = $ProgressIncrement
+                        "`$skipToken" = $result["`$skipToken"]
+                    }
+                    $bodyJson = $body | ConvertTo-Json -Depth 100
+                    $response = Invoke-AzRestMethod -Method POST `
+                        -Path "/providers/Microsoft.ResourceGraph/resources?api-version=2022-10-01" `
+                        -Payload $bodyJson
+                    $statusCode = $response.StatusCode
+                    $content = $response.Content
+                }
+            }
             if ($statusCode -lt 200 -or $statusCode -ge 300) {
                 Write-Error "Search-AzGraph REST error for '$Scope' $($statusCode) -- $($content)" -ErrorAction Stop
             }
