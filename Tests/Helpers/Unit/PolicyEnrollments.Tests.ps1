@@ -10,7 +10,12 @@ BeforeAll {
     . (Join-Path $PSScriptRoot '../../../Scripts/Helpers/RestMethods/Set-AzPolicyAssignmentRestMethod.ps1')
     . (Join-Path $PSScriptRoot '../../../Scripts/Helpers/RestMethods/Set-AzPolicyEnrollmentRestMethod.ps1')
 
-    function Write-ModernSection {}
+function Write-ModernSection {
+    param(
+        [string] $Title,
+        [string] $Color
+    )
+}
     function Write-ModernStatus {
         param($Message, $Status, $Indent)
         $script:statusMessages.Add($Message)
