@@ -5,7 +5,8 @@ function Set-AzPolicyEnrollmentRestMethod {
         $ApiVersion
     )
 
-    Write-ModernStatus -Message "Setting policy enrollment: $($EnrollmentObj.displayName)" -Status "info" -Indent 2
+    $displayLabel = if ([string]::IsNullOrWhiteSpace($EnrollmentObj.displayName)) { $EnrollmentObj.name } else { $EnrollmentObj.displayName }
+    Write-ModernStatus -Message "Setting policy enrollment: $displayLabel" -Status "info" -Indent 2
 
     $properties = @{
         assignmentScopeValidation    = $EnrollmentObj.assignmentScopeValidation
