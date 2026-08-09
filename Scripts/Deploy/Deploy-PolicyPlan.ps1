@@ -217,10 +217,10 @@ else {
         Write-ModernSection -Title "Creating and Updating Policy Enrollments ($($table.psbase.Count) items)" -Color Yellow
         foreach ($id in $table.Keys) {
             $entry = $table.$id
+            $displayLabel = if ([string]::IsNullOrWhiteSpace($entry.displayName)) { $entry.name } else { $entry.displayName }
             Set-AzPolicyEnrollmentRestMethod -EnrollmentObj $entry -ApiVersion $pacEnvironment.apiVersions.policyEnrollments
-            Write-ModernStatus -Message "Completed: $($entry.displayName)" -Status "success" -Indent 4
+            Write-ModernStatus -Message "Completed: $displayLabel" -Status "success" -Indent 4
             Write-Information ""
-        }
     }
 
     if (-not $SkipExemptions) {
