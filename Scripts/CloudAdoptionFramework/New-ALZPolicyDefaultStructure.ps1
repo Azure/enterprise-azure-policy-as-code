@@ -12,11 +12,17 @@ Param(
     [string] $Tag,
 
     [Parameter(Mandatory = $true)]
-    [string] $PacEnvironmentSelector
+    [string] $PacEnvironmentSelector,
+
+    [switch] $GenerateParameterFile
 )
 
 # Dot Source Helper Scripts
 . "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
+
+if ($GenerateParameterFile -and $Type -ne "AMBA") {
+    throw "-GenerateParameterFile is only supported when -Type is AMBA."
+}
 
 if ($DefinitionsRootFolder -eq "") {
     if ($null -eq $env:PAC_DEFINITIONS_FOLDER) {
@@ -210,6 +216,73 @@ Write-ModernSection -Title "Writing Output Files" -Indent 0
 $outputDirectory = "$DefinitionsRootFolder\policyStructures"
 if (-not (Test-Path -Path $outputDirectory)) {
     New-Item -ItemType Directory -Path $outputDirectory
+}
+
+if ($GenerateParameterFile) {
+    $policySetDirectory = Join-Path $LibraryPath "platform\$($Type.ToLower())\policy_set_definitions"
+    if (-not (Test-Path -Path $policySetDirectory)) {
+        throw "Policy set definition directory not found: $policySetDirectory"
+    }
+
+    $policySetFiles = @(Get-ChildItem -Path $policySetDirectory -Filter "*.json" -File)
+    if ($policySetFiles.Count -eq 0) {
+        throw "No policy set definitions found in: $policySetDirectory"
+    }
+
+    $policySetsByName = @{}
+    foreach ($policySetFile in $policySetFiles) {
+        try {
+            $policySet = Get-Content -Path $policySetFile.FullName -Raw | ConvertFrom-Json
+        }
+        catch {
+            throw "Could not read policy set definition '$($policySetFile.FullName)': $($_.Exception.Message)"
+        }
+
+        if ([string]::IsNullOrWhiteSpace($policySet.name)) {
+            throw "Policy set definition '$($policySetFile.FullName)' does not contain a name."
+        }
+        if ($policySetsByName.ContainsKey($policySet.name)) {
+            throw "Duplicate policy set name '$($policySet.name)' found in: $policySetDirectory"
+        }
+
+        $policySetsByName.Add($policySet.name, $policySet)
+    }
+
+    $policySetNames = [string[]] @($policySetsByName.Keys)
+    [Array]::Sort($policySetNames, [System.StringComparer]::Ordinal)
+
+    $parameterFileContent = [System.Text.StringBuilder]::new()
+    $null = $parameterFileContent.AppendLine("{")
+
+    for ($policySetIndex = 0; $policySetIndex -lt $policySetNames.Count; $policySetIndex++) {
+        $policySet = $policySetsByName[$policySetNames[$policySetIndex]]
+        $policySetName = ConvertTo-Json -InputObject ([string] $policySet.name) -Compress
+        $null = $parameterFileContent.AppendLine("  $policySetName`: {")
+        $parameterNames = [string[]] @($policySet.properties.parameters.PSObject.Properties.Name | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+        [Array]::Sort($parameterNames, [System.StringComparer]::Ordinal)
+
+        for ($parameterIndex = 0; $parameterIndex -lt $parameterNames.Count; $parameterIndex++) {
+            $parameter = $policySet.properties.parameters.PSObject.Properties[$parameterNames[$parameterIndex]]
+            $allowedValues = $parameter.Value.PSObject.Properties["allowedValues"]
+            if ($null -ne $allowedValues) {
+                $allowedValuesJson = ConvertTo-Json -InputObject $allowedValues.Value -Depth 100 -Compress
+                $null = $parameterFileContent.AppendLine("    // allowedValues: $allowedValuesJson")
+            }
+
+            $parameterName = ConvertTo-Json -InputObject ([string] $parameter.Name) -Compress
+            $defaultValue = ConvertTo-Json -InputObject $parameter.Value.defaultValue -Depth 100 -Compress
+            $parameterSuffix = if ($parameterIndex -lt ($parameterNames.Count - 1)) { "," } else { "" }
+            $null = $parameterFileContent.AppendLine("    $parameterName`: $defaultValue$parameterSuffix")
+        }
+
+        $policySetSuffix = if ($policySetIndex -lt ($policySetNames.Count - 1)) { "," } else { "" }
+        $null = $parameterFileContent.AppendLine("  }$policySetSuffix")
+    }
+
+    $null = $parameterFileContent.AppendLine("}")
+    $parameterFilePath = Join-Path $outputDirectory "$($Type.ToLower()).policy_set_parameters.jsonc"
+    Out-File -FilePath $parameterFilePath -InputObject $parameterFileContent.ToString() -Encoding utf8 -Force
+    Write-ModernStatus -Message "Policy set parameter file: $parameterFilePath" -Status "success" -Indent 2
 }
 
 if ($PacEnvironmentSelector) {

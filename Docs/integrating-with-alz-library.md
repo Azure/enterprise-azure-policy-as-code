@@ -148,8 +148,18 @@ For users interested in deploying the [Azure Monitor Baseline Alerts](https://az
 # Create a Pac Environment default file for AMBA policies using the latest release of the ALZ Library 
 New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type AMBA -PacEnvironmentSelector "epac-dev"
 
+# Also create policyStructures\amba.policy_set_parameters.jsonc with every policy set parameter and its default value.
+# Parameters that define allowed values include those values in a preceding JSONC comment.
+New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type AMBA -PacEnvironmentSelector "epac-dev" -GenerateParameterFile
+
 # Sync the AMBA policies and assign to the "epac-dev" PAC environment.
 Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type AMBA -PacEnvironmentSelector "epac-dev"
+
+# Use the generated parameter file when creating assignments. Only values that differ from policy set defaults are emitted.
+Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type AMBA -PacEnvironmentSelector "epac-dev" -ParameterFile .\Definitions\policyStructures\amba.policy_set_parameters.jsonc
+
+# Archetype and enforcement overrides can still be enabled; overrides.parameters is ignored when -ParameterFile is supplied.
+Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type AMBA -PacEnvironmentSelector "epac-dev" -ParameterFile .\Definitions\policyStructures\amba.policy_set_parameters.jsonc -EnableOverrides
 ```
 
 The Azure Monitor Baseline Alerts project also provides a number of policy definitions not included in the ALZ Library. To sync these definitions use the `-SyncAMBAExtendedPolicies` switch as below when syncing the AMBA policies. 
