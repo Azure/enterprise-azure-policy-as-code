@@ -6,7 +6,8 @@ function Get-AzPolicyAssignmentRestMethod {
     )
 
     # Invoke the REST API
-    $response = Invoke-AzRestMethod -Path "$($AssignmentId)?api-version=$ApiVersion" -Method GET
+    $path = ConvertTo-AzPolicyRestPath -Id $AssignmentId
+    $response = Invoke-AzRestMethod -Path "$($path)?api-version=$ApiVersion" -Method GET
 
     # Process response
     $statusCode = $response.StatusCode
