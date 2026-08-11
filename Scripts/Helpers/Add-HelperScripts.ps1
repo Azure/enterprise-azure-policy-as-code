@@ -80,6 +80,7 @@ $scriptRoot = Split-Path $PSScriptRoot -Parent
 . "$PSScriptRoot/Merge-AssignmentParametersEx.ps1"
 . "$PSScriptRoot/Merge-ExportNodeAncestors.ps1"
 . "$PSScriptRoot/Merge-ExportNodeChild.ps1"
+. "$PSScriptRoot/Merge-PolicyAssignmentCsvParameterRow.ps1"
 
 . "$PSScriptRoot/New-ErrorInfo.ps1"
 . "$PSScriptRoot/New-ExportNode.ps1"
