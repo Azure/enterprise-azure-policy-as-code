@@ -119,17 +119,27 @@ For the next Policy Set in the `definitionEntryList` that contains the same Poli
 
 ## Updating the CSV File
 
-Policy Set definitions for built-in or custom Policy Sets are sometimes updated. When this happens, the CSV file must be updated to reflect the changes. EPAC displays a Warning  when this happens.
+Policy Set definitions for built-in or custom Policy Sets are sometimes updated. When this happens, the CSV file must be updated to reflect the changes. EPAC displays a warning when this happens.
 
-### Policy Removed (Policy from Row in the CSV File is not used in any Policy Set)
+Use `Build-PolicyDocumentation.ps1` followed by `Update-PolicyAssignmentCsvParameterFile.ps1` to reconcile a generated CSV with the parameter CSV stored in your definitions:
 
-If a Policy is removed from every Policy Set, remove the row from the spreadsheet or regenerate the CSV file from the deployed Policy Assignments.
+```powershell
+./Scripts/Operations/Build-PolicyDocumentation.ps1 `
+    -DefinitionsRootFolder ./Definitions `
+    -OutputFolder ./Outputs `
+    -Interactive:$false
 
-### Policy Added (Policy Entry is missing in the CSV file)
+./Scripts/Operations/Update-PolicyAssignmentCsvParameterFile.ps1 `
+    -GeneratedCsvPath ./Outputs/policy-documentation/security-baseline.csv `
+    -ParameterCsvPath ./Definitions/policyAssignments/security-baseline-parameters.csv
+```
 
-If a Policy is added to a Policy Set, add the row manually to the CSV file. The Policy will be assigned with the default effect.
+The update command matches rows by `name` and `referencePath` and applies these rules:
 
-Better, [regenerate the CSV file from the deployed Policy Assignments](operational-scripts-documenting-policy.md#assignment-documentation). This will ensure that all Policies are included in the CSV file. However, this does not generate the `nonComplianceMessages` column or any additional columns you added.
+* Generated metadata such as display name, description, policy sets, and allowed effects is refreshed.
+* Existing columns ending in `Effect` or `Parameters` retain their values.
+* Existing custom columns, including `nonComplianceMessages`, are retained.
+* Policies removed from every generated Policy Set are removed from the parameter CSV.
+* Newly generated policies are added with generated effect and parameter defaults. Existing custom columns are empty for these rows.
 
-> [!NOTE]
-> We have planned to add a feature to generate the CSV file from the Policy Assignments and merge them with your existing CSV File to preserve extra columns.
+The target file is validated before it is replaced. Duplicate `name` and `referencePath` identities, missing required columns, or invalid input leave the parameter CSV unchanged. Use `-WhatIf` to preview which file would be updated without writing it.
