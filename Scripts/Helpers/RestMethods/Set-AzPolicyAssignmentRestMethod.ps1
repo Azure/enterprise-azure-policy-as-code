@@ -10,6 +10,8 @@ function Set-AzPolicyAssignmentRestMethod {
         $ApiVersion = $EnrollmentApiVersion
     }
 
+    Assert-ValidPolicyResourceName -Name $AssignmentObj.name -ResourceType "Policy assignment"
+
     # Write log info
     $id = $AssignmentObj.id
     $displayName = $AssignmentObj.displayName
@@ -58,7 +60,8 @@ function Set-AzPolicyAssignmentRestMethod {
 
     # Invoke the REST API
     $assignmentJson = ConvertTo-Json $assignment -Depth 100 -Compress
-    $response = Invoke-AzRestMethod -Path "$($id)?api-version=$ApiVersion" -Method PUT -Payload $assignmentJson
+    $path = ConvertTo-AzPolicyRestPath -Id $id
+    $response = Invoke-AzRestMethod -Path "$($path)?api-version=$ApiVersion" -Method PUT -Payload $assignmentJson
 
     # Process response
     $statusCode = $response.StatusCode

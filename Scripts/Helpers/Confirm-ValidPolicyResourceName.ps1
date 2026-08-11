@@ -5,11 +5,27 @@ function Confirm-ValidPolicyResourceName {
         $Name
     )
 
-    # Test is the Name has any characters from this string of characters "<>*%&:?.+/" in it or ends with a space
-    if ($Name -match "[\<\>\*\%\&\:\?\+\/\\]" -or $Name.EndsWith(" ")) {
-        return $false
+    $invalidCharacters = @('%', '&', '\', '?', '/', '<', '>', ':', '#', '*', '+')
+    foreach ($character in $Name.ToCharArray()) {
+        if ($character -in $invalidCharacters -or [char]::IsControl($character)) {
+            return $false
+        }
     }
-    else {
-        return $true
+
+    return -not $Name.EndsWith(" ")
+}
+
+function Assert-ValidPolicyResourceName {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [string] $Name,
+
+        [Parameter(Mandatory = $true)]
+        [string] $ResourceType
+    )
+
+    if (-not (Confirm-ValidPolicyResourceName -Name $Name)) {
+        Write-Error "$ResourceType name '$Name' contains invalid characters '%, &, \, ?, /, <, >, :, #, *, +' or control characters, or ends with a space." -ErrorAction Stop
     }
 }

@@ -7,6 +7,7 @@ BeforeAll {
     . (Join-Path $PSScriptRoot '../../../Scripts/Helpers/Remove-NullFields.ps1')
     . (Join-Path $PSScriptRoot '../../../Scripts/Helpers/Build-PolicyEnrollmentPlan.ps1')
     . (Join-Path $PSScriptRoot '../../../Scripts/Helpers/Get-AzPolicyEnrollments.ps1')
+    . (Join-Path $PSScriptRoot '../../../Scripts/Helpers/RestMethods/ConvertTo-AzPolicyRestPath.ps1')
     . (Join-Path $PSScriptRoot '../../../Scripts/Helpers/RestMethods/Set-AzPolicyAssignmentRestMethod.ps1')
     . (Join-Path $PSScriptRoot '../../../Scripts/Helpers/RestMethods/Set-AzPolicyEnrollmentRestMethod.ps1')
 
@@ -221,6 +222,7 @@ Describe 'Set-AzPolicyAssignmentRestMethod enrollment mode' {
         $script:lastRestCall = $null
         $assignment = @{
             id                 = $script:assignmentId
+            name               = 'enrollable'
             displayName        = 'Enrollable assignment'
             description        = 'Description'
             metadata           = @{}
