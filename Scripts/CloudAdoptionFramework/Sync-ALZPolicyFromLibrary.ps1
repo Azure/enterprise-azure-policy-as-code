@@ -19,13 +19,18 @@ Param(
 
     [switch] $SyncAssignmentsOnly,
 
-    [switch] $SyncAMBAExtendedPolicies
+    [switch] $SyncAMBAExtendedPolicies,
 
+    [string] $ParameterFile
 
 )
 
 # Dot Source Helper Scripts
 . "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
+
+if (-not [string]::IsNullOrWhiteSpace($ParameterFile) -and $Type -ne "AMBA") {
+    throw "-ParameterFile is only supported when -Type is AMBA."
+}
 
 # Resolves the final archetype name after the mid-pipeline renames that are applied while
 # building the archetype array. Used in both the override-population path and the archetype-build
@@ -79,6 +84,77 @@ function Get-ALZBasedOnMatchNames {
     }
 
     return $names.ToArray()
+}
+
+function Test-ALZParameterValueEqual {
+    param(
+        [AllowNull()]
+        [object] $Left,
+
+        [AllowNull()]
+        [object] $Right
+    )
+
+    if ($null -eq $Left -or $null -eq $Right) {
+        return $null -eq $Left -and $null -eq $Right
+    }
+
+    if ($Left -is [pscustomobject] -or $Right -is [pscustomobject]) {
+        if ($Left -isnot [pscustomobject] -or $Right -isnot [pscustomobject]) {
+            return $false
+        }
+
+        $leftProperties = @($Left.PSObject.Properties)
+        $rightProperties = @($Right.PSObject.Properties)
+        if ($leftProperties.Count -ne $rightProperties.Count) {
+            return $false
+        }
+
+        foreach ($leftProperty in $leftProperties) {
+            $rightProperty = $rightProperties | Where-Object { $_.Name -ceq $leftProperty.Name } | Select-Object -First 1
+            if ($null -eq $rightProperty -or -not (Test-ALZParameterValueEqual -Left $leftProperty.Value -Right $rightProperty.Value)) {
+                return $false
+            }
+        }
+        return $true
+    }
+
+    if ($Left -is [System.Collections.IDictionary] -or $Right -is [System.Collections.IDictionary]) {
+        if ($Left -isnot [System.Collections.IDictionary] -or $Right -isnot [System.Collections.IDictionary] -or $Left.Count -ne $Right.Count) {
+            return $false
+        }
+
+        foreach ($leftKey in $Left.Keys) {
+            $rightKey = @($Right.Keys) | Where-Object { "$_" -ceq "$leftKey" } | Select-Object -First 1
+            if ($null -eq $rightKey -or -not (Test-ALZParameterValueEqual -Left $Left[$leftKey] -Right $Right[$rightKey])) {
+                return $false
+            }
+        }
+        return $true
+    }
+
+    if (($Left -is [System.Collections.IEnumerable] -and $Left -isnot [string]) -or
+        ($Right -is [System.Collections.IEnumerable] -and $Right -isnot [string])) {
+        if (($Left -isnot [System.Collections.IEnumerable] -or $Left -is [string]) -or
+            ($Right -isnot [System.Collections.IEnumerable] -or $Right -is [string])) {
+            return $false
+        }
+
+        $leftItems = @($Left)
+        $rightItems = @($Right)
+        if ($leftItems.Count -ne $rightItems.Count) {
+            return $false
+        }
+
+        for ($index = 0; $index -lt $leftItems.Count; $index++) {
+            if (-not (Test-ALZParameterValueEqual -Left $leftItems[$index] -Right $rightItems[$index])) {
+                return $false
+            }
+        }
+        return $true
+    }
+
+    return [object]::Equals($Left, $Right)
 }
 
 # Latest tag values
@@ -285,6 +361,36 @@ catch {
     Write-ModernStatus -Message "Error reading the policy default structure file: $($_.Exception.Message)" -Status "error" -Indent 2
     Write-ModernStatus -Message "Please run New-ALZPolicyDefaultStructure.ps1 first" -Status "warning" -Indent 2
     exit
+}
+
+$parameterFileValues = $null
+$policySetDefinitionsByName = @{}
+$missingParameterFilePolicySets = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+if (-not [string]::IsNullOrWhiteSpace($ParameterFile)) {
+    try {
+        $resolvedParameterFile = (Resolve-Path -Path $ParameterFile -ErrorAction Stop).Path
+        $parameterFileValues = Get-Content -Path $resolvedParameterFile -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+        if ($null -eq $parameterFileValues) {
+            throw "The parameter file is empty."
+        }
+
+        foreach ($policySetFile in Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_set_definitions" -Recurse -File -Include *.json) {
+            $policySetDefinition = Get-Content -Path $policySetFile.FullName -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+            if ([string]::IsNullOrWhiteSpace($policySetDefinition.name)) {
+                throw "Policy set definition '$($policySetFile.FullName)' does not contain a name."
+            }
+            $policySetDefinitionsByName[$policySetDefinition.name] = $policySetDefinition
+        }
+
+        Write-ModernStatus -Message "Policy set parameter file: $resolvedParameterFile" -Status "info" -Indent 2
+        if ($EnableOverrides -and $null -ne $structureFile.overrides.parameters) {
+            Write-ModernStatus -Message "Parameter file specified: overrides.parameters will be ignored; archetype and enforcement overrides remain enabled." -Status "info" -Indent 2
+        }
+    }
+    catch {
+        Write-ModernStatus -Message "Error reading the policy set parameter file: $($_.Exception.Message)" -Status "error" -Indent 2
+        exit 1
+    }
 }
 
 # Gather existing files
@@ -521,6 +627,7 @@ try {
         foreach ($requiredAssignment in ($archetype.policy_assignments | Where-Object {
                     -not [string]::IsNullOrWhiteSpace("$_") -and ($CreateGuardrailAssignments -or ($_ -notmatch "^Enforce-(GR|Encrypt)-\w+0"))
                 })) {
+            $assignedPolicySetName = $null
             $assignmentNameOverride = $null
             if ($policyAssignmentNameOverrides.ContainsKey($archetype.name) -and $policyAssignmentNameOverrides[$archetype.name].ContainsKey($requiredAssignment)) {
                 $assignmentNameOverride = $policyAssignmentNameOverrides[$archetype.name][$requiredAssignment]
@@ -581,19 +688,31 @@ try {
             }
             elseif ($fileContent.properties.policyDefinitions) {
                 $baseTemplate.definitionEntry.Add("policySetName", $fileContent.name)
+                $assignedPolicySetName = $fileContent.name
             }
             elseif ($fileContent.properties.policyDefinitionId -match "placeholder.+policySetDefinition") {
-                $baseTemplate.definitionEntry.Add("policySetName", ($fileContent.properties.policyDefinitionId).Split("/")[ - 1])
+                $assignedPolicySetName = ($fileContent.properties.policyDefinitionId).Split("/")[ - 1]
+                $baseTemplate.definitionEntry.Add("policySetName", $assignedPolicySetName)
             }
             elseif ($fileContent.properties.policyDefinitionId -match "placeholder.+policyDefinition") {
                 $baseTemplate.definitionEntry.Add("policyName", ($fileContent.properties.policyDefinitionId).Split("/")[ - 1])
             }
             elseif ($fileContent.properties.policyDefinitionId -match "policySetDefinitions") {
                 $baseTemplate.definitionEntry.Add("policySetId", ($fileContent.properties.policyDefinitionId))
+                $assignedPolicySetName = ($fileContent.properties.policyDefinitionId).Split("/")[ - 1]
             }
             else {
                 $baseTemplate.definitionEntry.Add("policyId", ($fileContent.properties.policyDefinitionId))
             }
+
+            $parameterFilePolicySet = $null
+            if ($null -ne $parameterFileValues -and -not [string]::IsNullOrWhiteSpace($assignedPolicySetName)) {
+                $parameterFilePolicySet = $parameterFileValues.PSObject.Properties | Where-Object { $_.Name -eq $assignedPolicySetName } | Select-Object -First 1
+                if ($null -eq $parameterFilePolicySet -and $missingParameterFilePolicySets.Add($assignedPolicySetName)) {
+                    Write-ModernStatus -Message "Policy set '$assignedPolicySetName' is not present in the parameter file; library assignment parameters will be retained." -Status "warning" -Indent 2
+                }
+            }
+            $useParameterFileForAssignment = $null -ne $parameterFilePolicySet
             
             #Scope
             $scopeTrim = $archetype.name
@@ -675,7 +794,7 @@ try {
             $baseTemplate.Add("scope", $scope)
 
             # Base Parameters
-            if ($fileContent.name -ne "Deploy-Private-DNS-Zones" -and $assignmentFromDefinition -ne $true) {
+            if (-not $useParameterFileForAssignment -and $fileContent.name -ne "Deploy-Private-DNS-Zones" -and $assignmentFromDefinition -ne $true) {
                 foreach ($parameter in $fileContent.properties.parameters.psObject.Properties.Name) {
                     $baseTemplate.parameters.Add($parameter, $fileContent.properties.parameters.$parameter.value)
                 }
@@ -694,14 +813,16 @@ try {
 
             # Check for explicit parameters
             if ($fileContent.name -ne "Deploy-Private-DNS-Zones" -and -not ($Type -eq "AMBA" -and $fileContent.name -eq "Deploy-AMBA-Web")) {
-                foreach ($key in $structureFile.defaultParameterValues.psObject.Properties.Name) {
-                    if ($structureFile.defaultParameterValues.$key.policy_assignment_name -eq $fileContent.name) {
-                        $keyName = $structureFile.defaultParameterValues.$key.parameters.parameter_name
-                        $baseTemplate.parameters.$keyName = $structureFile.defaultParameterValues.$key.parameters.value
+                if (-not $useParameterFileForAssignment) {
+                    foreach ($key in $structureFile.defaultParameterValues.psObject.Properties.Name) {
+                        if ($structureFile.defaultParameterValues.$key.policy_assignment_name -eq $fileContent.name) {
+                            $keyName = $structureFile.defaultParameterValues.$key.parameters.parameter_name
+                            $baseTemplate.parameters.$keyName = $structureFile.defaultParameterValues.$key.parameters.value
+                        }
                     }
                 }
                 # Check for override parameter values
-                if ($EnableOverrides) {
+                if ($EnableOverrides -and $null -eq $parameterFileValues) {
                     if ($structureFile.overrides.parameters.$($archetype.name)) {
                         foreach ($overrideParameters in $structureFile.overrides.parameters.$($archetype.name) | Where-Object { $_.policy_assignment_name -eq $fileContent.name }) {
                             foreach ($param in $overrideParameters.parameters) {
@@ -754,6 +875,29 @@ try {
                 $baseTemplate.Add("additionalRoleAssignments", $additionalRoleAssignments)
 
 
+            }
+
+            if ($useParameterFileForAssignment) {
+                if (-not $policySetDefinitionsByName.ContainsKey($assignedPolicySetName)) {
+                    throw "Policy set '$assignedPolicySetName' from the parameter file was not found in the ALZ Library."
+                }
+
+                $policySetDefinitionParameters = $policySetDefinitionsByName[$assignedPolicySetName].properties.parameters
+                $inputParameterNames = [string[]] @($parameterFilePolicySet.Value.PSObject.Properties.Name | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+                [Array]::Sort($inputParameterNames, [System.StringComparer]::Ordinal)
+                foreach ($inputParameterName in $inputParameterNames) {
+                    $inputParameter = $parameterFilePolicySet.Value.PSObject.Properties[$inputParameterName]
+                    $definitionParameter = $policySetDefinitionParameters.PSObject.Properties | Where-Object { $_.Name -eq $inputParameter.Name } | Select-Object -First 1
+                    if ($null -eq $definitionParameter) {
+                        Write-ModernStatus -Message "Parameter '$($inputParameter.Name)' from policy set '$assignedPolicySetName' does not exist in the ALZ Library and will be ignored." -Status "warning" -Indent 2
+                        continue
+                    }
+
+                    $defaultValue = $definitionParameter.Value.defaultValue
+                    if (-not (Test-ALZParameterValueEqual -Left $inputParameter.Value -Right $defaultValue)) {
+                        $baseTemplate.parameters.Add($inputParameter.Name, $inputParameter.Value)
+                    }
+                }
             }
 
             $category = $structureFile.managementGroupNameMappings.$scopeTrim.management_group_function
