@@ -1,9 +1,52 @@
+function Resolve-ParameterFilePath {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string] $ParameterFilePath,
+        [string] $AssignmentFilePath,
+        [hashtable] $AvailableParameterFilesCsv
+    )
+
+    $trimmedPath = $ParameterFilePath.Trim()
+    if ([string]::IsNullOrWhiteSpace($trimmedPath)) {
+        return $null
+    }
+
+    if ($null -ne $AvailableParameterFilesCsv -and $AvailableParameterFilesCsv.ContainsKey($trimmedPath)) {
+        return $AvailableParameterFilesCsv[$trimmedPath]
+    }
+
+    $candidatePaths = [System.Collections.ArrayList]::new()
+    if (-not [string]::IsNullOrWhiteSpace($AssignmentFilePath)) {
+        $assignmentDirectory = Split-Path -Path $AssignmentFilePath -Parent
+        if (-not [string]::IsNullOrWhiteSpace($assignmentDirectory)) {
+            $null = $candidatePaths.Add([System.IO.Path]::GetFullPath((Join-Path -Path $assignmentDirectory -ChildPath $trimmedPath)))
+        }
+    }
+
+    if ([System.IO.Path]::IsPathRooted($trimmedPath)) {
+        $null = $candidatePaths.Add($trimmedPath)
+    }
+
+    $workingDirectoryCandidate = [System.IO.Path]::GetFullPath((Join-Path -Path (Get-Location).Path -ChildPath $trimmedPath))
+    $null = $candidatePaths.Add($workingDirectoryCandidate)
+
+    foreach ($candidatePath in $candidatePaths) {
+        if (Test-Path -LiteralPath $candidatePath -PathType Leaf) {
+            return (Resolve-Path -LiteralPath $candidatePath).ProviderPath
+        }
+    }
+
+    return $null
+}
+
 function Build-AssignmentDefinitionNode {
     # Recursive Function
     param(
         [hashtable] $PacEnvironment,
         [hashtable] $ScopeTable,
         [hashtable] $ParameterFilesCsv,
+        [string] $AssignmentFilePath,
         [hashtable] $DefinitionNode, # Current node
         [hashtable] $AssignmentDefinition, # Collected values in tree branch
         [hashtable] $CombinedPolicyDetails,
@@ -214,8 +257,8 @@ function Build-AssignmentDefinitionNode {
     $deprecatedInCSV = [System.Collections.ArrayList]::new()
     if ($DefinitionNode.parameterFile) {
         $parameterFileName = $DefinitionNode.parameterFile
-        if ($ParameterFilesCsv.ContainsKey($parameterFileName)) {
-            $fullName = $ParameterFilesCsv.$parameterFileName
+        $fullName = Resolve-ParameterFilePath -ParameterFilePath $parameterFileName -AssignmentFilePath $AssignmentFilePath -AvailableParameterFilesCsv $ParameterFilesCsv
+        if ($fullName) {
             $content = Get-Content -Path $fullName -Raw -ErrorAction Stop
             $xlsArray = @() + ($content | ConvertFrom-Csv -ErrorAction Stop)
             $csvParameterArray = Get-DeepCloneAsOrderedHashtable $xlsArray

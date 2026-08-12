@@ -99,6 +99,7 @@ function Build-AssignmentPlan {
             -PacEnvironment $PacEnvironment `
             -ScopeTable $ScopeTable `
             -ParameterFilesCsv $parameterFilesCsv `
+            -AssignmentFilePath $assignmentFile.FullName `
             -DefinitionNode $assignmentObject `
             -AssignmentDefinition $rootAssignmentDefinition `
             -CombinedPolicyDetails $CombinedPolicyDetails `
