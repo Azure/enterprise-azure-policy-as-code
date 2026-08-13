@@ -37,7 +37,13 @@
                 "markdownNoEmbeddedHtml": { "type": "boolean" },
                 "markdownIncludeComplianceGroupNames": { "type": "boolean" },
                 "markdownSuppressParameterSection": { "type": "boolean" },
-                "markdownMaxParameterLength": { "type": "integer" }
+                "markdownMaxParameterLength": { "type": "integer" },
+                "environmentColumnsInJson": {
+                    "type": "array",
+                    "minItems": 0,
+                    "items": { "type": "string" },
+                    "description": "Optional list of environment categories to include in the assignment JSON parameter export. Defaults to all categories when omitted."
+                }
             },
             "required": [ "fileNameStem", "title" ]
         }
@@ -98,6 +104,12 @@
                 },
                 "markdownMaxParameterLength": {
                     "type": "integer"
+                },
+                "environmentColumnsInJson": {
+                    "type": "array",
+                    "minItems": 0,
+                    "items": { "type": "string" },
+                    "description": "Optional list of environment categories to include in the assignment JSON parameter export. Defaults to all categories when omitted."
                 }
             }
         },

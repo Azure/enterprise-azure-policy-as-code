@@ -14,7 +14,12 @@ function Out-DocumentationForPolicyAssignments {
 
     [string] $fileNameStem = $DocumentationSpecification.fileNameStem
     [string[]] $environmentCategories = $DocumentationSpecification.environmentCategories
+    [string[]] $environmentColumnsInJson = $DocumentationSpecification.environmentColumnsInJson
     [string] $title = $DocumentationSpecification.title
+
+    if ($null -eq $environmentColumnsInJson -or $environmentColumnsInJson.Count -eq 0) {
+        $environmentColumnsInJson = $environmentCategories
+    }
 
     Write-ModernSection -Title "Generating Policy Assignment documentation for '$title'" -Color Green
     Write-ModernStatus -Message "File Name: $fileNameStem" -Status "info" -Indent 2
@@ -77,8 +82,10 @@ function Out-DocumentationForPolicyAssignments {
                         category               = $flatPolicyEntry.category
                         isEffectParameterized  = $isEffectParameterized
                         ordinal                = 99
+                        effectDefault          = $flatPolicyEntry.effectDefault
                         effectAllowedValues    = @{}
                         effectAllowedOverrides = $flatPolicyEntry.effectAllowedOverrides
+                        parameters             = $flatPolicyEntry.parameters
                         environmentList        = @{}
                         groupNames             = [System.Collections.ArrayList]::new()
                         policySetList          = @{}
@@ -631,7 +638,96 @@ function Out-DocumentationForPolicyAssignments {
     }
 
     #endregion csv
-    
+
+    #region Parameters JSON
+
+    $sb = [System.Text.StringBuilder]::new()
+    $null = $sb.Append("{")
+    $null = $sb.Append("`n  `"parameters`": {")
+    $selectedJsonEnvironmentCategories = @()
+    if ($environmentColumnsInJson -and $environmentColumnsInJson.Count -gt 0) {
+        $selectedJsonEnvironmentCategories = @($environmentColumnsInJson | Where-Object { $environmentCategories -contains $_ })
+    }
+    if ($selectedJsonEnvironmentCategories.Count -eq 0) {
+        $selectedJsonEnvironmentCategories = @($environmentCategories)
+    }
+
+    $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
+        if ($_.isEffectParameterized -or ($_.parameters -and $_.parameters.Keys.Count -gt 0)) {
+            $referencePath = $_.referencePath
+            $displayName = $_.displayName
+            $category = $_.category
+            $environmentList = $_.environmentList
+
+            $null = $sb.Append("`n    // ")
+            $null = $sb.Append("`n    // -----------------------------------------------------------------------------------------------------------------------------")
+            $null = $sb.Append("`n    // $($category) -- $($displayName)")
+            if ($referencePath -ne "") {
+                $null = $sb.Append("`n    //     referencePath: $($referencePath)")
+            }
+            foreach ($environmentCategory in $selectedJsonEnvironmentCategories) {
+                if ($environmentList.ContainsKey($environmentCategory)) {
+                    $environmentCategoryValues = $environmentList.$environmentCategory
+                    $effectValue = $environmentCategoryValues.effectValue
+                    if ($null -eq $effectValue) {
+                        $effectValue = $_.effectDefault
+                    }
+                    $null = $sb.Append("`n    //   $($environmentCategory): $($effectValue)")
+                }
+            }
+            $null = $sb.Append("`n    // -----------------------------------------------------------------------------------------------------------------------------")
+
+            $outputParameters = [ordered]@{}
+            foreach ($parameterName in $_.parameters.Keys) {
+                $parameter = $_.parameters.$parameterName
+
+                $environmentValues = [ordered]@{}
+                foreach ($environmentCategory in $selectedJsonEnvironmentCategories) {
+                    if ($environmentList.ContainsKey($environmentCategory)) {
+                        $environmentCategoryValues = $environmentList.$environmentCategory
+                        $envParameters = $environmentCategoryValues.parameters
+                        if ($envParameters.ContainsKey($parameterName)) {
+                            $envParameter = $envParameters.$parameterName
+                            $envValue = $envParameter.value
+                            if ($null -eq $envValue) {
+                                $envValue = $envParameter.defaultValue
+                            }
+                            if ($null -ne $envValue) {
+                                $environmentValues[$environmentCategory] = $envValue
+                            }
+                        }
+                    }
+                }
+
+                if ($environmentValues.Count -eq 0) {
+                    continue
+                }
+
+                $parameterValue = $environmentValues.Values | Select-Object -First 1
+                if ($environmentValues.Count -gt 1) {
+                    $parameterValue = [ordered]@{}
+                    foreach ($key in $environmentValues.Keys) {
+                        $parameterValue[$key] = $environmentValues[$key]
+                    }
+                }
+
+                $outputParameters[$parameterName] = $parameterValue
+            }
+
+            foreach ($parameterName in $outputParameters.Keys) {
+                $parameterValue = $outputParameters[$parameterName]
+                $null = $sb.Append("`n    `"$($parameterName)`": $(ConvertTo-Json $parameterValue -Depth 100 -Compress), // '$($displayName)'")
+            }
+        }
+    }
+    $null = $sb.Append("`n  }")
+    $null = $sb.Append("`n}")
+
+    $outputFilePath = "$($OutputPath -replace '[/\\]$', '')/$($fileNameStem).jsonc"
+    $sb.ToString() | Out-File $outputFilePath -Force
+
+    #endregion Parameters JSON
+
     #region PushToWiki
     if ($WikiClonePat -or $WikiSPN) {
         Write-ModernStatus -Message "Attempting push to Azure DevOps Wiki (Policy Assignments)" -Status "info" -Indent 2
