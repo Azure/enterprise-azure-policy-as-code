@@ -104,6 +104,16 @@ else {
 
     #region delete exemptions, assignment, definitions
 
+    $table = ConvertTo-HashTable $plan.enrollments.delete
+    if ($table.psbase.Count -gt 0) {
+        Write-ModernSection -Title "Deleting Policy Enrollments ($($table.psbase.Count) items)" -Color Red
+        foreach ($id in $table.Keys) {
+            $entry = $table.$id
+            Write-ModernStatus -Message "$($entry.displayName) ($($entry.name)) at scope: $($entry.scope)" -Status "info" -Indent 4
+            Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policyEnrollments
+        }
+    }
+
     if (-not $SkipExemptions) {
         $table = ConvertTo-HashTable $plan.exemptions.delete
         $table += ConvertTo-HashTable $plan.exemptions.replace
@@ -199,6 +209,18 @@ else {
             Write-ModernStatus -Message "Completed: $($entry.displayName)" -Status "success" -Indent 4
             Write-Information ""
         }
+    }
+
+    $table = ConvertTo-HashTable $plan.enrollments.new
+    $table += ConvertTo-HashTable $plan.enrollments.update
+    if ($table.psbase.Count -gt 0) {
+        Write-ModernSection -Title "Creating and Updating Policy Enrollments ($($table.psbase.Count) items)" -Color Yellow
+        foreach ($id in $table.Keys) {
+            $entry = $table.$id
+            $displayLabel = if ([string]::IsNullOrWhiteSpace($entry.displayName)) { $entry.name } else { $entry.displayName }
+            Set-AzPolicyEnrollmentRestMethod -EnrollmentObj $entry -ApiVersion $pacEnvironment.apiVersions.policyEnrollments
+            Write-ModernStatus -Message "Completed: $displayLabel" -Status "success" -Indent 4
+            Write-Information ""
     }
 
     if (-not $SkipExemptions) {
