@@ -56,26 +56,34 @@ function Build-AssignmentDefinitionAtLeaf {
     #region Validate optional parameterFileName, parameterSelector, nonComplianceMessageColumn
 
     $useCsv = $false
+    $parameterFileType = if ($null -ne $parameterFileName) { [System.IO.Path]::GetExtension($parameterFileName).ToLowerInvariant() } else { $null }
+    $isJsonParameterFile = $parameterFileType -in @('.json','.jsonc')
     if ($null -ne $parameterFileName) {
         if (!$hasPolicySets) {
-            Write-Error "    Leaf Node $($nodeName): CSV parameterFileName ($parameterFileName) can only be applied to Policy Set(s). This tree branch ($nodeName) does not contain definitionEntries for Policy Sets."
+            Write-Error "    Leaf Node $($nodeName): parameterFileName ($parameterFileName) can only be applied to Policy Set(s). This tree branch ($nodeName) does not contain definitionEntries for Policy Sets."
             $hasErrors = $true
         }
         if ($overrides.Count -gt 0) {
-            Write-Error "    Leaf Node $($nodeName): CSV parameterFileName ($parameterFileName) usage and explicit overrides are not allowed in the same branch." -ErrorAction Continue
+            Write-Error "    Leaf Node $($nodeName): parameterFileName ($parameterFileName) usage and explicit overrides are not allowed in the same branch." -ErrorAction Continue
             $hasErrors = $true
         }
         if ($null -ne $nonComplianceMessageColumn) {
             if ($nonComplianceMessages.Count -gt 0 -or $perEntryNonComplianceMessages) {
-                Write-Error "    Leaf Node $($nodeName): CSV parameterFileName ($parameterFileName) usage of nonComplianceMessageColumn ($nonComplianceMessageColumn) and explicit nonComplianceMessages are not allowed in the same branch." -ErrorAction Continue
+                Write-Error "    Leaf Node $($nodeName): parameterFileName ($parameterFileName) usage of nonComplianceMessageColumn ($nonComplianceMessageColumn) and explicit nonComplianceMessages are not allowed in the same branch." -ErrorAction Continue
                 $hasErrors = $true
             }
         }
         if ($null -ne $parameterSelector) {
-            $useCsv = $true
+            if ($isJsonParameterFile) {
+                Write-Error "    Leaf Node $($nodeName): parameterSelector ($parameterSelector) cannot be used with a JSON parameter file ($parameterFileName)." -ErrorAction Continue
+                $hasErrors = $true
+            }
+            else {
+                $useCsv = $true
+            }
         }
-        else {
-            Write-Error "    Leaf Node $($nodeName): CSV parameterFileName ($parameterFileName) usage requires a parameterSelector (missing)." -ErrorAction Continue
+        elseif (-not $isJsonParameterFile) {
+            Write-Error "    Leaf Node $($nodeName): parameterFileName ($parameterFileName) is a CSV file and requires a parameterSelector (missing)." -ErrorAction Continue
             $hasErrors = $true
         }
     }

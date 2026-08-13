@@ -5,6 +5,9 @@ Assigning single or multiple security and compliance focused Policy Sets (Initia
 
 To address the problem of reading and maintaining hundreds or thousands of JSON lines, EPAC can use the content of a spreadsheet (CSV) to create `parameters`, `overrides` and optionally `nonComplianceMessages` for a single Policy assignment `definitionEntry` or multiple Policy definitions (`definitionEntryList`).
 
+> [!NOTE]
+> EPAC also accepts JSON and JSONC parameter sidecar files for assignment definitions. When a file is a JSON/JSONC parameter source, set `"parameterFile"` to the file name and omit `parameterSelector`; the file is expected to contain a top-level `parameters` object (or a plain parameter map) that EPAC merges into the assignment.
+
 > [!TIP]
 > This approach is best for large Policy Sets such as Azure Security Benchmark, NIST 800-53, etc. Smaller Policy Sets should still be handled with JSON `parameters`, `overrides` and `nonComplianceMessages`.
 

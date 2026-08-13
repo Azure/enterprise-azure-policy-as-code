@@ -11,9 +11,9 @@
 
 ## Overview
 
-The Documentation feature provides reports on Policy Assignments deployed within an environment, and comparisons of Policy Assignments and Sets of Policy Set definitions for considering differences in policies and effects.  Output is generated as Markdown (`.md`), and Excel (`.csv`) files using the script [`./Scripts/Operations/Build-PolicyDocumentation`](operational-scripts-reference.md#script-build-policydocumentation) It retrieves its instruction from the JSON files in this folder; the names of the definition JSON files don't matter as the script reads any file in the folder with a `.json` or `.jsonc` extension.
+The Documentation feature provides reports on Policy Assignments deployed within an environment, and comparisons of Policy Assignments and Sets of Policy Set definitions for considering differences in policies and effects. Output is generated as Markdown (`.md`), Excel (`.csv`) files, and parameter JSON (`.jsonc`) sidecars using the script [`./Scripts/Operations/Build-PolicyDocumentation`](operational-scripts-reference.md#script-build-policydocumentation). It retrieves its instruction from the JSON files in this folder; the names of the definition JSON files don't matter as the script reads any file in the folder with a `.json` or `.jsonc` extension.
 
-* Policy Assignments: Read and process Policy Assignments which are representative of an environment category, such as prod, test, dev, and sandbox. It generates Markdown (`.md`), and Excel (`.csv`) files.
+* Policy Assignments: Read and process Policy Assignments which are representative of an environment category, such as prod, test, dev, and sandbox. It generates Markdown (`.md`), Excel (`.csv`) files, and a parameter export in JSONC (`.jsonc`) that reflects the representative assignment values for each environment category.
 * Policy Sets: Read and process Policy Sets to compare them for Policy and effect overlap. It generates Markdown (`.md`), Excel (`.csv`) files, and JSON file (`.jsonc`).
 
 ## JSON Schema
@@ -39,6 +39,7 @@ You can define shared defaults once at the top level using `globalDocumentationS
     * `markdownAddToc`, `markdownAdoWiki`, `markdownAdoWikiConfig`
     * `markdownNoEmbeddedHtml`, `markdownIncludeComplianceGroupNames`
     * `markdownSuppressParameterSection`, `markdownMaxParameterLength`
+    * `environmentColumnsInJson` (optional list of assignment environment categories to include in the generated parameter JSON sidecar; defaults to all categories)
 
 Specific entries take precedence. If a property is set in `documentAssignments.documentationSpecifications[...]` or in a `documentPolicySets[...]` item, it overrides the global value.
 
@@ -85,13 +86,17 @@ Each file must contain one or both documentation topics, [`documentAssignments`]
                 "markdownIncludeComplianceGroupNames": true,
                 "markdownSuppressParameterSection": false,
                 "markdownMaxParameterLength": 42, //default is 42
-                "markdownAdoWikiConfig": [
-                    {
-                        "adoOrganization": "MyOrganization",
-                        "adoProject": "EPAC",
-                        "adoWiki": "EPAC"
-                    }
-                ]
+               "environmentColumnsInJson": [
+                   "prod",
+                   "test"
+               ],
+               "markdownAdoWikiConfig": [
+                   {
+                       "adoOrganization": "MyOrganization",
+                       "adoProject": "EPAC",
+                       "adoWiki": "EPAC"
+                   }
+               ]
             }
         ]
     },
