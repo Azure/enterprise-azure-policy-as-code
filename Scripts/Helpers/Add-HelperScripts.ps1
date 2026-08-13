@@ -16,6 +16,7 @@ $scriptRoot = Split-Path $PSScriptRoot -Parent
 . "$PSScriptRoot/Build-AssignmentPlan.ps1"
 
 . "$PSScriptRoot/Build-ExemptionsPlan.ps1"
+. "$PSScriptRoot/Build-PolicyEnrollmentPlan.ps1"
 . "$PSScriptRoot/Build-PolicyPlan.ps1"
 . "$PSScriptRoot/Build-PolicySetPlan.ps1"
 . "$PSScriptRoot/Build-PolicySetPolicyDefinitionIds.ps1"
@@ -61,6 +62,7 @@ $scriptRoot = Split-Path $PSScriptRoot -Parent
 . "$PSScriptRoot/Get-AzPolicyOrSetDefinitions.ps1"
 . "$PSScriptRoot/Get-AzPolicyAssignments.ps1"
 . "$PSScriptRoot/Get-AzPolicyExemptions.ps1"
+. "$PSScriptRoot/Get-AzPolicyEnrollments.ps1"
 . "$PSScriptRoot/Get-AzPolicyResources.ps1"
 . "$PSScriptRoot/Get-AzPolicyResourcesDetails.ps1"
 . "$PSScriptRoot/Get-CalculatedPolicyAssignmentsAndReferenceIds.ps1"
@@ -115,6 +117,7 @@ $scriptRoot = Split-Path $PSScriptRoot -Parent
 . "$PSScriptRoot/Write-ErrorsFromErrorInfo.ps1"
 . "$PSScriptRoot/Write-ModernOutput.ps1"
 
+. "$PSScriptRoot/RestMethods/ConvertTo-AzPolicyRestPath.ps1"
 . "$PSScriptRoot/RestMethods/Get-AzManagementGroupRestMethod.ps1" 
 . "$PSScriptRoot/RestMethods/Get-AzPolicyAssignmentRestMethod.ps1"
 . "$PSScriptRoot/RestMethods/Get-AzPolicyExemptionsRestMethod.ps1"
@@ -127,6 +130,7 @@ $scriptRoot = Split-Path $PSScriptRoot -Parent
 . "$PSScriptRoot/RestMethods/Set-AzPolicyDefinitionRestMethod.ps1"
 . "$PSScriptRoot/RestMethods/Set-AzPolicySetDefinitionRestMethod.ps1"
 . "$PSScriptRoot/RestMethods/Set-AzPolicyExemptionRestMethod.ps1"
+. "$PSScriptRoot/RestMethods/Set-AzPolicyEnrollmentRestMethod.ps1"
 . "$PSScriptRoot/RestMethods/Set-AzRoleAssignmentRestMethod.ps1"
 
 # Hydration Kit Content

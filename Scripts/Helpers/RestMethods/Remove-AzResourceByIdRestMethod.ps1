@@ -9,7 +9,8 @@ function Remove-AzResourceByIdRestMethod {
     )
 
     # Invoke the REST API
-    $path = "$($Id)?api-version=$($ApiVersion)"
+    $resourcePath = ConvertTo-AzPolicyRestPath -Id $Id
+    $path = "$($resourcePath)?api-version=$($ApiVersion)"
     # Write-Information "DELETE $path"
     $response = Invoke-AzRestMethod -Path $path -Method DELETE
 

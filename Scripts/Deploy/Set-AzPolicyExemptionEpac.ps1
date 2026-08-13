@@ -43,6 +43,7 @@ $id = "$Scope/providers/Microsoft.Authorization/policyExemptions/$Name"
 
 $exemptionObject = [ordered]@{
     id                           = $id
+    name                         = $Name
     policyAssignmentId           = $PolicyAssignmentId
     exemptionCategory            = $ExemptionCategory
     assignmentScopeValidation    = $AssignmentScopeValidation

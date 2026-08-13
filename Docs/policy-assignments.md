@@ -486,7 +486,7 @@ If you use single `definitionEntry`, place them normally. If you use a `definiti
 
 ### Defining `enforcementMode`
 
-`enforcementMode` is similar to the deprecated `ignoreBranch`; it deploys the assignment and sets the assignment to `Default` or `DoNotEnforce`. `DoNotEnforce` allows a what-if analysis. `enforcementMode` may appear anywhere in the tree. Definitions at a child override the previous setting.
+`enforcementMode` is similar to the deprecated `ignoreBranch`; it deploys the assignment and supports `Default`, `DoNotEnforce`, or `Enroll`. `DoNotEnforce` allows a what-if analysis. `Enroll` creates an assignment that scopes can join with a [Policy Enrollment](policy-enrollments.md) and is an Azure preview feature. `enforcementMode` may appear anywhere in the tree. Definitions at a child override the previous setting.
 
 ```json
 "enforcementMode": "DoNotEnforce",

@@ -87,7 +87,7 @@ function Build-PolicySetPlan {
             Write-Error "Policy Set from file '$($file.Name)' requires a name" -ErrorAction Stop
         }
         if (-not (Confirm-ValidPolicyResourceName -Name $name)) {
-            Write-Error "Policy Set from file '$($file.Name) has a name '$name' containing invalid characters <>*%&:?.+/ or ends with a space." -ErrorAction Stop
+            Write-Error "Policy Set from file '$($file.Name) has a name '$name' containing invalid characters '%, &, \, ?, /, <, >, :, #, *, +' or control characters, or ends with a space." -ErrorAction Stop
         }
         if ($null -eq $displayName) {
             Write-Error "Policy Set '$name' from file '$($file.Name)' requires a displayName" -ErrorAction Stop
@@ -609,5 +609,4 @@ function Build-PolicySetPlan {
     # Write-ModernCountSummary -Operation "Policy Set Definitions" -Unchanged $Definitions.numberUnchanged
     Write-Information ""
 }
-
 

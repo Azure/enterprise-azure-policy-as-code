@@ -44,11 +44,11 @@ function Build-AssignmentDefinitionNode {
     if ($DefinitionNode.enforcementMode) {
         # Does deploy assignment(s), Azure Policy Engine will not evaluate the Policy Assignment
         $enforcementMode = $DefinitionNode.enforcementMode
-        if ("Default", "DoNotEnforce" -contains $enforcementMode) {
+        if ("Default", "DoNotEnforce", "Enroll" -contains $enforcementMode) {
             $definition.enforcementMode = $enforcementMode
         }
         else {
-            Write-Error "    Node $($nodeName): enforcementMode must be Default or DoNotEnforce (actual is ""$($enforcementMode))."
+            Write-Error "    Node $($nodeName): enforcementMode must be Default, DoNotEnforce, or Enroll (actual is ""$($enforcementMode))."
             $definition.hasErrors = $true
         }
     }

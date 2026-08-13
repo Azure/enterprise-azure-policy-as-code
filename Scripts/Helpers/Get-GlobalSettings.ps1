@@ -420,6 +420,7 @@ function Get-GlobalSettings {
     $policySetDefinitionsFolder = "$DefinitionsRootFolder/policySetDefinitions"
     $policyAssignmentsFolder = "$DefinitionsRootFolder/policyAssignments"
     $policyExemptionsFolder = "$DefinitionsRootFolder/policyExemptions"
+    $policyEnrollmentsFolder = "$DefinitionsRootFolder/policyEnrollments"
 
     [hashtable] $globalSettings = @{
         telemetryEnabled           = $telemetryEnabled
@@ -432,6 +433,7 @@ function Get-GlobalSettings {
         policySetDefinitionsFolder = $policySetDefinitionsFolder
         policyAssignmentsFolder    = $policyAssignmentsFolder
         policyExemptionsFolder     = $policyExemptionsFolder
+        policyEnrollmentsFolder    = $policyEnrollmentsFolder
         pacEnvironmentSelectors    = $pacEnvironmentSelectors
         pacEnvironmentPrompt       = $prompt
         pacEnvironments            = $pacEnvironmentDefinitions
