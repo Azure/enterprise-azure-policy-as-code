@@ -28,13 +28,94 @@ function Build-HydrationAssignmentPlan {
     $assignmentFiles = @()
     $assignmentFiles += Get-ChildItem -Path $AssignmentsRootFolder -Recurse -File -Filter "*.json"
     $assignmentFiles += Get-ChildItem -Path $AssignmentsRootFolder -Recurse -File -Filter "*.jsonc"
+    $jsonFiles = Get-ChildItem -Path $AssignmentsRootFolder -Recurse -File -Filter "*.json"
+    $jsoncFiles = Get-ChildItem -Path $AssignmentsRootFolder -Recurse -File -Filter "*.jsonc"
     $csvFiles = Get-ChildItem -Path $AssignmentsRootFolder -Recurse -File -Filter "*.csv"
+
+    $parameterFilesToIgnore = [System.Collections.ArrayList]::new()
+    $collectParameterFileReferences = {
+        param(
+            [Parameter(Mandatory = $false)] $Node,
+            [Parameter(Mandatory = $true)] [string] $BasePath,
+            [Parameter(Mandatory = $true)] [string] $AssignmentsRootFolder
+        )
+
+        if ($null -eq $Node) {
+            return
+        }
+
+        if ($Node -is [System.Collections.IDictionary]) {
+            foreach ($key in $Node.Keys) {
+                $value = $Node[$key]
+                if ($key -ieq 'parameterFile' -and $null -ne $value) {
+                    $parameterFileValue = [string]$value
+                    if (-not [string]::IsNullOrWhiteSpace($parameterFileValue)) {
+                        $candidatePath = $parameterFileValue
+                        if (-not [System.IO.Path]::IsPathRooted($candidatePath)) {
+                            $candidatePath = Join-Path -Path $BasePath -ChildPath $candidatePath
+                        }
+                        try {
+                            $resolvedPath = (Resolve-Path -Path $candidatePath -ErrorAction Stop).Path
+                        }
+                        catch {
+                            $resolvedPath = [System.IO.Path]::GetFullPath($candidatePath)
+                        }
+                        $rootRelativePath = [System.IO.Path]::GetRelativePath($AssignmentsRootFolder, $resolvedPath)
+                        foreach ($entry in @($resolvedPath, $rootRelativePath, (Split-Path -Leaf $resolvedPath), (Split-Path -Leaf $candidatePath))) {
+                            if (-not [string]::IsNullOrWhiteSpace($entry) -and -not $parameterFilesToIgnore.Contains($entry)) {
+                                $null = $parameterFilesToIgnore.Add($entry)
+                            }
+                        }
+                    }
+                }
+                & $collectParameterFileReferences $value $BasePath $AssignmentsRootFolder
+            }
+            return
+        }
+
+        if ($Node -is [System.Collections.IEnumerable] -and -not ($Node -is [string])) {
+            foreach ($item in $Node) {
+                & $collectParameterFileReferences $item $BasePath $AssignmentsRootFolder
+            }
+        }
+    }
+
+    foreach ($assignmentFile in $assignmentFiles) {
+        try {
+            $assignmentObject = (Get-Content -Path $assignmentFile.FullName -Raw -ErrorAction Stop) | ConvertFrom-Json -Depth 100 -AsHashtable
+            & $collectParameterFileReferences $assignmentObject (Split-Path -Parent $assignmentFile.FullName) $AssignmentsRootFolder
+        }
+        catch {
+            continue
+        }
+    }
+
+    $assignmentFiles = @(
+        $assignmentFiles | Where-Object {
+            $fullName = $_.FullName
+            $relativePath = [System.IO.Path]::GetRelativePath($AssignmentsRootFolder, $fullName)
+            foreach ($ignored in $parameterFilesToIgnore) {
+                if ($ignored -and (($ignored -eq $fullName) -or ($ignored -eq $_.Name) -or ($ignored -eq $relativePath))) {
+                    return $false
+                }
+            }
+            return $true
+        }
+    )
+
     $parameterFilesCsv = @{}
-    if ($assignmentFiles.Length -gt 0) {
-        Write-Information "Number of Policy Assignment files = $($assignmentFiles.Length)"
-        foreach ($csvFile in $csvFiles) {
+    foreach ($jsonFile in @($jsonFiles + $jsoncFiles)) {
+        if (-not $parameterFilesCsv.ContainsKey($jsonFile.Name)) {
+            $parameterFilesCsv.Add($jsonFile.Name, $jsonFile.FullName)
+        }
+    }
+    foreach ($csvFile in $csvFiles) {
+        if (-not $parameterFilesCsv.ContainsKey($csvFile.Name)) {
             $parameterFilesCsv.Add($csvFile.Name, $csvFile.FullName)
         }
+    }
+    if ($assignmentFiles.Length -gt 0) {
+        Write-Information "Number of Policy Assignment files = $($assignmentFiles.Length)"
     }
     else {
         Write-Warning "No Policy Assignment files found! Deleting any Policy Assignments."
