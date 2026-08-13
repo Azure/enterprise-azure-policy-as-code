@@ -231,6 +231,7 @@ EPAC uses a simple folder structure to organize all policy resources:
 - **`policySetDefinitions/`**: Policy initiative (set) definitions  
 - **`policyAssignments/`**: Policy assignments to scopes
 - **`policyExemptions/`**: Exemptions from policy enforcement
+- **`policyEnrollments/`**: Preview enrollments in assignments using `enforcementMode: Enroll`
 
 ## Implementation Path
 

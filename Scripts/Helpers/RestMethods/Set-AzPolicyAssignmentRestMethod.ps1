@@ -2,8 +2,13 @@ function Set-AzPolicyAssignmentRestMethod {
     [CmdletBinding()]
     param (
         $AssignmentObj,
-        $ApiVersion
+        $ApiVersion,
+        $EnrollmentApiVersion = "2026-01-01-preview"
     )
+
+    if ($AssignmentObj.enforcementMode -eq "Enroll") {
+        $ApiVersion = $EnrollmentApiVersion
+    }
 
     Assert-ValidPolicyResourceName -Name $AssignmentObj.name -ResourceType "Policy assignment"
 

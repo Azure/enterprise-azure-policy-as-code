@@ -432,7 +432,8 @@
         "enforcementMode": {
             "enum": [
                 "DoNotEnforce",
-                "Default"
+                "Default",
+                "Enroll"
             ]
         },
         "children": {
