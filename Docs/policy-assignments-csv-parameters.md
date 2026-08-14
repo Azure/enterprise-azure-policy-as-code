@@ -41,6 +41,18 @@ EPAC will find the effect parameter name for each Policy in each Policy Set and 
 
 After building the spreadsheet, you must reference the CSV file and the column prefix in each tree branch. `parameterFile` must occur once per tree branch. Define it adjacent to the `'definitionEntry` or `definitionEntryList` to improve readability.
 
+`parameterFile` accepts either a discovered CSV filename, a path relative to the assignment JSON file, or an absolute path. This allows parameter files to live outside the `policyAssignments` tree while keeping the existing filename-based behavior for in-tree CSVs.
+
+Examples:
+
+```json
+"parameterFile": "security-baseline-parameters.csv",
+"parameterFile": "../../parameters/epac-prod/security-baseline-parameters.csv",
+"parameterFile": "/mnt/shared/epac/parameters/security-baseline-parameters.csv"
+```
+
+Relative paths are resolved from the directory containing the assignment JSON file. Absolute paths are used as-is. The classic bare filename lookup is still supported when the CSV is discovered under the assignments root.
+
 ```json
 "parameterFile": "security-baseline-parameters.csv",
 "definitionEntryList": [

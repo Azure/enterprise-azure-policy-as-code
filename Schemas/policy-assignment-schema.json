@@ -246,7 +246,8 @@
             }
         },
         "parameterFile": {
-            "type": "string"
+            "type": "string",
+            "description": "CSV parameter file path. Accepts a discovered filename, a path relative to the assignment file, or an absolute file path."
         },
         "parameterSelector": {
             "type": "string"
