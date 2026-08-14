@@ -85,7 +85,7 @@ function Get-ALZBasedOnMatchNames {
 if ($Tag -eq "") {
     switch ($Type) {
         'ALZ' {
-            $Tag = "platform/alz/2026.04.2"
+            $Tag = "platform/alz/2026.08.0"
         }
         'FSI' {
             $Tag = "platform/fsi/2025.03.0"
@@ -94,7 +94,7 @@ if ($Tag -eq "") {
             $Tag = "platform/amba/2026.06.2"
         }
         'SLZ' {
-            $Tag = "platform/slz/2026.04.3"
+            $Tag = "platform/slz/2026.08.0"
         }
     }
 }
@@ -674,6 +674,14 @@ try {
 
             $baseTemplate.Add("scope", $scope)
 
+            $ambaAssignmentsRequiringAdditionalRoleAssignments = @(
+                "Deploy-AMBA-Web",
+                "Deploy-AMBA-VM",
+                "Deploy-AMBA-HybridVM",
+                "Deploy-AMBA-VMSS",
+                "Deploy-AMBA-Management"
+            )
+
             # Base Parameters
             if ($fileContent.name -ne "Deploy-Private-DNS-Zones" -and $assignmentFromDefinition -ne $true) {
                 foreach ($parameter in $fileContent.properties.parameters.psObject.Properties.Name) {
@@ -719,7 +727,7 @@ try {
                     }
                 }
 
-                if ($Type -eq "AMBA" -and $fileContent.name -eq "Deploy-AMBA-Web") {
+                if ($Type -eq "AMBA" -and $fileContent.name -in $ambaAssignmentsRequiringAdditionalRoleAssignments) {
                     $managementScopeValue = $structureFile.managementGroupNameMappings.management.value
                     $additionalRoleAssignments = @{
                         $PacEnvironmentSelector = @(
@@ -766,7 +774,7 @@ try {
                 ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope, additionalRoleAssignments | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$effectiveAssignmentName.jsonc" -Force -ErrorAction SilentlyContinue
                 (Get-Content "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$effectiveAssignmentName.jsonc") -replace "\.ne\.", ".$dnsZoneRegion." | Set-Content "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$effectiveAssignmentName.jsonc"
             }
-            elseif ($Type -eq "AMBA" -and $fileContent.name -eq "Deploy-AMBA-Web") {
+            elseif ($Type -eq "AMBA" -and $fileContent.name -in $ambaAssignmentsRequiringAdditionalRoleAssignments) {
                 ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope, additionalRoleAssignments | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$effectiveAssignmentName.jsonc" -Force -ErrorAction SilentlyContinue
             }
             else {
