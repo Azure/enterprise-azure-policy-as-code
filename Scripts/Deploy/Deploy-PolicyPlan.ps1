@@ -221,6 +221,7 @@ else {
             Set-AzPolicyEnrollmentRestMethod -EnrollmentObj $entry -ApiVersion $pacEnvironment.apiVersions.policyEnrollments
             Write-ModernStatus -Message "Completed: $displayLabel" -Status "success" -Indent 4
             Write-Information ""
+        }
     }
 
     if (-not $SkipExemptions) {
