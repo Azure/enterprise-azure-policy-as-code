@@ -5,7 +5,7 @@
 Builds documentation from instructions in policyDocumentations folder reading the deployed Policy Resources from the EPAC environment.
 
 ```ps1
-Build-PolicyDocumentation [[-DefinitionsRootFolder] <String>] [[-OutputFolder] <String>] [-WindowsNewLineCells] [-Interactive <Boolean>] [-SuppressConfirmation] [-IncludeManualPolicies] [<CommonParameters>]
+Build-PolicyDocumentation [[-DefinitionsRootFolder] <String>] [[-OutputFolder] <String>] [-WindowsNewLineCells] [-Interactive <Boolean>] [-SuppressConfirmation] [-IncludeManualPolicies] [-FileName <String[]>] [<CommonParameters>]
 ```
 
 ### Parameters
@@ -33,6 +33,10 @@ Suppresses prompt for confirmation to delete an existing file in interactive mod
 #### `-IncludeManualPolicies [<SwitchParameter>]`
 
 Include Policies with effect Manual. Default: do not include Policies with effect Manual.
+
+#### `-FileName <String[]>`
+
+Optional documentation definition file name or array of names to process. Accepts a single file, a relative path, or an array of files. When supplied, the script skips per-file confirmation prompts.
 
 ## Script `New-AzRemediationTasks`
 
