@@ -41,7 +41,7 @@ Describe 'Sync-ALZPolicyFromLibrary AMBA Web defaults' {
   "defaultParameterValues": {
     "amba_alz_resource_group_name": [
       {
-        "policy_assignment_name": ["Deploy-AMBA-Web"],
+        "policy_assignment_name": ["Deploy-AMBA-Web", "Deploy-AMBA-VM", "Deploy-AMBA-HybridVM", "Deploy-AMBA-VMSS", "Deploy-AMBA-Management"],
         "parameters": {
           "parameter_name": "ALZMonitorResourceGroupName",
           "value": "rg-from-structure"
@@ -55,48 +55,52 @@ Describe 'Sync-ALZPolicyFromLibrary AMBA Web defaults' {
         Set-Content -Path (Join-Path $libraryRoot 'platform/amba/archetype_definitions/amba_landing_zones.alz_archetype_definition.json') -Value @'
 {
   "name": "amba_landing_zones",
-  "policy_assignments": ["Deploy-AMBA-Web"]
+ "policy_assignments": ["Deploy-AMBA-Web", "Deploy-AMBA-VM", "Deploy-AMBA-HybridVM", "Deploy-AMBA-VMSS", "Deploy-AMBA-Management"]
 }
 '@
 
-        Set-Content -Path (Join-Path $libraryRoot 'platform/amba/policy_assignments/Deploy-AMBA-Web.alz_policy_assignment.json') -Value @'
+       foreach ($assignmentName in @('Deploy-AMBA-Web','Deploy-AMBA-VM','Deploy-AMBA-HybridVM','Deploy-AMBA-VMSS','Deploy-AMBA-Management')) {
+           Set-Content -Path (Join-Path $libraryRoot "platform/amba/policy_assignments/$assignmentName.alz_policy_assignment.json") -Value @"
 {
-  "name": "Deploy-AMBA-Web",
-  "properties": {
-    "displayName": "Deploy AMBA Web",
-    "description": "Test AMBA Web assignment",
-    "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/Deploy-AMBA-Web",
-    "parameters": {
-      "ALZMonitorResourceGroupName": {
-        "value": "rg-from-library"
-      }
-    }
-  }
+ "name": "$assignmentName",
+ "properties": {
+   "displayName": "Deploy $assignmentName",
+   "description": "Test $assignmentName assignment",
+   "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/$assignmentName",
+   "parameters": {
+     "ALZMonitorResourceGroupName": {
+       "value": "rg-from-library"
+     }
+   }
+ }
 }
-'@
+"@
+       }
 
-        $helperScriptPath = Join-Path $TestDrive 'run-sync.ps1'
-        Set-Content -Path $helperScriptPath -Value @"
+       $helperScriptPath = Join-Path $TestDrive 'run-sync.ps1'
+       Set-Content -Path $helperScriptPath -Value @"
 function Invoke-RestMethod {
     param([string] `$Uri)
-
+ 
     [pscustomobject]@{
         ref = @('refs/tags/$($script:Tag)')
     }
 }
-
+ 
 & '$($script:SyncScriptPath.Replace("'", "''"))' -DefinitionsRootFolder '$($definitionsRoot.Replace("'", "''"))' -LibraryPath '$($libraryRoot.Replace("'", "''"))' -Type AMBA -PacEnvironmentSelector 'epac-dev' -Tag '$($script:Tag)' -SyncAssignmentsOnly
 "@
 
-        & pwsh -NoLogo -NoProfile -File $helperScriptPath | Out-Null
-        $LASTEXITCODE | Should -Be 0
+       & pwsh -NoLogo -NoProfile -File $helperScriptPath | Out-Null
+       $LASTEXITCODE | Should -Be 0
 
-        $assignmentFile = Join-Path $definitionsRoot 'policyAssignments/AMBA/epac-dev/Landing Zones/Deploy-AMBA-Web.jsonc'
-        Test-Path $assignmentFile | Should -BeTrue
+       foreach ($assignmentName in @('Deploy-AMBA-Web','Deploy-AMBA-VM','Deploy-AMBA-HybridVM','Deploy-AMBA-VMSS','Deploy-AMBA-Management')) {
+           $assignmentFile = Join-Path $definitionsRoot "policyAssignments/AMBA/epac-dev/Landing Zones/$assignmentName.jsonc"
+           Test-Path $assignmentFile | Should -BeTrue
 
-        $assignment = Get-Content -Path $assignmentFile -Raw | ConvertFrom-Json
-        $assignment.parameters.ALZMonitorResourceGroupName | Should -Be 'rg-from-structure'
-        $assignment.additionalRoleAssignments.'epac-dev'[0].scope | Should -Be '/providers/Microsoft.Management/managementGroups/management'
-        $assignment.additionalRoleAssignments.'epac-dev'[0].roleDefinitionId | Should -Be '/providers/microsoft.authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830'
-    }
+           $assignment = Get-Content -Path $assignmentFile -Raw | ConvertFrom-Json
+           $assignment.parameters.ALZMonitorResourceGroupName | Should -Be 'rg-from-structure'
+           $assignment.additionalRoleAssignments.'epac-dev'[0].scope | Should -Be '/providers/Microsoft.Management/managementGroups/management'
+           $assignment.additionalRoleAssignments.'epac-dev'[0].roleDefinitionId | Should -Be '/providers/microsoft.authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830'
+       }
+   }
 }
