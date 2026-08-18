@@ -192,7 +192,55 @@ Notes specific to MLZ:
   }
   ```
 
-- `defaultParameterValues` is intentionally generated empty. The MLZ compliance baselines (CMMC, IL5, NIST SP 800-53 Rev. 4 and Rev. 5) carry several hundred parameters between them, so those values are produced together with the policy assignments during the sync step rather than being stubbed into the structure file.
+- `defaultParameterValues` only contains the handful of values that the MLZ deployment injects at runtime and which cannot be read from the missionlz repository. Populate them before running the sync; each one is applied to every assignment that needs it, under whichever parameter name that baseline uses.
+
+  | Structure file value | Applied to |
+  | --- | --- |
+  | `log_analytics_workspace_resource_id` | `NISTRev4`, `IL5`, `Deploy-VM-Agents`, `Deploy-VMSS-Agents` |
+  | `log_analytics_workspace_customer_id` | `CMMC` — this is the workspace **customer ID** (a GUID), not the resource ID |
+  | `windows_administrators_group_membership` | `NISTRev4`, `IL5`, `CMMC` |
+  | `windows_administrators_group_exclusions` | `CMMC`, pre-filled with `admin` to match the MLZ deployment |
+
+  The compliance baselines themselves (CMMC, IL5, NIST SP 800-53 Rev. 4 and Rev. 5) carry several hundred parameters between them. Those are **not** stubbed into the structure file - they are read from the missionlz repository during the sync step.
+
+#### Syncing MLZ assignments
+
+```ps1
+# Generate the MLZ policy assignments
+Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type MLZ -PacEnvironmentSelector "epac-dev"
+```
+
+This clones <https://github.com/Azure/missionlz>, reads the assignment parameter files from `src/policies` and writes the assignments to `Definitions\policyAssignments\MLZ\<PacEnvironmentSelector>\<management_group_function>\`. Use `-LibraryPath` to point at an existing local checkout instead of cloning.
+
+MLZ has no custom policy or policy set definitions - every baseline is a built-in initiative - so nothing is written to `policyDefinitions` or `policySetDefinitions`. `-SyncAssignmentsOnly` therefore has no effect, and `-CreateGuardrailAssignments`, `-EnableOverrides` and `-SyncAMBAExtendedPolicies` are not applicable.
+
+Six assignments are generated:
+
+| File | Initiative |
+| --- | --- |
+| `CMMC.jsonc` | CMMC Level 3 |
+| `IL5.jsonc` | DoD Impact Level 5 |
+| `NISTRev4.jsonc` | NIST SP 800-53 Rev. 4 |
+| `NISTRev5.jsonc` | NIST SP 800-53 Rev. 5 |
+| `Deploy-VM-Agents.jsonc` | Virtual machine monitoring agents |
+| `Deploy-VMSS-Agents.jsonc` | Virtual machine scale set monitoring agents |
+
+The MLZ deployment assigns exactly one compliance baseline per resource group. EPAC generates all of the applicable baselines so you can choose between them - delete the assignment files you do not want before deploying, otherwise overlapping baselines are applied to the same subscription.
+
+##### Cloud specific behaviour
+
+The MLZ deployment branches on the Azure environment, and the sync reproduces this using the `cloud` property of the PAC environment in `global-settings.jsonc` that matches `-PacEnvironmentSelector`. If it cannot be resolved, `AzureCloud` is assumed and a warning is emitted.
+
+- **`AzureCloud`** - the deployment maps IL5 to NIST SP 800-53 Rev. 4, so `IL5.jsonc` is **not** generated (`NISTRev4.jsonc` covers it). The CMMC assignment additionally receives the Windows administrators group include and exclude parameters.
+- **Any other cloud** (for example `AzureUSGovernment`) - all six assignments are generated and the two CMMC administrators group parameters are omitted.
+
+Changing the cloud and re-running the sync removes any assignment file that is no longer generated, so the switch is handled in both directions.
+
+##### Other notes
+
+- missionlz has no usable release tag - its only tag predates the current `src/policies` content - so the default branch is cloned. Generated output can therefore change when the upstream repository changes.
+- The sync warns if the subscription scope is still the placeholder or if any of the runtime values above are still empty. It completes anyway so the output can be inspected.
+- Role assignments and policy remediation tasks created by the MLZ deployment are not reproduced. Configure those through the usual EPAC mechanisms.
 
 ## Advanced Scenarios
 
