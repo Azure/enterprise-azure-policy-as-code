@@ -3,12 +3,11 @@ Param(
     [Parameter(Mandatory = $true)]
     [string] $DefinitionsRootFolder,
 
-    [ValidateSet('ALZ', 'FSI', 'AMBA', 'SLZ')]
+    [ValidateSet('ALZ', 'FSI', 'AMBA', 'SLZ', 'MLZ')]
     [string] $Type = 'ALZ',
 
     [string] $LibraryPath,
 
-    [ValidateScript({ "refs/tags/$_" -in (Invoke-RestMethod -Uri 'https://api.github.com/repos/Azure/Azure-Landing-Zones-Library/git/refs/tags/').ref }, ErrorMessage = "Tag must be a valid tag." )]
     [string] $Tag,
 
     [Parameter(Mandatory = $true)]
@@ -17,6 +16,15 @@ Param(
 
 # Dot Source Helper Scripts
 . "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
+
+# MLZ is sourced from a different repository (Azure/missionlz) so the Azure Landing Zones Library tag
+# list does not apply to it. Validate the tag at runtime for every other type instead of using a
+# parameter attribute, otherwise the MLZ code path would be forced to supply an ALZ library tag.
+if ($Type -ne 'MLZ' -and -not [string]::IsNullOrWhiteSpace($Tag)) {
+    if ("refs/tags/$Tag" -notin (Invoke-RestMethod -Uri 'https://api.github.com/repos/Azure/Azure-Landing-Zones-Library/git/refs/tags/').ref) {
+        throw "Tag must be a valid tag."
+    }
+}
 
 if ($DefinitionsRootFolder -eq "") {
     if ($null -eq $env:PAC_DEFINITIONS_FOLDER) {
@@ -50,7 +58,60 @@ if ($Tag -eq "") {
     }
 }
 
-Write-ModernHeader -Title "Creating Policy Default Structure" -Subtitle "Type: $Type, Tag: $Tag"
+if ($Type -eq 'MLZ') {
+    Write-ModernHeader -Title "Creating Policy Default Structure" -Subtitle "Type: $Type"
+}
+else {
+    Write-ModernHeader -Title "Creating Policy Default Structure" -Subtitle "Type: $Type, Tag: $Tag"
+}
+
+#region MLZ
+# Mission Landing Zone (https://github.com/Azure/missionlz) has none of the Azure Landing Zones Library
+# structure - no architecture definitions, archetypes or alz_policy_default_values.json. Its policy content
+# is a set of flat parameter maps under src/policies that are assigned against built-in initiatives at
+# subscription/resource group scope. The structure file therefore cannot be produced by the library code
+# path below and is built here instead. Default parameter values are intentionally left empty; they are
+# populated alongside the assignments during the sync step.
+if ($Type -eq 'MLZ') {
+    Write-ModernSection -Title "Building MLZ Structure" -Indent 0
+
+    $mlzOutput = [ordered]@{
+        "`$schema"                  = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-structure-schema.json"
+        managementGroupNameMappings = [ordered]@{
+            mlz = [ordered]@{
+                management_group_function = "Mission Landing Zone"
+                value                     = "/subscriptions/00000000-0000-0000-0000-000000000000"
+            }
+        }
+        enforcementMode             = "Default"
+        defaultParameterValues      = [ordered]@{}
+        enforceGuardrails           = @{
+            deployments = @()
+        }
+    }
+
+    Write-ModernStatus -Message "Added placeholder scope 'mlz' - replace the subscription id with the target subscription" -Status "info" -Indent 2
+    Write-ModernStatus -Message "Default parameter values are created during the sync step" -Status "info" -Indent 2
+
+    Write-ModernSection -Title "Writing Output Files" -Indent 0
+    $mlzOutputDirectory = "$DefinitionsRootFolder\policyStructures"
+    if (-not (Test-Path -Path $mlzOutputDirectory)) {
+        New-Item -ItemType Directory -Path $mlzOutputDirectory | Out-Null
+    }
+
+    if ($PacEnvironmentSelector) {
+        $mlzOutputFile = "$mlzOutputDirectory\mlz.policy_default_structure.$PacEnvironmentSelector.jsonc"
+    }
+    else {
+        $mlzOutputFile = "$mlzOutputDirectory\mlz.policy_default_structure.jsonc"
+    }
+
+    Out-File $mlzOutputFile -InputObject ($mlzOutput | ConvertTo-Json -Depth 10) -Encoding utf8 -Force
+    Write-ModernStatus -Message "Default structure file: $mlzOutputFile" -Status "success" -Indent 2
+    Write-ModernStatus -Message "MLZ Policy default structure created successfully" -Status "success" -Indent 0
+    return
+}
+#endregion MLZ
 
 if ($LibraryPath -eq "") {
     $LibraryPath = Join-Path -Path (Get-Location) -ChildPath "temp"

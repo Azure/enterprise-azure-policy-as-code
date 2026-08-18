@@ -171,6 +171,29 @@ New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type SLZ -Pa
 Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type SLZ -PacEnvironmentSelector "epac-dev"
 ```
 
+### MLZ
+
+[Mission Landing Zone](https://github.com/Azure/missionlz) (MLZ) is an Azure landing zone for SCCA-compliant organizations. Unlike ALZ, AMBA, FSI and SLZ it is **not** published through the Azure Landing Zones Library, so the MLZ type uses a completely separate code path.
+
+```ps1
+# Create a Pac Environment default file for MLZ policies
+New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type MLZ -PacEnvironmentSelector "epac-dev"
+```
+
+Notes specific to MLZ:
+
+- No library repository is cloned and the `-Tag` parameter is not required (and is ignored for tag validation), so the command works without network access.
+- MLZ assigns policy at **subscription** scope rather than management group scope. The generated file contains a single placeholder entry which must be updated with your MLZ subscription ID.
+
+  ```json
+  "mlz": {
+    "management_group_function": "Mission Landing Zone",
+    "value": "/subscriptions/00000000-0000-0000-0000-000000000000" // replace with your MLZ subscription ID
+  }
+  ```
+
+- `defaultParameterValues` is intentionally generated empty. The MLZ compliance baselines (CMMC, IL5, NIST SP 800-53 Rev. 4 and Rev. 5) carry several hundred parameters between them, so those values are produced together with the policy assignments during the sync step rather than being stubbed into the structure file.
+
 ## Advanced Scenarios
 
 Using the format of the Azure Landing Zones repository it is possible to enable some advanced scenarios. Many of these are based around customization to the recommended ALZ management group structure. It is recommended to maintain your own fork of the ALZ Library in some of these cases.
