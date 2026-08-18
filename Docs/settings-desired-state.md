@@ -38,6 +38,7 @@ Desired State strategy enables you to adjust the default behavior to fit more co
 | `excludeSubscriptions` | Exclude all subscription under the deployment root scope. Designed for environments containing many frequently updated subscriptions that are not requiring management and where using `excludedScopes` would be impractical to maintain. If resource groups are added `excludedScopes` they will be ignored as this setting will take precedence by virtue of the fact that it excludes all Subscriptions, which by definition contain all Resource Groups. It will not effect excluded management group scopes. | `false` |
 | `keepDfcPlanAssignments` | Choose whether EPAC should delete Azure Policies deployed by Defender for Cloud that are associated with DFC Plans. Once the policies are deleted, the action is irreversible. This is only recommended if you are confident that you are managing and deploying the policies through EPAC, rather than relying on Defender for Cloud to manage the Azure Policies related to each plan. | `true` |
 | `manageChildScopeDefinitions` | When set to `true`, EPAC will also manage Policy Definitions and Policy Set Definitions deployed at **child scopes** (child management groups, subscriptions) under the `deploymentRootScope`. By default, EPAC only manages definitions at the `deploymentRootScope` itself — definitions at child scopes are ignored. See [Managing Child Scope Definitions](#managing-child-scope-definitions) below. | `false` |
+| `additionalDefinitionLocations` | Adds specific extra scopes to EPAC's definition lookup/management set. Use this when custom definitions are intentionally deployed outside `deploymentRootScope` and its child hierarchy. | Empty array |
 | `cleanupObsoleteExemptions` | When set to `true`, EPAC will delete Policy Exemptions that reference Policy Assignments no longer present in the environment. This prevents stale exemptions from accumulating over time as assignments are removed. | `false` |
 
 The following example shows the `desiredState` element with all properties set:
@@ -51,6 +52,7 @@ The following example shows the `desiredState` element with all properties set:
     "excludeSubscriptions"                 = false
     "doNotDisableDeprecatedPolicies"       = false
     "manageChildScopeDefinitions"          = false
+    "additionalDefinitionLocations"        = []
     "excludedScopes"                       = []
     "excludedPolicyDefinitions"            = []
     "excludedPolicySetDefinitions"         = []
@@ -239,3 +241,23 @@ Setting `manageChildScopeDefinitions` to `true` brings these child-scope definit
 
 > [!NOTE]
 > The `excludedScopes`, `excludedPolicyDefinitions`, and `excludedPolicySetDefinitions` settings are respected when `manageChildScopeDefinitions` is enabled. You can use these to selectively exclude specific child scopes or definitions from cleanup.
+
+## Managing Definitions at Additional Locations
+
+By default, EPAC builds and validates custom definition references using `deploymentRootScope` (and child scopes only when `manageChildScopeDefinitions` is enabled). In some implementations, definitions are intentionally stored at a different scope.
+
+Use `desiredState.additionalDefinitionLocations` to include these additional scopes in definition discovery and management.
+
+```json
+"desiredState": {
+    "strategy": "ownedOnly",
+    "keepDfcSecurityAssignments": false,
+    "manageChildScopeDefinitions": false,
+    "additionalDefinitionLocations": [
+        "/providers/Microsoft.Management/managementGroups/mg-central-policy",
+        "/subscriptions/00000000-0000-0000-0000-000000000000"
+    ]
+}
+```
+
+When assignment files reference custom definitions from these scopes, assignment scopes must still be at the same level as, or below, the definition scope.
