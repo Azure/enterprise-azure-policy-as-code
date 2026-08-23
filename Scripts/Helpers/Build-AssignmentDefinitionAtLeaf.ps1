@@ -424,43 +424,41 @@ function Build-AssignmentDefinitionAtLeaf {
                     $identity = $userAssignedIdentityRaw
                 }
                 elseif ($userAssignedIdentityRaw -is [array]) {
+                    $entryPolicyName = $definitionEntry.policyName
+                    $entryPolicySetName = $definitionEntry.policySetName
                     foreach ($item in $userAssignedIdentityRaw) {
+                        $itemPolicySetName = $item.policySetName
+                        $itemPolicySetId = $item.policySetId
+                        $itemPolicyName = $item.policyName
+                        $itemPolicyId = $item.policyId
+                        if ($null -eq $itemPolicySetName -and $null -eq $itemPolicySetId -and $null -eq $itemPolicyName -and $null -eq $itemPolicyId) {
+                            Write-Error "    Leaf Node $($nodeName): each userAssignedIdentity entry must specify which definition in the definitionEntryList it belongs to by using one of policySetName, policySetId, policyName or policyId: $($userAssignedIdentityRaw | ConvertTo-Json -Depth 100 -Compress)"
+                            $hasErrors = $true
+                            continue
+                        }
+                        # an entry targeting a Policy Set never matches a Policy definitionEntry and vice versa
                         if ($isPolicySet) {
-                            $policySetName = $item.policySetName
-                            $policySetId = $item.policySetId
-                            if ($null -ne $policySetName) {
-                                if ($name -eq $policySetName) {
+                            if ($null -ne $itemPolicySetName) {
+                                if ($entryPolicySetName -eq $itemPolicySetName) {
                                     $identity = $item.identity
                                 }
                             }
-                            elseif ($null -ne $policySetId) {
-                                if ($policyDefinitionId -eq $policySetId) {
+                            elseif ($null -ne $itemPolicySetId) {
+                                if ($policyDefinitionId -eq $itemPolicySetId) {
                                     $identity = $item.identity
                                 }
-                            }
-                            else {
-                                Write-Error "    Leaf Node $($nodeName): userAssignedIdentity must specify which Policy Set in the definitionEntryList they belong to by either using policySetName or policySetId: $($userAssignedIdentityRaw | ConvertTo-Json -Depth 100 -Compress)"
-                                $hasErrors = $true
-                                continue
                             }
                         }
                         else {
-                            $policyName = $item.policyName
-                            $policyId = $item.policyId
-                            if ($null -ne $policyName) {
-                                if ($name -eq $policyName) {
+                            if ($null -ne $itemPolicyName) {
+                                if ($entryPolicyName -eq $itemPolicyName) {
                                     $identity = $item.identity
                                 }
                             }
-                            elseif ($null -ne $policyId) {
-                                if ($policyDefinitionId -eq $policyId) {
+                            elseif ($null -ne $itemPolicyId) {
+                                if ($policyDefinitionId -eq $itemPolicyId) {
                                     $identity = $item.identity
                                 }
-                            }
-                            else {
-                                Write-Error "    Leaf Node $($nodeName): userAssignedIdentity must specify which Policy in the definitionEntryList they belong to by either using policyName or policyId: $($userAssignedIdentityRaw | ConvertTo-Json -Depth 100 -Compress)"
-                                $hasErrors = $true
-                                continue
                             }
                         }
                     }

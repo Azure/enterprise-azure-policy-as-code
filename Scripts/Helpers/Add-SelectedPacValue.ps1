@@ -11,7 +11,10 @@ function Add-SelectedPacValue {
         [hashtable] $OutputObject,
 
         [Parameter(Mandatory = $true)]
-        [string] $OutputKey
+        [string] $OutputKey,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $AllowArray
     )
 
     $value = $InputObject.$PacSelector
@@ -20,7 +23,7 @@ function Add-SelectedPacValue {
     }
 
     if ($null -ne $value) {
-        if ($value -is [array]) {
+        if ($value -is [array] -and -not $AllowArray) {
             Write-Error "Value for '$PacSelector' is an array. It must be a single value. value is $(ConvertTo-Json $InputObject -Depth 100 -Compress)" -ErrorAction Stop
         }
         $OutputObject[$OutputKey] = $value
