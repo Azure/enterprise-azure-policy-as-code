@@ -155,7 +155,8 @@ New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type AMBA -P
 # Sync the AMBA policies and assign to the "epac-dev" PAC environment.
 Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type AMBA -PacEnvironmentSelector "epac-dev"
 
-# Use the generated parameter file when creating assignments. Only values that differ from policy set defaults are emitted.
+# Use the generated parameter file when creating assignments. defaultParameterValues takes priority over the
+# parameter file, and only effective values that differ from policy set defaults are emitted.
 Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type AMBA -PacEnvironmentSelector "epac-dev" -ParameterFile .\Definitions\policyStructures\amba.policy_set_parameters.jsonc
 
 # Archetype and enforcement overrides can still be enabled; overrides.parameters is ignored when -ParameterFile is supplied.

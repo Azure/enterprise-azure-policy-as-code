@@ -48,6 +48,24 @@ BeforeAll {
           "value": "structure-default"
         }
       }
+    ],
+    "default_only_parameter": [
+      {
+        "policy_assignment_name": "Deploy-Test",
+        "parameters": {
+          "parameter_name": "DefaultOnlyParameter",
+          "value": "structure-only"
+        }
+      }
+    ],
+    "same_parameter": [
+      {
+        "policy_assignment_name": "Deploy-Test",
+        "parameters": {
+          "parameter_name": "SameParameter",
+          "value": "default"
+        }
+      }
     ]
   },
   "overrides": {
@@ -149,6 +167,10 @@ BeforeAll {
         "defaultValue": "default",
         "type": "String"
       },
+      "DefaultOnlyParameter": {
+        "defaultValue": "default",
+        "type": "String"
+      },
       "NoDefaultParameter": {
         "type": "String"
       },
@@ -202,7 +224,7 @@ function Invoke-RestMethod {
 }
 
 Describe 'Sync-ALZPolicyFromLibrary parameter file input' {
-    It 'emits only parameter values that differ from policy set defaults without overrides enabled' {
+    It 'applies defaultParameterValues over the parameter file and emits only non-default values' {
         $root = Join-Path $TestDrive 'WithoutOverrides'
         $environment = New-ParameterFileTestEnvironment -Root $root
 
@@ -210,8 +232,9 @@ Describe 'Sync-ALZPolicyFromLibrary parameter file input' {
 
         $assignmentFile = Join-Path $environment.DefinitionsRoot 'policyAssignments/AMBA/epac-dev/Intermediate Root/Deploy-Test.jsonc'
         $assignment = Get-Content -Path $assignmentFile -Raw | ConvertFrom-Json
-        @($assignment.parameters.PSObject.Properties.Name) | Should -Be @('ChangedParameter', 'NoDefaultParameter')
-        $assignment.parameters.ChangedParameter | Should -Be 'custom'
+        @($assignment.parameters.PSObject.Properties.Name) | Should -Be @('ChangedParameter', 'DefaultOnlyParameter', 'NoDefaultParameter')
+        $assignment.parameters.ChangedParameter | Should -Be 'structure-default'
+        $assignment.parameters.DefaultOnlyParameter | Should -Be 'structure-only'
         $assignment.parameters.NoDefaultParameter | Should -Be 'provided'
     }
 
@@ -225,8 +248,8 @@ Describe 'Sync-ALZPolicyFromLibrary parameter file input' {
         Test-Path $assignmentFile | Should -BeTrue
 
         $assignment = Get-Content -Path $assignmentFile -Raw | ConvertFrom-Json
-        @($assignment.parameters.PSObject.Properties.Name) | Should -Be @('ChangedParameter', 'NoDefaultParameter')
-        $assignment.parameters.ChangedParameter | Should -Be 'custom'
+        @($assignment.parameters.PSObject.Properties.Name) | Should -Be @('ChangedParameter', 'DefaultOnlyParameter', 'NoDefaultParameter')
+        $assignment.parameters.ChangedParameter | Should -Be 'structure-default'
     }
 
     It 'rejects parameter files for non-AMBA library types' {

@@ -898,6 +898,37 @@ try {
                         $baseTemplate.parameters.Add($inputParameter.Name, $inputParameter.Value)
                     }
                 }
+
+                foreach ($key in $structureFile.defaultParameterValues.PSObject.Properties.Name) {
+                    foreach ($defaultParameterValue in @($structureFile.defaultParameterValues.$key)) {
+                        if (@($defaultParameterValue.policy_assignment_name) -notcontains $fileContent.name) {
+                            continue
+                        }
+
+                        foreach ($parameter in @($defaultParameterValue.parameters)) {
+                            $definitionParameter = $policySetDefinitionParameters.PSObject.Properties | Where-Object { $_.Name -eq $parameter.parameter_name } | Select-Object -First 1
+                            if ($null -eq $definitionParameter) {
+                                Write-ModernStatus -Message "Default parameter '$($parameter.parameter_name)' for policy assignment '$($fileContent.name)' does not exist in policy set '$assignedPolicySetName' and will be ignored." -Status "warning" -Indent 2
+                                continue
+                            }
+
+                            if (Test-ALZParameterValueEqual -Left $parameter.value -Right $definitionParameter.Value.defaultValue) {
+                                $null = $baseTemplate.parameters.Remove($parameter.parameter_name)
+                            }
+                            else {
+                                $baseTemplate.parameters[$parameter.parameter_name] = $parameter.value
+                            }
+                        }
+                    }
+                }
+
+                $sortedParameters = [ordered]@{}
+                $parameterNames = [string[]] @($baseTemplate.parameters.Keys)
+                [Array]::Sort($parameterNames, [System.StringComparer]::Ordinal)
+                foreach ($parameterName in $parameterNames) {
+                    $sortedParameters[$parameterName] = $baseTemplate.parameters[$parameterName]
+                }
+                $baseTemplate.parameters = $sortedParameters
             }
 
             $category = $structureFile.managementGroupNameMappings.$scopeTrim.management_group_function
