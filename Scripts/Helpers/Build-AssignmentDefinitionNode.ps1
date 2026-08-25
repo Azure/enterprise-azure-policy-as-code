@@ -544,7 +544,8 @@ function Build-AssignmentDefinitionNode {
 
     if ($DefinitionNode.userAssignedIdentity) {
         # Process userAssignedIdentity; can be overridden
-        Add-SelectedPacValue -InputObject $DefinitionNode.userAssignedIdentity -PacSelector $pacSelector -OutputObject $definition -OutputKey "userAssignedIdentity"
+        # An array is allowed here to support per definitionEntryList identities; resolved in Build-AssignmentDefinitionAtLeaf
+        Add-SelectedPacValue -InputObject $DefinitionNode.userAssignedIdentity -PacSelector $pacSelector -OutputObject $definition -OutputKey "userAssignedIdentity" -AllowArray
     }
     #endregion identity and additionalRoleAssignments (optional, specific to an EPAC environment)
 
