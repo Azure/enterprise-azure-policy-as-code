@@ -85,7 +85,7 @@ function Get-ALZBasedOnMatchNames {
 if ($Tag -eq "") {
     switch ($Type) {
         'ALZ' {
-            $Tag = "platform/alz/2026.08.0"
+            $Tag = "platform/alz/2026.08.1"
         }
         'FSI' {
             $Tag = "platform/fsi/2025.03.0"
