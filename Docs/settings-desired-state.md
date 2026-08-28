@@ -125,8 +125,7 @@ In a shared responsibility model multiple teams manage the same tenant(s) at the
 
 ![image.png](Images/shared-responsibility.png)
 
-For standard behavior where each repo manages, no additional entries in `global-settings.jsonc` are necessary since the default strategy `full` is the default. `full` deletes any Policy resources without a `pacOwnerId`; however, id does not delete Policy resources with a different `pacOwnerId`.
-[test](settings-desired-state.md#use-case-4-multiple-teams-in-a-hierarchical-organization)
+For standard behavior where each repo manages, no additional entries in `global-settings.jsonc` are necessary since the default strategy `full` is the default. `full` deletes any Policy resources without a `pacOwnerId`; however, it does not delete Policy resources with a different `pacOwnerId`.
 
 ## Use Case 4:  Multiple Teams in a Hierarchical Organization
 

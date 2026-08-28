@@ -39,6 +39,9 @@ function Build-AssignmentDefinitionEntry {
                     policyDefinitionId = $policyId
                     isPolicySet        = $false
                 }
+                if ($null -ne $policyName) {
+                    $normalizedEntry.policyName = $policyName
+                }
             }
         }
         elseif ($null -ne $policySetName -or $null -ne $policySetId) {
@@ -55,6 +58,9 @@ function Build-AssignmentDefinitionEntry {
                     policyDefinitionId = $policySetId
                     isPolicySet        = $true
                 }
+                if ($null -ne $policySetName) {
+                    $normalizedEntry.policySetName = $policySetName
+                }
             }
         }
         elseif ($null -ne $initiativeName -or $null -ne $initiativeId) {
@@ -70,6 +76,9 @@ function Build-AssignmentDefinitionEntry {
                 $normalizedEntry = @{
                     policyDefinitionId = $policySetId
                     isPolicySet        = $true
+                }
+                if ($null -ne $initiativeName) {
+                    $normalizedEntry.policySetName = $initiativeName
                 }
             }
         }
