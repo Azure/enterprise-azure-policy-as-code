@@ -238,7 +238,7 @@ Changing the cloud and re-running the sync removes any assignment file that is n
 
 ##### Other notes
 
-- missionlz has no usable release tag - its only tag predates the current `src/policies` content - so the default branch is cloned. Generated output can therefore change when the upstream repository changes.
+- missionlz has no usable release tag - its only tag predates the current `src/policies` content - so the default branch is cloned. Generated output can therefore change when the upstream repository changes. The `Check MLZ Policy Changes` workflow (`.github/workflows/check-mlz-policy-changes.yaml`) runs daily and raises an issue when `src/policies` or `src/modules/policy-assignment.bicep` change upstream, so the sync scripts can be reviewed against them.
 - The sync warns if the subscription scope is still the placeholder or if any of the runtime values above are still empty. It completes anyway so the output can be inspected.
 - Role assignments and policy remediation tasks created by the MLZ deployment are not reproduced. Configure those through the usual EPAC mechanisms.
 
