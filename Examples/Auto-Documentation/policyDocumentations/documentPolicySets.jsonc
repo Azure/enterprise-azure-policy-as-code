@@ -6,7 +6,7 @@
             "fileNameStem": "MyPolicySets",
             "title": "My Policy Sets",
 			"includePolicySetList": true, // Set to false if you do not want the PolicySet List
-            "policySetEffectsOneColumn": false, //Set to true if you want just 1 column showing the effects per PolicySet, usefull if larger number of (custom) PolicySet are defined.
+            "policySetEffectsOneColumn": false, //Set to true if you want just 1 column showing the effects per PolicySet, useful if larger number of (custom) PolicySet are defined.
             "policySets": [
                 {
                     "shortName": "Azure Security Benchmark v3",
