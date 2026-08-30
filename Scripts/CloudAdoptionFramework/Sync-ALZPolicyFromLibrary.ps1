@@ -2,7 +2,7 @@ Param(
     [Parameter(Mandatory = $true)]
     [string] $DefinitionsRootFolder,
 
-    [ValidateSet("ALZ", "AMBA", "FSI", "SLZ")]
+    [ValidateSet("ALZ", "AMBA", "FSI", "SLZ", "MLZ")]
     [string] $Type = "ALZ",
 
     [Parameter(Mandatory = $true)]
@@ -10,7 +10,6 @@ Param(
 
     [string] $LibraryPath,
 
-    [ValidateScript({ "refs/tags/$_" -in (Invoke-RestMethod -Uri 'https://api.github.com/repos/Azure/Azure-Landing-Zones-Library/git/refs/tags/').ref }, ErrorMessage = "Tag must be a valid tag." )]
     [string] $Tag,
 
     [switch] $CreateGuardrailAssignments,
@@ -26,6 +25,14 @@ Param(
 
 # Dot Source Helper Scripts
 . "$PSScriptRoot/../Helpers/Add-HelperScripts.ps1"
+
+# MLZ is sourced from Azure/missionlz which has no usable release tag, so the tag validation - which
+# calls the Azure Landing Zones Library API - is only applied to the library backed types.
+if ($Tag -and $Type -ne "MLZ") {
+    if ("refs/tags/$Tag" -notin (Invoke-RestMethod -Uri 'https://api.github.com/repos/Azure/Azure-Landing-Zones-Library/git/refs/tags/').ref) {
+        throw "Tag must be a valid tag."
+    }
+}
 
 # Resolves the final archetype name after the mid-pipeline renames that are applied while
 # building the archetype array. Used in both the override-population path and the archetype-build
@@ -99,9 +106,14 @@ if ($Tag -eq "") {
     }
 }
 
-Write-ModernHeader -Title "Syncing Policies From Library" -Subtitle "Type: $Type, Tag: $Tag"
+if ($Type -eq "MLZ") {
+    Write-ModernHeader -Title "Syncing Policies From Library" -Subtitle "Type: MLZ (Azure/missionlz)"
+}
+else {
+    Write-ModernHeader -Title "Syncing Policies From Library" -Subtitle "Type: $Type, Tag: $Tag"
+}
 
-if ($LibraryPath -eq "") {
+if ($LibraryPath -eq "" -and $Type -ne "MLZ") {
     $LibraryPath = Join-Path -Path (Get-Location) -ChildPath "temp"
     # Check if the temp folder exists, and delete it if it does
     if (Test-Path $LibraryPath) {
@@ -173,6 +185,266 @@ catch {
 }
 
 $syncedPolicyDefinitionNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+
+#region MLZ
+# Mission Landing Zone (https://github.com/Azure/missionlz) shares no layout with the Azure Landing
+# Zones Library, so it gets a completely self contained code path. It has no custom policy or policy
+# set definitions - every baseline is a built-in initiative - so all this produces is assignments.
+if ($Type -eq "MLZ") {
+
+    foreach ($switchName in @("CreateGuardrailAssignments", "EnableOverrides", "SyncAMBAExtendedPolicies")) {
+        if ($PSBoundParameters.ContainsKey($switchName) -and $PSBoundParameters[$switchName]) {
+            Write-ModernStatus -Message "-$switchName is not applicable to MLZ and is ignored" -Status "warning" -Indent 2
+        }
+    }
+    if ($SyncAssignmentsOnly) {
+        Write-ModernStatus -Message "-SyncAssignmentsOnly has no effect for MLZ because assignments are the only output" -Status "info" -Indent 2
+    }
+
+    #region Resolve the cloud
+    # policy-assignment.bicep branches on environment().name, so the equivalent here is the cloud of
+    # the PAC environment being synced.
+    $mlzCloud = "AzureCloud"
+    try {
+        $mlzPacEnvironment = (Get-Content -Path "$DefinitionsRootFolder/global-settings.jsonc" -Raw -ErrorAction Stop | ConvertFrom-Json).pacEnvironments |
+            Where-Object { $_.pacSelector -eq $PacEnvironmentSelector } | Select-Object -First 1
+        if ($null -eq $mlzPacEnvironment) {
+            throw "no PAC environment with pacSelector '$PacEnvironmentSelector' was found"
+        }
+        if ([string]::IsNullOrWhiteSpace($mlzPacEnvironment.cloud)) {
+            throw "PAC environment '$PacEnvironmentSelector' does not specify a cloud"
+        }
+        $mlzCloud = $mlzPacEnvironment.cloud
+    }
+    catch {
+        Write-ModernStatus -Message "Could not resolve the cloud from global-settings.jsonc ($($_.Exception.Message)) - defaulting to 'AzureCloud'" -Status "warning" -Indent 2
+    }
+    # The bicep comparison is case insensitive, so this one is too.
+    $mlzIsCommercialCloud = $mlzCloud -eq "AzureCloud"
+    Write-ModernStatus -Message "Cloud: $mlzCloud" -Status "info" -Indent 2
+    #endregion Resolve the cloud
+
+    #region Source repository
+    $mlzTempPath = $null
+    if ($LibraryPath -eq "") {
+        $mlzTempPath = Join-Path -Path (Get-Location) -ChildPath "temp_mlz"
+        $LibraryPath = $mlzTempPath
+        if (Test-Path $LibraryPath) {
+            Write-ModernStatus -Message "Removing existing temp_mlz folder..." -Status "processing" -Indent 2
+            Remove-Item -Path $LibraryPath -Recurse -Force
+        }
+        # missionlz has no usable release tag - its only tag predates the current src/policies content
+        # - so the default branch is cloned.
+        Write-ModernStatus -Message "Cloning Mission Landing Zone repository..." -Status "processing" -Indent 2
+        git clone --config advice.detachedHead=false --depth 1 https://github.com/Azure/missionlz.git $LibraryPath
+        if ($LASTEXITCODE -eq 0) {
+            Write-ModernStatus -Message "Repository cloned successfully" -Status "success" -Indent 4
+        }
+        else {
+            Write-ModernStatus -Message "Failed to clone repository" -Status "error" -Indent 4
+            exit 1
+        }
+    }
+
+    $mlzPolicyPath = Join-Path -Path $LibraryPath -ChildPath "src/policies"
+    if (-not (Test-Path -Path $mlzPolicyPath)) {
+        Write-ModernStatus -Message "Could not find 'src/policies' in '$LibraryPath' - is this a Mission Landing Zone repository?" -Status "error" -Indent 2
+        exit 1
+    }
+    #endregion Source repository
+
+    try {
+        #region Structure file
+        try {
+            $structureFilePath = Get-ChildItem -Path $structureDirectory -Filter "*.$PacEnvironmentSelector.jsonc" -Recurse |
+                Where-Object { $_.Name -match "mlz.policy_default_structure" } | Select-Object -First 1
+            $structureFile = Get-Content -Path $structureFilePath.FullName -Raw -ErrorAction Stop | ConvertFrom-Json
+            Write-ModernStatus -Message "Policy default structure file: $structureFilePath" -Status "info" -Indent 2
+        }
+        catch {
+            Write-ModernStatus -Message "Error reading the policy default structure file: $($_.Exception.Message)" -Status "error" -Indent 2
+            Write-ModernStatus -Message "Please run New-ALZPolicyDefaultStructure.ps1 -Type MLZ first" -Status "warning" -Indent 2
+            exit 1
+        }
+
+        # Flatten the structure file stubs into assignment name -> parameter name -> value. Both the
+        # schema's array form and the object form emitted for the other types are accepted so hand
+        # edited files in either style keep working.
+        $mlzStubValues = @{}
+        $mlzEmptyStubNames = [System.Collections.Generic.List[string]]::new()
+        foreach ($stub in $structureFile.defaultParameterValues.PSObject.Properties) {
+            foreach ($entry in @($stub.Value)) {
+                foreach ($parameter in @($entry.parameters)) {
+                    if ([string]::IsNullOrWhiteSpace("$($parameter.value)") -and -not $mlzEmptyStubNames.Contains($stub.Name)) {
+                        $mlzEmptyStubNames.Add($stub.Name)
+                    }
+                    foreach ($assignmentName in @($entry.policy_assignment_name)) {
+                        if (-not $mlzStubValues.ContainsKey($assignmentName)) {
+                            $mlzStubValues[$assignmentName] = [ordered]@{}
+                        }
+                        $mlzStubValues[$assignmentName][$parameter.parameter_name] = $parameter.value
+                    }
+                }
+            }
+        }
+        #endregion Structure file
+
+        # These two only exist on the CMMC assignment in Azure commercial.
+        $mlzCommercialOnlyParameters = @(
+            "MembersToExclude-69bf4abd-ca1e-4cf6-8b5a-762d42e61d4f"
+            "MembersToInclude-30f71ea1-ac77-4f26-9fc5-2d926bbd4ba7"
+        )
+
+        $mlzBaselines = @(
+            [ordered]@{
+                name          = "CMMC"
+                displayName   = "CMMC Level 3"
+                description   = "Mission Landing Zone CMMC Level 3 baseline."
+                policySetId   = "/providers/Microsoft.Authorization/policySetDefinitions/b5629c75-5c77-4422-87b9-2509e680f8de"
+                parameterFile = "CMMC-policyAssignmentParameters.json"
+            }
+            [ordered]@{
+                name          = "IL5"
+                displayName   = "DoD Impact Level 5"
+                description   = "Mission Landing Zone DoD Impact Level 5 baseline. Not available in Azure commercial, where NIST SP 800-53 Rev. 4 is assigned instead."
+                policySetId   = "/providers/Microsoft.Authorization/policySetDefinitions/f9a961fa-3241-4b20-adc4-bbf8ad9d7197"
+                parameterFile = "IL5-policyAssignmentParameters.json"
+            }
+            [ordered]@{
+                name          = "NISTRev4"
+                displayName   = "NIST SP 800-53 Rev. 4"
+                description   = "Mission Landing Zone NIST SP 800-53 Rev. 4 baseline."
+                policySetId   = "/providers/Microsoft.Authorization/policySetDefinitions/cf25b9c1-bd23-4eb6-bd2c-f4f3ac644a5f"
+                parameterFile = "NISTRev4-policyAssignmentParameters.json"
+            }
+            [ordered]@{
+                name          = "NISTRev5"
+                displayName   = "NIST SP 800-53 Rev. 5"
+                description   = "Mission Landing Zone NIST SP 800-53 Rev. 5 baseline."
+                policySetId   = "/providers/Microsoft.Authorization/policySetDefinitions/179d1daa-458f-4e47-8086-2a68d0d6c38f"
+                parameterFile = "NISTRev5-policyAssignmentParameters.json"
+            }
+            [ordered]@{
+                name          = "Deploy-VMSS-Agents"
+                displayName   = "Deploy VMSS Agents"
+                description   = "Mission Landing Zone virtual machine scale set monitoring agent deployment."
+                policySetId   = "/providers/Microsoft.Authorization/policySetDefinitions/75714362-cae7-409e-9b99-a8e5075b7fad"
+                parameterFile = $null
+            }
+            [ordered]@{
+                name          = "Deploy-VM-Agents"
+                displayName   = "Deploy VM Agents"
+                description   = "Mission Landing Zone virtual machine monitoring agent deployment."
+                policySetId   = "/providers/Microsoft.Authorization/policySetDefinitions/55f3eceb-5573-4f18-9695-226972c6d74a"
+                parameterFile = $null
+            }
+        )
+
+        if ($mlzIsCommercialCloud) {
+            Write-ModernStatus -Message "IL5 is skipped in Azure commercial - the deployment maps it to NIST SP 800-53 Rev. 4, which is generated as NISTRev4.jsonc" -Status "warning" -Indent 2
+            $mlzBaselines = $mlzBaselines | Where-Object { $_.name -ne "IL5" }
+        }
+
+        Write-ModernSection -Title "Creating Policy Assignment Objects" -Indent 0
+
+        $mlzAssignmentRoot = "$DefinitionsRootFolder/policyAssignments/MLZ/$PacEnvironmentSelector"
+        $mlzExistingAssignmentPaths = @(Get-ChildItem -Path $mlzAssignmentRoot -Recurse -File -Include *.jsonc -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName })
+        $mlzCreatedAssignmentPaths = [System.Collections.Generic.List[string]]::new()
+        $mlzPlaceholderScopes = [System.Collections.Generic.List[string]]::new()
+
+        foreach ($scopeMapping in $structureFile.managementGroupNameMappings.PSObject.Properties) {
+            $scopeValues = @($scopeMapping.Value.value)
+            if ($scopeValues -contains "/subscriptions/00000000-0000-0000-0000-000000000000") {
+                $mlzPlaceholderScopes.Add($scopeMapping.Name)
+            }
+
+            $nodeNamePrefix = $scopeMapping.Value.management_group_function
+            if ([string]::IsNullOrWhiteSpace($nodeNamePrefix)) {
+                $nodeNamePrefix = $scopeMapping.Name
+            }
+            $folderName = ($nodeNamePrefix -replace '[\\/:*?"<>|]', '-')
+            $outputFolder = Join-Path -Path $mlzAssignmentRoot -ChildPath $folderName
+
+            foreach ($baseline in $mlzBaselines) {
+                $parameters = [ordered]@{}
+
+                if ($baseline.parameterFile) {
+                    $parameterFilePath = Join-Path -Path $mlzPolicyPath -ChildPath $baseline.parameterFile
+                    if (-not (Test-Path -Path $parameterFilePath)) {
+                        Write-ModernStatus -Message "Parameter file '$($baseline.parameterFile)' was not found - skipping $($baseline.name)" -Status "warning" -Indent 2
+                        continue
+                    }
+                    # missionlz stores parameters as { "name": { "value": x } }; EPAC assignments
+                    # take { "name": x }.
+                    $sourceParameters = Get-Content -Path $parameterFilePath -Raw | ConvertFrom-Json
+                    foreach ($sourceParameter in $sourceParameters.PSObject.Properties) {
+                        $parameters[$sourceParameter.Name] = $sourceParameter.Value.value
+                    }
+                }
+
+                if ($mlzStubValues.ContainsKey($baseline.name)) {
+                    foreach ($parameterName in $mlzStubValues[$baseline.name].Keys) {
+                        if (-not $mlzIsCommercialCloud -and $parameterName -in $mlzCommercialOnlyParameters) {
+                            continue
+                        }
+                        $parameters[$parameterName] = $mlzStubValues[$baseline.name][$parameterName]
+                    }
+                }
+
+                $baseTemplate = [ordered]@{
+                    '$schema'       = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-assignment-schema.json"
+                    nodeName        = "$nodeNamePrefix/$($baseline.name)"
+                    assignment      = [ordered]@{
+                        name        = $baseline.name
+                        displayName = $baseline.displayName
+                        description = $baseline.description
+                    }
+                    definitionEntry = [ordered]@{
+                        displayName = $baseline.displayName
+                        policySetId = $baseline.policySetId
+                    }
+                    enforcementMode = $structureFile.enforcementMode
+                    parameters      = $parameters
+                    scope           = [ordered]@{
+                        $PacEnvironmentSelector = $scopeValues
+                    }
+                }
+
+                $outputPath = Join-Path -Path $outputFolder -ChildPath "$($baseline.name).jsonc"
+                $null = New-Item -Path $outputFolder -ItemType Directory -Force
+                ($baseTemplate | ConvertTo-Json -Depth 50) | Set-Content -Path $outputPath -Encoding utf8 -Force
+                $mlzCreatedAssignmentPaths.Add((Get-Item -Path $outputPath).FullName)
+                Write-ModernStatus -Message "Created assignment '$($baseline.name)' with $($parameters.Count) parameters" -Status "success" -Indent 2
+            }
+        }
+
+        # Remove assignments that were not created in this run - this is what removes a previously
+        # generated IL5.jsonc when the PAC environment moves to Azure commercial.
+        foreach ($existingPath in $mlzExistingAssignmentPaths) {
+            if ($existingPath -notin $mlzCreatedAssignmentPaths) {
+                Remove-Item -Path $existingPath -Force -ErrorAction SilentlyContinue
+                Write-ModernStatus -Message "Removed '$existingPath' as it is no longer generated for this cloud" -Status "info" -Indent 2
+            }
+        }
+
+        foreach ($placeholderScope in $mlzPlaceholderScopes) {
+            Write-ModernStatus -Message "Scope '$placeholderScope' is still the placeholder subscription id - update the structure file before deploying" -Status "warning" -Indent 2
+        }
+        foreach ($emptyStubName in $mlzEmptyStubNames) {
+            Write-ModernStatus -Message "Structure file value '$emptyStubName' is empty - populate it before deploying" -Status "warning" -Indent 2
+        }
+
+        Write-ModernStatus -Message "MLZ Policy sync completed successfully" -Status "success" -Indent 0
+    }
+    finally {
+        if ($mlzTempPath -and $LibraryPath -eq $mlzTempPath) {
+            Remove-Item -Path $LibraryPath -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    }
+
+    return
+}
+#endregion MLZ
 
 if (-not($SyncAssignmentsOnly) -and $Type -ne "SLZ") {
     Write-ModernSection -Title "Creating Policy Definition Objects" -Indent 0
