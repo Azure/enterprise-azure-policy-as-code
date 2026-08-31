@@ -17,16 +17,16 @@
                             "oneOf": [
                                 {
                                     "type": "string",
-                                    "pattern": "^/providers/Microsoft\\.Management/managementGroups/[a-zA-Z0-9_-]+$",
-                                    "description": "The full resource path to the management group"
+                                    "pattern": "^(/providers/Microsoft\\.Management/managementGroups/[a-zA-Z0-9_-]+|/subscriptions/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$",
+                                    "description": "The full resource path to the management group, or to a subscription for platforms such as MLZ that assign at subscription scope"
                                 },
                                 {
                                     "type": "array",
                                     "items": {
                                         "type": "string",
-                                        "pattern": "^/providers/Microsoft\\.Management/managementGroups/[a-zA-Z0-9_-]+$"
+                                        "pattern": "^(/providers/Microsoft\\.Management/managementGroups/[a-zA-Z0-9_-]+|/subscriptions/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$"
                                     },
-                                    "description": "Array of resource paths to management groups"
+                                    "description": "Array of resource paths to management groups or subscriptions"
                                 }
                             ]
                         }

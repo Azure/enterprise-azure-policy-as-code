@@ -1,0 +1,133 @@
+name: Check MLZ Policy Changes
+
+# Mission Landing Zone does not publish releases on a cadence (the only tag pre-dates the
+# current policy content), so this watches commits to the paths the MLZ sync reads instead.
+
+on:
+    schedule:
+        - cron: '30 8 * * *'  # Every day at 8:30 AM
+    workflow_dispatch:
+        inputs:
+            lookbackHours:
+                description: 'How many hours of upstream history to inspect'
+                required: false
+                default: '25'
+
+permissions:
+    contents: read
+    issues: write
+
+env:
+    MLZ_REPOSITORY: Azure/missionlz
+    MLZ_BRANCH: main
+    ISSUE_TITLE: Upstream Mission Landing Zone policy changes detected
+
+jobs:
+    check-and-create-issue:
+        runs-on: windows-latest
+        defaults:
+            run:
+                shell: pwsh
+        steps:
+            - name: Checkout
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+            - name: Check for upstream policy changes
+              id: check
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  LOOKBACK_HOURS: ${{ github.event.inputs.lookbackHours || '25' }}
+              run: |
+                  $ErrorActionPreference = 'Stop'
+
+                  # Paths consumed by Sync-ALZPolicyFromLibrary -Type MLZ and used to derive
+                  # the cloud conditional behaviour in New-ALZPolicyDefaultStructure.
+                  $watchedPaths = @(
+                      'src/policies'
+                      'src/modules/policy-assignment.bicep'
+                  )
+
+                  $lookbackHours = [int] $env:LOOKBACK_HOURS
+                  $since = (Get-Date).ToUniversalTime().AddHours(-$lookbackHours).ToString('yyyy-MM-ddTHH:mm:ssZ')
+                  Write-Host "Inspecting $($env:MLZ_REPOSITORY)@$($env:MLZ_BRANCH) for commits since $since"
+
+                  $commits = [ordered]@{}
+                  foreach ($path in $watchedPaths) {
+                      $uri = "repos/$($env:MLZ_REPOSITORY)/commits?sha=$($env:MLZ_BRANCH)&path=$path&since=$since&per_page=100"
+                      $raw = gh api $uri
+                      if ($LASTEXITCODE -ne 0) {
+                          throw "Failed to query $uri"
+                      }
+
+                      foreach ($commit in ($raw | ConvertFrom-Json)) {
+                          if (-not $commits.Contains($commit.sha)) {
+                              # ConvertFrom-Json turns the ISO 8601 timestamp into a local DateTime,
+                              # so normalise it back to UTC rather than rendering it culture specific.
+                              $committedUtc = ([datetime] $commit.commit.committer.date).ToUniversalTime()
+
+                              $commits[$commit.sha] = [pscustomobject]@{
+                                  Sha     = $commit.sha
+                                  Date    = $committedUtc.ToString('yyyy-MM-ddTHH:mm:ssZ')
+                                  Subject = ($commit.commit.message -split "`n")[0]
+                                  Url     = $commit.html_url
+                                  Paths   = [System.Collections.Generic.List[string]]::new()
+                              }
+                          }
+                          $commits[$commit.sha].Paths.Add($path)
+                      }
+                  }
+
+                  if ($commits.Count -eq 0) {
+                      Write-Host "No changes to the watched paths."
+                      "changed=false" >> $env:GITHUB_OUTPUT
+                      return
+                  }
+
+                  Write-Host "Found $($commits.Count) commit(s) touching the watched paths."
+
+                  $lines = [System.Collections.Generic.List[string]]::new()
+                  $lines.Add("New commits were pushed to [``$($env:MLZ_REPOSITORY)``](https://github.com/$($env:MLZ_REPOSITORY)) affecting the policy content that the EPAC MLZ sync reads.")
+                  $lines.Add('')
+                  $lines.Add("Window inspected: last $lookbackHours hour(s) on ``$($env:MLZ_BRANCH)``.")
+                  $lines.Add('')
+                  $lines.Add('| Commit | Date (UTC) | Watched paths | Subject |')
+                  $lines.Add('| --- | --- | --- | --- |')
+                  foreach ($commit in $commits.Values) {
+                      $shortSha = $commit.Sha.Substring(0, 7)
+                      $paths = (($commit.Paths | Sort-Object -Unique) -join '<br>')
+                      $subject = $commit.Subject -replace '\|', '\|'
+                      $lines.Add("| [``$shortSha``]($($commit.Url)) | $($commit.Date) | ``$paths`` | $subject |")
+                  }
+                  $lines.Add('')
+                  $lines.Add('### What to check')
+                  $lines.Add('')
+                  $lines.Add('- Whether `src/policies` gained, lost or renamed a parameter file. The MLZ sync maps a fixed set of baselines onto built-in policy set IDs, so a new baseline needs a new mapping in `Scripts/CloudAdoptionFramework/Sync-ALZPolicyFromLibrary.ps1`.')
+                  $lines.Add('- Whether `src/modules/policy-assignment.bicep` changed the built-in `policySetDefinitionId` values or the cloud conditional logic (for example the `AzureCloud` IL5 to NISTRev4 substitution, or the extra CMMC membership parameters).')
+                  $lines.Add('- Whether any newly added parameters should be surfaced as `defaultParameterValues` stubs by `Scripts/CloudAdoptionFramework/New-ALZPolicyDefaultStructure.ps1 -Type MLZ`.')
+                  $lines.Add('')
+                  $lines.Add('Re-run `Tests/CloudAdoptionFramework` after any change.')
+                  $lines.Add('')
+                  $lines.Add('_Raised automatically by the `Check MLZ Policy Changes` workflow._')
+
+                  Set-Content -Path 'mlz-changes.md' -Value $lines -Encoding utf8
+                  "changed=true" >> $env:GITHUB_OUTPUT
+
+            - name: Create or update issue
+              if: ${{ steps.check.outputs.changed == 'true' }}
+              env:
+                  GH_TOKEN: ${{ github.token }}
+              run: |
+                  $ErrorActionPreference = 'Stop'
+
+                  # Avoid piling up a new issue every day while an existing report is still open.
+                  $existing = gh issue list --state open --search "`"$($env:ISSUE_TITLE)`" in:title" --json number,title | ConvertFrom-Json
+                  $match = $existing | Where-Object { $_.title -eq $env:ISSUE_TITLE } | Select-Object -First 1
+
+                  if ($null -ne $match) {
+                      Write-Host "Commenting on existing issue #$($match.number)."
+                      gh issue comment $match.number --body-file 'mlz-changes.md'
+                  }
+                  else {
+                      Write-Host "Creating a new issue."
+                      gh issue create --title $env:ISSUE_TITLE --body-file 'mlz-changes.md'
+                  }
