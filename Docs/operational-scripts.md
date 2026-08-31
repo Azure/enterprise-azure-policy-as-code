@@ -22,7 +22,7 @@ This script executes all remediation tasks in a Policy as Code environment speci
 
 ## Documenting Policy
 
-`Build-PolicyDocumentation` builds documentation from instructions in the `policyDocumentations` folder reading the deployed Policy Resources from the EPAC environment. It is also used to generate parameter/effect CSV files for Policy Assignment files. See usage documentation in [Documenting Policy](operational-scripts-documenting-policy.md).
+`Build-PolicyDocumentation` builds documentation from instructions in the `policyDocumentations` folder reading the deployed Policy Resources from the EPAC environment. It is also used to generate parameter/effect CSV files for Policy Assignment files. `Update-PolicyAssignmentCsvParameterFile` reconciles a generated CSV with an existing assignment parameter CSV while preserving configured effects, parameters, and custom columns. See usage documentation in [Documenting Policy](operational-scripts-documenting-policy.md) and [Policy Assignment Parameters from a CSV File](policy-assignments-csv-parameters.md#updating-the-csv-file).
 
 ## Policy Resources Exports
 
