@@ -585,6 +585,23 @@ function Build-AssignmentDefinitionAtLeaf {
 
         #endregion Reconcile and deduplicate: CSV, parameters, nonComplianceMessages, and overrides
 
+        #region required roleDefinitionIds
+
+        # Calculated after overrides are reconciled, since a CSV effect column replaces the
+        # overrides built from the assignment JSON.
+        $policyRoleDefinitionIds = $PolicyRoleIds.$policyDefinitionId
+        if ($identityRequired -and $isPolicySet -and $PacEnvironment.filterRoleAssignmentsByEffect) {
+            # Drop the roles only contributed by members the Policy Set pins to a non-deploying
+            # effect, unless an override raises those members back to a deploying effect.
+            $policyRoleDefinitionIds = Get-FilteredPolicySetRoleDefinitionIds `
+                -PolicySetId $policyDefinitionId `
+                -PolicySetDetails $policySetDetails `
+                -PolicyRoleIds $PolicyRoleIds `
+                -OverridesList $baseAssignment.overrides
+        }
+
+        #endregion required roleDefinitionIds
+
         #region scopeCollection
 
         foreach ($scopeEntry in $scopeCollection) {
@@ -603,7 +620,6 @@ function Build-AssignmentDefinitionAtLeaf {
             if ($identityRequired) {
                 # Add required roleDefinitions (required by Policy definitions)
                 $requiredRoleAssignments = [System.Collections.ArrayList]::new()
-                $policyRoleDefinitionIds = $PolicyRoleIds.$policyDefinitionId
 
                 foreach ($roleDefinitionId in $policyRoleDefinitionIds) {
                     $roleDisplayName = "Unknown"

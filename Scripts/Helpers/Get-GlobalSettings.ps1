@@ -182,6 +182,12 @@ function Get-GlobalSettings {
                 $skipResourceValidationForExemptions = $true
             }
 
+            $filterRoleAssignmentsByEffect = $false
+            $filterRoleAssignmentsByEffectRaw = $pacEnvironment.filterRoleAssignmentsByEffect
+            if ($filterRoleAssignmentsByEffectRaw) {
+                $filterRoleAssignmentsByEffect = $true
+            }
+
             $desiredState = @{
                 strategy                             = "undefined"
                 keepDfcSecurityAssignments           = $false
@@ -374,6 +380,7 @@ function Get-GlobalSettings {
                 defaultContext                      = $defaultContext
                 policyDefinitionsScopes             = $policyDefinitionsScopes
                 skipResourceValidationForExemptions = $skipResourceValidationForExemptions
+                filterRoleAssignmentsByEffect       = $filterRoleAssignmentsByEffect
                 doNotDisableDeprecatedPolicies      = $doNotDisableDeprecatedPolicies
                 desiredState                        = $desiredState
                 managedIdentityLocation             = $managedIdentityLocation

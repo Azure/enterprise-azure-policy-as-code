@@ -67,6 +67,11 @@
                         "default": false,
                         "description": "When true, bypasses the check to see if resources targeted by exemptions actually exist. Improves performance in very large tenants."
                     },
+                    "filterRoleAssignmentsByEffect": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "When true, a Policy Set assignment does not request role assignments which are only contributed by member Policies whose effect the Policy Set hard-codes to a non-deploying value (for example AuditIfNotExists). Members raised back to DeployIfNotExists or Modify by an override still contribute their roles. Defaults to false, which grants the union of all member roles."
+                    },
                     "defaultContext": {
                         "type": "string",
                         "description": "The name or ID of a subscription to switch context to before running Resource Graph queries, useful for resolving permission issues in multi-tenant setups."
