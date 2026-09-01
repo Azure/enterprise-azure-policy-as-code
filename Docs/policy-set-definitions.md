@@ -67,6 +67,21 @@ The names of the definition JSON files don't matter, the Policy Sets are registe
 
 Custom definitions are uploaded to Azure at the time of initial deployment to a pacSelector. For each pacSelector, the definition is uploaded to the pacSelector's defined root. This makes it available to the entirity of that pacSelector, while facilitating code promotion by allowing each pacSelector to receive the updated definition as part of the release/deployment process.
 
+To deploy a specific custom Policy Set Definition at a different scope, set `properties.metadata.definitionLocation` in the initiative file. If omitted, EPAC uses the `deploymentRootScope` from the active pacEnvironment.
+
+```json
+"properties": {
+  "displayName": "Your Initiative Display Name",
+  "metadata": {
+    "category": "Category Name",
+    "version": "1.0.0",
+    "definitionLocation": "/providers/Microsoft.Management/managementGroups/mg-central-policy"
+  }
+}
+```
+
+When using `definitionLocation`, ensure the scope is included in EPAC's managed definition scopes (for example with `desiredState.additionalDefinitionLocations` if the location is outside the deployment root hierarchy).
+
 ## Policy Definition Groups
 
 **Optional:** Policy definition groups allow custom Policy Sets to map to different regulatory compliance requirements. These will show up in the regulatory compliance blade in Azure Security Center as if they were built-in. In order to use this, the custom Policy Sets must have both policy definition groups and group names defined.
