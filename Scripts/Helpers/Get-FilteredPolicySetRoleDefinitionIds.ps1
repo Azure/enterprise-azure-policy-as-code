@@ -26,10 +26,17 @@ function Get-FilteredPolicySetRoleDefinitionIds {
         [string] $PolicySetId,
         $PolicySetDetails,
         [hashtable] $PolicyRoleIds,
-        $OverridesList
+        $OverridesList,
+
+        # Supplied when the assignment pins a definitionVersion, so the roles to filter are the union
+        # calculated for that version rather than for the latest version in $PolicyRoleIds.
+        $UnfilteredRoleDefinitionIds = $null
     )
 
     $unfilteredRoleDefinitionIds = @($PolicyRoleIds.$PolicySetId)
+    if ($null -ne $UnfilteredRoleDefinitionIds) {
+        $unfilteredRoleDefinitionIds = @($UnfilteredRoleDefinitionIds)
+    }
     if ($unfilteredRoleDefinitionIds.Count -eq 0 -or $null -eq $PolicySetDetails -or $null -eq $PolicySetDetails.policyDefinitions) {
         return $unfilteredRoleDefinitionIds
     }

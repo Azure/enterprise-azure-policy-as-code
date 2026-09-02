@@ -182,10 +182,12 @@ function Get-GlobalSettings {
                 $skipResourceValidationForExemptions = $true
             }
 
-            $filterRoleAssignmentsByEffect = $false
+            # Defaults to true. An explicit false is the opt-out for repositories which need the
+            # previous behaviour of granting every member Policy's roles.
+            $filterRoleAssignmentsByEffect = $true
             $filterRoleAssignmentsByEffectRaw = $pacEnvironment.filterRoleAssignmentsByEffect
-            if ($filterRoleAssignmentsByEffectRaw) {
-                $filterRoleAssignmentsByEffect = $true
+            if ($null -ne $filterRoleAssignmentsByEffectRaw) {
+                $filterRoleAssignmentsByEffect = [bool] $filterRoleAssignmentsByEffectRaw
             }
 
             $desiredState = @{

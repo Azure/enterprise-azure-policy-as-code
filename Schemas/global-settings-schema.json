@@ -69,8 +69,8 @@
                     },
                     "filterRoleAssignmentsByEffect": {
                         "type": "boolean",
-                        "default": false,
-                        "description": "When true, a Policy Set assignment does not request role assignments which are only contributed by member Policies whose effect the Policy Set hard-codes to a non-deploying value (for example AuditIfNotExists). Members raised back to DeployIfNotExists or Modify by an override still contribute their roles. Defaults to false, which grants the union of all member roles."
+                        "default": true,
+                        "description": "When true, a Policy Set assignment does not request role assignments which are only contributed by member Policies whose effect the Policy Set hard-codes to a non-deploying value (for example AuditIfNotExists). Members raised back to DeployIfNotExists or Modify by an override still contribute their roles. Defaults to true; set it to false to temporarily restore the previous behaviour of granting the union of all member roles."
                     },
                     "defaultContext": {
                         "type": "string",

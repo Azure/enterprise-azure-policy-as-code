@@ -121,7 +121,7 @@ EPAC has a concept of an environment identified by a string (unique per reposito
 |-----------|-------------|
 | `globalNotScopes` | See [Excluding scopes for all Assignments with `globalNotScopes`](#excluding-scopes-for-all-assignments-with-globalnotscopes) |
 | `skipResourceValidationForExemptions` | Disables checking the resource existence for Policy Exemptions. Default is false. This can be useful if you have a massive amount of exemptions and the validation is taking too long. |
-| `filterRoleAssignmentsByEffect` | Reduces the role assignments created for Policy Set assignments. Default is false. See [Reducing role assignments with `filterRoleAssignmentsByEffect`](#reducing-role-assignments-with-filterroleassignmentsbyeffect). |
+| `filterRoleAssignmentsByEffect` | Reduces the role assignments created for Policy Set assignments. Default is true. See [Reducing role assignments with `filterRoleAssignmentsByEffect`](#reducing-role-assignments-with-filterroleassignmentsbyeffect). |
 | `deployedBy` | Populates the `metadata` fields. It defaults to `epac/$pacOwnerId/$pacSelector`. We recommend to use the default. |
 | `managedTenantId` | Used when the `pacEnvironment` is in a lighthouse managed tenant. |
 | `defaultContext` | In rare cases (typically only when deploying to a lighthouse managed tenant) the default context (Get-azContext) of a user/SPN running a plan will be set to a subscription where that user/SPN does not have sufficient privileges. Some checks have been built in so that in some cases when this happens EPAC is able to fix the context issue. When it is not, a `defaultContext` subscription name must be provided. This can be any subscription within the `deploymentRootScope`. |
@@ -147,14 +147,16 @@ Policies with `Modify` and `DeployIfNotExists` effects require a Managed Identit
 
 ### Reducing role assignments with `filterRoleAssignmentsByEffect`
 
-By default the Managed Identity of a Policy Set assignment is granted the union of the `roleDefinitionIds` of **every** member Policy, whatever effect each member evaluates with. Some built-in Policy Sets hard-code a member's effect to a non-deploying value such as `AuditIfNotExists`, so those members never deploy anything, yet their roles are still granted. Microsoft Cloud Security Benchmark v2 is the most visible example: it grants eight roles, seven of which - including `Contributor`, `User Access Administrator` and `Azure Event Hubs Data Owner` - come only from members hard-coded to `AuditIfNotExists`.
+The Managed Identity of a Policy Set assignment can be granted the union of the `roleDefinitionIds` of **every** member Policy, whatever effect each member evaluates with. Some built-in Policy Sets hard-code a member's effect to a non-deploying value such as `AuditIfNotExists`, so those members never deploy anything, yet their roles are still granted. Microsoft Cloud Security Benchmark v2 is the most visible example: it would grant eight roles, seven of which - including `Contributor`, `User Access Administrator` and `Azure Event Hubs Data Owner` - come only from members hard-coded to `AuditIfNotExists`.
 
-Setting `filterRoleAssignmentsByEffect` to `true` omits a role when it is **only** contributed by member Policies whose effect the Policy Set hard-codes to a literal, non-deploying effect: `Audit`, `AuditIfNotExists`, `Deny`, `DenyAction`, `Disabled`, `Append`, `Manual` or `AddToNetworkGroup`.
+`filterRoleAssignmentsByEffect` defaults to `true`, which omits a role when it is **only** contributed by member Policies whose effect the Policy Set hard-codes to a literal, non-deploying effect: `Audit`, `AuditIfNotExists`, `Deny`, `DenyAction`, `Disabled`, `Append`, `Manual` or `AddToNetworkGroup`.
 
 A Policy Set may also pin a member's effect to an ARM expression, for example `[if(contains(parameters('resourceTypeList'),'microsoft.aad/domainservices'),parameters('effect'),'Disabled')]`. Such an expression is evaluated by Azure at assignment time and can resolve to a deploying effect, so those members always keep their roles. The same applies to any effect value EPAC does not recognise.
 
+Set it to `false` to temporarily restore the previous behaviour of granting the union of all member roles:
+
 ```json
-    "filterRoleAssignmentsByEffect": true,
+    "filterRoleAssignmentsByEffect": false,
 ```
 
 A hard-coded effect is only a default. An assignment may use an [override](policy-assignments.md#defining-overrides-with-json) of kind `policyEffect` to raise a member back to `DeployIfNotExists` or `Modify`, and Azure accepts that even when the Policy Set pins the effect. EPAC therefore keeps the roles of any member an override raises to a deploying effect. Roles are also kept when:
@@ -168,12 +170,16 @@ The setting is deliberately narrow. It does not change:
 - **Policy Sets which do not hard-code effects.** When a member takes its effect from its own definition default or from a Policy Set parameter, it is not hard-coded and its roles are always kept.
 - **`additionalRoleAssignments`.** These are read from the Policy Assignment file and appended after the Policy derived roles are calculated. They never pass through the filter, so they are granted in full at the scope you specify. This is what makes them a reliable way to add back a role the filter removes.
 
+#### Assignments which pin `definitionVersion`
+
+Members and hard-coded member effects change between published versions of a Policy Set. When an assignment pins a `definitionVersion`, EPAC resolves that version from the Policy Set's published version history and calculates the roles from it, rather than from the latest version. Wildcards are resolved to the highest matching version, preferring a stable version and falling back to a pre-release only when no stable version matches the pattern.
+
+This version-aware calculation applies whether or not `filterRoleAssignmentsByEffect` is enabled, so a version-pinned assignment may see its roles change even with filtering off. If the version history cannot be read - a custom Policy Set with no published versions, a cloud which does not expose the endpoint, or a pattern which matches nothing - EPAC falls back to the latest version and keeps every role.
+
 > [!WARNING]
 > This setting narrows the permissions granted to the Managed Identity. The roles it removes are contributed only by members which cannot deploy anything, so remediation is not affected, but the role assignments themselves are deleted from Azure on the next deployment of the roles plan.
 >
-> One case needs care: the roles are calculated from the **latest** version of the Policy Set, not from the version an assignment pins with `definitionVersion` ([#1394](https://github.com/Azure/enterprise-azure-policy-as-code/issues/1394)). If a member deploys in the pinned version but is hard-coded to a non-deploying effect in the latest version, its role is removed even though the running assignment still needs it. Review the roles plan before deploying when your assignments pin `definitionVersion`.
->
-> Use `additionalRoleAssignments` in the Policy Assignment file to add back any role your remediation still needs.
+> Review the roles plan before deploying. Use `additionalRoleAssignments` in the Policy Assignment file to add back any role your remediation still needs.
 
 ### Excluding scopes for all Assignments with `globalNotScopes`
 

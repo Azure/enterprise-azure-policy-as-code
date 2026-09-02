@@ -73,8 +73,8 @@ $scriptRoot = Split-Path $PSScriptRoot -Parent
 . "$PSScriptRoot/Get-FilteredPolicySetRoleDefinitionIds.ps1"
 . "$PSScriptRoot/Get-GlobalSettings.ps1"
 . "$PSScriptRoot/Get-PacFolders.ps1"
-. "$PSScriptRoot/Get-ParameterNameFromValueString.ps1"
-. "$PSScriptRoot/Get-PolicyAssignmentsDetails.ps1"
+. "$PSScriptRoot/Get-PolicySetVersionedDetails.ps1"
+. "$PSScriptRoot/Get-ParameterNameFromValueString.ps1". "$PSScriptRoot/Get-PolicyAssignmentsDetails.ps1"
 . "$PSScriptRoot/Get-PolicyResourceProperties.ps1"
 . "$PSScriptRoot/Get-ScrubbedString.ps1"
 
@@ -123,6 +123,7 @@ $scriptRoot = Split-Path $PSScriptRoot -Parent
 . "$PSScriptRoot/RestMethods/Get-AzManagementGroupRestMethod.ps1" 
 . "$PSScriptRoot/RestMethods/Get-AzPolicyAssignmentRestMethod.ps1"
 . "$PSScriptRoot/RestMethods/Get-AzPolicyExemptionsRestMethod.ps1"
+. "$PSScriptRoot/RestMethods/Get-AzPolicySetDefinitionVersionsRestMethod.ps1"
 . "$PSScriptRoot/RestMethods/Get-AzResourceListRestMethod.ps1"
 . "$PSScriptRoot/RestMethods/Get-AzRoleAssignmentsRestMethod.ps1"
 . "$PSScriptRoot/RestMethods/Get-AzRoleDefinitionsRestMethod.ps1"
