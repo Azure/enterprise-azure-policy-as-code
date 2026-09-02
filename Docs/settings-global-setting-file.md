@@ -160,6 +160,12 @@ A hard-coded effect is only a default. An assignment may use an [override](polic
 - another member which is not hard-coded contributes the same role, or
 - the assignment has a deploying `policyEffect` override which cannot be attributed to specific `policyDefinitionReferenceId` values.
 
+The setting is deliberately narrow. It does not change:
+
+- **Assignments of a single Policy.** Only Policy Set assignments are filtered, so a `DeployIfNotExists` or `Modify` Policy assigned on its own always keeps every role its definition declares, even if the assignment overrides it to `Disabled`.
+- **Policy Sets which do not hard-code effects.** When a member takes its effect from its own definition default or from a Policy Set parameter, it is not hard-coded and its roles are always kept.
+- **`additionalRoleAssignments`.** These are read from the Policy Assignment file and appended after the Policy derived roles are calculated. They never pass through the filter, so they are granted in full at the scope you specify. This is what makes them a reliable way to add back a role the filter removes.
+
 > [!WARNING]
 > This setting narrows the permissions granted to the Managed Identity, which is a breaking change for existing assignments. It only accounts for overrides defined in your EPAC repository; an override added out of band in the Azure portal is not visible when the deployment plan is calculated (`desiredState` strategies `full` and `ownedOnly` revert such drift anyway). Use `additionalRoleAssignments` in the Policy Assignment file to add back any role your remediation still needs.
 

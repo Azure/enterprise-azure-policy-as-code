@@ -9,7 +9,9 @@ function Get-FilteredPolicySetRoleDefinitionIds {
     roleDefinitionIds of every member Policy, regardless of the effect each member will actually
     evaluate with. Members pinned by the Policy Set to a literal such as AuditIfNotExists never
     deploy anything, so the roles they contribute are not required by the assignment's Managed
-    Identity.
+    Identity. Only a recognised non-deploying effect literal counts as pinned. A Policy Set may also
+    pin an effect to an ARM expression, which evaluates at runtime and may deploy, so those members
+    keep their roles.
 
     A pinned literal is only a default though: an assignment may use an override of kind
     'policyEffect' to raise a member back to a deploying effect. When an override targets a pinned
@@ -36,6 +38,22 @@ function Get-FilteredPolicySetRoleDefinitionIds {
     # Manual is deliberately excluded: no built-in definition combines Manual with roleDefinitionIds.
     $deployingEffects = @("DeployIfNotExists", "Modify")
 
+    # A member only counts as pinned to a non-deploying effect when the Policy Set hard-codes one of
+    # these literals. This must be a whitelist: a Policy Set may pin the effect to an ARM expression
+    # such as [if(contains(parameters('resourceTypeList'),'...'),parameters('effect'),'Disabled')],
+    # which Convert-PolicySetToDetails also reports as "PolicySet Fixed" but which can evaluate to a
+    # deploying effect at runtime. Anything not recognised here keeps its roles.
+    $nonDeployingEffects = @(
+        "AddToNetworkGroup",
+        "Append",
+        "Audit",
+        "AuditIfNotExists",
+        "Deny",
+        "DenyAction",
+        "Disabled",
+        "Manual"
+    )
+
     #region classify members into pinned (non-deploying literal) and unconditional
 
     $pinnedRoleIdsByReferenceId = @{}
@@ -47,7 +65,7 @@ function Get-FilteredPolicySetRoleDefinitionIds {
         }
         $memberRoleIds = $PolicyRoleIds.$policyId
         $isPinnedNonDeploying = $policyInPolicySet.effectReason -eq "PolicySet Fixed" `
-            -and $policyInPolicySet.effectValue -notin $deployingEffects
+            -and $policyInPolicySet.effectValue -in $nonDeployingEffects
         if ($isPinnedNonDeploying) {
             $referenceId = $policyInPolicySet.policyDefinitionReferenceId
             $collected = $pinnedRoleIdsByReferenceId.$referenceId

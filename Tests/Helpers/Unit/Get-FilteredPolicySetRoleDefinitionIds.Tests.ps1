@@ -47,6 +47,78 @@ BeforeAll {
 
 Describe 'Get-FilteredPolicySetRoleDefinitionIds' {
 
+    Context 'members whose pinned effect is not a recognised non-deploying literal' {
+
+        BeforeEach {
+            $script:policyRoleIds = @{
+                $script:policySetId    = @( $script:eventHubRole )
+                $script:pinnedPolicyId = @( $script:eventHubRole )
+            }
+        }
+
+        It 'keeps roles when the Policy Set pins the effect to an ARM expression' {
+            # Built-in diagnostic settings Policy Sets pin member effects to an expression which
+            # evaluates to parameters('effect'), defaulting to DeployIfNotExists, so the roles are
+            # genuinely required. Convert-PolicySetToDetails still reports these as PolicySet Fixed.
+            $armExpression = "[if(contains(parameters('resourceTypeList'),'microsoft.aad/domainservices'),parameters('effect'),'Disabled')]"
+            $policySetDetails = @{
+                policyDefinitions = @(
+                    New-Member -PolicyId $script:pinnedPolicyId -ReferenceId 'expressionRef' -EffectReason 'PolicySet Fixed' -EffectValue $armExpression
+                )
+            }
+
+            $result = Get-FilteredPolicySetRoleDefinitionIds `
+                -PolicySetId $script:policySetId `
+                -PolicySetDetails $policySetDetails `
+                -PolicyRoleIds $script:policyRoleIds `
+                -OverridesList @()
+
+            $result | Should -Be @( $script:eventHubRole )
+        }
+
+        It 'keeps roles when the pinned effect is an unrecognised value' {
+            $policySetDetails = @{
+                policyDefinitions = @(
+                    New-Member -PolicyId $script:pinnedPolicyId -ReferenceId 'unknownRef' -EffectReason 'PolicySet Fixed' -EffectValue 'SomeFutureEffect'
+                )
+            }
+
+            $result = Get-FilteredPolicySetRoleDefinitionIds `
+                -PolicySetId $script:policySetId `
+                -PolicySetDetails $policySetDetails `
+                -PolicyRoleIds $script:policyRoleIds `
+                -OverridesList @()
+
+            $result | Should -Be @( $script:eventHubRole )
+        }
+
+        It 'removes roles for every recognised non-deploying literal' -ForEach @(
+            @{ Effect = 'Audit' }
+            @{ Effect = 'AuditIfNotExists' }
+            @{ Effect = 'Deny' }
+            @{ Effect = 'DenyAction' }
+            @{ Effect = 'Disabled' }
+            @{ Effect = 'Append' }
+            @{ Effect = 'Manual' }
+            @{ Effect = 'AddToNetworkGroup' }
+            @{ Effect = 'auditifnotexists' }
+        ) {
+            $policySetDetails = @{
+                policyDefinitions = @(
+                    New-Member -PolicyId $script:pinnedPolicyId -ReferenceId 'pinnedRef' -EffectReason 'PolicySet Fixed' -EffectValue $Effect
+                )
+            }
+
+            $result = Get-FilteredPolicySetRoleDefinitionIds `
+                -PolicySetId $script:policySetId `
+                -PolicySetDetails $policySetDetails `
+                -PolicyRoleIds $script:policyRoleIds `
+                -OverridesList @()
+
+            $result | Should -BeNullOrEmpty
+        }
+    }
+
     Context 'members pinned by the Policy Set to a non-deploying effect' {
 
         BeforeEach {
