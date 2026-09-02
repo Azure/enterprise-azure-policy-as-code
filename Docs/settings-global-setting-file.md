@@ -149,7 +149,9 @@ Policies with `Modify` and `DeployIfNotExists` effects require a Managed Identit
 
 By default the Managed Identity of a Policy Set assignment is granted the union of the `roleDefinitionIds` of **every** member Policy, whatever effect each member evaluates with. Some built-in Policy Sets hard-code a member's effect to a non-deploying value such as `AuditIfNotExists`, so those members never deploy anything, yet their roles are still granted. Microsoft Cloud Security Benchmark v2 is the most visible example: it grants eight roles, seven of which - including `Contributor`, `User Access Administrator` and `Azure Event Hubs Data Owner` - come only from members hard-coded to `AuditIfNotExists`.
 
-Setting `filterRoleAssignmentsByEffect` to `true` omits a role when it is **only** contributed by member Policies whose effect the Policy Set hard-codes to something other than `DeployIfNotExists` or `Modify`.
+Setting `filterRoleAssignmentsByEffect` to `true` omits a role when it is **only** contributed by member Policies whose effect the Policy Set hard-codes to a literal, non-deploying effect: `Audit`, `AuditIfNotExists`, `Deny`, `DenyAction`, `Disabled`, `Append`, `Manual` or `AddToNetworkGroup`.
+
+A Policy Set may also pin a member's effect to an ARM expression, for example `[if(contains(parameters('resourceTypeList'),'microsoft.aad/domainservices'),parameters('effect'),'Disabled')]`. Such an expression is evaluated by Azure at assignment time and can resolve to a deploying effect, so those members always keep their roles. The same applies to any effect value EPAC does not recognise.
 
 ```json
     "filterRoleAssignmentsByEffect": true,
@@ -167,7 +169,11 @@ The setting is deliberately narrow. It does not change:
 - **`additionalRoleAssignments`.** These are read from the Policy Assignment file and appended after the Policy derived roles are calculated. They never pass through the filter, so they are granted in full at the scope you specify. This is what makes them a reliable way to add back a role the filter removes.
 
 > [!WARNING]
-> This setting narrows the permissions granted to the Managed Identity, which is a breaking change for existing assignments. It only accounts for overrides defined in your EPAC repository; an override added out of band in the Azure portal is not visible when the deployment plan is calculated (`desiredState` strategies `full` and `ownedOnly` revert such drift anyway). Use `additionalRoleAssignments` in the Policy Assignment file to add back any role your remediation still needs.
+> This setting narrows the permissions granted to the Managed Identity. The roles it removes are contributed only by members which cannot deploy anything, so remediation is not affected, but the role assignments themselves are deleted from Azure on the next deployment of the roles plan.
+>
+> One case needs care: the roles are calculated from the **latest** version of the Policy Set, not from the version an assignment pins with `definitionVersion` ([#1394](https://github.com/Azure/enterprise-azure-policy-as-code/issues/1394)). If a member deploys in the pinned version but is hard-coded to a non-deploying effect in the latest version, its role is removed even though the running assignment still needs it. Review the roles plan before deploying when your assignments pin `definitionVersion`.
+>
+> Use `additionalRoleAssignments` in the Policy Assignment file to add back any role your remediation still needs.
 
 ### Excluding scopes for all Assignments with `globalNotScopes`
 
