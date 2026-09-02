@@ -585,6 +585,48 @@ function Build-AssignmentDefinitionAtLeaf {
 
         #endregion Reconcile and deduplicate: CSV, parameters, nonComplianceMessages, and overrides
 
+        #region required roleDefinitionIds
+
+        # Calculated after overrides are reconciled, since a CSV effect column replaces the
+        # overrides built from the assignment JSON.
+        $policyRoleDefinitionIds = $PolicyRoleIds.$policyDefinitionId
+        if ($identityRequired -and $isPolicySet) {
+            $effectivePolicySetDetails = $policySetDetails
+
+            # Roles are calculated from the latest version of a Policy Set. When the assignment pins
+            # definitionVersion, the deployed Policy Set is a different version whose members and
+            # hard-coded member effects can differ, so resolve that version instead.
+            if ($baseAssignment.definitionVersion) {
+                if ($null -eq $script:policySetVersionCache) {
+                    $script:policySetVersionCache = @{}
+                }
+                $versioned = Get-PolicySetVersionedDetails `
+                    -PolicySetId $policyDefinitionId `
+                    -DefinitionVersion $baseAssignment.definitionVersion `
+                    -PacEnvironment $PacEnvironment `
+                    -PolicyDetails $policiesDetails `
+                    -PolicyRoleIds $PolicyRoleIds `
+                    -Cache $script:policySetVersionCache
+                if ($null -ne $versioned) {
+                    $effectivePolicySetDetails = $versioned.policySetDetails
+                    $policyRoleDefinitionIds = $versioned.policyRoleDefinitionIds
+                }
+            }
+
+            if ($PacEnvironment.filterRoleAssignmentsByEffect) {
+                # Drop the roles only contributed by members the Policy Set pins to a non-deploying
+                # effect, unless an override raises those members back to a deploying effect.
+                $policyRoleDefinitionIds = Get-FilteredPolicySetRoleDefinitionIds `
+                    -PolicySetId $policyDefinitionId `
+                    -PolicySetDetails $effectivePolicySetDetails `
+                    -PolicyRoleIds $PolicyRoleIds `
+                    -OverridesList $baseAssignment.overrides `
+                    -UnfilteredRoleDefinitionIds $policyRoleDefinitionIds
+            }
+        }
+
+        #endregion required roleDefinitionIds
+
         #region scopeCollection
 
         foreach ($scopeEntry in $scopeCollection) {
@@ -603,7 +645,6 @@ function Build-AssignmentDefinitionAtLeaf {
             if ($identityRequired) {
                 # Add required roleDefinitions (required by Policy definitions)
                 $requiredRoleAssignments = [System.Collections.ArrayList]::new()
-                $policyRoleDefinitionIds = $PolicyRoleIds.$policyDefinitionId
 
                 foreach ($roleDefinitionId in $policyRoleDefinitionIds) {
                     $roleDisplayName = "Unknown"
