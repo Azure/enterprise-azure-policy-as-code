@@ -28,9 +28,9 @@ function Build-HydrationAssignmentPlan {
     $assignmentFiles = @()
     $assignmentFiles += Get-ChildItem -Path $AssignmentsRootFolder -Recurse -File -Filter "*.json"
     $assignmentFiles += Get-ChildItem -Path $AssignmentsRootFolder -Recurse -File -Filter "*.jsonc"
-    $jsonFiles = Get-ChildItem -Path $AssignmentsRootFolder -Recurse -File -Filter "*.json"
-    $jsoncFiles = Get-ChildItem -Path $AssignmentsRootFolder -Recurse -File -Filter "*.jsonc"
-    $csvFiles = Get-ChildItem -Path $AssignmentsRootFolder -Recurse -File -Filter "*.csv"
+    $jsonFiles = @(Get-ChildItem -Path $AssignmentsRootFolder -Recurse -File -Filter "*.json")
+    $jsoncFiles = @(Get-ChildItem -Path $AssignmentsRootFolder -Recurse -File -Filter "*.jsonc")
+    $csvFiles = @(Get-ChildItem -Path $AssignmentsRootFolder -Recurse -File -Filter "*.csv")
 
     $parameterFilesToIgnore = [System.Collections.ArrayList]::new()
     $collectParameterFileReferences = {
