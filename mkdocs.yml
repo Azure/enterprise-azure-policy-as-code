@@ -47,6 +47,7 @@ nav:
       - Policy Assignment Files: policy-assignments.md
       - CSV Assignment Parameters: policy-assignments-csv-parameters.md
       - Policy Exemptions: policy-exemptions.md
+      - Policy Enrollments (Preview): policy-enrollments.md
   - CI/CD Integration:
       - CI/CD Overview: ci-cd-overview.md
       - App Registrations Setup: ci-cd-app-registrations.md

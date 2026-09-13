@@ -122,6 +122,7 @@ $buildSelections = @{
     buildPolicySetDefinitions = $false
     buildPolicyAssignments    = $false
     buildPolicyExemptions     = $false
+    buildPolicyEnrollments    = $false
 }
 $policyDefinitions = @{
     new             = @{}
@@ -170,6 +171,13 @@ $exemptions = @{
     numberOfChanges = 0
     numberUnchanged = 0
 }
+$enrollments = @{
+    new             = @{}
+    update          = @{}
+    delete          = @{}
+    numberOfChanges = 0
+    numberUnchanged = 0
+}
 $pacOwnerId = $pacEnvironment.pacOwnerId
 $timestamp = Get-Date -AsUTC -Format "u"
 $policyPlan = @{
@@ -179,6 +187,7 @@ $policyPlan = @{
     policySetDefinitions = $policySetDefinitions
     assignments          = $assignments
     exemptions           = $exemptions
+    enrollments          = $enrollments
 }
 $rolesPlan = @{
     createdOn       = $timestamp
@@ -189,7 +198,9 @@ $policyDefinitionsFolder = $pacEnvironment.policyDefinitionsFolder
 $policySetDefinitionsFolder = $pacEnvironment.policySetDefinitionsFolder
 $policyAssignmentsFolder = $pacEnvironment.policyAssignmentsFolder
 $policyExemptionsFolder = $pacEnvironment.policyExemptionsFolder
+$policyEnrollmentsFolder = $pacEnvironment.policyEnrollmentsFolder
 $policyExemptionsFolderForPacEnvironment = "$($policyExemptionsFolder)/$($pacEnvironment.pacSelector)"
+$policyEnrollmentsFolderForPacEnvironment = "$($policyEnrollmentsFolder)/$($pacEnvironment.pacSelector)"
 #endregion plan data structures
 
 #region calculate which plans need to be built
@@ -242,6 +253,13 @@ $resourceTypes = @(
         IncludeInSkipExemptions = $false
         IsManaged               = $exemptionsAreManaged
         NotManagedMessage       = $exemptionsAreNotManagedMessage
+    },
+    @{
+        Name                    = "Policy Enrollments"
+        BuildFlag               = "buildPolicyEnrollments"
+        Folder                  = $policyEnrollmentsFolderForPacEnvironment
+        IncludeInExemptionsOnly = $false
+        IncludeInSkipExemptions = $true
     }
 )
 
@@ -296,7 +314,7 @@ foreach ($resourceType in $resourceTypes) {
 
 # Final validation - ensure at least one resource type is being built
 if (-not $buildSelections.buildAny) {
-    $null = $warningMessages.Add("No Policies, Policy Set, Assignment, or Exemptions managed by this EPAC instance found. No plans will be built. Exiting...")
+    $null = $warningMessages.Add("No Policies, Policy Set, Assignment, Exemption, or Enrollment resources managed by this EPAC instance found. No plans will be built. Exiting...")
 }
 
 if ($warningMessages.Count -gt 0) {
@@ -321,7 +339,8 @@ if ($buildSelections.buildAny) {
         -PacEnvironment $pacEnvironment `
         -ScopeTable $scopeTable `
         -SkipExemptions:$skipExemptions `
-        -SkipRoleAssignments:$skipRoleAssignments
+        -SkipRoleAssignments:$skipRoleAssignments `
+        -IncludeEnrollments:$buildSelections.buildPolicyEnrollments
 
     # Calculate roleDefinitionIds for built-in and inherited Policies
     $readOnlyPolicyDefinitions = $deployedPolicyResources.policydefinitions.readOnly
@@ -429,6 +448,14 @@ if ($buildSelections.buildAny) {
             -DetailedOutput:$DetailedOutput
     }
 
+    if ($buildSelections.buildPolicyEnrollments) {
+        Build-PolicyEnrollmentPlan `
+            -EnrollmentsRootFolder $policyEnrollmentsFolderForPacEnvironment `
+            -PacEnvironment $pacEnvironment `
+            -DeployedEnrollments $deployedPolicyResources.policyenrollments `
+            -Enrollments $enrollments
+    }
+
     if ($buildSelections.buildPolicyExemptions) {
         #Write-ModernProgress -Activity "Analyzing Policy Exemptions"
         # Process Exemption JSON files
@@ -514,6 +541,15 @@ if ($buildSelections.buildAny) {
         Write-ModernCountSummary -Type "Policy Exemptions" -Unchanged $exemptions.numberUnchanged -TotalChanges $exemptions.numberOfChanges -Changes $exemptionChanges -Orphaned $exemptions.numberOfOrphans -Expired $exemptions.numberOfExpired
     }
 
+    if ($buildSelections.buildPolicyEnrollments) {
+        $enrollmentChanges = @{
+            new    = $enrollments.new.psbase.Count
+            update = $enrollments.update.psbase.Count
+            delete = $enrollments.delete.psbase.Count
+        }
+        Write-ModernCountSummary -Type "Policy Enrollments (Preview)" -Unchanged $enrollments.numberUnchanged -TotalChanges $enrollments.numberOfChanges -Changes $enrollmentChanges
+    }
+
 }
 
 Write-ModernSection -Title "Deployment Plan Output" -Color Green
@@ -521,6 +557,7 @@ $policyResourceChanges = $policyDefinitions.numberOfChanges
 $policyResourceChanges += $policySetDefinitions.numberOfChanges
 $policyResourceChanges += $assignments.numberOfChanges
 $policyResourceChanges += $exemptions.numberOfChanges
+$policyResourceChanges += $enrollments.numberOfChanges
 
 $policyStage = "no"
 $planFile = $pacEnvironment.policyPlanOutputFile

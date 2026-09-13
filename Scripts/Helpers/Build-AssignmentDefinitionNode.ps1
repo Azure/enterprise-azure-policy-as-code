@@ -1,9 +1,52 @@
+function Resolve-ParameterFilePath {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string] $ParameterFilePath,
+        [string] $AssignmentFilePath,
+        [hashtable] $AvailableParameterFilesCsv
+    )
+
+    $trimmedPath = $ParameterFilePath.Trim()
+    if ([string]::IsNullOrWhiteSpace($trimmedPath)) {
+        return $null
+    }
+
+    if ($null -ne $AvailableParameterFilesCsv -and $AvailableParameterFilesCsv.ContainsKey($trimmedPath)) {
+        return $AvailableParameterFilesCsv[$trimmedPath]
+    }
+
+    $candidatePaths = [System.Collections.ArrayList]::new()
+    if (-not [string]::IsNullOrWhiteSpace($AssignmentFilePath)) {
+        $assignmentDirectory = Split-Path -Path $AssignmentFilePath -Parent
+        if (-not [string]::IsNullOrWhiteSpace($assignmentDirectory)) {
+            $null = $candidatePaths.Add([System.IO.Path]::GetFullPath((Join-Path -Path $assignmentDirectory -ChildPath $trimmedPath)))
+        }
+    }
+
+    if ([System.IO.Path]::IsPathRooted($trimmedPath)) {
+        $null = $candidatePaths.Add($trimmedPath)
+    }
+
+    $workingDirectoryCandidate = [System.IO.Path]::GetFullPath((Join-Path -Path (Get-Location).Path -ChildPath $trimmedPath))
+    $null = $candidatePaths.Add($workingDirectoryCandidate)
+
+    foreach ($candidatePath in $candidatePaths) {
+        if (Test-Path -LiteralPath $candidatePath -PathType Leaf) {
+            return (Resolve-Path -LiteralPath $candidatePath).ProviderPath
+        }
+    }
+
+    return $null
+}
+
 function Build-AssignmentDefinitionNode {
     # Recursive Function
     param(
         [hashtable] $PacEnvironment,
         [hashtable] $ScopeTable,
         [hashtable] $ParameterFilesCsv,
+        [string] $AssignmentFilePath,
         [hashtable] $DefinitionNode, # Current node
         [hashtable] $AssignmentDefinition, # Collected values in tree branch
         [hashtable] $CombinedPolicyDetails,
@@ -44,11 +87,11 @@ function Build-AssignmentDefinitionNode {
     if ($DefinitionNode.enforcementMode) {
         # Does deploy assignment(s), Azure Policy Engine will not evaluate the Policy Assignment
         $enforcementMode = $DefinitionNode.enforcementMode
-        if ("Default", "DoNotEnforce" -contains $enforcementMode) {
+        if ("Default", "DoNotEnforce", "Enroll" -contains $enforcementMode) {
             $definition.enforcementMode = $enforcementMode
         }
         else {
-            Write-Error "    Node $($nodeName): enforcementMode must be Default or DoNotEnforce (actual is ""$($enforcementMode))."
+            Write-Error "    Node $($nodeName): enforcementMode must be Default, DoNotEnforce, or Enroll (actual is ""$($enforcementMode))."
             $definition.hasErrors = $true
         }
     }
@@ -214,50 +257,80 @@ function Build-AssignmentDefinitionNode {
     $deprecatedInCSV = [System.Collections.ArrayList]::new()
     if ($DefinitionNode.parameterFile) {
         $parameterFileName = $DefinitionNode.parameterFile
-        if ($ParameterFilesCsv.ContainsKey($parameterFileName)) {
-            $fullName = $ParameterFilesCsv.$parameterFileName
-            $content = Get-Content -Path $fullName -Raw -ErrorAction Stop
-            $xlsArray = @() + ($content | ConvertFrom-Csv -ErrorAction Stop)
-            $csvParameterArray = Get-DeepCloneAsOrderedHashtable $xlsArray
-            # Replace CSV effect with Disabled if Deprecated
-            foreach ($entry in $csvParameterArray) {
-                # If policy in csv is found to be deprecated
-                if ($DeprecatedHash.ContainsKey($entry.name)) {
-                    # For each child in the assignment
-                    foreach ($child in $DefinitionNode.children) {
-                        # If that child is using a parameterSelector with the CSV
-                        if ($child.ContainsKey('parameterSelector')) {
-                            $key = "$($child.parameterSelector)" + "Effect"
-                            # If the parameter is not set to Disabled already
-                            if ($entry.$key -ne "Disabled") {
-                                if (!$PacEnvironment.desiredState.doNotDisableDeprecatedPolicies) {
-                                    $entry.$key = 'Disabled'
+        $fullName = Resolve-ParameterFilePath -ParameterFilePath $parameterFileName -AssignmentFilePath $AssignmentFilePath -AvailableParameterFilesCsv $ParameterFilesCsv
+        if ($fullName) {
+            $fileExtension = [System.IO.Path]::GetExtension($fullName)
+            $definition.parameterFileName = $parameterFileName
+
+            if ($fileExtension -ieq ".csv") {
+                $content = Get-Content -Path $fullName -Raw -ErrorAction Stop
+                $xlsArray = @() + ($content | ConvertFrom-Csv -ErrorAction Stop)
+                $csvParameterArray = Get-DeepCloneAsOrderedHashtable $xlsArray
+                # Replace CSV effect with Disabled if Deprecated
+                foreach ($entry in $csvParameterArray) {
+                    # If policy in csv is found to be deprecated
+                    if ($DeprecatedHash.ContainsKey($entry.name)) {
+                        # For each child in the assignment
+                        foreach ($child in $DefinitionNode.children) {
+                            # If that child is using a parameterSelector with the CSV
+                            if ($child.ContainsKey('parameterSelector')) {
+                                $key = "$($child.parameterSelector)" + "Effect"
+                                # If the parameter is not set to Disabled already
+                                if ($entry.$key -ne "Disabled") {
+                                    if (!$PacEnvironment.desiredState.doNotDisableDeprecatedPolicies) {
+                                        $entry.$key = 'Disabled'
+                                    }
+                                    $null = $deprecatedInCSV.Add("$($entry.displayName) ($($entry.name))")
                                 }
-                                $null = $deprecatedInCSV.Add("$($entry.displayName) ($($entry.name))")
                             }
                         }
+                        break
                     }
-                    break
+                }
+
+                $definition.csvParameterArray = $csvParameterArray
+                $definition.csvRowsValidated = $false
+                if ($csvParameterArray.Count -eq 0) {
+                    Write-Error "    Node $($nodeName): CSV parameterFile '$parameterFileName'  is empty (zero rows)."
+                    $definition.hasErrors = $true
                 }
             }
-            
-            $definition.parameterFileName = $parameterFileName
-            $definition.csvParameterArray = $csvParameterArray
-            $definition.csvRowsValidated = $false
-            if ($csvParameterArray.Count -eq 0) {
-                Write-Error "    Node $($nodeName): CSV parameterFile '$parameterFileName'  is empty (zero rows)."
+            elseif ($fileExtension -ieq ".json" -or $fileExtension -ieq ".jsonc") {
+                $jsonContent = Get-Content -Path $fullName -Raw -ErrorAction Stop
+                $jsonParameter = $jsonContent | ConvertFrom-Json -Depth 100 -AsHashtable
+                if ($null -ne $jsonParameter) {
+                    if ($jsonParameter.ContainsKey('parameters')) {
+                        $jsonParameters = $jsonParameter.parameters
+                    }
+                    else {
+                        $jsonParameters = $jsonParameter
+                    }
+
+                    if ($jsonParameters -is [System.Collections.IDictionary]) {
+                        foreach ($parameterName in $jsonParameters.Keys) {
+                            $definition.parameters[$parameterName] = Get-DeepCloneAsOrderedHashtable $jsonParameters[$parameterName]
+                        }
+                    }
+                    else {
+                        Write-Error "    Node $($nodeName): JSON parameterFile '$parameterFileName' must contain a parameters object."
+                        $definition.hasErrors = $true
+                    }
+                }
+            }
+            else {
+                Write-Error "    Node $($nodeName): parameterFile '$parameterFileName' has an unsupported extension '$fileExtension'."
                 $definition.hasErrors = $true
             }
         }
         else {
-            Write-Error "    Node $($nodeName): CSV parameterFileName '$parameterFileName'  does not exist."
+            Write-Error "    Node $($nodeName): parameterFileName '$parameterFileName' does not exist."
             $definition.hasErrors = $true
         }
     }
     #endregion process parameterFileName and parameterSelector
 
     #region validate CSV rows
-    if (!($definition.csvRowsValidated) -and $definition.hasPolicySets -and $definition.parameterFileName -and $definition.definitionEntryList) {
+    if (!($definition.csvRowsValidated) -and $definition.hasPolicySets -and $definition.parameterFileName -and $definition.definitionEntryList -and ($definition.parameterFileName -match '(?i)\.csv$')) {
 
         $csvParameterArray = $definition.csvParameterArray
         $parameterFileName = $definition.parameterFileName
@@ -471,7 +544,8 @@ function Build-AssignmentDefinitionNode {
 
     if ($DefinitionNode.userAssignedIdentity) {
         # Process userAssignedIdentity; can be overridden
-        Add-SelectedPacValue -InputObject $DefinitionNode.userAssignedIdentity -PacSelector $pacSelector -OutputObject $definition -OutputKey "userAssignedIdentity"
+        # An array is allowed here to support per definitionEntryList identities; resolved in Build-AssignmentDefinitionAtLeaf
+        Add-SelectedPacValue -InputObject $DefinitionNode.userAssignedIdentity -PacSelector $pacSelector -OutputObject $definition -OutputKey "userAssignedIdentity" -AllowArray
     }
     #endregion identity and additionalRoleAssignments (optional, specific to an EPAC environment)
 

@@ -112,7 +112,7 @@ In some organizations the lifecycle of different parts may be managed separately
 
 EPAC only manages items with a directory in the `Definitions` folder. Therefore, you can use the same `pacOwnerId` from two repos and remove the folders to separate them. In this example:
 
-- Repo1: `Definitions` contains `policyDefinitions`, `policySetDefinitions` and `policyAssignments` folders.
+- Repo1: `Definitions` contains `policyDefinitions`, `policySetDefinitions`, `policyAssignments`, and optionally `policyEnrollments` folders.
 - Repo2: `Definitions` contains `policyExemptions` folder.
 
 Policy resource that would be defined in the folder. It is important to remove the folders. GitHub repos remove empty folder automatically.
@@ -125,8 +125,7 @@ In a shared responsibility model multiple teams manage the same tenant(s) at the
 
 ![image.png](Images/shared-responsibility.png)
 
-For standard behavior where each repo manages, no additional entries in `global-settings.jsonc` are necessary since the default strategy `full` is the default. `full` deletes any Policy resources without a `pacOwnerId`; however, id does not delete Policy resources with a different `pacOwnerId`.
-[test](settings-desired-state.md#use-case-4-multiple-teams-in-a-hierarchical-organization)
+For standard behavior where each repo manages, no additional entries in `global-settings.jsonc` are necessary since the default strategy `full` is the default. `full` deletes any Policy resources without a `pacOwnerId`; however, it does not delete Policy resources with a different `pacOwnerId`.
 
 ## Use Case 4:  Multiple Teams in a Hierarchical Organization
 

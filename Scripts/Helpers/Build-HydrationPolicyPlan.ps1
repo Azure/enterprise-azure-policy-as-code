@@ -92,7 +92,7 @@ function Build-HydrationPolicyPlan {
             Write-Error "Policy from file '$($file.Name)' requires a name" -ErrorAction Stop
         }
         if (-not (Confirm-ValidPolicyResourceName -Name $name)) {
-            Write-Error "Policy from file '$($file.Name) has a name '$name' containing invalid characters <>*%&:?.+/ or ends with a space." -ErrorAction Stop
+            Write-Error "Policy from file '$($file.Name) has a name '$name' containing invalid characters '%, &, \, ?, /, <, >, :, #, *, +' or control characters, or ends with a space." -ErrorAction Stop
         }
         if ($null -eq $displayName) {
             Write-Error "Policy '$name' from file '$($file.Name)' requires a displayName" -ErrorAction Stop

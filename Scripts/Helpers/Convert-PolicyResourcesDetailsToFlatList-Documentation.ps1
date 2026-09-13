@@ -70,6 +70,12 @@ function Convert-PolicyResourcesDetailsToFlatList-Documentation {
             $effectAllowedOverrides = $detail.effectAllowedOverrides
             $effectValue = $detail.effectValue
             $effectDefault = $detail.effectDefault
+            if (-not [string]::IsNullOrWhiteSpace($effectValue)) {
+                $effectValue = Convert-EffectToCsvString -Effect $effectValue
+            }
+            if (-not [string]::IsNullOrWhiteSpace($effectDefault)) {
+                $effectDefault = Convert-EffectToCsvString -Effect $effectDefault
+            }
             $parameters = $detail.parameters
             $isEffectParameterized = $effectReason -eq "Policy Default" -or $effectReason -eq "Policy No Default" -or $effectReason -eq "Assignment"
             $flatPolicyEntryKey = $policyId
@@ -159,19 +165,20 @@ function Convert-PolicyResourcesDetailsToFlatList-Documentation {
             }
 
             $effectString = ""
+            $existingOrdinal = $flatPolicyEntry.ordinal
             if ($null -ne $detail.assignmentId) {
                 $isOverridden = $false
                 if ($null -ne $assignmentOverrides -and $assignmentOverrides.Count -gt 0) {
                     # Check if we have an override
                     foreach ($override in $assignmentOverrides) {
                         if ($override.kind -eq "policyEffect") {
-                            $tempEffect = $override.value
+                            $tempEffect = Convert-EffectToCsvString -Effect $override.value
                             foreach ($selector in $override.selectors) {
                                 if ($selector.kind -eq "policyDefinitionReferenceId") {
                                     if ($selector.in -contains $policyDefinitionReferenceId) {
                                         $effectValue = $tempEffect
                                         $perPolicy.effectReason = "Override"
-                                        $effectString = "$($effectValue) (override))"
+                                        $effectString = "$($effectValue) (override)"
                                         $isOverridden = $true
                                     }
                                 }
@@ -181,7 +188,6 @@ function Convert-PolicyResourcesDetailsToFlatList-Documentation {
                 }
                 if (!$isOverridden) {
                     if ($isEffectParameterized) {
-                        $existingOrdinal = $flatPolicyEntry.ordinal
                         $effectString = "$($effectDefault) (default: $($effectParameterName))"
                         # Best actual value if processing an Assignment
                         $effectValue = $effectDefault
@@ -190,7 +196,7 @@ function Convert-PolicyResourcesDetailsToFlatList-Documentation {
                             if ($assignmentParameters.Keys -contains $effectParameterName) {
                                 # Effect default is replaced by assignment parameter
                                 $assignmentLevelEffectParameter = $assignmentParameters.$effectParameterName
-                                $effectValue = $assignmentLevelEffectParameter.value
+                                $effectValue = Convert-EffectToCsvString -Effect $assignmentLevelEffectParameter.value
                                 $perPolicy.effectReason = "Assignment"
                                 $effectString = "$($effectValue) (assignment: $($effectParameterName))"
                             }
@@ -295,6 +301,12 @@ function Convert-PolicyResourcesDetailsToFlatList-Documentation {
             $effectAllowedOverrides = $policyInPolicySetInfo.effectAllowedOverrides
             $effectValue = $policyInPolicySetInfo.effectValue
             $effectDefault = $policyInPolicySetInfo.effectDefault
+            if (-not [string]::IsNullOrWhiteSpace($effectValue)) {
+                $effectValue = Convert-EffectToCsvString -Effect $effectValue
+            }
+            if (-not [string]::IsNullOrWhiteSpace($effectDefault)) {
+                $effectDefault = Convert-EffectToCsvString -Effect $effectDefault
+            }
             $parameters = $policyInPolicySetInfo.parameters
             $isEffectParameterized = $effectReason -eq "PolicySet Default" -or $effectReason -eq "PolicySet No Default" -or $effectReason -eq "Assignment"
             $flatPolicyEntryKey = $policyId
@@ -386,19 +398,20 @@ function Convert-PolicyResourcesDetailsToFlatList-Documentation {
             }
 
             $effectString = ""
+            $existingOrdinal = $flatPolicyEntry.ordinal
             if ($null -ne $detail.assignmentId) {
                 $isOverridden = $false
                 if ($null -ne $assignmentOverrides -and $assignmentOverrides.Count -gt 0) {
                     # Check if we have an override
                     foreach ($override in $assignmentOverrides) {
                         if ($override.kind -eq "policyEffect") {
-                            $tempEffect = $override.value
+                            $tempEffect = Convert-EffectToCsvString -Effect $override.value
                             foreach ($selector in $override.selectors) {
                                 if ($selector.kind -eq "policyDefinitionReferenceId") {
                                     if ($selector.in -contains $policyDefinitionReferenceId) {
                                         $effectValue = $tempEffect
                                         $perPolicySet.effectReason = "Override"
-                                        $effectString = "$($effectValue) (override))"
+                                        $effectString = "$($effectValue) (override)"
                                         $isOverridden = $true
                                     }
                                 }
@@ -408,7 +421,6 @@ function Convert-PolicyResourcesDetailsToFlatList-Documentation {
                 }
                 if (!$isOverridden) {
                     if ($isEffectParameterized) {
-                        $existingOrdinal = $flatPolicyEntry.ordinal
                         $effectString = "$($effectDefault) (default: $($effectParameterName))"
                         # Best actual value if processing an Assignment
                         $effectValue = $effectDefault
@@ -417,7 +429,7 @@ function Convert-PolicyResourcesDetailsToFlatList-Documentation {
                             if ($assignmentParameters.Keys -contains $effectParameterName) {
                                 # Effect default is replaced by assignment parameter
                                 $assignmentLevelEffectParameter = $assignmentParameters.$effectParameterName
-                                $effectValue = $assignmentLevelEffectParameter.value
+                                $effectValue = Convert-EffectToCsvString -Effect $assignmentLevelEffectParameter.value
                                 $perPolicySet.effectReason = "Assignment"
                                 $effectString = "$($effectValue) (assignment: $($effectParameterName))"
                             }

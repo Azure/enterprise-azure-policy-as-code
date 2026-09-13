@@ -1,0 +1,195 @@
+# This template defines the core sync logic for EPAC ALZ.
+# Called by epac-alz-sync-main.yml with environment-specific parameters.
+parameters:
+  - name: epacVersion
+    type: string
+    default: 'latest'
+  - name: definitionsRootFolder
+    type: string
+    default: './Definitions'
+  - name: projectName
+    type: string
+    default: 'EPAC'
+  - name: gitUserEmail
+    type: string
+    default: 'epac@example.com'
+  - name: gitUserName
+    type: string
+    default: 'EPAC Sync Bot'
+  - name: pacEnvironmentSelector
+    type: string
+    default: 'epac-prod'
+  - name: alzLibraryType
+    type: string
+    values:
+      - 'AMBA'
+      - 'ALZ'
+  - name: storyId # Optional parameter to link created work item task to an existing story in Azure DevOps.
+    type: string 
+    default: '' 
+
+jobs:
+  - job: Sync_EPAC_Policies
+    displayName: 'Sync ${{ parameters.alzLibraryType }} Policies'
+    pool:
+      vmImage: 'ubuntu-latest'
+
+    steps:
+      - checkout: self
+        displayName: 'Checkout Repo'
+        persistCredentials: true
+
+      - script: |
+
+          # Install EPAC module with version handling
+          if [ "${{ parameters.epacVersion }}" = "latest" ]; then
+            echo "🔧 Installing latest version of EPAC"
+            pwsh -Command "Install-Module -Name EnterprisePolicyAsCode -Force -Scope CurrentUser"
+          else
+            echo "🔧 Installing EPAC version ${{ parameters.epacVersion }}"
+            pwsh -Command "Install-Module -Name EnterprisePolicyAsCode -RequiredVersion ${{ parameters.epacVersion }} -Force -Scope CurrentUser"
+          fi
+        displayName: '🔧 Install EPAC Module'
+      
+      - script: | 
+
+          # Install JQ for JSON parsing
+          echo "🔧 Installing JQ..."
+          sudo apt install jq
+        displayName: '🔧 Install JQ'
+
+      - script: |
+      
+          echo "🔧 Installing DevOps extension & setting defaults..."
+          az extension add --name azure-devops
+          az devops configure --defaults organization="${SYSTEM_COLLECTIONURI%/}" project="${{ parameters.projectName }}"
+        displayName: '🔧 Prep Azure DevOps CLI'
+
+      - script: |
+
+          # Parse variables
+          orgUri="${SYSTEM_COLLECTIONURI%/}"  # Trim trailing slash
+          projectName="${PROJECT_NAME}"
+          repoName="${BUILD_REPOSITORY_NAME}"
+          remoteUrl="$orgUri/$projectName/_git/$repoName"
+          BRANCH_NAME="EPAC-${{ parameters.alzLibraryType }}-${BUILD_BUILDNUMBER}"
+
+          echo '🛠️Configuring Git...'
+          git config --global user.email "${{ parameters.gitUserEmail }}"
+          git config --global user.name "${{ parameters.gitUserName }}"
+
+          # Construct Git remote URL   
+          echo "🔗 Constructed remote URL: $remoteUrl"
+          git remote set-url origin "$remoteUrl"
+          echo "✅ Git remote updated successfully."
+          echo "🔄 Preparing to push to branch: $BRANCH_NAME in repo: $repoName"
+
+          echo "Checking out branch: $BRANCH_NAME"
+          git checkout -b $BRANCH_NAME
+
+          # Sync policies
+          echo '🚀Running EPAC Sync...'
+          pwsh -Command "Sync-ALZPolicyFromLibrary -DefinitionsRootFolder \"${{ parameters.definitionsRootFolder }}\" -Type \"${{ parameters.alzLibraryType }}\" -PacEnvironmentSelector \"${{ parameters.pacEnvironmentSelector }}\""
+   
+          echo '🔍Checking for changes after sync...'
+          git add .
+          if ! git diff --cached --quiet; then
+            echo '✅ Changes detected — preparing to commit.'
+            git commit -m "Auto-generated EPAC-${{ parameters.alzLibraryType }} library update"
+
+          # This tells Git to use the OAuth token for that specific push
+            git -c http.extraheader="Authorization: Bearer ${SYSTEM_ACCESSTOKEN}" push -u origin $BRANCH_NAME
+
+          else
+            echo '🟡 No changes detected — skipping commit.'
+            exit 0
+          fi
+        displayName: '🚀 Sync Policies and Commit'
+        env:
+          SYSTEM_ACCESSTOKEN: $(System.AccessToken) # Required for Git operations
+          SYSTEM_COLLECTIONURI: $(System.CollectionUri) 
+          BUILD_REPOSITORY_NAME: $(Build.Repository.Name) 
+          PROJECT_NAME: ${{ parameters.projectName }}
+          GIT_USER_EMAIL: ${{ parameters.gitUserEmail }}
+          GIT_USER_NAME: ${{ parameters.gitUserName }}
+          AZURE_DEVOPS_EXT_PAT: $(System.AccessToken) # Required for Azure CLI to authenticate & create PRs
+
+      - script: |
+
+          # Parse variables
+          repoName="${BUILD_REPOSITORY_NAME}"
+          alzLibraryType="${{ parameters.alzLibraryType }}"
+          PR_BRANCH="EPAC-$alzLibraryType-${BUILD_BUILDNUMBER}"
+          sourceBranch="refs/heads/$PR_BRANCH"
+          targetBranch="refs/heads/main"
+          storyId="${{ parameters.storyId }}"
+          description=$(cat <<EOF
+          Auto-generated PR for EPAC-${{ parameters.alzLibraryType }} policy updates.
+
+          Pipeline Details:
+          - Pipeline Run Link: $(System.TeamFoundationCollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)
+          EOF
+          )
+
+          # Verify the build is running as expected build service
+          echo " 🔍Build running as: $(whoami)"
+
+          # Fetch the target branch 
+          echo " 🎯Fetching target branch 'main' with OAuth token..."
+          git -c http.extraheader="Authorization: Bearer ${SYSTEM_ACCESSTOKEN}" fetch origin main
+          git branch main origin/main
+
+          echo "🌿 Show branches"
+          git branch -a
+
+          #validate branches
+          git show-ref --verify "$sourceBranch" || { echo "❌ Source branch not found. Aborting PR."; exit 1; }
+          git show-ref --verify "$targetBranch" || { echo "❌ Target branch not found. Aborting PR."; exit 1; }
+
+          echo "📦 Verifying remote refs..."
+          az repos ref list --repository "$repoName" | grep "heads/"
+       
+          # Create work item 
+          echo "🆕 Creating Azure Boards work item..."
+          workItemJson=$(az boards work-item create \
+            --project "${{ parameters.projectName }}" \
+            --type "Task" \
+            --title "Auto-generated EPAC-${{ parameters.alzLibraryType }} library update — Build #${BUILD_BUILDNUMBER}" \
+            --description "Created by pipeline run ${BUILD_BUILDNUMBER}" \
+            --query '{id:id}' \
+            --output json)
+
+          workItemId=$(echo "$workItemJson" | jq -r '.id')
+          echo "🔗 Using work item ID: $workItemId"
+
+          # Link work item to story if specified
+          if [ -n "$storyId" ]; then
+            echo "🔗 Linking Task $workItemId to Story $storyId"
+            az boards work-item relation add \
+              --id "$workItemId" \
+              --relation-type "parent" \
+              --target-id "$storyId"
+          fi
+
+          # Create a pull request using Azure CLI - uses project build service implicitly for authentication
+          echo '🧾Creating a pull request targeting the main branch...'
+          prJson=$(az repos pr create \
+            --repository "$repoName" \
+            --source-branch "$sourceBranch" \
+            --target-branch "$targetBranch" \
+            --title "Auto-generated EPAC-${alzLibraryType} library update — Build #${BUILD_BUILDNUMBER}" \
+            --description "$description" \
+            --output json)
+
+          prId=$(echo "$prJson" | jq -r '.pullRequestId')
+
+          echo "🔗 Linking work item $workItemId to PR $prId"
+          az repos pr work-item add \
+            --id "$prId" \
+            --work-items "$workItemId"
+
+        displayName: '👮 Create Pull Request & link Work Item 🔗'
+        env:
+          BUILD_REPOSITORY_NAME: $(Build.Repository.Name) 
+          AZURE_DEVOPS_EXT_PAT: $(System.AccessToken) # Used implicitly by Azure CLI for DevOps auth so it can create PRs
+          SYSTEM_ACCESSTOKEN: $(System.AccessToken) # Required for Git operations

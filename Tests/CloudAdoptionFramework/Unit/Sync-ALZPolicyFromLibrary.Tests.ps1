@@ -1,5 +1,6 @@
 BeforeAll {
     $script:SyncScriptPath = Join-Path $PSScriptRoot '../../../Scripts/CloudAdoptionFramework/Sync-ALZPolicyFromLibrary.ps1'
+    $script:DefaultStructureScriptPath = Join-Path $PSScriptRoot '../../../Scripts/CloudAdoptionFramework/New-ALZPolicyDefaultStructure.ps1'
     $script:DefinitionsRoot = Join-Path $TestDrive 'Definitions'
     $script:LibraryRoot = Join-Path $TestDrive 'library'
     $script:AMBARepoRoot = Join-Path $TestDrive 'amba-source'
@@ -127,6 +128,12 @@ AfterAll {
 }
 
 Describe 'Sync-ALZPolicyFromLibrary' {
+    It 'uses the current ALZ library release by default' {
+        foreach ($scriptPath in @($script:SyncScriptPath, $script:DefaultStructureScriptPath)) {
+            (Get-Content -Path $scriptPath -Raw) | Should -Match '\$Tag = "platform/alz/2026\.08\.1"'
+        }
+    }
+
     It 'syncs AMBA extended policy definitions from the secondary repo' {
         & pwsh -NoLogo -NoProfile -File $script:HelperScriptPath | Out-Null
         $LASTEXITCODE | Should -Be 0

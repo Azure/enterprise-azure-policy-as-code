@@ -438,7 +438,7 @@ function Build-ExemptionsPlan {
                 }
                 else {
                     if (-not (Confirm-ValidPolicyResourceName -Name $name)) {
-                        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "name '$($name.Substring(0, 32))...' contains invalid characters <>*%&:?.+/ or ends with a space." -EntryNumber $entryNumber
+                        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "name '$name' contains invalid characters '%, &, \, ?, /, <, >, :, #, *, +' or control characters, or ends with a space." -EntryNumber $entryNumber
                     }
                     elseif ($name.Length -gt 64) {
                         Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "name too long (max 64 characters)" -EntryNumber $entryNumber
@@ -1453,5 +1453,4 @@ function Build-ExemptionsPlan {
     }
     Write-Information ""
 }
-
 

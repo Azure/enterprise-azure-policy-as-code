@@ -23,6 +23,9 @@
 .PARAMETER StrictMode
     When enabled (default), the script will fail with an error if Policy Definitions referenced by assignments are not found. When disabled, shows warnings and continues.
 
+.PARAMETER FileName
+    Optional documentation definition file name or array of names to process. Accepts a single file, a relative path, or an array of files. When supplied, the script skips per-file confirmation prompts.
+
 .EXAMPLE
     Build-PolicyDocumentation.ps1 -DefinitionsRootFolder "C:\PAC\Definitions" -OutputFolder "C:\PAC\Output" -Interactive
     Builds documentation from instructions in policyDocumentations folder reading the deployed Policy Resources from the EPAC environment.
@@ -36,8 +39,16 @@
     Builds documentation from instructions in policyDocumentations folder reading the deployed Policy Resources from the EPAC environment. The script prompts for the PAC environment and uses the default definitions and output folders. It suppresses prompt for confirmation to delete existing file in interactive mode.
 
 .EXAMPLE
-    Build-PolicyDocumentation.ps1 -StrictMode:$false
-    Builds documentation in non-strict mode. The script will show warnings and continue if any Policy Definitions referenced by assignments are not found, instead of failing with an error.
+Build-PolicyDocumentation.ps1 -DefinitionsRootFolder "C:\PAC\Definitions" -OutputFolder "C:\PAC\Output" -FileName "general-report.jsonc"
+Builds documentation for only the specified documentation definition file without prompting for each file in the folder.
+
+.EXAMPLE
+Build-PolicyDocumentation.ps1 -DefinitionsRootFolder "C:\PAC\Definitions" -OutputFolder "C:\PAC\Output" -FileName @("general-report.jsonc", "security-report.json")
+Builds documentation for multiple specific documentation definition files without prompting for each file.
+
+.EXAMPLE
+Build-PolicyDocumentation.ps1 -StrictMode:$false
+Builds documentation in non-strict mode. The script will show warnings and continue if any Policy Definitions referenced by assignments are not found, instead of failing with an error.
 
 .LINK
     https://azure.github.io/enterprise-azure-policy-as-code/#deployment-scripts
@@ -72,6 +83,10 @@ param (
 
     [parameter(Mandatory = $false, HelpMessage = "Defines which Policy as Code (PAC) environment we are using, if omitted, the script prompts for a value. The values are read from `$DefinitionsRootFolder/global-settings.jsonc.", Position = 0)]
     [string] $pacSelector,
+
+    [parameter(Mandatory = $false, HelpMessage = "Optional documentation definition file name or array of names to process. Values can be a file name, relative path, or full path and, when supplied, the script skips per-file confirmation prompts.")]
+    [Alias('FileNames', 'Files', 'DocumentationFiles')]
+    [string[]] $FileName,
 
     [parameter(Mandatory = $false, HelpMessage = "Will only document assignments that are managed by your defined PAC Owner", Position = 0)]
     [switch] $OnlyCheckManagedAssignments,
@@ -158,7 +173,50 @@ else {
     Write-Error "No documentation definition files found!" -ErrorAction Stop
 }
 
-$processAllFiles = -not $Interactive -or $SuppressConfirmation -or $files.Length -eq 1
+if ($FileName) {
+    $requestedFiles = @($FileName)
+    $matchedFiles = @()
+    foreach ($requestedFile in $requestedFiles) {
+        $requestRelativePath = $requestedFile
+        $resolvedFile = $null
+
+        if ([System.IO.Path]::IsPathRooted($requestedFile)) {
+            $resolvedFile = (Resolve-Path -Path $requestedFile -ErrorAction SilentlyContinue)
+        }
+        else {
+            $candidatePaths = @(
+                (Join-Path -Path $selectedDocumentationFolder -ChildPath $requestedFile),
+                (Join-Path -Path (Get-Location).Path -ChildPath $requestedFile),
+                $requestedFile
+            )
+            foreach ($candidatePath in $candidatePaths) {
+                $resolvedFile = Resolve-Path -Path $candidatePath -ErrorAction SilentlyContinue
+                if ($resolvedFile) {
+                    break
+                }
+            }
+        }
+
+        $match = $files | Where-Object {
+            $_.Name -eq $requestRelativePath -or
+            $_.FullName -eq $resolvedFile.Path -or
+            $_.FullName -eq (Join-Path $selectedDocumentationFolder $requestRelativePath) -or
+            $_.FullName -like "*$([System.Text.RegularExpressions.Regex]::Escape($requestRelativePath))"
+        } | Select-Object -First 1
+
+        if (-not $match) {
+            Write-Error "Documentation file '$requestedFile' was not found in '$selectedDocumentationFolder'." -ErrorAction Stop
+        }
+
+        $matchedFiles += $match
+    }
+
+    $files = @($matchedFiles | Sort-Object -Property FullName -Unique)
+    $selectedFileNames = ($files | ForEach-Object { $_.Name }) -join ', '
+    Write-ModernStatus -Message "Processing selected file(s): $selectedFileNames" -Status "info" -Indent 2
+}
+
+$processAllFiles = $FileName -or (-not $Interactive) -or $SuppressConfirmation -or $files.Length -eq 1
 foreach ($file in $files) {
 
     $processThisFile = $processAllFiles

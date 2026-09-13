@@ -132,6 +132,7 @@ function New-HydrationPolicyDocumentationSourceFile {
     Write-Information "Updating documentAssignments\documentationSpecifications section in the template with assignment information..."
     $documentationHashtable.documentAssignments.documentationSpecifications[0].fileNameStem = $FileNameStem
     $documentationHashtable.documentAssignments.documentationSpecifications[0].environmentCategories = @() # Not used in document all option as it is overridden
+    $documentationHashtable.documentAssignments.documentationSpecifications[0].environmentColumnsInJson = @()
     $documentationHashtable.documentAssignments.documentationSpecifications[0].title = $ReportTitle
     $documentationHashtable.documentAssignments.documentationSpecifications[0].markdownIncludeComplianceGroupNames = $IncludeComplianceGroupNames
     if ($SuppressParameterSection) {

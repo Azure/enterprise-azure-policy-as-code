@@ -9,6 +9,8 @@ function Set-AzPolicyExemptionRestMethod {
         $IdentityApiVersion = "2024-12-01-preview"
     )
 
+    Assert-ValidPolicyResourceName -Name $ExemptionObj.name -ResourceType "Policy exemption"
+
     # Detect identity-based exemption selectors. When present, auto-upgrade the
     # API version because the previously default 2022-07-01-preview does not
     # define userPrincipalId / groupPrincipalId in the Selector.kind enum.
@@ -53,7 +55,8 @@ function Set-AzPolicyExemptionRestMethod {
 
     # Invoke the REST API
     $exemptionJson = ConvertTo-Json $exemption -Depth 100 -Compress
-    $response = Invoke-AzRestMethod -Path "$($ExemptionObj.id)?api-version=$effectiveApiVersion" -Method PUT -Payload $exemptionJson
+    $path = ConvertTo-AzPolicyRestPath -Id $ExemptionObj.id
+    $response = Invoke-AzRestMethod -Path "$($path)?api-version=$effectiveApiVersion" -Method PUT -Payload $exemptionJson
 
     # Process response
     $statusCode = $response.StatusCode
