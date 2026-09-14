@@ -182,6 +182,14 @@ function Get-GlobalSettings {
                 $skipResourceValidationForExemptions = $true
             }
 
+            # Defaults to true. An explicit false is the opt-out for repositories which need the
+            # previous behaviour of granting every member Policy's roles.
+            $filterRoleAssignmentsByEffect = $true
+            $filterRoleAssignmentsByEffectRaw = $pacEnvironment.filterRoleAssignmentsByEffect
+            if ($null -ne $filterRoleAssignmentsByEffectRaw) {
+                $filterRoleAssignmentsByEffect = [bool] $filterRoleAssignmentsByEffectRaw
+            }
+
             $desiredState = @{
                 strategy                             = "undefined"
                 keepDfcSecurityAssignments           = $false
@@ -374,6 +382,7 @@ function Get-GlobalSettings {
                 defaultContext                      = $defaultContext
                 policyDefinitionsScopes             = $policyDefinitionsScopes
                 skipResourceValidationForExemptions = $skipResourceValidationForExemptions
+                filterRoleAssignmentsByEffect       = $filterRoleAssignmentsByEffect
                 doNotDisableDeprecatedPolicies      = $doNotDisableDeprecatedPolicies
                 desiredState                        = $desiredState
                 managedIdentityLocation             = $managedIdentityLocation

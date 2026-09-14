@@ -65,32 +65,35 @@ function Select-PacEnvironment {
     $apiVersions = switch ($pacEnvironment.cloud) {
         AzureChinaCloud {
             @{
-                policyDefinitions    = "2021-06-01"
-                policySetDefinitions = "2023-04-01"
-                policyAssignments    = "2022-06-01"
-                policyExemptions     = "2022-07-01-preview"
-                policyEnrollments    = "2026-01-01-preview"
-                roleAssignments      = "2022-04-01"
+                policyDefinitions           = "2021-06-01"
+                policySetDefinitions        = "2023-04-01"
+                policySetDefinitionVersions = "2023-04-01"
+                policyAssignments           = "2022-06-01"
+                policyExemptions            = "2022-07-01-preview"
+                policyEnrollments           = "2026-01-01-preview"
+                roleAssignments             = "2022-04-01"
             }
         }
         AzureUSGovernment {
             @{
-                policyDefinitions    = "2023-04-01"
-                policySetDefinitions = "2023-04-01"
-                policyAssignments    = "2023-04-01"
-                policyExemptions     = "2024-12-01-preview"
-                policyEnrollments    = "2026-01-01-preview"
-                roleAssignments      = "2022-04-01"
+                policyDefinitions           = "2023-04-01"
+                policySetDefinitions        = "2023-04-01"
+                policySetDefinitionVersions = "2023-04-01"
+                policyAssignments           = "2023-04-01"
+                policyExemptions            = "2024-12-01-preview"
+                policyEnrollments           = "2026-01-01-preview"
+                roleAssignments             = "2022-04-01"
             }
         }
         default {
             @{
-                policyDefinitions    = "2023-04-01"
-                policySetDefinitions = "2023-04-01"
-                policyAssignments    = "2023-04-01"
-                policyExemptions     = "2022-07-01-preview"
-                policyEnrollments    = "2026-01-01-preview"
-                roleAssignments      = "2022-04-01"
+                policyDefinitions           = "2023-04-01"
+                policySetDefinitions        = "2023-04-01"
+                policySetDefinitionVersions = "2023-04-01"
+                policyAssignments           = "2023-04-01"
+                policyExemptions            = "2022-07-01-preview"
+                policyEnrollments           = "2026-01-01-preview"
+                roleAssignments             = "2022-04-01"
             }
         }
     }
