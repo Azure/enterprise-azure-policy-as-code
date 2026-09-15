@@ -52,6 +52,7 @@ For saving the output related to ```Build-DeploymentPlans``` there is global var
 | `BuildExemptionsOnly` | If set, only builds the Exemptions plan. This useful to fast-track Exemption when utilizing [Release Flow](#advanced-cicd-with-release-flow) Default: not set. |
 | `SkipExemptions`| If set exemptions will not be built as part of the plan. |
 | `DetailedOutput` | Displays detailed policy change information. |
+| `ReportMajorVersionUpdates` | Reports available major version updates for built-in Policy and Policy Set definitions referenced by managed Assignments which pin `definitionVersion` (for example `1.*.*` while the built-in has advanced to `2.0.0`). The advisory is written as warnings and added to the plan as `assignments.majorVersionUpdatesAvailable`; no changes are planned. |
 
 ### Policy Deployment
 Deploys Policies, Policy Sets, Policy Assignments, and Policy Exemptions at their desired scope based on the plan.
