@@ -12,7 +12,9 @@ function Build-AssignmentPlan {
         [hashtable] $PolicyRoleIds,
         [hashtable] $CombinedPolicyDetails,
         [hashtable] $DeprecatedHash,
-        [switch] $DetailedOutput
+        [switch] $DetailedOutput,
+        [Parameter(HelpMessage = "If set, report available major version updates for built-in definitions referenced by assignments.")]
+        [switch] $ReportMajorVersionUpdates
     )
 
     Write-ModernSection -Title "Processing Policy Assignments" -Color Blue
@@ -119,6 +121,14 @@ function Build-AssignmentPlan {
     $deployedRoleAssignmentsByPrincipalId = $DeployedPolicyResources.roleAssignmentsByPrincipalId
     $deleteCandidates = $deployedPolicyAssignments.Clone()
     $roleDefinitions = $DeployedPolicyResources.roleDefinitions
+    $allDeployedDefinitions = @{}
+    foreach ($definitionId in $DeployedPolicyResources.policydefinitions.all.Keys) {
+        $allDeployedDefinitions[$definitionId] = $DeployedPolicyResources.policydefinitions.all.$definitionId
+    }
+    foreach ($definitionId in $DeployedPolicyResources.policysetdefinitions.all.Keys) {
+        $allDeployedDefinitions[$definitionId] = $DeployedPolicyResources.policysetdefinitions.all.$definitionId
+    }
+    $majorVersionUpdates = [System.Collections.ArrayList]::new()
     $excludedPolicyAssignmentFiles = if ($null -ne $PacEnvironment.desiredState.excludedPolicyAssignmentFiles) {
         @($PacEnvironment.desiredState.excludedPolicyAssignmentFiles)
     } else { @() }
@@ -210,6 +220,25 @@ function Build-AssignmentPlan {
             $nonComplianceMessages = $assignment.nonComplianceMessages
             $overrides = $assignment.overrides
             $resourceSelectors = $assignment.resourceSelectors
+
+            if ($ReportMajorVersionUpdates) {
+                # An assignment which pins a major version does not follow a new major version of a built-in definition
+                $effectiveDefinitionVersion = $definitionVersion
+                if ([string]::IsNullOrWhiteSpace($effectiveDefinitionVersion) -and $deployedPolicyAssignments.ContainsKey($id)) {
+                    $effectiveDefinitionVersion = (Get-PolicyResourceProperties $deployedPolicyAssignments.$id).definitionVersion
+                }
+                $majorVersionUpdate = Get-BuiltInMajorVersionUpdate `
+                    -PolicyDefinitionId $policyDefinitionId `
+                    -DefinitionVersion $effectiveDefinitionVersion `
+                    -PolicyDefinition $allDeployedDefinitions[$policyDefinitionId]
+                if ($null -ne $majorVersionUpdate) {
+                    $majorVersionUpdate.assignmentId = $id
+                    $majorVersionUpdate.assignmentDisplayName = $displayName
+                    $majorVersionUpdate.scope = $scope
+                    $null = $majorVersionUpdates.Add($majorVersionUpdate)
+                }
+            }
+
             if ($deployedPolicyAssignments.ContainsKey($id)) {
                 # Update and replace scenarios
                 $deployedPolicyAssignment = $deployedPolicyAssignments[$id]
@@ -471,6 +500,24 @@ function Build-AssignmentPlan {
                     }
                 }
             } 
+        }
+    }
+
+    if ($ReportMajorVersionUpdates) {
+        $Assignments.majorVersionUpdatesAvailable = $majorVersionUpdates.ToArray()
+        if ($majorVersionUpdates.Count -gt 0) {
+            Write-ModernStatus -Message "Major version updates available for built-in definitions used by $($majorVersionUpdates.Count) assignment(s)" -Status "warning" -Indent 2
+            $groupedUpdates = $majorVersionUpdates | Group-Object -Property { "$($_.policyDefinitionId)|$($_.assignedVersion)" }
+            foreach ($groupedUpdate in $groupedUpdates) {
+                $first = $groupedUpdate.Group[0]
+                Write-Warning "Built-in '$($first.displayName)' has version $($first.latestVersion) available; $($groupedUpdate.Count) assignment(s) pinned to definitionVersion '$($first.assignedVersion)'"
+                foreach ($update in $groupedUpdate.Group) {
+                    Write-ModernStatus -Message "$($update.assignmentDisplayName) at $($update.scope): '$($update.assignedVersion)' -> major version $($update.latestMajor) available" -Status "warning" -Indent 4
+                }
+            }
+        }
+        else {
+            Write-ModernStatus -Message "No major version updates available for built-in definitions used by assignments" -Status "info" -Indent 2
         }
     }
 

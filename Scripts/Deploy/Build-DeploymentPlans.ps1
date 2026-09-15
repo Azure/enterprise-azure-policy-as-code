@@ -28,6 +28,9 @@
 .PARAMETER SkipNotScopedExemptions
     If set, skip exemptions that are not scoped.
 
+.PARAMETER ReportMajorVersionUpdates
+    If set, reports available major version updates for built-in Policy and Policy Set definitions referenced by managed assignments which pin definitionVersion.
+
 .EXAMPLE
     .\Build-DeploymentPlans.ps1 -PacEnvironmentSelector "dev"
 
@@ -73,7 +76,10 @@ param (
     [bool] $FailOnExemptionError = $false,
 
     [Parameter(HelpMessage = "If set, shows detailed line-by-line diffs similar to terraform plan.")]
-    [switch] $DetailedOutput
+    [switch] $DetailedOutput,
+
+    [Parameter(HelpMessage = "If set, reports available major version updates for built-in Policy and Policy Set definitions referenced by managed assignments which pin definitionVersion.")]
+    [switch] $ReportMajorVersionUpdates
 )
 
 $PSDefaultParameterValues = @{
@@ -445,7 +451,8 @@ if ($buildSelections.buildAny) {
             -PolicyRoleIds $policyRoleIds `
             -CombinedPolicyDetails $combinedPolicyDetails `
             -DeprecatedHash $deprecatedHash `
-            -DetailedOutput:$DetailedOutput
+            -DetailedOutput:$DetailedOutput `
+            -ReportMajorVersionUpdates:$ReportMajorVersionUpdates
     }
 
     if ($buildSelections.buildPolicyEnrollments) {
