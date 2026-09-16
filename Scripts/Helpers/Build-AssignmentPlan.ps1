@@ -13,7 +13,7 @@ function Build-AssignmentPlan {
         [hashtable] $CombinedPolicyDetails,
         [hashtable] $DeprecatedHash,
         [switch] $DetailedOutput,
-        [Parameter(HelpMessage = "If set, report available major version updates for built-in definitions referenced by assignments.")]
+        [Parameter(HelpMessage = "If set, report built-in definition version status for every assignment, including available major version updates.")]
         [switch] $ReportMajorVersionUpdates
     )
 
@@ -128,7 +128,7 @@ function Build-AssignmentPlan {
     foreach ($definitionId in $DeployedPolicyResources.policysetdefinitions.all.Keys) {
         $allDeployedDefinitions[$definitionId] = $DeployedPolicyResources.policysetdefinitions.all.$definitionId
     }
-    $majorVersionUpdates = [System.Collections.ArrayList]::new()
+    $versionStatuses = [System.Collections.ArrayList]::new()
     $excludedPolicyAssignmentFiles = if ($null -ne $PacEnvironment.desiredState.excludedPolicyAssignmentFiles) {
         @($PacEnvironment.desiredState.excludedPolicyAssignmentFiles)
     } else { @() }
@@ -222,21 +222,23 @@ function Build-AssignmentPlan {
             $resourceSelectors = $assignment.resourceSelectors
 
             if ($ReportMajorVersionUpdates) {
-                # An assignment which pins a major version does not follow a new major version of a built-in definition
-                $effectiveDefinitionVersion = $definitionVersion
-                if ([string]::IsNullOrWhiteSpace($effectiveDefinitionVersion) -and $deployedPolicyAssignments.ContainsKey($id)) {
-                    $effectiveDefinitionVersion = (Get-PolicyResourceProperties $deployedPolicyAssignments.$id).definitionVersion
+                # Evaluate every assignment, not only the ones pinning a version in the definition
+                # files: Azure stamps '{latestMajor}.*.*' on assignments created without a version,
+                # so an unpinned assignment silently stops at that major version.
+                $deployedDefinitionVersion = $null
+                if ($deployedPolicyAssignments.ContainsKey($id)) {
+                    $deployedDefinitionVersion = (Get-PolicyResourceProperties $deployedPolicyAssignments.$id).definitionVersion
                 }
-                $majorVersionUpdate = Get-BuiltInMajorVersionUpdate `
+                $versionStatus = Get-BuiltInVersionStatus `
                     -PolicyDefinitionId $policyDefinitionId `
-                    -DefinitionVersion $effectiveDefinitionVersion `
+                    -DefinitionVersion $definitionVersion `
+                    -DeployedDefinitionVersion $deployedDefinitionVersion `
                     -PolicyDefinition $allDeployedDefinitions[$policyDefinitionId]
-                if ($null -ne $majorVersionUpdate) {
-                    $majorVersionUpdate.assignmentId = $id
-                    $majorVersionUpdate.assignmentDisplayName = $displayName
-                    $majorVersionUpdate.scope = $scope
-                    $null = $majorVersionUpdates.Add($majorVersionUpdate)
-                }
+                $versionStatus.assignmentId = $id
+                $versionStatus.assignmentDisplayName = $displayName
+                $versionStatus.scope = $scope
+                $versionStatus.isNewAssignment = -not $deployedPolicyAssignments.ContainsKey($id)
+                $null = $versionStatuses.Add($versionStatus)
             }
 
             if ($deployedPolicyAssignments.ContainsKey($id)) {
@@ -504,15 +506,30 @@ function Build-AssignmentPlan {
     }
 
     if ($ReportMajorVersionUpdates) {
-        $Assignments.majorVersionUpdatesAvailable = $majorVersionUpdates.ToArray()
+        $majorVersionUpdates = @($versionStatuses | Where-Object { $_.updateAvailable })
+        $Assignments.majorVersionUpdatesAvailable = $majorVersionUpdates
+        $Assignments.definitionVersionStatuses = $versionStatuses.ToArray()
+
+        Write-ModernStatus -Message "Checked $($versionStatuses.Count) assignment(s) for built-in major version updates" -Status "info" -Indent 2
+        $counts = [ordered]@{
+            current      = @($versionStatuses | Where-Object { $_.status -eq "current" }).Count
+            tracksLatest = @($versionStatuses | Where-Object { $_.status -eq "tracksLatest" }).Count
+            custom       = @($versionStatuses | Where-Object { $_.status -eq "custom" }).Count
+            unknown      = @($versionStatuses | Where-Object { $_.status -eq "unknown" }).Count
+        }
+        Write-ModernStatus -Message "On latest major: $($counts.current), tracking latest: $($counts.tracksLatest), custom definitions: $($counts.custom), undetermined: $($counts.unknown)" -Status "info" -Indent 2
+
         if ($majorVersionUpdates.Count -gt 0) {
             Write-ModernStatus -Message "Major version updates available for built-in definitions used by $($majorVersionUpdates.Count) assignment(s)" -Status "warning" -Indent 2
             $groupedUpdates = $majorVersionUpdates | Group-Object -Property { "$($_.policyDefinitionId)|$($_.assignedVersion)" }
             foreach ($groupedUpdate in $groupedUpdates) {
                 $first = $groupedUpdate.Group[0]
-                Write-Warning "Built-in '$($first.displayName)' has version $($first.latestVersion) available; $($groupedUpdate.Count) assignment(s) pinned to definitionVersion '$($first.assignedVersion)'"
+                Write-Warning "Built-in '$($first.displayName)' has version $($first.latestVersion) available; $($groupedUpdate.Count) assignment(s) effectively on major version $($first.assignedMajor) ('$($first.assignedVersion)')"
                 foreach ($update in $groupedUpdate.Group) {
-                    Write-ModernStatus -Message "$($update.assignmentDisplayName) at $($update.scope): '$($update.assignedVersion)' -> major version $($update.latestMajor) available" -Status "warning" -Indent 4
+                    # An assignment which pins nothing in the definition files is held at this major
+                    # version by the value Azure stamped when the assignment was created.
+                    $sourceText = if ($update.assignedVersionFrom -eq "deployed") { " (pinned by Azure, not by the definition files)" } else { "" }
+                    Write-ModernStatus -Message "$($update.assignmentDisplayName) at $($update.scope): '$($update.assignedVersion)' -> major version $($update.latestMajor) available$sourceText" -Status "warning" -Indent 4
                 }
             }
         }

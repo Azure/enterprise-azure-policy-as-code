@@ -29,7 +29,7 @@
     If set, skip exemptions that are not scoped.
 
 .PARAMETER ReportMajorVersionUpdates
-    If set, reports available major version updates for built-in Policy and Policy Set definitions referenced by managed assignments which pin definitionVersion.
+    If set, reports available major version updates for built-in Policy and Policy Set definitions used by managed assignments. Every assignment is checked, including those which do not pin definitionVersion, because Azure stamps a major version on assignments created without one.
 
 .EXAMPLE
     .\Build-DeploymentPlans.ps1 -PacEnvironmentSelector "dev"
@@ -78,7 +78,7 @@ param (
     [Parameter(HelpMessage = "If set, shows detailed line-by-line diffs similar to terraform plan.")]
     [switch] $DetailedOutput,
 
-    [Parameter(HelpMessage = "If set, reports available major version updates for built-in Policy and Policy Set definitions referenced by managed assignments which pin definitionVersion.")]
+    [Parameter(HelpMessage = "If set, reports available major version updates for built-in Policy and Policy Set definitions used by managed assignments. Every assignment is checked, including those which do not pin definitionVersion.")]
     [switch] $ReportMajorVersionUpdates
 )
 
