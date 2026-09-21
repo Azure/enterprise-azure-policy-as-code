@@ -171,6 +171,11 @@ function Build-AssignmentDefinitionAtLeaf {
             $hasErrors = $true
             continue
         }
+        elseif ($name.Length -gt 24) {
+            Write-Error "    Leaf Node $($nodeName): Assignment name '$name' is $($name.Length) characters long; Azure limits Policy Assignment names to 24 characters. Shorten the concatenated assignment name."
+            $hasErrors = $true
+            continue
+        }
         $enforcementMode = $AssignmentDefinition.enforcementMode
         $metadata = Get-DeepCloneAsOrderedHashtable $AssignmentDefinition.metadata
         if ($metadata.ContainsKey("pacOwnerId")) {
