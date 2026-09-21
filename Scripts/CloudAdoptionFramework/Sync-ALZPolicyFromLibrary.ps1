@@ -1122,15 +1122,66 @@ try {
 
                 if ($Type -eq "AMBA" -and $fileContent.name -in $ambaAssignmentsRequiringAdditionalRoleAssignments) {
                     $managementScopeValue = $structureFile.managementGroupNameMappings.management.value
-                    $additionalRoleAssignments = @{
-                        $PacEnvironmentSelector = @(
-                            [ordered]@{
-                                roleDefinitionId = "/providers/microsoft.authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830"
-                                scope            = $managementScopeValue
-                            }
-                        )
+                    # Only add the additional role assignment when the identity remediating the policy needs
+                    # access to the "management" management group from a different assignment scope. When the
+                    # assignment is already scoped to "management" (e.g. Deploy-AMBA-Management), EPAC already
+                    # auto-assigns the required roles at the assignment scope, so adding it here is redundant
+                    # and results in a role assignment with an empty principalId at deployment time.
+                    $assignmentScopeValues = @($scope[$PacEnvironmentSelector])
+                    if ($assignmentScopeValues -notcontains $managementScopeValue) {
+                        $additionalRoleAssignments = @{
+                            $PacEnvironmentSelector = @(
+                                [ordered]@{
+                                    roleDefinitionId = "/providers/microsoft.authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830"
+                                    scope            = $managementScopeValue
+                                }
+                            )
+                        }
+                        $baseTemplate.Add("additionalRoleAssignments", $additionalRoleAssignments)
                     }
-                    $baseTemplate.Add("additionalRoleAssignments", $additionalRoleAssignments)
+                }
+
+                $alzVmInsightsAssignmentsRequiringAdditionalRoleAssignments = @(
+                    "Deploy-VM-Monitoring",
+                    "Deploy-VM-ChangeTrack",
+                    "Deploy-VMSS-Monitoring",
+                    "Deploy-vmHybr-Monitoring"
+                )
+
+                if ($Type -eq "ALZ" -and $fileContent.name -in $alzVmInsightsAssignmentsRequiringAdditionalRoleAssignments) {
+                    $additionalRoleAssignmentEntries = @()
+
+                    # VM Insights / Change Tracking policies support bringing your own user-assigned managed
+                    # identity that can live outside the assignment's own scope. When that is the case, the
+                    # remediation identity needs Managed Identity Operator on the user-assigned identity so it
+                    # can be assigned to VMs.
+                    if ($baseTemplate.parameters.Contains("userAssignedIdentityResourceId") -and `
+                        $baseTemplate.parameters.Contains("bringYourOwnUserAssignedManagedIdentity") -and `
+                            $baseTemplate.parameters["bringYourOwnUserAssignedManagedIdentity"] -eq $true -and `
+                        (-not $baseTemplate.parameters.Contains("restrictBringYourOwnUserAssignedIdentityToSubscription") -or `
+                                $baseTemplate.parameters["restrictBringYourOwnUserAssignedIdentityToSubscription"] -eq $false)) {
+                        $additionalRoleAssignmentEntries += [ordered]@{
+                            roleDefinitionId = "/providers/microsoft.authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830"
+                            scope            = $baseTemplate.parameters["userAssignedIdentityResourceId"]
+                        }
+                    }
+
+                    # These same policies (and Deploy-vmHybr-Monitoring, which uses a system-assigned identity)
+                    # read a Data Collection Rule that can also live outside the assignment's scope. The
+                    # remediation identity needs Monitoring Reader on the DCR to read it.
+                    if ($baseTemplate.parameters.Contains("dcrResourceId")) {
+                        $additionalRoleAssignmentEntries += [ordered]@{
+                            roleDefinitionId = "/providers/microsoft.authorization/roleDefinitions/43d0d8ad-25c7-4714-9337-8ba259a9fe05"
+                            scope            = $baseTemplate.parameters["dcrResourceId"]
+                        }
+                    }
+
+                    if ($additionalRoleAssignmentEntries.Count -gt 0) {
+                        $additionalRoleAssignments = @{
+                            $PacEnvironmentSelector = @($additionalRoleAssignmentEntries)
+                        }
+                        $baseTemplate.Add("additionalRoleAssignments", $additionalRoleAssignments)
+                    }
                 }
             }
             else {
@@ -1221,11 +1272,15 @@ try {
                 ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope, additionalRoleAssignments | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$effectiveAssignmentName.jsonc" -Force -ErrorAction SilentlyContinue
                 (Get-Content "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$effectiveAssignmentName.jsonc") -replace "\.ne\.", ".$dnsZoneRegion." | Set-Content "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$effectiveAssignmentName.jsonc"
             }
-            elseif ($Type -eq "AMBA" -and $fileContent.name -in $ambaAssignmentsRequiringAdditionalRoleAssignments) {
-                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope, additionalRoleAssignments | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$effectiveAssignmentName.jsonc" -Force -ErrorAction SilentlyContinue
-            }
             else {
-                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$effectiveAssignmentName.jsonc" -Force -ErrorAction SilentlyContinue
+                # Only select the additionalRoleAssignments property when it was actually generated above,
+                # otherwise Select-Object would emit "additionalRoleAssignments": null for every assignment
+                # that doesn't need one.
+                $propertiesToSelect = @("`$schema", "nodeName", "assignment", "definitionEntry", "definitionVersion", "enforcementMode", "parameters", "nonComplianceMessages", "scope")
+                if ($baseTemplate.Contains("additionalRoleAssignments")) {
+                    $propertiesToSelect += "additionalRoleAssignments"
+                }
+                ([PSCustomObject]$baseTemplate | Select-Object -Property $propertiesToSelect | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$effectiveAssignmentName.jsonc" -Force -ErrorAction SilentlyContinue
             }
             $obj = [PSCustomObject]@{
                 Path = "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$effectiveAssignmentName.jsonc"
