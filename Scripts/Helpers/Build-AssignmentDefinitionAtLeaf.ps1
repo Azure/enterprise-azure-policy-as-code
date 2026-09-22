@@ -29,6 +29,18 @@ function Build-AssignmentDefinitionAtLeaf {
         $hasErrors = $true
     }
 
+    # Azure limits Policy Assignment names to 24 characters when the assignment scope is a Management Group;
+    # at Subscription or Resource Group scope, the limit is 64 characters.
+    $maxAssignmentNameLength = 64
+    if ($null -ne $scopeCollection) {
+        foreach ($scopeDefinition in $scopeCollection) {
+            if ($scopeDefinition.scope -like "/providers/Microsoft.Management/managementGroups/*") {
+                $maxAssignmentNameLength = 24
+                break
+            }
+        }
+    }
+
     #endregion Validate required fields
 
     #region cache frequently used fields
@@ -171,8 +183,8 @@ function Build-AssignmentDefinitionAtLeaf {
             $hasErrors = $true
             continue
         }
-        elseif ($name.Length -gt 24) {
-            Write-Error "    Leaf Node $($nodeName): Assignment name '$name' is $($name.Length) characters long; Azure limits Policy Assignment names to 24 characters. Shorten the concatenated assignment name."
+        elseif ($name.Length -gt $maxAssignmentNameLength) {
+            Write-Error "    Leaf Node $($nodeName): Assignment name '$name' is $($name.Length) characters long; Azure limits Policy Assignment names to $maxAssignmentNameLength characters at this scope. Shorten the concatenated assignment name."
             $hasErrors = $true
             continue
         }
