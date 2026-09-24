@@ -3,8 +3,35 @@ function Set-AzPolicyExemptionRestMethod {
     param (
         $ExemptionObj,
         $ApiVersion,
-        $FailOnExemptionError
+        $FailOnExemptionError,
+        # Minimum API version required for identity-based exemption selector kinds
+        # (userPrincipalId, groupPrincipalId). Added in 2024-12-01-preview.
+        $IdentityApiVersion = "2024-12-01-preview"
     )
+
+    Assert-ValidPolicyResourceName -Name $ExemptionObj.name -ResourceType "Policy exemption"
+
+    # Detect identity-based exemption selectors. When present, auto-upgrade the
+    # API version because the previously default 2022-07-01-preview does not
+    # define userPrincipalId / groupPrincipalId in the Selector.kind enum.
+    $effectiveApiVersion = $ApiVersion
+    $hasIdentitySelector = $false
+    if ($ExemptionObj.resourceSelectors) {
+        foreach ($rs in $ExemptionObj.resourceSelectors) {
+            if ($null -ne $rs.selectors) {
+                foreach ($s in $rs.selectors) {
+                    if ($s.kind -eq "userPrincipalId" -or $s.kind -eq "groupPrincipalId") {
+                        $hasIdentitySelector = $true
+                        break
+                    }
+                }
+            }
+            if ($hasIdentitySelector) { break }
+        }
+    }
+    if ($hasIdentitySelector -and $effectiveApiVersion -ne $IdentityApiVersion) {
+        $effectiveApiVersion = $IdentityApiVersion
+    }
 
     # Write log info
     Write-ModernStatus -Message "Setting policy at scope: $($ExemptionObj.scope)" -Status "info" -Indent 4
@@ -28,7 +55,8 @@ function Set-AzPolicyExemptionRestMethod {
 
     # Invoke the REST API
     $exemptionJson = ConvertTo-Json $exemption -Depth 100 -Compress
-    $response = Invoke-AzRestMethod -Path "$($ExemptionObj.id)?api-version=$ApiVersion" -Method PUT -Payload $exemptionJson
+    $path = ConvertTo-AzPolicyRestPath -Id $ExemptionObj.id
+    $response = Invoke-AzRestMethod -Path "$($path)?api-version=$effectiveApiVersion" -Method PUT -Payload $exemptionJson
 
     # Process response
     $statusCode = $response.StatusCode

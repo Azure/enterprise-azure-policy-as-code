@@ -30,10 +30,15 @@ Desired State strategy enables you to adjust the default behavior to fit more co
 | `excludedScopes` | An array of scopes to exclude from management by EPAC. Wild cards are supported. | Empty array |
 | `excludedPolicyDefinitions` | An array of Policy Definitions to exclude from management by EPAC. Wild cards are supported. | Empty array |
 | `excludedPolicySetDefinitions` | An array of Policy Set Definitions to exclude from management by EPAC. Wild cards are supported. | Empty array |
+| `excludedPolicyDefinitionFiles` | An array of Policy Definition file names to exclude from management by EPAC. | Empty array |
+| `excludedPolicySetDefinitionFiles` | An array of Policy Set Definition file names to exclude from management by EPAC. | Empty array |
 | `excludedPolicyAssignments` | An array of Policy Assignments to exclude from management by EPAC. Wild cards are supported. | Empty array |
+| `excludedPolicyAssignmentFiles` | An array of Policy Assignment file names to exclude from management by EPAC per pacSelector. | Empty array |
 | `doNotDisableDeprecatedPolicies` | Automatically set deprecated policies' policy effect to "Disabled". This setting can be used to override that behavior by setting it to `true`. | `false` |
 | `excludeSubscriptions` | Exclude all subscription under the deployment root scope. Designed for environments containing many frequently updated subscriptions that are not requiring management and where using `excludedScopes` would be impractical to maintain. If resource groups are added `excludedScopes` they will be ignored as this setting will take precedence by virtue of the fact that it excludes all Subscriptions, which by definition contain all Resource Groups. It will not effect excluded management group scopes. | `false` |
 | `keepDfcPlanAssignments` | Choose whether EPAC should delete Azure Policies deployed by Defender for Cloud that are associated with DFC Plans. Once the policies are deleted, the action is irreversible. This is only recommended if you are confident that you are managing and deploying the policies through EPAC, rather than relying on Defender for Cloud to manage the Azure Policies related to each plan. | `true` |
+| `manageChildScopeDefinitions` | When set to `true`, EPAC will also manage Policy Definitions and Policy Set Definitions deployed at **child scopes** (child management groups, subscriptions) under the `deploymentRootScope`. By default, EPAC only manages definitions at the `deploymentRootScope` itself — definitions at child scopes are ignored. See [Managing Child Scope Definitions](#managing-child-scope-definitions) below. | `false` |
+| `cleanupObsoleteExemptions` | When set to `true`, EPAC will delete Policy Exemptions that reference Policy Assignments no longer present in the environment. This prevents stale exemptions from accumulating over time as assignments are removed. | `false` |
 
 The following example shows the `desiredState` element with all properties set:
 
@@ -45,10 +50,12 @@ The following example shows the `desiredState` element with all properties set:
     "cleanupObsoleteExemptions"            = false
     "excludeSubscriptions"                 = false
     "doNotDisableDeprecatedPolicies"       = false
+    "manageChildScopeDefinitions"          = false
     "excludedScopes"                       = []
     "excludedPolicyDefinitions"            = []
     "excludedPolicySetDefinitions"         = []
     "excludedPolicyAssignments"            = []
+    "excludedPolicyAssignmentFiles"        = []
 }
 ```
 
@@ -105,7 +112,7 @@ In some organizations the lifecycle of different parts may be managed separately
 
 EPAC only manages items with a directory in the `Definitions` folder. Therefore, you can use the same `pacOwnerId` from two repos and remove the folders to separate them. In this example:
 
-- Repo1: `Definitions` contains `policyDefinitions`, `policySetDefinitions` and `policyAssignments` folders.
+- Repo1: `Definitions` contains `policyDefinitions`, `policySetDefinitions`, `policyAssignments`, and optionally `policyEnrollments` folders.
 - Repo2: `Definitions` contains `policyExemptions` folder.
 
 Policy resource that would be defined in the folder. It is important to remove the folders. GitHub repos remove empty folder automatically.
@@ -118,8 +125,7 @@ In a shared responsibility model multiple teams manage the same tenant(s) at the
 
 ![image.png](Images/shared-responsibility.png)
 
-For standard behavior where each repo manages, no additional entries in `global-settings.jsonc` are necessary since the default strategy `full` is the default. `full` deletes any Policy resources without a `pacOwnerId`; however, id does not delete Policy resources with a different `pacOwnerId`.
-[test](settings-desired-state.md#use-case-4-multiple-teams-in-a-hierarchical-organization)
+For standard behavior where each repo manages, no additional entries in `global-settings.jsonc` are necessary since the default strategy `full` is the default. `full` deletes any Policy resources without a `pacOwnerId`; however, it does not delete Policy resources with a different `pacOwnerId`.
 
 ## Use Case 4:  Multiple Teams in a Hierarchical Organization
 
@@ -164,11 +170,14 @@ This happens when EPAC `strategy` is `full` and some child scopes contain Policy
 | Subscriptions | `desiredState.excludeSubscriptions` | Preferred way to exclude all Subscriptions within a pacSelector |
 | Policy Definitions | `desiredState.excludedPolicyDefinitions` | Exclude specific Policy Definitions |
 | Policy Set Definitions | `desiredState.excludedPolicySetDefinitions` | Exclude specific Policy Set Definitions |
+| Policy Definition Files | `desiredState.excludedPolicyDefinitionFiles` | Exclude specific Policy Definition Files |
+| Policy Set Definition Files | `desiredState.excludedPolicySetDefinitionFiles` | Exclude specific Policy Set Definition Files |
 | Policy Assignments | `desiredState.excludedPolicyAssignments` | Exclude specific Policy Assignments |
+| Policy Assignment Files | `desiredState.excludedPolicyAssignmentFiles` | Exclude specific Policy Assignment Files per pacSelector. *This is **only** necessary if a custom policy explicitly references a ResourceId as the object cannot exist in two scopes unless they overlap, which is an anti-pattern.* |
 
 > **Note:** `"/subscriptions/subscriptionsPattern/*"` is also a valid `excludedScopes` value, but is more commonly used for name based filtering
 
-You can exclude any combination of `excludedScopes`, `excludedPolicyDefinitions`, `excludedPolicySetDefinitions` and `excludedPolicyAssignments`. Any of the strings can contain simple wild cards. See [PolicyAssignment](./policy-assignments.md) documentation for further information.
+You can exclude any combination of `excludedScopes`, `excludedPolicyDefinitions`, `excludedPolicySetDefinitions`, `excludedPolicyAssignments`, and `excludedPolicyAssignmentFiles`. Any of the strings can contain simple wild cards. See [PolicyAssignment](./policy-assignments.md) documentation for further information.
 
 ```json
 "desiredState": {
@@ -187,8 +196,45 @@ You can exclude any combination of `excludedScopes`, `excludedPolicyDefinitions`
     ],
     "excludedPolicyAssignments": [
         "/subscriptions/*/providers/Microsoft.Authorization/policyAssignments/my-*"
+    ],
+    "excludedPolicyAssignmentFiles": [
+        "my-assignments-file.jsonc"
     ]
 }
 ```
 
 ![image.png](Images/shared-excluded.png)
+
+## Managing Child Scope Definitions
+
+By default, EPAC only manages Policy Definitions and Policy Set Definitions at the `deploymentRootScope`. Definitions deployed at child management groups or subscriptions are **not** tracked and will not be deleted, even if they were originally deployed by EPAC or another Policy as Code solution.
+
+Setting `manageChildScopeDefinitions` to `true` brings these child-scope definitions into EPAC's management scope. This is useful when:
+
+- A previous EPAC deployment used a different `deploymentRootScope` and left orphaned definitions at child management groups
+- Definitions were manually deployed at child scopes and need to be cleaned up
+- You want full governance over all custom definitions across the entire management group hierarchy
+
+> [!CAUTION]
+> Enabling this setting makes child-scope definitions eligible for deletion. The `strategy` setting controls which definitions are actually deleted:
+>
+> | `strategy` | Behavior with `manageChildScopeDefinitions: true` |
+> |---|---|
+> | `ownedOnly` | Only deletes child-scope definitions that have this EPAC instance's `pacOwnerId` in their metadata. Definitions from other tools or without `pacOwnerId` are preserved. |
+> | `full` | Deletes child-scope definitions owned by this EPAC instance **and** any with unknown ownership (no `pacOwnerId`). Definitions owned by another EPAC instance (`otherPaC`) are still preserved. |
+
+> [!TIP]
+> When first enabling this feature, we recommend using `strategy: "ownedOnly"` to limit deletions to definitions previously deployed by this EPAC instance. Once you have validated the plan output, you can switch to `strategy: "full"` if broader cleanup is desired.
+
+### Example
+
+```json
+"desiredState": {
+    "strategy": "ownedOnly",
+    "keepDfcSecurityAssignments": false,
+    "manageChildScopeDefinitions": true
+}
+```
+
+> [!NOTE]
+> The `excludedScopes`, `excludedPolicyDefinitions`, and `excludedPolicySetDefinitions` settings are respected when `manageChildScopeDefinitions` is enabled. You can use these to selectively exclude specific child scopes or definitions from cleanup.

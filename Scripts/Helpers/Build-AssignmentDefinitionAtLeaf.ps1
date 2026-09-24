@@ -29,6 +29,18 @@ function Build-AssignmentDefinitionAtLeaf {
         $hasErrors = $true
     }
 
+    # Azure limits Policy Assignment names to 24 characters when the assignment scope is a Management Group;
+    # at Subscription or Resource Group scope, the limit is 64 characters.
+    $maxAssignmentNameLength = 64
+    if ($null -ne $scopeCollection) {
+        foreach ($scopeDefinition in $scopeCollection) {
+            if ($scopeDefinition.scope -like "/providers/Microsoft.Management/managementGroups/*") {
+                $maxAssignmentNameLength = 24
+                break
+            }
+        }
+    }
+
     #endregion Validate required fields
 
     #region cache frequently used fields
@@ -56,26 +68,34 @@ function Build-AssignmentDefinitionAtLeaf {
     #region Validate optional parameterFileName, parameterSelector, nonComplianceMessageColumn
 
     $useCsv = $false
+    $parameterFileType = if ($null -ne $parameterFileName) { [System.IO.Path]::GetExtension($parameterFileName).ToLowerInvariant() } else { $null }
+    $isJsonParameterFile = $parameterFileType -in @('.json','.jsonc')
     if ($null -ne $parameterFileName) {
         if (!$hasPolicySets) {
-            Write-Error "    Leaf Node $($nodeName): CSV parameterFileName ($parameterFileName) can only be applied to Policy Set(s). This tree branch ($nodeName) does not contain definitionEntries for Policy Sets."
+            Write-Error "    Leaf Node $($nodeName): parameterFileName ($parameterFileName) can only be applied to Policy Set(s). This tree branch ($nodeName) does not contain definitionEntries for Policy Sets."
             $hasErrors = $true
         }
         if ($overrides.Count -gt 0) {
-            Write-Error "    Leaf Node $($nodeName): CSV parameterFileName ($parameterFileName) usage and explicit overrides are not allowed in the same branch." -ErrorAction Continue
+            Write-Error "    Leaf Node $($nodeName): parameterFileName ($parameterFileName) usage and explicit overrides are not allowed in the same branch." -ErrorAction Continue
             $hasErrors = $true
         }
         if ($null -ne $nonComplianceMessageColumn) {
             if ($nonComplianceMessages.Count -gt 0 -or $perEntryNonComplianceMessages) {
-                Write-Error "    Leaf Node $($nodeName): CSV parameterFileName ($parameterFileName) usage of nonComplianceMessageColumn ($nonComplianceMessageColumn) and explicit nonComplianceMessages are not allowed in the same branch." -ErrorAction Continue
+                Write-Error "    Leaf Node $($nodeName): parameterFileName ($parameterFileName) usage of nonComplianceMessageColumn ($nonComplianceMessageColumn) and explicit nonComplianceMessages are not allowed in the same branch." -ErrorAction Continue
                 $hasErrors = $true
             }
         }
         if ($null -ne $parameterSelector) {
-            $useCsv = $true
+            if ($isJsonParameterFile) {
+                Write-Error "    Leaf Node $($nodeName): parameterSelector ($parameterSelector) cannot be used with a JSON parameter file ($parameterFileName)." -ErrorAction Continue
+                $hasErrors = $true
+            }
+            else {
+                $useCsv = $true
+            }
         }
-        else {
-            Write-Error "    Leaf Node $($nodeName): CSV parameterFileName ($parameterFileName) usage requires a parameterSelector (missing)." -ErrorAction Continue
+        elseif (-not $isJsonParameterFile) {
+            Write-Error "    Leaf Node $($nodeName): parameterFileName ($parameterFileName) is a CSV file and requires a parameterSelector (missing)." -ErrorAction Continue
             $hasErrors = $true
         }
     }
@@ -159,7 +179,12 @@ function Build-AssignmentDefinitionAtLeaf {
             continue
         }
         elseif (-not (Confirm-ValidPolicyResourceName -Name $name)) {
-            Write-Error "    Leaf Node $($nodeName): Assignment name '$name' contains invalid characters <>*%&:?.+/ or ends with a space."
+            Write-Error "    Leaf Node $($nodeName): Assignment name '$name' contains invalid characters '%, &, \, ?, /, <, >, :, #, *, +' or control characters, or ends with a space."
+            $hasErrors = $true
+            continue
+        }
+        elseif ($name.Length -gt $maxAssignmentNameLength) {
+            Write-Error "    Leaf Node $($nodeName): Assignment name '$name' is $($name.Length) characters long; Azure limits Policy Assignment names to $maxAssignmentNameLength characters at this scope. Shorten the concatenated assignment name."
             $hasErrors = $true
             continue
         }
@@ -416,43 +441,41 @@ function Build-AssignmentDefinitionAtLeaf {
                     $identity = $userAssignedIdentityRaw
                 }
                 elseif ($userAssignedIdentityRaw -is [array]) {
+                    $entryPolicyName = $definitionEntry.policyName
+                    $entryPolicySetName = $definitionEntry.policySetName
                     foreach ($item in $userAssignedIdentityRaw) {
+                        $itemPolicySetName = $item.policySetName
+                        $itemPolicySetId = $item.policySetId
+                        $itemPolicyName = $item.policyName
+                        $itemPolicyId = $item.policyId
+                        if ($null -eq $itemPolicySetName -and $null -eq $itemPolicySetId -and $null -eq $itemPolicyName -and $null -eq $itemPolicyId) {
+                            Write-Error "    Leaf Node $($nodeName): each userAssignedIdentity entry must specify which definition in the definitionEntryList it belongs to by using one of policySetName, policySetId, policyName or policyId: $($userAssignedIdentityRaw | ConvertTo-Json -Depth 100 -Compress)"
+                            $hasErrors = $true
+                            continue
+                        }
+                        # an entry targeting a Policy Set never matches a Policy definitionEntry and vice versa
                         if ($isPolicySet) {
-                            $policySetName = $item.policySetName
-                            $policySetId = $item.policySetId
-                            if ($null -ne $policySetName) {
-                                if ($name -eq $policySetName) {
+                            if ($null -ne $itemPolicySetName) {
+                                if ($entryPolicySetName -eq $itemPolicySetName) {
                                     $identity = $item.identity
                                 }
                             }
-                            elseif ($null -ne $policySetId) {
-                                if ($policyDefinitionId -eq $policySetId) {
+                            elseif ($null -ne $itemPolicySetId) {
+                                if ($policyDefinitionId -eq $itemPolicySetId) {
                                     $identity = $item.identity
                                 }
-                            }
-                            else {
-                                Write-Error "    Leaf Node $($nodeName): userAssignedIdentity must specify which Policy Set in the definitionEntryList they belong to by either using policySetName or policySetId: $($userAssignedIdentityRaw | ConvertTo-Json -Depth 100 -Compress)"
-                                $hasErrors = $true
-                                continue
                             }
                         }
                         else {
-                            $policyName = $item.policyName
-                            $policyId = $item.policyId
-                            if ($null -ne $policyName) {
-                                if ($name -eq $policyName) {
+                            if ($null -ne $itemPolicyName) {
+                                if ($entryPolicyName -eq $itemPolicyName) {
                                     $identity = $item.identity
                                 }
                             }
-                            elseif ($null -ne $policyId) {
-                                if ($policyDefinitionId -eq $policyId) {
+                            elseif ($null -ne $itemPolicyId) {
+                                if ($policyDefinitionId -eq $itemPolicyId) {
                                     $identity = $item.identity
                                 }
-                            }
-                            else {
-                                Write-Error "    Leaf Node $($nodeName): userAssignedIdentity must specify which Policy in the definitionEntryList they belong to by either using policyName or policyId: $($userAssignedIdentityRaw | ConvertTo-Json -Depth 100 -Compress)"
-                                $hasErrors = $true
-                                continue
                             }
                         }
                     }
@@ -579,6 +602,48 @@ function Build-AssignmentDefinitionAtLeaf {
 
         #endregion Reconcile and deduplicate: CSV, parameters, nonComplianceMessages, and overrides
 
+        #region required roleDefinitionIds
+
+        # Calculated after overrides are reconciled, since a CSV effect column replaces the
+        # overrides built from the assignment JSON.
+        $policyRoleDefinitionIds = $PolicyRoleIds.$policyDefinitionId
+        if ($identityRequired -and $isPolicySet) {
+            $effectivePolicySetDetails = $policySetDetails
+
+            # Roles are calculated from the latest version of a Policy Set. When the assignment pins
+            # definitionVersion, the deployed Policy Set is a different version whose members and
+            # hard-coded member effects can differ, so resolve that version instead.
+            if ($baseAssignment.definitionVersion) {
+                if ($null -eq $script:policySetVersionCache) {
+                    $script:policySetVersionCache = @{}
+                }
+                $versioned = Get-PolicySetVersionedDetails `
+                    -PolicySetId $policyDefinitionId `
+                    -DefinitionVersion $baseAssignment.definitionVersion `
+                    -PacEnvironment $PacEnvironment `
+                    -PolicyDetails $policiesDetails `
+                    -PolicyRoleIds $PolicyRoleIds `
+                    -Cache $script:policySetVersionCache
+                if ($null -ne $versioned) {
+                    $effectivePolicySetDetails = $versioned.policySetDetails
+                    $policyRoleDefinitionIds = $versioned.policyRoleDefinitionIds
+                }
+            }
+
+            if ($PacEnvironment.filterRoleAssignmentsByEffect) {
+                # Drop the roles only contributed by members the Policy Set pins to a non-deploying
+                # effect, unless an override raises those members back to a deploying effect.
+                $policyRoleDefinitionIds = Get-FilteredPolicySetRoleDefinitionIds `
+                    -PolicySetId $policyDefinitionId `
+                    -PolicySetDetails $effectivePolicySetDetails `
+                    -PolicyRoleIds $PolicyRoleIds `
+                    -OverridesList $baseAssignment.overrides `
+                    -UnfilteredRoleDefinitionIds $policyRoleDefinitionIds
+            }
+        }
+
+        #endregion required roleDefinitionIds
+
         #region scopeCollection
 
         foreach ($scopeEntry in $scopeCollection) {
@@ -597,7 +662,6 @@ function Build-AssignmentDefinitionAtLeaf {
             if ($identityRequired) {
                 # Add required roleDefinitions (required by Policy definitions)
                 $requiredRoleAssignments = [System.Collections.ArrayList]::new()
-                $policyRoleDefinitionIds = $PolicyRoleIds.$policyDefinitionId
 
                 foreach ($roleDefinitionId in $policyRoleDefinitionIds) {
                     $roleDisplayName = "Unknown"

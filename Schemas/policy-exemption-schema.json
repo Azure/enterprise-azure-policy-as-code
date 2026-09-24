@@ -14,13 +14,13 @@
                         "type": "string"
                     },
                     "description": {
-                        "type": "string"
+                        "type": ["string", "null"]
                     },
                     "exemptionCategory": {
                         "type": "string"
                     },
                     "expiresOn": {
-                        "type": "string"
+                        "type": ["string", "null"]
                     },
                     "scope": {
                         "type": "string"
@@ -32,7 +32,7 @@
                         "type": "string"
                     },
                     "policyDefinitionReferenceIds": {
-                        "type": "array"
+                        "type": ["array", "null"]
                     },
                     "policyDefinitionId": {
                         "type": "string"
@@ -47,10 +47,10 @@
                         "type": "string"
                     },
                     "resourceSelectors": {
-                        "type": "array"
+                        "type": ["array", "null"]
                     },
                     "assignmentScopeValidation": {
-                        "type": "string"
+                        "type": ["string", "null"]
                     },
                     "metadata": {
                         "type": "object"

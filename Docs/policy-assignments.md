@@ -27,7 +27,7 @@ Recommended for simple deployments to a single scope.
         "policySetName": ""
     },
     "assignment": {
-        "name": "", //24 Character limit
+        "name": "", //24 Character limit at Management Group scope; 64 at Subscription or Resource Group scope
         "displayName": "",
         "description": ""
     },
@@ -58,7 +58,7 @@ Recommended for deployments to a multiple scopes. Typically used for setting uni
         {
             "nodeName": "epac-dev/",
             "assignment": {
-                "name": "", //24 Character limit
+                "name": "", //24 Character limit at Management Group scope; 64 at Subscription or Resource Group scope
                 "displayName": "",
                 "description": ""
             },
@@ -130,7 +130,7 @@ Each Assignment is required to have a `name` which is used in its resource Id. E
 Multiple `assignment` naming components in a tree branch are string concatenated for each of the three fields.
 
 > [!WARNING]
-> Azure has a limit of 24 characters for the concatenated `name` string. EPAC displays an error if this limit is exceeded. Azure also has a limit of 128 characters for `displayName` and 512 characters for `description` (For additional information see [Assignment Structure: Display name and description](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/assignment-structure#display-name-and-description)).
+> Azure has a limit of 24 characters for the concatenated `name` string at Management Group scope, and 64 characters at Subscription or Resource Group scope. EPAC displays an error if the applicable limit is exceeded. Azure also has a limit of 128 characters for `displayName` and 512 characters for `description` (For additional information see [Assignment Structure: Display name and description](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/assignment-structure#display-name-and-description)).
 
 ### Defining `metadata`
 
@@ -477,7 +477,7 @@ If you use single `definitionEntry`, place them normally. If you use a `definiti
 
 ### Defining `enforcementMode`
 
-`enforcementMode` is similar to the deprecated `ignoreBranch`; it deploys the assignment and sets the assignment to `Default` or `DoNotEnforce`. `DoNotEnforce` allows a what-if analysis. `enforcementMode` may appear anywhere in the tree. Definitions at a child override the previous setting.
+`enforcementMode` is similar to the deprecated `ignoreBranch`; it deploys the assignment and supports `Default`, `DoNotEnforce`, or `Enroll`. `DoNotEnforce` allows a what-if analysis. `Enroll` creates an assignment that scopes can join with a [Policy Enrollment](policy-enrollments.md) and is an Azure preview feature. `enforcementMode` may appear anywhere in the tree. Definitions at a child override the previous setting.
 
 ```json
 "enforcementMode": "DoNotEnforce",

@@ -1,62 +1,77 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "description": "Schema for an Enterprise Policy as Code (EPAC) custom Azure Policy definition file. Files may use the '.jsonc' extension to allow JSON with comments. See: https://azure.github.io/enterprise-azure-policy-as-code/policy-definitions/",
     "type": "object",
     "properties": {
         "name": {
-            "type": "string"
+            "type": "string",
+            "description": "A unique identifier for this policy definition within its deployment scope. It is used to detect drift and handle desired-state reconciliation. Use a GUID (preferred for large enterprises to prevent naming collisions) or a unique kebab-case short name. Renaming causes EPAC to treat the old definition as orphaned and delete it."
         },
         "type": {
-            "const": "Microsoft.Authorization/policyDefinitions"
+            "type": "string",
+            "const": "Microsoft.Authorization/policyDefinitions",
+            "description": "The Azure Resource Manager (ARM) resource type for a policy definition."
         },
         "properties": {
             "type": "object",
+            "description": "The core block of the policy definition, containing all functional logic, behavioral configuration, metadata, and parameterization.",
             "properties": {
                 "displayName": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 128,
+                    "description": "The human-readable name for this policy definition. Should be descriptive, action-oriented, and follow a consistent organizational naming convention (e.g., 'Enforce TLS 1.2 on Storage Accounts')."
                 },
                 "description": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 512,
+                    "description": "A detailed explanation of the policy's purpose, the compliance requirement it satisfies, and the operational impact of its enforcement. Essential for auditability and peer review - should answer the 'why' behind the policy. In enterprise environments, this field often references specific regulatory controls (e.g., 'Satisfies NIST SP 800-53 SC-8' or 'Required by ISO 27001 A.10.1')."
                 },
                 "mode": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Determines which resource types the Azure Policy evaluation engine will assess for this policy. Resource Manager modes:\n'All' evaluates every resource type, including resource groups and subscriptions - required when targeting resource groups (e.g., enforcing tags on resource groups) or resource types that do not expose 'tags' or 'location'.\n'Indexed' evaluates only resource types that support both tags and location - preferred for tag or location enforcement on standard resources, as it reduces evaluation overhead and avoids false positives on child resource types (e.g., Microsoft.Network/routeTables/routes).\nMicrosoft recommends 'All' as the default in most cases. Selecting the wrong mode (e.g., 'Indexed' when targeting resource groups) will silently prevent the policy from triggering. See: https://learn.microsoft.com/en-us/azure/governance/policy/concepts/definition-structure-basics#resource-manager-modes"
                 },
                 "metadata": {
                     "type": "object",
+                    "description": "An open-ended container for non-functional, informational properties about the policy definition.",
                     "properties": {
                         "version": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "The semantic version number of this policy definition's content, following the '{Major}.{Minor}.{Patch}' format (e.g., '1.0.0'). For built-in policies, this metadata version mirrors the resource's 'version' property. When a policy is in preview, append the '-preview' suffix."
                         },
                         "category": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "The Azure Portal category under which this policy definition is grouped and displayed. Should match one of the standard categories used by Azure built-in policies to ensure consistent portal navigation (e.g., 'Compute', 'Networking', 'Storage', 'Security', 'Monitoring', 'Key Vault', 'SQL', 'App Service'). Using a non-standard category creates a new category group in the portal, which can clutter the governance view."
                         },
                         "epacCloudEnvironments": {
                             "type": "array",
                             "maxItems": 3,
                             "uniqueItems": true,
+                            "description": "An optional EPAC-specific metadata property that restricts which Azure cloud sovereign environments this policy definition will be deployed to.",
                             "items": {
                                 "enum": [
                                     "AzureCloud",
                                     "AzureChinaCloud",
                                     "AzureUSGovernment"
-                                ]
+                                ],
+                                "description": "An Azure sovereign cloud environment identifier."
                             }
                         }
                     },
-                    "required": [
-                        "version",
-                        "category"
-                    ]
+                    "required": ["version", "category"]
                 },
                 "parameters": {
                     "type": "object",
+                    "description": "Defines input parameters that decouple the policy's logic from specific environment values, enabling a single policy definition to be reused across different business units, management groups, and environments with varying requirements.",
                     "properties": {
                         "effect": {
                             "type": "object",
+                            "description": "Standardized effect parameter for EPAC-managed policy definitions. This allows the same definition to behave as 'Audit' in lower environments and 'Deny' (or another enforcement effect) in production via assignment-time overrides, without any changes to the definition file.",
                             "properties": {
                                 "allowedValues": {
                                     "type": "array",
                                     "minItems": 2,
                                     "uniqueItems": true,
+                                    "description": "The list of permitted effect values that can be selected at policy assignment time. Choose the combination appropriate to the policy's remediation capabilities: you could use ['Audit', 'Disabled'] for read-only observation; ['Audit', 'Deny', 'Disabled'] for standard enforcement; ['Modify', 'Audit', 'Disabled'] or ['DeployIfNotExists', 'AuditIfNotExists', 'Disabled'] for remediation policies. Note that 'Modify' and 'DeployIfNotExists' require a managed identity and role assignments configured at assignment time.",
                                     "items": {
                                         "type": "string",
                                         "enum": [
@@ -69,10 +84,12 @@
                                             "DeployIfNotExists",
                                             "DenyAction",
                                             "Manual"
-                                        ]
+                                        ],
+                                        "description": "A valid Azure Policy effect.\n'Audit' logs a non-compliance event without blocking the resource - lowest impact, used for visibility.\n'Deny' blocks the resource request entirely - high impact, prevents non-compliant deployments.\n'Disabled' suspends policy evaluation - used for temporary suppression or staged rollouts.\n'Modify' adds or updates resource properties (e.g., tags) and requires a managed identity.\n'Append' non-destructively adds fields during resource creation without a managed identity.\n'AuditIfNotExists' audits when a related child resource does not exist.\n'DeployIfNotExists' deploys a child resource (e.g., diagnostic settings) if absent - requires a managed identity and an ARM deployment template in the 'details' block.\n'DenyAction' blocks specific ARM actions on existing resources.\n'Manual' requires human attestation and is used for regulatory compliance controls that cannot be automatically evaluated."
                                     }
                                 },
                                 "defaultValue": {
+                                    "type": "string",
                                     "enum": [
                                         "Disabled",
                                         "Audit",
@@ -83,24 +100,29 @@
                                         "DeployIfNotExists",
                                         "DenyAction",
                                         "Manual"
-                                    ]
+                                    ],
+                                    "description": "The fallback effect applied at assignment time when no explicit effect value is provided. EPAC and Microsoft recommended practices strongly advise setting this to 'Audit' for new policies. Starting with 'Audit' allows operators to assess the compliance impact across the environment before escalating to a blocking effect such as 'Deny'. EPAC handles deprecated policies by automatically overriding this to 'Disabled' unless 'doNotDisableDeprecatedPolicies' is enabled in global-settings.jsonc."
                                 },
                                 "metadata": {
                                     "type": "object",
+                                    "description": "UI metadata for the effect parameter, used by the Azure Portal to display user-friendly information during policy assignment.",
                                     "properties": {
                                         "displayName": {
-                                            "const": "Effect"
+                                            "type": "string",
+                                            "const": "Effect",
+                                            "description": "The label shown in the Azure Portal for this parameter during policy assignment."
                                         },
                                         "description": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "A human-readable explanation of the parameter shown to operators in the Azure Portal when assigning the policy. May be extended to describe the specific behavioral differences between the allowed effect values relevant to this policy (e.g., explaining what 'Modify' does in the context of this specific resource type)."
                                         }
                                     },
-                                    "required": [
-                                        "displayName"
-                                    ]
+                                    "required": ["displayName"]
                                 },
                                 "type": {
-                                    "enum": ["string", "String"]
+                                    "type": "string",
+                                    "enum": ["string", "String"],
+                                    "description": "The data type of the effect parameter as recognized by the Azure Policy engine and ARM."
                                 }
                             },
                             "required": [
@@ -110,30 +132,37 @@
                                 "type"
                             ]
                         }
+                    },
+                    "additionalProperties": {
+                        "$ref": "#/$defs/parameterDefinition"
                     }
                 },
                 "policyRule": {
                     "type": "object",
+                    "description": "The functional core of the policy definition, containing the conditional logic that determines when the policy triggers and what action it takes.",
                     "properties": {
                         "if": {
-                            "type": "object"
+                            "type": "object",
+                            "description": "The condition block that the Azure Policy engine evaluates against each resource in the assignment scope. See for more details on how to construct this block: https://learn.microsoft.com/en-us/azure/governance/policy/concepts/definition-structure-policy-rule"
                         },
                         "then": {
                             "type": "object",
+                            "description": "The action block that defines what the Azure Policy engine does when the 'if' condition evaluates to true. See for more details on how to construct this block: https://learn.microsoft.com/en-us/azure/governance/policy/concepts/definition-structure-policy-rule",
                             "properties": {
                                 "effect": {
-                                    "const": "[parameters('effect')]"
+                                    "type": "string",
+                                    "const": "[parameters('effect')]",
+                                    "description": "The ARM template expression that resolves the policy's enforcement behavior from the parameterized 'effect' input at assignment time."
+                                },
+                                "details": {
+                                    "type": "object",
+                                    "description": "This block contains the effect-specific properties such as roleDefinitionIds, operations, existence checks, and deployment settings. Used for remediation and deployment settings for policies that use the Modify or DeployIfNotExists effect."
                                 }
                             },
-                            "required": [
-                                "effect"
-                            ]
+                            "required": ["effect"]
                         }
                     },
-                    "required": [
-                        "if",
-                        "then"
-                    ]
+                    "required": ["if", "then"]
                 }
             },
             "required": [
@@ -145,8 +174,57 @@
             ]
         }
     },
-    "required": [
-        "name",
-        "properties"
-    ]
+    "required": ["name", "properties"],
+    "$defs": {
+        "parameterDefinition": {
+            "type": "object",
+            "description": "A generic Azure Policy parameter definition used for any named parameter under properties.parameters. See: https://learn.microsoft.com/en-us/azure/governance/policy/concepts/definition-structure-parameters",
+            "properties": {
+                "allowedValues": {
+                    "type": "array",
+                    "description": "The list of permitted values that can be selected at policy assignment time.",
+                    "items": {
+                        "description": "A valid Azure Policy value."
+                    }
+                },
+                "defaultValue": {
+                    "description": "The fallback value applied at assignment time when no explicit value is provided."
+                },
+                "metadata": {
+                    "type": "object",
+                    "description": "UI metadata for the policy parameter, used by the Azure Portal to display user-friendly information during policy assignment.",
+                    "properties": {
+                        "displayName": {
+                            "type": "string",
+                            "description": "The label shown in the Azure Portal for this parameter during policy assignment."
+                        },
+                        "description": {
+                            "type": "string",
+                            "description": "A human-readable explanation of the parameter shown to operators in the Azure Portal when assigning the policy. May be extended to describe the specific behavioral differences between the allowed effect values relevant to this policy (e.g., explaining what 'Modify' does in the context of this specific resource type)."
+                        }
+                    },
+                    "required": ["displayName"]
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "string",
+                        "String",
+                        "array",
+                        "Array",
+                        "object",
+                        "Object",
+                        "boolean",
+                        "Boolean",
+                        "integer",
+                        "Integer",
+                        "float",
+                        "Float"
+                    ],
+                    "description": "The data type of the policy parameter as recognized by the Azure Policy engine and ARM."
+                }
+            },
+            "required": ["metadata", "type"]
+        }
+    }
 }

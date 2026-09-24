@@ -182,6 +182,14 @@ function Get-GlobalSettings {
                 $skipResourceValidationForExemptions = $true
             }
 
+            # Defaults to true. An explicit false is the opt-out for repositories which need the
+            # previous behaviour of granting every member Policy's roles.
+            $filterRoleAssignmentsByEffect = $true
+            $filterRoleAssignmentsByEffectRaw = $pacEnvironment.filterRoleAssignmentsByEffect
+            if ($null -ne $filterRoleAssignmentsByEffectRaw) {
+                $filterRoleAssignmentsByEffect = [bool] $filterRoleAssignmentsByEffectRaw
+            }
+
             $desiredState = @{
                 strategy                             = "undefined"
                 keepDfcSecurityAssignments           = $false
@@ -193,9 +201,13 @@ function Get-GlobalSettings {
                 globalExcludedScopesManagementGroups = $globalExcludedScopesManagementGroupsList
                 excludedPolicyDefinitions            = @()
                 excludedPolicySetDefinitions         = @()
+                excludedPolicyDefinitionFiles        = @()
+                excludedPolicySetDefinitionFiles     = @()
+                excludedPolicyAssignmentFiles        = @()
                 excludedPolicyAssignments            = @()
                 excludeSubscriptions                 = $false
                 doNotDisableDeprecatedPolicies       = $false
+                manageChildScopeDefinitions          = $false
             }
             
             $desired = $pacEnvironment.desiredState
@@ -304,6 +316,27 @@ function Get-GlobalSettings {
                     }
                     $desiredState.excludedPolicyAssignments = $excluded
                 }
+                $excluded = $desired.excludedPolicyDefinitionFiles
+                if ($null -ne $excluded) {
+                    if ($excluded -isnot [array]) {
+                        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.excludedPolicyDefinitionFiles must be an array of strings."
+                    }
+                    $desiredState.excludedPolicyDefinitionFiles = $excluded
+                }
+                $excluded = $desired.excludedPolicySetDefinitionFiles
+                if ($null -ne $excluded) {
+                    if ($excluded -isnot [array]) {
+                        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.excludedPolicySetDefinitionFiles must be an array of strings."
+                    }
+                    $desiredState.excludedPolicySetDefinitionFiles = $excluded
+                }
+                $excluded = $desired.excludedPolicyAssignmentFiles
+                if ($null -ne $excluded) {
+                    if ($excluded -isnot [array]) {
+                        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.excludedPolicyAssignmentFiles must be an array of strings."
+                    }
+                    $desiredState.excludedPolicyAssignmentFiles = $excluded
+                }
                 if ($desired.excludeSubscriptions) {
                     $desiredState.excludeSubscriptions = $true
                 }
@@ -327,6 +360,15 @@ function Get-GlobalSettings {
                 else {
                     $doNotDisableDeprecatedPolicies = $false
                 }
+                $manageChildScopeDefinitions = $desired.manageChildScopeDefinitions
+                if ($null -ne $manageChildScopeDefinitions) {
+                    if ($manageChildScopeDefinitions -is [bool]) {
+                        $desiredState.manageChildScopeDefinitions = $manageChildScopeDefinitions
+                    }
+                    else {
+                        Add-ErrorMessage -ErrorInfo $errorInfo -ErrorString "Global settings error: pacEnvironment $pacSelector field desiredState.manageChildScopeDefinitions ($manageChildScopeDefinitions) must be a boolean value."
+                    }
+                }
             }
 
             $pacEnvironmentDefinition = @{
@@ -340,6 +382,7 @@ function Get-GlobalSettings {
                 defaultContext                      = $defaultContext
                 policyDefinitionsScopes             = $policyDefinitionsScopes
                 skipResourceValidationForExemptions = $skipResourceValidationForExemptions
+                filterRoleAssignmentsByEffect       = $filterRoleAssignmentsByEffect
                 doNotDisableDeprecatedPolicies      = $doNotDisableDeprecatedPolicies
                 desiredState                        = $desiredState
                 managedIdentityLocation             = $managedIdentityLocation
@@ -370,6 +413,7 @@ function Get-GlobalSettings {
     $policySetDefinitionsFolder = "$DefinitionsRootFolder/policySetDefinitions"
     $policyAssignmentsFolder = "$DefinitionsRootFolder/policyAssignments"
     $policyExemptionsFolder = "$DefinitionsRootFolder/policyExemptions"
+    $policyEnrollmentsFolder = "$DefinitionsRootFolder/policyEnrollments"
 
     [hashtable] $globalSettings = @{
         telemetryEnabled           = $telemetryEnabled
@@ -382,6 +426,7 @@ function Get-GlobalSettings {
         policySetDefinitionsFolder = $policySetDefinitionsFolder
         policyAssignmentsFolder    = $policyAssignmentsFolder
         policyExemptionsFolder     = $policyExemptionsFolder
+        policyEnrollmentsFolder    = $policyEnrollmentsFolder
         pacEnvironmentSelectors    = $pacEnvironmentSelectors
         pacEnvironmentPrompt       = $prompt
         pacEnvironments            = $pacEnvironmentDefinitions

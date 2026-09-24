@@ -52,7 +52,7 @@ param (
     [Parameter(HelpMessage = "If set, do not deploy the exemptions plan.")]
     [switch] $SkipExemptions,
 
-    [Parameter(HelpMessage = "Set true to fail the pipeline and deployment if a 403 error occurs during creation and updates of exemptions.")]
+    [Parameter(HelpMessage = "Set true to fail the pipeline if exemptions reference assignments or scopes not found in the current root scope, or if a 403 error occurs during creation and updates of exemptions.")]
     [bool] $FailOnExemptionError = $false
 )
 
@@ -103,6 +103,16 @@ else {
     Write-ModernStatus -Message "Plan created on: $($plan.createdOn)" -Status "info" -Indent 2
 
     #region delete exemptions, assignment, definitions
+
+    $table = ConvertTo-HashTable $plan.enrollments.delete
+    if ($table.psbase.Count -gt 0) {
+        Write-ModernSection -Title "Deleting Policy Enrollments ($($table.psbase.Count) items)" -Color Red
+        foreach ($id in $table.Keys) {
+            $entry = $table.$id
+            Write-ModernStatus -Message "$($entry.displayName) ($($entry.name)) at scope: $($entry.scope)" -Status "info" -Indent 4
+            Remove-AzResourceByIdRestMethod -Id $id -ApiVersion $pacEnvironment.apiVersions.policyEnrollments
+        }
+    }
 
     if (-not $SkipExemptions) {
         $table = ConvertTo-HashTable $plan.exemptions.delete
@@ -197,6 +207,19 @@ else {
             $entry = $table.$id
             Set-AzPolicyAssignmentRestMethod -Assignment $entry -ApiVersion $pacEnvironment.apiVersions.policyAssignments
             Write-ModernStatus -Message "Completed: $($entry.displayName)" -Status "success" -Indent 4
+            Write-Information ""
+        }
+    }
+
+    $table = ConvertTo-HashTable $plan.enrollments.new
+    $table += ConvertTo-HashTable $plan.enrollments.update
+    if ($table.psbase.Count -gt 0) {
+        Write-ModernSection -Title "Creating and Updating Policy Enrollments ($($table.psbase.Count) items)" -Color Yellow
+        foreach ($id in $table.Keys) {
+            $entry = $table.$id
+            $displayLabel = if ([string]::IsNullOrWhiteSpace($entry.displayName)) { $entry.name } else { $entry.displayName }
+            Set-AzPolicyEnrollmentRestMethod -EnrollmentObj $entry -ApiVersion $pacEnvironment.apiVersions.policyEnrollments
+            Write-ModernStatus -Message "Completed: $displayLabel" -Status "success" -Indent 4
             Write-Information ""
         }
     }

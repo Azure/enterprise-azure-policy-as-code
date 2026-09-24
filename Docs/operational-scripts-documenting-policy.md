@@ -11,9 +11,9 @@
 
 ## Overview
 
-The Documentation feature provides reports on Policy Assignments deployed within an environment, and comparisons of Policy Assignments and Sets of Policy Set definitions for considering differences in policies and effects.  Output is generated as Markdown (`.md`), and Excel (`.csv`) files using the script [`./Scripts/Operations/Build-PolicyDocumentation`](operational-scripts-reference.md#script-build-policydocumentation) It retrieves its instruction from the JSON files in this folder; the names of the definition JSON files don't matter as the script reads any file in the folder with a `.json` or `.jsonc` extension.
+The Documentation feature provides reports on Policy Assignments deployed within an environment, and comparisons of Policy Assignments and Sets of Policy Set definitions for considering differences in policies and effects. Output is generated as Markdown (`.md`), Excel (`.csv`) files, and parameter JSON (`.jsonc`) sidecars using the script [`./Scripts/Operations/Build-PolicyDocumentation`](operational-scripts-reference.md#script-build-policydocumentation). It retrieves its instruction from the JSON files in this folder; the names of the definition JSON files don't matter as the script reads any file in the folder with a `.json` or `.jsonc` extension.
 
-* Policy Assignments: Read and process Policy Assignments which are representative of an environment category, such as prod, test, dev, and sandbox. It generates Markdown (`.md`), and Excel (`.csv`) files.
+* Policy Assignments: Read and process Policy Assignments which are representative of an environment category, such as prod, test, dev, and sandbox. It generates Markdown (`.md`), Excel (`.csv`) files, and a parameter export in JSONC (`.jsonc`) that reflects the representative assignment values for each environment category.
 * Policy Sets: Read and process Policy Sets to compare them for Policy and effect overlap. It generates Markdown (`.md`), Excel (`.csv`) files, and JSON file (`.jsonc`).
 
 ## JSON Schema
@@ -39,6 +39,7 @@ You can define shared defaults once at the top level using `globalDocumentationS
     * `markdownAddToc`, `markdownAdoWiki`, `markdownAdoWikiConfig`
     * `markdownNoEmbeddedHtml`, `markdownIncludeComplianceGroupNames`
     * `markdownSuppressParameterSection`, `markdownMaxParameterLength`
+    * `environmentColumnsInJson` (optional list of assignment environment categories to include in the generated parameter JSON sidecar; defaults to all categories)
 
 Specific entries take precedence. If a property is set in `documentAssignments.documentationSpecifications[...]` or in a `documentPolicySets[...]` item, it overrides the global value.
 
@@ -85,13 +86,17 @@ Each file must contain one or both documentation topics, [`documentAssignments`]
                 "markdownIncludeComplianceGroupNames": true,
                 "markdownSuppressParameterSection": false,
                 "markdownMaxParameterLength": 42, //default is 42
-                "markdownAdoWikiConfig": [
-                    {
-                        "adoOrganization": "MyOrganization",
-                        "adoProject": "EPAC",
-                        "adoWiki": "EPAC"
-                    }
-                ]
+               "environmentColumnsInJson": [
+                   "prod",
+                   "test"
+               ],
+               "markdownAdoWikiConfig": [
+                   {
+                       "adoOrganization": "MyOrganization",
+                       "adoProject": "EPAC",
+                       "adoWiki": "EPAC"
+                   }
+               ]
             }
         ]
     },
@@ -100,6 +105,8 @@ Each file must contain one or both documentation topics, [`documentAssignments`]
             "pacEnvironment": "tenant",
             "fileNameStem": "contoso-compliance-policy-sets",
             "title": "Document interesting Policy Sets",
+			"includePolicySetList": true,
+            "policySetEffectsOneColumn": false,
             "policySets": [
                 {
                     "shortName": "ASB",
@@ -221,6 +228,8 @@ Each file must contain one or both documentation topics, [`documentAssignments`]
             "pacEnvironment": "tenant",
             "fileNameStem": "contoso-compliance-policy-sets",
             "title": "Document interesting Policy Sets",
+			"includePolicySetList": true,
+            "policySetEffectsOneColumn": false,
             "policySets": [
                 {
                     "shortName": "ASB",
@@ -249,6 +258,14 @@ Each file must contain one or both documentation topics, [`documentAssignments`]
     ]
 }
 ```
+
+### PolicySet documentation output options
+When using a larger number of PolicySets, you can choose to:
+- not include a list of all PolicySets ("includePolicySetList": false)
+- use just 1 column showing the PolicySets Effects ("policySetEffectsOneColumn": true,)
+For an example, review the file ["EPAC GitHub: documentPolicySets.jsonc"](https://github.com/Azure/enterprise-azure-policy-as-code/blob/main/Examples/Auto-Documentation/policyDocumentations/documentPolicySets.jsonc)
+
+
 ## Automating Azure DevOps Wiki Markdown
 
 * EPAC can be used to automate the population of your Azure DevOps Wiki pages with the generated markdown files. To do this, you must call "Build-PolicyDocumentation" with the parameter either the "WikiSPN" or "WikiClonePat". 

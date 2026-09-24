@@ -3,6 +3,36 @@
 > [!TIP]
 > With EPAC version 11 it is now easier to maintain custom configurations to help with the Azure Landing Zone sync process. Legacy methods will still work however it is recommended to update your policy structure file to the new method.
 
+## Breaking changes and migration notes
+
+Treat SLZ updates as a potential breaking-change event and validate generated artifacts before deployment.
+
+### SLZ tag evolution can change generated assignment artifacts
+
+Moving from older SLZ tags (for example `platform/slz/2026.02.2`) to newer tags (for example `platform/slz/2026.04.2`) can change:
+
+- Assignment file names
+- Assignment folder/category paths under `policyAssignments/SLZ/<pacSelector>`
+- Assignment `nodeName` values
+- Policy assignment names referenced in `defaultParameterValues`
+
+This is a library-content change and can affect automation that depends on specific file paths or assignment names.
+
+### EPAC SLZ structure output includes an additive mapping key
+
+For SLZ, `New-ALZPolicyDefaultStructure` now includes `archetypeScopeMappings` in generated policy structure files. `Sync-ALZPolicyFromLibrary` uses this mapping to resolve scopes for archetypes that are applied to multiple management groups.
+
+- ALZ and AMBA behavior remains unchanged.
+- Existing ALZ and AMBA structure files do not require this key.
+
+### Recommended upgrade workflow
+
+1. Pin the ALZ Library tag in both generation and sync commands.
+2. Run `New-ALZPolicyDefaultStructure` and `Sync-ALZPolicyFromLibrary` in an isolated Definitions folder.
+3. Compare generated `policyStructures` and `policyAssignments` between old and new tags.
+4. Update any downstream automation that relies on old folder names, file names, or assignment names.
+5. Run `Build-DeploymentPlans` only after the artifact comparison is accepted.
+
 ## Pre-requisites
 
 To use the ALZ policies in an environment successfully there are some Azure Resources that need to be created. This is normally completed by using one of the ALZ accelerators to deploy the environment however if you have written your own code or modified the default deployment ensure you have the following resources in place to support the ALZ policies.
@@ -118,8 +148,26 @@ For users interested in deploying the [Azure Monitor Baseline Alerts](https://az
 # Create a Pac Environment default file for AMBA policies using the latest release of the ALZ Library 
 New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type AMBA -PacEnvironmentSelector "epac-dev"
 
+# Also create policyStructures\amba.policy_set_parameters.jsonc with every policy set parameter and its default value.
+# Parameters that define allowed values include those values in a preceding JSONC comment.
+New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type AMBA -PacEnvironmentSelector "epac-dev" -GenerateParameterFile
+
 # Sync the AMBA policies and assign to the "epac-dev" PAC environment.
 Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type AMBA -PacEnvironmentSelector "epac-dev"
+
+# Use the generated parameter file when creating assignments. defaultParameterValues takes priority over the
+# parameter file, and only effective values that differ from policy set defaults are emitted.
+Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type AMBA -PacEnvironmentSelector "epac-dev" -ParameterFile .\Definitions\policyStructures\amba.policy_set_parameters.jsonc
+
+# Archetype and enforcement overrides can still be enabled; overrides.parameters is ignored when -ParameterFile is supplied.
+Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type AMBA -PacEnvironmentSelector "epac-dev" -ParameterFile .\Definitions\policyStructures\amba.policy_set_parameters.jsonc -EnableOverrides
+```
+
+The Azure Monitor Baseline Alerts project also provides a number of policy definitions not included in the ALZ Library. To sync these definitions use the `-SyncAMBAExtendedPolicies` switch as below when syncing the AMBA policies. 
+
+```ps1
+# Sync the AMBA policies and extended policies and assign to the "epac-dev" PAC environment.
+Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type AMBA -PacEnvironmentSelector "epac-dev" -SyncAMBAExtendedPolicies
 ```
 
 ### SLZ
@@ -133,6 +181,77 @@ New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type SLZ -Pa
 # Sync the SLZ policies and assign to the "epac-dev" PAC environment.
 Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type SLZ -PacEnvironmentSelector "epac-dev"
 ```
+
+### MLZ
+
+[Mission Landing Zone](https://github.com/Azure/missionlz) (MLZ) is an Azure landing zone for SCCA-compliant organizations. Unlike ALZ, AMBA, FSI and SLZ it is **not** published through the Azure Landing Zones Library, so the MLZ type uses a completely separate code path.
+
+```ps1
+# Create a Pac Environment default file for MLZ policies
+New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type MLZ -PacEnvironmentSelector "epac-dev"
+```
+
+Notes specific to MLZ:
+
+- No library repository is cloned and the `-Tag` parameter is not required (and is ignored for tag validation), so the command works without network access.
+- MLZ assigns policy at **subscription** scope rather than management group scope. The generated file contains a single placeholder entry which must be updated with your MLZ subscription ID.
+
+  ```json
+  "mlz": {
+    "management_group_function": "Mission Landing Zone",
+    "value": "/subscriptions/00000000-0000-0000-0000-000000000000" // replace with your MLZ subscription ID
+  }
+  ```
+
+- `defaultParameterValues` only contains the handful of values that the MLZ deployment injects at runtime and which cannot be read from the missionlz repository. Populate them before running the sync; each one is applied to every assignment that needs it, under whichever parameter name that baseline uses.
+
+  | Structure file value | Applied to |
+  | --- | --- |
+  | `log_analytics_workspace_resource_id` | `NISTRev4`, `IL5`, `Deploy-VM-Agents`, `Deploy-VMSS-Agents` |
+  | `log_analytics_workspace_customer_id` | `CMMC` — this is the workspace **customer ID** (a GUID), not the resource ID |
+  | `windows_administrators_group_membership` | `NISTRev4`, `IL5`, `CMMC` |
+  | `windows_administrators_group_exclusions` | `CMMC`, pre-filled with `admin` to match the MLZ deployment |
+
+  The compliance baselines themselves (CMMC, IL5, NIST SP 800-53 Rev. 4 and Rev. 5) carry several hundred parameters between them. Those are **not** stubbed into the structure file - they are read from the missionlz repository during the sync step.
+
+#### Syncing MLZ assignments
+
+```ps1
+# Generate the MLZ policy assignments
+Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type MLZ -PacEnvironmentSelector "epac-dev"
+```
+
+This clones <https://github.com/Azure/missionlz>, reads the assignment parameter files from `src/policies` and writes the assignments to `Definitions\policyAssignments\MLZ\<PacEnvironmentSelector>\<management_group_function>\`. Use `-LibraryPath` to point at an existing local checkout instead of cloning.
+
+MLZ has no custom policy or policy set definitions - every baseline is a built-in initiative - so nothing is written to `policyDefinitions` or `policySetDefinitions`. `-SyncAssignmentsOnly` therefore has no effect, and `-CreateGuardrailAssignments`, `-EnableOverrides` and `-SyncAMBAExtendedPolicies` are not applicable.
+
+Six assignments are generated:
+
+| File | Initiative |
+| --- | --- |
+| `CMMC.jsonc` | CMMC Level 3 |
+| `IL5.jsonc` | DoD Impact Level 5 |
+| `NISTRev4.jsonc` | NIST SP 800-53 Rev. 4 |
+| `NISTRev5.jsonc` | NIST SP 800-53 Rev. 5 |
+| `Deploy-VM-Agents.jsonc` | Virtual machine monitoring agents |
+| `Deploy-VMSS-Agents.jsonc` | Virtual machine scale set monitoring agents |
+
+The MLZ deployment assigns exactly one compliance baseline per resource group. EPAC generates all of the applicable baselines so you can choose between them - delete the assignment files you do not want before deploying, otherwise overlapping baselines are applied to the same subscription.
+
+##### Cloud specific behaviour
+
+The MLZ deployment branches on the Azure environment, and the sync reproduces this using the `cloud` property of the PAC environment in `global-settings.jsonc` that matches `-PacEnvironmentSelector`. If it cannot be resolved, `AzureCloud` is assumed and a warning is emitted.
+
+- **`AzureCloud`** - the deployment maps IL5 to NIST SP 800-53 Rev. 4, so `IL5.jsonc` is **not** generated (`NISTRev4.jsonc` covers it). The CMMC assignment additionally receives the Windows administrators group include and exclude parameters.
+- **Any other cloud** (for example `AzureUSGovernment`) - all six assignments are generated and the two CMMC administrators group parameters are omitted.
+
+Changing the cloud and re-running the sync removes any assignment file that is no longer generated, so the switch is handled in both directions.
+
+##### Other notes
+
+- missionlz has no usable release tag - its only tag predates the current `src/policies` content - so the default branch is cloned. Generated output can therefore change when the upstream repository changes. The `Check MLZ Policy Changes` workflow (`.github/workflows/check-mlz-policy-changes.yaml`) runs daily and raises an issue when `src/policies` or `src/modules/policy-assignment.bicep` change upstream, so the sync scripts can be reviewed against them.
+- The sync warns if the subscription scope is still the placeholder or if any of the runtime values above are still empty. It completes anyway so the output can be inspected.
+- Role assignments and policy remediation tasks created by the MLZ deployment are not reproduced. Configure those through the usual EPAC mechanisms.
 
 ## Advanced Scenarios
 
@@ -253,6 +372,25 @@ An existing archetype can be customized by adding or removing policy assignments
   }
 }
 ```
+
+For `policy_assignments_to_add`, each entry can be either:
+
+- A string assignment/policy name (must be 24 characters or fewer for management-group assignment scope)
+- An object with `policy_name` and `assignment_name` to override the generated assignment name (useful when `policy_name` is longer than 24 characters)
+
+Example override object:
+
+```json
+{
+  "policy_assignments_to_add": [
+    {
+      "policy_name": "Audit-MachineLearning-PrivateEndpointId",
+      "assignment_name": "Audit-ML-PEndpointId"
+    }
+  ]
+}
+```
+
 ### Create a new archetype based on an existing archetype (Requires EPAC v11)
 
 You can create a new archetype based on an existing by using a structure similar to the block below.
@@ -326,31 +464,25 @@ To specify or modify a parameter for a specific archetype you can specify it usi
 
 Run a sync using the `-EnableOverrides` parameter and the parameters will be updated. This can be used to override parameters in the `defaultParameterValues` section. 
 
-### Modify a parameter for a guardrail assignment (Requires EPAC v11)
+### Modify the enforcement mode for an assignment (Requires EPAC v11)
 
-To specify or modify a parameter for a guardrail assignment you can specify it using the `overrides` key in the policy structure file. The example below shows how to overwrite a parameter for a specific policy assignment.
+The `enforcementMode` key in the structure file sets the initial value for all assignments, but this can be overridden for individual assignments by using an override as below. The key for each enforcement mode is the assignment `nodeName` (i.e. `"<archetypeName>/<assignmentName>"`).
 
 ```json
-{
-  "overrides": {
-    "parameters": {
-      "guardrails": [ // Must be "guardrails
-        {
-          "policy_assignment_name": "GR-Network_20250326",
-          "parameters": [
-            {
-              "parameter_name": "vpnAzureAD",
-              "value": "Audit"
-            }
-          ]
-        }
+"overrides": {
+    "enforcementMode": {
+      "Default": [],
+      "DoNotEnforce": [
+        "root/Audit-TrustedLaunch",
+        "root/Audit-ResourceRGLocation"
       ]
     }
   }
-}
 ```
 
-Run a sync using the `-EnableOverrides` parameter and the parameters will be updated. This can be used to override parameters in the `defaultParameterValues` section. 
+Each entry in the array is the `nodeName` of the assignment as it appears in the generated assignment file (e.g. `"root/Audit-ResourceRGLocation"`). Assignments listed under `"DoNotEnforce"` will have their enforcement mode set to `DoNotEnforce`, while those under `"Default"` will use the default enforcement mode.
+
+Run a sync using the `-EnableOverrides` parameter and the enforcement mode will be updated.
 
 ### Assign an archetype to multiple management groups (Requires EPAC v11)
 
@@ -365,6 +497,12 @@ Management group name mappings now accept an array of values instead of just a s
       ]
     }
 ```
+
+### Assign multiple archetypes to one management group (SLZ)
+
+SLZ architecture definitions can map multiple archetypes to a single management group. When `New-ALZPolicyDefaultStructure` is run for `-Type SLZ`, the generated policy structure file now includes an `archetypeScopeMappings` section. `Sync-ALZPolicyFromLibrary` uses this section to resolve archetype assignment scopes, which ensures assignments are created with valid scopes instead of null values for composite SLZ archetypes.
+
+ALZ and AMBA behavior is unchanged. They continue to use `managementGroupNameMappings` and do not require `archetypeScopeMappings`.
 
 ### Disabling / Changing specific parameters
 
@@ -387,40 +525,14 @@ An example of disabling the **"Configure Microsoft Defender for Key Vault plan"*
     }
 ```
 
-### Deploying Workload Specific Compliance Guardrails
+### Deploying Workload Specific Compliance Guardrails (Requires EPAC v11)
 
-To deploy the workload specific compliance guardrails for Azure Landing Zones the default policy structure file should contain an `enforceGuardrails` key. If it doesn't you can rerun the `New-ALZPolicyDefaultStructure` command to generate a file containing this entry.
+> [!NOTE]
+> This process has recently changed and guardrail assignments are now placed into the corresponding management groups (by default these are `platform` and `landing_zones` archetypes.)
 
 By default ALZ specifies deploying all the guardrail policies to the `platform` and `landingzones` management group and when the `Sync-ALZPolicyFromLibrary` with the `-CreateGuardrailAssignments` parameter command runs it will generate assignments which are scoped to these management groups.
 
-To modify this behavior you can update/modify the scopes in the `deployment.scopes` entry - or if you want to deploy different guardrails to different scopes simply create another entry within the `enforceGuardrails.deployment` array similar to below.
-
-```json
-"enforceGuardrails": {
-  "deployments": [
-    {
-      "scope": [
-        "/providers/Microsoft.Management/managementGroups/landingzones"
-      ],
-      "policy_set_names": [
-        "Enforce-Guardrails-APIM",
-        "Enforce-Guardrails-AppServices",
-        "Enforce-Guardrails-Automation"
-      ]
-    },
-    {
-      "scope": [
-        "/providers/Microsoft.Management/managementGroups/platform"
-      ],
-      "policy_set_names": [
-        "Enforce-Guardrails-APIM",
-        "Enforce-Guardrails-AppServices",
-        "Enforce-Guardrails-Automation"
-      ]
-    }
-  ]
-}
-```
+To deploy guardrails assignments to a different scope or management group use the process described above to override the default assignments. The v11 process for changing parameter values and adding new parameters also works for the guardrail assignments. 
 
 Example to generate assignments with guardrails assignments included.
 
@@ -555,3 +667,33 @@ Depending on the method of deployment for your Terraform based ALZ you can use t
 
 - Azure Verified Module - avm-ptn-alz - <https://github.com/anwather/epac-removetf-avm>
 - Legacy CAF module - terraform-azurerm-caf-enterprise-scale - <https://github.com/anwather/epac-removetf>
+
+## Regression testing harness
+
+To help validate ALZ, AMBA, and SLZ sync behavior consistently, use the regression harness script below.
+
+```ps1
+# Run regression checks for ALZ, AMBA and SLZ using the latest library tags
+./Scripts/CloudAdoptionFramework/Test-ALZSyncRegression.ps1 \
+  -DefinitionsRootFolder .\Definitions \
+  -PacEnvironmentSelector "epac-dev" \
+  -Types ALZ,AMBA,SLZ \
+  -CleanOutput
+```
+
+The script performs:
+- Structure generation for each requested type.
+- Assignment sync for each requested type.
+- Scope validation (no null/empty scope entries in generated assignments).
+- SLZ validation for `archetypeScopeMappings`.
+- ALZ/AMBA validation to ensure `archetypeScopeMappings` is not introduced.
+
+Optional: compare ALZ/AMBA outputs against a known baseline folder.
+
+```ps1
+./Scripts/CloudAdoptionFramework/Test-ALZSyncRegression.ps1 \
+  -DefinitionsRootFolder .\Definitions \
+  -PacEnvironmentSelector "epac-dev" \
+  -Types ALZ,AMBA,SLZ \
+  -BaselineDefinitionsRootFolder .\Definitions-Baseline
+```

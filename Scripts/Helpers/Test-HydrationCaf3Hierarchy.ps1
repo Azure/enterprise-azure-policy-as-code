@@ -49,20 +49,10 @@ function Test-HydrationCaf3Hierarchy {
     if ((!$TenantId) -or ($TenantId -eq "")) {
         $TenantId = (Get-AzContext).Tenant.Id
     }
-    $mgPullIncrement = 0
-    do {
-        $mgPullIncrement++
-        try {
-            $mgStructure = Get-AzManagementGroupRestMethod -GroupId $TenantId -Expand -Recurse
-        }
-        catch {
-            if ($mgPullIncrement -eq 3) {
-                Write-Error "Failed to retrieve Management Group structure after 3 attempts, exiting. Reconnect to Azure and retry test."
-            
-            }
-            Write-Warning "Failed to retrieve Management Group structure, retrying $(10-$mgPullIncrement) more times..."
-        }
-    }until($mgStructure -or $mgPullIncrement -eq 3)
+    if ((!$TenantId) -or ($TenantId -eq "")) {
+        Write-Error "TenantId is required for Test-HydrationCaf3Hierarchy."
+        return "Failed"
+    }
 
     $testResults = @{}
     try {

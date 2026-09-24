@@ -5,6 +5,8 @@ function Set-AzPolicyDefinitionRestMethod {
         $ApiVersion
     )
 
+    Assert-ValidPolicyResourceName -Name $DefinitionObj.name -ResourceType "Policy definition"
+
     # Write log info
     $displayName = $DefinitionObj.displayName
     Write-ModernStatus -Message "Setting policy definition: $displayName" -Status "info" -Indent 2
@@ -26,6 +28,7 @@ function Set-AzPolicyDefinitionRestMethod {
 
     # Invoke the REST API
     $definitionJson = ConvertTo-Json $definition -Depth 100 -Compress
+    $definitionJson = $definitionJson.Replace('[[', '[')
     $response = Invoke-AzRestMethod -Path "$($DefinitionObj.id)?api-version=$ApiVersion" -Method PUT -Payload $definitionJson
 
     # Process response

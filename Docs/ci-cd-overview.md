@@ -1,5 +1,14 @@
 # CI/CD Overview
 
+<div style="margin: 30px 0; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+  <iframe src="https://www.youtube.com/embed/9JNnHEaQJIs" 
+          style="position: absolute; top:0; left:0; width:100%; height:100%;" 
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+          allowfullscreen>
+  </iframe>
+</div>
+
 EPAC is written in PowerShell and any CI/CD tool with the ability to execute PowerShell can be used. The starter kits currently include pipeline definitions for Azure DevOps, GitHub Actions and GitLab. 
 
 This repository contains starter pipelines and instructions for can be found here:
@@ -43,6 +52,7 @@ For saving the output related to ```Build-DeploymentPlans``` there is global var
 | `BuildExemptionsOnly` | If set, only builds the Exemptions plan. This useful to fast-track Exemption when utilizing [Release Flow](#advanced-cicd-with-release-flow) Default: not set. |
 | `SkipExemptions`| If set exemptions will not be built as part of the plan. |
 | `DetailedOutput` | Displays detailed policy change information. |
+| `ReportMajorVersionUpdates` | Reports available major version updates for built-in Policy and Policy Set definitions used by managed Assignments. Every Assignment is checked, not only those pinning `definitionVersion`: Azure stamps `{latestMajor}.*.*` on Assignments created without a version, so an unpinned Assignment silently stays on the major version that was current when it was created. The advisory is written as warnings and added to the plan as `assignments.majorVersionUpdatesAvailable`, with a per-Assignment breakdown in `assignments.definitionVersionStatuses`; no changes are planned. |
 
 ### Policy Deployment
 Deploys Policies, Policy Sets, Policy Assignments, and Policy Exemptions at their desired scope based on the plan.

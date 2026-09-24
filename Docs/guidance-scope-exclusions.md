@@ -22,9 +22,9 @@ Example: Exempt a workload contained within a management group from requiring St
 
 ### Decision: Scope at policyAssignment or pacSelector
 
-The key guiding factors will be at which scope of *assignments* the exclusion is desired. If it is for all assignments in a pacSelector, items in the Global Settings file will be the focus. However, if the scope is more specific then the policyAssignment configurations or an Exemption should be the focus.
+The key guiding factors will be to which scope of *assignments* the exclusion is desired. If it is for all assignments in a pacSelector, updates in the Global Settings file will be the focus. However, if the scope is more specific, we would adjust look to the policyAssignment configurations or an Exemption.
 
-The former is useful when offering autonomy to a hierarchical scope in Azure, the latter when managing the specific needs of a hierarchical scope in Azure when it differs from the [Archetype](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/tailoring-alz) to which it belongs.
+Updates to the Global Settings file are useful when making sweeping changes, such as applying `globalNotScopes` to provide some degree of autonomy by blocking all inheritance for policies delivered by EPAC.
 
 ## Methods
 

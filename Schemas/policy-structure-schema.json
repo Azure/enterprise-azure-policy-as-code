@@ -17,16 +17,16 @@
                             "oneOf": [
                                 {
                                     "type": "string",
-                                    "pattern": "^/providers/Microsoft\\.Management/managementGroups/[a-zA-Z0-9_-]+$",
-                                    "description": "The full resource path to the management group"
+                                    "pattern": "^(/providers/Microsoft\\.Management/managementGroups/[a-zA-Z0-9_-]+|/subscriptions/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$",
+                                    "description": "The full resource path to the management group, or to a subscription for platforms such as MLZ that assign at subscription scope"
                                 },
                                 {
                                     "type": "array",
                                     "items": {
                                         "type": "string",
-                                        "pattern": "^/providers/Microsoft\\.Management/managementGroups/[a-zA-Z0-9_-]+$"
+                                        "pattern": "^(/providers/Microsoft\\.Management/managementGroups/[a-zA-Z0-9_-]+|/subscriptions/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$"
                                     },
-                                    "description": "Array of resource paths to management groups"
+                                    "description": "Array of resource paths to management groups or subscriptions"
                                 }
                             ]
                         }
@@ -165,6 +165,28 @@
             ],
             "additionalProperties": false
         },
+        "archetypeScopeMappings": {
+            "type": "object",
+            "description": "Optional archetype-to-scope mappings used for platforms where management groups can reference multiple archetypes (for example SLZ).",
+            "patternProperties": {
+                "^[a-zA-Z0-9_-]+$": {
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "pattern": "^/providers/Microsoft\\.Management/managementGroups/[a-zA-Z0-9_-]+$"
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "pattern": "^/providers/Microsoft\\.Management/managementGroups/[a-zA-Z0-9_-]+$"
+                            }
+                        }
+                    ]
+                }
+            },
+            "additionalProperties": false
+        },
         "overrides": {
             "type": "object",
             "description": "Override configurations for archetypes and parameters",
@@ -212,9 +234,33 @@
                                     "policy_assignments_to_add": {
                                         "type": "array",
                                         "items": {
-                                            "type": "string"
+                                            "oneOf": [
+                                                {
+                                                    "type": "string",
+                                                    "maxLength": 24
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "policy_name": {
+                                                            "type": "string",
+                                                            "description": "Policy definition or assignment name to add"
+                                                        },
+                                                        "assignment_name": {
+                                                            "type": "string",
+                                                            "maxLength": 24,
+                                                            "description": "Override assignment name used when generating assignment artifacts"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "policy_name",
+                                                        "assignment_name"
+                                                    ],
+                                                    "additionalProperties": false
+                                                }
+                                            ]
                                         },
-                                        "description": "List of policy assignments to add to existing archetypes"
+                                        "description": "List of policy assignments to add to existing archetypes. String entries are limited to 24 characters; use an object with assignment_name to override."
                                     },
                                     "policy_assignments_to_remove": {
                                         "type": "array",
@@ -332,11 +378,28 @@
                         }
                     },
                     "additionalProperties": false
+                },
+                "enforcementMode": {
+                    "type": "object",
+                    "description": "Enforcement mode overrides by mode type with arrays of policy assignment paths",
+                    "patternProperties": {
+                        "^(Default|DoNotEnforce)$": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "description": "Policy assignment path (e.g., 'root/Audit-TrustedLaunch')"
+                            },
+                            "description": "Array of policy assignment paths for this enforcement mode"
+                        }
+                    },
+                    "additionalProperties": false
                 }
             },
             "additionalProperties": false
         },
-        "$schema": { "type": "string" }
+        "$schema": {
+            "type": "string"
+        }
     },
     "required": [
         "managementGroupNameMappings",

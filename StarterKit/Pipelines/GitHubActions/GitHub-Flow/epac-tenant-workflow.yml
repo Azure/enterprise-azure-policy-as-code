@@ -43,7 +43,7 @@ jobs:
 
   deployRoles:
     name: Deploy tenant Role Changes
-    needs: plan
+    needs: [plan, deployPolicy]
     if: needs.plan.outputs.deployRoleChanges == 'yes' && github.ref == 'refs/heads/main'
     uses: ./.github/workflows/deploy-roles.yml
     with:

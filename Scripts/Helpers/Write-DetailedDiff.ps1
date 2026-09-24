@@ -554,6 +554,40 @@ function Write-DetailedDiff {
                 # Changed property - show as update with arrow
                 Write-ColoredOutput -Message "$($indentString)  ~ `"$key`": $deployedStr → $desiredStr" -ForegroundColor Yellow
                 $changesDetected = $true
+                
+                # For array values, also emit an element-level diff (one item per line)
+                $deployedArray = $null
+                $desiredArray = $null
+                if ($deployedValue -is [System.Collections.IEnumerable] -and $deployedValue -isnot [string]) {
+                    $deployedArray = @($deployedValue)
+                }
+                elseif ($deployedValue -is [System.Array]) {
+                    $deployedArray = $deployedValue
+                }
+                if ($desiredValue -is [System.Collections.IEnumerable] -and $desiredValue -isnot [string]) {
+                    $desiredArray = @($desiredValue)
+                }
+                elseif ($desiredValue -is [System.Array]) {
+                    $desiredArray = $desiredValue
+                }
+                
+                if ($null -ne $deployedArray -or $null -ne $desiredArray) {
+                    $deployedSet = if ($null -ne $deployedArray) { [System.Collections.Generic.HashSet[string]]($deployedArray | ForEach-Object { ConvertTo-DisplayString -Value $_ }) } else { [System.Collections.Generic.HashSet[string]]@() }
+                    $desiredSet  = if ($null -ne $desiredArray)  { [System.Collections.Generic.HashSet[string]]($desiredArray  | ForEach-Object { ConvertTo-DisplayString -Value $_ }) } else { [System.Collections.Generic.HashSet[string]]@() }
+                    
+                    $removed = $deployedSet | Where-Object { -not $desiredSet.Contains($_) } | Sort-Object
+                    $added   = $desiredSet  | Where-Object { -not $deployedSet.Contains($_) } | Sort-Object
+                    
+                    if ($removed -or $added) {
+                        Write-ColoredOutput -Message "$($indentString)    $key diff:" -ForegroundColor DarkGray
+                        foreach ($item in $removed) {
+                            Write-ColoredOutput -Message "$($indentString)      - $item" -ForegroundColor Red
+                        }
+                        foreach ($item in $added) {
+                            Write-ColoredOutput -Message "$($indentString)      + $item" -ForegroundColor Green
+                        }
+                    }
+                }
             }
             elseif ($ShowUnchanged) {
                 # Unchanged property

@@ -12,7 +12,9 @@ function Build-AssignmentPlan {
         [hashtable] $PolicyRoleIds,
         [hashtable] $CombinedPolicyDetails,
         [hashtable] $DeprecatedHash,
-        [switch] $DetailedOutput
+        [switch] $DetailedOutput,
+        [Parameter(HelpMessage = "If set, report built-in definition version status for every assignment, including available major version updates.")]
+        [switch] $ReportMajorVersionUpdates
     )
 
     Write-ModernSection -Title "Processing Policy Assignments" -Color Blue
@@ -21,13 +23,94 @@ function Build-AssignmentPlan {
     $assignmentFiles = @()
     $assignmentFiles += Get-ChildItem -Path $AssignmentsRootFolder -Recurse -File -Filter "*.json"
     $assignmentFiles += Get-ChildItem -Path $AssignmentsRootFolder -Recurse -File -Filter "*.jsonc"
-    $csvFiles = Get-ChildItem -Path $AssignmentsRootFolder -Recurse -File -Filter "*.csv"
+    $jsonFiles = @(Get-ChildItem -Path $AssignmentsRootFolder -Recurse -File -Filter "*.json")
+    $jsoncFiles = @(Get-ChildItem -Path $AssignmentsRootFolder -Recurse -File -Filter "*.jsonc")
+    $csvFiles = @(Get-ChildItem -Path $AssignmentsRootFolder -Recurse -File -Filter "*.csv")
+
+    $parameterFilesToIgnore = [System.Collections.ArrayList]::new()
+    $collectParameterFileReferences = {
+        param(
+            [Parameter(Mandatory = $false)] $Node,
+            [Parameter(Mandatory = $true)] [string] $BasePath,
+            [Parameter(Mandatory = $true)] [string] $AssignmentsRootFolder
+        )
+
+        if ($null -eq $Node) {
+            return
+        }
+
+        if ($Node -is [System.Collections.IDictionary]) {
+            foreach ($key in $Node.Keys) {
+                $value = $Node[$key]
+                if ($key -ieq 'parameterFile' -and $null -ne $value) {
+                    $parameterFileValue = [string]$value
+                    if (-not [string]::IsNullOrWhiteSpace($parameterFileValue)) {
+                        $candidatePath = $parameterFileValue
+                        if (-not [System.IO.Path]::IsPathRooted($candidatePath)) {
+                            $candidatePath = Join-Path -Path $BasePath -ChildPath $candidatePath
+                        }
+                        try {
+                            $resolvedPath = (Resolve-Path -Path $candidatePath -ErrorAction Stop).Path
+                        }
+                        catch {
+                            $resolvedPath = [System.IO.Path]::GetFullPath($candidatePath)
+                        }
+                        $rootRelativePath = [System.IO.Path]::GetRelativePath($AssignmentsRootFolder, $resolvedPath)
+                        foreach ($entry in @($resolvedPath, $rootRelativePath, (Split-Path -Leaf $resolvedPath), (Split-Path -Leaf $candidatePath))) {
+                            if (-not [string]::IsNullOrWhiteSpace($entry) -and -not $parameterFilesToIgnore.Contains($entry)) {
+                                $null = $parameterFilesToIgnore.Add($entry)
+                            }
+                        }
+                    }
+                }
+                & $collectParameterFileReferences $value $BasePath $AssignmentsRootFolder
+            }
+            return
+        }
+
+        if ($Node -is [System.Collections.IEnumerable] -and -not ($Node -is [string])) {
+            foreach ($item in $Node) {
+                & $collectParameterFileReferences $item $BasePath $AssignmentsRootFolder
+            }
+        }
+    }
+
+    foreach ($assignmentFile in $assignmentFiles) {
+        try {
+            $assignmentObject = (Get-Content -Path $assignmentFile.FullName -Raw -ErrorAction Stop) | ConvertFrom-Json -Depth 100 -AsHashtable
+            & $collectParameterFileReferences $assignmentObject (Split-Path -Parent $assignmentFile.FullName) $AssignmentsRootFolder
+        }
+        catch {
+            continue
+        }
+    }
+
+    $assignmentFiles = @(
+        $assignmentFiles | Where-Object {
+            $fullName = $_.FullName
+            $relativePath = [System.IO.Path]::GetRelativePath($AssignmentsRootFolder, $fullName)
+            foreach ($ignored in $parameterFilesToIgnore) {
+                if ($ignored -and (($ignored -eq $fullName) -or ($ignored -eq $_.Name) -or ($ignored -eq $relativePath))) {
+                    return $false
+                }
+            }
+            return $true
+        }
+    )
+
     $parameterFilesCsv = @{}
-    if ($assignmentFiles.Length -gt 0) {
-        Write-ModernStatus -Message "Found $($assignmentFiles.Length) assignment files" -Status "success" -Indent 2
-        foreach ($csvFile in $csvFiles) {
+    foreach ($jsonFile in @($jsonFiles + $jsoncFiles)) {
+        if (-not $parameterFilesCsv.ContainsKey($jsonFile.Name)) {
+            $parameterFilesCsv.Add($jsonFile.Name, $jsonFile.FullName)
+        }
+    }
+    foreach ($csvFile in $csvFiles) {
+        if (-not $parameterFilesCsv.ContainsKey($csvFile.Name)) {
             $parameterFilesCsv.Add($csvFile.Name, $csvFile.FullName)
         }
+    }
+    if ($assignmentFiles.Length -gt 0) {
+        Write-ModernStatus -Message "Found $($assignmentFiles.Length) assignment files" -Status "success" -Indent 2
     }
     else {
         Write-Warning "No Policy Assignment files found! Deleting any Policy Assignments."
@@ -38,11 +121,28 @@ function Build-AssignmentPlan {
     $deployedRoleAssignmentsByPrincipalId = $DeployedPolicyResources.roleAssignmentsByPrincipalId
     $deleteCandidates = $deployedPolicyAssignments.Clone()
     $roleDefinitions = $DeployedPolicyResources.roleDefinitions
+    $allDeployedDefinitions = @{}
+    foreach ($definitionId in $DeployedPolicyResources.policydefinitions.all.Keys) {
+        $allDeployedDefinitions[$definitionId] = $DeployedPolicyResources.policydefinitions.all.$definitionId
+    }
+    foreach ($definitionId in $DeployedPolicyResources.policysetdefinitions.all.Keys) {
+        $allDeployedDefinitions[$definitionId] = $DeployedPolicyResources.policysetdefinitions.all.$definitionId
+    }
+    $versionStatuses = [System.Collections.ArrayList]::new()
+    $excludedPolicyAssignmentFiles = if ($null -ne $PacEnvironment.desiredState.excludedPolicyAssignmentFiles) {
+        @($PacEnvironment.desiredState.excludedPolicyAssignmentFiles)
+    } else { @() }
+    $excludedAssignmentFiles = @($assignmentFiles | Where-Object { $_.Name -in $excludedPolicyAssignmentFiles })
+    $assignmentFilesToProcess = @($assignmentFiles | Where-Object { $_.Name -notin $excludedPolicyAssignmentFiles })
+
+    foreach ($excludedAssignmentFile in $excludedAssignmentFiles) {
+        Write-ModernStatus -Message "Excluded by configuration: $($excludedAssignmentFile.FullName)" -Status "skip" -Indent 4
+    }
 
     # Process each assignment file
-    foreach ($assignmentFile in $assignmentFiles) {
-        $Json = Get-Content -Path $assignmentFile.FullName -Raw -ErrorAction Stop
+    foreach ($assignmentFile in $assignmentFilesToProcess) {
 
+        $Json = Get-Content -Path $assignmentFile.FullName -Raw -ErrorAction Stop
         $includedCloudEnvironments = ($Json | ConvertFrom-Json).epacCloudEnvironments
         if ($includedCloudEnvironments) {
             if ($pacEnvironment.cloud -notIn $includedCloudEnvironments) {
@@ -90,6 +190,7 @@ function Build-AssignmentPlan {
             -PacEnvironment $PacEnvironment `
             -ScopeTable $ScopeTable `
             -ParameterFilesCsv $parameterFilesCsv `
+            -AssignmentFilePath $assignmentFile.FullName `
             -DefinitionNode $assignmentObject `
             -AssignmentDefinition $rootAssignmentDefinition `
             -CombinedPolicyDetails $CombinedPolicyDetails `
@@ -119,6 +220,27 @@ function Build-AssignmentPlan {
             $nonComplianceMessages = $assignment.nonComplianceMessages
             $overrides = $assignment.overrides
             $resourceSelectors = $assignment.resourceSelectors
+
+            if ($ReportMajorVersionUpdates) {
+                # Evaluate every assignment, not only the ones pinning a version in the definition
+                # files: Azure stamps '{latestMajor}.*.*' on assignments created without a version,
+                # so an unpinned assignment silently stops at that major version.
+                $deployedDefinitionVersion = $null
+                if ($deployedPolicyAssignments.ContainsKey($id)) {
+                    $deployedDefinitionVersion = (Get-PolicyResourceProperties $deployedPolicyAssignments.$id).definitionVersion
+                }
+                $versionStatus = Get-BuiltInVersionStatus `
+                    -PolicyDefinitionId $policyDefinitionId `
+                    -DefinitionVersion $definitionVersion `
+                    -DeployedDefinitionVersion $deployedDefinitionVersion `
+                    -PolicyDefinition $allDeployedDefinitions[$policyDefinitionId]
+                $versionStatus.assignmentId = $id
+                $versionStatus.assignmentDisplayName = $displayName
+                $versionStatus.scope = $scope
+                $versionStatus.isNewAssignment = -not $deployedPolicyAssignments.ContainsKey($id)
+                $null = $versionStatuses.Add($versionStatus)
+            }
+
             if ($deployedPolicyAssignments.ContainsKey($id)) {
                 # Update and replace scenarios
                 $deployedPolicyAssignment = $deployedPolicyAssignments[$id]
@@ -380,6 +502,39 @@ function Build-AssignmentPlan {
                     }
                 }
             } 
+        }
+    }
+
+    if ($ReportMajorVersionUpdates) {
+        $majorVersionUpdates = @($versionStatuses | Where-Object { $_.updateAvailable })
+        $Assignments.majorVersionUpdatesAvailable = $majorVersionUpdates
+        $Assignments.definitionVersionStatuses = $versionStatuses.ToArray()
+
+        Write-ModernStatus -Message "Checked $($versionStatuses.Count) assignment(s) for built-in major version updates" -Status "info" -Indent 2
+        $counts = [ordered]@{
+            current      = @($versionStatuses | Where-Object { $_.status -eq "current" }).Count
+            tracksLatest = @($versionStatuses | Where-Object { $_.status -eq "tracksLatest" }).Count
+            custom       = @($versionStatuses | Where-Object { $_.status -eq "custom" }).Count
+            unknown      = @($versionStatuses | Where-Object { $_.status -eq "unknown" }).Count
+        }
+        Write-ModernStatus -Message "On latest major: $($counts.current), tracking latest: $($counts.tracksLatest), custom definitions: $($counts.custom), undetermined: $($counts.unknown)" -Status "info" -Indent 2
+
+        if ($majorVersionUpdates.Count -gt 0) {
+            Write-ModernStatus -Message "Major version updates available for built-in definitions used by $($majorVersionUpdates.Count) assignment(s)" -Status "warning" -Indent 2
+            $groupedUpdates = $majorVersionUpdates | Group-Object -Property { "$($_.policyDefinitionId)|$($_.assignedVersion)" }
+            foreach ($groupedUpdate in $groupedUpdates) {
+                $first = $groupedUpdate.Group[0]
+                Write-Warning "Built-in '$($first.displayName)' has version $($first.latestVersion) available; $($groupedUpdate.Count) assignment(s) effectively on major version $($first.assignedMajor) ('$($first.assignedVersion)')"
+                foreach ($update in $groupedUpdate.Group) {
+                    # An assignment which pins nothing in the definition files is held at this major
+                    # version by the value Azure stamped when the assignment was created.
+                    $sourceText = if ($update.assignedVersionFrom -eq "deployed") { " (pinned by Azure, not by the definition files)" } else { "" }
+                    Write-ModernStatus -Message "$($update.assignmentDisplayName) at $($update.scope): '$($update.assignedVersion)' -> major version $($update.latestMajor) available$sourceText" -Status "warning" -Indent 4
+                }
+            }
+        }
+        else {
+            Write-ModernStatus -Message "No major version updates available for built-in definitions used by assignments" -Status "info" -Indent 2
         }
     }
 

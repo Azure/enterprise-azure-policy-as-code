@@ -28,6 +28,9 @@
 .PARAMETER SkipNotScopedExemptions
     If set, skip exemptions that are not scoped.
 
+.PARAMETER ReportMajorVersionUpdates
+    If set, reports available major version updates for built-in Policy and Policy Set definitions used by managed assignments. Every assignment is checked, including those which do not pin definitionVersion, because Azure stamps a major version on assignments created without one.
+
 .EXAMPLE
     .\Build-DeploymentPlans.ps1 -PacEnvironmentSelector "dev"
 
@@ -69,8 +72,14 @@ param (
 
     [switch]$SkipNotScopedExemptions,
 
+    [Parameter(HelpMessage = "If set, the plan will fail when exemptions reference assignments or scopes not found in the current root scope.")]
+    [bool] $FailOnExemptionError = $false,
+
     [Parameter(HelpMessage = "If set, shows detailed line-by-line diffs similar to terraform plan.")]
-    [switch] $DetailedOutput
+    [switch] $DetailedOutput,
+
+    [Parameter(HelpMessage = "If set, reports available major version updates for built-in Policy and Policy Set definitions used by managed assignments. Every assignment is checked, including those which do not pin definitionVersion.")]
+    [switch] $ReportMajorVersionUpdates
 )
 
 $PSDefaultParameterValues = @{
@@ -99,6 +108,9 @@ Write-ModernStatus -Message "PAC Environment: $($pacEnvironment.pacSelector)" -S
 Write-ModernStatus -Message "Deployment Root: $($pacEnvironment.deploymentRootScope)" -Status "info" -Indent 2
 Write-ModernStatus -Message "Tenant ID: $($pacEnvironment.tenantId)" -Status "info" -Indent 2
 Write-ModernStatus -Message "Cloud: $($pacEnvironment.cloud)" -Status "info" -Indent 2
+if ($pacEnvironment.desiredState.manageChildScopeDefinitions) {
+    Write-ModernStatus -Message "Manage Child Scope Definitions: Enabled" -Status "info" -Indent 2
+}
 
 # Telemetry
 if ($pacEnvironment.telemetryEnabled) {
@@ -116,6 +128,7 @@ $buildSelections = @{
     buildPolicySetDefinitions = $false
     buildPolicyAssignments    = $false
     buildPolicyExemptions     = $false
+    buildPolicyEnrollments    = $false
 }
 $policyDefinitions = @{
     new             = @{}
@@ -164,6 +177,13 @@ $exemptions = @{
     numberOfChanges = 0
     numberUnchanged = 0
 }
+$enrollments = @{
+    new             = @{}
+    update          = @{}
+    delete          = @{}
+    numberOfChanges = 0
+    numberUnchanged = 0
+}
 $pacOwnerId = $pacEnvironment.pacOwnerId
 $timestamp = Get-Date -AsUTC -Format "u"
 $policyPlan = @{
@@ -173,6 +193,7 @@ $policyPlan = @{
     policySetDefinitions = $policySetDefinitions
     assignments          = $assignments
     exemptions           = $exemptions
+    enrollments          = $enrollments
 }
 $rolesPlan = @{
     createdOn       = $timestamp
@@ -183,7 +204,9 @@ $policyDefinitionsFolder = $pacEnvironment.policyDefinitionsFolder
 $policySetDefinitionsFolder = $pacEnvironment.policySetDefinitionsFolder
 $policyAssignmentsFolder = $pacEnvironment.policyAssignmentsFolder
 $policyExemptionsFolder = $pacEnvironment.policyExemptionsFolder
+$policyEnrollmentsFolder = $pacEnvironment.policyEnrollmentsFolder
 $policyExemptionsFolderForPacEnvironment = "$($policyExemptionsFolder)/$($pacEnvironment.pacSelector)"
+$policyEnrollmentsFolderForPacEnvironment = "$($policyEnrollmentsFolder)/$($pacEnvironment.pacSelector)"
 #endregion plan data structures
 
 #region calculate which plans need to be built
@@ -236,6 +259,13 @@ $resourceTypes = @(
         IncludeInSkipExemptions = $false
         IsManaged               = $exemptionsAreManaged
         NotManagedMessage       = $exemptionsAreNotManagedMessage
+    },
+    @{
+        Name                    = "Policy Enrollments"
+        BuildFlag               = "buildPolicyEnrollments"
+        Folder                  = $policyEnrollmentsFolderForPacEnvironment
+        IncludeInExemptionsOnly = $false
+        IncludeInSkipExemptions = $true
     }
 )
 
@@ -290,7 +320,7 @@ foreach ($resourceType in $resourceTypes) {
 
 # Final validation - ensure at least one resource type is being built
 if (-not $buildSelections.buildAny) {
-    $null = $warningMessages.Add("No Policies, Policy Set, Assignment, or Exemptions managed by this EPAC instance found. No plans will be built. Exiting...")
+    $null = $warningMessages.Add("No Policies, Policy Set, Assignment, Exemption, or Enrollment resources managed by this EPAC instance found. No plans will be built. Exiting...")
 }
 
 if ($warningMessages.Count -gt 0) {
@@ -315,7 +345,8 @@ if ($buildSelections.buildAny) {
         -PacEnvironment $pacEnvironment `
         -ScopeTable $scopeTable `
         -SkipExemptions:$skipExemptions `
-        -SkipRoleAssignments:$skipRoleAssignments
+        -SkipRoleAssignments:$skipRoleAssignments `
+        -IncludeEnrollments:$buildSelections.buildPolicyEnrollments
 
     # Calculate roleDefinitionIds for built-in and inherited Policies
     $readOnlyPolicyDefinitions = $deployedPolicyResources.policydefinitions.readOnly
@@ -420,7 +451,16 @@ if ($buildSelections.buildAny) {
             -PolicyRoleIds $policyRoleIds `
             -CombinedPolicyDetails $combinedPolicyDetails `
             -DeprecatedHash $deprecatedHash `
-            -DetailedOutput:$DetailedOutput
+            -DetailedOutput:$DetailedOutput `
+            -ReportMajorVersionUpdates:$ReportMajorVersionUpdates
+    }
+
+    if ($buildSelections.buildPolicyEnrollments) {
+        Build-PolicyEnrollmentPlan `
+            -EnrollmentsRootFolder $policyEnrollmentsFolderForPacEnvironment `
+            -PacEnvironment $pacEnvironment `
+            -DeployedEnrollments $deployedPolicyResources.policyenrollments `
+            -Enrollments $enrollments
     }
 
     if ($buildSelections.buildPolicyExemptions) {
@@ -439,6 +479,7 @@ if ($buildSelections.buildAny) {
                 -DeployedExemptions $deployedPolicyResources.policyExemptions `
                 -Exemptions $exemptions `
                 -SkipNotScopedExemptions `
+                -FailOnExemptionError $FailOnExemptionError `
                 -DetailedOutput:$DetailedOutput
         }
         else {
@@ -453,6 +494,7 @@ if ($buildSelections.buildAny) {
                 -Assignments $assignments `
                 -DeployedExemptions $deployedPolicyResources.policyExemptions `
                 -Exemptions $exemptions `
+                -FailOnExemptionError $FailOnExemptionError `
                 -DetailedOutput:$DetailedOutput
         }
     }
@@ -506,6 +548,15 @@ if ($buildSelections.buildAny) {
         Write-ModernCountSummary -Type "Policy Exemptions" -Unchanged $exemptions.numberUnchanged -TotalChanges $exemptions.numberOfChanges -Changes $exemptionChanges -Orphaned $exemptions.numberOfOrphans -Expired $exemptions.numberOfExpired
     }
 
+    if ($buildSelections.buildPolicyEnrollments) {
+        $enrollmentChanges = @{
+            new    = $enrollments.new.psbase.Count
+            update = $enrollments.update.psbase.Count
+            delete = $enrollments.delete.psbase.Count
+        }
+        Write-ModernCountSummary -Type "Policy Enrollments (Preview)" -Unchanged $enrollments.numberUnchanged -TotalChanges $enrollments.numberOfChanges -Changes $enrollmentChanges
+    }
+
 }
 
 Write-ModernSection -Title "Deployment Plan Output" -Color Green
@@ -513,6 +564,7 @@ $policyResourceChanges = $policyDefinitions.numberOfChanges
 $policyResourceChanges += $policySetDefinitions.numberOfChanges
 $policyResourceChanges += $assignments.numberOfChanges
 $policyResourceChanges += $exemptions.numberOfChanges
+$policyResourceChanges += $enrollments.numberOfChanges
 
 $policyStage = "no"
 $planFile = $pacEnvironment.policyPlanOutputFile

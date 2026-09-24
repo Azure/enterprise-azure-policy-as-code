@@ -43,7 +43,7 @@ jobs:
 
   deployRoles:
     name: Deploy epac-dev Role Changes
-    needs: plan
+    needs: [plan, deployPolicy]
     if: needs.plan.outputs.deployRoleChanges == 'yes'
     uses: ./.github/workflows/deploy-roles.yml
     with:

@@ -36,13 +36,20 @@ function New-HydrationCaf3Hierarchy {
         $Suffix
     )
     $InformationPreference = "Continue"
+    $updatedDestinationRootName = $( -join ($Prefix, $DestinationRootName, $Suffix))
     $mgLists = [ordered]@{
-        $DestinationRootName = @("Platform", "LandingZones", "Decommissioned", "Sandbox")
+        $updatedDestinationRootName = @("Platform", "LandingZones", "Decommissioned", "Sandbox")
         Platform             = @("Identity", "Management", "Connectivity", "Security")
         LandingZones         = @("Corp", "Online")
     }
+    if(!(Get-AzManagementGroup -GroupName $updatedDestinationRootName -ErrorAction SilentlyContinue)){
+        Write-Host "Creating root Management Group $updatedDestinationRootName" -ForegroundColor Yellow
+        $null = New-AzManagementGroup -GroupName $updatedDestinationRootName -DisplayName $updatedDestinationRootName -ErrorAction Stop
+    }else{
+        Write-Host "Root Management Group $updatedDestinationRootName already exists." -ForegroundColor Green
+    }
     foreach ($listName in $mgLists.Keys) {
-        if ($DestinationRootName -eq $listName) {
+        if ($updatedDestinationRootName -eq $listName) {
             $parentName = $listName
         }
         else {
@@ -56,26 +63,33 @@ function New-HydrationCaf3Hierarchy {
             do {
                 $null = Remove-variable testResult -ErrorAction SilentlyContinue
                 $null = Remove-variable complete -ErrorAction SilentlyContinue
-                try {
-                    $null = $testResult = Get-AzManagementGroupRestMethod -GroupId $name -ErrorAction SilentlyContinue
-                }
-                catch {
-                    $complete = $false
-                }
+                # try {
+                    # Can move to Get-AzManagementGroupRestMethod if we change the default behavior from forcing a stop on the tests.
+                $null = $testResult = Get-AzManagementGroup -GroupName $name -ErrorAction SilentlyContinue
+                # }
+                # catch {
+                #     $complete = $false
+                # }
                 if ($testResult.name) {
                     # This exists for several reasons: 
                     #    First, timeout errors on response to new-azmanagementgroup are addressed this way.
                     #    Second, this avoids collisions, and notifies of the location if one occurs.
                     #    Third, this accelerates a retry if the first attempt is interrupted.
-                    $complete = $true
-                    Write-Information "Management Group $name confirmed in $($testResult.properties.details.parent.name)."
+                    if( $testResult.ParentId -eq $rootGroupId) {
+                        $complete = $true                    
+                        Write-Information "Management Group $name confirmed in $($testResult.ParentId)."
+                    }
+                    elseif(!($testResult.ParentId -eq $rootGroupId)) {
+                        Write-Warning "Management Group $name already exists in $($testResult.ParentId), expected $rootGroupId. Please resolve this collision before proceeding."
+                        return
+                    }
                 }
                 if (!($complete -eq $true)) {
                     try {
                         $null = $newMg = New-AzManagementGroup -GroupName $name -DisplayName $name -ParentId $rootGroupId -ErrorAction SilentlyContinue
                     }
                     catch {
-                        $null = $newMg = Get-AzManagementGroupRestMethod -GroupId $name -ErrorAction SilentlyContinue
+                        $null = $newMg = Get-AzManagementGroup -GroupName $name -ErrorAction SilentlyContinue
                         Write-Error $_.Exception.Message
                     }
                 }

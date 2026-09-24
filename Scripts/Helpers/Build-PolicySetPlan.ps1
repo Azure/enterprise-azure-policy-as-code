@@ -30,9 +30,15 @@ function Build-PolicySetPlan {
     $deploymentRootScope = $PacEnvironment.deploymentRootScope
     $policyDefinitionsScopes = $PacEnvironment.policyDefinitionsScopes
     $duplicateDefinitionTracking = @{}
+    $definitionsIgnored = 0
     $thisPacOwnerId = $PacEnvironment.pacOwnerId
 
     foreach ($file in $definitionFiles) {
+        if ($file.Name -in $PacEnvironment.desiredState.excludedPolicySetDefinitionFiles) {
+            Write-ModernStatus -Message "Excluded by configuration: $($file.FullName)" -Status "skip" -Indent 4
+            $definitionsIgnored++
+            continue
+        }
         $Json = Get-Content -Path $file.FullName -Raw -ErrorAction Stop
 
         $definitionObject = $null
@@ -75,7 +81,7 @@ function Build-PolicySetPlan {
             Write-Error "Policy Set from file '$($file.Name)' requires a name" -ErrorAction Stop
         }
         if (-not (Confirm-ValidPolicyResourceName -Name $name)) {
-            Write-Error "Policy Set from file '$($file.Name) has a name '$name' containing invalid characters <>*%&:?.+/ or ends with a space." -ErrorAction Stop
+            Write-Error "Policy Set from file '$($file.Name) has a name '$name' containing invalid characters '%, &, \, ?, /, <, >, :, #, *, +' or control characters, or ends with a space." -ErrorAction Stop
         }
         if ($null -eq $displayName) {
             Write-Error "Policy Set '$name' from file '$($file.Name)' requires a displayName" -ErrorAction Stop
@@ -572,10 +578,11 @@ function Build-PolicySetPlan {
                 Write-Host ""
             }
             
+            $deleteScopeId = if ($deleteCandidate.scope) { $deleteCandidate.scope } else { $deploymentRootScope }
             $splat = @{
                 id          = $id
                 name        = $deleteCandidate.name
-                scopeId     = $deploymentRootScope
+                scopeId     = $deleteScopeId
                 displayName = $displayName
             }
             $null = $Definitions.delete.Add($id, $splat)
@@ -596,5 +603,4 @@ function Build-PolicySetPlan {
     # Write-ModernCountSummary -Operation "Policy Set Definitions" -Unchanged $Definitions.numberUnchanged
     Write-Information ""
 }
-
 

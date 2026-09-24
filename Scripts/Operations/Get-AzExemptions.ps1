@@ -20,6 +20,9 @@
 .PARAMETER ActiveExemptionsOnly
     Set to true to only generate files for active (not expired and not orphaned) exemptions. Defaults to false.
 
+.PARAMETER ExportForEpac
+    Set to true to additionally write an EPAC-ready JSON file ('epac-exemptions.<FileExtension>'). The file contains only properties recognised by the EPAC policyExemptions schema (strips Azure-only fields such as status, expiresInDays, and the metadata.deployedBy / metadata.epacMetadata blocks), so it can be copied directly into the appropriate policyExemptions folder without manual cleanup. Defaults to false.
+
 .EXAMPLE
     .\Get-AzExemptions.ps1 -PacEnvironmentSelector "dev" -DefinitionsRootFolder "C:\Src\Definitions" -OutputFolder "C:\Src\Outputs" -Interactive $true -FileExtension "jsonc"
     Retrieves Policy Exemptions from an EPAC environment and saves them to files.
@@ -27,6 +30,10 @@
 .EXAMPLE
     .\Get-AzExemptions.ps1 -Interactive $true
     Retrieves Policy Exemptions from an EPAC environment and saves them to files. The script prompts for the PAC environment and uses the default definitions and output folders.
+
+.EXAMPLE
+    .\Get-AzExemptions.ps1 -PacEnvironmentSelector "dev" -ExportForEpac
+    Retrieves Policy Exemptions and additionally writes an EPAC-ready JSON file that can be committed directly into the EPAC repository.
 
 .LINK
     https://azure.github.io/enterprise-azure-policy-as-code/policy-exemptions/
@@ -50,7 +57,10 @@ param(
     [string] $FileExtension = "json",
 
     [Parameter(Mandatory = $false, HelpMessage = "Set to true to only generate files for active (not expired and not orphaned) exemptions. Defaults to false.")]
-    [switch] $ActiveExemptionsOnly
+    [switch] $ActiveExemptionsOnly,
+
+    [Parameter(Mandatory = $false, HelpMessage = "Set to true to additionally write an EPAC-ready JSON file ('epac-exemptions.<FileExtension>') with Azure-only fields removed so it can be committed directly into the EPAC repository. Defaults to false.")]
+    [switch] $ExportForEpac
 )
 
 # Dot Source Helper Scripts
@@ -86,4 +96,5 @@ Out-PolicyExemptions `
     -OutputJson `
     -OutputCsv `
     -FileExtension $FileExtension `
-    -ActiveExemptionsOnly:$ActiveExemptionsOnly
+    -ActiveExemptionsOnly:$ActiveExemptionsOnly `
+    -ExportForEpac:$ExportForEpac

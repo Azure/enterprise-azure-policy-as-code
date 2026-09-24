@@ -33,10 +33,15 @@ function Build-PolicyPlan {
     $definitionsUpdate = $Definitions.update
     $definitionsReplace = $Definitions.replace
     $definitionsUnchanged = 0
+    $definitionsIgnored = 0
     $thisPacOwnerId = $PacEnvironment.pacOwnerId
 
     foreach ($file in $definitionFiles) {
-
+        if ($file.Name -in $PacEnvironment.desiredState.excludedPolicyDefinitionFiles) {
+            Write-ModernStatus -Message "Excluded by configuration: $($file.FullName)" -Status "skip" -Indent 4
+            $definitionsIgnored++
+            continue
+        }
         # Write-Information "Processing $($definitionFilesSet.Length) Policy files in this parallel execution."
         $Json = Get-Content -Path $file.FullName -Raw -ErrorAction Stop
         $definitionObject = $null
@@ -78,7 +83,7 @@ function Build-PolicyPlan {
             Write-Error "Policy from file '$($file.Name)' requires a name" -ErrorAction Stop
         }
         if (-not (Confirm-ValidPolicyResourceName -Name $name)) {
-            Write-Error "Policy from file '$($file.Name) has a name '$name' containing invalid characters <>*%&:?.+/ or ends with a space." -ErrorAction Stop
+            Write-Error "Policy from file '$($file.Name) has a name '$name' containing invalid characters '%, &, \, ?, /, <, >, :, #, *, +' or control characters, or ends with a space." -ErrorAction Stop
         }
         if ($null -eq $displayName -and $definitionProperties.mode -ne "Microsoft.Network.Data") {
             Write-Error "Policy '$name' from file '$($file.Name)' requires a displayName" -ErrorAction Stop
@@ -430,10 +435,11 @@ function Build-PolicyPlan {
                 Write-Host ""
             }
             
+            $deleteScopeId = if ($deleteCandidate.scope) { $deleteCandidate.scope } else { $deploymentRootScope }
             $splat = @{
                 id          = $id
                 name        = $deleteCandidate.name
-                scopeId     = $deploymentRootScope
+                scopeId     = $deleteScopeId
                 DisplayName = $displayName
             }
             $null = $Definitions.delete.Add($id, $splat)
@@ -455,5 +461,4 @@ function Build-PolicyPlan {
     Write-ModernStatus -Message "Unchanged Policy Definitions: $($Definitions.numberUnchanged)" -Status "status" -Indent 2
     Write-Information ""
 }
-
 

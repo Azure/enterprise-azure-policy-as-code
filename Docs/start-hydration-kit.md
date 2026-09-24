@@ -12,12 +12,19 @@ The `Install-HydrationEpac` command builds a basic EPAC implementation for local
 - To run the Hydration Kit, permissions to create Management Groups at the **Tenant Root Level** is also required.
   - The `Management Group Contributor` built-in RBAC role contains the required permissions.
   - The Hydration Kit creates additional Management Groups for EPAC development.
+- **`git` must be installed and available in the system PATH.** The Hydration Kit automatically downloads the EPAC StarterKit from GitHub using `git clone`. The StarterKit is required for pipeline generation regardless of whether you choose Module or Script based code execution.
+  - If `git` is not available, you can manually download the StarterKit from [https://github.com/Azure/enterprise-azure-policy-as-code](https://github.com/Azure/enterprise-azure-policy-as-code) and extract the `StarterKit` folder to the root of your local repo directory before running the installer.
 
 ### Before You Begin
 
 1. **Connect to Azure:** Use `Connect-AzAccount` to authenticate to your Azure tenant
 1. **Verify permissions:** Confirm you can create Management Groups at the tenant root level
+1. **Ensure `git` is installed:** The Hydration Kit uses `git` to download the EPAC StarterKit required for pipeline creation
 1. **Choose your location:** Decide where you want the EPAC files to be created locally
+1. **Choose your code execution source:**
+    1. *Script* based execution requires the EPAC Repo Scripts folder be downloaded and maintained locally
+    1. *Module* based execution requires installation of the EnterprisePolicyAsCode module locally at either user or machine scope
+    1. The Hydration Kit supports both methods, but it requires less steps to deploy using the Module execution method
 
 ## What the Hydration Kit Provides
 
@@ -43,6 +50,17 @@ Set the location where you want EPAC files to be created. This could be a simple
 ```Powershell
 $myRepoRoot = "/Path/To/Local/EPAC/Repo"
 Set-Location $myRepoRoot
+```
+
+### \[OPTIONAL\] Download Code for Local Script Execution
+
+This is only necessary if you the organization has chosen to use local scripts, rather than the EnterprisePolicyAsCode module, for the deployment. This is common when code must be scanned and maintained locally for supply line security visibility for compliance requirements.
+
+```powershell
+$null = New-Item -ItemType Directory -Path ./temp
+git clone https://github.com/Azure/enterprise-azure-policy-as-code.git ./temp
+Copy-Item ./temp/Scripts ./ -Recurse -Force
+Remove-Item ./temp -Recurse -Force
 ```
 
 ### Identify Your Tenant Intermediate Root

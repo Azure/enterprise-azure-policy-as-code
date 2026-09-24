@@ -18,6 +18,9 @@ Make sure you [check out the series](https://www.youtube.com/channel/UCtkZkkgT-m
     - Add/Modify parameters for individual assignments
     - Schema file for the structure file
 
+> [!IMPORTANT]
+> For the next EPAC release cycle, review SLZ migration and breaking-change guidance before updating tags or sync outputs: [Breaking changes and migration notes](integrating-with-alz-library.md#breaking-changes-and-migration-notes).
+
 > [!CAUTION]
 > Changes to Lighthouse deployments via EPAC in v11.0.0. Review the upcoming changes to avoid issues with your EPAC instance. The changes are [documented here](start-changes.md).
 
