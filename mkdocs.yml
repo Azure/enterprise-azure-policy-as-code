@@ -54,6 +54,7 @@ nav:
       - Branching Flows: ci-cd-branching-flows.md
       - Azure DevOps Pipelines: ci-cd-ado-pipelines.md
       - GitHub Actions: ci-cd-github-actions.md
+      - GitLab Pipelines: ci-cd-gitlab-pipelines.md
   - Operational Scripts:
       - Scripts Overview: operational-scripts.md
       - Documenting Policy: operational-scripts-documenting-policy.md

@@ -15,6 +15,7 @@ This repository contains starter pipelines and instructions for can be found her
 
 - [Azure DevOps Pipelines](ci-cd-ado-pipelines.md)
 - [GitHub Actions](ci-cd-github-actions.md)
+- [GitLab Pipelines](ci-cd-gitlab-pipelines.md)
 
 ## General EPAC Deployment Steps
 
