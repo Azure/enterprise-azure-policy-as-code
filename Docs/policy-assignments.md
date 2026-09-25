@@ -278,6 +278,15 @@ E.g. /subscriptions/subscriptionsPattern/Con* would match a subscription with th
 The Powershell -like expression is used for matching. 
 ```
 
+### Assignment Scope Validation for Custom Definition Locations
+
+When an assignment references custom Policy Definitions or Policy Set Definitions, the assignment scope must be at the same level as, or below, each referenced definition scope.
+
+- Built-in definitions are valid at all assignment scopes.
+- For custom definitions, the scope is derived from the definition resource Id (including when `properties.metadata.definitionLocation` is used).
+
+If this rule is violated, EPAC marks the assignment definition node with an error during plan build.
+
 ## Managed Identities and role assignments
 
 Policies with a `DeployIfNotExists` or `Modify` effect need a Managed Identity (MI) and role assignments to execute remediation tasks. EPAC calculates the necessary role assignments based on the `roleDefinitionIds` in the policy definition. By default EPAC uses a system-assigned Managed Identity. The team maintaining EPAC recommend using system-assigned identities; however, your organization may have role assignment reasons to use user-assigned Managed Identities.

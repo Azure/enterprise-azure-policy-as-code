@@ -65,6 +65,21 @@ Custom definitions are uploaded to Azure at the time of initial deployment to a 
 
 [policy(Set)Definitions](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/scope#definition-location) are deployed at the pacSelector root. This enables versioning on custom definitions to be put through the CI/CD based change process.
 
+To deploy a specific custom Policy Definition at a different scope, set `properties.metadata.definitionLocation` in the definition file. If omitted, EPAC uses the `deploymentRootScope` from the active pacEnvironment.
+
+```json
+"properties": {
+    "displayName": "Policy Display Name",
+    "metadata": {
+        "category": "Your Category",
+        "version": "1.0.0",
+        "definitionLocation": "/providers/Microsoft.Management/managementGroups/mg-central-policy"
+    }
+}
+```
+
+When using `definitionLocation`, ensure the scope is included in EPAC's managed definition scopes (for example with `desiredState.additionalDefinitionLocations` if the location is outside the deployment root hierarchy).
+
 ## Recommendations
 
 * `"name"` is required and should be unique. It can be a GUID or a unique short name.
