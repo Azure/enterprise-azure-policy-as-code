@@ -149,6 +149,7 @@ function Out-DocumentationForPolicySets {
                 Write-Verbose "Skipping manual policy: $($_.name)"
             }
         }
+    }
         #endregion Policy Effects Multi-Column
 	
         #region Policy Effects One Column
@@ -624,5 +625,4 @@ function Out-DocumentationForPolicySets {
             }
         }
         Write-ModernStatus -Message "Complete" -Status "success" -Indent 2
-    }
 }
