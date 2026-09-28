@@ -17,7 +17,7 @@ function Build-PolicyEnrollmentPlan {
         Write-ModernStatus -Message "Found $($enrollmentFiles.Length) policy enrollment files" -Status "success" -Indent 2
     }
     else {
-        Write-ModernStatus -Message "No policy enrollment files found - managed enrollments may be deleted" -Status "warning" -Indent 2
+        Write-ModernStatus -Message "No policy enrollment files found - managed enrollments may be deleted" -Status "info" -Indent 2
     }
 
     $deployedManagedEnrollments = $DeployedEnrollments.managed
