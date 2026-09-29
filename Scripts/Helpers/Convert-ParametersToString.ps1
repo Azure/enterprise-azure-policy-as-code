@@ -8,7 +8,7 @@ function Convert-ParametersToString {
     [string] $text = ""
     [hashtable] $csvParametersHt = @{}
     if ($Parameters.psbase.Count -gt 0) {
-        foreach ($parameterName in $Parameters.Keys) {
+        foreach ($parameterName in ($Parameters.Keys | Sort-Object)) {
             $parameter = $Parameters.$parameterName
             $multiUse = $parameter.multiUse
             $isEffect = $parameter.isEffect
