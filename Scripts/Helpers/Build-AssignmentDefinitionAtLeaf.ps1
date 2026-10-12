@@ -365,7 +365,7 @@ function Build-AssignmentDefinitionAtLeaf {
                             $hasErrors = $true
                         }
                     }
-                    elseif ($null -ne $policySetName -or $null -ne $policySetId) {
+                    elseif ($null -ne $policyName -or $null -ne $policyId) {
                         Write-Error "    Leaf Node $($nodeName): overrides must NOT specify which Policy for a single definitionEntry it belongs to by using policyName or policyId: $($effectOverride | ConvertTo-Json -Depth 100 -Compress)"
                         $hasErrors = $true
                     }
