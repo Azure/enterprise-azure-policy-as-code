@@ -55,7 +55,7 @@ This file contains information that drives the sync process. The file includes m
    New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type ALZ -PacEnvironmentSelector "epac-dev"
 
    # Create a default file for ALZ policies specifying a tagged release of the ALZ Library 
-   New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type ALZ -Tag "platform/alz/2025.02.0"
+   New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type ALZ -Tag "platform/alz/2026.10.0"
 
    # Create a default file for ALZ policies by providing a path to a cloned/modified library 
    New-ALZPolicyDefaultStructure -DefinitionsRootFolder .\Definitions -Type ALZ -LibraryPath <<path to library>>
@@ -109,7 +109,7 @@ The next command will generate policy assignment files based on the values in th
    Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type ALZ -PacEnvironmentSelector "epac-dev"
 
    # Sync the ALZ policies and assign to the "epac-dev" PAC environment. Specify a released version of the ALZ library
-   Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type ALZ -PacEnvironmentSelector "epac-dev" -Tag "platform/alz/2025.02.0"
+   Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type ALZ -PacEnvironmentSelector "epac-dev" -Tag "platform/alz/2026.10.0"
 
    # Sync the ALZ policies from a cloned/modified library
    Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type ALZ -PacEnvironmentSelector "epac-dev" -LibraryPath <<path to library>>
