@@ -211,6 +211,7 @@ $policyEnrollmentsFolderForPacEnvironment = "$($policyEnrollmentsFolder)/$($pacE
 
 #region calculate which plans need to be built
 $warningMessages = [System.Collections.ArrayList]::new()
+$informationMessages = [System.Collections.ArrayList]::new()
 $exemptionsAreNotManagedMessage = $null
 $exemptionsAreManaged = $true
 if (!(Test-Path $policyExemptionsFolder -PathType Container)) {
@@ -266,6 +267,7 @@ $resourceTypes = @(
         Folder                  = $policyEnrollmentsFolderForPacEnvironment
         IncludeInExemptionsOnly = $false
         IncludeInSkipExemptions = $true
+        InformationOnly         = $true
     }
 )
 
@@ -312,7 +314,13 @@ foreach ($resourceType in $resourceTypes) {
                 $buildSelections.buildAny = $true
             }
             else {
-                $null = $warningMessages.Add("$($resourceType.Name) '$($resourceType.Folder)' folder not found. $($resourceType.Name) not managed by this EPAC instance.")
+                $message = "$($resourceType.Name) '$($resourceType.Folder)' folder not found. $($resourceType.Name) not managed by this EPAC instance."
+                if ($resourceType.InformationOnly) {
+                    $null = $informationMessages.Add($message)
+                }
+                else {
+                    $null = $warningMessages.Add($message)
+                }
             }
         }
     }
@@ -331,6 +339,13 @@ if ($warningMessages.Count -gt 0) {
         if ($DevOpsType -eq "ado") {
             Write-Host "##vso[task.logissue type=warning]$warningMessage"
         }
+    }
+}
+
+if ($informationMessages.Count -gt 0) {
+    Write-ModernSection -Title "Configuration Information" -Color Blue
+    foreach ($informationMessage in $informationMessages) {
+        Write-ModernStatus -Message $informationMessage -Status "info" -Indent 2
     }
 }
 #endregion calculate which plans need to be built
