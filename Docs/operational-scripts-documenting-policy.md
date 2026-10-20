@@ -275,6 +275,8 @@ For an example, review the file ["EPAC GitHub: documentPolicySets.jsonc"](https:
     * **adoProject**: Name of your ADO Project
     * **adoWiki**: Name of your Wiki (If Wiki was not manually set up, it will be created for you based on the name given here)
 
+Use the names as they appear in Azure DevOps, including spaces (for example, `"adoProject": "Cloud Ops"`). EPAC URL-encodes these names when cloning the wiki. Existing configurations with URL-encoded names (for example, `"adoProject": "Cloud%20Ops"`) remain supported without double-encoding.
+
 ```jsonc
 "markdownAdoWikiConfig": [
                     {

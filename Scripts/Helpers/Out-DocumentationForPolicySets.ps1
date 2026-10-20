@@ -597,11 +597,16 @@ function Out-DocumentationForPolicySets {
                     Write-ModernStatus -Message "Acquired Access Token for Git Commands" -Status "success" -Indent 4
 
                     #Clone Repo
-                    git -c http.extraheader="AUTHORIZATION: bearer $AccessToken" clone "https://dev.azure.com/$adoOrg/$adoProj/_git/$adoWiki.wiki"
+                    $wikiRepositoryUrl = Get-AdoWikiRepositoryUrl -Organization $adoOrg -Project $adoProj -Wiki $adoWiki
+                    git -c http.extraheader="AUTHORIZATION: bearer $AccessToken" clone $wikiRepositoryUrl "$adoWiki.wiki"
                 }
                 else {
                     Write-ModernStatus -Message "Using Personal Access Token for Wiki clone" -Status "info" -Indent 2
-                    git clone "https://$($WikiClonePat):x-oauth-basic@dev.azure.com/$adoOrg/$adoProj/_git/$adoWiki.wiki"
+                    $wikiRepositoryUrl = Get-AdoWikiRepositoryUrl -Organization $adoOrg -Project $adoProj -Wiki $adoWiki -WikiClonePat $WikiClonePat
+                    git clone $wikiRepositoryUrl "$adoWiki.wiki"
+                }
+                if ($LASTEXITCODE -ne 0) {
+                    Write-Error "Failed to clone the Azure DevOps Wiki repository (exit code $LASTEXITCODE)." -ErrorAction Stop
                 }
                 Set-Location -Path "$adoWiki.wiki"
                 $branch = git branch
