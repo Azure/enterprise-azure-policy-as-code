@@ -59,6 +59,7 @@ $scriptRoot = Split-Path $PSScriptRoot -Parent
 . "$PSScriptRoot/Export-AssignmentNode.ps1"
 . "$PSScriptRoot/Find-AzNonCompliantResources.ps1"
 
+. "$PSScriptRoot/Get-AdoWikiRepositoryUrl.ps1"
 . "$PSScriptRoot/Get-AzPolicyOrSetDefinitions.ps1"
 . "$PSScriptRoot/Get-AzPolicyAssignments.ps1"
 . "$PSScriptRoot/Get-AzPolicyExemptions.ps1"
