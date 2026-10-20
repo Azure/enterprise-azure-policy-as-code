@@ -93,6 +93,59 @@ function Get-ALZBasedOnMatchNames {
     return $names.ToArray()
 }
 
+function ConvertTo-ALZPrivateDnsZoneRegionCode {
+    param(
+        [AllowEmptyString()]
+        [string] $Region
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Region)) {
+        return $Region
+    }
+
+    $normalizedRegion = $Region.Trim().ToLowerInvariant()
+    $regionCodeMap = @{
+        'westeurope' = 'we'
+        'northeurope' = 'ne'
+        'eastus' = 'eus'
+        'eastus2' = 'eus2'
+        'westus' = 'wus'
+        'westus2' = 'wus2'
+        'westus3' = 'wus3'
+        'centralus' = 'cus'
+        'southcentralus' = 'scus'
+        'uksouth' = 'uks'
+        'ukwest' = 'ukw'
+        'francecentral' = 'frc'
+        'francesouth' = 'frs'
+        'germanywestcentral' = 'gwc'
+        'germanynorth' = 'gn'
+        'swedencentral' = 'sdc'
+        'swedensouth' = 'sds'
+        'australiaeast' = 'aue'
+        'australiasland' = 'aus'
+        'australiacentral' = 'auc'
+        'japaneast' = 'jpe'
+        'japanwest' = 'jpw'
+        'koreacentral' = 'krc'
+        'koreasouth' = 'krs'
+        'canadacentral' = 'cac'
+        'canadaeast' = 'cae'
+        'brazilsouth' = 'brs'
+        'brazilsoutheast' = 'brse'
+    }
+
+    if ($regionCodeMap.ContainsKey($normalizedRegion)) {
+        return $regionCodeMap[$normalizedRegion]
+    }
+
+    if ($normalizedRegion -match '^[a-z0-9-]+$') {
+        return $normalizedRegion
+    }
+
+    return $normalizedRegion
+}
+
 function Test-ALZParameterValueEqual {
     param(
         [AllowNull()]
@@ -1185,7 +1238,7 @@ try {
                 }
             }
             else {
-                $dnsZoneRegion = $structureFile.defaultParameterValues.private_dns_zone_region.parameters.value
+                $dnsZoneRegion = ConvertTo-ALZPrivateDnsZoneRegionCode -Region $structureFile.defaultParameterValues.private_dns_zone_region.parameters.value
                 $dnzZoneSubscription = $structureFile.defaultParameterValues.private_dns_zone_subscription_id.parameters.value
                 $dnzZoneResourceGroupName = $structureFile.defaultParameterValues.private_dns_zone_resource_group_name.parameters.value
                 foreach ($parameter in $fileContent.properties.parameters.psObject.Properties.Name) {
@@ -1270,7 +1323,10 @@ try {
             }
             elseif ($fileContent.name -eq "Deploy-Private-DNS-Zones") {
                 ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope, additionalRoleAssignments | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$effectiveAssignmentName.jsonc" -Force -ErrorAction SilentlyContinue
-                (Get-Content "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$effectiveAssignmentName.jsonc") -replace "\.ne\.", ".$dnsZoneRegion." | Set-Content "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$effectiveAssignmentName.jsonc"
+                $assignmentFilePath = "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$effectiveAssignmentName.jsonc"
+                $assignmentContent = Get-Content -Path $assignmentFilePath -Raw
+                $assignmentContent = $assignmentContent -replace "\.ne\.", ".$dnsZoneRegion."
+                Set-Content -Path $assignmentFilePath -Value $assignmentContent
             }
             else {
                 # Only select the additionalRoleAssignments property when it was actually generated above,
