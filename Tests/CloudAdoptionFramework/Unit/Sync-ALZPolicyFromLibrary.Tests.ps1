@@ -134,6 +134,95 @@ Describe 'Sync-ALZPolicyFromLibrary' {
         }
     }
 
+    It 'normalizes private DNS zone region display names to the Azure DNS code' {
+        $rootStructurePath = Join-Path $script:DefinitionsRoot 'policyStructures/alz.policy_default_structure.epac-dev.jsonc'
+        $minimalLibraryRoot = Join-Path $TestDrive 'private-dns-library'
+        foreach ($path in @(
+                $minimalLibraryRoot
+                (Join-Path $minimalLibraryRoot 'platform/alz/architecture_definitions')
+                (Join-Path $minimalLibraryRoot 'platform/alz/archetype_definitions')
+                (Join-Path $minimalLibraryRoot 'platform/alz/policy_assignments')
+                (Join-Path $minimalLibraryRoot 'platform/alz/policy_definitions')
+                (Join-Path $minimalLibraryRoot 'platform/alz/policy_set_definitions')
+        )) {
+            New-Item -ItemType Directory -Path $path -Force | Out-Null
+        }
+
+        Set-Content -Path (Join-Path $minimalLibraryRoot 'platform/alz/architecture_definitions/alz.alz_architecture_definition.json') -Value @'
+{
+  "management_groups": [
+    {
+      "id": "root",
+      "display_Name": "root",
+      "archetypes": ["root"]
+    }
+  ]
+}
+'@
+
+        Set-Content -Path (Join-Path $minimalLibraryRoot 'platform/alz/archetype_definitions/root.json') -Value @'
+{
+  "name": "root",
+  "policy_assignments": ["Deploy-Private-DNS-Zones"]
+}
+'@
+
+        Set-Content -Path (Join-Path $minimalLibraryRoot 'platform/alz/policy_assignments/Deploy-Private-DNS-Zones.alz_policy_assignment.json') -Value @'
+{
+  "name": "Deploy-Private-DNS-Zones",
+  "properties": {
+    "parameters": {
+      "azureSiteRecoveryBackupPrivateDnsZoneId": {
+        "value": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Microsoft.Network/privateDnsZones/privatelink.ne.backup.windowsazure.com"
+      }
+    }
+  }
+}
+'@
+
+        Set-Content -Path $rootStructurePath -Value @'
+{
+  "enforcementMode": "Default",
+  "managementGroupNameMappings": {
+    "root": {
+      "management_group_function": "root",
+      "value": "/providers/Microsoft.Management/managementGroups/root"
+    }
+  },
+  "defaultParameterValues": {
+    "private_dns_zone_region": {
+      "parameters": {
+        "value": "westeurope"
+      }
+    },
+    "private_dns_zone_subscription_id": {
+      "parameters": {
+        "value": "00000000-0000-0000-0000-000000000000"
+      }
+    },
+    "private_dns_zone_resource_group_name": {
+      "parameters": {
+        "value": "test-rg"
+      }
+    }
+  }
+}
+'@
+
+        & $script:SyncScriptPath `
+            -DefinitionsRootFolder $script:DefinitionsRoot `
+            -LibraryPath $minimalLibraryRoot `
+            -Type ALZ `
+            -PacEnvironmentSelector 'epac-dev' | Out-Null
+
+        $outputFile = Get-ChildItem -Path $script:DefinitionsRoot -Recurse -Filter 'Deploy-Private-DNS-Zones*.jsonc' | Select-Object -First 1
+        $outputFile | Should -Not -BeNullOrEmpty
+
+        $outputContent = Get-Content -Path $outputFile.FullName -Raw
+        $outputContent | Should -Match 'privatelink\.we\.backup\.windowsazure\.com'
+        $outputContent | Should -Not -Match 'privatelink\.westeurope\.backup\.windowsazure\.com'
+    }
+
     It 'syncs AMBA extended policy definitions from the secondary repo' {
         & pwsh -NoLogo -NoProfile -File $script:HelperScriptPath | Out-Null
         $LASTEXITCODE | Should -Be 0
