@@ -13,8 +13,10 @@ function Build-AssignmentPlan {
         [hashtable] $CombinedPolicyDetails,
         [hashtable] $DeprecatedHash,
         [switch] $DetailedOutput,
-        [Parameter(HelpMessage = "If set, report built-in definition version status for every assignment, including available major version updates.")]
-        [switch] $ReportMajorVersionUpdates
+        [Parameter(HelpMessage = "If set, suppress informational reporting about built-in definition version updates.")]
+        [switch] $SuppressVersionUpdateInformation,
+        [Parameter(HelpMessage = "If set, upgrade built-in assignments without a definitionVersion in the assignment files to the latest major version.")]
+        [switch] $AutoUpgradeMajorVersions
     )
 
     Write-ModernSection -Title "Processing Policy Assignments" -Color Blue
@@ -221,13 +223,16 @@ function Build-AssignmentPlan {
             $overrides = $assignment.overrides
             $resourceSelectors = $assignment.resourceSelectors
 
-            if ($ReportMajorVersionUpdates) {
+            if (-not $SuppressVersionUpdateInformation -or $AutoUpgradeMajorVersions) {
                 # Evaluate every assignment, not only the ones pinning a version in the definition
                 # files: Azure stamps '{latestMajor}.*.*' on assignments created without a version,
                 # so an unpinned assignment silently stops at that major version.
                 $deployedDefinitionVersion = $null
                 if ($deployedPolicyAssignments.ContainsKey($id)) {
-                    $deployedDefinitionVersion = (Get-PolicyResourceProperties $deployedPolicyAssignments.$id).definitionVersion
+                    $deployedAssignmentProperties = Get-PolicyResourceProperties $deployedPolicyAssignments.$id
+                    if ($deployedAssignmentProperties.policyDefinitionId -eq $policyDefinitionId) {
+                        $deployedDefinitionVersion = $deployedAssignmentProperties.definitionVersion
+                    }
                 }
                 $versionStatus = Get-BuiltInVersionStatus `
                     -PolicyDefinitionId $policyDefinitionId `
@@ -238,6 +243,14 @@ function Build-AssignmentPlan {
                 $versionStatus.assignmentDisplayName = $displayName
                 $versionStatus.scope = $scope
                 $versionStatus.isNewAssignment = -not $deployedPolicyAssignments.ContainsKey($id)
+                if ($AutoUpgradeMajorVersions) {
+                    $autoUpgradePlanned = Set-BuiltInMajorVersionAutoUpgrade `
+                        -Assignment $assignment `
+                        -VersionStatus $versionStatus
+                    if ($autoUpgradePlanned) {
+                        $definitionVersion = $assignment.definitionVersion
+                    }
+                }
                 $null = $versionStatuses.Add($versionStatus)
             }
 
@@ -505,10 +518,8 @@ function Build-AssignmentPlan {
         }
     }
 
-    if ($ReportMajorVersionUpdates) {
+    if (-not $SuppressVersionUpdateInformation) {
         $majorVersionUpdates = @($versionStatuses | Where-Object { $_.updateAvailable })
-        $Assignments.majorVersionUpdatesAvailable = $majorVersionUpdates
-        $Assignments.definitionVersionStatuses = $versionStatuses.ToArray()
 
         Write-ModernStatus -Message "Checked $($versionStatuses.Count) assignment(s) for built-in major version updates" -Status "info" -Indent 2
         $counts = [ordered]@{
@@ -520,21 +531,34 @@ function Build-AssignmentPlan {
         Write-ModernStatus -Message "On latest major: $($counts.current), tracking latest: $($counts.tracksLatest), custom definitions: $($counts.custom), undetermined: $($counts.unknown)" -Status "info" -Indent 2
 
         if ($majorVersionUpdates.Count -gt 0) {
-            Write-ModernStatus -Message "Major version updates available for built-in definitions used by $($majorVersionUpdates.Count) assignment(s)" -Status "warning" -Indent 2
+            Write-ModernStatus -Message "Major version updates available for built-in definitions used by $($majorVersionUpdates.Count) assignment(s)" -Status "info" -Indent 2
             $groupedUpdates = $majorVersionUpdates | Group-Object -Property { "$($_.policyDefinitionId)|$($_.assignedVersion)" }
             foreach ($groupedUpdate in $groupedUpdates) {
                 $first = $groupedUpdate.Group[0]
-                Write-Warning "Built-in '$($first.displayName)' has version $($first.latestVersion) available; $($groupedUpdate.Count) assignment(s) effectively on major version $($first.assignedMajor) ('$($first.assignedVersion)')"
+                Write-ModernStatus -Message "Built-in '$($first.displayName)' has version $($first.latestVersion) available; $($groupedUpdate.Count) assignment(s) effectively on major version $($first.assignedMajor) ('$($first.assignedVersion)')" -Status "info" -Indent 4
                 foreach ($update in $groupedUpdate.Group) {
                     # An assignment which pins nothing in the definition files is held at this major
                     # version by the value Azure stamped when the assignment was created.
                     $sourceText = if ($update.assignedVersionFrom -eq "deployed") { " (pinned by Azure, not by the definition files)" } else { "" }
-                    Write-ModernStatus -Message "$($update.assignmentDisplayName) at $($update.scope): '$($update.assignedVersion)' -> major version $($update.latestMajor) available$sourceText" -Status "warning" -Indent 4
+                    Write-ModernStatus -Message "$($update.assignmentDisplayName) at $($update.scope): '$($update.assignedVersion)' -> major version $($update.latestMajor) available$sourceText" -Status "info" -Indent 6
                 }
             }
         }
         else {
             Write-ModernStatus -Message "No major version updates available for built-in definitions used by assignments" -Status "info" -Indent 2
+        }
+    }
+
+    if ($AutoUpgradeMajorVersions) {
+        $autoUpgrades = @($versionStatuses | Where-Object { $_.autoUpgradePlanned })
+        if ($autoUpgrades.Count -gt 0) {
+            Write-Warning "Automatically upgrading $($autoUpgrades.Count) assignment(s) without a definitionVersion in the assignment files to the latest built-in major version."
+            foreach ($autoUpgrade in $autoUpgrades) {
+                Write-ModernStatus -Message "$($autoUpgrade.assignmentDisplayName) at $($autoUpgrade.scope): '$($autoUpgrade.assignedVersion)' -> '$($autoUpgrade.autoUpgradeVersion)'" -Status "warning" -Indent 4
+            }
+        }
+        else {
+            Write-ModernStatus -Message "No unversioned assignments require an automatic major version upgrade" -Status "info" -Indent 2
         }
     }
 
