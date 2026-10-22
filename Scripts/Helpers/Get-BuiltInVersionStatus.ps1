@@ -141,6 +141,44 @@ function Get-BuiltInVersionStatus {
     return $status
 }
 
+function Set-BuiltInMajorVersionAutoUpgrade {
+    <#
+    .SYNOPSIS
+    Sets the desired definitionVersion to the latest major version when an unversioned assignment
+    is currently held on an older major version by Azure.
+
+    .DESCRIPTION
+    This function deliberately checks both the source assignment and the version status. An explicit
+    definitionVersion in the assignment files is an author decision and must never be changed by
+    automatic upgrade behavior.
+    #>
+
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [hashtable] $Assignment,
+
+        [Parameter(Mandatory = $true)]
+        [hashtable] $VersionStatus
+    )
+
+    $VersionStatus.autoUpgradePlanned = $false
+    $VersionStatus.autoUpgradeVersion = $null
+
+    if (-not [string]::IsNullOrWhiteSpace($Assignment.definitionVersion)) {
+        return $false
+    }
+    if (-not $VersionStatus.updateAvailable -or $VersionStatus.assignedVersionFrom -ne "deployed" -or $null -eq $VersionStatus.latestMajor) {
+        return $false
+    }
+
+    $targetVersion = "$($VersionStatus.latestMajor).*.*"
+    $Assignment.definitionVersion = $targetVersion
+    $VersionStatus.autoUpgradePlanned = $true
+    $VersionStatus.autoUpgradeVersion = $targetVersion
+    return $true
+}
+
 function Get-MajorVersionNumber {
     <#
     .SYNOPSIS

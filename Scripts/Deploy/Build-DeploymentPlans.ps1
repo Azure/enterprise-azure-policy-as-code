@@ -29,7 +29,13 @@
     If set, skip exemptions that are not scoped.
 
 .PARAMETER ReportMajorVersionUpdates
-    If set, reports available major version updates for built-in Policy and Policy Set definitions used by managed assignments. Every assignment is checked, including those which do not pin definitionVersion, because Azure stamps a major version on assignments created without one.
+    Deprecated compatibility switch. Major version update information is now reported by default.
+
+.PARAMETER SuppressVersionUpdateInformation
+    If set, suppresses informational reporting about available major version updates for built-in Policy and Policy Set definitions.
+
+.PARAMETER AutoUpgradeMajorVersions
+    If set, plans an upgrade to the latest major version for built-in Policy and Policy Set assignments which do not specify definitionVersion in the assignment files. Assignments with an explicit definitionVersion are never upgraded automatically.
 
 .EXAMPLE
     .\Build-DeploymentPlans.ps1 -PacEnvironmentSelector "dev"
@@ -40,6 +46,16 @@
     .\Build-DeploymentPlans.ps1 -PacEnvironmentSelector "dev" -DevOpsType "ado"
 
     Builds the deployment plans for the Policy as Code (PAC) environment 'dev' and outputs variables consumable by conditions in an Azure DevOps pipeline.
+
+.EXAMPLE
+    .\Build-DeploymentPlans.ps1 -PacEnvironmentSelector "dev" -SuppressVersionUpdateInformation
+
+    Builds the deployment plans without the default informational report about available built-in definition major versions.
+
+.EXAMPLE
+    .\Build-DeploymentPlans.ps1 -PacEnvironmentSelector "dev" -AutoUpgradeMajorVersions
+
+    Builds the deployment plans and plans upgrades to the latest major version for built-in assignments which do not specify definitionVersion in the assignment files. Explicit version pins are not changed.
 
 .LINK
     https://azure.github.io/enterprise-azure-policy-as-code/#deployment-scripts
@@ -78,8 +94,14 @@ param (
     [Parameter(HelpMessage = "If set, shows detailed line-by-line diffs similar to terraform plan.")]
     [switch] $DetailedOutput,
 
-    [Parameter(HelpMessage = "If set, reports available major version updates for built-in Policy and Policy Set definitions used by managed assignments. Every assignment is checked, including those which do not pin definitionVersion.")]
-    [switch] $ReportMajorVersionUpdates
+    [Parameter(HelpMessage = "Deprecated compatibility switch. Major version update information is now reported by default.")]
+    [switch] $ReportMajorVersionUpdates,
+
+    [Parameter(HelpMessage = "If set, suppresses informational reporting about available major version updates for built-in Policy and Policy Set definitions.")]
+    [switch] $SuppressVersionUpdateInformation,
+
+    [Parameter(HelpMessage = "If set, plans an upgrade to the latest major version for built-in assignments which do not specify definitionVersion in the assignment files.")]
+    [switch] $AutoUpgradeMajorVersions
 )
 
 $PSDefaultParameterValues = @{
@@ -467,7 +489,8 @@ if ($buildSelections.buildAny) {
             -CombinedPolicyDetails $combinedPolicyDetails `
             -DeprecatedHash $deprecatedHash `
             -DetailedOutput:$DetailedOutput `
-            -ReportMajorVersionUpdates:$ReportMajorVersionUpdates
+            -SuppressVersionUpdateInformation:$SuppressVersionUpdateInformation `
+            -AutoUpgradeMajorVersions:$AutoUpgradeMajorVersions
     }
 
     if ($buildSelections.buildPolicyEnrollments) {

@@ -79,6 +79,78 @@ Describe 'Get-BuiltInVersionStatus' {
         }
     }
 
+    Context 'automatic major version upgrades' {
+
+        It 'plans the latest major version for an unversioned assignment held on an older deployed major' {
+            $assignment = @{}
+            $versionStatus = Get-BuiltInVersionStatus `
+                -PolicyDefinitionId $script:policyId `
+                -DeployedDefinitionVersion '1.*.*' `
+                -PolicyDefinition (New-Definition -Version '3.2.1')
+
+            $result = Set-BuiltInMajorVersionAutoUpgrade -Assignment $assignment -VersionStatus $versionStatus
+
+            $result | Should -BeTrue
+            $assignment.definitionVersion | Should -Be '3.*.*'
+            $versionStatus.autoUpgradePlanned | Should -BeTrue
+            $versionStatus.autoUpgradeVersion | Should -Be '3.*.*'
+        }
+
+        It 'never changes an assignment with a definitionVersion from the assignment files' {
+            $assignment = @{ definitionVersion = '1.*.*' }
+            $versionStatus = Get-BuiltInVersionStatus `
+                -PolicyDefinitionId $script:policyId `
+                -DefinitionVersion '1.*.*' `
+                -DeployedDefinitionVersion '1.*.*' `
+                -PolicyDefinition (New-Definition -Version '3.2.1')
+
+            $result = Set-BuiltInMajorVersionAutoUpgrade -Assignment $assignment -VersionStatus $versionStatus
+
+            $result | Should -BeFalse
+            $assignment.definitionVersion | Should -Be '1.*.*'
+            $versionStatus.autoUpgradePlanned | Should -BeFalse
+        }
+
+        It 'guards an explicit assignment version even if the status source is inconsistent' {
+            $assignment = @{ definitionVersion = '1.*.*' }
+            $versionStatus = @{
+                updateAvailable     = $true
+                assignedVersionFrom = 'deployed'
+                latestMajor         = 3
+            }
+
+            $result = Set-BuiltInMajorVersionAutoUpgrade -Assignment $assignment -VersionStatus $versionStatus
+
+            $result | Should -BeFalse
+            $assignment.definitionVersion | Should -Be '1.*.*'
+        }
+
+        It 'does not plan an upgrade when the deployed assignment is already current' {
+            $assignment = @{}
+            $versionStatus = Get-BuiltInVersionStatus `
+                -PolicyDefinitionId $script:policyId `
+                -DeployedDefinitionVersion '3.*.*' `
+                -PolicyDefinition (New-Definition -Version '3.2.1')
+
+            $result = Set-BuiltInMajorVersionAutoUpgrade -Assignment $assignment -VersionStatus $versionStatus
+
+            $result | Should -BeFalse
+            $assignment.ContainsKey('definitionVersion') | Should -BeFalse
+        }
+
+        It 'does not add a version to a new assignment which will already take the latest major' {
+            $assignment = @{}
+            $versionStatus = Get-BuiltInVersionStatus `
+                -PolicyDefinitionId $script:policyId `
+                -PolicyDefinition (New-Definition -Version '3.2.1')
+
+            $result = Set-BuiltInMajorVersionAutoUpgrade -Assignment $assignment -VersionStatus $versionStatus
+
+            $result | Should -BeFalse
+            $assignment.ContainsKey('definitionVersion') | Should -BeFalse
+        }
+    }
+
     Context 'assignments which do not pin a version in the definition files' {
 
         It 'reports an update using the version Azure stamped on the deployed assignment' {
