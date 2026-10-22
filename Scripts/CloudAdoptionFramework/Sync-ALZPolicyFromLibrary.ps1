@@ -221,7 +221,7 @@ function Test-ALZParameterValueEqual {
 if ($Tag -eq "") {
     switch ($Type) {
         'ALZ' {
-            $Tag = "platform/alz/2026.08.1"
+            $Tag = "platform/alz/2026.10.0"
         }
         'FSI' {
             $Tag = "platform/fsi/2025.03.0"
@@ -230,7 +230,7 @@ if ($Tag -eq "") {
             $Tag = "platform/amba/2026.06.2"
         }
         'SLZ' {
-            $Tag = "platform/slz/2026.08.0"
+            $Tag = "platform/slz/2026.10.0"
         }
     }
 }
@@ -336,7 +336,7 @@ if ($Type -eq "MLZ") {
     $mlzCloud = "AzureCloud"
     try {
         $mlzPacEnvironment = (Get-Content -Path "$DefinitionsRootFolder/global-settings.jsonc" -Raw -ErrorAction Stop | ConvertFrom-Json).pacEnvironments |
-            Where-Object { $_.pacSelector -eq $PacEnvironmentSelector } | Select-Object -First 1
+        Where-Object { $_.pacSelector -eq $PacEnvironmentSelector } | Select-Object -First 1
         if ($null -eq $mlzPacEnvironment) {
             throw "no PAC environment with pacSelector '$PacEnvironmentSelector' was found"
         }
@@ -386,7 +386,7 @@ if ($Type -eq "MLZ") {
         #region Structure file
         try {
             $structureFilePath = Get-ChildItem -Path $structureDirectory -Filter "*.$PacEnvironmentSelector.jsonc" -Recurse |
-                Where-Object { $_.Name -match "mlz.policy_default_structure" } | Select-Object -First 1
+            Where-Object { $_.Name -match "mlz.policy_default_structure" } | Select-Object -First 1
             $structureFile = Get-Content -Path $structureFilePath.FullName -Raw -ErrorAction Stop | ConvertFrom-Json
             Write-ModernStatus -Message "Policy default structure file: $structureFilePath" -Status "info" -Indent 2
         }
@@ -1209,7 +1209,7 @@ try {
                     # remediation identity needs Managed Identity Operator on the user-assigned identity so it
                     # can be assigned to VMs.
                     if ($baseTemplate.parameters.Contains("userAssignedIdentityResourceId") -and `
-                        $baseTemplate.parameters.Contains("bringYourOwnUserAssignedManagedIdentity") -and `
+                            $baseTemplate.parameters.Contains("bringYourOwnUserAssignedManagedIdentity") -and `
                             $baseTemplate.parameters["bringYourOwnUserAssignedManagedIdentity"] -eq $true -and `
                         (-not $baseTemplate.parameters.Contains("restrictBringYourOwnUserAssignedIdentityToSubscription") -or `
                                 $baseTemplate.parameters["restrictBringYourOwnUserAssignedIdentityToSubscription"] -eq $false)) {

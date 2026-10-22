@@ -130,7 +130,7 @@ AfterAll {
 Describe 'Sync-ALZPolicyFromLibrary' {
     It 'uses the current ALZ library release by default' {
         foreach ($scriptPath in @($script:SyncScriptPath, $script:DefaultStructureScriptPath)) {
-            (Get-Content -Path $scriptPath -Raw) | Should -Match '\$Tag = "platform/alz/2026\.08\.1"'
+            (Get-Content -Path $scriptPath -Raw) | Should -Match '\$Tag = "platform/alz/2026\.10\.0"'
         }
     }
 

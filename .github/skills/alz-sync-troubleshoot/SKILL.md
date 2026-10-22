@@ -70,7 +70,7 @@ Useful variants when reproducing a bug report:
 
 ```powershell
 # Pin to a specific library tag
--Tag "platform/alz/2025.02.0"
+-Tag "platform/alz/2026.10.0"
 
 # Reuse an already-cloned/modified library (skips git clone)
 -LibraryPath ./temp

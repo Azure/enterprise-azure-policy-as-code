@@ -50,7 +50,7 @@ if ($DefinitionsRootFolder -eq "") {
 if ($Tag -eq "") {
     switch ($Type) {
         'ALZ' {
-            $Tag = "platform/alz/2026.08.1"
+            $Tag = "platform/alz/2026.10.0"
         }
         'FSI' {
             $Tag = "platform/fsi/2025.03.0"
@@ -59,7 +59,7 @@ if ($Tag -eq "") {
             $Tag = "platform/amba/2026.06.2"
         }
         'SLZ' {
-            $Tag = "platform/slz/2026.08.0"
+            $Tag = "platform/slz/2026.10.0"
         }
     }
 }
@@ -160,7 +160,7 @@ if ($Type -eq 'MLZ') {
                     }
                 }
             )
-            windows_administrators_group_exclusions  = @(
+            windows_administrators_group_exclusions = @(
                 [ordered]@{
                     policy_assignment_name = "CMMC"
                     description            = "Members to exclude from the Windows VM local administrators group. Only assigned in Azure commercial."
