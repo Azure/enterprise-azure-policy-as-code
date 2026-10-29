@@ -1148,9 +1148,14 @@ try {
             if ($fileContent.name -ne "Deploy-Private-DNS-Zones") {
                 if (-not $useParameterFileForAssignment) {
                     foreach ($key in $structureFile.defaultParameterValues.psObject.Properties.Name) {
-                        if ($structureFile.defaultParameterValues.$key.policy_assignment_name -eq $fileContent.name) {
-                            $keyName = $structureFile.defaultParameterValues.$key.parameters.parameter_name
-                            $baseTemplate.parameters.$keyName = $structureFile.defaultParameterValues.$key.parameters.value
+                        foreach ($defaultParameterValue in @($structureFile.defaultParameterValues.$key)) {
+                            if (@($defaultParameterValue.policy_assignment_name) -notcontains $fileContent.name) {
+                                continue
+                            }
+
+                            foreach ($parameter in @($defaultParameterValue.parameters)) {
+                                $baseTemplate.parameters[$parameter.parameter_name] = $parameter.value
+                            }
                         }
                     }
                 }

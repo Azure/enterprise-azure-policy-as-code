@@ -83,6 +83,35 @@ This file contains information that drives the sync process. The file includes m
    }
    ```
 
+   To set multiple parameters for the same assignment, use a `parameters` array. For example, add this entry under `defaultParameterValues` in the generated structure file:
+
+   ```json
+   "Enforce_GR_KeyVault_1": [
+     {
+       "policy_assignment_name": "Enforce-GR-KeyVault",
+       "description": "Audit Key Vault purge protection and soft delete.",
+       "parameters": [
+         {
+           "parameter_name": "effectKvPurgeProtection",
+           "value": "Audit"
+         },
+         {
+           "parameter_name": "effectKvSoftDelete",
+           "value": "Audit"
+         }
+       ]
+     }
+   ]
+   ```
+
+   The sync applies both values wherever `Enforce-GR-KeyVault` is assigned, including platform and landing-zones management groups. Defaults do not create assignments themselves. Existing single-parameter objects and lists with separate entries per parameter remain supported. With `-EnableOverrides`, scope-specific parameter overrides take precedence over these defaults.
+
+   ```ps1
+   Sync-ALZPolicyFromLibrary -DefinitionsRootFolder .\Definitions -Type ALZ -PacEnvironmentSelector "test" -SyncAssignmentsOnly -CreateGuardrailAssignments
+   ```
+
+   Use the selector configured in `global-settings.jsonc`. `-CreateGuardrailAssignments` includes the optional guardrail assignments in addition to those already present in the library's base archetypes.
+
    An example of where to update a management group ID
 
    ```json
