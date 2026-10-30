@@ -213,4 +213,98 @@ Describe 'Sync-ALZPolicyFromLibrary guardrail assignments' {
         $guardrailContent.definitionEntry.policySetName | Should -Be 'Enforce-Guardrails-KeyVault-Sup'
         $guardrailContent.scope.'epac-dev' | Should -Be '/providers/Microsoft.Management/managementGroups/alz'
     }
+
+    It 'applies multiple default parameters to matching assignments across archetypes' {
+        $root = Join-Path $TestDrive 'MultipleDefaultParameters'
+        $structure = @'
+{
+  "enforcementMode": "Default",
+  "managementGroupNameMappings": {
+    "platform": {
+      "management_group_function": "Platform",
+      "value": "/providers/Microsoft.Management/managementGroups/platform"
+    },
+    "landingzones": {
+      "management_group_function": "Landing Zones",
+      "value": "/providers/Microsoft.Management/managementGroups/landingzones"
+    }
+  },
+  "defaultParameterValues": {
+    "keyvault_parameters": [
+      {
+        "policy_assignment_name": "Enforce-GR-KeyVault",
+        "description": "Audit Key Vault purge protection and soft delete.",
+        "parameters": [
+          {
+            "parameter_name": "effectKvPurgeProtection",
+            "value": "Audit"
+          },
+          {
+            "parameter_name": "effectKvSoftDelete",
+            "value": "Audit"
+          }
+        ]
+      }
+    ]
+  }
+}
+'@
+        $structure | Test-Json -SchemaFile (Join-Path $PSScriptRoot '../../../Schemas/policy-structure-schema.json') | Should -BeTrue
+        $env = New-GuardrailTestEnvironment -Root $root -StructureFileContent $structure -ArchetypeDefinitions @(
+            @{ name = 'platform'; policy_assignments = @('Enforce-GR-KeyVault') }
+            @{ name = 'landingzones'; policy_assignments = @('Enforce-GR-KeyVault') }
+        )
+        Set-Content -Path (Join-Path $env.LibraryRoot 'platform/alz/policy_assignments/Enforce-GR-KeyVault.alz_policy_assignment.json') -Value @'
+{
+  "name": "Enforce-GR-KeyVault",
+  "properties": {
+    "displayName": "Enforce recommended guardrails for Key Vault",
+    "description": "Test Key Vault guardrail assignment",
+    "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/placeholder/providers/Microsoft.Authorization/policySetDefinitions/Enforce-Guardrails-KeyVault",
+    "enforcementMode": "DoNotEnforce",
+    "scope": "/providers/Microsoft.Management/managementGroups/placeholder",
+    "notScopes": [],
+    "parameters": {}
+  }
+}
+'@
+
+        Invoke-SyncScript -Root $root -DefinitionsRoot $env.DefinitionsRoot -LibraryRoot $env.LibraryRoot -CreateGuardrailAssignments | Out-Null
+
+        foreach ($assignmentPath in @(
+                (Join-Path $env.DefinitionsRoot 'policyAssignments/ALZ/epac-dev/Platform/Enforce-GR-KeyVault.jsonc')
+                (Join-Path $env.DefinitionsRoot 'policyAssignments/ALZ/epac-dev/Landing Zones/Enforce-GR-KeyVault.jsonc')
+            )) {
+            Test-Path $assignmentPath | Should -BeTrue
+            $assignmentContent = Get-Content -Path $assignmentPath -Raw | ConvertFrom-Json
+            $assignmentContent.parameters.effectKvPurgeProtection | Should -Be 'Audit'
+            $assignmentContent.parameters.effectKvSoftDelete | Should -Be 'Audit'
+        }
+    }
+
+    It 'validates legacy default parameter objects and rejects malformed parameter arrays' {
+        $schemaPath = Join-Path $PSScriptRoot '../../../Schemas/policy-structure-schema.json'
+        $structure = @{
+            managementGroupNameMappings = @{}
+            enforcementMode = 'Default'
+            defaultParameterValues = @{
+                test_parameters = @(
+                    @{
+                        policy_assignment_name = 'Enforce-GR-KeyVault'
+                        description = 'Legacy single-parameter entry'
+                        parameters = @{
+                            parameter_name = 'effectKvSoftDelete'
+                            value = 'Audit'
+                        }
+                    }
+                )
+            }
+        }
+
+        ($structure | ConvertTo-Json -Depth 10) | Test-Json -SchemaFile $schemaPath | Should -BeTrue
+        $structure.defaultParameterValues.test_parameters[0].parameters = @(
+            @{ parameter_name = 'effectKvSoftDelete' }
+        )
+        ($structure | ConvertTo-Json -Depth 10) | Test-Json -SchemaFile $schemaPath -ErrorAction SilentlyContinue | Should -BeFalse
+    }
 }
