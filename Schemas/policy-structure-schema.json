@@ -1,7 +1,63 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
+    "$defs": {
+        "ambaExtendedSelector": {
+            "description": "A case-insensitive .NET regex selector, or a nested AND/OR group. Empty AND matches everything; empty OR matches nothing.",
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "enum": ["folder", "file"],
+                            "description": "folder matches the directory relative to services using / separators without a trailing slash; file matches the source file name including .json."
+                        },
+                        "pattern": { "type": "string", "minLength": 1 }
+                    },
+                    "required": ["type", "pattern"],
+                    "additionalProperties": false
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "AND": {
+                            "type": "array",
+                            "items": { "$ref": "#/$defs/ambaExtendedSelector" }
+                        }
+                    },
+                    "required": ["AND"],
+                    "additionalProperties": false
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "OR": {
+                            "type": "array",
+                            "items": { "$ref": "#/$defs/ambaExtendedSelector" }
+                        }
+                    },
+                    "required": ["OR"],
+                    "additionalProperties": false
+                }
+            ]
+        }
+    },
     "properties": {
+        "ambaExtendedPolicyFilters": {
+            "type": "object",
+            "description": "Optional selectors for AMBA extended definitions only. Inclusion must match and exclusion must not match. Previously synced extended files that no longer match are removed locally; ambiguous files are reported and preserved.",
+            "properties": {
+                "include": {
+                    "$ref": "#/$defs/ambaExtendedSelector",
+                    "description": "Only sync matching extended definitions. When omitted, all are included."
+                },
+                "exclude": {
+                    "$ref": "#/$defs/ambaExtendedSelector",
+                    "description": "Skip matching extended definitions, even if included."
+                }
+            },
+            "additionalProperties": false
+        },
         "managementGroupNameMappings": {
             "type": "object",
             "description": "Mappings of management group names to their configurations",
