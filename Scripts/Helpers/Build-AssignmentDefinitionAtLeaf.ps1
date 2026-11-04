@@ -188,6 +188,12 @@ function Build-AssignmentDefinitionAtLeaf {
             $hasErrors = $true
             continue
         }
+        $lengthErrors = Get-PolicyResourceLengthError -DisplayName $displayName -Description $description
+        if ($lengthErrors.Count -gt 0) {
+            Write-Error "    Leaf Node $($nodeName): Assignment '$name' exceeds Azure length limits: $($lengthErrors -join '; '). Shorten the concatenated assignment displayName or description."
+            $hasErrors = $true
+            continue
+        }
         $enforcementMode = $AssignmentDefinition.enforcementMode
         $metadata = Get-DeepCloneAsOrderedHashtable $AssignmentDefinition.metadata
         if ($metadata.ContainsKey("pacOwnerId")) {
