@@ -301,6 +301,14 @@ function Convert-PolicyResourcesDetailsToFlatList-Documentation {
             $effectAllowedOverrides = $policyInPolicySetInfo.effectAllowedOverrides
             $effectValue = $policyInPolicySetInfo.effectValue
             $effectDefault = $policyInPolicySetInfo.effectDefault
+            if ($null -ne $detail.assignmentId -and $effectReason -eq "PolicySet Fixed") {
+                # Policy Set may pass a conditional expression as the effect
+                $resolvedEffect = Get-ConditionalEffectValue -EffectExpression $effectValue -PolicySetParameters $detail.parameters -AssignmentParameters $assignmentParameters
+                if ($resolvedEffect) {
+                    $effectValue = $resolvedEffect
+                    $effectDefault = $resolvedEffect
+                }
+            }
             if (-not [string]::IsNullOrWhiteSpace($effectValue)) {
                 $effectValue = Convert-EffectToCsvString -Effect $effectValue
             }
