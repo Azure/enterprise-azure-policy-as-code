@@ -217,6 +217,90 @@ function Test-ALZParameterValueEqual {
     return [object]::Equals($Left, $Right)
 }
 
+function ConvertTo-AMBAExtendedPolicySelector {
+    param(
+        [object] $Selector,
+        [string] $Path
+    )
+
+    if ($Selector -isnot [pscustomobject]) {
+        throw "$Path must be a selector object or an AND/OR group."
+    }
+    $keys = @($Selector.PSObject.Properties.Name)
+    if ($keys.Count -eq 2 -and "type" -cin $keys -and "pattern" -cin $keys) {
+        if ($Selector.type -cnotin @("folder", "file") -or
+            $Selector.pattern -isnot [string] -or $Selector.pattern.Length -eq 0) {
+            throw "$Path requires type folder or file and a non-empty regex pattern."
+        }
+        try {
+            $regex = [regex]::new($Selector.pattern, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase -bor
+                [System.Text.RegularExpressions.RegexOptions]::CultureInvariant, [timespan]::FromSeconds(1))
+        }
+        catch {
+            throw "Invalid regex in $Path.pattern ('$($Selector.pattern)'): $($_.Exception.Message)"
+        }
+        return @{ Type = $Selector.type; Regex = $regex }
+    }
+    if ($keys.Count -ne 1 -or $keys[0] -cnotin @("AND", "OR") -or $Selector.($keys[0]) -isnot [array]) {
+        throw "$Path must contain only type/pattern or a single AND/OR array."
+    }
+    $operator = $keys[0]
+    $children = @(
+        $index = 0
+        foreach ($child in $Selector.$operator) {
+            ConvertTo-AMBAExtendedPolicySelector -Selector $child -Path "$Path.$operator[$index]"
+            $index++
+        }
+    )
+    return @{ Operator = $operator; Children = $children }
+}
+
+function Test-AMBAExtendedPolicySelector {
+    param(
+        [string] $Folder,
+        [string] $FileName,
+        [hashtable] $Selector
+    )
+
+    if ($Selector.ContainsKey("Regex")) {
+        $value = $Selector.Type -eq "folder" ? $Folder : $FileName
+        return $Selector.Regex.IsMatch($value)
+    }
+    foreach ($child in $Selector.Children) {
+        $matchesChild = Test-AMBAExtendedPolicySelector -Folder $Folder -FileName $FileName -Selector $child
+        if ($Selector.Operator -eq "AND" -and -not $matchesChild) {
+            return $false
+        }
+        if ($Selector.Operator -eq "OR" -and $matchesChild) {
+            return $true
+        }
+    }
+    return $Selector.Operator -eq "AND"
+}
+
+function Get-AMBAExtendedOutputPath {
+    param([string] $Root, [string] $RelativePath)
+
+    $parts = $RelativePath.Split('/')
+    if ($parts.Count -ne 3 -or $parts[-1] -notmatch '\.json$' -or
+        @($parts | Where-Object { $_ -in @("", ".", "..") -or $_ -match '[\\:*?"<>|\x00-\x1f]|[. ]$' }).Count -gt 0) {
+        throw "Invalid AMBA extended output path '$RelativePath'."
+    }
+    $path = $Root
+    foreach ($part in $parts) {
+        if ((Test-Path -LiteralPath $path) -and
+            ((Get-Item -LiteralPath $path -Force -ErrorAction Stop).Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+            throw "AMBA extended output must not traverse a symbolic link or junction: '$path'."
+        }
+        $path = Join-Path $path $part
+    }
+    if ((Test-Path -LiteralPath $path) -and
+        ((Get-Item -LiteralPath $path -Force -ErrorAction Stop).Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+        throw "AMBA extended output must not be a symbolic link: '$path'."
+    }
+    return $path
+}
+
 # Latest tag values
 if ($Tag -eq "") {
     switch ($Type) {
@@ -268,8 +352,13 @@ if ($Type -eq "AMBA" -and $SyncAMBAExtendedPolicies) {
         Remove-Item -Path $AMBALibraryPath -Recurse -Force
     }
     Write-ModernStatus -Message "Cloning Azure Monitor Baseline Alerts repository for AMBA extended policies..." -Status "processing" -Indent 2
-    git clone --config advice.detachedHead=false --depth 1 https://github.com/Azure/azure-monitor-baseline-alerts.git $AMBALibraryPath
+    # Avoid checking out the deeply nested documentation tree, which can exceed Windows path limits.
+    git clone --config advice.detachedHead=false --config core.longpaths=true --depth 1 --sparse https://github.com/Azure/azure-monitor-baseline-alerts.git $AMBALibraryPath
     if ($LASTEXITCODE -eq 0) {
+        git -C $AMBALibraryPath sparse-checkout set services
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to check out AMBA extended policy services."
+        }
         Write-ModernStatus -Message "AMBA extended policies repository cloned successfully" -Status "success" -Indent 4
     }
     else {
@@ -314,6 +403,7 @@ catch {
 }
 
 $syncedPolicyDefinitionNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+$syncedPolicyDefinitionPaths = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
 
 #region MLZ
 # Mission Landing Zone (https://github.com/Azure/missionlz) shares no layout with the Azure Landing
@@ -575,6 +665,37 @@ if ($Type -eq "MLZ") {
 }
 #endregion MLZ
 
+# Read the structure before writing definitions so extended filters are validated before any output.
+try {
+    $structureFilePath = Get-ChildItem -Path $structureDirectory -Filter "*.$PacEnvironmentSelector.jsonc" -Recurse | Where-Object { $_.Name -match "$($Type.ToLower()).policy_default_structure" } | Select-Object -First 1
+    $structureFile = Get-Content -Path $structureFilePath.FullName -Raw -ErrorAction Stop | ConvertFrom-Json
+    Write-ModernStatus -Message "Policy default structure file: $structureFilePath" -Status "info" -Indent 2
+    switch ($structureFile.enforcementMode) {
+        "Default" { $enforcementModeText = "must" }
+        "DoNotEnforce" { $enforcementModeText = "should" }
+    }
+}
+catch {
+    Write-ModernStatus -Message "Error reading the policy default structure file: $($_.Exception.Message)" -Status "error" -Indent 2
+    Write-ModernStatus -Message "Please run New-ALZPolicyDefaultStructure.ps1 first" -Status "warning" -Indent 2
+    exit 1
+}
+
+$ambaExtendedSelectors = @{}
+if (-not $SyncAssignmentsOnly -and $Type -eq "AMBA" -and $SyncAMBAExtendedPolicies -and
+    $null -ne $structureFile.PSObject.Properties["ambaExtendedPolicyFilters"]) {
+    $filters = $structureFile.ambaExtendedPolicyFilters
+    if ($filters -isnot [pscustomobject]) {
+        throw "ambaExtendedPolicyFilters must be an object."
+    }
+    foreach ($filter in $filters.PSObject.Properties) {
+        if ($filter.Name -cnotin @("include", "exclude")) {
+            throw "ambaExtendedPolicyFilters supports only include and exclude expressions."
+        }
+        $ambaExtendedSelectors[$filter.Name] = ConvertTo-AMBAExtendedPolicySelector -Selector $filter.Value -Path "ambaExtendedPolicyFilters.$($filter.Name)"
+    }
+}
+
 if (-not($SyncAssignmentsOnly) -and $Type -ne "SLZ") {
     Write-ModernSection -Title "Creating Policy Definition Objects" -Indent 0
     #region Create policy definition objects
@@ -588,6 +709,7 @@ if (-not($SyncAssignmentsOnly) -and $Type -ne "SLZ") {
         $category = $baseTemplate.properties.Metadata.category
         ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyDefinitions/$Type/$category" -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue
         [void]$syncedPolicyDefinitionNames.Add(($fileContent.name -replace "/", "_" -replace "%", "pc"))
+        [void]$syncedPolicyDefinitionPaths.Add([IO.Path]::GetFullPath("$DefinitionsRootFolder/policyDefinitions/$Type/$category/$($fileContent.name).json"))
     }
     Write-ModernSection -Title "Creating Policy Set Definition Objects" -Indent 0
     #endregion Create policy definition objects
@@ -650,44 +772,145 @@ if (-not($SyncAssignmentsOnly) -and $Type -ne "SLZ") {
 }
 #endregion Create policy set definition objects
 
-if (-not($SyncAssignmentsOnly) -and $Type -eq "AMBA" -and $SyncAMBAExtendedPolicies) {
+function Sync-AMBAExtendedPolicyDefinitions {
+    [CmdletBinding()]
+    param()
+
+    $ErrorActionPreference = "Stop"
     Write-ModernSection -Title "Creating AMBA Extended Policy Definition Objects" -Indent 0
     #region Create AMBA extended policy definition objects
-    foreach ($file in (Get-ChildItem -Path "$AMBALibraryPath/services" -Recurse -File -Include *.json | Where-Object FullName -match "[\\/]+policy[\\/]+")) {
-        $fileContent = Get-Content -Path $file.FullName -Raw | ConvertFrom-Json
+    $extendedOutputRoot = [IO.Path]::GetFullPath("$DefinitionsRootFolder/policyDefinitions/AMBA")
+    # Build and validate the complete catalogue before writing or deleting any extended definitions.
+    $catalogue = @{}
+    $desiredPolicies = @{}
+    $sourceFiles = @(Get-ChildItem -LiteralPath "$AMBALibraryPath/services" -Recurse -File -Filter *.json -ErrorAction Stop |
+        Where-Object FullName -match "[\\/]+policy[\\/]+")
+    if ($sourceFiles.Count -eq 0) {
+        throw "No AMBA extended source policies found; refusing to prune local definitions."
+    }
+    foreach ($file in $sourceFiles) {
+        $fileContent = Get-Content -LiteralPath $file.FullName -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+        if ([string]::IsNullOrWhiteSpace($fileContent.name) -or $null -eq $fileContent.properties) {
+            throw "Invalid AMBA extended source policy '$($file.FullName)'."
+        }
         $policyName = $fileContent.name -replace "/", "_" -replace "%", "pc"
+        $relativeFolder = [System.IO.Path]::GetRelativePath((Join-Path $AMBALibraryPath "services"), $file.DirectoryName).Replace('\', '/')
+        $folderParts = $relativeFolder.Split('/')
+        if ($folderParts.Count -lt 3) {
+            throw "Unexpected AMBA extended source path '$($file.FullName)'."
+        }
+        $relativePath = "$($folderParts[0])/$($folderParts[1])/$($file.Name)"
+        $outputPath = Get-AMBAExtendedOutputPath -Root $extendedOutputRoot -RelativePath $relativePath
+        if ($catalogue.ContainsKey($relativePath)) {
+            throw "Multiple AMBA extended source policies map to '$relativePath'; refusing to reconcile."
+        }
+        $json = ([ordered]@{
+            '$schema' = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json"
+            name = $policyName
+            properties = $fileContent.properties
+        } | ConvertTo-Json -Depth 50) -replace '\[\[', '['
+        $catalogue[$relativePath] = @{
+            Path = $outputPath
+            Json = $json
+        }
+        if ($syncedPolicyDefinitionPaths.Contains($outputPath)) {
+            Write-ModernStatus -Message "Preserving ALZ Library output '$outputPath' instead of the extended policy." -Status "warning" -Indent 2
+            continue
+        }
         if ($syncedPolicyDefinitionNames.Contains($policyName)) {
             Write-ModernStatus -Message "Skipping duplicate policy definition '$policyName' - already synced from ALZ Library" -Status "warning" -Indent 2
             continue
         }
-        $baseTemplate = [ordered]@{
-            '$schema'  = "https://raw.githubusercontent.com/Azure/enterprise-azure-policy-as-code/main/Schemas/policy-definition-schema.json"
-            name       = $policyName
-            properties = $fileContent.properties
+        if ($ambaExtendedSelectors.ContainsKey("include") -and
+            -not (Test-AMBAExtendedPolicySelector -Folder $relativeFolder -FileName $file.Name -Selector $ambaExtendedSelectors.include)) {
+            continue
         }
-        $fileName = $file.BaseName
-        $file.DirectoryName -match 'services[\\/]+([^\\/]+)[\\/]+([^\\/]+)'
-        $subPath = "$($Matches[1])/$($Matches[2])"
-        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace '\[\[', '[' | New-Item -Path "$DefinitionsRootFolder/policyDefinitions/$Type/$subPath" -ItemType File -Name "$($fileName).json" -Force -ErrorAction SilentlyContinue
+        if ($ambaExtendedSelectors.ContainsKey("exclude") -and
+            (Test-AMBAExtendedPolicySelector -Folder $relativeFolder -FileName $file.Name -Selector $ambaExtendedSelectors.exclude)) {
+            continue
+        }
+        $desiredPolicies[$relativePath] = $catalogue[$relativePath]
+    }
+
+    $ambiguousPaths = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    $cleanupCandidates = @{}
+    if (Test-Path -LiteralPath $extendedOutputRoot) {
+        foreach ($existingFile in Get-ChildItem -LiteralPath $extendedOutputRoot -Recurse -File -Filter *.json -ErrorAction Stop) {
+            if ($syncedPolicyDefinitionPaths.Contains($existingFile.FullName)) {
+                continue
+            }
+            $relativePath = [IO.Path]::GetRelativePath($extendedOutputRoot, $existingFile.FullName).Replace('\', '/')
+            if ($catalogue.ContainsKey($relativePath)) {
+                # Without persisted ownership, only exact generated content can identify an extended file.
+                $existingContent = Get-Content -LiteralPath $existingFile.FullName -Raw -ErrorAction Stop
+                try {
+                    $existingPolicy = $existingContent | ConvertFrom-Json -ErrorAction Stop
+                }
+                catch {
+                    [void]$ambiguousPaths.Add($relativePath)
+                    Write-ModernStatus -Message "Ambiguous AMBA policy file '$($existingFile.FullName)' is not valid JSON; leaving it untouched: $($_.Exception.Message)" -Status "warning" -Indent 2
+                    continue
+                }
+                $expectedPolicy = $catalogue[$relativePath].Json | ConvertFrom-Json -ErrorAction Stop
+                if (Test-ALZParameterValueEqual -Left $existingPolicy -Right $expectedPolicy) {
+                    $cleanupCandidates[$relativePath] = $existingContent
+                    continue
+                }
+            }
+            [void]$ambiguousPaths.Add($relativePath)
+            Write-ModernStatus -Message "Ambiguous AMBA policy file '$($existingFile.FullName)' is untracked or modified; leaving it untouched." -Status "warning" -Indent 2
+        }
+    }
+
+    foreach ($relativePath in $desiredPolicies.Keys) {
+        if ($ambiguousPaths.Contains($relativePath)) {
+            continue
+        }
+        $policy = $desiredPolicies[$relativePath]
+        $null = New-Item -ItemType Directory -Path (Split-Path $policy.Path) -Force -ErrorAction Stop
+        [IO.File]::WriteAllText($policy.Path, $policy.Json, [Text.UTF8Encoding]::new($false))
+    }
+    # Prune only after all desired writes succeed, and recheck for concurrent local edits.
+    foreach ($relativePath in $cleanupCandidates.Keys) {
+        $outputPath = Get-AMBAExtendedOutputPath -Root $extendedOutputRoot -RelativePath $relativePath
+        if ($syncedPolicyDefinitionPaths.Contains($outputPath) -or $desiredPolicies.ContainsKey($relativePath)) {
+            continue
+        }
+        if (Test-Path -LiteralPath $outputPath) {
+            if ((Get-Content -LiteralPath $outputPath -Raw -ErrorAction Stop) -cne $cleanupCandidates[$relativePath]) {
+                Write-ModernStatus -Message "Ambiguous AMBA policy file '$outputPath' changed during sync; leaving it untouched." -Status "warning" -Indent 2
+                continue
+            }
+            Remove-Item -LiteralPath $outputPath -Force -ErrorAction Stop
+            Write-ModernStatus -Message "Removed extended policy definition '$outputPath' because it is no longer selected." -Status "info" -Indent 2
+        }
+    }
+    if (Test-Path -LiteralPath $extendedOutputRoot) {
+        $directories = Get-ChildItem -LiteralPath $extendedOutputRoot -Directory -Recurse -Force -ErrorAction Stop |
+            Sort-Object { $_.FullName.Length } -Descending
+        foreach ($directory in $directories) {
+            if ($directory.Attributes -band [IO.FileAttributes]::ReparsePoint) {
+                continue
+            }
+            if (@(Get-ChildItem -LiteralPath $directory.FullName -Force -ErrorAction Stop).Count -eq 0) {
+                [IO.Directory]::Delete($directory.FullName, $false)
+                Write-ModernStatus -Message "Removed empty AMBA policy folder '$($directory.FullName)'." -Status "info" -Indent 2
+            }
+        }
+    }
+}
+
+if (-not($SyncAssignmentsOnly) -and $Type -eq "AMBA" -and $SyncAMBAExtendedPolicies) {
+    try {
+        Sync-AMBAExtendedPolicyDefinitions -ErrorAction Stop
+    }
+    catch {
+        Write-ModernStatus -Message "Error reconciling AMBA extended policies: $($_.Exception.Message)" -Status "error" -Indent 2
+        throw
     }
 }
 
 #region Create assignment objects
-try {
-    $structureFilePath = Get-ChildItem -Path $structureDirectory -Filter "*.$PacEnvironmentSelector.jsonc" -Recurse | Where-Object { $_.Name -match "$($Type.ToLower()).policy_default_structure" } | Select-Object -First 1
-    $structureFile = Get-Content -Path $structureFilePath.FullName -Raw -ErrorAction Stop | ConvertFrom-Json
-    Write-ModernStatus -Message "Policy default structure file: $structureFilePath" -Status "info" -Indent 2
-    switch ($structureFile.enforcementMode) {
-        "Default" { $enforcementModeText = "must" }
-        "DoNotEnforce" { $enforcementModeText = "should" }
-    }
-}
-catch {
-    Write-ModernStatus -Message "Error reading the policy default structure file: $($_.Exception.Message)" -Status "error" -Indent 2
-    Write-ModernStatus -Message "Please run New-ALZPolicyDefaultStructure.ps1 first" -Status "warning" -Indent 2
-    exit
-}
-
 $parameterFileValues = $null
 $policySetDefinitionsByName = @{}
 $missingParameterFilePolicySets = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
