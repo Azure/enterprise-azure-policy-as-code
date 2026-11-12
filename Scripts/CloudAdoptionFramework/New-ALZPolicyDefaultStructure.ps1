@@ -231,6 +231,13 @@ if ($Type -eq "SLZ") {
     $jsonOutput.Add("archetypeScopeMappings", [ordered]@{})
 }
 
+if ($Type -eq "AMBA") {
+    $jsonOutput.Add("ambaExtendedPolicyFilters", [ordered]@{
+        include = @{ AND = @() }
+        exclude = @{ OR = @() }
+    })
+}
+
 Write-ModernSection -Title "Processing Management Group Names" -Indent 0
 # Get Management Group Names
 
@@ -441,4 +448,4 @@ if ($LibraryPath -eq $tempPath) {
     Remove-Item $LibraryPath -Recurse -Force -ErrorAction SilentlyContinue
 }
 
-Write-ModernStatus -Message "ALZ Policy default structure created successfully" -Status "success" -Indent 0
+Write-ModernStatus -Message "$Type Policy default structure created successfully" -Status "success" -Indent 0
