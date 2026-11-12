@@ -88,6 +88,10 @@ function Build-PolicyPlan {
         if ($null -eq $displayName -and $definitionProperties.mode -ne "Microsoft.Network.Data") {
             Write-Error "Policy '$name' from file '$($file.Name)' requires a displayName" -ErrorAction Stop
         }
+        $lengthErrors = Get-PolicyResourceLengthError -Name $name -DisplayName $displayName -Description $description
+        if ($lengthErrors.Count -gt 0) {
+            Write-Error "Policy '$name' from file '$($file.Name)' exceeds Azure length limits: $($lengthErrors -join '; ')" -ErrorAction Stop
+        }
         if ($null -eq $mode) {
             $mode = "All" # Default
         }

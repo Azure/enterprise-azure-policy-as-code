@@ -40,6 +40,23 @@
                     "additionalProperties": false
                 }
             ]
+        },
+        "defaultParameter": {
+            "type": "object",
+            "properties": {
+                "value": {
+                    "description": "The parameter value (can be any type)"
+                },
+                "parameter_name": {
+                    "type": "string",
+                    "description": "The name of the parameter in the policy"
+                }
+            },
+            "required": [
+                "value",
+                "parameter_name"
+            ],
+            "additionalProperties": false
         }
     },
     "properties": {
@@ -133,41 +150,18 @@
                                 "description": "Description of the parameter"
                             },
                             "parameters": {
-                                "type": "object",
-                                "properties": {
-                                    "value": {
-                                        "description": "The parameter value (can be any type)",
-                                        "oneOf": [
-                                            {
-                                                "type": "string"
-                                            },
-                                            {
-                                                "type": "number"
-                                            },
-                                            {
-                                                "type": "boolean"
-                                            },
-                                            {
-                                                "type": "null"
-                                            },
-                                            {
-                                                "type": "object"
-                                            },
-                                            {
-                                                "type": "array"
-                                            }
-                                        ]
+                                "description": "A single parameter or an array of parameters applied to each matching assignment",
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/$defs/defaultParameter"
                                     },
-                                    "parameter_name": {
-                                        "type": "string",
-                                        "description": "The name of the parameter in the policy"
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/$defs/defaultParameter"
+                                        }
                                     }
-                                },
-                                "required": [
-                                    "value",
-                                    "parameter_name"
-                                ],
-                                "additionalProperties": false
+                                ]
                             }
                         },
                         "required": [

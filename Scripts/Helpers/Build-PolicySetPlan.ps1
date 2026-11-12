@@ -86,6 +86,10 @@ function Build-PolicySetPlan {
         if ($null -eq $displayName) {
             Write-Error "Policy Set '$name' from file '$($file.Name)' requires a displayName" -ErrorAction Stop
         }
+        $lengthErrors = Get-PolicyResourceLengthError -Name $name -DisplayName $displayName -Description $description
+        if ($lengthErrors.Count -gt 0) {
+            Write-Error "Policy Set '$name' from file '$($file.Name)' exceeds Azure length limits: $($lengthErrors -join '; ')" -ErrorAction Stop
+        }
         if ($null -eq $policyDefinitions) {
             Write-Error "Policy Set '$displayName' from file '$($file.Name)' requires a policyDefinitions entry; it is null. Did you misspell policyDefinitions (it is case sensitive)?" -ErrorAction Stop
         }
