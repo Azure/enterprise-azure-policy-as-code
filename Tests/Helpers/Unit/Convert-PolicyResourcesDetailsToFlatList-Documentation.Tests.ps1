@@ -3,6 +3,7 @@ BeforeAll {
     . (Join-Path $PSScriptRoot '../../../Scripts/Helpers/Get-DeepCloneAsOrderedHashtable.ps1')
     . (Join-Path $PSScriptRoot '../../../Scripts/Helpers/Convert-EffectToCsvString.ps1')
     . (Join-Path $PSScriptRoot '../../../Scripts/Helpers/Convert-EffectToOrdinal.ps1')
+    . (Join-Path $PSScriptRoot '../../../Scripts/Helpers/Get-ConditionalEffectValue.ps1')
     . (Join-Path $PSScriptRoot '../../../Scripts/Helpers/Convert-PolicyResourcesDetailsToFlatList-Documentation.ps1')
 
     function Get-TestAssignment {
@@ -108,6 +109,46 @@ Describe 'Convert-PolicyResourcesDetailsToFlatList-Documentation' {
         $entry = $result[$policyDetail.id]
         $entry.effectValue | Should -Be 'Disabled'
         $entry.policySetEffectStrings | Should -Be @('assignment: Disabled (override)')
+    }
+
+    It 'resolves a conditional policy set effect with the assignment parameters' -ForEach @(
+        @{ AssignmentParameters = @{}; Expected = 'DeployIfNotExists' }
+        @{ AssignmentParameters = @{ resourceTypeList = @{ value = @('microsoft.cache/redis') } }; Expected = 'Disabled' }
+    ) {
+        $itemId = '/providers/Microsoft.Authorization/policyAssignments/test-set-assignment'
+        $policyDetail = Get-TestPolicyDetail -ReferenceId 'conditional-reference'
+        $policyDetail.effectParameterName = $null
+        $policyDetail.effectValue = "[if(contains(parameters('resourceTypeList'),'microsoft.keyvault/vaults'),parameters('effect'),'Disabled')]"
+        $policyDetail.effectDefault = $policyDetail.effectValue
+        $policyDetail.effectReason = 'PolicySet Fixed'
+        $detail = @{
+            id                               = '/providers/Microsoft.Authorization/policySetDefinitions/test-set'
+            name                             = 'test-set'
+            displayName                      = 'Test policy set'
+            description                      = 'Test policy set description'
+            policyType                       = 'BuiltIn'
+            parameters                       = @{
+                effect           = @{ defaultValue = 'DeployIfNotExists' }
+                resourceTypeList = @{ defaultValue = @('microsoft.keyvault/vaults') }
+            }
+            assignmentId                     = $itemId
+            assignment                       = @{ properties = @{ parameters = $AssignmentParameters } }
+            policiesWithMultipleReferenceIds = @{}
+            policyDefinitions                = @($policyDetail)
+        }
+
+        $result = Convert-PolicyResourcesDetailsToFlatList-Documentation `
+            -ItemList @(@{
+                    shortName    = 'assignment'
+                    itemId       = $itemId
+                    policySetId  = $detail.id
+                    assignmentId = $itemId
+                }) `
+            -Details @{$itemId = $detail }
+
+        $entry = $result[$policyDetail.id]
+        $entry.effectValue | Should -Be $Expected
+        $entry.policySetEffectStrings | Should -Be @("assignment: $Expected (PolicySet Fixed)")
     }
 
     It 'canonicalizes lowercase default effects in policy set summaries' {
