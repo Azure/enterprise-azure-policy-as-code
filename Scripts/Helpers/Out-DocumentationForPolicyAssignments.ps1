@@ -342,16 +342,19 @@ function Out-DocumentationForPolicyAssignments {
                     $groupNamesText = "| "
                 }
             }
+            # Escape |, which would end the table cell
+            $policyDisplayName = $_.displayName -replace '\|', '\|'
+            $policyDescription = $_.description -replace '\|', '\|'
             # Add to Main Markdown
-            $null = $allLines.Add("| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) $($groupNamesText)|$($addedEffectColumns)")
+            $null = $allLines.Add("| $($_.category) | **$($policyDisplayName)**$($inTableAfterDisplayNameBreak)$($policyDescription) $($groupNamesText)|$($addedEffectColumns)")
             # Add to sub-page markdown
             if ($assignmentsByCategory.ContainsKey($_.category)) {   
-                $assignmentsByCategory[$_.category].subLines += "| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) $($groupNamesText)|$($addedEffectColumns)"
+                $assignmentsByCategory[$_.category].subLines += "| $($_.category) | **$($policyDisplayName)**$($inTableAfterDisplayNameBreak)$($policyDescription) $($groupNamesText)|$($addedEffectColumns)"
             }
             else {
                 $assignmentsByCategory[$_.category] = @{}
                 $assignmentsByCategory[$_.category].subLines = $assignmentsByCategoryHeader
-                $assignmentsByCategory[$_.category].subLines += "| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) $($groupNamesText)|$($addedEffectColumns)"
+                $assignmentsByCategory[$_.category].subLines += "| $($_.category) | **$($policyDisplayName)**$($inTableAfterDisplayNameBreak)$($policyDescription) $($groupNamesText)|$($addedEffectColumns)"
             }
         }
     }
@@ -444,25 +447,28 @@ function Out-DocumentationForPolicyAssignments {
                                 $text += "$($parameterName) = **``$valueString``**"
                             }
                         }
-                        $addedParametersColumns += " $text |"
+                        $addedParametersColumns += " $($text -replace '\|', '\|') |"
                     }
                     else {
                         $addedParametersColumns += " |"
                     }
                 }
                 if ($hasParameters) {
+                    # Escape |, which would end the table cell
+                    $policyDisplayName = $_.displayName -replace '\|', '\|'
+                    $policyDescription = $_.description -replace '\|', '\|'
                     # Add to main markdown
-                    $null = $allLines.Add("| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) |$($addedParametersColumns)")
+                    $null = $allLines.Add("| $($_.category) | **$($policyDisplayName)**$($inTableAfterDisplayNameBreak)$($policyDescription) |$($addedParametersColumns)")
                     # Add to sub-page markdown
                     if ($assignmentsByCategory.ContainsKey($_.category)) {
                         if ($assignmentsByCategory[$_.category].subLines -match "Policy Parameters by Policy") {
-                            $assignmentsByCategory[$_.category].subLines += "| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) |$($addedParametersColumns)"
+                            $assignmentsByCategory[$_.category].subLines += "| $($_.category) | **$($policyDisplayName)**$($inTableAfterDisplayNameBreak)$($policyDescription) |$($addedParametersColumns)"
                         }
                         else {
                             $null = $assignmentsByCategory[$_.category].subLines += "`n$leadingHeadingHashtag# Policy Parameters by Policy`n"
                             $null = $assignmentsByCategory[$_.category].subLines += "| Category | Policy |$addedTableHeader"
                             $null = $assignmentsByCategory[$_.category].subLines += "| :------- | :----- |$addedTableDividerParameters"
-                            $assignmentsByCategory[$_.category].subLines += "| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) |$($addedParametersColumns)"
+                            $assignmentsByCategory[$_.category].subLines += "| $($_.category) | **$($policyDisplayName)**$($inTableAfterDisplayNameBreak)$($policyDescription) |$($addedParametersColumns)"
                         }
                     }
                     else {
@@ -471,7 +477,7 @@ function Out-DocumentationForPolicyAssignments {
                         $null = $assignmentsByCategory[$_.category].subLines += "| :------- | :----- |$addedTableDividerParameters"
                         $assignmentsByCategory[$_.category] = @{}
                         $assignmentsByCategory[$_.category].subLines = $assignmentsByCategoryHeader
-                        $assignmentsByCategory[$_.category].subLines += "| $($_.category) | **$($_.displayName)**$($inTableAfterDisplayNameBreak)$($_.description) |$($addedParametersColumns)"
+                        $assignmentsByCategory[$_.category].subLines += "| $($_.category) | **$($policyDisplayName)**$($inTableAfterDisplayNameBreak)$($policyDescription) |$($addedParametersColumns)"
                     }
                 }
             }
