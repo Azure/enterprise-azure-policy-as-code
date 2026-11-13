@@ -413,7 +413,7 @@ function Out-DocumentationForPolicyAssignments {
                         $text = ""
                         $parameters = $environmentCategoryValues.parameters
                         $notFirst = $false
-                        foreach ($parameterName in $parameters.Keys) {
+                        foreach ($parameterName in ($parameters.Keys | Sort-Object)) {
                             $parameter = $parameters.$parameterName
                             if (-not $parameter.isEffect) {
                                 $hasParameters = $true
@@ -684,7 +684,7 @@ function Out-DocumentationForPolicyAssignments {
             $null = $sb.Append("`n    // -----------------------------------------------------------------------------------------------------------------------------")
 
             $outputParameters = [ordered]@{}
-            foreach ($parameterName in $_.parameters.Keys) {
+            foreach ($parameterName in ($_.parameters.Keys | Sort-Object)) {
                 $parameter = $_.parameters.$parameterName
 
                 $environmentValues = [ordered]@{}
