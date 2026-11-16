@@ -141,8 +141,8 @@ function Out-DocumentationForPolicySets {
                         $complianceText = "| "
                     }
                 }
-                $policyDisplayName = $_.displayName -replace "\n\r", " " -replace "\n", " " -replace "\r", " "
-                $policyDescription = $_.description -replace "\n\r", " " -replace "\n", " " -replace "\r", " "
+                $policyDisplayName = $_.displayName -replace "\n\r", " " -replace "\n", " " -replace "\r", " " -replace '\|', '\|'
+                $policyDescription = $_.description -replace "\n\r", " " -replace "\n", " " -replace "\r", " " -replace '\|', '\|'
                 $null = $allLines.Add("| $($_.category) | **$($policyDisplayName)**$($inTableAfterDisplayNameBreak)$($policyDescription) $complianceText|$addedEffectColumns")
             }
             else {
@@ -208,8 +208,8 @@ function Out-DocumentationForPolicySets {
                             $complianceText = $groupNamesList -join $inTableBreak
                         }
                     }
-                    $policyDisplayName = $_.displayName -replace "\n\r", " " -replace "\n", " " -replace "\r", " "
-                    $policyDescription = $_.description -replace "\n\r", " " -replace "\n", " " -replace "\r", " "
+                    $policyDisplayName = $_.displayName -replace "\n\r", " " -replace "\n", " " -replace "\r", " " -replace '\|', '\|'
+                    $policyDescription = $_.description -replace "\n\r", " " -replace "\n", " " -replace "\r", " " -replace '\|', '\|'
                     if ($DocumentationSpecification.markdownIncludeComplianceGroupNames) {
                         $null = $allLines.Add("| $($_.category) | **$($policyDisplayName)**$($inTableAfterDisplayNameBreak)$($policyDescription) | $complianceText | $effectsText |")
                     }
@@ -296,15 +296,15 @@ function Out-DocumentationForPolicySets {
                                     $text += "$($parameterName) = **``$valueString``**"
                                 }
                             }
-                            $addedParametersColumns += " $text |"
+                            $addedParametersColumns += " $($text -replace '\|', '\|') |"
                         }
                         else {
                             $addedParametersColumns += "  |"
                         }
                     }
                     if ($hasParameters) {
-                        $policyDisplayName = $_.displayName -replace "\n\r", " " -replace "\n", " " -replace "\r", " "
-                        $policyDescription = $_.description -replace "\n\r", " " -replace "\n", " " -replace "\r", " "
+                        $policyDisplayName = $_.displayName -replace "\n\r", " " -replace "\n", " " -replace "\r", " " -replace '\|', '\|'
+                        $policyDescription = $_.description -replace "\n\r", " " -replace "\n", " " -replace "\r", " " -replace '\|', '\|'
                         $null = $allLines.Add("| $($_.category) | **$($policyDisplayName)**$($inTableAfterDisplayNameBreak)$($policyDescription) |$addedParametersColumns")
                     }
                 }

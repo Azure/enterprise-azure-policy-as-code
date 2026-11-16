@@ -76,6 +76,23 @@ AfterAll {
 }
 
 Describe 'New-ALZPolicyDefaultStructure parameter file generation' {
+    It 'generates AMBA extended selectors that preserve sync-all behavior' {
+        $output = & $script:NewStructureScriptPath `
+            -DefinitionsRootFolder $script:DefinitionsRoot `
+            -LibraryPath $script:LibraryRoot `
+            -Type AMBA `
+            -PacEnvironmentSelector 'epac-dev' 6>&1
+
+        ($output | Out-String) | Should -Match 'AMBA Policy default structure created successfully'
+        ($output | Out-String) | Should -Not -Match 'ALZ Policy default structure created successfully'
+
+        $structure = Get-Content (Join-Path $script:DefinitionsRoot 'policyStructures/amba.policy_default_structure.epac-dev.jsonc') -Raw | ConvertFrom-Json
+        $structure.ambaExtendedPolicyFilters.include.AND | Should -HaveCount 0
+        $structure.ambaExtendedPolicyFilters.exclude.OR | Should -HaveCount 0
+        $schema = Join-Path $PSScriptRoot '../../../Schemas/policy-structure-schema.json'
+        $structure | ConvertTo-Json -Depth 50 | Test-Json -SchemaFile $schema | Should -BeTrue
+    }
+
     It 'writes policy set parameter defaults and allowed value comments to JSONC' {
         & $script:NewStructureScriptPath `
             -DefinitionsRootFolder $script:DefinitionsRoot `
