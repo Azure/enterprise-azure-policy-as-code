@@ -76,7 +76,8 @@ $scriptRoot = Split-Path $PSScriptRoot -Parent
 . "$PSScriptRoot/Get-GlobalSettings.ps1"
 . "$PSScriptRoot/Get-PacFolders.ps1"
 . "$PSScriptRoot/Get-PolicySetVersionedDetails.ps1"
-. "$PSScriptRoot/Get-ParameterNameFromValueString.ps1". "$PSScriptRoot/Get-PolicyAssignmentsDetails.ps1"
+. "$PSScriptRoot/Get-ParameterNameFromValueString.ps1"
+. "$PSScriptRoot/Get-PolicyAssignmentsDetails.ps1"
 . "$PSScriptRoot/Get-PolicyResourceProperties.ps1"
 . "$PSScriptRoot/Get-ScrubbedString.ps1"
 
