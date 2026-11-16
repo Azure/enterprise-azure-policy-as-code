@@ -94,7 +94,7 @@ function Out-DocumentationForPolicySets {
             $null = $allLines.Add("| :------- | :----- |$addedTableDivider")
         }
 
-        $FlatPolicyList.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
+        $FlatPolicyList.Values | Sort-Object -Property { $_.category }, { $_.displayName }, { $_.name }, { $_.referencePath } | ForEach-Object -Process {
             $policySetList = $_.policySetList
             $addedEffectColumns = ""
             $effectValue = "Unknown"
@@ -165,7 +165,7 @@ function Out-DocumentationForPolicySets {
                 $null = $allLines.Add("| :------- | :----- | :------ |")
             }
 
-            $FlatPolicyList.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
+            $FlatPolicyList.Values | Sort-Object -Property { $_.category }, { $_.displayName }, { $_.name }, { $_.referencePath } | ForEach-Object -Process {
                 $policySetList = $_.policySetList
                 $effectsByPolicySet = [System.Collections.ArrayList]::new()
                 $effectValue = "Unknown"
@@ -233,7 +233,7 @@ function Out-DocumentationForPolicySets {
             $null = $allLines.Add("| Category | Policy |$addedTableHeader")
             $null = $allLines.Add("| :------- | :----- |$addedTableDividerParameters")
 
-            $FlatPolicyList.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
+            $FlatPolicyList.Values | Sort-Object -Property { $_.category }, { $_.displayName }, { $_.name }, { $_.referencePath } | ForEach-Object -Process {
                 $policySetList = $_.policySetList
                 $addedParametersColumns = ""
                 $effectValue = "Unknown"
@@ -288,7 +288,7 @@ function Out-DocumentationForPolicySets {
                                         $valueString = $value
                                     }
                                     else {
-                                        $valueString = ConvertTo-Json $value -Depth 100 -Compress
+                                        $valueString = ConvertTo-SortedJson $value
                                     }
                                     if ($valueString.length -gt $markdownMaxParameterLength) {
                                         $valueString = $valueString.substring(0, $markdownMaxParameterLength - 3) + "..."
@@ -353,7 +353,7 @@ function Out-DocumentationForPolicySets {
         $allRows.Clear()
 
         # Content rows
-        $FlatPolicyList.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
+        $FlatPolicyList.Values | Sort-Object -Property { $_.category }, { $_.displayName }, { $_.name }, { $_.referencePath } | ForEach-Object -Process {
             # Initialize row - with empty strings
             $rowObj = [ordered]@{}
             foreach ($key in $columnHeaders) {
@@ -407,7 +407,7 @@ function Out-DocumentationForPolicySets {
                 $rowObj.allowedEffects = Convert-AllowedEffectsToCsvString `
                     -DefaultEffect $effectDefault `
                     -IsEffectParameterized $isEffectParameterized `
-                    -EffectAllowedValues $effectAllowedValues.Keys `
+                    -EffectAllowedValues ($effectAllowedValues.Keys | Sort-Object) `
                     -EffectAllowedOverrides $effectAllowedOverrides `
                     -InCellSeparator1 $inCellSeparator1 `
                     -InCellSeparator2 $inCellSeparator2
@@ -445,7 +445,7 @@ function Out-DocumentationForPolicySets {
 
         # Pivot the data by group name
         [hashtable] $perGroupNamePolicies = @{}
-        $FlatPolicyList.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
+        $FlatPolicyList.Values | Sort-Object -Property { $_.category }, { $_.displayName }, { $_.name }, { $_.referencePath } | ForEach-Object -Process {
             $groupNamesList = $_.groupNamesList
             foreach ($groupName in $groupNamesList) {
                 if (!$perGroupNamePolicies.ContainsKey($groupName)) {
@@ -488,7 +488,7 @@ function Out-DocumentationForPolicySets {
                 $effectDefault = $policy.effectDefault
                 $allowedEffects = $effectDefault
                 if ($isEffectParameterized -and $effectAllowedValues.Count -gt 1) {
-                    $allowedEffects = "param:$($effectAllowedValues.Keys -join '|')"
+                    $allowedEffects = "param:$(($effectAllowedValues.Keys | Sort-Object) -join '|')"
                 }
                 elseif ($effectAllowedOverrides.Count -gt 0) {
                     $allowedEffects = "overr:$($effectAllowedOverrides -join '|')"
@@ -526,7 +526,7 @@ function Out-DocumentationForPolicySets {
         $sb = [System.Text.StringBuilder]::new()
         $null = $sb.Append("{")
         $null = $sb.Append("`n  `"parameters`": {")
-        $FlatPolicyList.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
+        $FlatPolicyList.Values | Sort-Object -Property { $_.category }, { $_.displayName }, { $_.name }, { $_.referencePath } | ForEach-Object -Process {
             if ($_.isEffectParameterized) {
 
                 $policySetList = $_.policySetList

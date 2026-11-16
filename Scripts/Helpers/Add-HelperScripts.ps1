@@ -55,6 +55,7 @@ $scriptRoot = Split-Path $PSScriptRoot -Parent
 . "$PSScriptRoot/Convert-PolicyToDetails.ps1"
 . "$PSScriptRoot/ConvertTo-ArrayList.ps1"
 . "$PSScriptRoot/ConvertTo-HashTable.ps1"
+. "$PSScriptRoot/ConvertTo-SortedJson.ps1"
 
 . "$PSScriptRoot/Export-AssignmentNode.ps1"
 . "$PSScriptRoot/Find-AzNonCompliantResources.ps1"

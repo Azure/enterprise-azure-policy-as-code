@@ -35,7 +35,7 @@ function Convert-ParametersToString {
                     }
                 }
                 jsonc {
-                    $parameterString = "`"$($parameterName)`": $(ConvertTo-Json $value -Depth 100 -Compress), // '$($policySetDisplayNames -Join "', '")'"
+                    $parameterString = "`"$($parameterName)`": $(ConvertTo-SortedJson $value), // '$($policySetDisplayNames -Join "', '")'"
                     if ($multiUse) {
                         $text += "`n    // Multi-use: ($parameterString)"
                     }
@@ -52,7 +52,7 @@ function Convert-ParametersToString {
             }
         }
         if (($OutputType -eq "csvValues" -or $OutputType -eq "csvDefinitions") -and $csvParametersHt.psbase.Count -gt 0) {
-            $text = ConvertTo-Json $csvParametersHt -Depth 100 -Compress
+            $text = ConvertTo-SortedJson $csvParametersHt
         }
     }
     return $text

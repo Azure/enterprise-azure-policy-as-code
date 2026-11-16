@@ -309,7 +309,7 @@ function Out-DocumentationForPolicyAssignments {
         $null = $assignmentsByCategoryHeader.Add("| :------- | :----- |$addedTableDivider")
     }
     
-    $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
+    $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName }, { $_.name }, { $_.referencePath } | ForEach-Object -Process {
         # If statement to skip over duplicates
         if ( $true -ne $_.isReferencePathMatch) {
             # Build additional columns
@@ -322,7 +322,7 @@ function Out-DocumentationForPolicyAssignments {
                     $effectAllowedValues = $_.effectAllowedValues
                     $text = Convert-EffectToMarkdownString `
                         -Effect $effectValue `
-                        -AllowedValues $effectAllowedValues.Keys `
+                        -AllowedValues ($effectAllowedValues.Keys | Sort-Object) `
                         -InTableBreak $inTableBreak
                     $addedEffectColumns += " $text |"
                 }
@@ -370,7 +370,7 @@ function Out-DocumentationForPolicyAssignments {
         $null = $allLines.Add("| Category | Policy |$addedTableHeader")
         $null = $allLines.Add("| :------- | :----- |$addedTableDividerParameters")
 
-        $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
+        $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName }, { $_.name }, { $_.referencePath } | ForEach-Object -Process {
             # If statement to skip over duplicates
             if ( $true -ne $_.isReferencePathMatch) {
                 # Build additional columns
@@ -436,7 +436,7 @@ function Out-DocumentationForPolicyAssignments {
                                     $valueString = $value
                                 }
                                 else {
-                                    $valueString = ConvertTo-Json $value -Depth 100 -Compress
+                                    $valueString = ConvertTo-SortedJson $value
                                 }
                                 if ($valueString -match '","') {
                                     $valueString = $valueString -replace '","', '", "'
@@ -527,7 +527,7 @@ function Out-DocumentationForPolicyAssignments {
     $allRows.Clear()
 
     # Process the table
-    $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
+    $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName }, { $_.name }, { $_.referencePath } | ForEach-Object -Process {
         # If statement to skip over duplicates and ensure not to include Deprecated Policies
         if ( $true -ne $_.isReferencePathMatch) {
             # Initialize row - with empty strings
@@ -565,7 +565,7 @@ function Out-DocumentationForPolicyAssignments {
             $rowObj.allowedEffects = Convert-AllowedEffectsToCsvString `
                 -DefaultEffect $effectDefault `
                 -IsEffectParameterized $isEffectParameterized `
-                -EffectAllowedValues $effectAllowedValues.Keys `
+                -EffectAllowedValues ($effectAllowedValues.Keys | Sort-Object) `
                 -EffectAllowedOverrides $effectAllowedOverrides `
                 -InCellSeparator1 $inCellSeparator1 `
                 -InCellSeparator2 $inCellSeparator2
@@ -628,7 +628,7 @@ function Out-DocumentationForPolicyAssignments {
         $selectedJsonEnvironmentCategories = @($environmentCategories)
     }
 
-    $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName } | ForEach-Object -Process {
+    $flatPolicyListAcrossEnvironments.Values | Sort-Object -Property { $_.category }, { $_.displayName }, { $_.name }, { $_.referencePath } | ForEach-Object -Process {
         if ($_.isEffectParameterized -or ($_.parameters -and $_.parameters.Keys.Count -gt 0)) {
             $referencePath = $_.referencePath
             $displayName = $_.displayName
@@ -692,7 +692,7 @@ function Out-DocumentationForPolicyAssignments {
 
             foreach ($parameterName in $outputParameters.Keys) {
                 $parameterValue = $outputParameters[$parameterName]
-                $null = $sb.Append("`n    `"$($parameterName)`": $(ConvertTo-Json $parameterValue -Depth 100 -Compress), // '$($displayName)'")
+                $null = $sb.Append("`n    `"$($parameterName)`": $(ConvertTo-SortedJson $parameterValue), // '$($displayName)'")
             }
         }
     }
