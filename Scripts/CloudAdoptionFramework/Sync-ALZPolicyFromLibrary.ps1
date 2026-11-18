@@ -670,10 +670,6 @@ try {
     $structureFilePath = Get-ChildItem -Path $structureDirectory -Filter "*.$PacEnvironmentSelector.jsonc" -Recurse | Where-Object { $_.Name -match "$($Type.ToLower()).policy_default_structure" } | Select-Object -First 1
     $structureFile = Get-Content -Path $structureFilePath.FullName -Raw -ErrorAction Stop | ConvertFrom-Json
     Write-ModernStatus -Message "Policy default structure file: $structureFilePath" -Status "info" -Indent 2
-    switch ($structureFile.enforcementMode) {
-        "Default" { $enforcementModeText = "must" }
-        "DoNotEnforce" { $enforcementModeText = "should" }
-    }
 }
 catch {
     Write-ModernStatus -Message "Error reading the policy default structure file: $($_.Exception.Message)" -Status "error" -Indent 2
@@ -1215,9 +1211,12 @@ try {
                     displayName = $fileContent.properties.displayName
                 }
                 parameters      = [ordered]@{}
-                # enforcementMode = $structureFile.enforcementMode
                 enforcementMode = if ($invertedEnforcementMode.ContainsKey("$($nodeNamePrefix)/$effectiveAssignmentName")) {
                     $invertedEnforcementMode["$($nodeNamePrefix)/$effectiveAssignmentName"]
+                }
+                elseif ($Type -eq "ALZ" -and $fileContent.name -match "^Enforce-(GR|Encrypt)-" -and
+                    -not [string]::IsNullOrWhiteSpace($fileContent.properties.enforcementMode)) {
+                    $fileContent.properties.enforcementMode
                 }
                 else {
                     $structureFile.enforcementMode
@@ -1358,6 +1357,10 @@ try {
 
             # Non-compliance messages
             if ($null -ne $fileContent.properties.nonComplianceMessages) {
+                $enforcementModeText = switch ($baseTemplate.enforcementMode) {
+                    "Default" { "must" }
+                    "DoNotEnforce" { "should" }
+                }
                 $obj = @(
                     @{
                         message = $fileContent.properties.nonComplianceMessages.message -replace "{enforcementMode}", $enforcementModeText

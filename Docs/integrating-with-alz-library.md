@@ -127,6 +127,8 @@ This file contains information that drives the sync process. The file includes m
    "enforcementMode": "Default" // Can be Default or DoNotEnforce
    ```
 
+   ALZ guardrail assignments (`Enforce-GR-*` and `Enforce-Encrypt-*`) retain the library assignment's enforcement mode instead of this global value. If the library assignment omits its mode, the global value is used. To change individual guardrails, configure `overrides.enforcementMode` in this structure file and sync with `-EnableOverrides`, as described below.
+
 ### Sync with ALZ Policy Repo
 
 The next command will generate policy assignment files based on the values in this file, so ensure they are correct for your environment.
@@ -538,12 +540,14 @@ Run a sync using the `-EnableOverrides` parameter and the parameters will be upd
 
 ### Modify the enforcement mode for an assignment (Requires EPAC v11)
 
-The `enforcementMode` key in the structure file sets the initial value for all assignments, but this can be overridden for individual assignments by using an override as below. The key for each enforcement mode is the assignment `nodeName` (i.e. `"<archetypeName>/<assignmentName>"`).
+The `enforcementMode` key in the structure file sets the initial value for assignments, except ALZ guardrails, which retain their library enforcement mode when specified. Individual overrides take precedence over both the global value and the library guardrail mode. The key for each enforcement mode is the assignment `nodeName` (i.e. `"<archetypeName>/<assignmentName>"`).
 
 ```json
 "overrides": {
     "enforcementMode": {
-      "Default": [],
+      "Default": [
+        "landing_zones/Enforce-GR-Kubernetes0"
+      ],
       "DoNotEnforce": [
         "root/Audit-TrustedLaunch",
         "root/Audit-ResourceRGLocation"
@@ -552,7 +556,7 @@ The `enforcementMode` key in the structure file sets the initial value for all a
   }
 ```
 
-Each entry in the array is the `nodeName` of the assignment as it appears in the generated assignment file (e.g. `"root/Audit-ResourceRGLocation"`). Assignments listed under `"DoNotEnforce"` will have their enforcement mode set to `DoNotEnforce`, while those under `"Default"` will use the default enforcement mode.
+Each entry in the array is the `nodeName` of the assignment as it appears in the generated assignment file (e.g. `"root/Audit-ResourceRGLocation"`). Assignments listed under `"DoNotEnforce"` will have their enforcement mode set to `DoNotEnforce`, while those under `"Default"` will be set explicitly to `Default`. In this example Kubernetes guardrails are enforced in `landing_zones`; the same assignment in `platform` retains its library mode.
 
 Run a sync using the `-EnableOverrides` parameter and the enforcement mode will be updated.
 
