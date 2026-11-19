@@ -27,6 +27,8 @@ In your global settings file, update the lighthouse pacSelector to have the mana
 
 - **managedTenantId** - The tenant containing the lighthouse managed (joined) subscriptions.
 
+Role deployment retries at most once with an alternate `delegatedManagedIdentityResourceId` payload: it adds the property after an ABAC authorization error when delegation has not been used, or removes it if Azure rejects the delegated identity in a Lighthouse environment. If the retry fails, EPAC logs the final Azure error and continues with subsequent role assignments. Retries do not change the environment configuration or the role assignment properties in the plan.
+
 1. In the assignment file, add an additionalRoleAssignments section for the file or node so that the assignment knows that when assigning this policy at the managed scope pacEnvironment, it needs to perform an additional role assignment at the managing scope. 
 
                 "additionalRoleAssignments": {
