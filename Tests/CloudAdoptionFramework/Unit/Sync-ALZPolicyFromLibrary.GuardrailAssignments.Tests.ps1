@@ -127,6 +127,67 @@ function Invoke-RestMethod {
 }
 
 Describe 'Sync-ALZPolicyFromLibrary guardrail assignments' {
+    It 'resolves guardrail enforcement from <Case>' -ForEach @(
+        @{ Case = 'library DoNotEnforce'; Name = 'Enforce-GR-Storage0'; LibraryMode = 'DoNotEnforce'; StructureMode = 'Default'; OverrideMode = $null; EnableOverrides = $false; Expected = 'DoNotEnforce' }
+        @{ Case = 'library Default despite a different global mode'; Name = 'Enforce-GR-Storage0'; LibraryMode = 'Default'; StructureMode = 'DoNotEnforce'; OverrideMode = $null; EnableOverrides = $false; Expected = 'Default' }
+        @{ Case = 'global fallback when the library omits the mode'; Name = 'Enforce-GR-Storage0'; LibraryMode = $null; StructureMode = 'DoNotEnforce'; OverrideMode = $null; EnableOverrides = $false; Expected = 'DoNotEnforce' }
+        @{ Case = 'an explicit Default override'; Name = 'Enforce-GR-Storage0'; LibraryMode = 'DoNotEnforce'; StructureMode = 'DoNotEnforce'; OverrideMode = 'Default'; EnableOverrides = $true; Expected = 'Default' }
+        @{ Case = 'an explicit DoNotEnforce override'; Name = 'Enforce-GR-Storage0'; LibraryMode = 'Default'; StructureMode = 'Default'; OverrideMode = 'DoNotEnforce'; EnableOverrides = $true; Expected = 'DoNotEnforce' }
+        @{ Case = 'the library when overrides are disabled'; Name = 'Enforce-GR-Storage0'; LibraryMode = 'DoNotEnforce'; StructureMode = 'Default'; OverrideMode = 'Default'; EnableOverrides = $false; Expected = 'DoNotEnforce' }
+        @{ Case = 'an encryption guardrail'; Name = 'Enforce-Encrypt-CMK0'; LibraryMode = 'DoNotEnforce'; StructureMode = 'Default'; OverrideMode = $null; EnableOverrides = $false; Expected = 'DoNotEnforce' }
+        @{ Case = 'a guardrail without a numeric suffix'; Name = 'Enforce-GR-Storage'; LibraryMode = 'DoNotEnforce'; StructureMode = 'Default'; OverrideMode = $null; EnableOverrides = $false; Expected = 'DoNotEnforce' }
+    ) {
+        $root = Join-Path $TestDrive 'EnforcementMode'
+        $structure = @{
+            enforcementMode = $StructureMode
+            managementGroupNameMappings = @{
+                landingzones = @{
+                    management_group_function = 'Landing Zones'
+                    value = '/providers/Microsoft.Management/managementGroups/landingzones'
+                }
+                platform = @{
+                    management_group_function = 'Platform'
+                    value = '/providers/Microsoft.Management/managementGroups/platform'
+                }
+            }
+            defaultParameterValues = @{}
+            overrides = @{ enforcementMode = @{} }
+        }
+        if ($OverrideMode) {
+            $structure.overrides.enforcementMode[$OverrideMode] = @("landing_zones/$Name")
+        }
+        $structureJson = $structure | ConvertTo-Json -Depth 10
+        $structureJson | Test-Json -SchemaFile (Join-Path $PSScriptRoot '../../../Schemas/policy-structure-schema.json') | Should -BeTrue
+        $env = New-GuardrailTestEnvironment -Root $root -StructureFileContent $structureJson -ArchetypeDefinitions @(
+            @{ name = 'landing_zones'; policy_assignments = @('Audit-AppGW-WAF', $Name) }
+            @{ name = 'platform'; policy_assignments = @($Name) }
+        )
+        $source = Get-Content (Join-Path $env.LibraryRoot 'platform/alz/policy_assignments/Enforce-GR-Storage0.alz_policy_assignment.json') -Raw | ConvertFrom-Json
+        $source.name = $Name
+        if ($null -eq $LibraryMode) {
+            $source.properties.PSObject.Properties.Remove('enforcementMode')
+        }
+        else {
+            $source.properties.enforcementMode = $LibraryMode
+        }
+        $source.properties | Add-Member -NotePropertyName nonComplianceMessages -NotePropertyValue @(
+            @{ message = 'Resources {enforcementMode} comply with guardrails.' }
+        )
+        $source | ConvertTo-Json -Depth 10 | Set-Content (Join-Path $env.LibraryRoot "platform/alz/policy_assignments/$Name.alz_policy_assignment.json")
+
+        Invoke-SyncScript -Root $root -DefinitionsRoot $env.DefinitionsRoot -LibraryRoot $env.LibraryRoot -CreateGuardrailAssignments -EnableOverrides:$EnableOverrides | Out-Null
+
+        $assignment = Get-Content (Join-Path $env.DefinitionsRoot "policyAssignments/ALZ/epac-dev/Landing Zones/$Name.jsonc") -Raw | ConvertFrom-Json
+        $assignment.enforcementMode | Should -Be $Expected
+        $expectedVerb = if ($Expected -eq 'Default') { 'must' } else { 'should' }
+        $assignment.nonComplianceMessages[0].message | Should -Be "Resources $expectedVerb comply with guardrails."
+
+        $platformAssignment = Get-Content (Join-Path $env.DefinitionsRoot "policyAssignments/ALZ/epac-dev/Platform/$Name.jsonc") -Raw | ConvertFrom-Json
+        $platformAssignment.enforcementMode | Should -Be $(if ($LibraryMode) { $LibraryMode } else { $StructureMode })
+        $normalAssignment = Get-Content (Join-Path $env.DefinitionsRoot 'policyAssignments/ALZ/epac-dev/Landing Zones/Audit-AppGW-WAF.jsonc') -Raw | ConvertFrom-Json
+        $normalAssignment.enforcementMode | Should -Be $StructureMode
+    }
+
     It 'only creates guardrail assignments when -CreateGuardrailAssignments is supplied' {
         $root = Join-Path $TestDrive 'GuardrailDefault'
         $structure = @'
