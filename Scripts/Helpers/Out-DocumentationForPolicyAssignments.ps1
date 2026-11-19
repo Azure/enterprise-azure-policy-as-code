@@ -36,6 +36,9 @@ function Out-DocumentationForPolicyAssignments {
         Write-Error "No environmentCategories '$environmentCategories' specified." -ErrorAction Stop
     }
 
+    $null = New-Item -Path $OutputPathServices -ItemType Directory -Force -ErrorAction Stop
+    Get-ChildItem -LiteralPath $OutputPathServices -File -ErrorAction Stop | Remove-Item -ErrorAction Stop
+
     #region Combine per environment flat lists into a single flat list ($flatPolicyListAcrossEnvironments)
 
     $flatPolicyListAcrossEnvironments = @{}
