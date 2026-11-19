@@ -43,6 +43,9 @@ function Get-AzPolicyOrSetDefinitions {
         if (($resourceTenantId -in @($null, "", $environmentTenantId)) -or $null -ne $PacEnvironment.managedTenantId) {
             $id = $policyResource.id
             $testId = $id
+            # if ($policyResource.id -match "allowed_locations|modify-tags") {
+            #     Write-Output "Breakpoint hit for testing with allowed_locations policy resource"
+            # }
             $included, $resourceIdParts = Confirm-PolicyResourceExclusions `
                 -TestId $testId `
                 -ResourceId $id `
@@ -67,12 +70,21 @@ function Get-AzPolicyOrSetDefinitions {
                                 $found = $true
                             }
                             $scopesLast {
-                                # BuiltIn or Static, since last entry in array is empty string ($currentPolicyDefinitionsScopeId)
-                                $policyResource.pacOwner = "readOnly"
-                                $null = $PolicyResourcesTable.all.Add($id, $policyResource)
-                                $null = $PolicyResourcesTable.readOnly.Add($id, $policyResource)
-                                $PolicyResourcesTable.counters.builtIn += 1
-                                $found = $true
+                                # BuiltIn or Static, since last entry in array is empty string ($currentPolicyDefinitionsScopeId) - could also be deployed at a different scope
+                                if ($null -ne $policyResource.properties.metadata.definitionLocation) {
+                                    $policyResource.pacOwner = Confirm-PacOwner -ThisPacOwnerId $thisPacOwnerId -PolicyResource $policyResource -Scope $scope -ManagedByCounters $PolicyResource
+                                    $null = $PolicyResourcesTable.all.Add($id, $policyResource)
+                                    $null = $PolicyResourcesTable.managed.Add($id, $policyResource)
+                                    $PolicyResourcesTable.counters.managedby[$policyResource.pacOwner] ++ 
+                                    $found = $true
+                                }
+                                else {
+                                    $policyResource.pacOwner = "readOnly"
+                                    $null = $PolicyResourcesTable.all.Add($id, $policyResource)
+                                    $null = $PolicyResourcesTable.readOnly.Add($id, $policyResource)
+                                    $PolicyResourcesTable.counters.builtIn += 1
+                                    $found = $true
+                                }
                             }
                             Default {
                                 # Read only definitions scopes
