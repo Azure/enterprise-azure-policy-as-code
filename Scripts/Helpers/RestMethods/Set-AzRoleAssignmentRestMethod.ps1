@@ -20,16 +20,30 @@ function Set-AzRoleAssignmentRestMethod {
         $path = "$scope/providers/Microsoft.Authorization/roleAssignments/$($guid.ToString())?api-version=$ApiVersion"
     }
     $body = @{
-        properties = $RoleAssignment.properties
+        properties = @{} + $RoleAssignment.properties
     }
 
     if ($PacEnvironment.managedTenantId -and !$skipDelegated) {
         $body.properties["delegatedManagedIdentityResourceId"] = $roleassignment.assignmentId
     }
 
-    # Invoke the REST API
-    $bodyJson = ConvertTo-Json $body -Depth 100 -Compress
-    $response = Invoke-AzRestMethod -Path $path -Method PUT -Payload $bodyJson
+    # Retry at most once with the alternate delegated identity payload.
+    for ($attempt = 0; $attempt -lt 2; $attempt++) {
+        $bodyJson = ConvertTo-Json $body -Depth 100 -Compress
+        $response = Invoke-AzRestMethod -Path $path -Method PUT -Payload $bodyJson
+
+        if ($attempt -eq 0) {
+            if ($response.StatusCode -eq 403 -and $response.Content -match "has an authorization with ABAC condition that is not fulfilled to perform action" -and !$skipDelegated -and !$body.properties.ContainsKey("delegatedManagedIdentityResourceId")) {
+                $body.properties["delegatedManagedIdentityResourceId"] = $RoleAssignment.assignmentId
+                continue
+            }
+            elseif ($PacEnvironment.managedTenantId -and $response.StatusCode -eq 400 -and $response.Content -match "delegatedManagedIdentityResourceId in the request is set to" -and $body.properties.ContainsKey("delegatedManagedIdentityResourceId")) {
+                $body.properties.Remove("delegatedManagedIdentityResourceId")
+                continue
+            }
+        }
+        break
+    }
 
     # Process response
     $statusCode = $response.StatusCode
@@ -49,18 +63,8 @@ function Set-AzRoleAssignmentRestMethod {
             Write-Information ""
         }
         elseif ($statusCode -eq 403 -and $response.content -match "has an authorization with ABAC condition that is not fulfilled to perform action") {
-            if ($skipDelegated -eq $false) {
-                $PacEnvironment.managedTenantId = "temp"
-                Set-AzRoleAssignmentRestMethod -RoleAssignment $RoleAssignment -PacEnvironment $PacEnvironment -skipDelegated $false
-            }
-            else {
-                Write-ModernStatus -Message "Error, ABAC Permissions Issue. Please review permissions for service principal at scope $($RoleAssignment.scope) -- $($response.content)" -Status "error" -Indent 2
-                Write-Information ""
-            }
-        }
-        elseif ($PacEnvironment.managedTenantId -and $statusCode -eq 400 -and $response.content -match "delegatedManagedIdentityResourceId in the request is set to") {
-            $body.properties.Remove("delegatedManagedIdentityResourceId")
-            Set-AzRoleAssignmentRestMethod -RoleAssignment $RoleAssignment -PacEnvironment $PacEnvironment -skipDelegated $true
+            Write-ModernStatus -Message "Error, ABAC Permissions Issue. Please review permissions for service principal at scope $($RoleAssignment.scope) -- $($response.content)" -Status "error" -Indent 2
+            Write-Information ""
         }
         else {
             $content = $response.Content
