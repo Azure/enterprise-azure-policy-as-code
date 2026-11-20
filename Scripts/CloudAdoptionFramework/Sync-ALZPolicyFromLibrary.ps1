@@ -1440,6 +1440,7 @@ try {
                     # remediation identity needs Managed Identity Operator on the user-assigned identity so it
                     # can be assigned to VMs.
                     if ($baseTemplate.parameters.Contains("userAssignedIdentityResourceId") -and `
+                            -not [string]::IsNullOrWhiteSpace([string]$baseTemplate.parameters["userAssignedIdentityResourceId"]) -and `
                             $baseTemplate.parameters.Contains("bringYourOwnUserAssignedManagedIdentity") -and `
                             $baseTemplate.parameters["bringYourOwnUserAssignedManagedIdentity"] -eq $true -and `
                         (-not $baseTemplate.parameters.Contains("restrictBringYourOwnUserAssignedIdentityToSubscription") -or `
@@ -1453,7 +1454,8 @@ try {
                     # These same policies (and Deploy-vmHybr-Monitoring, which uses a system-assigned identity)
                     # read a Data Collection Rule that can also live outside the assignment's scope. The
                     # remediation identity needs Monitoring Reader on the DCR to read it.
-                    if ($baseTemplate.parameters.Contains("dcrResourceId")) {
+                    if ($baseTemplate.parameters.Contains("dcrResourceId") -and `
+                            -not [string]::IsNullOrWhiteSpace([string]$baseTemplate.parameters["dcrResourceId"])) {
                         $additionalRoleAssignmentEntries += [ordered]@{
                             roleDefinitionId = "/providers/microsoft.authorization/roleDefinitions/43d0d8ad-25c7-4714-9337-8ba259a9fe05"
                             scope            = $baseTemplate.parameters["dcrResourceId"]
