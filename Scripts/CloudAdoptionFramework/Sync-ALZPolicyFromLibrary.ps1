@@ -100,7 +100,7 @@ function ConvertTo-ALZPrivateDnsZoneRegionCode {
     )
 
     if ([string]::IsNullOrWhiteSpace($Region)) {
-        return $Region
+        return ""
     }
 
     $normalizedRegion = $Region.Trim().ToLowerInvariant()
@@ -123,7 +123,7 @@ function ConvertTo-ALZPrivateDnsZoneRegionCode {
         'swedencentral' = 'sdc'
         'swedensouth' = 'sds'
         'australiaeast' = 'aue'
-        'australiasland' = 'aus'
+        'australiasoutheast' = 'ase'
         'australiacentral' = 'auc'
         'japaneast' = 'jpe'
         'japanwest' = 'jpw'
@@ -139,10 +139,11 @@ function ConvertTo-ALZPrivateDnsZoneRegionCode {
         return $regionCodeMap[$normalizedRegion]
     }
 
-    if ($normalizedRegion -match '^[a-z0-9-]+$') {
+    if ($normalizedRegion -in $regionCodeMap.Values) {
         return $normalizedRegion
     }
 
+    Write-ModernStatus -Message "Unknown Azure Backup region or geo-code '$Region'; using '$normalizedRegion' unchanged. Verify private_dns_zone_region against https://learn.microsoft.com/azure/backup/scripts/geo-code-list before deploying." -Status "warning" -Indent 2
     return $normalizedRegion
 }
 
@@ -326,13 +327,11 @@ else {
     Write-ModernHeader -Title "Syncing Policies From Library" -Subtitle "Type: $Type, Tag: $Tag"
 }
 
+$ownedTempPaths = [System.Collections.Generic.List[string]]::new()
+try {
 if ($LibraryPath -eq "" -and $Type -ne "MLZ") {
-    $LibraryPath = Join-Path -Path (Get-Location) -ChildPath "temp"
-    # Check if the temp folder exists, and delete it if it does
-    if (Test-Path $LibraryPath) {
-        Write-ModernStatus -Message "Removing existing temp folder..." -Status "processing" -Indent 2
-        Remove-Item -Path $LibraryPath -Recurse -Force
-    }
+    $LibraryPath = Join-Path -Path ([IO.Path]::GetTempPath()) -ChildPath "epac-alz-$([guid]::NewGuid())"
+    $ownedTempPaths.Add($LibraryPath)
     Write-ModernStatus -Message "Cloning Azure Landing Zones Library repository..." -Status "processing" -Indent 2
     git clone --config advice.detachedHead=false --depth 1 --branch $Tag https://github.com/Azure/Azure-Landing-Zones-Library.git $LibraryPath
     if ($LASTEXITCODE -eq 0) {
@@ -340,17 +339,13 @@ if ($LibraryPath -eq "" -and $Type -ne "MLZ") {
     }
     else {
         Write-ModernStatus -Message "Failed to clone repository" -Status "error" -Indent 4
-        exit 1
+        throw "Failed to clone Azure Landing Zones Library repository."
     }
 }
 
 if ($Type -eq "AMBA" -and $SyncAMBAExtendedPolicies) {
-    $AMBALibraryPath = Join-Path -Path (Get-Location) -ChildPath "temp_amba_extended"
-    # Check if the temp folder exists, and delete it if it does
-    if (Test-Path $AMBALibraryPath) {
-        Write-ModernStatus -Message "Removing existing temp AMBA extended policies folder..." -Status "processing" -Indent 2
-        Remove-Item -Path $AMBALibraryPath -Recurse -Force
-    }
+    $AMBALibraryPath = Join-Path -Path ([IO.Path]::GetTempPath()) -ChildPath "epac-amba-$([guid]::NewGuid())"
+    $ownedTempPaths.Add($AMBALibraryPath)
     Write-ModernStatus -Message "Cloning Azure Monitor Baseline Alerts repository for AMBA extended policies..." -Status "processing" -Indent 2
     # Avoid checking out the deeply nested documentation tree, which can exceed Windows path limits.
     git clone --config advice.detachedHead=false --config core.longpaths=true --depth 1 --sparse https://github.com/Azure/azure-monitor-baseline-alerts.git $AMBALibraryPath
@@ -363,7 +358,7 @@ if ($Type -eq "AMBA" -and $SyncAMBAExtendedPolicies) {
     }
     else {
         Write-ModernStatus -Message "Failed to clone AMBA extended policies repository" -Status "error" -Indent 4
-        exit 1
+        throw "Failed to clone AMBA extended policies repository."
     }
 }
 
@@ -446,12 +441,9 @@ if ($Type -eq "MLZ") {
     #region Source repository
     $mlzTempPath = $null
     if ($LibraryPath -eq "") {
-        $mlzTempPath = Join-Path -Path (Get-Location) -ChildPath "temp_mlz"
+        $mlzTempPath = Join-Path -Path ([IO.Path]::GetTempPath()) -ChildPath "epac-mlz-$([guid]::NewGuid())"
         $LibraryPath = $mlzTempPath
-        if (Test-Path $LibraryPath) {
-            Write-ModernStatus -Message "Removing existing temp_mlz folder..." -Status "processing" -Indent 2
-            Remove-Item -Path $LibraryPath -Recurse -Force
-        }
+        $ownedTempPaths.Add($LibraryPath)
         # missionlz has no usable release tag - its only tag predates the current src/policies content
         # - so the default branch is cloned.
         Write-ModernStatus -Message "Cloning Mission Landing Zone repository..." -Status "processing" -Indent 2
@@ -461,14 +453,14 @@ if ($Type -eq "MLZ") {
         }
         else {
             Write-ModernStatus -Message "Failed to clone repository" -Status "error" -Indent 4
-            exit 1
+            throw "Failed to clone Mission Landing Zone repository."
         }
     }
 
     $mlzPolicyPath = Join-Path -Path $LibraryPath -ChildPath "src/policies"
     if (-not (Test-Path -Path $mlzPolicyPath)) {
         Write-ModernStatus -Message "Could not find 'src/policies' in '$LibraryPath' - is this a Mission Landing Zone repository?" -Status "error" -Indent 2
-        exit 1
+        throw "Could not find 'src/policies' in '$LibraryPath' - is this a Mission Landing Zone repository?"
     }
     #endregion Source repository
 
@@ -483,7 +475,7 @@ if ($Type -eq "MLZ") {
         catch {
             Write-ModernStatus -Message "Error reading the policy default structure file: $($_.Exception.Message)" -Status "error" -Indent 2
             Write-ModernStatus -Message "Please run New-ALZPolicyDefaultStructure.ps1 -Type MLZ first" -Status "warning" -Indent 2
-            exit 1
+            throw
         }
 
         # Flatten the structure file stubs into assignment name -> parameter name -> value. Both the
@@ -674,7 +666,7 @@ try {
 catch {
     Write-ModernStatus -Message "Error reading the policy default structure file: $($_.Exception.Message)" -Status "error" -Indent 2
     Write-ModernStatus -Message "Please run New-ALZPolicyDefaultStructure.ps1 first" -Status "warning" -Indent 2
-    exit 1
+    throw
 }
 
 $ambaExtendedSelectors = @{}
@@ -703,7 +695,7 @@ if (-not($SyncAssignmentsOnly) -and $Type -ne "SLZ") {
             properties = $fileContent.properties
         }
         $category = $baseTemplate.properties.Metadata.category
-        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyDefinitions/$Type/$category" -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue
+        ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyDefinitions/$Type/$category" -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction Stop
         [void]$syncedPolicyDefinitionNames.Add(($fileContent.name -replace "/", "_" -replace "%", "pc"))
         [void]$syncedPolicyDefinitionPaths.Add([IO.Path]::GetFullPath("$DefinitionsRootFolder/policyDefinitions/$Type/$category/$($fileContent.name).json"))
     }
@@ -762,7 +754,7 @@ if (-not($SyncAssignmentsOnly) -and $Type -ne "SLZ") {
         ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", name, properties | ConvertTo-Json -Depth 50) -replace "\[\[", "[" `
             -replace "variables\('scope'\)", "'/providers/Microsoft.Management/managementGroups/$managementGroupId'" `
             -replace "(?<!'true)', '(?!false)", "" `
-            -replace "\[concat\(('(.+)')\)\]", "`$2" | New-Item -Path "$DefinitionsRootFolder/policySetDefinitions/$Type/$category" -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction SilentlyContinue
+            -replace "\[concat\(('(.+)')\)\]", "`$2" | New-Item -Path "$DefinitionsRootFolder/policySetDefinitions/$Type/$category" -ItemType File -Name "$($fileContent.name).json" -Force -ErrorAction Stop
     }
     Write-ModernSection -Title "Creating Assignment Objects" -Indent 0
 }
@@ -933,7 +925,7 @@ if (-not [string]::IsNullOrWhiteSpace($ParameterFile)) {
     }
     catch {
         Write-ModernStatus -Message "Error reading the policy set parameter file: $($_.Exception.Message)" -Status "error" -Indent 2
-        exit 1
+        throw
     }
 }
 
@@ -1135,18 +1127,6 @@ try {
 
     # Cleanup any archetypes that are based on modified archetypes but were not themselves modified and now have no assignments
     $finalArchetypeArray = $finalArchetypeArray | Where-Object { $_.name -notin $cleanupArchetype }
-    # Remove files in policyAssignments that are not in the new structure
-
-    foreach ($archetype in $archetypeArray) {
-        foreach ($policyToRemove in $archetype.policy_assignments_to_remove) {
-            $existingFile = $existingAssignments | Where-Object { $_.Name -eq $policyToRemove }
-            if ($existingFile) {
-                Remove-Item -Path $existingFile.Path -Force -ErrorAction SilentlyContinue
-                Write-ModernStatus -Message "Removed assignment '$policyToRemove' as it is no longer included in the archetype '$($archetype.name)'." -Status "info" -Indent 2
-            }
-        }
-    }
-
     $createdPolicyAssignments = @()
 
     if ($EnableOverrides) {
@@ -1172,6 +1152,7 @@ try {
                     -not [string]::IsNullOrWhiteSpace("$_") -and ($CreateGuardrailAssignments -or ($_ -notmatch "^Enforce-(GR|Encrypt)-\w+0"))
                 })) {
             $assignedPolicySetName = $null
+            $assignmentFromDefinition = $false
             $assignmentNameOverride = $null
             if ($policyAssignmentNameOverrides.ContainsKey($archetype.name) -and $policyAssignmentNameOverrides[$archetype.name].ContainsKey($requiredAssignment)) {
                 $assignmentNameOverride = $policyAssignmentNameOverrides[$archetype.name][$requiredAssignment]
@@ -1188,7 +1169,7 @@ try {
                 if ($Type -eq "ALZ") {
                     # Search for a policy definitions file that matches the required assignment name as a fallback for unresolved assignments
                     $fileContent = Get-ChildItem -Path "$LibraryPath/platform/$($Type.ToLower())/policy_definitions" -Recurse -File -Include *.json | Where-Object { $_.BaseName.Split(".")[0] -eq $requiredAssignment } | Get-Content -Raw | ConvertFrom-Json
-                    $assignmentFromDefinition = $true
+                    $assignmentFromDefinition = $null -ne $fileContent -and -not [string]::IsNullOrWhiteSpace($fileContent.name)
                 }
                 if ($null -eq $fileContent -or [string]::IsNullOrWhiteSpace($fileContent.name)) {
                     Write-ModernStatus -Message "Skipping unresolved policy definition '$requiredAssignment' in archetype '$($archetype.name)'." -Status "warning" -Indent 2
@@ -1440,6 +1421,7 @@ try {
                     # remediation identity needs Managed Identity Operator on the user-assigned identity so it
                     # can be assigned to VMs.
                     if ($baseTemplate.parameters.Contains("userAssignedIdentityResourceId") -and `
+                            -not [string]::IsNullOrWhiteSpace([string]$baseTemplate.parameters["userAssignedIdentityResourceId"]) -and `
                             $baseTemplate.parameters.Contains("bringYourOwnUserAssignedManagedIdentity") -and `
                             $baseTemplate.parameters["bringYourOwnUserAssignedManagedIdentity"] -eq $true -and `
                         (-not $baseTemplate.parameters.Contains("restrictBringYourOwnUserAssignedIdentityToSubscription") -or `
@@ -1453,7 +1435,8 @@ try {
                     # These same policies (and Deploy-vmHybr-Monitoring, which uses a system-assigned identity)
                     # read a Data Collection Rule that can also live outside the assignment's scope. The
                     # remediation identity needs Monitoring Reader on the DCR to read it.
-                    if ($baseTemplate.parameters.Contains("dcrResourceId")) {
+                    if ($baseTemplate.parameters.Contains("dcrResourceId") -and `
+                            -not [string]::IsNullOrWhiteSpace([string]$baseTemplate.parameters["dcrResourceId"])) {
                         $additionalRoleAssignmentEntries += [ordered]@{
                             roleDefinitionId = "/providers/microsoft.authorization/roleDefinitions/43d0d8ad-25c7-4714-9337-8ba259a9fe05"
                             scope            = $baseTemplate.parameters["dcrResourceId"]
@@ -1469,11 +1452,22 @@ try {
                 }
             }
             else {
-                $dnsZoneRegion = ConvertTo-ALZPrivateDnsZoneRegionCode -Region $structureFile.defaultParameterValues.private_dns_zone_region.parameters.value
                 $dnzZoneSubscription = $structureFile.defaultParameterValues.private_dns_zone_subscription_id.parameters.value
                 $dnzZoneResourceGroupName = $structureFile.defaultParameterValues.private_dns_zone_resource_group_name.parameters.value
+                if ([string]::IsNullOrWhiteSpace($dnzZoneSubscription)) {
+                    Write-ModernStatus -Message "Skipping assignment '$effectiveAssignmentName' in archetype '$($archetype.name)': private_dns_zone_subscription_id is blank. Populate it to generate Deploy-Private-DNS-Zones." -Status "warning" -Indent 2
+                    continue
+                }
+                if ([string]::IsNullOrWhiteSpace($dnzZoneResourceGroupName)) {
+                    throw "private_dns_zone_resource_group_name is required for Deploy-Private-DNS-Zones."
+                }
+                $dnsZoneRegion = ConvertTo-ALZPrivateDnsZoneRegionCode -Region $structureFile.defaultParameterValues.private_dns_zone_region.parameters.value
                 foreach ($parameter in $fileContent.properties.parameters.psObject.Properties.Name) {
-                    $value = "/subscriptions/$dnzZoneSubscription/resourceGroups/$dnzZoneResourceGroupName/providers/Microsoft.Network/privateDnsZones/$($fileContent.properties.parameters.$parameter.value.split("/")[-1])"
+                    $zoneName = $fileContent.properties.parameters.$parameter.value.split("/")[-1]
+                    if (-not [string]::IsNullOrWhiteSpace($dnsZoneRegion)) {
+                        $zoneName = $zoneName -replace '^privatelink\.ne\.', "privatelink.$dnsZoneRegion."
+                    }
+                    $value = "/subscriptions/$dnzZoneSubscription/resourceGroups/$dnzZoneResourceGroupName/providers/Microsoft.Network/privateDnsZones/$zoneName"
                     #$value = $fileContent.properties.parameters.$parameter.value -replace "00000000-0000-0000-0000-000000000000", $dnzZoneSubscription -replace "placeholder", $dnzZoneResourceGroupName
                     $baseTemplate.parameters.Add($parameter, $value)
                 }
@@ -1550,34 +1544,25 @@ try {
                 $category = $archetype.name
             }
             if ($assignmentFromDefinition) {
-                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, enforcementMode, parameters, scope | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$effectiveAssignmentName.jsonc" -Force -ErrorAction SilentlyContinue
-            }
-            elseif ($fileContent.name -eq "Deploy-Private-DNS-Zones") {
-                ([PSCustomObject]$baseTemplate | Select-Object -Property "`$schema", nodeName, assignment, definitionEntry, definitionVersion, enforcementMode, parameters, nonComplianceMessages, scope, additionalRoleAssignments | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$effectiveAssignmentName.jsonc" -Force -ErrorAction SilentlyContinue
-                $assignmentFilePath = "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$effectiveAssignmentName.jsonc"
-                $assignmentContent = Get-Content -Path $assignmentFilePath -Raw
-                $assignmentContent = $assignmentContent -replace "\.ne\.", ".$dnsZoneRegion."
-                Set-Content -Path $assignmentFilePath -Value $assignmentContent
+                $propertiesToSelect = @("`$schema", "nodeName", "assignment", "definitionEntry", "enforcementMode", "parameters", "scope")
             }
             else {
-                # Only select the additionalRoleAssignments property when it was actually generated above,
-                # otherwise Select-Object would emit "additionalRoleAssignments": null for every assignment
-                # that doesn't need one.
                 $propertiesToSelect = @("`$schema", "nodeName", "assignment", "definitionEntry", "definitionVersion", "enforcementMode", "parameters", "nonComplianceMessages", "scope")
                 if ($baseTemplate.Contains("additionalRoleAssignments")) {
                     $propertiesToSelect += "additionalRoleAssignments"
                 }
-                ([PSCustomObject]$baseTemplate | Select-Object -Property $propertiesToSelect | ConvertTo-Json -Depth 50) -replace "\[\[", "[" | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$effectiveAssignmentName.jsonc" -Force -ErrorAction SilentlyContinue
             }
+            $propertiesToSelect = @($propertiesToSelect | Where-Object { $baseTemplate.Contains($_) })
+            $assignmentContent = ([PSCustomObject]$baseTemplate | Select-Object -Property $propertiesToSelect | ConvertTo-Json -Depth 50) -replace "\[\[", "["
+            $assignmentFile = $assignmentContent | New-Item -Path "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category" -ItemType File -Name "$effectiveAssignmentName.jsonc" -Force -ErrorAction Stop
             $obj = [PSCustomObject]@{
-                Path = "$DefinitionsRootFolder/policyAssignments/$Type/$PacEnvironmentSelector/$category/$effectiveAssignmentName.jsonc"
+                Path = $assignmentFile.FullName
                 Name = $effectiveAssignmentName
             }
             $createdPolicyAssignments += $obj
             if (-not [string]::IsNullOrWhiteSpace($assignmentNameOverride)) {
                 $null = $resolvedAssignmentNameOverrideKeys.Add("$($archetype.name)|$requiredAssignment")
             }
-            $assignmentFromDefinition = $false
         }
     }
 
@@ -1593,24 +1578,24 @@ try {
     }
 
     # Remove any assignments that were not created in this sync to clean up old assignments that are no longer in the library structure
-    $assignmentsToRemove = $existingAssignments | Where-Object { $_.Name -notin $createdPolicyAssignments.Name }
+    $assignmentsToRemove = $existingAssignments | Where-Object { $_.Path -notin $createdPolicyAssignments.Path }
     foreach ($assignment in $assignmentsToRemove) {
-        Remove-Item -Path $assignment.Path -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath $assignment.Path -Force -ErrorAction Stop
         Write-ModernStatus -Message "Removed assignment '$($assignment.Name)' as it is no longer included in the library structure." -Status "info" -Indent 2
-    }
-
-    if ($LibraryPath -eq $tempPath) {
-        Remove-Item $LibraryPath -Recurse -Force -ErrorAction SilentlyContinue
-    }
-
-    if ($AMBALibraryPath) {
-        Remove-Item $AMBALibraryPath -Recurse -Force -ErrorAction SilentlyContinue
     }
 
     Write-ModernStatus -Message "ALZ Policy sync completed successfully" -Status "success" -Indent 0
 }
 catch {
     Write-ModernStatus -Message "Error during sync: $($_.Exception.Message)" -Status "error" -Indent 0
-    exit
+    throw
 }
 #endregion Create assignment objects
+}
+finally {
+    foreach ($ownedTempPath in $ownedTempPaths) {
+        if (Test-Path -LiteralPath $ownedTempPath) {
+            Remove-Item -LiteralPath $ownedTempPath -Recurse -Force -ErrorAction Stop
+        }
+    }
+}
