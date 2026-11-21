@@ -59,7 +59,7 @@ function Build-ScopeTableForDeploymentRootScope {
             }
         }
         if (!$isExcluded) {
-            foreach ($excludedScope in $PacEnvironment.globalExcludedScopesResourceGroups) {
+            foreach ($excludedScope in $PacEnvironment.desiredState.globalExcludedScopesResourceGroups) {
                 if ($id -like $excludedScope) {
                     $isExcluded = $true
                     break

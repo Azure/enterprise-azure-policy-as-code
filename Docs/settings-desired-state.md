@@ -86,6 +86,8 @@ After short transitioning period (weeks), it is recommended to set `desiredState
 
 To exclude resource groups from management by EPAC, add an `excludedScopes` array element with a wild card for the subscription and resourceGroups to `desiredState`.
 
+Policy assignments at matching resource-group scopes are excluded from EPAC's managed inventory and are not considered for deletion, including when `strategy` is `full`. Nonmatching resource groups remain managed.
+
 ```json
 "desiredState": {
     "excludedScopes": [
