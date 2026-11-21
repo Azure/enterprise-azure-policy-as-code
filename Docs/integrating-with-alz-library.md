@@ -133,6 +133,12 @@ This file contains information that drives the sync process. The file includes m
 
 The next command will generate policy assignment files based on the values in this file, so ensure they are correct for your environment.
 
+`Sync-ALZPolicyFromLibrary` uses unique temporary directories for its clones and removes only those directories on success or failure. Caller-supplied `-LibraryPath` checkouts and existing `temp` directories are preserved. Sync failures, including failed policy-definition or policy-set writes, raise terminating errors that callers can catch; an unhandled error returns a nonzero PowerShell process exit code. Output written before a failure is not rolled back.
+
+Generated assignments omit unset `definitionVersion`, `nonComplianceMessages`, and `additionalRoleAssignments`. VM monitoring and change-tracking assignments only generate additional roles for nonblank target resource IDs, independently of the policy effect. When an assignment moves to another output folder, sync removes its old file within the selected environment without changing other environments.
+
+For `Deploy-Private-DNS-Zones`, populate `private_dns_zone_subscription_id`, `private_dns_zone_resource_group_name`, and `private_dns_zone_region` before syncing. Missing or whitespace-only values raise an error before the assignment is written. Australia Southeast uses the Azure Backup geo-code `ase`; region replacement is limited to the `privatelink.ne.*` zone name and does not change unrelated resource ID segments. Unrecognized regions or geo-codes produce a warning with the [Azure Backup geo-code reference](https://learn.microsoft.com/azure/backup/scripts/geo-code-list); verify these values before deploying.
+
 1. Use the `Sync-ALZPolicyFromLibrary` command to sync the policy files and update scopes and parameters based on the information in the previously created file. There are examples below on how to run this command - you will only need to run one of these depending on your requirements. The files will be copied into their own folder to separate them from any definitions already in the repository.
 
    ```ps1
