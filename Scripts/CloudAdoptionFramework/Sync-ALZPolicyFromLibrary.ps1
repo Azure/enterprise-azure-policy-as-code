@@ -100,7 +100,7 @@ function ConvertTo-ALZPrivateDnsZoneRegionCode {
     )
 
     if ([string]::IsNullOrWhiteSpace($Region)) {
-        throw "private_dns_zone_region is required for Deploy-Private-DNS-Zones."
+        return ""
     }
 
     $normalizedRegion = $Region.Trim().ToLowerInvariant()
@@ -1462,7 +1462,10 @@ try {
                     throw "private_dns_zone_resource_group_name is required for Deploy-Private-DNS-Zones."
                 }
                 foreach ($parameter in $fileContent.properties.parameters.psObject.Properties.Name) {
-                    $zoneName = $fileContent.properties.parameters.$parameter.value.split("/")[-1] -replace '^privatelink\.ne\.', "privatelink.$dnsZoneRegion."
+                    $zoneName = $fileContent.properties.parameters.$parameter.value.split("/")[-1]
+                    if (-not [string]::IsNullOrWhiteSpace($dnsZoneRegion)) {
+                        $zoneName = $zoneName -replace '^privatelink\.ne\.', "privatelink.$dnsZoneRegion."
+                    }
                     $value = "/subscriptions/$dnzZoneSubscription/resourceGroups/$dnzZoneResourceGroupName/providers/Microsoft.Network/privateDnsZones/$zoneName"
                     #$value = $fileContent.properties.parameters.$parameter.value -replace "00000000-0000-0000-0000-000000000000", $dnzZoneSubscription -replace "placeholder", $dnzZoneResourceGroupName
                     $baseTemplate.parameters.Add($parameter, $value)

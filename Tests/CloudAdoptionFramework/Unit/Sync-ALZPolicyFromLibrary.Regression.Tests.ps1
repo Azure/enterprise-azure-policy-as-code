@@ -251,6 +251,17 @@ Describe 'ALZ sync assignment regressions' {
                 Should -Be '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/dns.ne.prod/providers/Microsoft.Network/privateDnsZones/privatelink.ase.backup.windowsazure.com'
         }
 
+        It 'preserves the library zone name when the optional region is <Kind>' -TestCases @(
+            @{ Region = ''; Kind = 'empty' }
+            @{ Region = " `t "; Kind = 'whitespace' }
+        ) {
+            param($Region, $Kind)
+            $script:Structure.defaultParameterValues.private_dns_zone_region.parameters.value = $Region
+            { Invoke-SyncFixture | Out-Null } | Should -Not -Throw
+            (Read-SyncAssignment).parameters.azureSiteRecoveryBackupPrivateDnsZoneId |
+                Should -Be '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-dns/providers/Microsoft.Network/privateDnsZones/privatelink.ne.backup.windowsazure.com'
+        }
+
         It 'rejects a <Kind> <Parameter> without writing an invalid assignment' -TestCases @(
             @{ Parameter = 'private_dns_zone_subscription_id'; Kind = 'missing' }
             @{ Parameter = 'private_dns_zone_subscription_id'; Kind = 'null' }
@@ -260,7 +271,6 @@ Describe 'ALZ sync assignment regressions' {
             @{ Parameter = 'private_dns_zone_resource_group_name'; Kind = 'null' }
             @{ Parameter = 'private_dns_zone_resource_group_name'; Kind = 'empty' }
             @{ Parameter = 'private_dns_zone_resource_group_name'; Kind = 'whitespace' }
-            @{ Parameter = 'private_dns_zone_region'; Kind = 'empty' }
         ) {
             param($Parameter, $Kind)
             if ($Kind -eq 'missing') {
