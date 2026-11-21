@@ -1452,15 +1452,16 @@ try {
                 }
             }
             else {
-                $dnsZoneRegion = ConvertTo-ALZPrivateDnsZoneRegionCode -Region $structureFile.defaultParameterValues.private_dns_zone_region.parameters.value
                 $dnzZoneSubscription = $structureFile.defaultParameterValues.private_dns_zone_subscription_id.parameters.value
                 $dnzZoneResourceGroupName = $structureFile.defaultParameterValues.private_dns_zone_resource_group_name.parameters.value
                 if ([string]::IsNullOrWhiteSpace($dnzZoneSubscription)) {
-                    throw "private_dns_zone_subscription_id is required for Deploy-Private-DNS-Zones."
+                    Write-ModernStatus -Message "Skipping assignment '$effectiveAssignmentName' in archetype '$($archetype.name)': private_dns_zone_subscription_id is blank. Populate it to generate Deploy-Private-DNS-Zones." -Status "warning" -Indent 2
+                    continue
                 }
                 if ([string]::IsNullOrWhiteSpace($dnzZoneResourceGroupName)) {
                     throw "private_dns_zone_resource_group_name is required for Deploy-Private-DNS-Zones."
                 }
+                $dnsZoneRegion = ConvertTo-ALZPrivateDnsZoneRegionCode -Region $structureFile.defaultParameterValues.private_dns_zone_region.parameters.value
                 foreach ($parameter in $fileContent.properties.parameters.psObject.Properties.Name) {
                     $zoneName = $fileContent.properties.parameters.$parameter.value.split("/")[-1]
                     if (-not [string]::IsNullOrWhiteSpace($dnsZoneRegion)) {

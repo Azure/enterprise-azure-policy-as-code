@@ -262,11 +262,45 @@ Describe 'ALZ sync assignment regressions' {
                 Should -Be '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg-dns/providers/Microsoft.Network/privateDnsZones/privatelink.ne.backup.windowsazure.com'
         }
 
+        It 'warns and skips Private DNS when the subscription is <Kind>, continuing other assignments' -TestCases @(
+            @{ Kind = 'missing' }
+            @{ Kind = 'null' }
+            @{ Kind = 'empty' }
+            @{ Kind = 'whitespace' }
+        ) {
+            param($Kind)
+            if ($Kind -eq 'missing') {
+                $script:Structure.defaultParameterValues.Remove('private_dns_zone_subscription_id')
+            }
+            else {
+                $script:Structure.defaultParameterValues.private_dns_zone_subscription_id.parameters.value = switch ($Kind) {
+                    'null' { $null }
+                    'empty' { '' }
+                    'whitespace' { " `t " }
+                }
+            }
+            @{
+                name = 'Audit-Control'
+                properties = @{
+                    displayName = 'Control assignment'
+                    description = 'Must still be generated after skipping Private DNS'
+                    policyDefinitionId = '/providers/Microsoft.Authorization/policyDefinitions/Control'
+                    parameters = @{ effect = @{ value = 'Audit' } }
+                }
+            } | ConvertTo-Json -Depth 10 |
+                Set-Content (Join-Path $script:LibraryRoot 'platform/alz/policy_assignments/Audit-Control.alz_policy_assignment.json')
+            $script:Archetype.policy_assignments = @('Deploy-Private-DNS-Zones', 'Audit-Control')
+            $output = Invoke-SyncFixture 6>&1 | Out-String
+            $output | Should -Match "Skipping assignment 'Deploy-Private-DNS-Zones'.*private_dns_zone_subscription_id is blank"
+            $output | Should -Match 'sync completed successfully'
+            Test-Path (Join-Path $script:DefinitionsRoot 'policyAssignments/ALZ/epac-dev/Platform/Deploy-Private-DNS-Zones.jsonc') |
+                Should -BeFalse
+            $control = Get-Content (Join-Path $script:DefinitionsRoot 'policyAssignments/ALZ/epac-dev/Platform/Audit-Control.jsonc') -Raw |
+                ConvertFrom-Json
+            $control.parameters.effect | Should -Be 'Audit'
+        }
+
         It 'rejects a <Kind> <Parameter> without writing an invalid assignment' -TestCases @(
-            @{ Parameter = 'private_dns_zone_subscription_id'; Kind = 'missing' }
-            @{ Parameter = 'private_dns_zone_subscription_id'; Kind = 'null' }
-            @{ Parameter = 'private_dns_zone_subscription_id'; Kind = 'empty' }
-            @{ Parameter = 'private_dns_zone_subscription_id'; Kind = 'whitespace' }
             @{ Parameter = 'private_dns_zone_resource_group_name'; Kind = 'missing' }
             @{ Parameter = 'private_dns_zone_resource_group_name'; Kind = 'null' }
             @{ Parameter = 'private_dns_zone_resource_group_name'; Kind = 'empty' }
