@@ -9,7 +9,7 @@ function Set-AzCloudTenantSubscription {
     )
 
     if ([string]::IsNullOrWhitespace($DeploymentDefaultContext)) {
-        Get-AzSubscription | Where-Object HomeTenantId -eq (Get-AzContext).Tenant | Select-Object -First 1 | Set-AzContext
+        Get-AzSubscription | Where-Object HomeTenantId -eq (Get-AzContext).Tenant | Where-Object State -eq 'Enabled' | Select-Object -First 1 | Set-AzContext
     }
     else {
         Set-AzContext -Subscription $DeploymentDefaultContext
@@ -21,7 +21,7 @@ function Set-AzCloudTenantSubscription {
         if ($Interactive) {
             $null = Connect-AzAccount -Environment $Cloud -Tenant $TenantId
             if ([string]::IsNullOrWhitespace($DeploymentDefaultContext)) {
-                Get-AzSubscription | Where-Object HomeTenantId -eq (Get-AzContext).Tenant | Select-Object -First 1 | set-AzContext
+                Get-AzSubscription | Where-Object HomeTenantId -eq (Get-AzContext).Tenant | Where-Object State -eq 'Enabled' | Select-Object -First 1 | set-AzContext
             }
             else {
                 Set-AzContext -Subscription $DeploymentDefaultContext
