@@ -50,7 +50,8 @@ function Search-AzGraphAllItems {
             if ($response.StatusCode -ge 400) {
                 $contentString = $response.Content -join ""
                 $contentObj = ConvertFrom-Json -InputObject $contentString
-                if ($contentObj.error.details[0].code -eq "ResponsePayloadTooLarge") {
+                $errorDetails = @($contentObj.error.details)
+                if ($errorDetails.Count -gt 0 -and $errorDetails[0].code -eq "ResponsePayloadTooLarge") {
                     Write-ModernStatus -Message "Payload too large detected - adjusting request and retrying..." -Status "warning" -Indent 4
                     $ProgressIncrement = [Convert]::ToInt32([math]::Floor($ProgressIncrement / 2))
                     # Modify body to include pagination options
@@ -67,11 +68,10 @@ function Search-AzGraphAllItems {
             }
         }
         catch {
-            Write-ModernStatus -Message "Data stream error (attempt $($dsi + 1)): $_" -Status "warning" -Indent 4
-            $dsi++
+            Write-ModernStatus -Message "Data stream error (attempt $dsi): $_" -Status "warning" -Indent 4
         }
-    }until($dsi -eq 5 -or ($response.StatusCode -ge 200 -and $response.StatusCode -lt 300))
-    if ($dsi -eq 5) {
+    }until($dsi -ge 5 -or ($response.StatusCode -ge 200 -and $response.StatusCode -lt 300))
+    if ($dsi -ge 5) {
         Write-Error "Failed to recover data stream after 5 attempts, information may be incomplete. Consider exiting running the script again."
     }
     elseif ($dsi -gt 1) {
